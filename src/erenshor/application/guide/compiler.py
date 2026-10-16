@@ -1,11 +1,8 @@
-"""Compiled guide data model and graph-to-binary compilation entrypoints.
+"""Dense compiled form of the guide entity graph.
 
 The compiler converts the dynamic :mod:`erenshor.application.guide.graph`
-representation into dense integer-indexed structures that are cheap to serialize
-and cheap for the C# runtime to load.
-
-This module starts with the plain data model. Analysis and serialization helpers
-are added incrementally by later tasks.
+representation into integer-indexed structures. :mod:`.mod_writer` reads them
+to assemble ``quest-guide.json``.
 """
 
 from __future__ import annotations
@@ -22,7 +19,7 @@ if TYPE_CHECKING:
 
 
 class NodeFlags(IntEnum):
-    """Packed bitflags emitted for nodes in the binary format."""
+    """Packed bitflags of compiled nodes."""
 
     IS_FRIENDLY = 1 << 0
     IS_VENDOR = 1 << 1
@@ -39,7 +36,7 @@ class NodeFlags(IntEnum):
 
 
 class EdgeFlags(IntEnum):
-    """Packed bitflags emitted for edges in the binary format."""
+    """Packed bitflags of compiled edges."""
 
     NEGATED = 1 << 0
     HAS_GROUP = 1 << 1
@@ -50,7 +47,7 @@ class EdgeFlags(IntEnum):
 
 @dataclass(slots=True)
 class CompiledNode:
-    """Node record stored in the compiled guide before binary encoding."""
+    """Node record of the compiled guide."""
 
     node_id: int
     key: str
@@ -87,7 +84,7 @@ class CompiledNode:
 
 @dataclass(slots=True)
 class CompiledEdge:
-    """Edge record stored in the compiled guide before binary encoding."""
+    """Edge record of the compiled guide."""
 
     source_id: int
     target_id: int
@@ -136,54 +133,6 @@ class UnlockPredicate:
     semantics: int = 0
 
 
-class DetailGoalKind(IntEnum):
-    """Stable semantic goal IDs consumed by the AdventureGuide runtime."""
-
-    ACQUIRE_ITEM = 0
-    COMPLETE_QUEST = 1
-    UNLOCK_SOURCE = 2
-    USE_ITEM_ACTION = 3
-    SATISFY_UNLOCK_GROUP = 4
-
-
-class DetailDependencySemantics(IntEnum):
-    """Boolean semantics for one compiled detail dependency clause."""
-
-    ANY_OF = 0
-    ALL_OF = 1
-
-
-@dataclass(slots=True)
-class DetailDependency:
-    goal_kind: int
-    node_id: int
-    semantics: int
-    child_goal_indices: list[int] = field(default_factory=list)
-    unlock_group: int = 0
-
-
-@dataclass(slots=True)
-class DetailGoalSpec:
-    goal_kind: int
-    node_id: int
-    dependency_indices: list[int] = field(default_factory=list)
-
-
-@dataclass(slots=True)
-class StepSpec:
-    step_type: int
-    target_id: int
-    ordinal: int = 0
-    quantity: int | None = None
-
-
-@dataclass(slots=True)
-class ItemRequirement:
-    item_id: int
-    qty: int
-    group: int = 0
-
-
 @dataclass(slots=True)
 class WorkflowTargetSpec:
     target_id: int
@@ -203,65 +152,23 @@ class WorkflowCycleSpec:
 
 @dataclass(slots=True)
 class QuestSpec:
-    """Precomputed quest-level structure consumed by the runtime.
-
-    The compiler stores both dense quest-index references and raw node IDs where
-    that improves downstream access patterns. Fields are intentionally simple so
-    the binary writer can serialize them directly without additional mapping.
-    """
+    """Quest-level structure that the writer validates and reads workflows from."""
 
     quest_id: int
     quest_index: int
-    prereq_quest_ids: list[int] = field(default_factory=list)
-    prereq_quest_indices: list[int] = field(default_factory=list)
-    required_items: list[ItemRequirement] = field(default_factory=list)
-    steps: list[StepSpec] = field(default_factory=list)
-    giver_node_ids: list[int] = field(default_factory=list)
-    completer_node_ids: list[int] = field(default_factory=list)
-    chains_to_ids: list[int] = field(default_factory=list)
-    is_implicit: bool = False
-    is_infeasible: bool = False
     workflow_cycle: WorkflowCycleSpec | None = None
     is_guide_only: bool = False
-    display_name: str = ""
-
-
-@dataclass(slots=True)
-class QuestGiverBlueprint:
-    quest_id: int
-    character_id: int
-    position_id: int
-    interaction_type: int = 0
-    keyword: str | None = None
-    required_quest_db_names: list[str] = field(default_factory=list)
-
-
-@dataclass(slots=True)
-class QuestCompletionBlueprint:
-    quest_id: int
-    character_id: int
-    position_id: int
-    interaction_type: int = 0
-    keyword: str | None = None
 
 
 @dataclass(slots=True)
 class CompiledData:
-    """All precomputed guide data ready for binary serialization.
-
-    The structure intentionally keeps both record-oriented views (`nodes` /
-    `edges`) and flattened lookup tables (`node_keys`, `node_levels`, dense
-    inverse indices) because the integration tests and later C# loader both need
-    them.
-    """
+    """All precomputed guide data that :mod:`.mod_writer` reads."""
 
     nodes: list[CompiledNode] = field(default_factory=list)
     edges: list[CompiledEdge] = field(default_factory=list)
 
     node_keys: list[str] = field(default_factory=list)
-    node_levels: list[int] = field(default_factory=list)
     node_key_to_id: dict[str, int] = field(default_factory=dict)
-    node_quest_index: list[int] = field(default_factory=list)
     node_item_index: list[int] = field(default_factory=list)
 
     quest_node_ids: list[int] = field(default_factory=list)
@@ -273,26 +180,6 @@ class CompiledData:
     quest_specs: list[QuestSpec] = field(default_factory=list)
     item_sources: list[list[SourceSite]] = field(default_factory=list)
     unlock_predicates: list[UnlockPredicate] = field(default_factory=list)
-    detail_goals: list[DetailGoalSpec] = field(default_factory=list)
-    detail_dependencies: list[DetailDependency] = field(default_factory=list)
-
-    topo_order: list[int] = field(default_factory=list)
-    quest_to_dependent_quest_indices: list[list[int]] = field(default_factory=list)
-
-    zone_node_ids: list[int] = field(default_factory=list)
-    zone_adjacency: list[list[int]] = field(default_factory=list)
-    zone_line_ids: list[list[int]] = field(default_factory=list)
-
-    giver_blueprints: list[QuestGiverBlueprint] = field(default_factory=list)
-    completion_blueprints: list[QuestCompletionBlueprint] = field(default_factory=list)
-
-    infeasible_node_ids: set[int] = field(default_factory=set)
-
-    @property
-    def topological_order(self) -> list[int]:
-        """Alias used by the architecture plan and future C# loader tests."""
-
-        return self.topo_order
 
 
 _NODE_TYPE_ORDER = list(NodeType)
@@ -318,13 +205,9 @@ def compile_graph(graph: EntityGraph) -> CompiledData:
     _compile_nodes(graph, compiled)
     _compile_edges(graph, compiled)
     _assign_dense_indices(compiled)
-    _compile_topology(compiled)
     _compile_quest_specs(compiled)
     _compile_item_sources(compiled)
     _compile_unlock_predicates(compiled)
-    _compile_detail_dependencies(compiled)
-    _compile_zones(compiled)
-    _compile_blueprints(graph, compiled)
     return compiled
 
 
@@ -380,8 +263,6 @@ def _compile_nodes(graph: EntityGraph, compiled: CompiledData) -> None:
         )
         for node in nodes
     ]
-    compiled.node_levels = [node.level for node in compiled.nodes]
-    compiled.node_quest_index = [-1] * len(compiled.nodes)
     compiled.node_item_index = [-1] * len(compiled.nodes)
     compiled.forward_adjacency = [[] for _ in compiled.nodes]
     compiled.reverse_adjacency = [[] for _ in compiled.nodes]
@@ -464,60 +345,8 @@ def _assign_dense_indices(compiled: CompiledData) -> None:
     compiled.item_node_ids = [
         node.node_id for node in compiled.nodes if node.node_type == node_type_byte(NodeType.ITEM)
     ]
-    for qi, node_id in enumerate(compiled.quest_node_ids):
-        compiled.node_quest_index[node_id] = qi
     for ii, node_id in enumerate(compiled.item_node_ids):
         compiled.node_item_index[node_id] = ii
-
-
-def _compile_topology(compiled: CompiledData) -> None:
-    quest_count = len(compiled.quest_node_ids)
-    real_quest_indices = [
-        index
-        for index, node_id in enumerate(compiled.quest_node_ids)
-        if not (compiled.nodes[node_id].flags & NodeFlags.GUIDE_ONLY)
-    ]
-    real_quest_set = set(real_quest_indices)
-    in_degree = [0] * quest_count
-    dependents: list[list[int]] = [[] for _ in range(quest_count)]
-    requires_quest = edge_type_byte(EdgeType.REQUIRES_QUEST)
-
-    for quest_index in real_quest_indices:
-        quest_node_id = compiled.quest_node_ids[quest_index]
-        seen_prereqs: set[int] = set()
-        for edge_id in compiled.forward_adjacency[quest_node_id]:
-            edge = compiled.edges[edge_id]
-            if edge.edge_type != requires_quest:
-                continue
-            prereq_index = compiled.node_quest_index[edge.target_id]
-            if prereq_index == -1 or prereq_index not in real_quest_set or prereq_index in seen_prereqs:
-                continue
-            seen_prereqs.add(prereq_index)
-            in_degree[quest_index] += 1
-            dependents[prereq_index].append(quest_index)
-
-    from collections import deque
-
-    queue = deque(index for index in real_quest_indices if in_degree[index] == 0)
-    topo_order: list[int] = []
-    while queue:
-        quest_index = queue.popleft()
-        topo_order.append(quest_index)
-        for dependent in dependents[quest_index]:
-            in_degree[dependent] -= 1
-            if in_degree[dependent] == 0:
-                queue.append(dependent)
-
-    if len(topo_order) < len(real_quest_indices):
-        seen = set(topo_order)
-        for quest_index in real_quest_indices:
-            if quest_index in seen:
-                continue
-            topo_order.append(quest_index)
-            compiled.infeasible_node_ids.add(compiled.quest_node_ids[quest_index])
-
-    compiled.topo_order = topo_order
-    compiled.quest_to_dependent_quest_indices = dependents
 
 
 def _workflow_cycle_spec(compiled: CompiledData, node: CompiledNode) -> WorkflowCycleSpec | None:
@@ -588,23 +417,6 @@ def _workflow_cycle_spec(compiled: CompiledData, node: CompiledNode) -> Workflow
 
 def _compile_quest_specs(compiled: CompiledData) -> None:
     compiled.quest_specs = []
-    step_types = {
-        edge_type_byte(EdgeType.STEP_TALK),
-        edge_type_byte(EdgeType.STEP_KILL),
-        edge_type_byte(EdgeType.STEP_TRAVEL),
-        edge_type_byte(EdgeType.STEP_SHOUT),
-        edge_type_byte(EdgeType.STEP_READ),
-        edge_type_byte(EdgeType.STEP_TURN_IN),
-        edge_type_byte(EdgeType.STEP_LOOT),
-        edge_type_byte(EdgeType.STEP_BUY),
-        edge_type_byte(EdgeType.STEP_GO_TO),
-    }
-    requires_quest = edge_type_byte(EdgeType.REQUIRES_QUEST)
-    requires_item = {edge_type_byte(EdgeType.REQUIRES_ITEM), edge_type_byte(EdgeType.REQUIRES_MATERIAL)}
-    assigned_by = edge_type_byte(EdgeType.ASSIGNED_BY)
-    completed_by = edge_type_byte(EdgeType.COMPLETED_BY)
-    chains_to = edge_type_byte(EdgeType.CHAINS_TO)
-
     for quest_index, quest_node_id in enumerate(compiled.quest_node_ids):
         node = compiled.nodes[quest_node_id]
         guide_only = bool(node.flags & NodeFlags.GUIDE_ONLY)
@@ -612,40 +424,14 @@ def _compile_quest_specs(compiled: CompiledData) -> None:
             raise ValueError(f"quest {node.key!r} has inconsistent guide-only workflow descriptor")
         if guide_only and not (node.flags & NodeFlags.IMPLICIT and node.flags & NodeFlags.REPEATABLE):
             raise ValueError(f"guide-only quest {node.key!r} must be implicit and repeatable")
-        spec = QuestSpec(
-            quest_id=quest_node_id,
-            quest_index=quest_index,
-            is_implicit=bool(node.flags & NodeFlags.IMPLICIT),
-            is_infeasible=quest_node_id in compiled.infeasible_node_ids,
-            is_guide_only=bool(node.flags & NodeFlags.GUIDE_ONLY),
-            workflow_cycle=_workflow_cycle_spec(compiled, node),
-            display_name=node.display_name,
+        compiled.quest_specs.append(
+            QuestSpec(
+                quest_id=quest_node_id,
+                quest_index=quest_index,
+                is_guide_only=guide_only,
+                workflow_cycle=_workflow_cycle_spec(compiled, node),
+            )
         )
-        for edge_id in compiled.forward_adjacency[quest_node_id]:
-            edge = compiled.edges[edge_id]
-            if edge.edge_type == requires_quest:
-                spec.prereq_quest_ids.append(edge.target_id)
-                prereq_index = compiled.node_quest_index[edge.target_id]
-                if prereq_index != -1:
-                    spec.prereq_quest_indices.append(prereq_index)
-            elif edge.edge_type in requires_item:
-                spec.required_items.append(ItemRequirement(item_id=edge.target_id, qty=edge.quantity or 1, group=0))
-            elif edge.edge_type in step_types:
-                spec.steps.append(
-                    StepSpec(
-                        step_type=edge.edge_type,
-                        target_id=edge.target_id,
-                        ordinal=edge.ordinal,
-                        quantity=edge.quantity or None,
-                    )
-                )
-            elif edge.edge_type == assigned_by:
-                spec.giver_node_ids.append(edge.target_id)
-            elif edge.edge_type == completed_by:
-                spec.completer_node_ids.append(edge.target_id)
-            elif edge.edge_type == chains_to:
-                spec.chains_to_ids.append(edge.target_id)
-        compiled.quest_specs.append(spec)
 
 
 def _compile_item_sources(compiled: CompiledData) -> None:
@@ -761,252 +547,3 @@ def _compile_unlock_predicates(compiled: CompiledData) -> None:
         )
         for target_id, conditions in sorted(predicates.items())
     ]
-
-
-def _compile_detail_dependencies(compiled: CompiledData) -> None:
-    goal_lookup: dict[tuple[int, int], int] = {}
-    compiled.detail_goals = []
-    compiled.detail_dependencies = []
-
-    def goal_index(kind: DetailGoalKind, node_id: int) -> int:
-        key = (int(kind), node_id)
-        if key in goal_lookup:
-            return goal_lookup[key]
-        index = len(compiled.detail_goals)
-        goal_lookup[key] = index
-        compiled.detail_goals.append(DetailGoalSpec(goal_kind=int(kind), node_id=node_id))
-        return index
-
-    def add_dependency(
-        kind: DetailGoalKind,
-        node_id: int,
-        semantics: DetailDependencySemantics,
-        children: list[tuple[DetailGoalKind, int]],
-        unlock_group: int = 0,
-    ) -> None:
-        parent_index = goal_index(kind, node_id)
-        child_indices = [goal_index(child_kind, child_node_id) for child_kind, child_node_id in children]
-        dependency_index = len(compiled.detail_dependencies)
-        compiled.detail_dependencies.append(
-            DetailDependency(
-                goal_kind=int(kind),
-                node_id=node_id,
-                semantics=int(semantics),
-                child_goal_indices=child_indices,
-                unlock_group=unlock_group,
-            )
-        )
-        compiled.detail_goals[parent_index].dependency_indices.append(dependency_index)
-
-    def action_goal_kind(node_id: int) -> DetailGoalKind:
-        node_type = compiled.nodes[node_id].node_type
-        if node_type == node_type_byte(NodeType.QUEST):
-            return DetailGoalKind.COMPLETE_QUEST
-        if node_type in {node_type_byte(NodeType.ITEM), node_type_byte(NodeType.BOOK)}:
-            return DetailGoalKind.USE_ITEM_ACTION
-        return DetailGoalKind.UNLOCK_SOURCE
-
-    def unlock_condition_goal(condition: UnlockCondition) -> tuple[DetailGoalKind, int]:
-        if condition.check_type != 0 and compiled.node_item_index[condition.source_id] >= 0:
-            return (DetailGoalKind.ACQUIRE_ITEM, condition.source_id)
-        if compiled.nodes[condition.source_id].node_type == node_type_byte(NodeType.QUEST):
-            return (DetailGoalKind.COMPLETE_QUEST, condition.source_id)
-        return (DetailGoalKind.UNLOCK_SOURCE, condition.source_id)
-
-    rewards_item = edge_type_byte(EdgeType.REWARDS_ITEM)
-    assigns_quest = edge_type_byte(EdgeType.ASSIGNS_QUEST)
-    completes_quest = edge_type_byte(EdgeType.COMPLETES_QUEST)
-    creates_item = edge_type_byte(EdgeType.CREATES_ITEM)
-
-    for item_index, item_node_id in enumerate(compiled.item_node_ids):
-        children: list[tuple[DetailGoalKind, int]] = [
-            (DetailGoalKind.UNLOCK_SOURCE, source.source_id) for source in compiled.item_sources[item_index]
-        ]
-        for edge_id in compiled.reverse_adjacency[item_node_id]:
-            edge = compiled.edges[edge_id]
-            if edge.edge_type == rewards_item:
-                children.append((DetailGoalKind.COMPLETE_QUEST, edge.source_id))
-            elif edge.edge_type == creates_item:
-                children.append((DetailGoalKind.ACQUIRE_ITEM, edge.source_id))
-        add_dependency(
-            DetailGoalKind.ACQUIRE_ITEM,
-            item_node_id,
-            DetailDependencySemantics.ANY_OF,
-            children,
-        )
-
-    recipe_type = node_type_byte(NodeType.RECIPE)
-    requires_material = edge_type_byte(EdgeType.REQUIRES_MATERIAL)
-    recipe_materials: dict[int, set[int]] = {}
-    for edge in compiled.edges:
-        if (
-            edge.edge_type == requires_material
-            and compiled.nodes[edge.source_id].node_type == recipe_type
-            and compiled.node_item_index[edge.target_id] >= 0
-        ):
-            recipe_materials.setdefault(edge.source_id, set()).add(edge.target_id)
-    for recipe_id, material_ids in sorted(recipe_materials.items()):
-        add_dependency(
-            DetailGoalKind.UNLOCK_SOURCE,
-            recipe_id,
-            DetailDependencySemantics.ALL_OF,
-            [(DetailGoalKind.ACQUIRE_ITEM, material_id) for material_id in sorted(material_ids)],
-        )
-
-    for quest_index, quest_node_id in enumerate(compiled.quest_node_ids):
-        spec = compiled.quest_specs[quest_index]
-        core_children: list[tuple[DetailGoalKind, int]] = [
-            (DetailGoalKind.COMPLETE_QUEST, prereq_id) for prereq_id in spec.prereq_quest_ids
-        ]
-        core_children.extend((DetailGoalKind.ACQUIRE_ITEM, requirement.item_id) for requirement in spec.required_items)
-        core_children.extend((DetailGoalKind.UNLOCK_SOURCE, step.target_id) for step in spec.steps)
-        if core_children:
-            add_dependency(
-                DetailGoalKind.COMPLETE_QUEST,
-                quest_node_id,
-                DetailDependencySemantics.ALL_OF,
-                core_children,
-            )
-
-        if spec.giver_node_ids:
-            add_dependency(
-                DetailGoalKind.COMPLETE_QUEST,
-                quest_node_id,
-                DetailDependencySemantics.ANY_OF,
-                [(action_goal_kind(node_id), node_id) for node_id in spec.giver_node_ids],
-            )
-
-        if spec.completer_node_ids:
-            add_dependency(
-                DetailGoalKind.COMPLETE_QUEST,
-                quest_node_id,
-                DetailDependencySemantics.ANY_OF,
-                [(action_goal_kind(node_id), node_id) for node_id in spec.completer_node_ids],
-            )
-
-    item_action_node_ids: set[int] = set()
-    for edge in compiled.edges:
-        if edge.edge_type in {assigns_quest, completes_quest}:
-            item_action_node_ids.add(edge.source_id)
-    item_action_types = {node_type_byte(NodeType.ITEM), node_type_byte(NodeType.BOOK)}
-    for spec in compiled.quest_specs:
-        for node_id in [*spec.giver_node_ids, *spec.completer_node_ids]:
-            if compiled.nodes[node_id].node_type in item_action_types:
-                item_action_node_ids.add(node_id)
-    for node_id in sorted(item_action_node_ids):
-        add_dependency(
-            DetailGoalKind.USE_ITEM_ACTION,
-            node_id,
-            DetailDependencySemantics.ALL_OF,
-            [(DetailGoalKind.ACQUIRE_ITEM, node_id)],
-        )
-
-    for predicate in compiled.unlock_predicates:
-        groups: dict[int, list[UnlockCondition]] = {}
-        for condition in predicate.conditions:
-            groups.setdefault(condition.group, []).append(condition)
-        for group_id in sorted(groups):
-            add_dependency(
-                DetailGoalKind.UNLOCK_SOURCE,
-                predicate.target_id,
-                DetailDependencySemantics.ALL_OF,
-                [unlock_condition_goal(condition) for condition in groups[group_id]],
-                unlock_group=group_id,
-            )
-
-
-def _compile_zones(compiled: CompiledData) -> None:
-    compiled.zone_node_ids = [
-        node.node_id for node in compiled.nodes if node.node_type == node_type_byte(NodeType.ZONE)
-    ]
-    compiled.zone_adjacency = [[] for _ in compiled.zone_node_ids]
-    compiled.zone_line_ids = [[] for _ in compiled.zone_node_ids]
-
-
-def _compile_blueprints(graph: EntityGraph, compiled: CompiledData) -> None:
-    compiled.giver_blueprints = []
-    compiled.completion_blueprints = []
-
-    for quest_node in graph.nodes_of_type(NodeType.QUEST):
-        if quest_node.guide_only or quest_node.db_name is None:
-            continue
-        quest_id = compiled.node_key_to_id[quest_node.key]
-        required_quest_db_names = _collect_required_quest_db_names(graph, quest_node.key)
-
-        for edge in graph.out_edges(quest_node.key, EdgeType.ASSIGNED_BY):
-            character_node = graph.get_node(edge.target)
-            if character_node is None:
-                continue
-            character_id = compiled.node_key_to_id[character_node.key]
-            interaction_type, keyword = _build_interaction(edge)
-            for position_key, _scene in _enumerate_scene_targets(graph, character_node):
-                compiled.giver_blueprints.append(
-                    QuestGiverBlueprint(
-                        quest_id=quest_id,
-                        character_id=character_id,
-                        position_id=compiled.node_key_to_id[position_key],
-                        interaction_type=interaction_type,
-                        keyword=keyword,
-                        required_quest_db_names=required_quest_db_names,
-                    )
-                )
-
-        for edge in graph.out_edges(quest_node.key, EdgeType.COMPLETED_BY):
-            target_node = graph.get_node(edge.target)
-            if target_node is None:
-                continue
-            target_id = compiled.node_key_to_id[target_node.key]
-            interaction_type, keyword = _build_interaction(edge)
-            for position_key, _scene in _enumerate_scene_targets(graph, target_node):
-                compiled.completion_blueprints.append(
-                    QuestCompletionBlueprint(
-                        quest_id=quest_id,
-                        character_id=target_id,
-                        position_id=compiled.node_key_to_id[position_key],
-                        interaction_type=interaction_type,
-                        keyword=keyword,
-                    )
-                )
-
-
-def _collect_required_quest_db_names(graph: EntityGraph, quest_key: str) -> list[str]:
-    required: list[str] = []
-    for edge in graph.out_edges(quest_key, EdgeType.REQUIRES_QUEST):
-        prerequisite = graph.get_node(edge.target)
-        if prerequisite and prerequisite.db_name:
-            required.append(prerequisite.db_name)
-    return required
-
-
-def _enumerate_scene_targets(graph: EntityGraph, node: Node) -> list[tuple[str, str]]:
-    targets: list[tuple[str, str]] = []
-    if node.type != NodeType.CHARACTER:
-        if node.scene:
-            targets.append((node.key, node.scene))
-        return targets
-
-    spawn_targets: list[tuple[str, str]] = []
-    for edge in graph.out_edges(node.key, EdgeType.HAS_SPAWN):
-        spawn_node = graph.get_node(edge.target)
-        if spawn_node and spawn_node.scene:
-            spawn_targets.append((spawn_node.key, spawn_node.scene))
-    if spawn_targets:
-        return spawn_targets
-    if node.scene:
-        targets.append((node.key, node.scene))
-    return targets
-
-
-def _build_interaction(edge: Edge) -> tuple[int, str | None]:
-    if edge.keyword:
-        return (1, edge.keyword)
-    return (0, None)
-
-
-def _first_spawn_or_self(compiled: CompiledData, node_id: int) -> int:
-    has_spawn = edge_type_byte(EdgeType.HAS_SPAWN)
-    for edge_id in compiled.forward_adjacency[node_id]:
-        edge = compiled.edges[edge_id]
-        if edge.edge_type == has_spawn:
-            return edge.target_id
-    return node_id

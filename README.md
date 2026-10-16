@@ -89,7 +89,7 @@ Three things the shell cannot provide:
 | `erenshor sheets deploy` | Publishes the sheet queries. |
 | `erenshor maps dev` / `build` / `preview` / `deploy` | Develops, verifies, and deploys the map. |
 | `erenshor mod build` / `deploy` / `thunderstore` | Builds, installs, and packages the mods. `-V` selects the game install, `--loader` the loader. |
-| `erenshor guide compile` / `export-mod` | Writes `quest_guides/guide.json` (dense guide data) and `quest_guides/quest-guide.json` (the file AdventureGuide embeds). |
+| `erenshor guide export-mod` | Writes `quest_guides/quest-guide.json`, the quest data that AdventureGuide embeds. |
 | `erenshor eval run '<C#>'` | Evaluates code in the running game through HotRepl. |
 | `erenshor capture run` | Captures map tiles through MapTileCapture. |
 
@@ -102,7 +102,7 @@ A new Steam build runs through backup, rip, export, code facts, and build, then 
 ### Rules for changes
 
 - Never edit the decompiled game scripts under `variants/<variant>/unity/ExportedProject/Assets/Scripts/`, other ripped assets, or the installed game.
-- Never edit generated output by hand: databases, `quest_guides/guide.json`, map builds, captured tiles, generated wiki pages, or mod metadata. Change the generator and regenerate.
+- Never edit generated output by hand: databases, `quest_guides/quest-guide.json`, map builds, captured tiles, generated wiki pages, or mod metadata. Change the generator and regenerate.
 - Deploys to the wiki, the map, or the sheets need the maintainer's approval. Review each deploy with its dry run first.
 - The live map keeps its legacy contract: `/map` with the `layers` and `sel` parameters on both hosts, WebSocket ports 18584 and 18585, and `/db/erenshor.sqlite`.
 - The Nix dev shell must never compile a toolchain from source.

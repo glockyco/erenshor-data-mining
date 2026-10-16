@@ -147,12 +147,7 @@ def _compiled_nodes(compiled: CompiledData) -> dict[int, Any]:
 
 
 def _validate_compiled_references(compiled: CompiledData, nodes: dict[int, Any]) -> None:
-    references = [
-        *compiled.quest_node_ids,
-        *compiled.item_node_ids,
-        *compiled.zone_node_ids,
-        *compiled.infeasible_node_ids,
-    ]
+    references = [*compiled.quest_node_ids, *compiled.item_node_ids]
     for node_id in references:
         if node_id not in nodes:
             raise ValueError(f"dangling compiled node id: {node_id}")
