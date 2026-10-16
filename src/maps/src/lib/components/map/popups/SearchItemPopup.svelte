@@ -9,6 +9,7 @@
     } from '$lib/types/world-map';
     import type { AnySourceMarker, ResolvedItemSource } from '$lib/map/search/item-source-provider';
     import type { ItemSearchResult } from '$lib/map/search';
+    import { commonWorldSourceLabel } from '$lib/map/search';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
     import Crosshair from '@lucide/svelte/icons/crosshair';
 
@@ -299,6 +300,7 @@
     const recipes = $derived(sources.filter((s) => s.kind === 'craft'));
     const itemUses = $derived(sources.filter((s) => s.kind === 'item_use'));
     const starting = $derived(sources.filter((s) => s.kind === 'starting'));
+    const commonWorldDrops = $derived(sources.filter((s) => s.kind === 'common_world_item'));
 
     const worldDrops = $derived(
         sources
@@ -707,6 +709,17 @@
                         class="h-3.5 w-3.5 shrink-0 text-zinc-600 group-hover:text-zinc-400"
                     />
                 </button>
+            {/each}
+        </div>
+    {/if}
+
+    {#if commonWorldDrops.length > 0}
+        <div class="space-y-1 border-t border-zinc-700 pt-2">
+            <div class="text-xs uppercase tracking-wide text-zinc-500 mb-2">World drop</div>
+            {#each commonWorldDrops as source (source.row.itemStableKey)}
+                <div class="px-2 text-xs text-zinc-300">
+                    {commonWorldSourceLabel(source.row.dropProbability, source.row.dropProbabilityMax)}
+                </div>
             {/each}
         </div>
     {/if}

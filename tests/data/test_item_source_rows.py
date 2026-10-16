@@ -26,6 +26,7 @@ def test_every_item_source_kind_has_page_rows(main_clean_db: Path) -> None:
         sources = build_item_sources_by_item(items, items_repo, characters, QuestRepository(db), zones)
 
         row_checks = {
+            "common_world_item": lambda key: characters.get_common_world_item_sources(key),
             "dialog": lambda key: characters.get_item_givers(key),
             "item_use": lambda key: items_repo.get_item_use_source_links(key),
             "item_conversion": lambda key: items_repo.get_item_use_source_links(key),

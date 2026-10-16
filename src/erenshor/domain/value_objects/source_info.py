@@ -9,7 +9,13 @@ __all__ = ["ObtainedFromInfo", "SourceInfo", "UsedInInfo", "WorldDropInfo"]
 
 @dataclass(frozen=True)
 class ObtainedFromInfo:
-    """Stable-keyed provenance edge for an item-owned obtainability row."""
+    """Stable-keyed provenance edge for an item-owned obtainability row.
+
+    ``common_world_item`` has no source key: it represents the shared common
+    drop swap. ``probability`` and ``probability_max`` bound its swap-only
+    chance per kill in percent, excluding characters with their own item row.
+    Lua exposes the optional upper bound as ``probabilityMax``.
+    """
 
     source_type: str
     source_key: str | None
@@ -17,6 +23,7 @@ class ObtainedFromInfo:
     is_guaranteed: bool = False
     quantity: int | None = None
     condition: str | None = None
+    probability_max: float | None = None
 
 
 @dataclass(frozen=True)

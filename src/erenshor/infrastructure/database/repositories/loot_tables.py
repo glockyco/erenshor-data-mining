@@ -14,13 +14,14 @@ class LootTableRepository(BaseRepository[LootTable]):
     """
 
     def get_loot_for_character(self, character_stable_key: str) -> list[LootDropInfo]:
-        """Get all drops for a character as pure drop-edge data.
+        """Get a character's own drops as pure drop-edge data.
 
         Each `LootDropInfo` carries the dropped item's StableKey plus the drop's own
         facts (probability, guaranteed-pool membership, visible-equipped). The item's
         page, name, and uniqueness are resolved from the item record at the display
         layer, never duplicated here. Only drops whose item exists with a display name
-        are returned.
+        are returned. Items available only through the common-world-item swap
+        are shown as a shared source instead of in individual character lists.
 
         Args:
             character_stable_key: Character stable key
@@ -42,6 +43,13 @@ class LootTableRepository(BaseRepository[LootTable]):
             JOIN items i ON i.stable_key = ld.item_stable_key
             WHERE ld.character_stable_key = ?
               AND i.display_name IS NOT NULL
+              AND (
+                  COALESCE(ld.is_common_world_item, 0) = 0
+                  OR COALESCE(ld.is_common, 0) OR COALESCE(ld.is_uncommon, 0)
+                  OR COALESCE(ld.is_rare, 0) OR COALESCE(ld.is_legendary, 0)
+                  OR COALESCE(ld.is_ultra_rare, 0) OR COALESCE(ld.is_guaranteed, 0)
+                  OR COALESCE(ld.is_actual, 0)
+              )
             ORDER BY ld.drop_probability DESC, i.display_name COLLATE NOCASE, ld.item_stable_key
         """
 

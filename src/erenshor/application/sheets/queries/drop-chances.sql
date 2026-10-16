@@ -22,7 +22,15 @@ WITH
     -- Character drops
     character_drops AS (
         SELECT
-            'Character' AS source_type,
+            CASE
+                WHEN ld.is_common_world_item = 1 AND NOT (
+                    COALESCE(ld.is_common, 0) OR COALESCE(ld.is_uncommon, 0)
+                    OR COALESCE(ld.is_rare, 0) OR COALESCE(ld.is_legendary, 0)
+                    OR COALESCE(ld.is_ultra_rare, 0) OR COALESCE(ld.is_guaranteed, 0)
+                    OR COALESCE(ld.is_actual, 0)
+                ) THEN 'Common world item'
+                ELSE 'Character'
+            END AS source_type,
             c.display_name AS source,
             i.display_name AS dropped_item,
             ROUND(ld.drop_probability, 2) AS drop_chance,
@@ -80,6 +88,6 @@ SELECT
     item_resource_name AS 'Item Resource Name'
 FROM combined
 ORDER BY
-    CASE source_type WHEN 'Item' THEN 0 WHEN 'Character' THEN 1 ELSE 2 END,
+    CASE source_type WHEN 'Item' THEN 0 WHEN 'Character' THEN 1 WHEN 'Common world item' THEN 1 ELSE 2 END,
     source,
     drop_chance DESC;

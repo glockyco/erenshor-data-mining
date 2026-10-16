@@ -78,6 +78,13 @@ test('spawn popup lists the fixture drops', async ({ page }) => {
     await page.goto('/map?sel=marker:spawn:stowaway-enemy');
 
     await expect(page.getByText('Fixture Drop', { exact: true })).toBeVisible();
+    await expect(page.getByText('Fixture Relic', { exact: true })).toHaveCount(0);
+});
+
+test('enemy search does not expose common-world swaps as character drops', async ({ page }) => {
+    await page.goto('/map?sel=enemy:Fixture%20Enemy');
+    await expect(page.getByRole('button', { name: 'Show all 2 spawn points', exact: true })).toBeVisible();
+    await expect(page.getByText('Fixture Relic', { exact: true })).toHaveCount(0);
 });
 
 test('shared character portraits use density variants in search and spawn popups', async ({ page }) => {
@@ -111,6 +118,10 @@ test('an item lists world drops alongside quest, crafting, use and starting sour
 
     await expect(page.getByText('Any enemy above level 30')).toBeVisible();
     await expect(page.getByText('0.05% per kill')).toBeVisible();
+    const swapSource = page.getByText('Any enemy with common drops (0.9–8.1% per kill)', { exact: true });
+    await expect(swapSource).toHaveCount(1);
+    await expect(swapSource).toBeVisible();
+    await expect(page.getByRole('button', { name: /Any enemy with common drops/ })).toHaveCount(0);
     await expect(page.getByText('Reward from', { exact: true })).toBeVisible();
     await expect(page.getByText('Crafting recipe', { exact: true })).toBeVisible();
     await expect(page.getByText('Obtained by using', { exact: true })).toBeVisible();

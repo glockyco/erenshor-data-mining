@@ -363,6 +363,7 @@ class EntityPageGenerator(PageGenerator):
             recipe_ingredients=recipe_ingredients,
             item_drops=self.context.item_repo.get_item_drops(item.stable_key),
             world_drops=self.context.item_repo.get_special_world_drops(item.stable_key),
+            obtained_from=self.context.character_repo.get_common_world_item_sources(item.stable_key),
         )
 
     def _execute_raw_direct(self, query: str, params: tuple[object, ...]) -> list[sqlite3.Row]:

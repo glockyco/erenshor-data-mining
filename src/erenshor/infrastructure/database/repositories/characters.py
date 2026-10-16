@@ -319,6 +319,13 @@ class CharacterRepository(BaseRepository[Character]):
             JOIN items i ON i.stable_key = ld.item_stable_key
             WHERE ld.character_stable_key = ?
               AND i.display_name IS NOT NULL
+              AND (
+                  COALESCE(ld.is_common_world_item, 0) = 0
+                  OR COALESCE(ld.is_common, 0) OR COALESCE(ld.is_uncommon, 0)
+                  OR COALESCE(ld.is_rare, 0) OR COALESCE(ld.is_legendary, 0)
+                  OR COALESCE(ld.is_ultra_rare, 0) OR COALESCE(ld.is_guaranteed, 0)
+                  OR COALESCE(ld.is_actual, 0)
+              )
             ORDER BY ld.drop_probability DESC, i.display_name COLLATE NOCASE
         """
 
@@ -418,6 +425,13 @@ class CharacterRepository(BaseRepository[Character]):
                 JOIN loot_drops ld ON ld.character_stable_key = d.member_stable_key
                 WHERE ld.item_stable_key = ?
                   AND ld.drop_probability > 0.0
+                  AND (
+                      COALESCE(ld.is_common_world_item, 0) = 0
+                      OR COALESCE(ld.is_common, 0) OR COALESCE(ld.is_uncommon, 0)
+                      OR COALESCE(ld.is_rare, 0) OR COALESCE(ld.is_legendary, 0)
+                      OR COALESCE(ld.is_ultra_rare, 0) OR COALESCE(ld.is_guaranteed, 0)
+                      OR COALESCE(ld.is_actual, 0)
+                  )
                 GROUP BY d.group_key
             ),
             reps AS (
@@ -520,6 +534,13 @@ class CharacterRepository(BaseRepository[Character]):
                 JOIN loot_drops ld ON ld.character_stable_key = d.member_stable_key
                 WHERE ld.item_stable_key = ?
                   AND ld.drop_probability > 0.0
+                  AND (
+                      COALESCE(ld.is_common_world_item, 0) = 0
+                      OR COALESCE(ld.is_common, 0) OR COALESCE(ld.is_uncommon, 0)
+                      OR COALESCE(ld.is_rare, 0) OR COALESCE(ld.is_legendary, 0)
+                      OR COALESCE(ld.is_ultra_rare, 0) OR COALESCE(ld.is_guaranteed, 0)
+                      OR COALESCE(ld.is_actual, 0)
+                  )
             ),
             drop_groups AS (
                 SELECT group_key, MAX(drop_probability) AS drop_probability
@@ -556,6 +577,37 @@ class CharacterRepository(BaseRepository[Character]):
             ]
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve stable drop sources for '{item_stable_key}': {e}") from e
+
+    def get_common_world_item_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        """Return the swap-only chance range over the characters represented in game."""
+        query = """
+            SELECT MIN(ld.drop_probability) AS probability, MAX(ld.drop_probability) AS probability_max
+            FROM loot_drops ld
+            JOIN character_fact_sources d ON d.member_stable_key = ld.character_stable_key
+            WHERE ld.item_stable_key = ?
+              AND ld.is_common_world_item = 1
+              AND ld.drop_probability > 0
+              AND NOT (
+                  COALESCE(ld.is_common, 0) OR COALESCE(ld.is_uncommon, 0)
+                  OR COALESCE(ld.is_rare, 0) OR COALESCE(ld.is_legendary, 0)
+                  OR COALESCE(ld.is_ultra_rare, 0) OR COALESCE(ld.is_guaranteed, 0)
+                  OR COALESCE(ld.is_actual, 0)
+              )
+        """
+        try:
+            rows = self._execute_raw(query, (item_stable_key,))
+            return [
+                ObtainedFromInfo(
+                    source_type="common_world_item",
+                    source_key=None,
+                    probability=float(row["probability"]),
+                    probability_max=float(row["probability_max"]),
+                )
+                for row in rows
+                if row["probability"] is not None
+            ]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve common world item sources for '{item_stable_key}': {e}") from e
 
     def get_vendor_stock(self) -> list[VendorStockEntry]:
         """Return each item that a copy of a vendor with a page sells, from vendor_offers.

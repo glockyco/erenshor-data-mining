@@ -59,6 +59,15 @@ describe('indexCharacterDetails', () => {
             { itemName: 'Fixture Drop', dropProbability: 25 }
         ]);
     });
+
+    it('omits swap-only rows from every character popup while retaining combined drops', () => {
+        expect(details.drops.get('character:fixture enemy')).toEqual([
+            { itemName: 'Fixture Drop', dropProbability: 25 }
+        ]);
+        expect(details.drops.get('character:fixture enemy twin')).toBeUndefined();
+        expect(details.drops.get('character:runtime enemy')).toBeUndefined();
+        expect([...details.drops.values()].flat().some((row) => row.itemName === 'Fixture Relic')).toBe(false);
+    });
 });
 
 describe('resolveLiveCandidates', () => {

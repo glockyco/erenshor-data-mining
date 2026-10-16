@@ -64,6 +64,8 @@ class ItemProvenanceCharacterRepository(Protocol):
 
     def get_character_drop_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
 
+    def get_common_world_item_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
+
     def get_vendor_sources_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
 
     def get_characters_giving_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
@@ -257,6 +259,7 @@ def build_item_sources_by_item(
         ]
         obtained_from = [
             *character_repo.get_character_drop_sources(item_key),
+            *character_repo.get_common_world_item_sources(item_key),
             *character_repo.get_vendor_sources_for_item(item_key),
             *character_repo.get_characters_giving_item(item_key),
             *quest_repo.get_quest_reward_sources(item_key),
@@ -411,6 +414,8 @@ def _format_obtained_from(sources: SourceInfo) -> list[LuaData]:
             source.condition or "",
             source.probability is None,
             source.probability if source.probability is not None else 0.0,
+            source.probability_max is None,
+            source.probability_max if source.probability_max is not None else 0.0,
             source.quantity is None,
             source.quantity if source.quantity is not None else 0,
             source.is_guaranteed,
@@ -422,6 +427,7 @@ def _format_obtained_from(sources: SourceInfo) -> list[LuaData]:
         _put(row, "type", source.source_type)
         _put(row, "sourceKey", source.source_key)
         _put(row, "probability", source.probability)
+        _put(row, "probabilityMax", source.probability_max)
         if source.is_guaranteed:
             row["guaranteed"] = True
         _put(row, "quantity", source.quantity)

@@ -393,6 +393,32 @@ def test_formats_obtained_from_with_stable_keys_and_nil_omission() -> None:
     ]
 
 
+def test_common_world_item_source_serializes_probability_range_without_a_character_key() -> None:
+    item = make_item()
+    data = build_items_data(
+        items=[item],
+        stats_by_item={},
+        classes_by_item={},
+        sources_by_item={
+            item.stable_key: SourceInfo(
+                obtained_from=[
+                    ObtainedFromInfo(
+                        source_type="common_world_item",
+                        source_key=None,
+                        probability=0.123,
+                        probability_max=0.987,
+                    )
+                ]
+            )
+        },
+    )
+
+    shard = data["index"]["byKey"][item.stable_key]
+    assert data["shards"][shard][item.stable_key]["obtainedFrom"] == [
+        {"type": "common_world_item", "probability": 0.123, "probabilityMax": 0.987}
+    ]
+
+
 def test_formats_used_in_with_all_use_types_and_nil_omission() -> None:
     item = make_item()
     data = build_items_data(

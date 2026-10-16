@@ -1268,6 +1268,11 @@ export class RepositoryBase {
                     SELECT s.group_key, ld.item_stable_key, MAX(ld.drop_probability) AS drop_probability
                     FROM loot_drops ld
                     JOIN character_fact_sources s ON s.member_stable_key = ld.character_stable_key
+                    WHERE NOT (COALESCE(ld.is_common_world_item, 0) = 1
+                        AND NOT (COALESCE(ld.is_common, 0) OR COALESCE(ld.is_uncommon, 0)
+                            OR COALESCE(ld.is_rare, 0) OR COALESCE(ld.is_legendary, 0)
+                            OR COALESCE(ld.is_ultra_rare, 0) OR COALESCE(ld.is_guaranteed, 0)
+                            OR COALESCE(ld.is_actual, 0)))
                     GROUP BY s.group_key, ld.item_stable_key
                 ) gd
                 JOIN (
@@ -1455,6 +1460,41 @@ export class RepositoryBase {
                     pool: row.pool as string,
                     dropProbability: row.dropProbability as number,
                     minLevelExclusive: row.minLevelExclusive as number
+                });
+            }
+            stmt.free();
+        }
+
+        // Common-world replacements have no individual enemy source. Only
+        // positive swap-only rows from copies players meet define the range.
+        {
+            const stmt = this.db.prepare(`
+                SELECT i.stable_key AS itemStableKey, i.display_name AS displayName,
+                    i.wiki_page_name AS wikiPageName, i.image_hash AS iconHash,
+                    MIN(ld.drop_probability) AS dropProbability,
+                    MAX(ld.drop_probability) AS dropProbabilityMax
+                FROM loot_drops ld
+                JOIN character_fact_sources s ON s.member_stable_key = ld.character_stable_key
+                JOIN items i ON i.stable_key = ld.item_stable_key
+                WHERE i.is_map_visible = 1 AND COALESCE(ld.is_common_world_item, 0) = 1
+                    AND NOT (COALESCE(ld.is_common, 0) OR COALESCE(ld.is_uncommon, 0)
+                        OR COALESCE(ld.is_rare, 0) OR COALESCE(ld.is_legendary, 0)
+                        OR COALESCE(ld.is_ultra_rare, 0) OR COALESCE(ld.is_guaranteed, 0)
+                        OR COALESCE(ld.is_actual, 0))
+                    AND ld.drop_probability > 0
+                GROUP BY i.stable_key
+                ORDER BY i.display_name
+            `);
+            while (stmt.step()) {
+                const row = stmt.getAsObject();
+                rows.push({
+                    kind: 'common_world_item',
+                    itemStableKey: row.itemStableKey as string,
+                    displayName: row.displayName as string,
+                    wikiPageName: (row.wikiPageName as string) ?? null,
+                    iconHash: (row.iconHash as string) ?? null,
+                    dropProbability: row.dropProbability as number,
+                    dropProbabilityMax: row.dropProbabilityMax as number
                 });
             }
             stmt.free();

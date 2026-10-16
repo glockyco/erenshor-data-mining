@@ -194,11 +194,50 @@ describe('Repository', () => {
         });
     });
 
+    it('aggregates only positive replacement-only facts and retains combined named drops', async () => {
+        const rows = await db.getItemSources();
+        expect(rows.filter((row) => row.kind === 'common_world_item')).toEqual([
+            expect.objectContaining({
+                itemStableKey: 'item:fixture drop',
+                dropProbability: 1.04,
+                dropProbabilityMax: 1.049
+            }),
+            expect.objectContaining({
+                itemStableKey: 'item:fixture relic',
+                dropProbability: 0.92,
+                dropProbabilityMax: 8.12
+            })
+        ]);
+        const drops = rows.filter((row) => row.kind === 'drop');
+        expect(drops.some((row) => row.itemStableKey === 'item:fixture relic')).toBe(false);
+        expect(drops.filter((row) => row.itemStableKey === 'item:fixture drop')).toEqual([
+            expect.objectContaining({
+                characterStableKey: 'character:fixture enemy',
+                dropProbability: 25
+            })
+        ]);
+    });
+
+    it('counts common-world replacements as unlocated world sources without markers', async () => {
+        const rows = (await db.getItemSources()).filter((row) => row.kind === 'common_world_item');
+        const provider = new ItemSearchProvider(rows, [], [], [], []);
+        const result = provider.getResult('item:fixture relic')!;
+        expect(result.hasKnownSource).toBe(true);
+        expect(result.sourceCounts.worldDrops).toBe(1);
+        expect(result.sourceCounts.droppers).toBe(0);
+        expect(result.zoneCount).toBe(0);
+        expect(itemResultSummaryParts(result)).toEqual(['1 world drop']);
+        expect(provider.getSourcesForItem(result.itemStableKey)).toHaveLength(1);
+        expect(provider.getMarkersForItem(result.itemStableKey)).toEqual([]);
+        expect(provider.resolveHighlight(result)).toEqual({ type: 'none' });
+    });
+
     it('loads every map-visible acquisition source kind', async () => {
         const rows = await db.getItemSources();
 
         expect([...new Set(rows.map((row) => row.kind))].sort()).toEqual([
             'bag',
+            'common_world_item',
             'craft',
             'dialog',
             'drop',

@@ -91,7 +91,7 @@ locations for the character.
 |-
 | <code>guaranteedrolls</code> || Auto || How many different items the character drops from that list, as a word such as <code>Two</code>. Empty means one. Only characters that drop more than one have it.
 |-
-| <code>droprates</code> || Auto || All loot drops sorted by probability.
+| <code>droprates</code> || Auto || The character's own loot drops sorted by probability. Items available only through the common world item swap appear as a shared source on item pages instead.
 |-
 | <code>level</code> || Auto || Base character level.
 |-

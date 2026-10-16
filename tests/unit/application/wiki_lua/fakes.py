@@ -171,6 +171,7 @@ class FakeCharacterRepository:
         dialog_sources: dict[str, list[ObtainedFromInfo]] | None = None,
         spell_users: dict[str, list[CharacterLink]] | None = None,
         vendor_stock: list[VendorStockEntry] | None = None,
+        common_world_item_sources: dict[str, list[ObtainedFromInfo]] | None = None,
     ) -> None:
         self._characters = characters
         self._vendors = vendors or {}
@@ -180,6 +181,7 @@ class FakeCharacterRepository:
         self._dialog_sources = dialog_sources or {}
         self._spell_users = spell_users or {}
         self._vendor_stock = vendor_stock or []
+        self._common_world_item_sources = common_world_item_sources or {}
 
     def get_characters_for_wiki_generation(self) -> list[Character]:
         return self._characters
@@ -192,6 +194,9 @@ class FakeCharacterRepository:
 
     def get_character_drop_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
         return self._drop_sources.get(item_stable_key, [])
+
+    def get_common_world_item_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        return self._common_world_item_sources.get(item_stable_key, [])
 
     def get_vendor_sources_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
         return self._vendor_sources.get(item_stable_key, [])

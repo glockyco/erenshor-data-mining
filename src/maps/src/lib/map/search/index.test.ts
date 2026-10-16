@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { IndexEntry } from './types';
 import type { WorldEnemy } from '$lib/types/world-map';
-import { itemResultSummaryParts, searchMarkers } from './index';
+import { commonWorldSourceLabel, itemResultSummaryParts, searchMarkers } from './index';
 import { EnemySearchProvider } from './enemy-provider';
 
 function item(name: string, stableKey: string): IndexEntry {
@@ -44,6 +44,20 @@ function enemy(name: string, encounterTier: WorldEnemy['encounterTier'] = 'enemy
         }
     };
 }
+
+describe('commonWorldSourceLabel', () => {
+    it('formats the swap probability range to one decimal place', () => {
+        expect(commonWorldSourceLabel(0.92, 8.12)).toBe(
+            'Any enemy with common drops (0.9–8.1% per kill)'
+        );
+    });
+
+    it('shows a single chance when rounded endpoints are equal', () => {
+        expect(commonWorldSourceLabel(1.04, 1.049)).toBe(
+            'Any enemy with common drops (1.0% per kill)'
+        );
+    });
+});
 
 describe('searchMarkers', () => {
     it('prefix matches rank above substring matches across categories', () => {

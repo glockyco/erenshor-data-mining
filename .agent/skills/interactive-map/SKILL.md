@@ -81,6 +81,11 @@ The overlay has crashed with deck.gl 9.4.0 and luma.gl 9.4.2 on Direct3D 11.
 
 ## Debug missing markers
 
+Item search lists common-world-item replacements as one world source per item,
+without enemy markers. Its chance range comes only from positive replacement-only
+rows joined to `character_fact_sources`. Named droppers and character popup loot
+omit those rows but retain rows that also have an own-table loot flag.
+
 1. Inspect `map_character_spawns` and `characters` in the clean database.
    `getSpawnPointMarkers` in `src/maps/src/lib/database.base.ts` requires
    `character_deduplications.is_map_visible = 1` and a non-null spawn point.

@@ -24,6 +24,7 @@ import type {
     ItemFishingSource,
     ItemBagSource,
     ItemWorldDropSource,
+    ItemCommonWorldSource,
     ItemDialogSource,
     ItemQuestSource,
     ItemCraftSource,
@@ -49,6 +50,7 @@ export type ResolvedItemSource =
     | { kind: 'fishing'; row: ItemFishingSource; marker: WorldWater }
     | { kind: 'bag'; row: ItemBagSource; marker: WorldItemBag }
     | { kind: 'world'; row: ItemWorldDropSource }
+    | { kind: 'common_world_item'; row: ItemCommonWorldSource }
     | { kind: 'dialog'; row: ItemDialogSource; markers: AnySpawnMarker[] }
     | { kind: 'quest'; row: ItemQuestSource; markers: AnySpawnMarker[] }
     | { kind: 'craft'; row: ItemCraftSource }
@@ -176,6 +178,9 @@ export class ItemSearchProvider implements SearchProvider {
                     case 'starting':
                         sources.push({ kind: 'starting', row });
                         break;
+                    case 'common_world_item':
+                        sources.push({ kind: 'common_world_item', row });
+                        break;
                     case 'world': {
                         sources.push({ kind: 'world', row });
                         break;
@@ -224,7 +229,7 @@ export class ItemSearchProvider implements SearchProvider {
                     itemUseKeys.add(source.row.sourceItemStableKey);
                 } else if (source.kind === 'starting') {
                     startingKeys.add(source.row.className);
-                } else if (source.kind === 'world') {
+                } else if (source.kind === 'world' || source.kind === 'common_world_item') {
                     worldDrops++;
                 }
             }

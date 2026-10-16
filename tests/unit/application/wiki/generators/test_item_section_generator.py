@@ -9,8 +9,8 @@ from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.entities.spell import Spell
 from erenshor.domain.value_objects.proc_info import ProcInfo
-from erenshor.domain.value_objects.source_info import SourceInfo, WorldDropInfo
-from erenshor.domain.value_objects.wiki_link import AbilityLink
+from erenshor.domain.value_objects.source_info import ObtainedFromInfo, SourceInfo, WorldDropInfo
+from erenshor.domain.value_objects.wiki_link import AbilityLink, CharacterLink
 
 
 def test_weapon_page_uses_single_lua_item_tooltip() -> None:
@@ -284,3 +284,72 @@ def test_item_source_lists_world_drops_with_level_gate_and_small_chances() -> No
         "|source=Any enemy above level 30 (0.05% per kill)<br>Any enemy (0.625% per kill)"
         "<br>Any enemy (0.002% per kill)\n"
     ) in result
+
+
+@pytest.mark.parametrize(
+    ("minimum", "maximum", "expected"),
+    [(0.123, 0.987, "0.1\u20131.0%"), (0.123, 0.149, "0.1%"), (0.5, 0.5, "0.5%")],
+)
+def test_common_world_item_drop_source_formats_range_at_one_decimal(
+    minimum: float, maximum: float, expected: str
+) -> None:
+    item = Item(stable_key="item:test_food", item_name="Test Food")
+    enriched = EnrichedItemData(
+        item=item,
+        stats=[],
+        classes=[],
+        sources=SourceInfo(
+            obtained_from=[
+                ObtainedFromInfo(
+                    source_type="common_world_item",
+                    source_key=None,
+                    probability=minimum,
+                    probability_max=maximum,
+                )
+            ]
+        ),
+    )
+
+    result = ItemSectionGenerator().generate_template(enriched, "Test Food")
+
+    assert f"|source=Any enemy with common drops ({expected} per kill)\n" in result
+    assert "mw-collapsible" not in result
+
+
+def test_common_world_item_source_survives_folding_alongside_named_droppers() -> None:
+    item = Item(stable_key="item:test_food", item_name="Test Food")
+    droppers = [
+        (
+            CharacterLink(
+                page_title=f"Enemy {index}",
+                display_name=f"Enemy {index}",
+                stable_key=f"character:enemy_{index}",
+            ),
+            10.0,
+        )
+        for index in range(7)
+    ]
+    enriched = EnrichedItemData(
+        item=item,
+        stats=[],
+        classes=[],
+        sources=SourceInfo(
+            drops=droppers,
+            obtained_from=[
+                ObtainedFromInfo(
+                    source_type="common_world_item",
+                    source_key=None,
+                    probability=0.1,
+                    probability_max=0.9,
+                )
+            ],
+        ),
+    )
+
+    result = ItemSectionGenerator().generate_template(enriched, "Test Food")
+
+    assert 'data-expandtext="3 more"' in result
+    assert result.count("Any enemy with common drops (0.1\u20130.9% per kill)") == 1
+    assert "Any enemy with common drops (0.1\u20130.9% per kill)</div>" in result
+    for link, _ in droppers:
+        assert result.count(str(link)) == 1

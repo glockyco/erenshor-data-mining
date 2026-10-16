@@ -202,6 +202,13 @@ export type ItemWorldDropSource = ItemSourceItemMeta & {
     minLevelExclusive: number; // the killed character's level must exceed this
 };
 
+/** A replacement of a common loot roll, aggregated without individual enemy locations. */
+export type ItemCommonWorldSource = ItemSourceItemMeta & {
+    kind: 'common_world_item';
+    dropProbability: number; // minimum percentage among eligible swap-only rows
+    dropProbabilityMax: number; // maximum percentage among eligible swap-only rows
+};
+
 export type ItemDialogSource = ItemSourceItemMeta & {
     kind: 'dialog';
     characterStableKey: string;
@@ -250,6 +257,7 @@ export type ItemSourceRow =
     | ItemFishingSource
     | ItemBagSource
     | ItemWorldDropSource
+    | ItemCommonWorldSource
     | ItemDialogSource
     | ItemQuestSource
     | ItemCraftSource

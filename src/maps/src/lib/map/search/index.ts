@@ -101,6 +101,12 @@ export function itemResultSummaryParts(result: ItemSearchResult): string[] {
     return parts;
 }
 
+export function commonWorldSourceLabel(min: number, max: number): string {
+    const low = min.toFixed(1);
+    const high = max.toFixed(1);
+    return `Any enemy with common drops (${low === high ? low : `${low}–${high}`}% per kill)`;
+}
+
 // =============================================================================
 // Search Index
 // =============================================================================

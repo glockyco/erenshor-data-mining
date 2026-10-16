@@ -254,6 +254,14 @@ CREATE TABLE loot_drops (
     character_stable_key TEXT NOT NULL REFERENCES characters(stable_key),
     item_stable_key TEXT NOT NULL REFERENCES items(stable_key),
     drop_probability REAL NOT NULL,
+    is_common_world_item INTEGER DEFAULT 0,
+    is_common INTEGER DEFAULT 0,
+    is_uncommon INTEGER DEFAULT 0,
+    is_rare INTEGER DEFAULT 0,
+    is_legendary INTEGER DEFAULT 0,
+    is_ultra_rare INTEGER DEFAULT 0,
+    is_guaranteed INTEGER DEFAULT 0,
+    is_actual INTEGER DEFAULT 1,
     PRIMARY KEY (character_stable_key, item_stable_key)
 );
 
@@ -491,6 +499,31 @@ INSERT INTO vendor_offers (vendor_stable_key, copy_stable_key, item_stable_key, 
 -- A relic whose only source is a special world drop, which has no map location.
 INSERT INTO special_world_drops (item_stable_key, pool, drop_probability, min_level_exclusive) VALUES
     ('item:fixture relic', 'CrystallizedBalance', 0.05, 30);
+
+-- Existing searchable items exercise swap-only and combined sources without
+-- changing the searchable catalog. Backups and zero chances cannot widen ranges.
+INSERT INTO loot_drops (
+    character_stable_key, item_stable_key, drop_probability,
+    is_common_world_item, is_actual, is_rare
+) VALUES
+    ('character:fixture enemy', 'item:fixture relic', 0.92, 1, 0, 0),
+    ('character:fixture enemy twin', 'item:fixture relic', 8.12, 1, 0, 0),
+    ('character:runtime enemy', 'item:fixture relic', 0, 1, 0, 0),
+    ('character:fixture enemy backup', 'item:fixture relic', 99, 1, 0, 0),
+    ('character:fixture guard', 'item:fixture relic', 0.01, 1, 0, 0),
+    ('character:fixture enemy twin', 'item:fixture drop', 1.04, 1, 0, 0),
+    ('character:runtime enemy', 'item:fixture drop', 1.049, 1, 0, 0);
+-- A combined own-table/replacement row remains a named drop, but does not
+-- contribute its larger chance to the replacement-only range.
+UPDATE loot_drops SET is_common_world_item = 1, is_actual = 0, is_rare = 1
+WHERE character_stable_key = 'character:fixture enemy' AND item_stable_key = 'item:fixture drop';
+
+-- Nullable exported flags still classify swaps and legacy own-table rows.
+UPDATE loot_drops SET is_common = NULL, is_uncommon = NULL, is_rare = NULL,
+    is_legendary = NULL, is_ultra_rare = NULL, is_guaranteed = NULL, is_actual = NULL
+WHERE character_stable_key = 'character:fixture enemy' AND item_stable_key = 'item:fixture relic';
+UPDATE loot_drops SET is_common_world_item = NULL, is_common = NULL, is_actual = NULL
+WHERE character_stable_key = 'character:fixture guard placed' AND item_stable_key = 'item:fixture ore';
 
 -- A build id and publish time distinct from any real one, so a fixture render
 -- can never be mistaken for a render of the live data.

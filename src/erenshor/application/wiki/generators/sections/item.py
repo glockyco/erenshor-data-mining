@@ -681,14 +681,20 @@ class ItemSectionGenerator(SectionGeneratorBase):
         """Format drop sources from pre-built WikiLink objects with probabilities.
 
         Droppers that share a page and a label form one entry, highest chance
-        first. Special world drops follow the named droppers as plain text,
-        because any loot-table kill above the level gate can roll them.
+        first. Common-item swaps and special world drops follow the named
+        droppers as plain text, because they do not name individual characters.
         """
         if not enriched.sources:
             return ""
         drop_data = [(link, prob) for link, prob in enriched.sources.drops if link.page_title is not None]
         drop_data.sort(key=lambda x: (-x[1], x[0]))
         result = [format_chance_links(drop_data, decimals=1)] if drop_data else []
+        for source in enriched.sources.obtained_from:
+            if source.source_type == "common_world_item" and source.probability is not None:
+                chances = [source.probability]
+                if source.probability_max is not None:
+                    chances.append(source.probability_max)
+                result.append(f"Any enemy with common drops ({format_chance(chances, decimals=1)} per kill)")
         for drop in enriched.sources.world_drops:
             enemies = (
                 f"Any enemy above level {drop.min_level_exclusive}" if drop.min_level_exclusive > 0 else "Any enemy"

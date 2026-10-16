@@ -35,3 +35,43 @@ def test_every_sheet_query_runs_against_the_clean_schema(tmp_path: Path) -> None
     assert set(sheets) == {path.stem for path in QUERIES_DIR.glob("*.sql")}
     empty_headers = sorted(name for name, rows in sheets.items() if not rows or not rows[0])
     assert not empty_headers, f"Sheet queries without a header row: {empty_headers}"
+
+
+def test_drop_sheet_names_swap_only_rows_without_merging_enemy_sources(tmp_path: Path) -> None:
+    writer = Writer(tmp_path / "clean.sqlite")
+    writer.create_schema()
+    try:
+        writer.conn.execute(
+            """INSERT INTO items (stable_key, display_name, image_name)
+               VALUES ('item:bread', 'Bread', 'Bread')"""
+        )
+        writer.conn.executemany(
+            """INSERT INTO characters
+               (stable_key, display_name, image_name, encounter_tier, level_scales_with_player)
+               VALUES (?, ?, ?, 'enemy', 0)""",
+            [
+                ("character:swap", "Swap enemy", "Swap enemy"),
+                ("character:combined", "Combined enemy", "Combined enemy"),
+                ("character:own", "Own enemy", "Own enemy"),
+            ],
+        )
+        writer.conn.executemany(
+            """INSERT INTO loot_drops
+               (character_stable_key, item_stable_key, drop_probability, is_common_world_item, is_common)
+               VALUES (?, 'item:bread', ?, ?, ?)""",
+            [
+                ("character:swap", 0.92, 1, 0),
+                ("character:combined", 25.0, 1, 1),
+                ("character:own", 30.0, 0, 1),
+            ],
+        )
+
+        rows = writer.conn.execute((QUERIES_DIR / "drop-chances.sql").read_text(encoding="utf-8")).fetchall()
+
+        assert {(row[0], row[1], row[2], row[3]) for row in rows} == {
+            ("Common world item", "Swap enemy", "Bread", 0.92),
+            ("Character", "Combined enemy", "Bread", 25.0),
+            ("Character", "Own enemy", "Bread", 30.0),
+        }
+    finally:
+        writer.conn.close()
