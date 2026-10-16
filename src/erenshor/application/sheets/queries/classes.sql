@@ -12,4 +12,6 @@ SELECT
     aggro_mod,
     resource_name
 FROM classes
+-- Default is the game's template class, which players cannot pick.
+WHERE class_name != 'Default'
 ORDER BY class_name;
