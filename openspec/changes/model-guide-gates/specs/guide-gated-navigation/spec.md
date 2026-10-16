@@ -82,10 +82,10 @@ The same game state and data SHALL produce the same availability, the same requi
 With twelve tracked quests and one navigated quest, in Stowaway's Step and in Shivering Step, AdventureGuide SHALL meet these budgets on the main variant, measured in the running game. The baseline is the mod built before this change in the same scene and state.
 
 - The average per-frame cost of the guide's update SHALL exceed the baseline by at most 0.1 ms, and its managed allocation per steady frame SHALL NOT exceed the baseline's.
-- The frame of a quest completion, an inventory change, or a keyring change SHALL spend at most 8 ms in the guide, and at most 4 ms on average over ten such events.
+- Over ten quest completions or ten inventory changes, the guide's average work per event SHALL exceed the baseline's average by at most 1 ms, and its slowest event SHALL exceed the baseline's slowest by at most 2 ms. A keyring change SHALL cost no more than an inventory change.
 - A scene load SHALL spend at most 20 ms more in the guide than the baseline.
 
 #### Scenario: A burst of inventory changes
 
 - **WHEN** the player loots ten items in a row with twelve tracked quests
-- **THEN** no frame spends more than 8 ms in the guide
+- **THEN** the slowest frame spends at most 2 ms more in the guide than the slowest frame of the baseline
