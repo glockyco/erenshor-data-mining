@@ -88,6 +88,7 @@ export function itemResultSummaryParts(result: ItemSearchResult): string[] {
     };
     push(c.droppers, 'dropper');
     push(c.vendors, 'vendor');
+    if (c.auctionHouses) parts.push('Auction House');
     push(c.miningNodes, 'mining node');
     push(c.fishingSpots, 'fishing spot');
     push(c.itemBags, 'item bag');

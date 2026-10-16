@@ -40,10 +40,9 @@ INVARIANT_CODES = (
     "categories",
 )
 
-# These are deliberately declarative copies of the fields emitted by the
-# corresponding Jinja templates.  A field is required to be present, but an
-# empty value is valid: the templates emit empty parameters for absent game
-# data, so every generated call carries the same fields.
+# These are deliberately declarative copies of the unconditional fields emitted
+# by the corresponding Jinja templates. Empty values are valid. Conditional
+# source rows, including Item.auctionhousesource, are not required fields.
 _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
     {
         "Item": [

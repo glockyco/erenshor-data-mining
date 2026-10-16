@@ -45,7 +45,10 @@ def test_all_facts_extract_with_sane_shapes(code_facts_tool: Path, shipped_main_
             assert 0.0 < float(values["rate"]) <= 1.0, fact["id"]
             assert int(values["min_level"]) >= 0, fact["id"]
         if "strings" in values:
-            assert all(s.isdigit() for s in values["strings"].split(",")), fact["id"]
+            strings = values["strings"].split(",")
+            assert strings and all(s.strip() for s in strings), fact["id"]
+            if fact["id"].endswith("_ids"):
+                assert all(s.isdigit() for s in strings), fact["id"]
         if "cutoff" in values:
             low, high, cutoff = (int(values[key]) for key in ("range_min", "range_max", "cutoff"))
             assert low <= cutoff < high - 1, fact["id"]

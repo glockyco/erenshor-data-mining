@@ -31,11 +31,11 @@ The wiki SHALL retain a page about removed content and display `Historical Conte
 
 The wiki SHALL use a distinct `Historical Content` message for content that still exists in game data but cannot be obtained. It SHALL place such a page in `Category:Unobtainable Content` and keep an editor's explanation of why it is unobtainable.
 
-#### Scenario: An old crafting result remains in game data
+#### Scenario: A retained item has no acquisition route
 
-- **WHEN** an editor marks `Pristine Ceremonial Ring` or `Unusual Copper Sceptre` as unobtainable
+- **WHEN** an editor marks `Shivering Torch` as unobtainable
 - **THEN** the notice says that the item can no longer be obtained, not that it is no longer in the game
-- **AND** the crafting explanation remains available on the page
+- **AND** the explanation of its absent acquisition route remains available on the page
 
 ### Requirement: Generated articles display recorded lifecycle facts
 
@@ -43,7 +43,7 @@ For a page that generation still produces, the wiki SHALL place known lifecycle 
 
 #### Scenario: An unobtainable item still has game data
 
-- **WHEN** generation writes `Pristine Ceremonial Ring` with a recorded unobtainable state
+- **WHEN** generation writes `Shivering Torch` with a recorded unobtainable state
 - **THEN** its item infobox carries the recorded state and any known update, date, and patch-notes link
 - **AND** the page shows the unobtainable notice and joins `Category:Unobtainable Content`
 

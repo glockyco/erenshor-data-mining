@@ -41,6 +41,20 @@ CREATE TABLE items (
     is_map_visible INTEGER NOT NULL
 );
 
+CREATE TABLE auction_house_items (
+    item_stable_key TEXT NOT NULL REFERENCES items(stable_key),
+    route TEXT NOT NULL,
+    min_sim_level INTEGER,
+    max_sim_level INTEGER,
+    min_player_level INTEGER,
+    max_player_level INTEGER,
+    PRIMARY KEY (item_stable_key, route)
+);
+
+CREATE TABLE auction_house_brokers (
+    character_stable_key TEXT PRIMARY KEY REFERENCES characters(stable_key)
+);
+
 CREATE TABLE characters (
     stable_key TEXT PRIMARY KEY,
     display_name TEXT NOT NULL,
@@ -621,3 +635,13 @@ INSERT INTO vendor_offers VALUES
 -- Selling both copies must not produce duplicate rows for the same vendor.
 INSERT INTO vendor_offers VALUES
     ('character-group:breena', 'character:breena carpenter', 'item:fixture meditate dru', NULL);
+
+-- Multiple eligible routes still describe one random-stock Auction House source.
+INSERT INTO auction_house_items VALUES
+    ('item:fixture bag', 'equipment', 1, 20, NULL, NULL),
+    ('item:fixture bag', 'consumable', 10, 30, 5, 35);
+-- Two placed brokers and an explicitly unlocated broker exercise both surfaces.
+INSERT INTO auction_house_brokers VALUES
+    ('character:breena carpenter'),
+    ('character:fixture dummy'),
+    ('character:runtime enemy');

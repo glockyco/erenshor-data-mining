@@ -90,6 +90,13 @@ class FakeItemRepository:
     def get_item_zone_restrictions(self, item_stable_key: str) -> list[tuple[str, str]]:
         return self._zone_restrictions.get(item_stable_key, [])
 
+    def get_auction_house_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        return [
+            source
+            for source in self._mechanic_sources.get(item_stable_key, [])
+            if source.source_type == "auction_house"
+        ]
+
     def get_fishing_bonus_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
         return [
             source

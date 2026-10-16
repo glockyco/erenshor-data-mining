@@ -78,6 +78,8 @@ SELECT
     i.player_cannot_sell,
     i.rare_item,
     i.is_auctionable,
+    EXISTS (SELECT 1 FROM auction_house_items ah WHERE ah.item_stable_key = i.stable_key)
+        AS can_be_listed_by_sims,
     i.book_title,
     i.mining,
     i.fuel_source,

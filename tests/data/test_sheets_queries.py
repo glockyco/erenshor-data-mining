@@ -100,6 +100,18 @@ class TestSheetsQueries:
             # Just verify it's iterable and doesn't crash
             assert isinstance(rows, list)
 
+    def test_items_sim_listing_column_matches_clean_eligibility(self, sheets_engine: Engine):
+        query = (QUERIES_DIR / "items.sql").read_text(encoding="utf-8")
+        with sheets_engine.connect() as conn:
+            eligible = set(conn.execute(text("SELECT DISTINCT item_stable_key FROM auction_house_items")).scalars())
+            rows = conn.execute(text(query)).mappings().all()
+
+        assert rows
+        assert eligible
+        assert all("is_auctionable" in row for row in rows)
+        for row in rows:
+            assert row["can_be_listed_by_sims"] == int(row["stable_key"] in eligible)
+
     @pytest.mark.parametrize("query_name", list(MAPLINK_QUERIES))
     def test_maplink_uses_sel_marker_format(self, sheets_engine: Engine, query_name: str):
         """Verify MapLink URLs use ?sel=marker: format for the world map route.

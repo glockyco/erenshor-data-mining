@@ -545,6 +545,23 @@ CREATE TABLE item_drops (
     PRIMARY KEY (source_item_stable_key, dropped_item_stable_key)
 );
 
+-- Successful random listing routes, not the final draw after retry exhaustion.
+-- Bounds apply only to the actor named by the column; NULL means unrestricted.
+CREATE TABLE auction_house_items (
+    item_stable_key  TEXT NOT NULL REFERENCES items (stable_key),
+    route           TEXT NOT NULL CHECK (route IN ('direct', 'replacement', 'gear_surplus')),
+    min_sim_level   INTEGER,
+    max_sim_level   INTEGER,
+    min_player_level INTEGER,
+    max_player_level INTEGER,
+    PRIMARY KEY (item_stable_key, route)
+);
+
+-- NPCDialogManager recognizes these exported GameObject identities as brokers.
+CREATE TABLE auction_house_brokers (
+    character_stable_key TEXT PRIMARY KEY NOT NULL REFERENCES characters (stable_key)
+);
+
 -- Ordered substitution pool; empty slots still participate in random selection.
 CREATE TABLE common_world_items (
     position               INTEGER PRIMARY KEY,
@@ -1712,6 +1729,12 @@ class Writer:
 
     def insert_item_drops(self, rows: list[dict[str, object]]) -> int:
         return self._insert("item_drops", rows)
+
+    def insert_auction_house_items(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("auction_house_items", rows)
+
+    def insert_auction_house_brokers(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("auction_house_brokers", rows)
 
     def insert_common_world_items(self, rows: list[dict[str, object]]) -> int:
         return self._insert("common_world_items", rows)

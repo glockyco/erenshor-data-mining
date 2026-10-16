@@ -97,25 +97,151 @@
       "update": null,
       "date": null,
       "patch_notes_url": null,
-      "source": "Build 24405256 keeps the item (ID 11529762), but no scene, prefab, asset, or script refers to it by GUID or ID. The random draws over the whole item database exclude it: the Auction House takes items up to level 39 with a value, guild quests need a class and a loot table, and sims equip only items of their class, while the torch is level 50, worth 0, and has no class. The quest The Shivering Torch, which the old article names, gives the Shivering Belt Lamp through Kio's dialog."
+      "source": "Build 24405256: Resources/items/SECONDARY - 50 - Shivering Torch.asset:15-31,59 retains ID 11529762, level 50, value 0, and all six playable classes (also six item_classes rows). Its GUID 7e7beaa1c72333848a1c77b8d6c50131 has 0 consumers in all 3,964 .unity/.prefab/.asset files under variants/main/unity/ExportedProject/Assets/{Scenes,Resources,GameObject}; its exact ID has 0 references in all 486 shipped C# files under variants/main/backups/build-24405256/scripts/Assembly-CSharp. Clean DB counts are 0 across loot, effective vendors, quest rewards, dialog grants, crafting rewards, ground bags, mining, fishing, bonus catches, special world drops, item drops, spell-created items, conversions, and class starting items, plus 0 knowledge_entry_drops by item name. Ordinary direct auction draws reject level >35 and value <=0 (SimPlayer.cs:4022-4040); replacement rejects level >39 and value 0 (AuctionHouse.cs:111-121); even rival gear draws cap at 45 (SimPlayer.cs:3988-3997,4104), and UpdateAH rejects level >=40 (AuctionHouse.cs:604-609). Guild objectives require a matching knowledge loot entry (GuildManager.cs:1433-1447,1570-1579). The Shivering Torch quest instead gives item:gen - shivering belt lamp in Kio the Lightkeeper's dialog index 3, completing quest:shiver-torch."
     },
-    "Pristine Ceremonial Ring": {
-      "stable_key": "item:ring - 14 - ancient ceremonial ring 1",
+    "Correcting Cape": {
+      "stable_key": "item:gm - back - 30 - correcting cape",
       "state": "unobtainable",
       "thing": "item",
       "update": null,
       "date": null,
       "patch_notes_url": null,
-      "source": "The ceremonial ring mold lists this ring as its second reward, but the forge always awards the first reward of a template (code fact smithing.awards_first_template_reward), and ancient coal only makes that ring blessed. No vendor, drop, quest, or other source gives it."
+      "source": "Build 24405256: Resources/items/GM - BACK - 30 - Correcting Cape.asset:15-24 retains ID 65399960 at level 99. GUID d137243526e317e4a9e90315cacbe83d has exactly 1 serialized consumer: Resources/simplayers/GM-Burgee.prefab:15481, equipped by GM-Burgee (:16057), IsGMCharacter=1 (:16245); it is used equipment, not unused content. The scan covered all 3,964 .unity/.prefab/.asset files under variants/main/unity/ExportedProject/Assets/{Scenes,Resources,GameObject}; the exact ID has 0 references in all 486 shipped C# files. Clean DB counts are 0 across loot, effective vendors, quest rewards, dialog grants, crafting rewards, ground bags, mining, fishing, bonus catches, special world drops, item drops, spell-created items, conversions, and class starting items, plus 0 knowledge_entry_drops by item name. Ordinary direct auction draws cap at 35 (SimPlayer.cs:4034), replacement at 39 (AuctionHouse.cs:120), rival gear at 45 (SimPlayer.cs:3993-3997,4104), and auction insertion rejects level >=40 (AuctionHouse.cs:607); GM gear progression returns immediately (SimPlayer.cs:3947-3951). Guild objectives require the absent knowledge loot entry (GuildManager.cs:1446,1570-1579). C# references are under variants/main/backups/build-24405256/scripts/Assembly-CSharp."
     },
-    "Unusual Copper Sceptre": {
-      "stable_key": "item:wand - bronzesceptre 1",
+    "Deciding Blade": {
+      "stable_key": "item:gm - weap - 35 - deciding blade",
       "state": "unobtainable",
       "thing": "item",
       "update": null,
       "date": null,
       "patch_notes_url": null,
-      "source": "The bronze sceptre mold lists this sceptre as its second reward, but the forge always awards the first reward of a template (code fact smithing.awards_first_template_reward), and better fuel only makes that sceptre blessed. No vendor, drop, quest, or other source gives it."
+      "source": "Build 24405256: Resources/items/GM - WEAP - 35 - Deciding Blade.asset:15-24 retains ID 31231620 at level 99. GUID da82464abffd80b46a6946c0d10886fd has exactly 2 serialized consumers, both equipment slots in Resources/simplayers/GM-Burgee.prefab:15485-15486; NPCName is GM-Burgee (:16057), IsGMCharacter=1 (:16245). It is used equipment, not unused content. The scan covered all 3,964 .unity/.prefab/.asset files under variants/main/unity/ExportedProject/Assets/{Scenes,Resources,GameObject}; the exact ID has 0 references in all 486 shipped C# files. Clean DB counts are 0 across loot, effective vendors, quest rewards, dialog grants, crafting rewards, ground bags, mining, fishing, bonus catches, special world drops, item drops, spell-created items, conversions, and class starting items, plus 0 knowledge_entry_drops by item name. Ordinary direct auction draws cap at 35 (SimPlayer.cs:4034), replacement at 39 (AuctionHouse.cs:120), rival gear at 45 (SimPlayer.cs:3993-3997,4104), and auction insertion rejects level >=40 (AuctionHouse.cs:607); GM gear progression returns immediately (SimPlayer.cs:3947-3951). Guild objectives require the absent knowledge loot entry (GuildManager.cs:1446,1570-1579). C# references are under variants/main/backups/build-24405256/scripts/Assembly-CSharp."
+    },
+    "Game Master's Plate": {
+      "stable_key": "item:gm - chest - game master's plate",
+      "state": "unobtainable",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Build 24405256: Resources/items/GM - CHEST - Game Master's Plate.asset:15-24 retains ID 52383240 at level 99. GUID 21d3c32613b9ffc4382e66e9063743af has exactly 1 serialized consumer: Resources/simplayers/GM-Burgee.prefab:15482, equipped by GM-Burgee (:16057), IsGMCharacter=1 (:16245); it is used equipment, not unused content. The scan covered all 3,964 .unity/.prefab/.asset files under variants/main/unity/ExportedProject/Assets/{Scenes,Resources,GameObject}; the exact ID has 0 references in all 486 shipped C# files. Clean DB counts are 0 across loot, effective vendors, quest rewards, dialog grants, crafting rewards, ground bags, mining, fishing, bonus catches, special world drops, item drops, spell-created items, conversions, and class starting items, plus 0 knowledge_entry_drops by item name. Ordinary direct auction draws cap at 35 (SimPlayer.cs:4034), replacement at 39 (AuctionHouse.cs:120), rival gear at 45 (SimPlayer.cs:3993-3997,4104), and auction insertion rejects level >=40 (AuctionHouse.cs:607); GM gear progression returns immediately (SimPlayer.cs:3947-3951). Guild objectives require the absent knowledge loot entry (GuildManager.cs:1446,1570-1579). C# references are under variants/main/backups/build-24405256/scripts/Assembly-CSharp."
+    },
+    "Petitioner's Vambraces": {
+      "stable_key": "item:gm - arm - 35 - petitioner's vambraces",
+      "state": "unobtainable",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Build 24405256: Resources/items/GM - ARM - 35 - Petitioner's Vambraces.asset:15-24 retains ID 7050615 at level 99. GUID 9566f3a13e3cb5e4ba96c956d42e9373 has exactly 1 serialized consumer: Resources/simplayers/GM-Burgee.prefab:15480, equipped by GM-Burgee (:16057), IsGMCharacter=1 (:16245); it is used equipment, not unused content. The scan covered all 3,964 .unity/.prefab/.asset files under variants/main/unity/ExportedProject/Assets/{Scenes,Resources,GameObject}; the exact ID has 0 references in all 486 shipped C# files. Clean DB counts are 0 across loot, effective vendors, quest rewards, dialog grants, crafting rewards, ground bags, mining, fishing, bonus catches, special world drops, item drops, spell-created items, conversions, and class starting items, plus 0 knowledge_entry_drops by item name. Ordinary direct auction draws cap at 35 (SimPlayer.cs:4034), replacement at 39 (AuctionHouse.cs:120), rival gear at 45 (SimPlayer.cs:3993-3997,4104), and auction insertion rejects level >=40 (AuctionHouse.cs:607); GM gear progression returns immediately (SimPlayer.cs:3947-3951). Guild objectives require the absent knowledge loot entry (GuildManager.cs:1446,1570-1579). C# references are under variants/main/backups/build-24405256/scripts/Assembly-CSharp."
+    },
+    "Resolving Greaves": {
+      "stable_key": "item:gm - leg - resolving greaves",
+      "state": "unobtainable",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Build 24405256: Resources/items/GM - LEG - Resolving Greaves.asset:15-24 retains ID 778140 at level 99. GUID 74d65a9b922385a4b91e8f11086095fd has exactly 1 serialized consumer: Resources/simplayers/GM-Burgee.prefab:15484, equipped by GM-Burgee (:16057), IsGMCharacter=1 (:16245); it is used equipment, not unused content. The scan covered all 3,964 .unity/.prefab/.asset files under variants/main/unity/ExportedProject/Assets/{Scenes,Resources,GameObject}; the exact ID has 0 references in all 486 shipped C# files. Clean DB counts are 0 across loot, effective vendors, quest rewards, dialog grants, crafting rewards, ground bags, mining, fishing, bonus catches, special world drops, item drops, spell-created items, conversions, and class starting items, plus 0 knowledge_entry_drops by item name. Ordinary direct auction draws cap at 35 (SimPlayer.cs:4034), replacement at 39 (AuctionHouse.cs:120), rival gear at 45 (SimPlayer.cs:3993-3997,4104), and auction insertion rejects level >=40 (AuctionHouse.cs:607); GM gear progression returns immediately (SimPlayer.cs:3947-3951). Guild objectives require the absent knowledge loot entry (GuildManager.cs:1446,1570-1579). C# references are under variants/main/backups/build-24405256/scripts/Assembly-CSharp."
+    },
+    "Spell Scroll: Flight of Foot": {
+      "stable_key": "item:spell scroll - flight of foot",
+      "state": "unused",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Build 24405256: Resources/items/SPELL SCROLL - Flight of Foot.asset:15-24,54,57 retains ID 628764, item level 0, value 35, teaching spell:dru - flight of foot (required_level=-1 in the clean DB). GUID a250b3ab9e1d3e4409f255f545d092ad has 0 consumers in all 3,964 .unity/.prefab/.asset files under variants/main/unity/ExportedProject/Assets/{Scenes,Resources,GameObject}; the exact ID has 0 references in all 486 shipped C# files. Clean DB counts are 0 across loot, effective vendors, quest rewards, dialog grants, crafting rewards, ground bags, mining, fishing, bonus catches, special world drops, item drops, spell-created items, conversions, and class starting items, plus 0 knowledge_entry_drops by item name. The direct auction draw can select this level-0 item (SimPlayer.cs:4034), but GetItemList replaces it because the taught spell has negative RequiredLevel (AuctionHouse.cs:77); ordinary replacement rejects item level <=0 (AuctionHouse.cs:120), as does random gear generation (SimPlayer.cs:4104-4107). Equipment-slot fallbacks do not supply General items (SimPlayer.cs:4354-4428). Guild objectives require the absent knowledge loot entry (GuildManager.cs:1446,1570-1579). Thus there is no supported player-visible listing or other grant; no removal date is known. C# references are under variants/main/backups/build-24405256/scripts/Assembly-CSharp."
+    },
+    "Spell Scroll: Focus": {
+      "stable_key": "item:spell scroll - focus",
+      "state": "unused",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Build 24405256: Resources/items/SPELL SCROLL - Focus.asset:15-24,57 retains ID 2689005 at item level -1, teaching spell:arc - focus (required_level=-1 in the clean DB). GUID 11f9b56cff47191498827811538b24b1 has 0 consumers in all 3,964 .unity/.prefab/.asset files under variants/main/unity/ExportedProject/Assets/{Scenes,Resources,GameObject}; the exact ID has 0 references in all 486 shipped C# files. Clean DB counts are 0 across loot, effective vendors, quest rewards, dialog grants, crafting rewards, ground bags, mining, fishing, bonus catches, special world drops, item drops, spell-created items, conversions, and class starting items, plus 0 knowledge_entry_drops by item name. Ordinary direct auction draws reject item level <0 (SimPlayer.cs:4034), replacement and gear draws reject level <=0 (AuctionHouse.cs:120; SimPlayer.cs:4104-4107), and the negative taught-spell level also fails listing preservation (AuctionHouse.cs:77). Equipment-slot fallbacks do not supply General items (SimPlayer.cs:4354-4428). Guild objectives require the absent knowledge loot entry (GuildManager.cs:1446,1570-1579). This supports unused, not removed content or an invented retirement date. C# references are under variants/main/backups/build-24405256/scripts/Assembly-CSharp."
+    },
+    "Spell Scroll: Protection": {
+      "stable_key": "item:spell scroll - protection",
+      "state": "unused",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Build 24405256: Resources/items/SPELL SCROLL - Protection.asset:15-24,58 retains ID 15327195 at item level -1, teaching spell:all - protection (required_level=10 in the clean DB, not a negative spell level). GUID c5294b58d68af774db704060e098f180 has 0 consumers in all 3,964 .unity/.prefab/.asset files under variants/main/unity/ExportedProject/Assets/{Scenes,Resources,GameObject}; the exact ID has 0 references in all 486 shipped C# files. Clean DB counts are 0 across loot, effective vendors, quest rewards, dialog grants, crafting rewards, ground bags, mining, fishing, bonus catches, special world drops, item drops, spell-created items, conversions, and class starting items, plus 0 knowledge_entry_drops by item name. Ordinary direct auction draws reject item level <0 (SimPlayer.cs:4034); replacement and gear draws reject level <=0 (AuctionHouse.cs:120; SimPlayer.cs:4104-4107). Equipment-slot fallbacks do not supply General items (SimPlayer.cs:4354-4428). Guild objectives require the absent knowledge loot entry (GuildManager.cs:1446,1570-1579). This supports unused, not removed content or an invented retirement date. C# references are under variants/main/backups/build-24405256/scripts/Assembly-CSharp."
+    },
+    "Spell Scroll: Soluna's Solar Blessing": {
+      "stable_key": "item:spell scroll - soluna's solar blessing",
+      "state": "unused",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Build 24405256: Resources/items/SPELL SCROLL - Soluna's Solar Blessing.asset:15-24,57 retains ID 12054072 at item level -1, teaching spell:pal - soluna's blessing (required_level=-1 in the clean DB). GUID 38fb525fa1b65bb44bfb95245ada03f5 has 0 consumers in all 3,964 .unity/.prefab/.asset files under variants/main/unity/ExportedProject/Assets/{Scenes,Resources,GameObject}; the exact ID has 0 references in all 486 shipped C# files. Clean DB counts are 0 across loot, effective vendors, quest rewards, dialog grants, crafting rewards, ground bags, mining, fishing, bonus catches, special world drops, item drops, spell-created items, conversions, and class starting items, plus 0 knowledge_entry_drops by item name. Ordinary direct auction draws reject item level <0 (SimPlayer.cs:4034), replacement and gear draws reject level <=0 (AuctionHouse.cs:120; SimPlayer.cs:4104-4107), and the negative taught-spell level also fails listing preservation (AuctionHouse.cs:77). Equipment-slot fallbacks do not supply General items (SimPlayer.cs:4354-4428). Guild objectives require the absent knowledge loot entry (GuildManager.cs:1446,1570-1579). This supports unused, not removed content or an invented retirement date. C# references are under variants/main/backups/build-24405256/scripts/Assembly-CSharp."
+    },
+    "Spell Scroll: Soluna's Solar Invigoration": {
+      "stable_key": "item:spell scroll - soluna's solar invigoration",
+      "state": "unused",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Build 24405256: Resources/items/SPELL SCROLL - Soluna's Solar Invigoration.asset:15-24,57 retains ID 14453926 at item level -1, teaching spell:pal - soluna's invigoration (required_level=-1 in the clean DB). GUID 62d283e70575f6f4fbd0a7b371dcd6ec has 0 consumers in all 3,964 .unity/.prefab/.asset files under variants/main/unity/ExportedProject/Assets/{Scenes,Resources,GameObject}; the exact ID has 0 references in all 486 shipped C# files. Clean DB counts are 0 across loot, effective vendors, quest rewards, dialog grants, crafting rewards, ground bags, mining, fishing, bonus catches, special world drops, item drops, spell-created items, conversions, and class starting items, plus 0 knowledge_entry_drops by item name. Ordinary direct auction draws reject item level <0 (SimPlayer.cs:4034), replacement and gear draws reject level <=0 (AuctionHouse.cs:120; SimPlayer.cs:4104-4107), and the negative taught-spell level also fails listing preservation (AuctionHouse.cs:77). Equipment-slot fallbacks do not supply General items (SimPlayer.cs:4354-4428). Guild objectives require the absent knowledge loot entry (GuildManager.cs:1446,1570-1579). This supports unused, not removed content or an invented retirement date. C# references are under variants/main/backups/build-24405256/scripts/Assembly-CSharp."
+    },
+    "Spell Scroll: Vitheo's Blessing of the Sea": {
+      "stable_key": "item:spell scroll - vitheo's blessing of the sea",
+      "state": "unused",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Build 24405256: Resources/items/SPELL SCROLL - Vitheo's Blessing of the Sea.asset:15-24,57 retains ID 462920 at item level -1, teaching spell:duel - vitheo's blessing of the sea (required_level=-1 in the clean DB). GUID cf2e6efc3a86edc44b74ec450600ac6a has 0 consumers in all 3,964 .unity/.prefab/.asset files under variants/main/unity/ExportedProject/Assets/{Scenes,Resources,GameObject}; the exact ID has 0 references in all 486 shipped C# files. Clean DB counts are 0 across loot, effective vendors, quest rewards, dialog grants, crafting rewards, ground bags, mining, fishing, bonus catches, special world drops, item drops, spell-created items, conversions, and class starting items, plus 0 knowledge_entry_drops by item name. Ordinary direct auction draws reject item level <0 (SimPlayer.cs:4034), replacement and gear draws reject level <=0 (AuctionHouse.cs:120; SimPlayer.cs:4104-4107), and the negative taught-spell level also fails listing preservation (AuctionHouse.cs:77). Equipment-slot fallbacks do not supply General items (SimPlayer.cs:4354-4428). Guild objectives require the absent knowledge loot entry (GuildManager.cs:1446,1570-1579). This supports unused, not removed content or an invented retirement date. C# references are under variants/main/backups/build-24405256/scripts/Assembly-CSharp."
+    },
+    "Spell Scroll: Vitheo's Blessing of the Wind": {
+      "stable_key": "item:spell scroll - vitheo's blessing of the wind",
+      "state": "unused",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Build 24405256: Resources/items/SPELL SCROLL - Vitheo's Blessing of the Wind.asset:15-24,57 retains ID 831816 at item level -1, teaching spell:duel - vitheo's blessing of the wind (required_level=-1 in the clean DB). GUID 8a1d01f585b6572468060eafa5e8a3d3 has 0 consumers in all 3,964 .unity/.prefab/.asset files under variants/main/unity/ExportedProject/Assets/{Scenes,Resources,GameObject}; the exact ID has 0 references in all 486 shipped C# files. Clean DB counts are 0 across loot, effective vendors, quest rewards, dialog grants, crafting rewards, ground bags, mining, fishing, bonus catches, special world drops, item drops, spell-created items, conversions, and class starting items, plus 0 knowledge_entry_drops by item name. Ordinary direct auction draws reject item level <0 (SimPlayer.cs:4034), replacement and gear draws reject level <=0 (AuctionHouse.cs:120; SimPlayer.cs:4104-4107), and the negative taught-spell level also fails listing preservation (AuctionHouse.cs:77). Equipment-slot fallbacks do not supply General items (SimPlayer.cs:4354-4428). Guild objectives require the absent knowledge loot entry (GuildManager.cs:1446,1570-1579). This supports unused, not removed content or an invented retirement date. C# references are under variants/main/backups/build-24405256/scripts/Assembly-CSharp."
+    },
+    "Aged letter": {
+      "stable_key": "item:gen - dusty scribbles",
+      "state": "unused",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Build 24405256: Resources/items/GEN - Dusty Scribbles.asset:15-24,53,71 retains ID 35872080, level 0, value 0, Unique=1. GUID 18d2a22492d1e274f854b9622bf2aee4 has 0 consumers in all 3,964 .unity/.prefab/.asset files under variants/main/unity/ExportedProject/Assets/{Scenes,Resources,GameObject}; the exact ID has 0 references in all 486 shipped C# files. Clean DB counts are 0 across loot, effective vendors, quest rewards, dialog grants, crafting rewards, ground bags, mining, fishing, bonus catches, special world drops, item drops, spell-created items, conversions, and class starting items, plus 0 knowledge_entry_drops by item name. Ordinary direct auction draws reject value <=0 (SimPlayer.cs:4034), listing preservation rejects value 0 and Unique (AuctionHouse.cs:77), replacement rejects those flags and level <=0 (AuctionHouse.cs:120), and random gear rejects level <=0 (SimPlayer.cs:4104-4107). Equipment-slot fallbacks do not supply this classless General item (SimPlayer.cs:4354-4428). Guild objectives require the absent knowledge loot entry (GuildManager.cs:1446,1570-1579). The retained lore is not a grant or evidence of a removal update. C# references are under variants/main/backups/build-24405256/scripts/Assembly-CSharp."
+    },
+    "Skill book: Fishing": {
+      "stable_key": "item:skillbook - fishing",
+      "state": "unused",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Build 24405256: Resources/items/SKILLBOOK - Fishing.asset:15-24,58,67 retains ID 15382125, level 0, value 0, and a TeachSkill reference; the skill's existence does not supply the book. GUID 7a118b3f9c9bdf642a3f8d641bd6bfa5 has 0 consumers in all 3,964 .unity/.prefab/.asset files under variants/main/unity/ExportedProject/Assets/{Scenes,Resources,GameObject}; the exact ID has 0 references in all 486 shipped C# files. Clean DB counts are 0 across loot, effective vendors, quest rewards, dialog grants, crafting rewards, ground bags, mining, fishing, bonus catches, special world drops, item drops, spell-created items, conversions, and class starting items, plus 0 knowledge_entry_drops by item name. Ordinary direct auction draws reject value <=0 (SimPlayer.cs:4034), listing preservation rejects value 0 (AuctionHouse.cs:77), replacement rejects value 0 and level <=0 (AuctionHouse.cs:120), and random gear rejects level <=0 (SimPlayer.cs:4104-4107). Equipment-slot fallbacks do not supply General items (SimPlayer.cs:4354-4428). Guild objectives require the absent knowledge loot entry (GuildManager.cs:1446,1570-1579). No removal update or date is established. C# references are under variants/main/backups/build-24405256/scripts/Assembly-CSharp."
+    },
+    "The Necromancer": {
+      "stable_key": "item:quest - game piece the necromancer",
+      "state": "unused",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Build 24405256: Resources/items/QUEST - Game Piece The Necromancer.asset:15-24,53,71,96 retains ID 7556335, level 0, value 0, Unique=1, NoTradeNoDestroy=1. GUID 26e61f6a3509aa841b30a5ef86067801 has 0 consumers in all 3,964 .unity/.prefab/.asset files under variants/main/unity/ExportedProject/Assets/{Scenes,Resources,GameObject}; the exact ID has 0 references in all 486 shipped C# files. Clean DB counts are 0 across loot, effective vendors, quest rewards, dialog grants, crafting rewards, ground bags, mining, fishing, bonus catches, special world drops, item drops, spell-created items, conversions, and class starting items, plus 0 knowledge_entry_drops by item name. Ordinary direct auction draws reject value <=0 and NoTradeNoDestroy (SimPlayer.cs:4034), listing preservation rejects those and Unique (AuctionHouse.cs:77), replacement also rejects level <=0 (AuctionHouse.cs:120), and random gear rejects level <=0 (SimPlayer.cs:4104-4107). Equipment-slot fallbacks do not supply this classless General item (SimPlayer.cs:4354-4428). Guild objectives require the absent knowledge loot entry (GuildManager.cs:1446,1570-1579). The asset name and lore do not establish a chessboard reward, removal update, or date. C# references are under variants/main/backups/build-24405256/scripts/Assembly-CSharp."
+    },
+    "Mold: Ethereal Vault": {
+      "stable_key": "item:template - ethereal vault",
+      "state": "unused",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Build 24405256: Resources/items/TEMPLATE - Ethereal Vault.asset:15-24,53 retains ID 40409214, level 0, value 0. GUID af5c7e5e535d55a4fb1a6633252427ad has exactly 1 serialized consumer across all 3,964 .unity/.prefab/.asset files under variants/main/unity/ExportedProject/Assets/{Scenes,Resources,GameObject}: Scenes/LoadScene.unity:1296730 assigns Misc.EtherealVaultMold. Across all 486 shipped C# files, Misc.cs:210 only declares that field, with 0 reads or grants and 0 exact item-ID references. Clean DB counts are 0 across loot, effective vendors, quest rewards, dialog grants, crafting rewards, ground bags, mining, fishing, bonus catches, special world drops, item drops, spell-created items, conversions, and class starting items, plus 0 knowledge_entry_drops by item name. Ordinary direct auction draws reject value <=0 (SimPlayer.cs:4034), listing preservation rejects value 0 (AuctionHouse.cs:77), replacement rejects value 0 and level <=0 (AuctionHouse.cs:120), and random gear rejects level <=0 (SimPlayer.cs:4104-4107). Equipment-slot fallbacks do not supply this classless General item (SimPlayer.cs:4354-4428). Guild objectives require the absent knowledge loot entry (GuildManager.cs:1446,1570-1579). A dormant singleton and the mold's recipe are not a source of the mold. C# references are under variants/main/backups/build-24405256/scripts/Assembly-CSharp."
     },
     "Ancient Sentinel": {
       "stable_key": "character:ancient sentinel",

@@ -92,6 +92,8 @@
         return [...markers.values()];
     });
 
+    const auctionHouses = $derived(sources.filter((source) => source.kind === 'auction_house'));
+
     const unlocatedDroppers = $derived(sources.filter(
         (source): source is Extract<ResolvedItemSource, { kind: 'drop' }> =>
             source.kind === 'drop' && source.markers.length === 0
@@ -393,6 +395,40 @@
         <p class="border-t border-zinc-700 pt-3 text-center text-xs text-zinc-400">
             The map has no data on how to obtain this item.
         </p>
+    {/if}
+
+    {#if auctionHouses.length}
+        <div class="space-y-2 border-t border-zinc-700 pt-2 text-xs">
+            <div class="flex items-center gap-1 text-zinc-300">
+                Auction House<WikiLink pageName="Auction House" />
+            </div>
+            <p class="text-zinc-400">May be listed by simulated players</p>
+            <p class="text-zinc-500">Stock is random.</p>
+            {#each auctionHouses as source (source.row.itemStableKey)}
+                {#each source.brokers as broker (broker.row.characterStableKey)}
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-1 text-zinc-300">
+                            {broker.row.npcName}<WikiLink pageName={broker.row.npcWikiPageName} />
+                        </div>
+                        {#each [...new Set(broker.markers.map((marker) => marker.zone))] as zone (zone)}
+                            {@const markers = broker.markers.filter((marker) => marker.zone === zone)}
+                            <button
+                                type="button"
+                                class="flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-zinc-400 hover:bg-zinc-700/50 hover:text-white"
+                                onmouseenter={() => onHoverSpawn(markerKeys(markers))}
+                                onmouseleave={() => onHoverSpawn(null)}
+                                onclick={() => focusMarkers(markers)}
+                            >
+                                <span>{markers[0].zoneName} · {markers.length} location{markers.length !== 1 ? 's' : ''}</span>
+                                <Crosshair class="h-3.5 w-3.5 shrink-0" />
+                            </button>
+                        {:else}
+                            <div class="text-zinc-400">Location unknown</div>
+                        {/each}
+                    </div>
+                {/each}
+            {/each}
+        </div>
     {/if}
 
     {#if treasureGroups.length}

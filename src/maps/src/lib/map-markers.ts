@@ -264,9 +264,22 @@ export type ItemStartingSource = ItemSourceItemMeta & {
     allClasses: boolean;
 };
 
+export type AuctionHouseBroker = {
+    characterStableKey: string;
+    npcName: string;
+    npcWikiPageName: string | null;
+};
+
+/** Random simulated-player listings, not fixed vendor stock. */
+export type ItemAuctionHouseSource = ItemSourceItemMeta & {
+    kind: 'auction_house';
+    brokers: AuctionHouseBroker[];
+};
+
 export type ItemSourceRow =
     | ItemDropSource
     | ItemVendorSource
+    | ItemAuctionHouseSource
     | ItemTreasureSource
     | ItemMiningSource
     | ItemFishingSource

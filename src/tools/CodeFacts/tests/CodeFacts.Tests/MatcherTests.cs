@@ -80,6 +80,106 @@ public sealed class MatcherTests
     }
 
     [Fact]
+    public void IntExpression_extracts_one_bound_and_rejects_ambiguous_values()
+    {
+        var bound = Fact(
+            "fixture.cap",
+            "extract",
+            "Auctionable",
+            "int_expression",
+            new() { ["left"] = "level", ["operator"] = "<" },
+            ["value"]
+        );
+        Assert.Equal("40", Matchers.IntExpression(Method("Auctionable"), bound)["value"]);
+        var missing = bound with
+        {
+            Args = new() { ["left"] = "missing", ["operator"] = "<" },
+        };
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.IntExpression(Method("Auctionable"), missing)
+        );
+        var method = Method("AmbiguousBounds");
+        Assert.Throws<InvalidDataException>(() => Matchers.IntExpression(method, bound));
+    }
+
+    [Fact]
+    public void IntExpression_scopes_relative_offsets_to_the_named_draw()
+    {
+        var method = Method("OffsetDraw");
+        var fact = Fact(
+            "fixture.offset",
+            "extract",
+            "M",
+            "int_expression",
+            new()
+            {
+                ["left"] = "stats.Level",
+                ["operator"] = "+",
+                ["within_draw"] = "empty",
+            },
+            ["value"]
+        );
+        Assert.Equal("3", Matchers.IntExpression(method, fact)["value"]);
+    }
+
+    [Fact]
+    public void StringConstants_scopes_names_to_the_assignment_guard()
+    {
+        var method = Method("BrokerNames");
+        var fact = Fact(
+            "fixture.brokers",
+            "extract",
+            "M",
+            "string_constants",
+            new() { ["guard_assignment"] = "isAuctionHouse" },
+            ["strings"]
+        );
+        Assert.Equal("Broker A,Broker B", Matchers.StringConstants(method, fact)["strings"]);
+    }
+
+    [Fact]
+    public void IntExpression_top_level_ignores_nested_level_thresholds()
+    {
+        var method = Method("LevelCap");
+        var fact = Fact(
+            "fixture.cap",
+            "extract",
+            "M",
+            "int_expression",
+            new()
+            {
+                ["left"] = "level",
+                ["operator"] = "<",
+                ["top_level"] = "true",
+            },
+            ["value"]
+        );
+        Assert.Equal("35", Matchers.IntExpression(method, fact)["value"]);
+    }
+
+    [Fact]
+    public void BranchShape_pins_false_branch_and_rejects_changed_destination()
+    {
+        var method = Method("Storage");
+        var fact = Fact(
+            "fixture.storage",
+            "assert",
+            "M",
+            "branch_shape",
+            new()
+            {
+                ["condition"] = "compatible",
+                ["branch"] = "false",
+                ["shape"] = "{ SingletonB = \"stored\"; }",
+            },
+            null
+        );
+        Assert.Empty(Matchers.BranchShape(method, fact));
+        var changed = fact with { Args = new(fact.Args) { ["shape"] = "{ Discard (item); }" } };
+        Assert.Throws<InvalidDataException>(() => Matchers.BranchShape(method, changed));
+    }
+
+    [Fact]
     public void StatementShape_binds_fixture_guarantee_statement()
     {
         var result = Matchers.StatementShape(

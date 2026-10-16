@@ -87,6 +87,19 @@ function makeNpc(
     } as unknown as WorldNpc;
 }
 
+function auctionRow(
+    brokers: { characterStableKey: string; npcName: string; npcWikiPageName: string | null }[]
+): Extract<ItemSourceRow, { kind: 'auction_house' }> {
+    return {
+        kind: 'auction_house',
+        itemStableKey: 'item:auction',
+        displayName: 'Auction Item',
+        wikiPageName: 'Auction Item',
+        iconHash: null,
+        brokers
+    };
+}
+
 function row(
     itemStableKey: string,
     displayName: string,
@@ -341,6 +354,7 @@ describe('ItemSearchProvider', () => {
                 fishingSpots: 0,
                 itemBags: 0,
                 worldDrops: 0,
+                auctionHouses: 0,
                 givers: 0,
                 quests: 0,
                 recipes: 0,
@@ -410,6 +424,7 @@ describe('ItemSearchProvider', () => {
                 fishingSpots: 0,
                 itemBags: 0,
                 worldDrops: 0,
+                auctionHouses: 0,
                 givers: 0,
                 quests: 0,
                 recipes: 0,
@@ -455,6 +470,7 @@ describe('ItemSearchProvider', () => {
             fishingSpots: 0,
             itemBags: 0,
             worldDrops: 0,
+            auctionHouses: 0,
             givers: 0,
             quests: 0,
             recipes: 0,
@@ -508,6 +524,7 @@ describe('ItemSearchProvider', () => {
             fishingSpots: 0,
             itemBags: 1,
             worldDrops: 0,
+            auctionHouses: 0,
             givers: 0,
             quests: 0,
             recipes: 0,
@@ -603,6 +620,27 @@ describe('ItemSearchProvider', () => {
         expect(provider.resolveHighlight(result!)).toEqual({ type: 'none' });
     });
 
+    it('deduplicates broker markers while retaining every unlocated Auction House broker', () => {
+        const marker = makeNpc('spawn:broker', 'Azure', 'Port Azure', 'character:broker-a', 'Broker A');
+        marker.characters.push({ ...marker.characters[0], stableKey: 'character:broker-b', name: 'Broker B' });
+        const rows = [auctionRow(['a', 'b', 'unlocated'].map((name) => ({
+            characterStableKey: `character:broker-${name}`,
+            npcName: `Broker ${name}`,
+            npcWikiPageName: null
+        })))];
+        const provider = new ItemSearchProvider(rows, [marker], [], [], []);
+        const sources = provider.getSourcesForItem('item:auction');
+        expect(sources).toHaveLength(1);
+        const source = sources[0];
+        if (source.kind !== 'auction_house') throw new Error('Expected Auction House source');
+        expect(source.brokers.map((broker) => broker.markers.length)).toEqual([1, 1, 0]);
+        expect(source.markers).toEqual([marker]);
+        expect(provider.getMarkersForItem('item:auction')).toEqual([marker]);
+        expect(provider.getResult('item:auction')).toMatchObject({
+            sourceCounts: { auctionHouses: 1, vendors: 0 }, zoneCount: 1, hasKnownSource: true
+        });
+    });
+
     it('resolves highlight to positions of all dropper spawns', () => {
         const rows = [row('item:1', 'Gem', 'char:1', 'Goblin', 5)];
         const enemy1 = makeEnemy('sp:1', 'Duskenlight', 'Duskenlight', 'char:1', 'Goblin');
@@ -622,6 +660,7 @@ describe('ItemSearchProvider', () => {
                 fishingSpots: 0,
                 itemBags: 0,
                 worldDrops: 0,
+                auctionHouses: 0,
                 givers: 0,
                 quests: 0,
                 recipes: 0,

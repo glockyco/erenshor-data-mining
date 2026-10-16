@@ -1,9 +1,7 @@
 {
   "schema": 1,
   "deferred": [
-    "auction.SimPlayersCantGet: boolean gate, no integer literal; sites AuctionHouse.ReplaceBag:94 and SimPlayer.cs:3283; consumed directly by the Phase 3 wiki derivation from the exported item flag",
     "auction.rare_markup_x20: AuctionHouse.GetItemList line 76 `num2 *= 20f` - float multiply inside RareItem if, no current matcher fits; add a scoped matcher when Phase 3 consumes it",
-    "simplayer.gear_draw: SimPlayer.cs:3283 98% rare soft-reject + dynamic level bands relative to MyStats.Level - bounds are non-literal, revisit if ever needed",
     {
       "id": "ae.stowaway_skeleton",
       "reason": "StowawayPortal.PhaseTwoMechanics skeleton3.GetComponent<AEEvent>().tickDmg = 6500; statement_shape could not bind - decompiler renders the generic GetComponent call differently from the reference .cs; needs exact decompiler rendering to pin."
@@ -307,6 +305,245 @@
         "shape": "if (item.NPCLoot.Contains (_itemName)) { return item; }"
       },
       "note": "Chat names the first knowledge entry whose drops list an item as the source of that item. Re-implemented in src/erenshor/application/wiki/chat_knowledge.py."
+    },
+    {
+      "id": "auction.item_database_pool",
+      "mode": "assert",
+      "type": "ItemDatabase",
+      "method": "Start",
+      "matcher": "statement_shape",
+      "args": {"statement": "ItemDB = Resources.LoadAll (\"Items\", typeof(Item)).Cast<Item> ().ToArray ();"}
+    },
+    {
+      "id": "auction.direct_draw",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (_hours > 3) { List<string> list = new List<string> (); for (int k = 0; k <= UnityEngine.Random.Range (3, 10); k++) { num3 = 1000; Item empty = GameData.PlayerInv.Empty; do { num3--; empty = GameData.ItemDB.ItemDB [UnityEngine.Random.Range (0, GameData.ItemDB.ItemDB.Count ())]; } while (num3 > 0 && (empty == null || empty.ItemLevel > 35 || empty == GameData.PlayerInv.Empty || empty.ItemLevel > MyStats.Level + 3 || empty.ItemLevel < MyStats.Level - 5 || empty.ItemLevel < 0 || empty.ItemValue <= 0 || empty.NoTradeNoDestroy || empty.FurnitureSet)); if (empty != null && empty != GameData.PlayerInv.Empty) { list.Add (empty.Id); } } AuctionHouse.UpdateAH (list, MyNPC.NPCName, Greed); }"
+      },
+      "note": "Successful random draws only. At retry exhaustion a final non-null non-Empty item can escape the rejection predicate; the normal clean eligibility table does not claim this exceptional draw is an ordinary source."
+    },
+    {
+      "id": "auction.direct_level_cap",
+      "mode": "extract",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "int_expression",
+      "args": {"left": "empty.ItemLevel", "operator": ">"},
+      "keys": ["value"]
+    },
+    {
+      "id": "auction.direct_level_above",
+      "mode": "extract",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "int_expression",
+      "args": {"left": "MyStats.Level", "operator": "+", "within_draw": "empty"},
+      "keys": ["value"]
+    },
+    {
+      "id": "auction.direct_level_below",
+      "mode": "extract",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "int_expression",
+      "args": {"left": "MyStats.Level", "operator": "-", "within_draw": "empty"},
+      "keys": ["value"]
+    },
+    {
+      "id": "auction.sim_level_cap",
+      "mode": "extract",
+      "type": "Stats",
+      "method": "CalcSimStats",
+      "matcher": "int_expression",
+      "args": {"left": "Level", "operator": ">"},
+      "keys": ["value"]
+    },
+    {
+      "id": "auction.sim_level_clamp",
+      "mode": "assert",
+      "type": "Stats",
+      "method": "CalcSimStats",
+      "matcher": "node_shape",
+      "args": {"kind": "IfElseStatement", "shape": "if (Level > 35) { Level = 35; }"}
+    },
+    {
+      "id": "auction.player_level_cap",
+      "mode": "extract",
+      "type": "Stats",
+      "method": "DoLevelUp",
+      "matcher": "int_expression",
+      "args": {"left": "Level", "operator": "<", "top_level": "true"},
+      "keys": ["value"]
+    },
+    {
+      "id": "auction.display_item",
+      "mode": "assert",
+      "type": "AuctionHouse",
+      "method": "GetItemList",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "VariableInitializer",
+        "shape": "item = ((!(item2.itemID == \"315843\") && !(item2.itemID == \"1574025\") && !itemByID.NoTradeNoDestroy && itemByID.ItemValue > 0 && !itemByID.PlayerCannotSell && !itemByID.FurnitureSet && (!(itemByID.TeachSpell != null) || itemByID.TeachSpell.RequiredLevel >= 0) && !(itemByID == GameData.GM.Planar) && !(itemByID == GameData.GM.Sivak) && !(itemByID == GameData.GM.PlanarShard) && !itemByID.Unique) ? GameData.ItemDB.GetItemByID (item2.itemID) : ReplaceBag ())"
+      }
+    },
+    {
+      "id": "auction.replacement_draw",
+      "mode": "assert",
+      "type": "AuctionHouse",
+      "method": "ReplaceBag",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "DoWhileStatement",
+        "shape": "do { num--; item = GameData.ItemDB.ItemDB [Random.Range (0, GameData.ItemDB.ItemDB.Length)]; } while ((item.SimPlayersCantGet || (item.RareItem && Random.Range (0, 20) < 19) || item.ItemLevel <= 0 || item.ItemLevel > GameData.PlayerStats.Level || item.Unique || item == GameData.GM.Planar || item == GameData.GM.Sivak || item == GameData.GM.PlanarShard || item.ItemLevel > 39 || item.NoTradeNoDestroy || item.ItemValue == 0 || item.FurnitureSet) && num > 0);"
+      }
+    },
+    {
+      "id": "auction.gear_draw",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "DoWhileStatement",
+        "shape": "do { num3--; item = GameData.ItemDB.ItemDB [UnityEngine.Random.Range (0, GameData.ItemDB.ItemDB.Length)]; } while ((item.SimPlayersCantGet || (item.RareItem && UnityEngine.Random.Range (0, 100) < 98) || item.ItemLevel <= 0 || item.ItemLevel > MyStats.Level + num4 || item.ItemLevel > num5 || item.ItemLevel < Mathf.Max (1, MyStats.Level + num6)) && num3 > 0);"
+      }
+    },
+    {
+      "id": "auction.gear_rival_bounds",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "node_shape",
+      "args": {"kind": "IfElseStatement", "shape": "if (MySimTracking.Rival) { num4 = 6; num5 = ((MyStats.Level >= 35) ? 45 : 37); }"}
+    },
+    {
+      "id": "auction.gear_base_upper",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "node_shape",
+      "args": {"kind": "VariableInitializer", "shape": "num4 = 1"}
+    },
+    {
+      "id": "auction.gear_normal_upper",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "node_shape",
+      "args": {"kind": "IfElseStatement", "shape": "if (MyStats != null && MyStats.Level > 10) { num4 = 2; }"}
+    },
+    {
+      "id": "auction.gear_base_lower",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "node_shape",
+      "args": {"kind": "VariableInitializer", "shape": "num6 = -1"}
+    },
+    {
+      "id": "auction.gear_initial_lower",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "node_shape",
+      "args": {"kind": "IfElseStatement", "shape": "if (flag) { num6 = -2; num3 = 25000; num2 = 20; }"}
+    },
+    {
+      "id": "auction.gear_lower_window",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "node_shape",
+      "args": {"kind": "IfElseStatement", "shape": "if (UnityEngine.Random.Range (0, 100) > 97) { num6 = -3; }"}
+    },
+    {
+      "id": "auction.gear_class_gate",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "node_shape",
+      "args": {"kind": "BinaryOperatorExpression", "shape": "item.Classes.Contains (MyStats.CharacterClass) && !flag4"}
+    },
+    {
+      "id": "auction.gear_incompatible_storage",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "branch_shape",
+      "args": {
+        "condition": "item.Classes.Contains (MyStats.CharacterClass) && !flag4",
+        "branch": "false",
+        "shape": "if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; }"
+      }
+    },
+    {
+      "id": "auction.gear_primary_storage",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "node_shape",
+      "args": {"kind": "IfElseStatement", "shape": "if ((item.WeaponDmg > 0 && item.ThisWeaponType != Item.WeaponType.TwoHandMelee && item.ThisWeaponType != Item.WeaponType.TwoHandStaff) || ((item.ThisWeaponType == Item.WeaponType.TwoHandMelee || item.ThisWeaponType == Item.WeaponType.TwoHandStaff) && item.ItemLevel - simInvSlot4.MyItem.ItemLevel > 3)) { if (item3.MyItem.ItemLevel < item.ItemLevel && (float)item3.MyItem.ItemLevel < num7 && !CheckRelic (item)) { simInvSlot5 = item3; num7 = item3.MyItem.ItemLevel; } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; } } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; }"}
+    },
+    {
+      "id": "auction.gear_secondary_storage",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "node_shape",
+      "args": {"kind": "IfElseStatement", "shape": "if (item.Shield && simInvSlot3.MyItem.ThisWeaponType != Item.WeaponType.TwoHandMelee && simInvSlot3.MyItem.ThisWeaponType != Item.WeaponType.TwoHandStaff) { if (item3.MyItem.ItemLevel < item.ItemLevel && (float)item3.MyItem.ItemLevel < num7 && !CheckRelic (item)) { simInvSlot5 = item3; num7 = item3.MyItem.ItemLevel; } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; } } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; }"}
+    },
+    {
+      "id": "auction.admission",
+      "mode": "assert",
+      "type": "AuctionHouse",
+      "method": "UpdateAH",
+      "matcher": "node_shape",
+      "args": {"kind": "IfElseStatement", "shape": "if (itemByID == null || itemByID.ItemLevel >= 40) { continue; }"}
+    },
+    {
+      "id": "auction.gear_duelist_effect",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "node_shape",
+      "args": {"kind": "IfElseStatement", "shape": "if (item != null && item.WornEffect != null && item.WornEffect.Id == \"45807425\" && MyStats.CharacterClass == GameData.ClassDB.Duelist) { flag4 = true; }"}
+    },
+    {
+      "id": "auction.gear_paladin_effect",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "node_shape",
+      "args": {"kind": "IfElseStatement", "shape": "if (item != null && item.WornEffect != null && (item.WornEffect.Id == \"18068040\" || item.WornEffect.Id == \"16613100\") && MyStats.CharacterClass == GameData.ClassDB.Paladin) { flag4 = true; }"}
+    },
+    {
+      "id": "auction.stored_items_transfer",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "OnInventoryLoaded",
+      "matcher": "node_shape",
+      "args": {"kind": "IfElseStatement", "shape": "if (GameData.SimMngr.Sims [myIndex].MyAHData != null && StoredItems.Count > 0) { List<string> list = new List<string> (); foreach (Item storedItem in StoredItems) { if (storedItem.ItemValue > 0) { list.Add (storedItem.Id); } } if (list.Count > 0) { AuctionHouse.UpdateAH (list, MyNPC.NPCName, Greed); } StoredItems.Clear (); }"}
+    },
+    {
+      "id": "auction.broker_names",
+      "mode": "extract",
+      "type": "NPCDialogManager",
+      "method": "Start",
+      "matcher": "string_constants",
+      "args": {"guard_assignment": "isAuctionHouse"},
+      "keys": ["strings"]
+    },
+    {
+      "id": "auction.broker_gate",
+      "mode": "assert",
+      "type": "NPCDialogManager",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {"kind": "IfElseStatement", "shape": "if (transform.name == \"Thella Steepleton\" || transform.name == \"Goldie Retalio\" || transform.name == \"Summoned: Pocket Auctions\") { isAuctionHouse = true; }"}
     },
     {
       "id": "auction.updateah_gates",

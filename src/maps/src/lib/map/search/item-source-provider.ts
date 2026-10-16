@@ -21,6 +21,7 @@ import type {
     ItemSourceItemMeta,
     ItemDropSource,
     ItemVendorSource,
+    ItemAuctionHouseSource,
     ItemTreasureSource,
     ItemMiningSource,
     ItemFishingSource,
@@ -48,6 +49,12 @@ export type AnySourceMarker = AnySpawnMarker | WorldMiningNode | WorldWater | Wo
 export type ResolvedItemSource =
     | { kind: 'drop'; row: ItemDropSource; markers: AnySpawnMarker[] }
     | { kind: 'vendor'; row: ItemVendorSource; markers: AnySpawnMarker[] }
+    | {
+        kind: 'auction_house';
+        row: ItemAuctionHouseSource;
+        markers: AnySpawnMarker[];
+        brokers: { row: ItemAuctionHouseSource['brokers'][number]; markers: AnySpawnMarker[] }[];
+    }
     | { kind: 'treasure'; row: ItemTreasureSource; markers: WorldTreasureLoc[] }
     | { kind: 'mining'; row: ItemMiningSource; marker: WorldMiningNode }
     | { kind: 'fishing'; row: ItemFishingSource; marker: WorldWater }
@@ -146,6 +153,15 @@ export class ItemSearchProvider implements SearchProvider {
                         sources.push({ kind: 'vendor', row, markers });
                         break;
                     }
+                    case 'auction_house': {
+                        const brokers = row.brokers.map((broker) => ({
+                            row: broker,
+                            markers: this.markersByCharacter.get(broker.characterStableKey) ?? []
+                        }));
+                        const markers = [...new Set(brokers.flatMap((broker) => broker.markers))];
+                        sources.push({ kind: 'auction_house', row, markers, brokers });
+                        break;
+                    }
                     case 'treasure': {
                         const marker = treasureByKey.get(row.treasureLocationStableKey);
                         sources.push({ kind: 'treasure', row, markers: marker ? [marker] : [] });
@@ -217,6 +233,8 @@ export class ItemSearchProvider implements SearchProvider {
                 } else if (source.kind === 'vendor') {
                     vendorKeys.add(source.row.characterStableKey);
                     for (const marker of source.markers) zoneSet.add(marker.zone);
+                } else if (source.kind === 'auction_house') {
+                    for (const marker of source.markers) zoneSet.add(marker.zone);
                 } else if (source.kind === 'mining') {
                     miningKeys.add(source.marker.stableKey);
                     zoneSet.add(source.marker.zone);
@@ -250,6 +268,7 @@ export class ItemSearchProvider implements SearchProvider {
                 fishingSpots: fishingKeys.size,
                 itemBags: bagKeys.size,
                 worldDrops,
+                auctionHouses: sources.some((source) => source.kind === 'auction_house') ? 1 : 0,
                 givers: giverKeys.size,
                 quests: questKeys.size,
                 recipes: recipeKeys.size,

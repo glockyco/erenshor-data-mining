@@ -116,3 +116,16 @@ def test_fixture_carries_the_footer_provenance() -> None:
     text = FIXTURE.read_text(encoding="utf-8")
     assert "CREATE TABLE code_facts_meta" in text
     assert "INSERT INTO code_facts_meta" in text
+
+
+def test_fixture_carries_auction_house_eligibility_and_brokers(fixture_schema: dict[str, set[str]]) -> None:
+    """Map search reads clean eligibility routes and broker identities, never prices."""
+    assert fixture_schema["auction_house_items"] == {
+        "item_stable_key",
+        "route",
+        "min_sim_level",
+        "max_sim_level",
+        "min_player_level",
+        "max_player_level",
+    }
+    assert fixture_schema["auction_house_brokers"] == {"character_stable_key"}

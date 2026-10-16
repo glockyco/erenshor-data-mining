@@ -2,8 +2,10 @@ from types import SimpleNamespace
 
 import pytest
 
+from erenshor.application.wiki.generators.field_preservation import FieldPreservationConfig, FieldPreservationHandler
 from erenshor.application.wiki.generators.pages.entities import EntityPageGenerator
 from erenshor.application.wiki.generators.sections.item import ItemSectionGenerator
+from erenshor.application.wiki_deploy.link_audit import LinkTargets
 from erenshor.domain.enriched_data.item import EnrichedItemData
 from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.item_stats import ItemStats
@@ -260,6 +262,41 @@ def test_item_effect_selection_matches_game_click_priority() -> None:
     assert "|description=A larger bag." in result
     assert "{{ItemTooltip" not in result
     assert "|stablekey=item:magical_bag" in result
+
+
+@pytest.mark.parametrize("eligible", [False, True])
+@pytest.mark.parametrize("is_auctionable", [0, 1])
+def test_auction_house_row_depends_on_sim_listing_source_not_player_auctionability(
+    eligible: bool, is_auctionable: int
+) -> None:
+    item = Item(stable_key="item:test", item_name="Test", is_auctionable=is_auctionable)
+    enriched = EnrichedItemData(
+        item=item,
+        stats=[],
+        classes=[],
+        sources=SourceInfo(
+            obtained_from=[ObtainedFromInfo(source_type="auction_house", source_key=None)] if eligible else []
+        ),
+    )
+
+    result = ItemSectionGenerator().generate_template(enriched, "Test")
+
+    if eligible:
+        assert result.count("|auctionhousesource=May be listed by simulated players\n") == 1
+    else:
+        assert "|auctionhousesource=" not in result
+
+    fetched = "{{Item|stablekey=item:test|title=Test|auctionhousesource=Editor text}}"
+    merged = (
+        FieldPreservationHandler(FieldPreservationConfig(link_targets=LinkTargets(())))
+        .merge_templates(fetched, result, ["Item"])
+        .text
+    )
+    assert "Editor text" not in merged
+    if eligible:
+        assert "|auctionhousesource=May be listed by simulated players" in merged
+    else:
+        assert "auctionhousesource" not in merged
 
 
 def test_item_source_lists_world_drops_with_level_gate_and_small_chances() -> None:

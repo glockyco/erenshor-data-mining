@@ -23,6 +23,7 @@
     <data source="fishingsource"><label>[[Fishing|Fished in]]</label></data>
     <data source="itembagsource"><label>Picked up in</label></data>
     <data source="startingsource"><label>Starting item of</label></data>
+    <data source="auctionhousesource"><label>[[Auction House]]</label></data>
     <data source="othersource"><label>Other sources</label></data>
     <data source="relatedquest"><label>Related quest(s)</label></data>
     <data source="componentfor"><label>Component for</label></data>
@@ -74,7 +75,7 @@ The [[Template:ItemTooltip|ItemTooltip]] or <code>Item/&lt;kind&gt;</code> toolt
 |-
 | '''aka''' || No || Former name of this item
 |-
-| '''historical_state''' || No || Set to <code>removed</code> or <code>unobtainable</code> to show a historical notice
+| '''historical_state''' || No || Set to <code>removed</code>, <code>unobtainable</code>, or <code>unused</code> to show the corresponding content notice
 |-
 | '''historical_update''' || No || Name of the update that changed this item's availability
 |-
@@ -115,6 +116,8 @@ The [[Template:ItemTooltip|ItemTooltip]] or <code>Item/&lt;kind&gt;</code> toolt
 | '''itembagsource''' || No || Zones where this item lies to be picked up
 |-
 | '''startingsource''' || No || Classes that start with this item
+|-
+| '''auctionhousesource''' || No || Generated when simulated players can list this item. Shows "May be listed by simulated players"; stock is random. This is separate from whether a player can auction the item.
 |-
 | '''othersource''' || No || Other ways to obtain the item, written by editors
 |-

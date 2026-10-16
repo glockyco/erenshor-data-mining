@@ -42,6 +42,8 @@ internal static class Runner
                     "statement_shape" => Matchers.StatementShape(scope, fact),
                     "string_set" => Matchers.StringSet(scope, fact),
                     "node_shape" => Matchers.NodeShape(scope, fact),
+                    "int_expression" => Matchers.IntExpression(scope, fact),
+                    "branch_shape" => Matchers.BranchShape(scope, fact),
                     "nested_branch_split" => Matchers.NestedBranchSplit(scope, fact),
                     _ => throw new InvalidDataException($"unknown matcher '{fact.Matcher}'"),
                 };
@@ -231,7 +233,26 @@ internal static class Matchers
     /// in source order, joined with ','.
     public static Dictionary<string, string> StringConstants(EntityDeclaration scope, FactSpec fact)
     {
-        var strings = scope
+        AstNode search = scope;
+        if (fact.Args.TryGetValue("guard_assignment", out string? guard))
+        {
+            var guards = scope
+                .Descendants.OfType<IfElseStatement>()
+                .Where(node =>
+                    node.TrueStatement.Descendants.OfType<AssignmentExpression>()
+                        .Any(assignment =>
+                            Normalize(assignment.Left!.ToString()) == guard
+                            && assignment.Right is PrimitiveExpression { Value: true }
+                        )
+                )
+                .ToList();
+            if (guards.Count != 1)
+                throw new InvalidDataException(
+                    $"string_constants guard bound {guards.Count} times (need exactly 1)"
+                );
+            search = guards[0].Condition;
+        }
+        var strings = search
             .Descendants.OfType<BinaryOperatorExpression>()
             .Where(b => b.Operator == BinaryOperatorType.Equality)
             .SelectMany(b => new[] { b.Left, b.Right })
@@ -283,6 +304,69 @@ internal static class Matchers
             values[key] = string.Join(",", cmps);
         }
         return values;
+    }
+
+    /// Pin one selected branch without snapshotting its unrelated sibling.
+    public static Dictionary<string, string> BranchShape(EntityDeclaration scope, FactSpec fact)
+    {
+        var matches = scope
+            .Descendants.OfType<IfElseStatement>()
+            .Where(node =>
+                Normalize(node.Condition.ToString()) == Normalize(fact.Args["condition"])
+            )
+            .ToList();
+        if (matches.Count != 1)
+            throw new InvalidDataException(
+                $"branch_shape bound {matches.Count} times (need exactly 1)"
+            );
+        AstNode? branch =
+            fact.Args["branch"] == "false" ? matches[0].FalseStatement : matches[0].TrueStatement;
+        if (branch is null || Normalize(branch.ToString()) != Normalize(fact.Args["shape"]))
+            throw new InvalidDataException($"branch_shape mismatch: {branch}");
+        return new();
+    }
+
+    /// Extract the integer right operand of one binary expression, matching its
+    /// left operand and operator exactly. Unlike int_comparisons this preserves
+    /// the distinction between a cap and a relative level-window offset.
+    public static Dictionary<string, string> IntExpression(EntityDeclaration scope, FactSpec fact)
+    {
+        AstNode search = scope;
+        if (fact.Args.TryGetValue("within_draw", out string? identifier))
+        {
+            var draws = scope
+                .Descendants.OfType<DoWhileStatement>()
+                .Where(node => NodeMentions(node, identifier))
+                .ToList();
+            if (draws.Count != 1)
+                throw new InvalidDataException(
+                    $"int_expression draw bound {draws.Count} times (need exactly 1)"
+                );
+            search = draws[0];
+        }
+        var matches = search
+            .Descendants.OfType<BinaryOperatorExpression>()
+            .Where(node =>
+                Normalize(node.Left!.ToString()) == Normalize(fact.Args["left"])
+                && OpName(node.Operator) == fact.Args["operator"]
+                && node.Right is PrimitiveExpression { Value: int }
+            )
+            .Where(node =>
+                !fact.Args.ContainsKey("top_level")
+                || (
+                    scope is MethodDeclaration method
+                    && node.Parent is IfElseStatement guard
+                    && guard.Parent == method.Body
+                )
+            )
+            .Select(node => ((PrimitiveExpression)node.Right!).Value.ToString()!)
+            .Distinct()
+            .ToList();
+        if (matches.Count != 1)
+            throw new InvalidDataException(
+                $"int_expression bound {matches.Count} times (need exactly 1)"
+            );
+        return new() { ["value"] = matches[0] };
     }
 
     /// Assert mode. Asserts the member contains exactly args["count"] statements
@@ -385,6 +469,8 @@ internal static class Matchers
             BinaryOperatorType.LessThanOrEqual => "<=",
             BinaryOperatorType.Equality => "==",
             BinaryOperatorType.InEquality => "!=",
+            BinaryOperatorType.Add => "+",
+            BinaryOperatorType.Subtract => "-",
             _ => op.ToString(),
         };
 }

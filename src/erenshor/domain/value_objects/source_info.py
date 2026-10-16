@@ -15,6 +15,8 @@ class ObtainedFromInfo:
     drop swap. ``probability`` and ``probability_max`` bound its swap-only
     chance per kill in percent, excluding characters with their own item row.
     Lua exposes the optional upper bound as ``probabilityMax``.
+    ``auction_house`` also has no source key: simulated players may list the
+    item, but stock is random, with no fixed price or listing probability.
     """
 
     source_type: str

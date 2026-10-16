@@ -79,5 +79,57 @@ namespace FixtureLib
                 Level++;
             }
         }
+
+        public bool AmbiguousBounds(int level) => level < 35 || level < 40;
+
+        public void OffsetDraw(FixtureLoot empty, FixtureLoot stats)
+        {
+            do
+            {
+                SingletonB = empty.SingletonB;
+            } while (Level > stats.Level + 3);
+            if (stats.Level + 6 > 0)
+            {
+                Level++;
+            }
+        }
+
+        public void BrokerNames(string name, out bool isAuctionHouse, out bool isBanker)
+        {
+            isAuctionHouse = false;
+            isBanker = false;
+            if (name == "Broker A" || name == "Broker B")
+            {
+                isAuctionHouse = true;
+            }
+            if (name == "Banker")
+            {
+                isBanker = true;
+            }
+        }
+
+        public void LevelCap(int level)
+        {
+            if (level < 35)
+            {
+                Level++;
+                if (level < 10)
+                {
+                    Level++;
+                }
+            }
+        }
+
+        public void Storage(bool compatible)
+        {
+            if (compatible)
+            {
+                Level++;
+            }
+            else
+            {
+                SingletonB = "stored";
+            }
+        }
     }
 }

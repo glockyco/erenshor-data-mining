@@ -637,6 +637,12 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "fishingsource": fold_long_list(self._format_fishing(enriched)),
             "itembagsource": fold_long_list(self._format_item_bags(enriched)),
             "startingsource": self._format_starting_classes(enriched),
+            "auctionhousesource": (
+                "May be listed by simulated players"
+                if enriched.sources
+                and any(source.source_type == "auction_house" for source in enriched.sources.obtained_from)
+                else ""
+            ),
             "othersource": "",
             "relatedquest": quest_requirements_str,
             "componentfor": fold_long_list(component_for_str),

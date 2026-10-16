@@ -28,6 +28,7 @@ from pathlib import Path
 
 from loguru import logger
 
+from .auction import process_auction_listings
 from .characters import process_characters
 from .code_facts import process_code_facts
 from .entities import (
@@ -145,6 +146,9 @@ def build(
 
         logger.info("Processing item mechanics...")
         process_item_mechanics(raw, writer)
+
+        logger.info("Processing Auction House listings...")
+        process_auction_listings(writer)
 
         logger.info("Processing treasure hunting...")
         process_treasure(raw, writer)

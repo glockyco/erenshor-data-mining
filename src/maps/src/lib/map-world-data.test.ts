@@ -80,6 +80,7 @@ describe('buildMapWorldData', () => {
         expect(tiers.has('Breena Carpenter')).toBe(false);
         expect(data.allItems).toHaveLength(11);
         expect([...new Set(data.itemSources.map((source) => source.kind))].sort()).toEqual([
+            'auction_house',
             'bag',
             'common_world_item',
             'craft',

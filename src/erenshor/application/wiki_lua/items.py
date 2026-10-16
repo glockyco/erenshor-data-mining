@@ -52,6 +52,8 @@ class ItemProvenanceItemRepository(Protocol):
 
     def get_fishing_bonus_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
 
+    def get_auction_house_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
+
     def get_item_conversion_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
 
     def get_item_conversion_uses(self, item_stable_key: str) -> list[UsedInInfo]: ...
@@ -269,6 +271,7 @@ def build_item_sources_by_item(
             *zone_repo.get_mining_nodes_for_item(item_key),
             *zone_repo.get_fishing_waters_for_item(item_key),
             *item_repo.get_fishing_bonus_sources(item_key),
+            *item_repo.get_auction_house_sources(item_key),
             *zone_repo.get_item_bag_sources_for_item(item_key),
             *item_repo.get_classes_starting_with_item(item_key),
             *(

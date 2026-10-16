@@ -55,7 +55,7 @@ def test_generated_pages_receive_reviewed_fields_and_keep_editor_prose() -> None
     seen: list[GeneratedCorpus] = []
     pages = [
         _page("Mana Burst", "spell:arc - manaburst", "Ability"),
-        _page("Pristine Ceremonial Ring", "item:ring - 14 - ancient ceremonial ring 1", "Item"),
+        _page("Shivering Torch", "item:secondary - 50 - shivering torch", "Item"),
         _page("Skill Book: Reckless Strike", "item:skillbook - stance - reckless", "Item"),
         _page("Ordinary Ring", "item:ordinary ring", "Item"),
     ]
@@ -67,7 +67,7 @@ def test_generated_pages_receive_reviewed_fields_and_keep_editor_prose() -> None
     assert _fields(generated["Mana Burst"], "Ability")["historical_state"] == "removed"
     assert _fields(generated["Mana Burst"], "Ability")["historical_thing"] == "spell"
     assert "Editor notes." in generated["Mana Burst"]
-    assert _fields(generated["Pristine Ceremonial Ring"], "Item")["historical_state"] == "unobtainable"
+    assert _fields(generated["Shivering Torch"], "Item")["historical_state"] == "unobtainable"
     assert _fields(generated["Skill Book: Reckless Strike"], "Item")["aka"] == "Skill Book: Reckless Stance"
     assert _fields(generated["Ordinary Ring"], "Item") == {
         "title": "Ordinary Ring",
@@ -84,6 +84,21 @@ def test_generated_pages_receive_reviewed_fields_and_keep_editor_prose() -> None
         & generated.keys()
     )
     storage.save_generated_by_title.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("title", "key"),
+    [
+        ("Pristine Ceremonial Ring", "item:ring - 14 - ancient ceremonial ring 1"),
+        ("Unusual Copper Sceptre", "item:wand - bronzesceptre 1"),
+    ],
+)
+def test_auction_obtainable_items_have_no_lifecycle_notice(title: str, key: str) -> None:
+    lifecycle = load_content_lifecycle(ROOT / "content-lifecycle.json")
+    content = _page(title, key, "Item").content
+
+    assert title not in lifecycle.pages
+    assert apply_lifecycle_fields(title, [key], content, lifecycle) == content
 
 
 def test_generated_skill_notice_uses_its_recorded_noun() -> None:

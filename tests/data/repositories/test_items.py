@@ -23,6 +23,34 @@ def item_repo(integration_db: Path) -> ItemRepository:
     return ItemRepository(db)
 
 
+def test_auction_house_sources_collapse_routes_and_omit_listing_details(tmp_path: Path):
+    db_path = tmp_path / "auction.sqlite"
+    with closing(sqlite3.connect(db_path)) as conn, conn:
+        conn.executescript("""
+            CREATE TABLE auction_house_items (
+                item_stable_key TEXT, route TEXT,
+                min_sim_level INTEGER, max_sim_level INTEGER,
+                min_player_level INTEGER, max_player_level INTEGER,
+                PRIMARY KEY (item_stable_key, route)
+            );
+            INSERT INTO auction_house_items VALUES
+                ('item:listed', 'equipment', 1, 40, 1, 40),
+                ('item:listed', 'rare', NULL, NULL, 30, NULL);
+        """)
+    repo = ItemRepository(DatabaseConnection(db_path))
+
+    sources = repo.get_auction_house_sources("item:listed")
+
+    assert len(sources) == 1
+    assert sources[0].source_type == "auction_house"
+    assert sources[0].source_key is None
+    assert sources[0].probability is None
+    assert sources[0].quantity is None
+    assert sources[0].condition is None
+    assert sources[0].is_guaranteed is False
+    assert repo.get_auction_house_sources("item:unlisted") == []
+
+
 def test_get_items_for_wiki_generation_returns_all_items(item_repo: ItemRepository):
     """Test that get_items_for_wiki_generation returns all valid items."""
     items = item_repo.get_items_for_wiki_generation()

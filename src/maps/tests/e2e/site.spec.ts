@@ -132,6 +132,28 @@ test('an item lists world drops alongside quest, crafting, use and starting sour
     await expect(page.getByText('The map has no data on how to obtain this item.')).toHaveCount(0);
 });
 
+test('Auction House listings link both broker locations and retain an unlocated broker', async ({ page }) => {
+    await page.goto(`/map?sel=${encodeURIComponent('item:item:fixture bag')}`);
+    const auction = page.getByText('May be listed by simulated players', { exact: true }).locator('..');
+    await expect(auction).toContainText('Auction House');
+    await expect(auction.locator('a[href="https://erenshor.wiki.gg/wiki/Auction%20House"]')).toHaveCount(1);
+    await expect(auction.getByText('Stock is random.', { exact: true })).toBeVisible();
+    await expect(auction.getByText('Breena Carpenter')).toBeVisible();
+    await expect(auction.getByText('Fixture Dummy')).toBeVisible();
+    await expect(auction.getByText('Runtime Enemy')).toBeVisible();
+    await expect(auction.getByText('Location unknown', { exact: true })).toHaveCount(1);
+    await expect(auction).not.toContainText('gold');
+    await expect(auction).not.toContainText('%');
+    const locations = auction.getByRole('button', { name: "Stowaway's Step · 1 location", exact: true });
+    await expect(locations).toHaveCount(2);
+    for (let index = 0; index < 2; index++) {
+        await locations.nth(index).hover();
+        await locations.nth(index).click();
+        await expect(page.locator('canvas').first()).toBeVisible();
+    }
+    await expect(page.getByText('The map has no data on how to obtain this item.')).toHaveCount(0);
+});
+
 test('dialog givers show their required quest and focus their location', async ({ page }) => {
     await page.goto(`/map?sel=${encodeURIComponent('item:item:fixture key')}`);
     await expect(page.getByText('Given by', { exact: true })).toBeVisible();

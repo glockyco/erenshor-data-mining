@@ -1649,6 +1649,57 @@ export class RepositoryBase {
             stmt.free();
         }
 
+        {
+            const brokerStmt = this.db.prepare(`
+                SELECT DISTINCT COALESCE(rep.stable_key, c.stable_key) AS characterStableKey,
+                    COALESCE(rep.npc_name, c.npc_name) AS npcName,
+                    COALESCE(rep.wiki_page_name, c.wiki_page_name) AS npcWikiPageName
+                FROM auction_house_brokers ahb
+                JOIN characters c ON c.stable_key = ahb.character_stable_key
+                LEFT JOIN character_deduplications member ON member.member_stable_key = c.stable_key
+                LEFT JOIN (
+                    SELECT group_key, MIN(member_stable_key) AS stable_key
+                    FROM character_deduplications
+                    WHERE is_map_visible = 1
+                    GROUP BY group_key
+                ) visible ON visible.group_key = member.group_key
+                LEFT JOIN characters rep ON rep.stable_key = visible.stable_key
+                ORDER BY npcName, characterStableKey
+            `);
+            const brokers: Extract<ItemSourceRow, { kind: 'auction_house' }>['brokers'] = [];
+            while (brokerStmt.step()) {
+                const broker = brokerStmt.getAsObject();
+                brokers.push({
+                    characterStableKey: broker.characterStableKey as string,
+                    npcName: broker.npcName as string,
+                    npcWikiPageName: (broker.npcWikiPageName as string) ?? null
+                });
+            }
+            brokerStmt.free();
+            const stmt = this.db.prepare(`
+                SELECT DISTINCT i.stable_key AS itemStableKey, i.display_name AS displayName,
+                    i.wiki_page_name AS wikiPageName, i.image_hash AS iconHash
+                FROM (${mapItems}) i
+                WHERE EXISTS (
+                    SELECT 1 FROM auction_house_items ahi
+                    WHERE ahi.item_stable_key = i.source_stable_key
+                )
+                ORDER BY displayName, itemStableKey
+            `);
+            while (stmt.step()) {
+                const item = stmt.getAsObject();
+                rows.push({
+                    kind: 'auction_house',
+                    itemStableKey: item.itemStableKey as string,
+                    displayName: item.displayName as string,
+                    wikiPageName: (item.wikiPageName as string) ?? null,
+                    iconHash: (item.iconHash as string) ?? null,
+                    brokers
+                });
+            }
+            stmt.free();
+        }
+
         return rows;
     }
 

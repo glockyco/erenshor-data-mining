@@ -2,9 +2,20 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from tests.unit.application.wiki_lua.fakes import FakeItemRepository, make_item
+from tests.unit.application.wiki_lua.fakes import (
+    FakeCharacterRepository,
+    FakeItemRepository,
+    FakeQuestRepository,
+    FakeZoneRepository,
+    make_item,
+)
 
-from erenshor.application.wiki_lua.items import build_items_data, generate_items_modules, write_items_modules
+from erenshor.application.wiki_lua.items import (
+    build_item_sources_by_item,
+    build_items_data,
+    generate_items_modules,
+    write_items_modules,
+)
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
 from erenshor.domain.value_objects.source_info import ObtainedFromInfo, SourceInfo, UsedInInfo
@@ -391,6 +402,35 @@ def test_formats_obtained_from_with_stable_keys_and_nil_omission() -> None:
         },
         {"type": "starting", "sourceKey": "class:arcanist"},
     ]
+
+
+def test_auction_house_source_is_keyless_and_has_no_price_or_probability() -> None:
+    listed = make_item()
+    unlisted = make_item(stable_key="item:unlisted")
+    source = ObtainedFromInfo(source_type="auction_house", source_key=None)
+    sources = build_item_sources_by_item(
+        [listed, unlisted],
+        FakeItemRepository(
+            items=[listed, unlisted],
+            stats={},
+            classes={},
+            mechanic_sources={listed.stable_key: [source]},
+        ),
+        FakeCharacterRepository([]),
+        FakeQuestRepository([]),
+        FakeZoneRepository([], {}),
+    )
+    assert sources[listed.stable_key].obtained_from == [source]
+    assert sources[unlisted.stable_key].obtained_from == []
+    data = build_items_data(
+        items=[listed, unlisted],
+        stats_by_item={},
+        classes_by_item={},
+        sources_by_item=sources,
+    )
+    records = {key: data["shards"][shard][key] for key, shard in data["index"]["byKey"].items()}
+    assert records[listed.stable_key]["obtainedFrom"] == [{"type": "auction_house"}]
+    assert "obtainedFrom" not in records[unlisted.stable_key]
 
 
 def test_common_world_item_source_serializes_probability_range_without_a_character_key() -> None:

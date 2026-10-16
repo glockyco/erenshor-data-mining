@@ -887,6 +887,19 @@ class ItemRepository(BaseRepository[Item]):
         target_id, use_type = _SMITHING_SPECIAL_TARGET_IDS[item_id]
         return [UsedInInfo(use_type=use_type, target_key=id_to_stable[target_id])]
 
+    def get_auction_house_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        """Return one source when simulated players can list this item."""
+        query = """
+            SELECT DISTINCT item_stable_key
+            FROM auction_house_items
+            WHERE item_stable_key = ?
+        """
+        try:
+            rows = self._execute_raw(query, (item_stable_key,))
+            return [ObtainedFromInfo(source_type="auction_house", source_key=None) for _ in rows]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve auction house sources for '{item_stable_key}': {e}") from e
+
     def get_fishing_bonus_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
         """Return the fishing bonus that can replace any catch with an item, with its chance per catch."""
         query = "SELECT chance_per_catch FROM fishing_bonus_catches WHERE item_stable_key = ?"

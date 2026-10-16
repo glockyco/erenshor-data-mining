@@ -236,6 +236,7 @@ describe('Repository', () => {
         const rows = await db.getItemSources();
 
         expect([...new Set(rows.map((row) => row.kind))].sort()).toEqual([
+            'auction_house',
             'bag',
             'common_world_item',
             'craft',
@@ -314,6 +315,45 @@ describe('Repository', () => {
             ])
         );
         expect(rows.some((r) => r.kind === 'starting' && r.className === 'Default')).toBe(false);
+    });
+
+    it('loads one Auction House source across routes and resolves every broker without guessing locations', async () => {
+        const rows = (await db.getItemSources()).filter((source) => source.kind === 'auction_house');
+        expect(rows).toHaveLength(1);
+        expect(rows[0]).toMatchObject({ itemStableKey: 'item:fixture bag' });
+        expect(rows[0]).not.toHaveProperty('price');
+        expect(rows[0]).not.toHaveProperty('dropProbability');
+        const markers = (await db.getSpawnPointMarkers(DETAIL_ZONE)).map((marker) => ({
+            ...marker,
+            zone: DETAIL_ZONE,
+            zoneName: 'Stowaway Step',
+            worldPosition: [marker.position.x, marker.position.y] as [number, number]
+        })) as WorldNpc[];
+        const provider = new ItemSearchProvider(rows, markers, [], [], []);
+        const sources = provider.getSourcesForItem('item:fixture bag');
+        expect(sources).toHaveLength(1);
+        const source = sources[0];
+        expect(source.kind).toBe('auction_house');
+        if (source.kind !== 'auction_house') throw new Error('Expected Auction House source');
+        expect(source.markers.map((marker) => marker.stableKey).sort()).toEqual([
+            'spawn:stowaway-breena', 'spawn:stowaway-dummy'
+        ]);
+        expect(source.brokers.find((broker) =>
+            broker.row.characterStableKey === 'character:runtime enemy'
+        )).toMatchObject({ row: { npcName: 'Runtime Enemy' }, markers: [] });
+        const result = provider.getResult('item:fixture bag')!;
+        expect(result).toMatchObject({
+            hasKnownSource: true, zoneCount: 1, sourceCounts: { auctionHouses: 1 }
+        });
+        expect(itemResultSummaryParts(result)).toEqual(['Auction House', '1 zone']);
+        expect(provider.getMarkersForItem(result.itemStableKey)).toEqual(source.markers);
+        expect(provider.resolveHighlight(result)).toMatchObject({
+            type: 'positions', stableKeys: ['spawn:stowaway-breena', 'spawn:stowaway-dummy']
+        });
+        const unlocated = new ItemSearchProvider(rows, [], [], [], []);
+        expect(unlocated.getResult(result.itemStableKey)?.hasKnownSource).toBe(true);
+        expect(unlocated.getMarkersForItem(result.itemStableKey)).toEqual([]);
+        expect(unlocated.getSourcesForItem(result.itemStableKey)).toHaveLength(1);
     });
 
     it('resolves fixture acquisition paths and keeps unlocated rewards known', async () => {

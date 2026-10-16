@@ -116,6 +116,20 @@ def test_mixed_corpus_passes_and_report_is_immutable_and_deterministic() -> None
         ).raise_for_errors()
 
 
+@pytest.mark.parametrize("eligible", [False, True])
+def test_auction_house_source_is_optional_generated_data(eligible: bool) -> None:
+    pages, expectations = _valid_corpus()
+    assert "auctionhousesource" not in REQUIRED_TEMPLATE_FIELDS["Item"]
+    if eligible:
+        pages["Sword"] = pages["Sword"].replace(
+            "|vendorsource=\n",
+            "|vendorsource=\n|auctionhousesource=May be listed by simulated players\n",
+            1,
+        )
+
+    assert not _validate(pages, expectations).has_errors
+
+
 @pytest.mark.parametrize(
     ("family", "mutate"),
     [

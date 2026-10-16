@@ -24,6 +24,7 @@ function item(name: string): IndexEntry {
                 fishingSpots: 0,
                 itemBags: 0,
                 worldDrops: 0,
+                auctionHouses: 0,
                 givers: 0, quests: 0, recipes: 0, itemUses: 0, startingClasses: 0
             },
             zoneCount: 1,

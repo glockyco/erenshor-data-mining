@@ -38,6 +38,7 @@ export type ZoneSearchResult = {
 export type ItemSourceCounts = {
     droppers: number;
     vendors: number;
+    auctionHouses: number;
     miningNodes: number;
     fishingSpots: number;
     itemBags: number;
