@@ -16,6 +16,15 @@ public sealed class SpecialItemSourceTests
             Chance = chance,
         };
 
+    private static ItemSource CommonWorldItem(double chanceMax = 8.1) =>
+        new()
+        {
+            Type = "common_world_item",
+            Name = "Any enemy with common drops",
+            Chance = 0.9,
+            ChanceMax = chanceMax,
+        };
+
     private static ItemSource FishingBonus() =>
         new()
         {
@@ -126,6 +135,21 @@ public sealed class SpecialItemSourceTests
         fishing.Level = null;
         fishing.SourceKey = "character:fake";
         Assert.Throws<InvalidDataException>(() => Validate(fishing));
+    }
+
+    [Fact]
+    public void Common_world_item_needs_an_ordered_chance_range_without_a_place()
+    {
+        Validate(CommonWorldItem());
+        Assert.Throws<InvalidDataException>(() => Validate(CommonWorldItem(chanceMax: 0.5)));
+        var placed = CommonWorldItem();
+        placed.SourceKey = "character:fake";
+        Assert.Throws<InvalidDataException>(() => Validate(placed));
+        Assert.Equal(
+            "Drops from: Any enemy with common drops  ·  0.9-8.1%",
+            SourceListText.Label(CommonWorldItem())
+        );
+        Assert.True(ItemSourcePolicy.IsRandomSource(CommonWorldItem()));
     }
 
     [Fact]

@@ -15,6 +15,16 @@ from .schema import BackgroundSource, Edge, EdgeType, Node, NodeType, WorkflowCy
 if TYPE_CHECKING:
     from .graph import EntityGraph
 
+# A loot_drops row (alias ld) that only the common world item swap produces.
+SWAP_ONLY_DROP = """(
+    ld.is_common_world_item = 1
+    AND NOT (
+        COALESCE(ld.is_common, 0) OR COALESCE(ld.is_uncommon, 0) OR COALESCE(ld.is_rare, 0)
+        OR COALESCE(ld.is_legendary, 0) OR COALESCE(ld.is_ultra_rare, 0) OR COALESCE(ld.is_guaranteed, 0)
+        OR COALESCE(ld.is_actual, 0)
+    )
+)"""
+
 
 def build_nodes(
     conn: sqlite3.Connection,
@@ -183,6 +193,28 @@ def _add_background_item_sources(conn: sqlite3.Connection, graph: EntityGraph) -
             )
         )
 
+    # LootTable swaps one in ten common drops for a common world item. Rows
+    # that only that swap produces form one source per item, not hundreds of
+    # droppers. The range covers the characters the game places.
+    for row in conn.execute(f"""
+        SELECT ld.item_stable_key, MIN(ld.drop_probability) AS chance, MAX(ld.drop_probability) AS chance_max
+        FROM loot_drops ld
+        JOIN character_fact_sources f ON f.member_stable_key = ld.character_stable_key
+        WHERE {SWAP_ONLY_DROP} AND ld.drop_probability > 0
+        GROUP BY ld.item_stable_key
+        ORDER BY ld.item_stable_key
+    """):
+        item = graph.get_node(row["item_stable_key"])
+        if item is not None:
+            item.background_sources.append(
+                BackgroundSource(
+                    type="common_world_item",
+                    name="Any enemy with common drops",
+                    chance=float(row["chance"]),
+                    chance_max=float(row["chance_max"]),
+                )
+            )
+
     # The clean build derives the fishing bonus from its code fact and checks it.
     for row in conn.execute(
         "SELECT item_stable_key, chance_per_catch FROM fishing_bonus_catches ORDER BY item_stable_key"
@@ -193,12 +225,13 @@ def _add_background_item_sources(conn: sqlite3.Connection, graph: EntityGraph) -
                 BackgroundSource(type="fishing_bonus", name="Any fishing catch", chance=float(row["chance_per_catch"]))
             )
 
-    for row in conn.execute("""
+    for row in conn.execute(f"""
         SELECT ld.item_stable_key, ld.character_stable_key, ld.drop_probability,
                MIN(t.player_level_min) AS player_level_min,
                MAX(t.player_level_max) AS player_level_max
         FROM loot_drops ld
         JOIN treasure_chest_possible_spawns t ON t.chest_character_stable_key = ld.character_stable_key
+        WHERE NOT {SWAP_ONLY_DROP}
         GROUP BY ld.item_stable_key, ld.character_stable_key, ld.drop_probability
         ORDER BY ld.item_stable_key, player_level_min, ld.character_stable_key
     """):

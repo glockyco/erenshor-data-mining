@@ -7,6 +7,7 @@ relationships from the game data.
 
 from __future__ import annotations
 
+import sqlite3
 from typing import TYPE_CHECKING, ClassVar
 
 import pytest
@@ -14,6 +15,8 @@ import pytest
 from erenshor.application.guide.schema import AtomKind, EdgeType, GateAtom, NodeType, SubjectKind
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from erenshor.application.guide.graph import EntityGraph
 
 
@@ -290,3 +293,58 @@ class TestFactionNodes:
         assert len(factions) > 0, "Expected faction nodes"
         missing = [n.key for n in factions if not n.refname]
         assert not missing, f"Faction nodes missing refname: {missing}"
+
+
+class TestCommonWorldItems:
+    """The common world item swap is one background source per item."""
+
+    def test_swap_only_rows_are_not_droppers(self, graph: EntityGraph, main_clean_db: Path) -> None:
+        from erenshor.application.guide.node_builder import SWAP_ONLY_DROP
+
+        item = "item:cons - bread"
+        conn = sqlite3.connect(f"file:{main_clean_db}?mode=ro", uri=True)
+        try:
+            swap_only = {
+                key
+                for (key,) in conn.execute(
+                    "SELECT ld.character_stable_key FROM loot_drops ld"
+                    f" WHERE ld.item_stable_key = ? AND {SWAP_ONLY_DROP}",
+                    (item,),
+                )
+            }
+            own = {
+                key
+                for (key,) in conn.execute(
+                    "SELECT ld.character_stable_key FROM loot_drops ld"
+                    f" WHERE ld.item_stable_key = ? AND ld.is_common_world_item = 1 AND NOT {SWAP_ONLY_DROP}",
+                    (item,),
+                )
+                if graph.has_node(key)
+            }
+        finally:
+            conn.close()
+        droppers = {edge.source for edge in graph.in_edges(item, EdgeType.DROPS_ITEM)}
+
+        assert swap_only
+        assert not droppers & swap_only
+        assert own
+        assert own <= droppers
+        node = graph.get_node(item)
+        assert node is not None
+        sources = [source for source in node.background_sources if source.type == "common_world_item"]
+        assert len(sources) == 1
+        assert sources[0].chance_max is not None
+        assert 0 < sources[0].chance < sources[0].chance_max
+
+    def test_every_common_world_item_has_one_swap_source(self, graph: EntityGraph, main_clean_db: Path) -> None:
+        conn = sqlite3.connect(f"file:{main_clean_db}?mode=ro", uri=True)
+        try:
+            items = [key for (key,) in conn.execute("SELECT item_stable_key FROM common_world_items")]
+        finally:
+            conn.close()
+
+        assert len(items) == 6
+        for item in items:
+            node = graph.get_node(item)
+            assert node is not None, item
+            assert [source.type for source in node.background_sources].count("common_world_item") == 1, item

@@ -566,6 +566,11 @@ public sealed partial class GuideData
                 throw new InvalidDataException($"{questKey} has invalid source chance");
             if (source.LevelMax is int max && (source.Level is not int min || max < min))
                 throw new InvalidDataException($"{questKey} has invalid source level range");
+            if (
+                source.ChanceMax is double chanceMax
+                && (source.Chance is not double low || chanceMax < low || chanceMax > 100)
+            )
+                throw new InvalidDataException($"{questKey} has invalid source chance range");
             if (ItemSourcePolicy.IsRandomSource(source) && string.IsNullOrWhiteSpace(source.Name))
                 throw new InvalidDataException($"{questKey} has an unnamed random source");
             switch (source.Type)
@@ -578,6 +583,16 @@ public sealed partial class GuideData
                         || source.SourceKey != null
                     )
                         throw new InvalidDataException($"{questKey} has invalid world drop");
+                    break;
+                case "common_world_item":
+                    if (
+                        source.Chance == null
+                        || source.ChanceMax == null
+                        || source.Level != null
+                        || source.Scene != null
+                        || source.SourceKey != null
+                    )
+                        throw new InvalidDataException($"{questKey} has invalid common world item");
                     break;
                 case "fishing_bonus":
                     if (

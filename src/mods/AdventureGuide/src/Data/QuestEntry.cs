@@ -204,6 +204,10 @@ public sealed class ItemSource
     [JsonProperty("chance")]
     public double? Chance { get; set; }
 
+    /// <summary>Upper end of a chance range. Chance is then the lower end.</summary>
+    [JsonProperty("chance_max")]
+    public double? ChanceMax { get; set; }
+
     [JsonProperty("source_key")]
     public string? SourceKey { get; set; }
 

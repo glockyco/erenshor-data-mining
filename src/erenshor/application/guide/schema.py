@@ -208,6 +208,7 @@ class BackgroundSource:
     chance: float
     level: int | None = None
     level_max: int | None = None
+    chance_max: float | None = None
     source_key: str | None = None
     instruction: str | None = None
 

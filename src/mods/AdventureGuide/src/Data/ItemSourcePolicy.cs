@@ -22,7 +22,7 @@ internal static class ItemSourcePolicy
     }
 
     public static bool IsRandomSource(ItemSource source) =>
-        source.Type is "world_drop" or "fishing_bonus" or "treasure_chest";
+        source.Type is "world_drop" or "common_world_item" or "fishing_bonus" or "treasure_chest";
 
     public static bool IsStaticCandidate(ItemSource source) =>
         !IsRandomSource(source) && source.Type is not "item_use" and not "quest_reward";

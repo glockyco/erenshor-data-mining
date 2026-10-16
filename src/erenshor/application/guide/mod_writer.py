@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 # Steps that fight their character target; see _interaction_level.
 _COMBAT_ACTIONS = frozenset({"kill", "loot"})
-_BACKGROUND_SOURCE_TYPES = frozenset({"world_drop", "fishing_bonus", "treasure_chest"})
+_BACKGROUND_SOURCE_TYPES = frozenset({"world_drop", "common_world_item", "fishing_bonus", "treasure_chest"})
 # Sources whose character is only reached, never fought; see _interaction_level.
 _INTERACTION_SOURCE_TYPES = frozenset({"vendor", "dialog_give"})
 # Buying an item, being handed it or picking it up beats a random drop unless

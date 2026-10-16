@@ -11,7 +11,7 @@ internal static class SourceListText
     {
         string label = source.Type switch
         {
-            "world_drop" => $"Drops from: {source.Name}",
+            "world_drop" or "common_world_item" => $"Drops from: {source.Name}",
             "fishing_bonus" => $"Fishing: {source.Name}",
             "treasure_chest" => $"Treasure map chest (dig at Lv {source.Level}-{source.LevelMax})",
             "drop" => $"Drops from: {source.Name}",
@@ -34,13 +34,13 @@ internal static class SourceListText
         if (!ItemSourcePolicy.IsRandomSource(source) && source.Level is int level)
             label += $"  ·  Lv {level}";
         if (source.Chance is double chance)
-            label +=
-                "  ·  "
-                + chance.ToString(
-                    source.Type == "treasure_chest" ? "0" : "0.###",
-                    CultureInfo.InvariantCulture
-                )
-                + "%";
+        {
+            string format = source.Type == "treasure_chest" ? "0" : "0.###";
+            label += "  ·  " + chance.ToString(format, CultureInfo.InvariantCulture);
+            if (source.ChanceMax is double chanceMax)
+                label += "-" + chanceMax.ToString(format, CultureInfo.InvariantCulture);
+            label += "%";
+        }
         return label;
     }
 

@@ -10,6 +10,7 @@ import sqlite3
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
+from .node_builder import SWAP_ONLY_DROP
 from .schema import AtomKind, Edge, EdgeType, Gate, GateAtom, NodeType, SubjectKind
 
 if TYPE_CHECKING:
@@ -486,9 +487,11 @@ def _add_quest_dialog_prerequisite_edges(conn: sqlite3.Connection, graph: Entity
 
 def _add_character_drop_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
     """character → item (DROPS_ITEM) from loot_drops."""
-    rows = conn.execute("""
-        SELECT character_stable_key, item_stable_key, drop_probability
-        FROM loot_drops
+    # Common world item swap rows become one background source of the item.
+    rows = conn.execute(f"""
+        SELECT ld.character_stable_key, ld.item_stable_key, ld.drop_probability
+        FROM loot_drops ld
+        WHERE NOT {SWAP_ONLY_DROP}
     """)
     for r in rows:
         if not graph.has_node(r["character_stable_key"]) or not graph.has_node(r["item_stable_key"]):

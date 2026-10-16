@@ -1037,10 +1037,22 @@ def _special_source_db() -> sqlite3.Connection:
             ('item:map1', 'Maps', 0.625, 0), ('item:map2', 'Maps', 0.625, 0),
             ('item:map3', 'Maps', 0.625, 0), ('item:map4', 'Maps', 0.625, 0),
             ('item:shard', 'PlanarShard', 0.1, 15);
-        CREATE TABLE loot_drops (item_stable_key TEXT, character_stable_key TEXT, drop_probability REAL);
+        CREATE TABLE loot_drops (
+            item_stable_key TEXT, character_stable_key TEXT, drop_probability REAL,
+            is_common_world_item INTEGER, is_common INTEGER, is_uncommon INTEGER, is_rare INTEGER,
+            is_legendary INTEGER, is_ultra_rare INTEGER, is_guaranteed INTEGER, is_actual INTEGER
+        );
         INSERT INTO loot_drops VALUES
-            ('item:shard', 'character:lowchest', 20.5),
-            ('item:shard', 'character:highchest', 56.57);
+            ('item:shard', 'character:lowchest', 20.5, 0, 0, 0, 1, 0, 0, 0, 0),
+            ('item:shard', 'character:highchest', 56.57, 0, 0, 0, 1, 0, 0, 0, 0),
+            ('item:bread', 'character:wolf', 1.0, 1, 0, 0, 0, 0, 0, 0, 0),
+            ('item:bread', 'character:bear', 4.0, 1, 0, 0, 0, 0, 0, 0, 0),
+            ('item:bread', 'character:unplaced', 9.0, 1, 0, 0, 0, 0, 0, 0, 0),
+            ('item:bread', 'character:lowchest', 3.0, 1, 0, 0, 0, 0, 0, 0, 0),
+            ('item:bread', 'character:baker', 30.0, 1, 1, 0, 0, 0, 0, 0, 0);
+        CREATE TABLE character_fact_sources (member_stable_key TEXT);
+        INSERT INTO character_fact_sources VALUES
+            ('character:wolf'), ('character:bear'), ('character:lowchest'), ('character:highchest');
         CREATE TABLE treasure_chest_possible_spawns (
             chest_character_stable_key TEXT, player_level_min INTEGER, player_level_max INTEGER
         );
@@ -1056,7 +1068,8 @@ def test_background_sources_use_exported_chances_and_merge_chest_level_brackets(
 
     items = [item_node(f"item:map{i}") for i in range(1, 5)]
     shard = item_node("item:shard")
-    graph = build_graph(*items, shard)
+    bread = item_node("item:bread")
+    graph = build_graph(*items, shard, bread)
     conn = _special_source_db()
     try:
         _add_background_item_sources(conn, graph)
@@ -1087,6 +1100,11 @@ def test_background_sources_use_exported_chances_and_merge_chest_level_brackets(
             source_key="character:highchest",
             instruction="Read a Treasure Map and dig at the marked spot.",
         ),
+    ]
+    # Swap-only rows give one range over placed characters and no chest source.
+    # The baker's row has its own common flag and stays a dropper.
+    assert bread.background_sources == [
+        BackgroundSource("common_world_item", "Any enemy with common drops", 1.0, chance_max=4.0),
     ]
     assert not list(graph.nodes_of_type(NodeType.CHARACTER))
     compiled = compile_graph(graph)
