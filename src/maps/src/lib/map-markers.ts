@@ -162,6 +162,7 @@ export type ItemDropSource = ItemSourceItemMeta & {
     kind: 'drop';
     characterStableKey: string;
     npcName: string;
+    npcWikiPageName: string | null;
     encounterTier: EncounterTier;
     dropProbability: number; // 0–100
 };
@@ -170,7 +171,20 @@ export type ItemVendorSource = ItemSourceItemMeta & {
     kind: 'vendor';
     characterStableKey: string;
     npcName: string;
+    npcWikiPageName: string | null;
     price: number; // items.item_value, same figure SpawnPointPopupContent shows
+};
+
+/** Possible treasure-hunt site, not a chest that is always present. */
+export type ItemTreasureSource = ItemSourceItemMeta & {
+    kind: 'treasure';
+    characterStableKey: string;
+    chestName: string;
+    chestWikiPageName: string | null;
+    treasureLocationStableKey: string;
+    playerLevelMin: number;
+    playerLevelMax: number;
+    dropProbability: number;
 };
 
 export type ItemMiningSource = ItemSourceItemMeta & {
@@ -253,6 +267,7 @@ export type ItemStartingSource = ItemSourceItemMeta & {
 export type ItemSourceRow =
     | ItemDropSource
     | ItemVendorSource
+    | ItemTreasureSource
     | ItemMiningSource
     | ItemFishingSource
     | ItemBagSource

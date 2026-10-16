@@ -385,21 +385,38 @@
     }
 
     /**
-     * Focus (fly to) a specific spawn point from the search popup.
+     * Focus the selected source locations from a search popup.
      */
-    function handleFocusSpawn(stableKey: string): void {
-        const marker = findMarkerByStableKey(stableKey);
-        if (!marker) return;
-        const position = getSelectionPosition(
-            { type: 'marker', marker },
-            data.zones,
-            data.zoneConfigs,
-            debugStore.overrides,
-            liveState.entities
-        );
-        if (position) {
-            flyTo(deckInstance, position[0], position[1], {
+    function handleFocusSpawn(stableKey: string | string[]): void {
+        const keys = typeof stableKey === 'string' ? [stableKey] : stableKey;
+        const positions: [number, number][] = [];
+        for (const key of keys) {
+            const marker = findMarkerByStableKey(key);
+            if (!marker) continue;
+            const position = getSelectionPosition(
+                { type: 'marker', marker },
+                data.zones,
+                data.zoneConfigs,
+                debugStore.overrides,
+                liveState.entities
+            );
+            if (position) positions.push(position);
+        }
+        if (positions.length === 1) {
+            flyTo(deckInstance, positions[0][0], positions[0][1], {
                 zoom: 0,
+                rightPadding: flyPadding.right
+            });
+        } else if (positions.length > 1) {
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            for (const [x, y] of positions) {
+                minX = Math.min(minX, x);
+                minY = Math.min(minY, y);
+                maxX = Math.max(maxX, x);
+                maxY = Math.max(maxY, y);
+            }
+            flyToBounds(deckInstance, { minX, minY, maxX, maxY }, {
+                leftPadding: flyPadding.left,
                 rightPadding: flyPadding.right
             });
         }

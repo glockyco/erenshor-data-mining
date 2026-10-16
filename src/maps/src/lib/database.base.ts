@@ -1221,7 +1221,7 @@ export class RepositoryBase {
                 wiki_page_name AS wikiPageName,
                 image_hash     AS iconHash
             FROM items
-            WHERE wiki_page_name IS NOT NULL
+            WHERE is_map_visible = 1 AND wiki_page_name IS NOT NULL
               AND TRIM(wiki_page_name) != ''
             ORDER BY display_name, stable_key
         `);
@@ -1241,8 +1241,8 @@ export class RepositoryBase {
     }
 
     /**
-     * Preload every map-visible item acquisition source (drops, vendors, mining, fishing, item bags).
-     * Used by the map item search — one query batch at page load, no runtime DB access. Items with is_map_visible = 0 are excluded.
+     * Preload acquisition sources for visible map items, including hidden variants
+     * sharing a wiki page with exactly one visible representative.
      * A drop or stock row names the group's map-visible representative, which keys its markers and
      * live candidates, and holds what the group's copies of `character_fact_sources` drop and what
      * `vendor_offers` says they sell, so a copy that players never meet, such as an unplaced backup
@@ -1252,6 +1252,18 @@ export class RepositoryBase {
         if (!this.db) throw new Error('DB not initialized');
 
         const rows: ItemSourceRow[] = [];
+        const mapItems = `
+            SELECT source.stable_key AS source_stable_key, rep.*
+            FROM items source
+            JOIN items rep ON rep.stable_key = source.stable_key
+                OR (source.is_map_visible = 0 AND source.wiki_page_name = rep.wiki_page_name
+                    AND NOT EXISTS (
+                        SELECT 1 FROM items other
+                        WHERE other.wiki_page_name = rep.wiki_page_name
+                            AND other.is_map_visible = 1 AND other.stable_key != rep.stable_key
+                    ))
+            WHERE rep.is_map_visible = 1
+        `;
 
         {
             const stmt = this.db.prepare(`
@@ -1262,8 +1274,9 @@ export class RepositoryBase {
                     i.image_hash        AS iconHash,
                     c.stable_key        AS characterStableKey,
                     c.npc_name          AS npcName,
+                    c.wiki_page_name    AS npcWikiPageName,
                     c.encounter_tier    AS encounterTier,
-                    gd.drop_probability AS dropProbability
+                    MAX(gd.drop_probability) AS dropProbability
                 FROM (
                     SELECT s.group_key, ld.item_stable_key, MAX(ld.drop_probability) AS drop_probability
                     FROM loot_drops ld
@@ -1273,6 +1286,10 @@ export class RepositoryBase {
                             OR COALESCE(ld.is_rare, 0) OR COALESCE(ld.is_legendary, 0)
                             OR COALESCE(ld.is_ultra_rare, 0) OR COALESCE(ld.is_guaranteed, 0)
                             OR COALESCE(ld.is_actual, 0)))
+                      AND NOT EXISTS (
+                          SELECT 1 FROM treasure_chest_possible_spawns ts
+                          WHERE ts.chest_character_stable_key = ld.character_stable_key
+                      )
                     GROUP BY s.group_key, ld.item_stable_key
                 ) gd
                 JOIN (
@@ -1281,10 +1298,11 @@ export class RepositoryBase {
                     WHERE is_map_visible = 1
                     GROUP BY group_key
                 ) rg ON rg.group_key = gd.group_key
-                JOIN items i ON i.stable_key = gd.item_stable_key
+                JOIN (${mapItems}) i ON i.source_stable_key = gd.item_stable_key
                 JOIN characters c ON c.stable_key = rg.rep_stable_key
                 WHERE i.is_map_visible = 1
-                ORDER BY i.display_name, gd.drop_probability DESC
+                GROUP BY i.stable_key, c.stable_key
+                ORDER BY i.display_name, dropProbability DESC
             `);
 
             while (stmt.step()) {
@@ -1297,6 +1315,7 @@ export class RepositoryBase {
                     iconHash: (row.iconHash as string) ?? null,
                     characterStableKey: row.characterStableKey as string,
                     npcName: (row.npcName as string) ?? '',
+                    npcWikiPageName: (row.npcWikiPageName as string) ?? null,
                     encounterTier: row.encounterTier as EncounterTier,
                     dropProbability: row.dropProbability as number
                 });
@@ -1306,13 +1325,14 @@ export class RepositoryBase {
 
         {
             const stmt = this.db.prepare(`
-                SELECT
+                SELECT DISTINCT
                     i.stable_key        AS itemStableKey,
                     i.display_name      AS displayName,
                     i.wiki_page_name    AS wikiPageName,
                     i.image_hash        AS iconHash,
                     c.stable_key        AS characterStableKey,
                     c.npc_name          AS npcName,
+                    c.wiki_page_name    AS npcWikiPageName,
                     i.item_value        AS price
                 FROM (SELECT DISTINCT vendor_stable_key, item_stable_key FROM vendor_offers) vo
                 JOIN (
@@ -1321,7 +1341,7 @@ export class RepositoryBase {
                     WHERE is_map_visible = 1
                     GROUP BY group_key
                 ) rg ON rg.group_key = vo.vendor_stable_key
-                JOIN items i ON i.stable_key = vo.item_stable_key
+                JOIN (${mapItems}) i ON i.source_stable_key = vo.item_stable_key
                 JOIN characters c ON c.stable_key = rg.rep_stable_key
                 WHERE i.is_map_visible = 1
                 ORDER BY displayName, itemStableKey, characterStableKey
@@ -1337,8 +1357,30 @@ export class RepositoryBase {
                     iconHash: (row.iconHash as string) ?? null,
                     characterStableKey: row.characterStableKey as string,
                     npcName: (row.npcName as string) ?? '',
+                    npcWikiPageName: (row.npcWikiPageName as string) ?? null,
                     price: (row.price as number) ?? 0
                 });
+            }
+            stmt.free();
+        }
+
+        {
+            const stmt = this.db.prepare(`
+                SELECT i.stable_key AS itemStableKey, i.display_name AS displayName,
+                    i.wiki_page_name AS wikiPageName, i.image_hash AS iconHash,
+                    c.stable_key AS characterStableKey, c.display_name AS chestName,
+                    c.wiki_page_name AS chestWikiPageName,
+                    ts.treasure_location_stable_key AS treasureLocationStableKey,
+                    ts.player_level_min AS playerLevelMin, ts.player_level_max AS playerLevelMax,
+                    ld.drop_probability AS dropProbability
+                FROM loot_drops ld
+                JOIN treasure_chest_possible_spawns ts ON ts.chest_character_stable_key = ld.character_stable_key
+                JOIN characters c ON c.stable_key = ld.character_stable_key
+                JOIN (${mapItems}) i ON i.source_stable_key = ld.item_stable_key
+                ORDER BY i.display_name, c.stable_key, ts.treasure_location_stable_key
+            `);
+            while (stmt.step()) {
+                rows.push({ ...stmt.getAsObject(), kind: 'treasure' } as ItemSourceRow);
             }
             stmt.free();
         }
@@ -1353,7 +1395,7 @@ export class RepositoryBase {
                     mi.mining_node_stable_key AS nodeStableKey,
                     mi.drop_chance           AS dropChance
                 FROM mining_node_items mi
-                JOIN items i ON i.stable_key = mi.item_stable_key
+                JOIN (${mapItems}) i ON i.source_stable_key = mi.item_stable_key
                 WHERE i.is_map_visible = 1
                 ORDER BY i.display_name
             `);
@@ -1384,7 +1426,7 @@ export class RepositoryBase {
                     wf.type             AS fishType,
                     wf.drop_chance      AS dropChance
                 FROM water_fishables wf
-                JOIN items i ON i.stable_key = wf.item_stable_key
+                JOIN (${mapItems}) i ON i.source_stable_key = wf.item_stable_key
                 WHERE i.is_map_visible = 1
                 ORDER BY i.display_name
             `);
@@ -1414,7 +1456,7 @@ export class RepositoryBase {
                     i.image_hash        AS iconHash,
                     ib.stable_key       AS bagStableKey
                 FROM item_bags ib
-                JOIN items i ON i.stable_key = ib.item_stable_key
+                JOIN (${mapItems}) i ON i.source_stable_key = ib.item_stable_key
                 WHERE i.is_map_visible = 1
                 ORDER BY i.display_name
             `);
@@ -1444,7 +1486,7 @@ export class RepositoryBase {
                     swd.drop_probability    AS dropProbability,
                     swd.min_level_exclusive AS minLevelExclusive
                 FROM special_world_drops swd
-                JOIN items i ON i.stable_key = swd.item_stable_key
+                JOIN (${mapItems}) i ON i.source_stable_key = swd.item_stable_key
                 WHERE i.is_map_visible = 1
                 ORDER BY i.display_name, swd.pool
             `);
@@ -1475,7 +1517,7 @@ export class RepositoryBase {
                     MAX(ld.drop_probability) AS dropProbabilityMax
                 FROM loot_drops ld
                 JOIN character_fact_sources s ON s.member_stable_key = ld.character_stable_key
-                JOIN items i ON i.stable_key = ld.item_stable_key
+                JOIN (${mapItems}) i ON i.source_stable_key = ld.item_stable_key
                 WHERE i.is_map_visible = 1 AND COALESCE(ld.is_common_world_item, 0) = 1
                     AND NOT (COALESCE(ld.is_common, 0) OR COALESCE(ld.is_uncommon, 0)
                         OR COALESCE(ld.is_rare, 0) OR COALESCE(ld.is_legendary, 0)
@@ -1591,7 +1633,7 @@ export class RepositoryBase {
             const stmt = this.db.prepare(`
                 SELECT i.stable_key AS itemStableKey, i.display_name AS displayName,
                     i.wiki_page_name AS wikiPageName, i.image_hash AS iconHash, s.*
-                FROM (${sql}) s JOIN items i ON i.stable_key = s.item_key
+                FROM (${sql}) s JOIN (${mapItems}) i ON i.source_stable_key = s.item_key
                 WHERE i.is_map_visible = 1
                 ORDER BY i.display_name, i.stable_key
             `);

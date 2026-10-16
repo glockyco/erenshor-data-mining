@@ -164,7 +164,8 @@ export function buildSearchIndex(input: {
         input.miningNodes,
         input.water,
         input.itemBags,
-        input.allItems
+        input.allItems,
+        input.treasureLocs
     );
 
     const providers: SearchProvider[] = [itemProvider, enemyProvider, npcProvider, zoneProvider];

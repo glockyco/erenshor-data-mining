@@ -86,6 +86,14 @@ without enemy markers. Its chance range comes only from positive replacement-onl
 rows joined to `character_fact_sources`. Named droppers and character popup loot
 omit those rows but retain rows that also have an own-table loot flag.
 
+Treasure-hunt item drops use the possible treasure sites, not enemy markers.
+Their popup shows each chest tier's eligible player levels and labels the sites
+as possible hunts. Explicit droppers and vendors remain listed and linked to
+their wiki page when no marker locates them; no coordinates are inferred.
+For functionally identical item variants sharing a wiki page, keep one map-visible
+representative in `mapping.json`. Item search carries the hidden variants' sources
+to that sole representative; pages with multiple visible variants keep separate results.
+
 1. Inspect `map_character_spawns` and `characters` in the clean database.
    `getSpawnPointMarkers` in `src/maps/src/lib/database.base.ts` requires
    `character_deduplications.is_map_visible = 1` and a non-null spawn point.

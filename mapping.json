@@ -3188,19 +3188,19 @@
     },
     "item:spell scroll - meditate": {
       "wiki_page_name": "Spell Scroll: Meditative Trance",
-      "display_name": "Spell Scroll: Meditative Trance (1)",
+      "display_name": "Spell Scroll: Meditative Trance",
       "image_name": "Spell Scroll: Meditative Trance",
       "mapping_type": "custom",
-      "reason": "Functionally identical game assets share one wiki article",
+      "reason": "Visible map representative of the functionally identical Meditative Trance scrolls sharing one wiki article; include both variants' sources.",
       "is_wiki_generated": 1,
-      "is_map_visible": 0
+      "is_map_visible": 1
     },
     "item:spell scroll - meditate dru": {
       "wiki_page_name": "Spell Scroll: Meditative Trance",
       "display_name": "Spell Scroll: Meditative Trance (2)",
       "image_name": "Spell Scroll: Meditative Trance",
       "mapping_type": "custom",
-      "reason": "Functionally identical game assets share one wiki article",
+      "reason": "Functionally identical to the visible Meditative Trance scroll; share its wiki article and map sources.",
       "is_wiki_generated": 1,
       "is_map_visible": 0
     },

@@ -39,7 +39,7 @@
         onClose: () => void;
         onFocus: () => void;
         onHoverSpawn: (stableKey: string | string[] | null) => void;
-        onFocusSpawn: (stableKey: string) => void;
+        onFocusSpawn: (stableKey: string | string[]) => void;
         onSelectSpawn: (stableKey: string) => void;
         onFocusAll: () => void;
         onSearchAlternative: (query: string) => void;

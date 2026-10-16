@@ -603,3 +603,21 @@ INSERT INTO item_conversions VALUES ('item:fixture ore', 'item:fixture relic', '
 INSERT INTO class_starting_items VALUES
     ('Nightblade', 'item:fixture relic'), ('Paladin', 'item:fixture relic'),
     ('Default', 'item:fixture key'), ('Nightblade', 'item:fixture fish');
+
+-- Search sources without fixed placements, treasure sites, and a shared-page scroll.
+INSERT INTO items VALUES
+    ('item:fixture treasure', 'Fixture Treasure Reward', 'Fixture Reward', NULL, 10, 1),
+    ('item:fixture runtime', 'Fixture Runtime Reward', 'Fixture Reward', NULL, 10, 1),
+    ('item:fixture meditate', 'Spell Scroll: Meditative Trance', 'Spell Scroll: Meditative Trance', NULL, 10, 1),
+    ('item:fixture meditate dru', 'Spell Scroll: Meditative Trance (2)', 'Spell Scroll: Meditative Trance', NULL, 10, 0);
+INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability) VALUES
+    ('character:treasurechest 20-30 1', 'item:fixture treasure', 25),
+    ('character:treasurechest 30-35', 'item:fixture treasure', 10),
+    ('character:runtime enemy', 'item:fixture runtime', 50);
+INSERT INTO vendor_offers VALUES
+    ('character-group:runtime-enemy', 'character:runtime enemy', 'item:fixture runtime', NULL),
+    ('character-group:breena', 'character:breena carpenter', 'item:fixture meditate', NULL),
+    ('character-group:runtime-enemy', 'character:runtime enemy', 'item:fixture meditate dru', NULL);
+-- Selling both copies must not produce duplicate rows for the same vendor.
+INSERT INTO vendor_offers VALUES
+    ('character-group:breena', 'character:breena carpenter', 'item:fixture meditate dru', NULL);

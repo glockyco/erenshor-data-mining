@@ -13,13 +13,15 @@ import type {
     WorldNpc,
     WorldMiningNode,
     WorldWater,
-    WorldItemBag
+    WorldItemBag,
+    WorldTreasureLoc
 } from '$lib/types/world-map';
 import type {
     ItemSourceRow,
     ItemSourceItemMeta,
     ItemDropSource,
     ItemVendorSource,
+    ItemTreasureSource,
     ItemMiningSource,
     ItemFishingSource,
     ItemBagSource,
@@ -41,11 +43,12 @@ import type {
 } from './types';
 
 export type AnySpawnMarker = WorldEnemy | WorldNpc;
-export type AnySourceMarker = AnySpawnMarker | WorldMiningNode | WorldWater | WorldItemBag;
+export type AnySourceMarker = AnySpawnMarker | WorldMiningNode | WorldWater | WorldItemBag | WorldTreasureLoc;
 
 export type ResolvedItemSource =
     | { kind: 'drop'; row: ItemDropSource; markers: AnySpawnMarker[] }
     | { kind: 'vendor'; row: ItemVendorSource; markers: AnySpawnMarker[] }
+    | { kind: 'treasure'; row: ItemTreasureSource; markers: WorldTreasureLoc[] }
     | { kind: 'mining'; row: ItemMiningSource; marker: WorldMiningNode }
     | { kind: 'fishing'; row: ItemFishingSource; marker: WorldWater }
     | { kind: 'bag'; row: ItemBagSource; marker: WorldItemBag }
@@ -76,7 +79,8 @@ export class ItemSearchProvider implements SearchProvider {
         miningNodes: WorldMiningNode[],
         water: WorldWater[],
         itemBags: WorldItemBag[],
-        allItems: ItemSourceItemMeta[] = rows
+        allItems: ItemSourceItemMeta[] = rows,
+        treasureLocs: WorldTreasureLoc[] = []
     ) {
         this.itemByStableKey = new Map();
         this.markersByCharacter = new Map();
@@ -105,6 +109,7 @@ export class ItemSearchProvider implements SearchProvider {
         const bagByKey = new Map<string, WorldItemBag>(
             itemBags.map((marker): [string, WorldItemBag] => [marker.stableKey, marker])
         );
+        const treasureByKey = new Map(treasureLocs.map((marker) => [marker.stableKey, marker]));
 
         // Group source rows by item stable key
         const rowsByKey = new Map<string, ItemSourceRow[]>();
@@ -123,9 +128,8 @@ export class ItemSearchProvider implements SearchProvider {
             itemsByKey.set(item.itemStableKey, item);
         }
 
-        // Build one search result per wiki item, retaining only sources whose
-        // map markers are loaded. Items without a resolvable source remain in
-        // the index so their obtainability can be shown as unknown.
+        // Explicit sources survive even when the export cannot locate their
+        // character. Location-bound sources use only the markers loaded here.
         for (const [itemStableKey, item] of itemsByKey) {
             const itemRows = rowsByKey.get(itemStableKey) ?? [];
             const sources: ResolvedItemSource[] = [];
@@ -133,13 +137,18 @@ export class ItemSearchProvider implements SearchProvider {
             for (const row of itemRows) {
                 switch (row.kind) {
                     case 'drop': {
-                        const markers = this.markersByCharacter.get(row.characterStableKey);
-                        if (markers?.length) sources.push({ kind: 'drop', row, markers });
+                        const markers = this.markersByCharacter.get(row.characterStableKey) ?? [];
+                        sources.push({ kind: 'drop', row, markers });
                         break;
                     }
                     case 'vendor': {
-                        const markers = this.markersByCharacter.get(row.characterStableKey);
-                        if (markers?.length) sources.push({ kind: 'vendor', row, markers });
+                        const markers = this.markersByCharacter.get(row.characterStableKey) ?? [];
+                        sources.push({ kind: 'vendor', row, markers });
+                        break;
+                    }
+                    case 'treasure': {
+                        const marker = treasureByKey.get(row.treasureLocationStableKey);
+                        sources.push({ kind: 'treasure', row, markers: marker ? [marker] : [] });
                         break;
                     }
                     case 'mining': {
@@ -202,7 +211,7 @@ export class ItemSearchProvider implements SearchProvider {
             const zoneSet = new Set<string>();
 
             for (const source of sources) {
-                if (source.kind === 'drop') {
+                if (source.kind === 'drop' || source.kind === 'treasure') {
                     dropperKeys.add(source.row.characterStableKey);
                     for (const marker of source.markers) zoneSet.add(marker.zone);
                 } else if (source.kind === 'vendor') {

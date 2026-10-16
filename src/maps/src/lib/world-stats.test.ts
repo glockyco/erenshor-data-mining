@@ -21,11 +21,9 @@ describe('getWorldStats', () => {
 			zones: Object.keys(MAPS).length,
 			// The fixture's Default template class is not a playable class.
 			classes: 2,
-			// Eight wiki-backed items plus the twelve loot-table fillers that exercise
-			// an uncapped drop list and a name shared by two characters. This counts
-			// every item row, not just searchable ones, so the fillers show up here
-			// and nowhere else.
-			items: 20,
+			// Twelve wiki-backed variant rows plus twelve loot-table fillers.
+			// Stats count every item, not just the visible search representatives.
+			items: 24,
 			quests: 2
 		});
 	});

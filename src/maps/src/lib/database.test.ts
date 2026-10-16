@@ -152,7 +152,7 @@ describe('Repository', () => {
 
     it('loads all searchable items and the quest-unlocked vendor item', async () => {
         const items = await db.getAllItems();
-        expect(items).toHaveLength(8);
+        expect(items).toHaveLength(11);
         expect(items.every((item) => (item.wikiPageName?.trim().length ?? 0) > 0)).toBe(true);
         expect(
             items.find((item) => item.itemStableKey === 'item:furniture - enchanted smithy')
@@ -246,6 +246,7 @@ describe('Repository', () => {
             'mining',
             'quest',
             'starting',
+            'treasure',
             'vendor',
             'world'
         ]);
@@ -351,7 +352,7 @@ describe('Repository', () => {
         const result = unlocated.getResult('item:furniture - enchanted smithy')!;
         expect(result.hasKnownSource).toBe(true);
         expect(unlocated.getMarkersForItem(result.itemStableKey)).toEqual([]);
-        expect(itemResultSummaryParts(result)).toEqual(['1 quest']);
+        expect(itemResultSummaryParts(result)).toEqual(['1 vendor', '1 quest']);
     });
 
     it('derives reachable chest levels and guardian ranges from reading eligibility', async () => {
@@ -415,8 +416,8 @@ describe('Repository', () => {
             miningNodes: [],
             water: [],
             itemBags: [],
-            itemSources: [],
-            allItems: []
+            itemSources: await db.getItemSources(),
+            allItems: await db.getAllItems()
         });
         const provider = searchIndex.enemyProvider;
         for (const [name, expectedKeys] of [
@@ -447,5 +448,42 @@ describe('Repository', () => {
                 })
             ).toEqual({ type: 'search', result });
         }
+        const items = searchIndex.itemProvider;
+        const reward = items.getResult('item:fixture treasure')!;
+        expect(reward).toMatchObject({
+            hasKnownSource: true, sourceCounts: { droppers: 2 }, zoneCount: 3
+        });
+        expect(items.getSourcesForItem(reward.itemStableKey)).toHaveLength(5);
+        expect(items.getSourcesForItem(reward.itemStableKey)).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    kind: 'treasure',
+                    row: expect.objectContaining({
+                        chestName: 'Lost Treasure (20-30)', playerLevelMin: 21, playerLevelMax: 29,
+                        treasureLocationStableKey: 'treasure:stowaway-fixture'
+                    })
+                })
+            ])
+        );
+        expect(items.resolveHighlight(reward)).toMatchObject({
+            type: 'positions', stableKeys: expect.arrayContaining(sites.map((site) => site.stableKey))
+        });
+        expect(items.getMarkersForItem(reward.itemStableKey)).toHaveLength(3);
+        expect((await db.getItemSources()).filter((s) => s.kind === 'drop' &&
+            s.itemStableKey === reward.itemStableKey)).toEqual([]);
+        const runtime = items.getResult('item:fixture runtime')!;
+        expect(runtime).toMatchObject({
+            hasKnownSource: true, zoneCount: 0, sourceCounts: { droppers: 1, vendors: 1 }
+        });
+        expect(items.getSourcesForItem(runtime.itemStableKey)).toMatchObject([
+            { kind: 'drop', markers: [], row: { npcWikiPageName: 'Runtime Enemy' } },
+            { kind: 'vendor', markers: [], row: { npcWikiPageName: 'Runtime Enemy' } }
+        ]);
+        expect(items.getResult('item:fixture meditate dru')).toBeNull();
+        expect(items.getResult('item:fixture meditate')).toMatchObject({
+            itemName: 'Spell Scroll: Meditative Trance', hasKnownSource: true,
+            sourceCounts: { vendors: 2 }
+        });
+        expect(items.getSourcesForItem('item:fixture meditate')).toHaveLength(2);
     });
 });

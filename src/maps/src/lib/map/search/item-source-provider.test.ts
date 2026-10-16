@@ -103,6 +103,7 @@ function row(
         iconHash: null,
         characterStableKey: charStableKey,
         npcName,
+        npcWikiPageName: npcName,
         encounterTier: 'enemy',
         dropProbability,
         ...opts
@@ -125,6 +126,7 @@ function vendorRow(
         iconHash: null,
         characterStableKey: charStableKey,
         npcName,
+        npcWikiPageName: npcName,
         price,
         ...opts
     };
@@ -400,9 +402,9 @@ describe('ItemSearchProvider', () => {
         )?.result;
         expect(result).toBeDefined();
         if (result && isItemResult(result)) {
-            expect(result.hasKnownSource).toBe(false);
+            expect(result.hasKnownSource).toBe(true);
             expect(result.sourceCounts).toEqual({
-                droppers: 0,
+                droppers: 1,
                 vendors: 0,
                 miningNodes: 0,
                 fishingSpots: 0,
@@ -414,7 +416,25 @@ describe('ItemSearchProvider', () => {
                 itemUses: 0,
                 startingClasses: 0
             });
+            expect(provider.getMarkersForItem('item:no-spawn')).toEqual([]);
+            expect(provider.getSourcesForItem('item:no-spawn')).toMatchObject([
+                { kind: 'drop', row: { npcWikiPageName: 'Merchant' }, markers: [] }
+            ]);
         }
+    });
+
+    it('retains an unlocated vendor and its wiki link without coordinates', () => {
+        const provider = new ItemSearchProvider(
+            [vendorRow('item:scroll', 'Scroll', 'char:absent', 'Absent Merchant', 125)],
+            [], [], [], []
+        );
+        expect(provider.getResult('item:scroll')).toMatchObject({
+            hasKnownSource: true, zoneCount: 0, sourceCounts: { vendors: 1 }
+        });
+        expect(provider.getSourcesForItem('item:scroll')).toMatchObject([
+            { kind: 'vendor', row: { npcWikiPageName: 'Absent Merchant' }, markers: [] }
+        ]);
+        expect(provider.resolveHighlight(provider.getResult('item:scroll')!)).toEqual({ type: 'none' });
     });
 
     it('indexes a vendor-only item when its vendor spawns', () => {
@@ -504,9 +524,7 @@ describe('ItemSearchProvider', () => {
             [
                 miningRow('item:missing', 'Missing', 'mining:none', 1),
                 fishingRow('item:missing', 'Missing', 'water:none', 'day', 1),
-                bagRow('item:missing', 'Missing', 'bag:none'),
-                vendorRow('item:missing', 'Missing', 'char:none', 'Missing', 1),
-                row('item:missing', 'Missing', 'char:none', 'Missing', 1)
+                bagRow('item:missing', 'Missing', 'bag:none')
             ],
             [],
             [],

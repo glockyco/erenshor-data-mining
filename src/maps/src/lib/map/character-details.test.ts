@@ -26,6 +26,7 @@ function drop(displayName: string, dropProbability: number): ItemDropSource {
         iconHash: null,
         characterStableKey: 'character:hoarder',
         npcName: 'Hoarder',
+        npcWikiPageName: 'Hoarder',
         encounterTier: 'enemy',
         dropProbability
     };
@@ -49,7 +50,8 @@ describe('indexCharacterDetails', () => {
     it('lists direct and quest-unlocked vendor stock by item name', () => {
         expect(details.vendorItems.get('character:breena carpenter')).toEqual([
             { name: 'Enchanted Smithy', price: 250 },
-            { name: 'Fixture Key', price: 10 }
+            { name: 'Fixture Key', price: 10 },
+            { name: 'Spell Scroll: Meditative Trance', price: 10 }
         ]);
     });
 
@@ -65,7 +67,9 @@ describe('indexCharacterDetails', () => {
             { itemName: 'Fixture Drop', dropProbability: 25 }
         ]);
         expect(details.drops.get('character:fixture enemy twin')).toBeUndefined();
-        expect(details.drops.get('character:runtime enemy')).toBeUndefined();
+        expect(details.drops.get('character:runtime enemy')).toEqual([
+            { itemName: 'Fixture Runtime Reward', dropProbability: 50 }
+        ]);
         expect([...details.drops.values()].flat().some((row) => row.itemName === 'Fixture Relic')).toBe(false);
     });
 });

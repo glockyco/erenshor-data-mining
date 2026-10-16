@@ -19,7 +19,7 @@
         result: ItemSearchResult;
         sources: ResolvedItemSource[];
         onHoverSpawn: (stableKey: string | string[] | null) => void;
-        onFocusSpawn: (stableKey: string) => void;
+        onFocusSpawn: (stableKey: string | string[]) => void;
         onFocusAll: () => void;
     }
 
@@ -90,6 +90,32 @@
             }
         }
         return [...markers.values()];
+    });
+
+    const unlocatedDroppers = $derived(sources.filter(
+        (source): source is Extract<ResolvedItemSource, { kind: 'drop' }> =>
+            source.kind === 'drop' && source.markers.length === 0
+    ));
+    const unlocatedVendors = $derived(sources.filter(
+        (source): source is Extract<ResolvedItemSource, { kind: 'vendor' }> =>
+            source.kind === 'vendor' && source.markers.length === 0
+    ));
+    const treasureGroups = $derived.by(() => {
+        const groups = new SvelteMap<string, {
+            row: Extract<ResolvedItemSource, { kind: 'treasure' }>['row'];
+            zoneName: string;
+            markers: AnySourceMarker[];
+        }>();
+        for (const source of sources) {
+            if (source.kind !== 'treasure') continue;
+            for (const marker of source.markers) {
+                const key = `${source.row.characterStableKey}:${marker.zone}:${source.row.playerLevelMin}:${source.row.playerLevelMax}`;
+                const group = groups.get(key);
+                if (group) group.markers.push(marker);
+                else groups.set(key, { row: source.row, zoneName: marker.zoneName, markers: [marker] });
+            }
+        }
+        return [...groups.values()];
     });
 
     const droppersByZone = $derived.by(() => {
@@ -315,7 +341,7 @@
     }
 
     function focusMarkers(markers: AnySourceMarker[]): void {
-        if (markers.length > 0) onFocusSpawn(markers[0].stableKey);
+        if (markers.length > 0) onFocusSpawn(markerKeys(markers));
     }
 
     function markerKeys(markers: AnySourceMarker[]): string[] {
@@ -367,6 +393,66 @@
         <p class="border-t border-zinc-700 pt-3 text-center text-xs text-zinc-400">
             The map has no data on how to obtain this item.
         </p>
+    {/if}
+
+    {#if treasureGroups.length}
+        <div class="space-y-2 border-t border-zinc-700 pt-2 text-xs">
+            <div class="uppercase tracking-wide text-zinc-500">Treasure hunting</div>
+            <p class="text-zinc-400">Possible hunt locations, not chests present at every site.</p>
+            {#each treasureGroups as group (`${group.row.characterStableKey}:${group.zoneName}:${group.row.playerLevelMin}:${group.row.playerLevelMax}`)}
+                <div class="space-y-1">
+                    <div class="flex items-center gap-1 text-zinc-300">
+                        {group.row.chestName}<WikiLink pageName={group.row.chestWikiPageName} />
+                    </div>
+                    <button
+                        type="button"
+                        class="flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-zinc-400 hover:bg-zinc-700/50 hover:text-white"
+                        onmouseenter={() => onHoverSpawn(markerKeys(group.markers))}
+                        onmouseleave={() => onHoverSpawn(null)}
+                        onclick={() => focusMarkers(group.markers)}
+                    >
+                        <span>
+                            {group.zoneName} · player levels {group.row.playerLevelMin}–{group.row.playerLevelMax}
+                            <br />{group.markers.length} possible location{group.markers.length !== 1 ? 's' : ''}
+                            · {formatDropChance(group.row.dropProbability)} drop
+                        </span>
+                        <Crosshair class="h-3.5 w-3.5 shrink-0" />
+                    </button>
+                </div>
+            {/each}
+        </div>
+    {/if}
+
+    {#if unlocatedDroppers.length}
+        <div class="space-y-2 border-t border-zinc-700 pt-2 text-xs">
+            <div class="uppercase tracking-wide text-zinc-500">Dropped by</div>
+            {#each unlocatedDroppers as source (source.row.characterStableKey)}
+                {#if source.kind === 'drop'}
+                    <div>
+                        <div class="flex items-center gap-1 text-zinc-300">
+                            {source.row.npcName}<WikiLink pageName={source.row.npcWikiPageName} />
+                        </div>
+                        <div class="text-zinc-400">{formatDropChance(source.row.dropProbability)} drop · Location unknown</div>
+                    </div>
+                {/if}
+            {/each}
+        </div>
+    {/if}
+
+    {#if unlocatedVendors.length}
+        <div class="space-y-2 border-t border-zinc-700 pt-2 text-xs">
+            <div class="uppercase tracking-wide text-zinc-500">Sold by</div>
+            {#each unlocatedVendors as source (source.row.characterStableKey)}
+                {#if source.kind === 'vendor'}
+                    <div>
+                        <div class="flex items-center gap-1 text-zinc-300">
+                            {source.row.npcName}<WikiLink pageName={source.row.npcWikiPageName} />
+                        </div>
+                        <div class="text-zinc-400">{formatPrice(source.row.price)} gold · Location unknown</div>
+                    </div>
+                {/if}
+            {/each}
+        </div>
     {/if}
 
     {#if droppersByZone.length > 0}

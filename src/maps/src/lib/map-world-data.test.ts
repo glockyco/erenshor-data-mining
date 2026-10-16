@@ -78,7 +78,7 @@ describe('buildMapWorldData', () => {
         expect(tiers.get('Runtime Enemy')).toBe('elite');
         expect(tiers.get('Fixture Chest')).toBe('chest');
         expect(tiers.has('Breena Carpenter')).toBe(false);
-        expect(data.allItems).toHaveLength(8);
+        expect(data.allItems).toHaveLength(11);
         expect([...new Set(data.itemSources.map((source) => source.kind))].sort()).toEqual([
             'bag',
             'common_world_item',
@@ -90,6 +90,7 @@ describe('buildMapWorldData', () => {
             'mining',
             'quest',
             'starting',
+            'treasure',
             'vendor',
             'world'
         ]);

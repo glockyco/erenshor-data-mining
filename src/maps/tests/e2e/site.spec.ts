@@ -143,6 +143,41 @@ test('dialog givers show their required quest and focus their location', async (
     await expect(page.locator('canvas').first()).toBeVisible();
 });
 
+test('item search shows possible treasure hunts and focuses their sites', async ({ page }) => {
+    await page.goto(`/map?sel=${encodeURIComponent('item:item:fixture treasure')}`);
+    await expect(page.getByText('Possible hunt locations, not chests present at every site.')).toBeVisible();
+    const tierLinks = page.locator('a[href="https://erenshor.wiki.gg/wiki/Lost%20Treasure%20(20-30)"]');
+    await expect(tierLinks).toHaveCount(2);
+    await expect(tierLinks.first().locator('..')).toContainText('Lost Treasure (20-30)');
+    const site = page.getByRole('button', { name: /Stowaway's Step · player levels 21–29/ });
+    await expect(site).toBeVisible();
+    await site.click();
+    const all = page.getByRole('button', { name: 'Show all 3 locations', exact: true });
+    await expect(all).toBeVisible();
+    await all.click();
+    await expect(page.locator('canvas').first()).toBeVisible();
+});
+
+test('unlocated droppers and vendors retain wiki links but no focus buttons', async ({ page }) => {
+    await page.goto(`/map?sel=${encodeURIComponent('item:item:fixture runtime')}`);
+    await expect(page.getByText('Dropped by', { exact: true })).toBeVisible();
+    await expect(page.getByText('Sold by', { exact: true })).toBeVisible();
+    await expect(page.getByText(/Location unknown/)).toHaveCount(2);
+    await expect(page.locator('a[href="https://erenshor.wiki.gg/wiki/Runtime%20Enemy"]')).toHaveCount(2);
+    await expect(page.getByRole('button', { name: /^Show all/ })).toHaveCount(0);
+    await expect(page.getByText('The map has no data on how to obtain this item.')).toHaveCount(0);
+});
+
+test('a representative scroll lists vendors of both item variants', async ({ page }) => {
+    await page.goto(`/map?sel=${encodeURIComponent('item:item:fixture meditate')}`);
+    await expect(page.getByText('Spell Scroll: Meditative Trance', { exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Breena Carpenter/ })).toBeVisible();
+    const vendorWiki = page.locator('a[href="https://erenshor.wiki.gg/wiki/Runtime%20Enemy"]');
+    await expect(vendorWiki).toBeVisible();
+    await expect(vendorWiki.locator('..')).toContainText('Runtime Enemy');
+    await expect(page.getByText('10 gold · Location unknown')).toBeVisible();
+});
+
 test('the layers query that shipped overlays load hides every spawn layer', async ({ page }) => {
     await page.goto('/map?layers=-sp%2C-spr%2C-spu%2C-npc');
 
