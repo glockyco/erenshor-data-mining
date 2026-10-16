@@ -64,16 +64,28 @@ function p.run()
 		page = "Priel Note",
 		text = "Priel Note (1)",
 	})
-	assertNotContains(sharedPageItem, "[[File:", "ambiguous item has no invented icon")
 	assertContains(
 		sharedPageItem,
+		"[[File:Priel Note icon.png",
+		"items that share a page and an icon show that icon"
+	)
+	assertNotContains(
+		sharedPageItem,
 		"[[Category:Pages with ambiguous Erenshor links]]",
-		"ambiguous page matches are tracked"
+		"items that share a page and an icon are not tracked"
 	)
 	assertNotContains(
 		sharedPageItem,
 		"[[File:Priel Note (1).png",
 		"item link does not invent an image from disambiguated text"
+	)
+
+	local sharedPageAbility = Link.render({ kind = "ability", [1] = "Flame Bolt" })
+	assertNotContains(sharedPageAbility, "[[File:", "ambiguous ability has no invented icon")
+	assertContains(
+		sharedPageAbility,
+		"[[Category:Pages with ambiguous Erenshor links]]",
+		"abilities that share a page are tracked, because their tooltips need a key"
 	)
 	assertContains(item, "[[Abyssal Plate]]", "item link has page link")
 
@@ -172,21 +184,30 @@ function p.run()
 		)
 	end
 
-	local ambiguousPositionalItem = Link.resolve("item", { [1] = "Priel Note" })
+	local sharedPositionalItem = Link.resolve("item", { [1] = "Priel Note" })
 	assertEqual(
-		ambiguousPositionalItem.state,
+		sharedPositionalItem.state,
+		"shared",
+		"items on one page with one icon resolve to the page"
+	)
+	assertEqual(sharedPositionalItem.resolvedKey, nil, "a shared page gives no identity")
+	assertEqual(sharedPositionalItem.image, "Priel Note icon.png", "a shared page keeps its icon")
+
+	local ambiguousPositionalAbility = Link.resolve("ability", { [1] = "Flame Bolt" })
+	assertEqual(
+		ambiguousPositionalAbility.state,
 		"ambiguous",
 		"ambiguous positional page remains ambiguous"
 	)
 	assertEqual(
-		ambiguousPositionalItem.page,
-		"Priel Note",
+		ambiguousPositionalAbility.page,
+		"Flame Bolt",
 		"ambiguous positional page remains navigable"
 	)
-	local ambiguousPositionalRendered = Link.render({ kind = "item", [1] = "Priel Note" })
+	local ambiguousPositionalRendered = Link.render({ kind = "ability", [1] = "Flame Bolt" })
 	assertContains(
 		ambiguousPositionalRendered,
-		"[[Priel Note]]",
+		"[[Flame Bolt]]",
 		"ambiguous positional page keeps its navigable link"
 	)
 	assertContains(

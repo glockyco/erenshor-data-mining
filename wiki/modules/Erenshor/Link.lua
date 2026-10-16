@@ -176,6 +176,21 @@ local function pageMatches(kind, page)
 	return matches
 end
 
+-- Entities that share a page, such as the quests of one quest line, render the
+-- same link when they share an image, so a link by page needs no identity.
+-- Ability tooltips load by stable key, so abilities on one page stay ambiguous.
+local function rendersAlike(kind, matches)
+	if kind == "ability" then
+		return false
+	end
+	for _, record in ipairs(matches) do
+		if record.image ~= matches[1].image then
+			return false
+		end
+	end
+	return true
+end
+
 local function resolveRecord(kind, requestedKey)
 	if isBlank(requestedKey) or not keyPrefixMatches(kind, requestedKey) then
 		return nil
@@ -259,6 +274,7 @@ function p.resolve(kind, args)
 	local record = nil
 	local state = "manual"
 	local resolvedKey = nil
+	local sharedImage = nil
 
 	if requestedKey ~= nil then
 		record = resolveRecord(kind, requestedKey)
@@ -276,7 +292,12 @@ function p.resolve(kind, args)
 			record = matches[1]
 			resolvedKey = record.key
 		elseif #matches > 1 then
-			state = "ambiguous"
+			if rendersAlike(kind, matches) then
+				state = "shared"
+				sharedImage = matches[1].image
+			else
+				state = "ambiguous"
+			end
 		end
 	end
 
@@ -296,7 +317,7 @@ function p.resolve(kind, args)
 			text = positionalPage or suppliedPage or page
 		end
 	end
-	local image = imageOverride or (record and record.image)
+	local image = imageOverride or (record and record.image) or sharedImage
 
 	if requestedKey ~= nil and record ~= nil and namedPage ~= nil then
 		local expected = normalizePage(record.page)

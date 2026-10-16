@@ -30,7 +30,9 @@ Keyed class: {{ClassLink|stablekey=class:duelist|text=Keyed Class}}
 
 Positional class: {{ClassLink|Windblade|text=Positional Class}}
 
-Ambiguous positional: {{ItemLink|Priel Note}}
+Shared positional: {{ItemLink|Priel Note}}
+
+Ambiguous positional: {{AbilityLink|Flame Bolt}}
 
 Unresolved keyed: {{AbilityLink|stablekey=spell:does-not-exist|link=Unresolved Ability Target|text=Unresolved Ability}}
 

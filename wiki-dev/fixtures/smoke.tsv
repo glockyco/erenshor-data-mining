@@ -96,6 +96,7 @@ Lua Link Smoke	elem:[data-erenshor-page="Windblade"]
 Lua Link Smoke	elem:[data-erenshor-key="class:duelist"]
 Lua Link Smoke	elem:a[href*="Priel_Note"]
 Lua Link Smoke	elem:[data-erenshor-page="Priel Note"]
+Lua Link Smoke	elem:a[href*="Flame_Bolt"]
 Lua Link Smoke	category:Pages_with_ambiguous_Erenshor_links
 Lua Link Smoke	elem:.erenshor-link--ability=Unresolved Ability
 Lua Link Smoke	elem:a[href*="Unresolved_Ability_Target"]

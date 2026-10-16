@@ -335,6 +335,18 @@ def _manual_candidates(index: _CatalogIndex, kind: str, target: str) -> tuple[Li
     return tuple(sorted(unique.values(), key=_entry_key))
 
 
+def _render_alike(kind: str, candidates: Sequence[LinkCatalogEntry]) -> bool:
+    """Whether several entities render one link: one page and one image, as `Module:Erenshor/Link` decides.
+
+    Ability tooltips load by stable key, so abilities on one page never render alike.
+    """
+    return (
+        len(candidates) > 1
+        and kind != "ability"
+        and len({(_title_key(entry.page), entry.image) for entry in candidates}) == 1
+    )
+
+
 def _semantic_kind(template_name: str) -> str | None:
     """Return the link kind of a semantic link template name, or None."""
     folded = template_name.strip().casefold()
@@ -453,7 +465,8 @@ def _occurrence_from_template(
 
     assert supplied_target is not None
     candidates = _manual_candidates(index, kind, supplied_target)
-    if len(candidates) == 1:
+    alike = _render_alike(kind, candidates)
+    if len(candidates) == 1 or alike:
         canonical_target: str | None = candidates[0].page
     elif len(candidates) > 1:
         canonical_target = None
@@ -468,7 +481,7 @@ def _occurrence_from_template(
         canonical_target,
         origin,
     )
-    if len(candidates) > 1:
+    if len(candidates) > 1 and not alike:
         return occurrence, LinkAuditFinding(
             "ambiguous_manual_semantic_link",
             "warning",

@@ -16,11 +16,36 @@ def entry(key: str, name: str, page: str) -> LinkCatalogEntry:
     return LinkCatalogEntry(key, "item", None, name, page, None)
 
 
+def test_entities_that_share_a_page_and_an_image_are_not_ambiguous() -> None:
+    catalog = (
+        LinkCatalogEntry("quest:line_1", "quest", None, "Quest Line", "Quest Line", None),
+        LinkCatalogEntry("quest:line_2", "quest", None, "Quest Line", "Quest Line", None),
+        LinkCatalogEntry("spell:bolt", "ability", "spell", "Bolt", "Bolt", "Bolt icon.png"),
+        LinkCatalogEntry("skill:bolt", "ability", "skill", "Bolt", "Bolt", "Bolt icon.png"),
+    )
+    statuses = {
+        "Quest Line": MediaWikiTitleStatus("Quest Line", "Quest Line", None, True),
+        "Bolt": MediaWikiTitleStatus("Bolt", "Bolt", None, True),
+    }
+    report = audit_links(
+        generated_pages={"Page": "{{QuestLink|link=Quest Line}} {{AbilityLink|Bolt}}"},
+        catalog_entries=catalog,
+        planned_titles=set(),
+        title_statuses=statuses,
+        remote_checked=True,
+    )
+
+    # Quests of one quest line link their page; abilities on one page still need a key for their tooltips.
+    ambiguous = [finding.kind for finding in report.findings if finding.code == "ambiguous_manual_semantic_link"]
+    assert ambiguous == ["ability"]
+
+
 def test_all_finding_codes_and_severities_are_reported() -> None:
     catalog = (
         entry("item:a", "A", "A"),
-        entry("item:shared_a", "Shared", "Shared"),
-        entry("item:shared_b", "Shared", "Shared"),
+        # Two items on one page with different icons cannot render one link.
+        LinkCatalogEntry("item:shared_a", "item", None, "Shared", "Shared", "Shared A icon.png"),
+        LinkCatalogEntry("item:shared_b", "item", None, "Shared", "Shared", "Shared B icon.png"),
         entry("item:old", "Old", "Old"),
         LinkCatalogEntry("quest:q", "quest", None, "Q", "Q", None),
     )
