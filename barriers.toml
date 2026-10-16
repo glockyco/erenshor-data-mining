@@ -1,5 +1,6 @@
 # Keyed doors and the targets each one guards. Every keyed door of the build must
-# appear here once. See README.md (Concepts) for how entries are reviewed.
+# appear here once. [[entries]] name targets that only some of the zone lines
+# into their scene reach. See README.md (Concepts) for how entries are reviewed.
 
 [[barriers]]
 doors = ["door:azure:40.22:31.09:326.20"]
@@ -347,3 +348,8 @@ guards = [
     "spawn:vitheosend:458.45:14.75:323.47",
 ]
 reason = "The door to Vitheo's tomb. A NavMesh path from the scene entry reaches these targets with the door open and not with the door blocked."
+
+[[entries]]
+target = "character:lighthouse demon:tutorial:-64.96:22.26:149.12"
+via = ["zoneline:stowaway:tutorial:808.08:14.08:592.64"]
+reason = "Occuphage stands on a ledge that only the Stowaway's Step lighthouse entrance lands on. The NavMesh from the other two Island Tomb entrances ends 16 m below it."

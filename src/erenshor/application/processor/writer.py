@@ -175,6 +175,16 @@ CREATE TABLE gate_conditions (
     UNIQUE (subject_kind, subject_stable_key, item_stable_key, gate, group_index, atom_kind, atom_stable_key, atom_slot)
 );
 
+-- Zone lines through which alone a target can be reached, from the reviewed
+-- [[entries]] of barriers.toml. A target without rows is reachable from every
+-- zone line into its scene.
+CREATE TABLE target_entries (
+    target_kind             TEXT NOT NULL CHECK (target_kind IN ('character', 'spawn_point', 'item_bag')),
+    target_stable_key       TEXT NOT NULL,
+    zone_line_stable_key    TEXT NOT NULL REFERENCES zone_lines (stable_key),
+    PRIMARY KEY (target_stable_key, zone_line_stable_key)
+);
+
 CREATE TABLE game_constants (
     key         TEXT PRIMARY KEY NOT NULL,
     value       TEXT,
@@ -1647,6 +1657,9 @@ class Writer:
 
     def insert_gate_conditions(self, rows: list[dict[str, object]]) -> int:
         return self._insert("gate_conditions", rows)
+
+    def insert_target_entries(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("target_entries", rows)
 
     def insert_game_constants(self, rows: list[dict[str, object]]) -> int:
         return self._insert("game_constants", rows)

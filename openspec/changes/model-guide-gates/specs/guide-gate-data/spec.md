@@ -63,6 +63,15 @@ A keyed door SHALL add a key atom for its key item to the condition of every tar
 - **WHEN** `barriers.toml` lists a door that the new build no longer contains
 - **THEN** the clean build fails and names the stale entry
 
+### Requirement: Targets that only some entrances reach name those entrances
+
+When a target stands where only some of the zone lines into its scene lead, `barriers.toml` SHALL name those zone lines with a reason, and the clean build SHALL record them for the target. The clean build SHALL fail when such an entry names a target or zone line that the build does not contain, or a zone line that leads into another scene. `quest-guide.json` SHALL carry the entry lines on the target's placements.
+
+#### Scenario: Occuphage's ledge
+
+- **WHEN** the clean build runs on the current main build
+- **THEN** Occuphage's placement in the Island Tomb names the Stowaway's Step lighthouse zone line as its only entrance
+
 ### Requirement: Quest listener effects are exported in both directions
 
 The export SHALL record each object that `QuestSpawnListener`, `MultiQuestListener`, or `DynamicContentManager` enables or disables, with the quests or the held item that trigger the effect. The clean build SHALL derive each target's availability from these effects. When the same trigger enables and then disables a target, the target SHALL be unavailable once the trigger holds.

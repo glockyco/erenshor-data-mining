@@ -10,6 +10,10 @@ The rules come from the export (quest listener activations, spawn points,
 furnishings, vendor stock) and from ``barriers.toml``, which states what each
 keyed door guards. A keyed door opens when its key is on the keyring or in
 the inventory (``Door.OpenOrShut``), so each guarded target gets a key atom.
+
+``barriers.toml`` also lists entries: targets that only some of the zone lines
+into their scene reach, such as a ledge that one tomb entrance lands on.
+``target_entries`` records those zone lines, so navigation enters there.
 """
 
 from __future__ import annotations
@@ -72,8 +76,17 @@ class Barrier:
     reason: str
 
 
+@dataclass(frozen=True, slots=True)
+class Entry:
+    """One reviewed entry of barriers.toml: the only zone lines that reach a target."""
+
+    target: str
+    via: tuple[str, ...]
+    reason: str
+
+
 def process_gates(raw: sqlite3.Connection, writer: Writer, barriers_path: Path) -> None:
-    """Write ``gate_conditions`` from the exported rules and barriers.toml."""
+    """Write ``gate_conditions`` and ``target_entries`` from the export and barriers.toml."""
     conn = writer.conn
     gates = [
         *_activation_gates(raw, conn),
@@ -100,6 +113,9 @@ def process_gates(raw: sqlite3.Connection, writer: Writer, barriers_path: Path) 
     ]
     writer.insert_gate_conditions(rows)
     logger.info(f"Gate conditions: {len(gates)} gates, {len(rows)} atoms")
+    entries = _entry_rows(conn, load_entries(barriers_path))
+    writer.insert_target_entries(entries)
+    logger.info(f"Target entries: {len(entries)} zone lines")
 
 
 def load_barriers(path: Path) -> list[Barrier]:
@@ -121,6 +137,59 @@ def load_barriers(path: Path) -> list[Barrier]:
             raise ValueError(f"{path.name} entry {index} has unknown fields {sorted(unknown)}")
         barriers.append(Barrier(tuple(doors), tuple(guards), reason))
     return barriers
+
+
+def load_entries(path: Path) -> list[Entry]:
+    """Read the [[entries]] of barriers.toml. Raise on a malformed entry."""
+    data = tomllib.loads(path.read_text(encoding="utf-8"))
+    entries: list[Entry] = []
+    for index, entry in enumerate(data.get("entries", [])):
+        target = entry.get("target")
+        via = entry.get("via")
+        reason = entry.get("reason")
+        if not isinstance(target, str) or not target:
+            raise ValueError(f"{path.name} entries {index} needs a target")
+        if not isinstance(via, list) or not via or not all(isinstance(line, str) for line in via):
+            raise ValueError(f"{path.name} entries {index} needs a non-empty list of zone lines")
+        if not isinstance(reason, str) or not reason.strip():
+            raise ValueError(f"{path.name} entries {index} needs a reason")
+        unknown = set(entry) - {"target", "via", "reason"}
+        if unknown:
+            raise ValueError(f"{path.name} entries {index} has unknown fields {sorted(unknown)}")
+        entries.append(Entry(target, tuple(via), reason))
+    return entries
+
+
+def _entry_rows(conn: sqlite3.Connection, entries: list[Entry]) -> list[dict[str, object]]:
+    """One row per zone line of an entry, after checking that each line leads into the target's scene."""
+    scene_queries = {
+        "character": "SELECT scene FROM characters WHERE stable_key = ?",
+        "spawn_point": "SELECT scene FROM character_spawns WHERE spawn_point_stable_key = ?",
+        "item_bag": "SELECT scene FROM item_bags WHERE stable_key = ?",
+    }
+    rows: list[dict[str, object]] = []
+    for index, entry in enumerate(entries):
+        kind = _target_kind(entry.target)
+        if kind not in scene_queries:
+            raise ValueError(f"barriers.toml entries {index} targets {entry.target!r}, which is not a placed target")
+        found = conn.execute(scene_queries[kind], (entry.target,)).fetchone()
+        if found is None:
+            raise ValueError(f"barriers.toml entries {index} targets {entry.target!r}, which this build lacks")
+        for line in entry.via:
+            destination = conn.execute(
+                "SELECT z.scene_name FROM zone_lines l JOIN zones z ON z.stable_key = l.destination_zone_stable_key"
+                " WHERE l.stable_key = ?",
+                (line,),
+            ).fetchone()
+            if destination is None:
+                raise ValueError(f"barriers.toml entries {index} names {line!r}, which this build lacks")
+            if destination[0] != found[0]:
+                raise ValueError(
+                    f"barriers.toml entries {index}: {line!r} leads to {destination[0]}, not to {found[0]}"
+                    f" where {entry.target!r} stands"
+                )
+            rows.append({"target_kind": kind, "target_stable_key": entry.target, "zone_line_stable_key": line})
+    return rows
 
 
 def _activation_gates(raw: sqlite3.Connection, conn: sqlite3.Connection) -> list[Gate]:

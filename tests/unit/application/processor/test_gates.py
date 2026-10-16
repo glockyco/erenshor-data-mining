@@ -62,8 +62,12 @@ def writer(tmp_path: Path) -> Writer:
         [("stock", "quest:stock"), ("stock2", "quest:stock2")],
     )
     conn.execute(
-        "INSERT INTO zone_lines (stable_key, scene, is_enabled)"
-        " VALUES ('zoneline:island:tomb:808.08:14.08:592.64', 'Island', 1)"
+        "INSERT INTO zones (stable_key, scene_name, zone_name, display_name, image_name)"
+        " VALUES ('zone:tomb', 'Tomb', 'Tomb', 'Tomb', 'Tomb')"
+    )
+    conn.execute(
+        "INSERT INTO zone_lines (stable_key, scene, is_enabled, destination_zone_stable_key)"
+        " VALUES ('zoneline:island:tomb:808.08:14.08:592.64', 'Island', 1, 'zone:tomb')"
     )
     conn.executemany(
         "INSERT INTO doors (stable_key, scene, x, y, z, key_item_stable_key) VALUES (?, ?, ?, ?, ?, ?)",
@@ -179,3 +183,39 @@ def test_a_listener_quest_the_build_lacks_fails(tmp_path: Path, writer: Writer, 
 
     with pytest.raises(ValueError, match="'GONE'"):
         process_gates(raw, writer, _barriers(tmp_path, _COMPLETE))
+
+
+def test_an_entry_records_the_lines_that_reach_its_target(
+    tmp_path: Path, writer: Writer, raw: sqlite3.Connection
+) -> None:
+    line = "zoneline:island:tomb:808.08:14.08:592.64"
+    body = (
+        _COMPLETE
+        + f"""
+[[entries]]
+target = "{_GHOST_SPAWN}"
+via = ["{line}"]
+reason = "The ledge."
+"""
+    )
+    process_gates(raw, writer, _barriers(tmp_path, body))
+
+    rows = [tuple(row) for row in writer.conn.execute("SELECT * FROM target_entries")]
+    assert rows == [("spawn_point", _GHOST_SPAWN, line)]
+
+
+def test_an_entry_through_a_line_into_another_scene_fails(
+    tmp_path: Path, writer: Writer, raw: sqlite3.Connection
+) -> None:
+    body = (
+        _COMPLETE
+        + """
+[[entries]]
+target = "spawn:salted:1"
+via = ["zoneline:island:tomb:808.08:14.08:592.64"]
+reason = "Wrong scene."
+"""
+    )
+
+    with pytest.raises(ValueError, match="leads to Tomb, not to Salted"):
+        process_gates(raw, writer, _barriers(tmp_path, body))
