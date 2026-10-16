@@ -80,7 +80,14 @@ namespace FixtureLib
             }
         }
 
-        public bool AmbiguousBounds(int level) => level < 35 || level < 40;
+        // Two bounds on one operand. The decompiler turns short-circuit forms into
+        // inverted guards, so each bound is its own comparison.
+        public bool AmbiguousBounds(int level)
+        {
+            bool belowLow = level < 35;
+            bool belowHigh = level < 40;
+            return belowLow != belowHigh;
+        }
 
         public void OffsetDraw(FixtureLoot empty, FixtureLoot stats)
         {
