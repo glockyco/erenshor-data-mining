@@ -80,17 +80,13 @@ class EdgeType(str, Enum):
     REWARDS_ITEM = "rewards_item"
     CHAINS_TO = "chains_to"
     ALSO_COMPLETES = "also_completes"
-    UNLOCKS_ZONE_LINE = "unlocks_zone_line"
-    UNLOCKS_CHARACTER = "unlocks_character"
     AFFECTS_FACTION = "affects_faction"
-    UNLOCKS_VENDOR_ITEM = "unlocks_vendor_item"
 
     # -- Item edges (source = item) --
     CRAFTED_FROM = "crafted_from"
     TEACHES_SPELL = "teaches_spell"
     ASSIGNS_QUEST = "assigns_quest"
     COMPLETES_QUEST = "completes_quest"
-    UNLOCKS_DOOR = "unlocks_door"
     ENABLES_INTERACTION = "enables_interaction"
 
     # -- Character edges (source = character) --
@@ -115,22 +111,70 @@ class EdgeType(str, Enum):
 
     # -- Spawn point edges --
     SPAWNS_CHARACTER = "spawns_character"
-    GATED_BY_QUEST = "gated_by_quest"
-    STOPS_AFTER_QUEST = "stops_after_quest"
 
     # -- Zone line edges --
     CONNECTS_ZONES = "connects_zones"
 
     # -- World object edges --
     REMOVES_INVULNERABILITY = "removes_invulnerability"
-    # Appended relationships; keep existing enum ordinals stable.
     STEP_TURN_IN = "step_turn_in"
     STEP_LOOT = "step_loot"
     STEP_BUY = "step_buy"
     STEP_GO_TO = "step_go_to"
     CREATES_ITEM = "creates_item"
-    # quest -> item bag: the pickup exists only once the quest is complete.
-    UNLOCKS_ITEM_BAG = "unlocks_item_bag"
+
+
+# ---------------------------------------------------------------------------
+# Gates — when a subject is available (see processor.gates)
+# ---------------------------------------------------------------------------
+
+
+class SubjectKind(str, Enum):
+    """What a gate makes available."""
+
+    ZONE_LINE = "zone_line"
+    CHARACTER = "character"
+    SPAWN_POINT = "spawn_point"
+    VENDOR_ITEM = "vendor_item"
+    ITEM_BAG = "item_bag"
+
+
+class AtomKind(str, Enum):
+    """One fact of game state that a gate can require."""
+
+    QUEST_DONE = "quest_done"
+    QUEST_NOT_DONE = "quest_not_done"
+    ITEM_HELD = "item_held"
+    KEY_HELD = "key_held"
+    ROOM_FURNISHED = "room_furnished"
+    # Advisory: the mod cannot observe it reliably, so it guides and never hides.
+    ENCOUNTER_WON = "encounter_won"
+    # No game state satisfies it, such as a door whose key cannot be obtained.
+    NEVER = "never"
+
+
+@dataclass(frozen=True, slots=True)
+class GateAtom:
+    """A fact, naming a quest, item, furniture set, or character by stable key."""
+
+    kind: AtomKind
+    ref: str
+    slot: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class Gate:
+    """One rule on a subject: it holds when every atom of one group holds.
+
+    ``item_key`` names the item of a vendor item subject, whose subject key is
+    the vendor copy.
+    """
+
+    subject_kind: SubjectKind
+    subject_key: str
+    gate: str
+    groups: tuple[tuple[GateAtom, ...], ...]
+    item_key: str | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -219,6 +263,8 @@ class Node:
 
     # Item-specific
     item_level: int | None = None
+    # Item.Id in the game, which the keyring stores.
+    game_id: str | None = None
     stackable: bool = False
     is_unique: bool = False
     template: bool = False  # crafting recipe template item

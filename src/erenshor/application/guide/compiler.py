@@ -8,13 +8,27 @@ to assemble ``quest-guide.json``.
 from __future__ import annotations
 
 import math
+from collections import defaultdict
 from dataclasses import dataclass, field
 from enum import IntEnum
 from typing import TYPE_CHECKING
 
-from .schema import BackgroundSource, Edge, EdgeType, Node, NodeType, WorkflowCycle
+from .schema import (
+    AtomKind,
+    BackgroundSource,
+    Edge,
+    EdgeType,
+    Gate,
+    GateAtom,
+    Node,
+    NodeType,
+    SubjectKind,
+    WorkflowCycle,
+)
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from .graph import EntityGraph
 
 
@@ -118,19 +132,25 @@ class SourceSite:
     keyword: str | None = None
 
 
-@dataclass(slots=True)
-class UnlockCondition:
-    source_id: int
-    check_type: int
-    group: int = 0
+# A condition is a tuple of groups and holds when every atom of one group holds.
+# The empty tuple never holds. A subject without gates has no condition.
+Condition = tuple[tuple[GateAtom, ...], ...]
+
+# Every combination in the data stays far below these sizes. A larger
+# condition means a rule combines gates in an unexpected way.
+MAX_CONDITION_GROUPS = 32
+MAX_GROUP_ATOMS = 8
 
 
 @dataclass(slots=True)
-class UnlockPredicate:
-    target_id: int
-    conditions: list[UnlockCondition] = field(default_factory=list)
-    group_count: int = 0
-    semantics: int = 0
+class SubjectCondition:
+    """Where a condition applies: a zone line, a placement, an item bag, or a vendor item."""
+
+    kind: SubjectKind
+    key: str
+    condition: int
+    # The placement's spawn point, or the item of a vendor item.
+    detail: str | None = None
 
 
 @dataclass(slots=True)
@@ -179,7 +199,11 @@ class CompiledData:
 
     quest_specs: list[QuestSpec] = field(default_factory=list)
     item_sources: list[list[SourceSite]] = field(default_factory=list)
-    unlock_predicates: list[UnlockPredicate] = field(default_factory=list)
+    # Each distinct condition once; subjects refer to them by index.
+    conditions: list[Condition] = field(default_factory=list)
+    subject_conditions: list[SubjectCondition] = field(default_factory=list)
+    # (kind, subject key, spawn point or vendor item) → condition index.
+    condition_by_subject: dict[tuple[SubjectKind, str, str | None], int] = field(default_factory=dict)
 
 
 _NODE_TYPE_ORDER = list(NodeType)
@@ -207,7 +231,8 @@ def compile_graph(graph: EntityGraph) -> CompiledData:
     _assign_dense_indices(compiled)
     _compile_quest_specs(compiled)
     _compile_item_sources(compiled)
-    _compile_unlock_predicates(compiled)
+    _compile_conditions(graph, compiled)
+    _check_requirement_cycles(compiled)
     return compiled
 
 
@@ -491,59 +516,136 @@ def _compile_item_sources(compiled: CompiledData) -> None:
         compiled.item_sources[item_index] = sources
 
 
-def _compile_unlock_predicates(compiled: CompiledData) -> None:
-    unlock_target_edge_types = {
-        edge_type_byte(EdgeType.UNLOCKS_CHARACTER),
-        edge_type_byte(EdgeType.UNLOCKS_ZONE_LINE),
-        edge_type_byte(EdgeType.UNLOCKS_VENDOR_ITEM),
-        edge_type_byte(EdgeType.UNLOCKS_DOOR),
-    }
-    gated_by_quest = edge_type_byte(EdgeType.GATED_BY_QUEST)
-    item_type = node_type_byte(NodeType.ITEM)
-    door_type = node_type_byte(NodeType.DOOR)
-    predicates: dict[int, list[UnlockCondition]] = {}
-    group_ids_by_target: dict[int, dict[str, int]] = {}
+def combine_gates(gates: list[Gate]) -> Condition | None:
+    """The condition under which every gate holds, or None without gates.
 
-    for edge in compiled.edges:
-        if edge.edge_type in unlock_target_edge_types:
-            target_id = edge.target_id
-            source_id = edge.source_id
-        elif edge.edge_type == gated_by_quest:
-            target_id = edge.source_id
-            source_id = edge.target_id
-        else:
+    This is the only place where a subject's gates combine. A group that
+    holds 'never' or needs a quest both done and not done drops out, and a
+    group that contains another group adds nothing.
+    """
+    if not gates:
+        return None
+    groups: list[frozenset[GateAtom]] = [frozenset()]
+    for gate in gates:
+        groups = _reduce_groups(group | set(alternative) for group in groups for alternative in gate.groups)
+        if len(groups) > MAX_CONDITION_GROUPS:
+            raise ValueError(f"gates on {gate.subject_key!r} combine into {len(groups)} alternatives")
+    for group in groups:
+        if len(group) > MAX_GROUP_ATOMS:
+            raise ValueError(f"gates on {gates[0].subject_key!r} need {len(group)} facts at once")
+    ordered = [tuple(sorted(group, key=_atom_order)) for group in groups]
+    return tuple(sorted(ordered, key=lambda group: [_atom_order(atom) for atom in group]))
+
+
+def _reduce_groups(groups: Iterable[frozenset[GateAtom]]) -> list[frozenset[GateAtom]]:
+    possible: set[frozenset[GateAtom]] = set()
+    for group in groups:
+        if any(atom.kind == AtomKind.NEVER for atom in group):
             continue
-        if edge.group:
-            group_ids = group_ids_by_target.setdefault(target_id, {})
-            group = group_ids.setdefault(edge.group, len(group_ids) + 1)
-        else:
-            group = 0
-        # check_type 0 = quest completion, 1 = item possession.
-        # Door nodes are transparent: resolve to their key item so the condition
-        # evaluates as item possession rather than the opaque door check.
-        if compiled.nodes[source_id].node_type == door_type:
-            key_item_key = compiled.nodes[source_id].key_item_key
-            if key_item_key is not None and key_item_key in compiled.node_key_to_id:
-                source_id = compiled.node_key_to_id[key_item_key]
-                check_type = 1
-            else:
-                # No key item recorded; fall through to safe default (evaluate as blocked).
-                check_type = 0
-        elif compiled.nodes[source_id].node_type == item_type:
-            check_type = 1
-        else:
-            # Other source types (zone_line, etc.) default to 0.
-            check_type = 0
-        predicates.setdefault(target_id, []).append(
-            UnlockCondition(source_id=source_id, check_type=check_type, group=group)
+        done = {atom.ref for atom in group if atom.kind == AtomKind.QUEST_DONE}
+        if any(atom.kind == AtomKind.QUEST_NOT_DONE and atom.ref in done for atom in group):
+            continue
+        possible.add(group)
+    return [group for group in possible if not any(other < group for other in possible)]
+
+
+def _atom_order(atom: GateAtom) -> tuple[str, str, str]:
+    return (atom.kind.value, atom.ref, atom.slot or "")
+
+
+def _compile_conditions(graph: EntityGraph, compiled: CompiledData) -> None:
+    """Combine the gates of every zone line, placement, item bag, and vendor item."""
+    index: dict[Condition, int] = {}
+
+    def add(kind: SubjectKind, key: str, condition: Condition | None, detail: str | None = None) -> None:
+        if condition is None:
+            return
+        if condition not in index:
+            index[condition] = len(compiled.conditions)
+            compiled.conditions.append(condition)
+        compiled.subject_conditions.append(SubjectCondition(kind, key, index[condition], detail))
+        compiled.condition_by_subject[(kind, key, detail)] = index[condition]
+
+    for line in sorted(graph.nodes_of_type(NodeType.ZONE_LINE), key=lambda node: node.key):
+        gates = graph.gates_for(SubjectKind.ZONE_LINE, line.key)
+        # A zone line that starts disabled stays shut unless a gate says what activates it.
+        add(SubjectKind.ZONE_LINE, line.key, combine_gates(gates) if gates or line.is_enabled else ())
+    for character in sorted(graph.nodes_of_type(NodeType.CHARACTER), key=lambda node: node.key):
+        character_gates = graph.gates_for(SubjectKind.CHARACTER, character.key)
+        for edge in graph.out_edges(character.key, EdgeType.HAS_SPAWN):
+            spawn_gates = graph.gates_for(SubjectKind.SPAWN_POINT, edge.target)
+            add(SubjectKind.CHARACTER, character.key, combine_gates([*character_gates, *spawn_gates]), edge.target)
+    for bag in sorted(graph.nodes_of_type(NodeType.ITEM_BAG), key=lambda node: node.key):
+        add(SubjectKind.ITEM_BAG, bag.key, combine_gates(graph.gates_for(SubjectKind.ITEM_BAG, bag.key)))
+    vendor_items = sorted(
+        {
+            (gate.subject_key, gate.item_key)
+            for gate in graph.all_gates()
+            if gate.subject_kind == SubjectKind.VENDOR_ITEM
+        }
+    )
+    for vendor, item in vendor_items:
+        add(
+            SubjectKind.VENDOR_ITEM, vendor, combine_gates(graph.gates_for(SubjectKind.VENDOR_ITEM, vendor, item)), item
         )
 
-    compiled.unlock_predicates = [
-        UnlockPredicate(
-            target_id=target_id,
-            conditions=conditions,
-            group_count=max((condition.group for condition in conditions), default=0),
-            semantics=1 if any(condition.group for condition in conditions) else 0,
+
+# A requirement chain longer than this ends the search as satisfiable.
+_MAX_REQUIREMENT_DEPTH = 6
+
+
+def _check_requirement_cycles(compiled: CompiledData) -> None:
+    """Fail when a condition can only be met through itself.
+
+    Following an item or key atom leads to the item's sources, whose own
+    conditions may need further items. A condition whose every group needs an
+    item that is only available behind that same requirement can never hold,
+    such as a key whose only source is behind the door it opens. Quest,
+    furnishing, and encounter atoms count as satisfiable.
+    """
+    by_subject: dict[tuple[SubjectKind, str, str | None], list[Condition]] = defaultdict(list)
+    for subject in compiled.subject_conditions:
+        detail = subject.detail if subject.kind == SubjectKind.VENDOR_ITEM else None
+        by_subject[(subject.kind, subject.key, detail)].append(compiled.conditions[subject.condition])
+    sells = edge_type_byte(EdgeType.SELLS_ITEM)
+    character_type = node_type_byte(NodeType.CHARACTER)
+    bag_type = node_type_byte(NodeType.ITEM_BAG)
+
+    def source_usable(site: SourceSite, item_key: str, banned: frozenset[GateAtom], depth: int) -> bool:
+        node = compiled.nodes[site.source_id]
+        if node.node_type == character_type:
+            placements = by_subject.get((SubjectKind.CHARACTER, node.key, None), [])
+            placed = not placements or any(condition_usable(c, banned, depth) for c in placements)
+            stock = by_subject.get((SubjectKind.VENDOR_ITEM, node.key, item_key), []) if site.edge_type == sells else []
+            return placed and all(condition_usable(c, banned, depth) for c in stock)
+        if node.node_type == bag_type:
+            return all(
+                condition_usable(c, banned, depth) for c in by_subject.get((SubjectKind.ITEM_BAG, node.key, None), [])
+            )
+        return True
+
+    def obtainable(atom: GateAtom, banned: frozenset[GateAtom], depth: int) -> bool:
+        item_id = compiled.node_key_to_id.get(atom.ref)
+        index = compiled.node_item_index[item_id] if item_id is not None else -1
+        sites = compiled.item_sources[index] if index >= 0 else []
+        if not sites or depth >= _MAX_REQUIREMENT_DEPTH:
+            return True
+        return any(source_usable(site, atom.ref, banned | {atom}, depth + 1) for site in sites)
+
+    def condition_usable(condition: Condition, banned: frozenset[GateAtom], depth: int) -> bool:
+        return any(
+            all(
+                atom not in banned
+                and (atom.kind not in (AtomKind.ITEM_HELD, AtomKind.KEY_HELD) or obtainable(atom, banned, depth))
+                for atom in group
+            )
+            for group in condition
         )
-        for target_id, conditions in sorted(predicates.items())
-    ]
+
+    for subject in compiled.subject_conditions:
+        condition = compiled.conditions[subject.condition]
+        if condition and not condition_usable(condition, frozenset(), 0):
+            needs = sorted({atom.ref for group in condition for atom in group})
+            raise ValueError(
+                f"{subject.kind.value} {subject.key!r} can only be reached through itself: every way needs {needs}"
+            )

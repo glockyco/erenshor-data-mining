@@ -7,9 +7,10 @@ edges. The orchestration function below preserves the historical build order.
 from __future__ import annotations
 
 import sqlite3
+from collections import defaultdict
 from typing import TYPE_CHECKING
 
-from .schema import Edge, EdgeType, NodeType
+from .schema import AtomKind, Edge, EdgeType, Gate, GateAtom, NodeType, SubjectKind
 
 if TYPE_CHECKING:
     from .graph import EntityGraph
@@ -28,18 +29,15 @@ def build_edges(
     _add_quest_also_completes_edges(conn, graph)
     _add_quest_reward_edges(conn, graph)
     _add_quest_faction_edges(conn, graph)
-    _add_quest_unlock_zone_line_edges(conn, graph)
-    _add_quest_unlock_character_edges(conn, graph)
+    _add_gates(conn, graph)
     _add_quest_step_edges(conn, graph)
     _add_quest_dialog_prerequisite_edges(conn, graph)
     _add_character_drop_edges(conn, graph)
     _add_character_vendor_edges(conn, graph)
-    _add_vendor_quest_unlock_edges(conn, graph)
+    _add_quest_unlocked_stock_edges(conn, graph)
     _add_character_dialog_give_edges(conn, graph)
     _add_character_spawn_edges(conn, graph)
     _add_character_faction_edges(conn, graph)
-    _add_spawn_point_gate_edges(conn, graph)
-    _add_spawn_point_stop_edges(conn, graph)
     _add_spawn_point_protector_edges(conn, graph)
     _add_zone_line_connect_edges(conn, graph)
     _add_zone_connect_edges(conn, graph, scene_to_zone)
@@ -51,7 +49,6 @@ def build_edges(
     _add_item_craft_edges(conn, graph)
     _add_item_quest_edges(conn, graph)
     _add_item_spell_edges(conn, graph)
-    _add_item_door_edges(conn, graph)
     _add_item_use_edges(conn, graph)
 
 
@@ -318,55 +315,38 @@ def _add_quest_faction_edges(conn: sqlite3.Connection, graph: EntityGraph) -> No
         )
 
 
-def _add_quest_unlock_zone_line_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """quest → zone_line (UNLOCKS_ZONE_LINE) from zone_line_quest_unlocks.
-
-    Uses unlock_group for AND/OR semantics: edges in the same group are
-    AND (all quests in the group must be complete), different groups are
-    OR (any complete group unlocks the zone line).
-    """
+def _add_gates(conn: sqlite3.Connection, graph: EntityGraph) -> None:
+    """Gates from gate_conditions, with the DB names of the quests they name."""
     rows = conn.execute("""
-        SELECT zone_line_stable_key, unlock_group, quest_db_name
-        FROM zone_line_quest_unlocks
+        SELECT subject_kind, subject_stable_key, item_stable_key, gate, group_index,
+               atom_kind, atom_stable_key, atom_slot
+        FROM gate_conditions
+        ORDER BY subject_kind, subject_stable_key, item_stable_key, gate, group_index,
+                 atom_kind, atom_stable_key, atom_slot
     """)
-    # quest_db_name needs resolution to stable_key
-    db_to_key = _quest_dbname_to_key(conn)
+    groups: dict[tuple[str, str, str | None, str], dict[int, list[GateAtom]]] = defaultdict(lambda: defaultdict(list))
+    quest_keys: set[str] = set()
     for r in rows:
-        zl_key = r["zone_line_stable_key"]
-        quest_key = db_to_key.get(r["quest_db_name"])
-        if not quest_key or not graph.has_node(zl_key) or not graph.has_node(quest_key):
-            continue
-        # Edge goes from quest → zone_line (completing quest unlocks zone line)
-        graph.add_edge(
-            Edge(
-                source=quest_key,
-                target=zl_key,
-                type=EdgeType.UNLOCKS_ZONE_LINE,
-                group=str(r["unlock_group"]),
+        atom = GateAtom(AtomKind(r["atom_kind"]), r["atom_stable_key"], r["atom_slot"])
+        if atom.kind in (AtomKind.QUEST_DONE, AtomKind.QUEST_NOT_DONE):
+            quest_keys.add(atom.ref)
+        subject = (r["subject_kind"], r["subject_stable_key"], r["item_stable_key"], r["gate"])
+        groups[subject][r["group_index"]].append(atom)
+    for (kind, subject_key, item_key, gate), by_index in groups.items():
+        graph.add_gate(
+            Gate(
+                subject_kind=SubjectKind(kind),
+                subject_key=subject_key,
+                gate=gate,
+                groups=tuple(tuple(by_index[index]) for index in sorted(by_index)),
+                item_key=item_key,
             )
         )
-
-
-def _add_quest_unlock_character_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """quest → character (UNLOCKS_CHARACTER) from character_quest_unlocks."""
-    rows = conn.execute("""
-        SELECT character_stable_key, unlock_group, quest_db_name
-        FROM character_quest_unlocks
-    """)
-    db_to_key = _quest_dbname_to_key(conn)
-    for r in rows:
-        char_key = r["character_stable_key"]
-        quest_key = db_to_key.get(r["quest_db_name"])
-        if not quest_key or not graph.has_node(char_key) or not graph.has_node(quest_key):
-            continue
-        graph.add_edge(
-            Edge(
-                source=quest_key,
-                target=char_key,
-                type=EdgeType.UNLOCKS_CHARACTER,
-                group=str(r["unlock_group"]),
-            )
-        )
+    db_names = dict(conn.execute("SELECT stable_key, db_name FROM quests WHERE db_name IS NOT NULL"))
+    for key in sorted(quest_keys):
+        if key not in db_names:
+            raise ValueError(f"gate names quest {key!r}, which has no DB name")
+        graph.add_quest_db_name(key, db_names[key])
 
 
 def _add_quest_step_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
@@ -542,33 +522,19 @@ def _add_character_vendor_edges(conn: sqlite3.Connection, graph: EntityGraph) ->
         )
 
 
-def _add_vendor_quest_unlock_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """quest → item (UNLOCKS_VENDOR_ITEM) for quest-unlocked stock of copies in the game.
-
-    Also emits a SELLS_ITEM edge from vendor → item so the item appears in
-    obtainability chains.
-    """
+def _add_quest_unlocked_stock_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
+    """vendor → item (SELLS_ITEM) for stock that a quest adds; its vendor_item gate holds the quest."""
     rows = conn.execute("""
-        SELECT DISTINCT copy_stable_key AS character_stable_key, quest_stable_key,
+        SELECT DISTINCT copy_stable_key AS character_stable_key,
                item_stable_key AS unlock_item_for_vendor_stable_key
         FROM vendor_offers
         WHERE quest_stable_key IS NOT NULL
     """)
     for r in rows:
-        quest_key = r["quest_stable_key"]
         char_key = r["character_stable_key"]
         item_key = r["unlock_item_for_vendor_stable_key"]
-        if not graph.has_node(quest_key) or not graph.has_node(item_key):
+        if not graph.has_node(item_key):
             continue
-        # Quest → item: shown in rewards section with vendor name from note
-        graph.add_edge(
-            Edge(
-                source=quest_key,
-                target=item_key,
-                type=EdgeType.UNLOCKS_VENDOR_ITEM,
-                note=char_key,  # vendor character key for display name lookup
-            )
-        )
         # Vendor → item: for item obtainability chains
         if graph.has_node(char_key):
             graph.add_edge(
@@ -671,42 +637,6 @@ def _add_character_faction_edges(conn: sqlite3.Connection, graph: EntityGraph) -
                 type=EdgeType.BELONGS_TO_FACTION,
             )
         )
-
-
-def _add_spawn_point_gate_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """spawn_point → quest (GATED_BY_QUEST) from character_spawns.spawn_upon_quest_complete_stable_key."""
-    rows = conn.execute("""
-        SELECT DISTINCT spawn_point_stable_key, spawn_upon_quest_complete_stable_key
-        FROM character_spawns
-        WHERE spawn_upon_quest_complete_stable_key IS NOT NULL AND spawn_point_stable_key IS NOT NULL
-    """)
-    for r in rows:
-        sp_key = r["spawn_point_stable_key"]
-        quest_key = r["spawn_upon_quest_complete_stable_key"]
-        if graph.has_node(sp_key) and graph.has_node(quest_key):
-            graph.add_edge(
-                Edge(
-                    source=sp_key,
-                    target=quest_key,
-                    type=EdgeType.GATED_BY_QUEST,
-                )
-            )
-
-
-def _add_spawn_point_stop_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """spawn_point → quest (STOPS_AFTER_QUEST) from spawn_point_stop_quests."""
-    rows = conn.execute("SELECT spawn_point_stable_key, quest_stable_key FROM spawn_point_stop_quests")
-    for r in rows:
-        sp_key = r["spawn_point_stable_key"]
-        quest_key = r["quest_stable_key"]
-        if graph.has_node(sp_key) and graph.has_node(quest_key):
-            graph.add_edge(
-                Edge(
-                    source=sp_key,
-                    target=quest_key,
-                    type=EdgeType.STOPS_AFTER_QUEST,
-                )
-            )
 
 
 def _add_spawn_point_protector_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
@@ -1005,26 +935,6 @@ def _add_item_spell_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
             )
 
 
-def _add_item_door_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """item → door (UNLOCKS_DOOR) from doors.key_item_stable_key."""
-    rows = conn.execute("""
-        SELECT stable_key, key_item_stable_key
-        FROM doors
-        WHERE key_item_stable_key IS NOT NULL
-    """)
-    for r in rows:
-        item_key = r["key_item_stable_key"]
-        door_key = r["stable_key"]
-        if graph.has_node(item_key) and graph.has_node(door_key):
-            graph.add_edge(
-                Edge(
-                    source=item_key,
-                    target=door_key,
-                    type=EdgeType.UNLOCKS_DOOR,
-                )
-            )
-
-
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
@@ -1076,12 +986,6 @@ def _quest_source_alternative_groups(
             for target_key in targets:
                 groups[(quest_key, target_key)] = group
     return groups
-
-
-def _quest_dbname_to_key(conn: sqlite3.Connection) -> dict[str, str]:
-    """Map quest db_name → stable_key."""
-    rows = conn.execute("SELECT stable_key, db_name FROM quests WHERE db_name IS NOT NULL")
-    return {r["db_name"]: r["stable_key"] for r in rows}
 
 
 def _find_dialog_keyword(

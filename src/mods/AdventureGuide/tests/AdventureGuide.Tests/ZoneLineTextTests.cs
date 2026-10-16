@@ -8,7 +8,7 @@ public sealed class ZoneLineTextTests
     [InlineData(null)]
     [InlineData("")]
     [InlineData(" ")]
-    public void Unknown_gate_never_claims_an_empty_quest_requirement(string? reason)
+    public void Unknown_gate_never_claims_an_empty_requirement(string? reason)
     {
         var text = ZoneLineText.Format("Vitheo's Plane", true, reason);
         Assert.Contains("Route locked", text);
@@ -16,13 +16,16 @@ public sealed class ZoneLineTextTests
     }
 
     [Fact]
-    public void Known_quest_gate_is_removed_after_unlock()
+    public void Known_gate_description_is_removed_after_unlock()
     {
-        Assert.Contains(
-            "Requires: Complete \"Soluna\"",
-            ZoneLineText.Format("Soluna", true, "Soluna")
+        Assert.Equal(
+            "To: Soluna\nRequires Ghostly Key",
+            ZoneLineText.Format("Soluna", true, "Requires Ghostly Key")
         );
-        Assert.DoesNotContain("Requires", ZoneLineText.Format("Soluna", false, "Soluna"));
+        Assert.DoesNotContain(
+            "Requires",
+            ZoneLineText.Format("Soluna", false, "Requires Ghostly Key")
+        );
         Assert.DoesNotContain("locked", ZoneLineText.Format("Soluna", false, null));
     }
 }

@@ -464,10 +464,7 @@ public sealed class WorldMarkerSystem
         string progress
     )
     {
-        if (
-            source.RequiredQuestDBNames != null
-            && !source.RequiredQuestDBNames.TrueForAll(_state.IsGameQuestCompleted)
-        )
+        if (!_state.Gates.IsSourceAvailable(source))
             return;
         if (
             ItemSourcePolicy.IsRandomSource(source)
@@ -609,15 +606,17 @@ public sealed class WorldMarkerSystem
         string? questSubText
     )
     {
-        if (!_data.CharacterSpawns.TryGetValue(stableKey, out var spawns))
+        if (
+            !_state.Gates.IsCharacterAvailable(stableKey)
+            || !_data.CharacterSpawns.TryGetValue(stableKey, out var spawns)
+        )
             return;
 
         foreach (var sp in spawns)
         {
-            // A furnishing stands only in the rooms whose slot holds its set.
             if (
                 !string.Equals(sp.Scene, scene, System.StringComparison.OrdinalIgnoreCase)
-                || !_state.Furnishings.IsPresent(sp)
+                || !_state.Gates.IsSpawnAvailable(sp)
             )
                 continue;
 
@@ -666,33 +665,11 @@ public sealed class WorldMarkerSystem
                     break;
 
                 case SpawnPointBridge.SpawnState.DirectlyPlacedDead:
-                    // A furnishing does not respawn on zone re-entry: building
-                    // the planning table places it, and it is not built yet.
-                    if (sp.FurnitureSlot != null)
-                        break;
-                    // A quest-unlock entry means direct-placement absence is ambiguous:
-                    // do not claim this NPC will respawn on zone re-entry.
-                    bool characterUnlockIsAmbiguous = _data.CharacterQuestUnlocks.ContainsKey(
-                        stableKey
-                    );
-                    bool hasSourceScript = !string.IsNullOrEmpty(sp.SourceScript);
-                    var gateState = DirectPlacementGateState.Absent;
-                    string? gateStableKey = sp.SpawnUponQuestCompleteStableKey;
-                    if (!characterUnlockIsAmbiguous && !hasSourceScript && gateStableKey != null)
-                    {
-                        var gateQuest = _data.GetByStableKey(gateStableKey);
-                        gateState =
-                            gateQuest == null ? DirectPlacementGateState.Unresolved
-                            : _state.IsCompleted(gateQuest) ? DirectPlacementGateState.Completed
-                            : DirectPlacementGateState.Incomplete;
-                    }
-
+                    // Available conditions do not make script-managed or unbuilt
+                    // furnishings respawn when the player re-enters the zone.
                     if (
-                        DirectPlacementPolicy.ShouldSuppressRespawn(
-                            characterUnlockIsAmbiguous,
-                            hasSourceScript,
-                            gateState
-                        )
+                        !string.IsNullOrEmpty(sp.SourceScript)
+                        || _state.Gates.UsesFurnishings(sp.Condition)
                     )
                         break;
 

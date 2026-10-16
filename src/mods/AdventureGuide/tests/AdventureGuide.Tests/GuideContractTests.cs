@@ -60,7 +60,7 @@ public sealed class GuideContractTests
     {
         var wrapper = new GuideWrapper
         {
-            Version = 6,
+            Version = 7,
             Quests =
             [
                 OrdinaryQuest("quest:first", "FirstDB"),
@@ -78,7 +78,7 @@ public sealed class GuideContractTests
         var data = GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 6,
+                Version = 7,
                 Quests = [OrdinaryQuest("quest:known", "KnownDB")],
                 ExcludedQuests = ["PlaceholderDB"],
             }
@@ -95,7 +95,7 @@ public sealed class GuideContractTests
     {
         var wrapper = new GuideWrapper
         {
-            Version = 6,
+            Version = 7,
             Quests = [OrdinaryQuest("quest:known", "KnownDB")],
             ExcludedQuests = ["KnownDB"],
         };
@@ -121,14 +121,20 @@ public sealed class GuideContractTests
                         Name = "Seller",
                         SourceKey = "character:seller",
                         Instruction = "Buy Test Token.",
-                        RequiredQuestDBNames = ["GateQuest"],
+                        Condition = 0,
                     },
                 ],
             },
         ];
         var wrapper = new GuideWrapper
         {
-            Version = 6,
+            Version = 7,
+            Conditions =
+            [
+                [
+                    [new GateAtom { Kind = GateAtomKind.QuestDone, Ref = "GateQuest" }],
+                ],
+            ],
             Quests = [OrdinaryQuest("quest:gate", "GateQuest"), workflow],
         };
 
@@ -143,7 +149,10 @@ public sealed class GuideContractTests
     {
         const string json = """
             {
-              "_version": 6,
+              "_version": 7,
+              "_conditions": [
+                [[{"kind": "quest_done", "ref": "GateQuest"}]]
+              ],
               "_character_spawns": {
                 "character:test": [
                   {
@@ -151,7 +160,7 @@ public sealed class GuideContractTests
                     "x": 1.5,
                     "y": 2.5,
                     "z": 3.5,
-                    "spawn_upon_quest_complete_stable_key": "quest:gate",
+                    "condition": 0,
                     "is_directly_placed": true,
                     "source_script": "TestSpawnScript"
                   }
@@ -170,9 +179,28 @@ public sealed class GuideContractTests
         var data = GuideData.Parse(json);
         var spawn = Assert.Single(data.CharacterSpawns["character:test"]);
 
-        Assert.Equal("quest:gate", spawn.SpawnUponQuestCompleteStableKey);
+        Assert.Equal(0, spawn.Condition);
+        var atom = Assert.Single(Assert.Single(Assert.Single(data.Conditions)));
+        Assert.Equal(GateAtomKind.QuestDone, atom.Kind);
+        Assert.Equal("GateQuest", atom.Ref);
         Assert.True(spawn.IsDirectlyPlaced);
         Assert.Equal("TestSpawnScript", spawn.SourceScript);
+    }
+
+    [Fact]
+    public void Loading_rejects_unknown_json_atom_kinds()
+    {
+        const string json = """
+            {
+              "_version": 7,
+              "_conditions": [
+                [[{"kind": "unknown_kind", "ref": "GateQuest"}]]
+              ],
+              "quests": []
+            }
+            """;
+
+        Assert.Throws<InvalidDataException>(() => GuideData.Parse(json));
     }
 
     private static QuestEntry OrdinaryQuest(

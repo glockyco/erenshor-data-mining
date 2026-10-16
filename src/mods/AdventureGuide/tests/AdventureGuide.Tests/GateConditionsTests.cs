@@ -1,0 +1,409 @@
+using AdventureGuide.Data;
+using AdventureGuide.State;
+
+namespace AdventureGuide.Tests;
+
+internal sealed class GateTestFacts : IGateFacts
+{
+    public HashSet<string> Quests { get; } = new(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, int> Inventory { get; } = new(StringComparer.OrdinalIgnoreCase);
+    public HashSet<string> Keyring { get; } = new(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, string> Rooms { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    public bool IsQuestCompleted(string questDbName) => Quests.Contains(questDbName);
+
+    public int ItemCount(string itemStableKey) => Inventory.GetValueOrDefault(itemStableKey);
+
+    public bool IsOnKeyring(string gameId) => Keyring.Contains(gameId);
+
+    public string? FurnitureIn(string slot) => Rooms.GetValueOrDefault(slot);
+}
+
+public sealed class GateConditionsTests
+{
+    private const string Item = "item:key";
+
+    private static GateAtom Atom(GateAtomKind kind, string reference = Item) =>
+        new() { Kind = kind, Ref = reference };
+
+    private static GuideData Data(
+        List<List<List<GateAtom>>> conditions,
+        Dictionary<string, List<SpawnPoint>>? spawns = null
+    ) =>
+        GuideData.FromWrapper(
+            new GuideWrapper
+            {
+                Version = 7,
+                Quests = [],
+                Conditions = conditions,
+                GateItems = new()
+                {
+                    [Item] = new GateItem { Name = "Test Key", GameId = "key-id" },
+                },
+                CharacterSpawns = spawns,
+            }
+        );
+
+    [Theory]
+    [InlineData(false, false, false)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(true, true, true)]
+    public void Key_gate_accepts_inventory_or_keyring(bool inventory, bool keyring, bool expected)
+    {
+        var data = Data([
+            [
+                [Atom(GateAtomKind.KeyHeld)],
+            ],
+        ]);
+        var facts = new GateTestFacts();
+        if (inventory)
+            facts.Inventory[Item] = 1;
+        if (keyring)
+            facts.Keyring.Add("key-id");
+        Assert.Equal(expected, new GateConditions(data, facts).IsAvailable(0));
+    }
+
+    [Fact]
+    public void Item_gate_requires_positive_inventory_not_only_a_keyring_entry()
+    {
+        var data = Data([
+            [
+                [Atom(GateAtomKind.ItemHeld)],
+            ],
+        ]);
+        var facts = new GateTestFacts();
+        facts.Keyring.Add("key-id");
+        var gates = new GateConditions(data, facts);
+        Assert.False(gates.IsAvailable(0));
+        facts.Inventory[Item] = 1;
+        Assert.True(gates.IsAvailable(0));
+        facts.Inventory[Item] = 0;
+        Assert.False(gates.IsAvailable(0));
+    }
+
+    [Fact]
+    public void Quest_not_done_inverts_completed_quest_state()
+    {
+        var data = Data([
+            [
+                [Atom(GateAtomKind.QuestNotDone, "QUEST")],
+            ],
+        ]);
+        var facts = new GateTestFacts();
+        var gates = new GateConditions(data, facts);
+        Assert.True(gates.IsAvailable(0));
+        facts.Quests.Add("QUEST");
+        Assert.False(gates.IsAvailable(0));
+    }
+
+    [Fact]
+    public void Advisory_encounter_is_explained_without_blocking_availability()
+    {
+        var advisory = Atom(GateAtomKind.EncounterWon, "encounter:boss");
+        var gates = new GateConditions(
+            Data([
+                [
+                    [advisory],
+                ],
+            ]),
+            new GateTestFacts()
+        );
+        Assert.True(gates.Holds(advisory));
+        Assert.True(gates.IsAvailable(0));
+        Assert.Same(advisory, Assert.Single(gates.Explain(0)));
+    }
+
+    [Fact]
+    public void Missing_condition_is_ungated_empty_disjunction_is_false_and_empty_conjunction_is_true()
+    {
+        var gates = new GateConditions(
+            Data([
+                [],
+                [
+                    [],
+                ],
+            ]),
+            new GateTestFacts()
+        );
+        Assert.True(gates.IsAvailable(null));
+        Assert.Empty(gates.Explain(null));
+        Assert.False(gates.IsAvailable(0));
+        Assert.True(gates.IsAvailable(1));
+    }
+
+    [Fact]
+    public void Character_without_placements_is_ungated_and_any_available_placement_suffices()
+    {
+        var facts = new GateTestFacts();
+        var gates = new GateConditions(
+            Data(
+                [
+                    [
+                        [Atom(GateAtomKind.QuestDone, "QUEST")],
+                    ],
+                ],
+                new()
+                {
+                    ["character:empty"] = [],
+                    ["character:gated"] = [new SpawnPoint { Condition = 0 }],
+                    ["character:mixed"] = [new SpawnPoint { Condition = 0 }, new SpawnPoint()],
+                }
+            ),
+            facts
+        );
+        Assert.True(gates.IsCharacterAvailable("character:unknown"));
+        Assert.True(gates.IsCharacterAvailable("character:empty"));
+        Assert.Empty(gates.ExplainCharacter("character:unknown"));
+        Assert.False(gates.IsCharacterAvailable("character:gated"));
+        Assert.True(gates.IsCharacterAvailable("character:mixed"));
+        facts.Quests.Add("QUEST");
+        Assert.True(gates.IsCharacterAvailable("character:gated"));
+    }
+
+    [Theory]
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(true, true, true)]
+    public void Source_and_character_conditions_must_both_hold(
+        bool sourceReady,
+        bool characterReady,
+        bool expected
+    )
+    {
+        var facts = new GateTestFacts();
+        if (sourceReady)
+            facts.Quests.Add("SOURCE");
+        if (characterReady)
+            facts.Quests.Add("CHARACTER");
+        var data = Data(
+            [
+                [
+                    [Atom(GateAtomKind.QuestDone, "SOURCE")],
+                ],
+                [
+                    [Atom(GateAtomKind.QuestDone, "CHARACTER")],
+                ],
+            ],
+            new() { ["character:vendor"] = [new SpawnPoint { Condition = 1 }] }
+        );
+        var gates = new GateConditions(data, facts);
+        Assert.Equal(
+            expected,
+            gates.IsSourceAvailable(
+                new ItemSource { SourceKey = "character:vendor", Condition = 0 }
+            )
+        );
+    }
+
+    [Fact]
+    public void Explanation_chooses_fewest_unmet_atoms_and_first_tie_retaining_advisories()
+    {
+        var first = Atom(GateAtomKind.QuestDone, "FIRST");
+        var second = Atom(GateAtomKind.QuestDone, "SECOND");
+        var advisory = Atom(GateAtomKind.EncounterWon, "encounter:boss");
+        var facts = new GateTestFacts();
+        var gates = new GateConditions(
+            Data([
+                [
+                    [first, second],
+                    [first, advisory],
+                    [second],
+                ],
+            ]),
+            facts
+        );
+        Assert.Equal(new[] { first, advisory }, gates.Explain(0));
+        facts.Quests.Add("FIRST");
+        Assert.Equal(new[] { advisory }, gates.Explain(0));
+    }
+
+    [Fact]
+    public void Explanation_keeps_advisories_from_every_alternative_but_only_the_best_unmet_observables()
+    {
+        var first = Atom(GateAtomKind.QuestDone, "FIRST");
+        var second = Atom(GateAtomKind.QuestDone, "SECOND");
+        var third = Atom(GateAtomKind.QuestDone, "THIRD");
+        var firstAdvisory = Atom(GateAtomKind.EncounterWon, "encounter:first");
+        var secondAdvisory = Atom(GateAtomKind.EncounterWon, "encounter:second");
+        var gates = new GateConditions(
+            Data([
+                [
+                    [first, second, firstAdvisory],
+                    [third, secondAdvisory],
+                ],
+            ]),
+            new GateTestFacts()
+        );
+
+        var explanation = gates.Explain(0);
+        Assert.Equal(3, explanation.Count);
+        Assert.Contains(firstAdvisory, explanation);
+        Assert.Contains(secondAdvisory, explanation);
+        Assert.Contains(third, explanation);
+        Assert.DoesNotContain(first, explanation);
+        Assert.DoesNotContain(second, explanation);
+    }
+
+    [Theory]
+    [InlineData("zone", -1)]
+    [InlineData("zone", 1)]
+    [InlineData("spawn", -1)]
+    [InlineData("spawn", 1)]
+    [InlineData("source", -1)]
+    [InlineData("source", 1)]
+    [InlineData("nested_source", -1)]
+    [InlineData("nested_source", 1)]
+    public void Loading_rejects_out_of_range_condition_references(string placement, int condition)
+    {
+        var wrapper = new GuideWrapper
+        {
+            Version = 7,
+            Quests = [],
+            Conditions =
+            [
+                [
+                    [],
+                ],
+            ],
+        };
+        switch (placement)
+        {
+            case "zone":
+                wrapper.ZoneLines = [new ZoneLineEntry { Condition = condition }];
+                break;
+            case "spawn":
+                wrapper.CharacterSpawns = new()
+                {
+                    ["character:test"] = [new SpawnPoint { Condition = condition }],
+                };
+                break;
+            default:
+                var source = new ItemSource { Condition = condition };
+                wrapper.GateItems = new()
+                {
+                    [Item] = new GateItem
+                    {
+                        GameId = "key-id",
+                        Sources =
+                            placement == "nested_source"
+                                ? [new ItemSource { Children = [source] }]
+                                : [source],
+                    },
+                };
+                break;
+        }
+
+        Assert.Throws<InvalidDataException>(() => GuideData.FromWrapper(wrapper));
+    }
+
+    [Theory]
+    [InlineData(GateAtomKind.ItemHeld)]
+    [InlineData(GateAtomKind.KeyHeld)]
+    [InlineData(GateAtomKind.RoomFurnished)]
+    public void Loading_rejects_item_atoms_missing_from_gate_items(GateAtomKind kind)
+    {
+        var wrapper = new GuideWrapper
+        {
+            Version = 7,
+            Quests = [],
+            Conditions =
+            [
+                [
+                    [
+                        new GateAtom
+                        {
+                            Kind = kind,
+                            Ref = "item:missing",
+                            Slot = "L1",
+                        },
+                    ],
+                ],
+            ],
+        };
+
+        Assert.Throws<InvalidDataException>(() => GuideData.FromWrapper(wrapper));
+    }
+
+    private static GuideData ShippingData()
+    {
+        using var stream = typeof(GuideData).Assembly.GetManifestResourceStream(
+            "AdventureGuide.quest-guide.json"
+        );
+        Assert.NotNull(stream);
+        using var reader = new StreamReader(stream);
+        return GuideData.Parse(reader.ReadToEnd());
+    }
+
+    [Fact]
+    public void Duskenlight_to_Jaws_requires_the_candle_or_She_Sees_You()
+    {
+        var data = ShippingData();
+        var line = Assert.Single(
+            data.ZoneLines,
+            line => line.Scene == "Duskenlight" && line.DestinationZoneKey == "zone:jaws"
+        );
+        Assert.NotNull(line.Condition);
+        var groups = data.Conditions[line.Condition.Value];
+        var candle = Assert.Single(
+            groups.SelectMany(group => group),
+            atom => atom.Kind == GateAtomKind.ItemHeld
+        );
+        Assert.Equal("item:hand - 100 - the nighthollow candle", candle.Ref);
+        Assert.Contains(
+            groups,
+            group =>
+                group.Count == 1
+                && group[0].Kind == GateAtomKind.QuestDone
+                && group[0].Ref == "JAWSSEEN"
+        );
+        var facts = new GateTestFacts();
+        var gates = new GateConditions(data, facts);
+        Assert.False(gates.IsAvailable(line.Condition));
+        facts.Inventory[candle.Ref] = 1;
+        Assert.True(gates.IsAvailable(line.Condition));
+        facts.Inventory.Clear();
+        facts.Quests.Add("JAWSSEEN");
+        Assert.True(gates.IsAvailable(line.Condition));
+    }
+
+    [Fact]
+    public void Bassle_requires_ANGLERRING()
+    {
+        var data = ShippingData();
+        var facts = new GateTestFacts();
+        var gates = new GateConditions(data, facts);
+        const string bassle = "character:bassle wavebreak";
+        Assert.False(gates.IsCharacterAvailable(bassle));
+        Assert.Contains(
+            gates.ExplainCharacter(bassle),
+            atom => atom.Kind == GateAtomKind.QuestDone && atom.Ref == "ANGLERRING"
+        );
+        facts.Quests.Add("ANGLERRING");
+        Assert.True(gates.IsCharacterAvailable(bassle));
+    }
+
+    [Fact]
+    public void Shipping_room_atoms_require_the_exported_set_in_the_exported_slot()
+    {
+        var data = ShippingData();
+        var roomAtoms = data
+            .Conditions.SelectMany(groups => groups)
+            .SelectMany(group => group)
+            .Where(atom => atom.Kind == GateAtomKind.RoomFurnished)
+            .ToList();
+        Assert.NotEmpty(roomAtoms);
+        foreach (var atom in roomAtoms)
+        {
+            var facts = new GateTestFacts();
+            var gates = new GateConditions(data, facts);
+            Assert.False(gates.Holds(atom));
+            Assert.NotNull(atom.Slot);
+            Assert.True(FurnishingPolicy.IsRoomSlot(atom.Slot));
+            Assert.True(data.GateItems.ContainsKey(atom.Ref));
+            facts.Rooms[atom.Slot] = atom.Ref;
+            Assert.True(gates.Holds(atom));
+        }
+    }
+}

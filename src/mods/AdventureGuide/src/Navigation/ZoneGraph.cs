@@ -6,7 +6,7 @@ namespace AdventureGuide.Navigation;
 /// <summary>
 /// Zone connectivity graph with shortest-path routing.
 ///
-/// Built from zone line data, respects quest-gated accessibility.
+/// Built from zone line data, respects gate accessibility.
 /// Provides BFS shortest path from any zone to any other zone,
 /// first through accessible routes, then through the full graph
 /// (including locked) when no accessible path exists.
@@ -34,7 +34,7 @@ public sealed class ZoneGraph
     }
 
     private readonly GuideData _data;
-    private readonly QuestStateTracker _state;
+    private readonly GateConditions _gates;
 
     // scene -> set of (dest_scene, dest_zone_key, accessible)
     private readonly Dictionary<
@@ -47,10 +47,10 @@ public sealed class ZoneGraph
         StringComparer.OrdinalIgnoreCase
     );
 
-    public ZoneGraph(GuideData data, QuestStateTracker state)
+    public ZoneGraph(GuideData data, GateConditions gates)
     {
         _data = data;
-        _state = state;
+        _gates = gates;
 
         foreach (var kvp in data.ZoneLookup)
             _zoneKeyToScene[kvp.Value.StableKey] = kvp.Key;
@@ -59,8 +59,8 @@ public sealed class ZoneGraph
     }
 
     /// <summary>
-    /// Rebuild the adjacency graph from current zone line data and quest state.
-    /// Call when quest completion state changes (new zone lines become accessible).
+    /// Rebuild the adjacency graph from current zone line data and gate facts.
+    /// Call when guide state changes.
     /// Every NPC death and inventory change calls it, so it refills the edge
     /// lists in place instead of allocating a new graph.
     /// </summary>
@@ -204,29 +204,5 @@ public sealed class ZoneGraph
         return false;
     }
 
-    private bool IsZoneLineAccessible(ZoneLineEntry zl)
-    {
-        if (zl.IsEnabled && (zl.RequiredQuestGroups == null || zl.RequiredQuestGroups.Count == 0))
-            return true;
-
-        if (zl.RequiredQuestGroups == null || zl.RequiredQuestGroups.Count == 0)
-            return zl.IsEnabled;
-
-        foreach (var group in zl.RequiredQuestGroups)
-        {
-            if (AllCompleted(group))
-                return true;
-        }
-        return false;
-    }
-
-    private bool AllCompleted(List<string> questDBNames)
-    {
-        foreach (var dbName in questDBNames)
-        {
-            if (!_state.IsGameQuestCompleted(dbName))
-                return false;
-        }
-        return true;
-    }
+    private bool IsZoneLineAccessible(ZoneLineEntry zl) => _gates.IsAvailable(zl.Condition);
 }

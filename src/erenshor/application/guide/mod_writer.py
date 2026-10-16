@@ -1,8 +1,8 @@
-"""Offline assembler for the legacy AdventureGuide mod wrapper.
+"""Assemble ``quest-guide.json``, the quest data that AdventureGuide embeds.
 
 The graph is the source of semantics and ``CompiledData`` supplies the dense
-indexes and precomputed item source sites.  No database access belongs here:
-the output is a deliberately boring, deterministic compatibility view.
+indexes, the precomputed item source sites, and the combined gate conditions.
+No database access belongs here: the output is a deterministic view of them.
 """
 
 from __future__ import annotations
@@ -13,8 +13,8 @@ from collections import defaultdict
 from dataclasses import asdict
 from typing import TYPE_CHECKING, Any, cast
 
-from .compiler import CompiledData, QuestSpec, edge_type_byte, node_type_byte
-from .schema import Edge, EdgeType, Node, NodeType
+from .compiler import CompiledData, Condition, QuestSpec, edge_type_byte, node_type_byte
+from .schema import AtomKind, Edge, EdgeType, GateAtom, Node, NodeType, SubjectKind
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -54,24 +54,19 @@ def build_mod_guide(
     compiled_edges = _compiled_edges(compiled, compiled_nodes)
     reward_by_item = _reward_edges_by_item(compiled_edges)
 
-    # Build the frequently used reverse indexes once.  In particular, item
-    # source and unlock assembly must not repeatedly walk the whole graph.
-    incoming_unlocks: dict[tuple[EdgeType, str], list[Edge]] = defaultdict(list)
-    outgoing_unlocks: dict[tuple[EdgeType, str], list[Edge]] = defaultdict(list)
     incoming_chain: dict[str, list[Edge]] = defaultdict(list)
     for edge in graph.all_edges():
         if edge.source not in nodes or edge.target not in nodes:
             continue
-        if edge.type in (EdgeType.UNLOCKS_CHARACTER, EdgeType.UNLOCKS_ZONE_LINE):
-            incoming_unlocks[(edge.type, edge.target)].append(edge)
-            outgoing_unlocks[(edge.type, edge.source)].append(edge)
-        elif edge.type in (EdgeType.CHAINS_TO, EdgeType.ALSO_COMPLETES):
+        if edge.type in (EdgeType.CHAINS_TO, EdgeType.ALSO_COMPLETES):
             incoming_chain[edge.target].append(edge)
 
     result: dict[str, Any] = {
-        "_version": 6,
+        "_version": 7,
         "_zone_lookup": _zone_lookup(nodes),
-        "_character_spawns": _character_spawns(graph, nodes),
+        "_conditions": [_condition_payload(graph, condition) for condition in compiled.conditions],
+        "_gate_items": _gate_items(graph, nodes, compiled, compiled_nodes, reward_by_item),
+        "_character_spawns": _character_spawns(graph, nodes, compiled),
         # Respawn timers can be limited to spawn points that can spawn a boss or an elite.
         "_encounter_tiers": {
             node.key: node.encounter_tier
@@ -82,9 +77,8 @@ def build_mod_guide(
             key: {"display_name": nodes[key].display_name}
             for key in sorted({node.furniture_item_key for node in nodes.values() if node.furniture_item_key})
         },
-        "_zone_lines": _zone_lines(graph, nodes, incoming_unlocks, db_names),
+        "_zone_lines": _zone_lines(nodes, compiled),
         "_chain_groups": _chain_groups(quests, graph, nodes, db_names),
-        "_character_quest_unlocks": _character_unlocks(nodes, incoming_unlocks, db_names),
         "_excluded_quests": _excluded_quests(excluded_quest_db_names, db_names),
         "quests": [
             _quest_entry(
@@ -95,8 +89,6 @@ def build_mod_guide(
                 compiled_nodes,
                 quest_specs,
                 reward_by_item,
-                incoming_unlocks,
-                outgoing_unlocks,
                 incoming_chain,
                 db_names,
             )
@@ -107,7 +99,7 @@ def build_mod_guide(
 
 
 def serialize_mod_guide(graph: EntityGraph, compiled: CompiledData, excluded_quest_db_names: Iterable[str] = ()) -> str:
-    """Build and compactly serialize the legacy wrapper deterministically."""
+    """Build and compactly serialize the quest data deterministically."""
     return json.dumps(build_mod_guide(graph, compiled, excluded_quest_db_names), separators=(",", ":"), allow_nan=False)
 
 
@@ -246,7 +238,9 @@ def _zone_lookup(nodes: dict[str, Node]) -> dict[str, Any]:
     return result
 
 
-def _character_spawns(graph: EntityGraph, nodes: dict[str, Node]) -> dict[str, list[dict[str, Any]]]:
+def _character_spawns(
+    graph: EntityGraph, nodes: dict[str, Node], compiled: CompiledData
+) -> dict[str, list[dict[str, Any]]]:
     result: dict[str, list[dict[str, Any]]] = {}
     for character in sorted(
         (node for node in nodes.values() if node.type == NodeType.CHARACTER),
@@ -271,13 +265,11 @@ def _character_spawns(graph: EntityGraph, nodes: dict[str, Node]) -> dict[str, l
                 "is_directly_placed": bool(spawn.is_directly_placed),
             }
             _put_if(value, "source_script", spawn.source_script)
-            _put_if(value, "furniture_item_stable_key", spawn.furniture_item_key)
-            _put_if(value, "furniture_slot", spawn.furniture_slot)
-            gate_targets = {edge.target for edge in graph.out_edges(spawn.key, EdgeType.GATED_BY_QUEST)}
-            if len(gate_targets) > 1:
-                raise ValueError(f"spawn point {spawn.key!r} has multiple quest gates")
-            if gate_targets:
-                value["spawn_upon_quest_complete_stable_key"] = next(iter(gate_targets))
+            _put_if(
+                value,
+                "condition",
+                compiled.condition_by_subject.get((SubjectKind.CHARACTER, character.key, spawn.key)),
+            )
             positions.append((spawn.key, value))
         if positions:
             positions.sort(
@@ -294,12 +286,7 @@ def _character_spawns(graph: EntityGraph, nodes: dict[str, Node]) -> dict[str, l
     return result
 
 
-def _zone_lines(
-    graph: EntityGraph,
-    nodes: dict[str, Node],
-    incoming_unlocks: dict[tuple[EdgeType, str], list[Edge]],
-    db_names: dict[str, str | None],
-) -> list[dict[str, Any]]:
+def _zone_lines(nodes: dict[str, Node], compiled: CompiledData) -> list[dict[str, Any]]:
     result: list[tuple[tuple[Any, ...], dict[str, Any]]] = []
     for line in nodes.values():
         if line.type != NodeType.ZONE_LINE or not line.scene:
@@ -307,49 +294,69 @@ def _zone_lines(
         x = _required_coordinate(line, "x", line.x)
         y = _required_coordinate(line, "y", line.y)
         z = _required_coordinate(line, "z", line.z)
-        value: dict[str, Any] = {
-            "scene": line.scene,
-            "x": x,
-            "y": y,
-            "z": z,
-            "is_enabled": bool(line.is_enabled),
-        }
+        value: dict[str, Any] = {"scene": line.scene, "x": x, "y": y, "z": z}
         _put_if(value, "destination_zone_key", line.destination_zone_key)
         _put_if(value, "destination_display", line.destination_display)
         _put_if(value, "landing_x", line.landing_x)
         _put_if(value, "landing_y", line.landing_y)
         _put_if(value, "landing_z", line.landing_z)
-        groups = _unlock_groups(incoming_unlocks.get((EdgeType.UNLOCKS_ZONE_LINE, line.key), []), db_names)
-        if groups:
-            value["required_quest_groups"] = groups
+        _put_if(value, "condition", compiled.condition_by_subject.get((SubjectKind.ZONE_LINE, line.key, None)))
         key = (line.scene, _number(x), _number(y), _number(z), line.key)
         result.append((key, value))
     result.sort(key=lambda pair: pair[0])
     return [value for _, value in result]
 
 
-def _character_unlocks(
+def _condition_payload(graph: EntityGraph, condition: Condition) -> list[list[dict[str, str]]]:
+    """A condition as groups of atoms. A quest atom names the quest's DB name,
+    which the game's quest state uses, and every other atom a stable key."""
+    return [[_atom_payload(graph, atom) for atom in group] for group in condition]
+
+
+def _atom_payload(graph: EntityGraph, atom: GateAtom) -> dict[str, str]:
+    if atom.kind in (AtomKind.QUEST_DONE, AtomKind.QUEST_NOT_DONE):
+        value = {"kind": atom.kind.value, "ref": graph.quest_db_name(atom.ref)}
+    else:
+        value = {"kind": atom.kind.value, "ref": atom.ref}
+    if atom.slot is not None:
+        value["slot"] = atom.slot
+    return value
+
+
+def _gate_items(
+    graph: EntityGraph,
     nodes: dict[str, Node],
-    incoming_unlocks: dict[tuple[EdgeType, str], list[Edge]],
-    db_names: dict[str, str | None],
-) -> dict[str, list[list[str]]]:
-    result: dict[str, list[list[str]]] = {}
-    for character in sorted(
-        (node for node in nodes.values() if node.type == NodeType.CHARACTER), key=lambda node: node.key
-    ):
-        groups = _unlock_groups(incoming_unlocks.get((EdgeType.UNLOCKS_CHARACTER, character.key), []), db_names)
-        if groups:
-            result[character.key] = groups
+    compiled: CompiledData,
+    compiled_nodes: dict[int, Any],
+    reward_by_item: dict[int, list[Any]],
+) -> dict[str, dict[str, Any]]:
+    """The items that conditions name, with their game ID and where to get them.
+
+    The keyring holds game item IDs. Navigation to a missing key or item uses
+    the sources.
+    """
+    keys = sorted(
+        {
+            atom.ref
+            for condition in compiled.conditions
+            for group in condition
+            for atom in group
+            if atom.kind in (AtomKind.ITEM_HELD, AtomKind.KEY_HELD, AtomKind.ROOM_FURNISHED)
+        }
+    )
+    result: dict[str, dict[str, Any]] = {}
+    for key in keys:
+        item = nodes.get(key)
+        if item is None or item.type != NodeType.ITEM or not item.game_id:
+            raise ValueError(f"a condition names {key!r}, which is not an item of the guide with a game ID")
+        value: dict[str, Any] = {"name": item.display_name, "game_id": item.game_id}
+        sources = _item_sources_with_rewards(
+            compiled, _compiled_id(compiled, key), compiled_nodes, reward_by_item, "", graph, nodes
+        )
+        if sources:
+            value["sources"] = sources
+        result[key] = value
     return result
-
-
-def _unlock_groups(edges: list[Edge], db_names: dict[str, str | None]) -> list[list[str]]:
-    grouped: dict[str, set[str]] = defaultdict(set)
-    for edge in edges:
-        db_name = db_names.get(edge.source)
-        if db_name:
-            grouped[edge.group or "__ungrouped__"].add(db_name)
-    return [sorted(values) for _, values in sorted(grouped.items(), key=lambda pair: pair[0]) if values]
 
 
 def _chain_groups(
@@ -394,8 +401,6 @@ def _quest_entry(
     compiled_nodes: dict[int, Any],
     quest_specs: dict[int, QuestSpec],
     reward_by_item: dict[int, list[Any]],
-    incoming_unlocks: dict[tuple[EdgeType, str], list[Edge]],
-    outgoing_unlocks: dict[tuple[EdgeType, str], list[Edge]],
     incoming_chain: dict[str, list[Edge]],
     db_names: dict[str, str | None],
 ) -> dict[str, Any]:
@@ -419,11 +424,11 @@ def _quest_entry(
     prerequisites.extend(
         _implicit_acquisition_item_prerequisites(graph, quest, nodes, compiled, compiled_nodes, reward_by_item)
     )
-    prerequisites.extend(_implicit_character_prerequisites(graph, quest, nodes, incoming_unlocks))
+    prerequisites.extend(_implicit_character_prerequisites(graph, quest, nodes))
     prerequisites = _dedupe_prerequisites(prerequisites)
     completion = _completion(graph, quest, nodes, required_items)
     steps = _steps(graph, quest, nodes, required_items, completion, compiled, compiled_nodes)
-    rewards = _rewards(quest, graph, nodes, outgoing_unlocks, incoming_unlocks, db_names)
+    rewards = _rewards(quest, graph, nodes)
     chain = _chain(graph, quest, nodes, incoming_chain, db_names)
     flags = _flags(quest)
     workflow_cycle = _workflow_cycle_payload(quest, compiled, compiled_nodes, quest_specs)
@@ -676,12 +681,8 @@ def _dedupe_prerequisites(prerequisites: list[dict[str, Any]]) -> list[dict[str,
     return [deduped[key] for key in sorted(deduped)]
 
 
-def _implicit_character_prerequisites(
-    graph: EntityGraph,
-    quest: Node,
-    nodes: dict[str, Node],
-    incoming_unlocks: dict[tuple[EdgeType, str], list[Edge]],
-) -> list[dict[str, Any]]:
+def _implicit_character_prerequisites(graph: EntityGraph, quest: Node, nodes: dict[str, Node]) -> list[dict[str, Any]]:
+    """Quests that make a giver or turn-in character appear, from the easiest group of each gate."""
     result: list[dict[str, Any]] = []
     targets: list[Node] = []
     for edge_type in (EdgeType.ASSIGNED_BY, EdgeType.COMPLETED_BY):
@@ -690,28 +691,24 @@ def _implicit_character_prerequisites(
             if target is not None and target.type == NodeType.CHARACTER:
                 targets.append(target)
     for character in targets:
-        unlock_edges = incoming_unlocks.get((EdgeType.UNLOCKS_CHARACTER, character.key), [])
-        grouped: dict[str, list[Edge]] = defaultdict(list)
-        for edge in unlock_edges:
-            grouped[edge.group or "__ungrouped__"].append(edge)
-        if not grouped:
-            continue
-        smallest = min(
-            grouped.values(),
-            key=lambda edges: (len(edges), sorted(edge.source for edge in edges)),
-        )
-        for edge in smallest:
-            prerequisite = nodes.get(edge.source)
-            if prerequisite is None or prerequisite.key == quest.key or not prerequisite.db_name:
+        for gate in graph.gates_for(SubjectKind.CHARACTER, character.key):
+            quest_groups = [
+                sorted(atom.ref for atom in group if atom.kind == AtomKind.QUEST_DONE) for group in gate.groups
+            ]
+            if not quest_groups or not all(quest_groups):
                 continue
-            result.append(
-                {
-                    "type": "quest",
-                    "quest_key": prerequisite.key,
-                    "quest_name": prerequisite.display_name,
-                    "note": f"{character.display_name} spawns after quest completion",
-                }
-            )
+            for quest_key in min(quest_groups, key=lambda keys: (len(keys), keys)):
+                prerequisite = nodes.get(quest_key)
+                if prerequisite is None or prerequisite.key == quest.key or not prerequisite.db_name:
+                    continue
+                result.append(
+                    {
+                        "type": "quest",
+                        "quest_key": prerequisite.key,
+                        "quest_name": prerequisite.display_name,
+                        "note": f"{character.display_name} spawns after quest completion",
+                    }
+                )
     return result
 
 
@@ -761,51 +758,21 @@ def _required_items(
     return [value for _, value in result]
 
 
-def _with_vendor_source_metadata(
-    sources: list[dict[str, Any]],
-    graph: EntityGraph,
-    item: Node,
-    nodes: dict[str, Node],
-) -> list[dict[str, Any]]:
-    unlocks_by_vendor: dict[str, set[str]] = defaultdict(set)
-    for edge in graph.in_edges(item.key, EdgeType.UNLOCKS_VENDOR_ITEM):
-        if not edge.note:
-            raise ValueError(f"vendor unlock for {item.key!r} has no vendor identity")
-        quest = nodes.get(edge.source)
-        vendor = nodes.get(edge.note)
-        if quest is None or quest.type != NodeType.QUEST or not quest.db_name:
-            raise ValueError(f"vendor unlock for {item.key!r} has invalid quest identity")
-        if vendor is None or vendor.type != NodeType.CHARACTER:
-            raise ValueError(f"vendor unlock for {item.key!r} has invalid vendor identity")
-        unlocks_by_vendor[edge.note].add(quest.db_name)
-
+def _with_source_conditions(sources: list[dict[str, Any]], item: Node, compiled: CompiledData) -> list[dict[str, Any]]:
+    """Add buy instructions, and the conditions of vendor stock and pickups."""
     result: list[dict[str, Any]] = []
     for source in sources:
         value = dict(source)
         source_key = source.get("source_key")
         if source.get("type") == "vendor":
             value["instruction"] = f"Buy {item.display_name}."
-            if isinstance(source_key, str) and source_key in unlocks_by_vendor:
-                value["required_quest_db_names"] = sorted(unlocks_by_vendor[source_key])
+            if isinstance(source_key, str):
+                subject = (SubjectKind.VENDOR_ITEM, source_key, item.key)
+                _put_if(value, "condition", compiled.condition_by_subject.get(subject))
         elif source.get("type") == "pickup" and isinstance(source_key, str):
-            unlocks = _item_bag_unlocks(graph, source_key, nodes)
-            if unlocks:
-                value["required_quest_db_names"] = unlocks
+            _put_if(value, "condition", compiled.condition_by_subject.get((SubjectKind.ITEM_BAG, source_key, None)))
         result.append(value)
     return result
-
-
-def _item_bag_unlocks(graph: EntityGraph, bag_key: str, nodes: dict[str, Node]) -> list[str]:
-    """DB names of the quests that must all be complete before the pickup exists."""
-    names: set[str] = set()
-    for edge in graph.in_edges(bag_key, EdgeType.UNLOCKS_ITEM_BAG):
-        quest = nodes.get(edge.source)
-        if quest is None or quest.type != NodeType.QUEST or not quest.db_name:
-            raise ValueError(f"item bag unlock for {bag_key!r} has invalid quest identity")
-        if edge.group is not None:
-            raise ValueError(f"item bag unlock for {bag_key!r} uses alternative groups")
-        names.add(quest.db_name)
-    return sorted(names)
 
 
 def _item_sources(
@@ -889,7 +856,7 @@ def _item_sources_with_rewards(
 ) -> list[dict[str, Any]]:
     sources = _item_sources(compiled, item_id, compiled_nodes, nodes)
     item = nodes[compiled_nodes[item_id].key]
-    sources = _with_vendor_source_metadata(sources, graph, item, nodes)
+    sources = _with_source_conditions(sources, item, compiled)
     for reward in reward_by_item.get(item_id, []):
         source_node = compiled_nodes[reward.source_id]
         if source_node.key == exclude_quest_key:
@@ -1199,28 +1166,25 @@ def _step_value(
     return value
 
 
-def _rewards(
-    quest: Node,
-    graph: EntityGraph,
-    nodes: dict[str, Node],
-    outgoing_unlocks: dict[tuple[EdgeType, str], list[Edge]],
-    incoming_unlocks: dict[tuple[EdgeType, str], list[Edge]],
-    db_names: dict[str, str | None],
-) -> dict[str, Any]:
+def _rewards(quest: Node, graph: EntityGraph, nodes: dict[str, Node]) -> dict[str, Any]:
     value: dict[str, Any] = {"xp": quest.xp_reward or 0, "gold": quest.gold_reward or 0}
     if quest.reward_item_key:
         item = nodes.get(quest.reward_item_key)
         if item:
             value["item_name"] = item.display_name
             value["item_stable_key"] = item.key
+    # What completing the quest opens: the groups of the gates that need it.
+    done = GateAtom(AtomKind.QUEST_DONE, quest.key)
+    opened = [(gate, group) for gate in graph.all_gates() for group in gate.groups if done in group]
     vendor_unlocks: dict[tuple[str, str], dict[str, str]] = {}
-    for edge in graph.out_edges(quest.key, EdgeType.UNLOCKS_VENDOR_ITEM):
-        item = nodes.get(edge.target)
-        vendor = nodes.get(edge.note) if edge.note else None
+    for gate, _ in opened:
+        if gate.subject_kind != SubjectKind.VENDOR_ITEM or gate.item_key is None:
+            continue
+        item = nodes.get(gate.item_key)
+        vendor = nodes.get(gate.subject_key)
         if item is None or vendor is None:
             continue
-        pair = (item.key, vendor.key)
-        vendor_unlocks[pair] = {"item_name": item.display_name, "vendor_name": vendor.display_name}
+        vendor_unlocks[(item.key, vendor.key)] = {"item_name": item.display_name, "vendor_name": vendor.display_name}
     if len(vendor_unlocks) > 1:
         raise ValueError(f"quest {quest.key!r} unlocks multiple distinct vendors")
     if vendor_unlocks:
@@ -1241,38 +1205,31 @@ def _rewards(
     if also:
         value["also_completes"] = also
     unlocked_lines = []
-    for edge in outgoing_unlocks.get((EdgeType.UNLOCKS_ZONE_LINE, quest.key), []):
-        line = nodes.get(edge.target)
-        if line is None:
+    unlocked_chars = []
+    for gate, group in opened:
+        target = nodes.get(gate.subject_key)
+        if target is None:
             continue
-        entry: dict[str, Any] = {
-            "from_zone": line.zone or "",
-            "to_zone": line.destination_display or line.destination_zone_key or "",
-        }
-        group = edge.group
-        if group:
-            same_group: list[str] = []
-            for unlock in incoming_unlocks.get((EdgeType.UNLOCKS_ZONE_LINE, line.key), []):
-                if unlock.group != group:
-                    continue
-                name = db_names.get(unlock.source)
-                if name is not None and name != quest.db_name:
-                    same_group.append(name)
-            if same_group:
-                entry["co_requirements"] = sorted(set(same_group))
-        unlocked_lines.append(entry)
+        if gate.subject_kind == SubjectKind.ZONE_LINE:
+            entry: dict[str, Any] = {
+                "from_zone": target.zone or "",
+                "to_zone": target.destination_display or target.destination_zone_key or "",
+            }
+            others = sorted(
+                {graph.quest_db_name(atom.ref) for atom in group if atom.kind == AtomKind.QUEST_DONE and atom != done}
+            )
+            if others:
+                entry["co_requirements"] = others
+            unlocked_lines.append(entry)
+        elif gate.subject_kind == SubjectKind.CHARACTER:
+            entry = {"name": target.display_name}
+            _put_if(entry, "zone", target.zone)
+            unlocked_chars.append(entry)
     if unlocked_lines:
         unlocked_lines.sort(
             key=lambda item: (item["from_zone"], item["to_zone"], tuple(item.get("co_requirements", [])))
         )
         value["unlocked_zone_lines"] = unlocked_lines
-    unlocked_chars = []
-    for edge in outgoing_unlocks.get((EdgeType.UNLOCKS_CHARACTER, quest.key), []):
-        character = nodes.get(edge.target)
-        if character is not None:
-            entry = {"name": character.display_name}
-            _put_if(entry, "zone", character.zone)
-            unlocked_chars.append(entry)
     if unlocked_chars:
         unlocked_chars.sort(key=lambda item: (item["name"], item.get("zone", "")))
         value["unlocked_characters"] = unlocked_chars

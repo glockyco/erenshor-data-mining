@@ -8,23 +8,34 @@ import pytest
 
 from erenshor.application.guide.compiler import (
     SpawnPosition,
-    UnlockCondition,
-    UnlockPredicate,
+    combine_gates,
     compile_graph,
     edge_type_byte,
 )
 from erenshor.application.guide.graph import EntityGraph
 from erenshor.application.guide.schema import (
+    AtomKind,
     BackgroundSource,
     Edge,
     EdgeType,
+    Gate,
+    GateAtom,
     Node,
     NodeType,
+    SubjectKind,
     WorkflowCycle,
     WorkflowTarget,
 )
 
 from .fixtures import build_graph, item_node, quest_node, spawn_node
+
+
+def _done(quest: str) -> GateAtom:
+    return GateAtom(AtomKind.QUEST_DONE, quest)
+
+
+def _gate(subject: str, *groups: tuple[GateAtom, ...], kind: SubjectKind = SubjectKind.CHARACTER) -> Gate:
+    return Gate(kind, subject, f"test:{len(groups)}", groups)
 
 
 def _char(key: str, *, scene: str = "Forest", x: float = 1.0, y: float = 2.0, z: float = 3.0) -> Node:
@@ -76,31 +87,79 @@ def test_compile_graph_builds_item_sources() -> None:
     assert source.positions == [SpawnPosition(spawn_id=spawn_id, x=10.0, y=20.0, z=30.0)]
 
 
-def test_compile_graph_builds_unlock_predicates() -> None:
+def test_gates_on_one_subject_must_all_hold() -> None:
+    candle = GateAtom(AtomKind.ITEM_HELD, "item:candle")
+    key = GateAtom(AtomKind.KEY_HELD, "item:key")
+    listeners = _gate("char:x", (_done("quest:a"),), (candle,))
+    door = _gate("char:x", (key,))
+
+    # Each alternative of the listener also needs the key.
+    assert combine_gates([listeners, door]) == ((candle, key), (key, _done("quest:a")))
+    assert combine_gates([]) is None
+
+
+def test_impossible_and_redundant_alternatives_drop_out() -> None:
+    never = GateAtom(AtomKind.NEVER, "item:lost key")
+    started = _gate("char:x", (_done("quest:a"),), (_done("quest:b"), _done("quest:c")))
+    stopped = _gate("char:x", (GateAtom(AtomKind.QUEST_NOT_DONE, "quest:a"),), (_done("quest:b"),))
+
+    # a with not-a contradicts itself, and b with c makes b, c, and not-a redundant.
+    assert combine_gates([started, stopped]) == (
+        (_done("quest:a"), _done("quest:b")),
+        (_done("quest:b"), _done("quest:c")),
+    )
+    assert combine_gates([_gate("char:x", (never,))]) == ()
+
+
+def test_zone_line_that_starts_disabled_stays_shut_without_an_activator() -> None:
+    shut = Node("zoneline:shut", NodeType.ZONE_LINE, "Shut", scene="A", is_enabled=False)
+    opened = Node("zoneline:opened", NodeType.ZONE_LINE, "Opened", scene="A", is_enabled=False)
     graph = build_graph(
-        quest_node("quest:unlock", db_name="UNLOCK"),
-        quest_node("quest:needs", db_name="NEEDS"),
-        _char("char:vendor"),
-        item_node("item:key"),
-        edges=[
-            Edge(source="quest:unlock", target="char:vendor", type=EdgeType.UNLOCKS_CHARACTER, group="route-a"),
-            Edge(source="quest:needs", target="quest:unlock", type=EdgeType.REQUIRES_QUEST),
-            Edge(source="quest:needs", target="item:key", type=EdgeType.REQUIRES_ITEM, quantity=1),
-        ],
+        shut,
+        opened,
+        gates=[_gate("zoneline:opened", (_done("quest:a"),), kind=SubjectKind.ZONE_LINE)],
     )
 
     compiled = compile_graph(graph)
-    vendor_id = compiled.node_key_to_id["char:vendor"]
-    unlock_id = compiled.node_key_to_id["quest:unlock"]
+    by_subject = compiled.condition_by_subject
 
-    assert compiled.unlock_predicates == [
-        UnlockPredicate(
-            target_id=vendor_id,
-            conditions=[UnlockCondition(source_id=unlock_id, check_type=0, group=1)],
-            group_count=1,
-            semantics=1,
-        )
-    ]
+    assert compiled.conditions[by_subject[(SubjectKind.ZONE_LINE, "zoneline:shut", None)]] == ()
+    assert compiled.conditions[by_subject[(SubjectKind.ZONE_LINE, "zoneline:opened", None)]] == ((_done("quest:a"),),)
+
+
+def test_a_key_whose_only_source_is_behind_its_own_door_fails() -> None:
+    key = GateAtom(AtomKind.KEY_HELD, "item:key")
+    graph = build_graph(
+        item_node("item:key"),
+        _char("char:keeper"),
+        spawn_node("spawn:keeper"),
+        edges=[
+            Edge(source="char:keeper", target="item:key", type=EdgeType.DROPS_ITEM),
+            Edge(source="char:keeper", target="spawn:keeper", type=EdgeType.HAS_SPAWN),
+        ],
+        gates=[_gate("char:keeper", (key,))],
+    )
+
+    with pytest.raises(ValueError, match="char:keeper"):
+        compile_graph(graph)
+
+
+def test_an_alternative_way_around_the_door_is_no_cycle() -> None:
+    key = GateAtom(AtomKind.KEY_HELD, "item:key")
+    graph = build_graph(
+        item_node("item:key"),
+        _char("char:keeper"),
+        spawn_node("spawn:keeper"),
+        edges=[
+            Edge(source="char:keeper", target="item:key", type=EdgeType.DROPS_ITEM),
+            Edge(source="char:keeper", target="spawn:keeper", type=EdgeType.HAS_SPAWN),
+        ],
+        gates=[_gate("char:keeper", (key,), (_done("quest:a"),))],
+    )
+
+    compiled = compile_graph(graph)
+
+    assert compiled.conditions == [((key,), (_done("quest:a"),))]
 
 
 def test_graph_builder_spawn_nodes_preserve_source_script() -> None:
@@ -466,7 +525,6 @@ def test_compile_graph_preserves_runtime_metadata() -> None:
         ),
         edges=[
             Edge(source="quest:root", target="item:key", type=EdgeType.REWARDS_ITEM, note="char:vendor", amount=5),
-            Edge(source="quest:root", target="zone:line:depths", type=EdgeType.UNLOCKS_ZONE_LINE),
             Edge(source="quest:root", target="faction:wardens", type=EdgeType.AFFECTS_FACTION, amount=25),
         ],
     )
@@ -949,10 +1007,8 @@ def test_characters_get_the_level_of_reaching_them_beside_their_own_level() -> N
             Node("character:brazier", NodeType.CHARACTER, "Brazier", level=99, is_friendly=True, invulnerable=True),
             Node("character:statue", NodeType.CHARACTER, "Statue", level=99, is_friendly=True, invulnerable=True),
             quest_node("quest:gate", "Gate"),
-            edges=[
-                Edge("quest:gate", "character:boss", EdgeType.STEP_KILL),
-                Edge("quest:gate", "character:brazier", EdgeType.UNLOCKS_CHARACTER),
-            ],
+            edges=[Edge("quest:gate", "character:boss", EdgeType.STEP_KILL)],
+            gates=[_gate("character:brazier", (_done("quest:gate"),))],
         )
         _denormalize_quest_metadata(conn, graph)
     finally:

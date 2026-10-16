@@ -222,8 +222,8 @@ public sealed class ItemSource
     [JsonProperty("instruction")]
     public string? Instruction { get; set; }
 
-    [JsonProperty("required_quest_db_names")]
-    public List<string>? RequiredQuestDBNames { get; set; }
+    [JsonProperty("condition")]
+    public int? Condition { get; set; }
 
     [JsonProperty("children")]
     public List<ItemSource>? Children { get; set; }

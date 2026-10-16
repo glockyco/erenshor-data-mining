@@ -5,7 +5,7 @@ namespace AdventureGuide.Tests;
 internal static class TestData
 {
     public static GuideData Build(params QuestEntry[] quests) =>
-        GuideData.FromWrapper(new GuideWrapper { Version = 6, Quests = [.. quests] });
+        GuideData.FromWrapper(new GuideWrapper { Version = 7, Quests = [.. quests] });
 
     public static QuestEntry WorkflowQuest(string stableKey = "guide-quest:test")
     {

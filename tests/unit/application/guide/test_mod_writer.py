@@ -12,16 +12,20 @@ from erenshor.application.guide.compiler import compile_graph
 from erenshor.application.guide.graph import EntityGraph
 from erenshor.application.guide.mod_writer import build_mod_guide, serialize_mod_guide
 from erenshor.application.guide.schema import (
+    AtomKind,
     BackgroundSource,
     Edge,
     EdgeType,
+    Gate,
+    GateAtom,
     Node,
     NodeType,
+    SubjectKind,
     WorkflowCycle,
     WorkflowTarget,
 )
 
-from .fixtures import build_graph, character_node, item_node, quest_node
+from .fixtures import build_graph, character_node, item_node, quest_gate, quest_node
 
 
 def _fixture() -> tuple[EntityGraph, dict[str, object]]:
@@ -162,8 +166,6 @@ def _fixture() -> tuple[EntityGraph, dict[str, object]]:
         Edge(source="quest:main", target="item:reward", type=EdgeType.REWARDS_ITEM),
         Edge(source="quest:main", target="quest:also", type=EdgeType.ALSO_COMPLETES),
         Edge(source="quest:main", target="quest:second", type=EdgeType.CHAINS_TO),
-        Edge(source="quest:main", target="char:unlockable", type=EdgeType.UNLOCKS_CHARACTER, group="route-2"),
-        Edge(source="quest:main", target="zone-line:ashen-hidden", type=EdgeType.UNLOCKS_ZONE_LINE, group="route-2"),
         Edge(source="quest:main", target="char:mob", type=EdgeType.STEP_KILL, ordinal=20, group="combat-path"),
         Edge(source="quest:main", target="item:read", type=EdgeType.STEP_READ, ordinal=30, group="read-path"),
         Edge(source="quest:main", target="zone:travel", type=EdgeType.STEP_TRAVEL, ordinal=40),
@@ -172,18 +174,20 @@ def _fixture() -> tuple[EntityGraph, dict[str, object]]:
         Edge(source="char:mob", target="item:alpha", type=EdgeType.DROPS_ITEM, chance=0.25),
         Edge(source="char:mob", target="spawn:mob:one", type=EdgeType.HAS_SPAWN),
         Edge(source="char:unlockable", target="spawn:unlockable", type=EdgeType.HAS_SPAWN),
-        Edge(source="spawn:unlockable", target="quest:main", type=EdgeType.GATED_BY_QUEST),
-        # Two quests in one AND group, and one independent OR group.
-        Edge(source="quest:previous", target="char:unlockable", type=EdgeType.UNLOCKS_CHARACTER, group="route-1"),
-        Edge(source="quest:second", target="char:unlockable", type=EdgeType.UNLOCKS_CHARACTER, group="route-1"),
-        Edge(source="quest:alternate", target="char:unlockable", type=EdgeType.UNLOCKS_CHARACTER, group="route-3"),
-        Edge(
-            source="quest:previous", target="zone-line:ashen-hidden", type=EdgeType.UNLOCKS_ZONE_LINE, group="route-1"
+    ]
+    # Two quests in one AND group, and two independent OR groups.
+    routes = (("quest:previous", "quest:second"), ("quest:main",), ("quest:alternate",))
+    gates = [
+        quest_gate(SubjectKind.CHARACTER, "char:unlockable", *routes),
+        quest_gate(SubjectKind.ZONE_LINE, "zone-line:ashen-hidden", *routes),
+        Gate(
+            SubjectKind.SPAWN_POINT,
+            "spawn:unlockable",
+            "spawn_start",
+            ((GateAtom(AtomKind.QUEST_DONE, "quest:main"),),),
         ),
-        Edge(source="quest:second", target="zone-line:ashen-hidden", type=EdgeType.UNLOCKS_ZONE_LINE, group="route-1"),
-        Edge(
-            source="quest:alternate", target="zone-line:ashen-hidden", type=EdgeType.UNLOCKS_ZONE_LINE, group="route-3"
-        ),
+    ]
+    edges += [
         Edge(source="quest:previous", target="quest:main", type=EdgeType.CHAINS_TO),
     ]
     graph = build_graph(
@@ -206,6 +210,7 @@ def _fixture() -> tuple[EntityGraph, dict[str, object]]:
         ashen_zone,
         zone_line,
         edges=edges,
+        gates=gates,
     )
     return graph, {"main": main, "unlockable": unlockable}
 
@@ -223,16 +228,17 @@ def test_build_mod_guide_preserves_wrapper_shape_and_quest_identity() -> None:
     assert list(data) == [
         "_version",
         "_zone_lookup",
+        "_conditions",
+        "_gate_items",
         "_character_spawns",
         "_encounter_tiers",
         "_furniture_sets",
         "_zone_lines",
         "_chain_groups",
-        "_character_quest_unlocks",
         "_excluded_quests",
         "quests",
     ]
-    assert data["_version"] == 6
+    assert data["_version"] == 7
     main = _main_entry(data)
     assert main["db_name"] == "MAIN"
     assert main["stable_key"] == "quest:main"
@@ -364,7 +370,7 @@ def test_build_mod_guide_emits_rewards_chain_and_flags() -> None:
     }
 
 
-def test_build_mod_guide_emits_zone_character_and_unlock_lookups() -> None:
+def test_build_mod_guide_emits_zone_character_and_gate_conditions() -> None:
     graph, _ = _fixture()
     data = build_mod_guide(graph, compile_graph(graph))
 
@@ -384,37 +390,17 @@ def test_build_mod_guide_emits_zone_character_and_unlock_lookups() -> None:
             "is_directly_placed": False,
         }
     ]
-    assert data["_character_spawns"]["char:unlockable"] == [
-        {
-            "scene": "AshenScene",
-            "x": 13,
-            "y": 14,
-            "z": 15,
-            "night_spawn": False,
-            "is_directly_placed": True,
-            "source_script": "VithArenaFight",
-            "spawn_upon_quest_complete_stable_key": "quest:main",
-        }
-    ]
-    assert data["_zone_lines"] == [
-        {
-            "scene": "AshenScene",
-            "x": 20,
-            "y": 21,
-            "z": 22,
-            "is_enabled": True,
-            "destination_zone_key": "zone:travel",
-            "destination_display": "Hidden Vale",
-            "landing_x": 30,
-            "landing_y": 31,
-            "landing_z": 32,
-            "required_quest_groups": [["PREVIOUS", "SECOND"], ["MAIN"], ["ALTERNATE"]],
-        }
-    ]
-    assert data["_character_quest_unlocks"]["char:unlockable"] == [
-        ["PREVIOUS", "SECOND"],
-        ["MAIN"],
-        ["ALTERNATE"],
+    [unlockable] = data["_character_spawns"]["char:unlockable"]
+    assert unlockable["source_script"] == "VithArenaFight"
+    # The spawn starts after MAIN, and MAIN alone also activates the character,
+    # so the placement needs nothing else.
+    assert data["_conditions"][unlockable["condition"]] == [[{"kind": "quest_done", "ref": "MAIN"}]]
+    [line] = data["_zone_lines"]
+    assert "is_enabled" not in line
+    assert data["_conditions"][line["condition"]] == [
+        [{"kind": "quest_done", "ref": "ALTERNATE"}],
+        [{"kind": "quest_done", "ref": "MAIN"}],
+        [{"kind": "quest_done", "ref": "PREVIOUS"}, {"kind": "quest_done", "ref": "SECOND"}],
     ]
 
 
@@ -526,13 +512,13 @@ def _vendor_unlock_graph(multiple: bool = False) -> EntityGraph:
     quest = quest_node("quest:vendor", "VENDOR", display_name="VENDOR")
     item = item_node("item:vendor", "Vendor Unlock Item")
     vendor = character_node("char:vendor", "Unlock Vendor", is_vendor=True)
-    edges = [Edge(source=quest.key, target=item.key, type=EdgeType.UNLOCKS_VENDOR_ITEM, note=vendor.key)]
+    gates = [quest_gate(SubjectKind.VENDOR_ITEM, vendor.key, (quest.key,), item=item.key)]
     nodes = [quest, item, vendor]
     if multiple:
         second_item = item_node("item:vendor-second", "Second Vendor Item")
         nodes.append(second_item)
-        edges.append(Edge(source=quest.key, target=second_item.key, type=EdgeType.UNLOCKS_VENDOR_ITEM, note=vendor.key))
-    return build_graph(*nodes, edges=edges)
+        gates.append(quest_gate(SubjectKind.VENDOR_ITEM, vendor.key, (quest.key,), item=second_item.key))
+    return build_graph(*nodes, gates=gates)
 
 
 def test_build_mod_guide_emits_single_vendor_unlock_names() -> None:
@@ -755,25 +741,6 @@ def test_build_mod_guide_dedupes_direct_and_item_reward_prerequisites() -> None:
     ]
 
 
-def test_character_spawns_dedupes_identical_quest_gates() -> None:
-    graph, _ = _fixture()
-    graph.add_edge(Edge(source="spawn:unlockable", target="quest:main", type=EdgeType.GATED_BY_QUEST))
-    graph.build_indexes()
-
-    entry = build_mod_guide(graph, compile_graph(graph))["_character_spawns"]["char:unlockable"][0]
-
-    assert entry["spawn_upon_quest_complete_stable_key"] == "quest:main"
-
-
-def test_character_spawns_rejects_distinct_quest_gates() -> None:
-    graph, _ = _fixture()
-    graph.add_edge(Edge(source="spawn:unlockable", target="quest:previous", type=EdgeType.GATED_BY_QUEST))
-    graph.build_indexes()
-
-    with pytest.raises(ValueError, match="multiple quest gates"):
-        build_mod_guide(graph, compile_graph(graph))
-
-
 def test_serialize_mod_guide_is_compact_deterministic_and_json() -> None:
     graph, _ = _fixture()
     compiled = compile_graph(graph)
@@ -785,6 +752,8 @@ def test_serialize_mod_guide_is_compact_deterministic_and_json() -> None:
         reversed_graph.add_node(node)
     for edge in reversed(list(graph.all_edges())):
         reversed_graph.add_edge(edge)
+    for gate in reversed(list(graph.all_gates())):
+        reversed_graph.add_gate(gate)
     reversed_graph.build_indexes()
 
     assert first == second
@@ -795,25 +764,16 @@ def test_serialize_mod_guide_is_compact_deterministic_and_json() -> None:
     assert list(parsed) == [
         "_version",
         "_zone_lookup",
+        "_conditions",
+        "_gate_items",
         "_character_spawns",
         "_encounter_tiers",
         "_furniture_sets",
         "_zone_lines",
         "_chain_groups",
-        "_character_quest_unlocks",
         "_excluded_quests",
         "quests",
     ]
-    assert parsed["_character_spawns"]["char:unlockable"][0] == {
-        "scene": "AshenScene",
-        "x": 13,
-        "y": 14,
-        "z": 15,
-        "night_spawn": False,
-        "is_directly_placed": True,
-        "source_script": "VithArenaFight",
-        "spawn_upon_quest_complete_stable_key": "quest:main",
-    }
     assert all(math.isfinite(value) for value in _finite_floats(parsed))
 
 
@@ -949,18 +909,10 @@ def _workflow_projection_graph() -> EntityGraph:
             Edge(source=drop_source.key, target=trigger_item.key, type=EdgeType.DROPS_ITEM),
             Edge(source=vendor_a.key, target=trigger_item.key, type=EdgeType.SELLS_ITEM),
             Edge(source=vendor_b.key, target=trigger_item.key, type=EdgeType.SELLS_ITEM),
-            Edge(
-                source=unlock_a.key,
-                target=trigger_item.key,
-                type=EdgeType.UNLOCKS_VENDOR_ITEM,
-                note=vendor_a.key,
-            ),
-            Edge(
-                source=unlock_b.key,
-                target=trigger_item.key,
-                type=EdgeType.UNLOCKS_VENDOR_ITEM,
-                note=vendor_b.key,
-            ),
+        ],
+        gates=[
+            quest_gate(SubjectKind.VENDOR_ITEM, vendor_a.key, (unlock_a.key,), item=trigger_item.key),
+            quest_gate(SubjectKind.VENDOR_ITEM, vendor_b.key, (unlock_b.key,), item=trigger_item.key),
         ],
     )
 
@@ -983,9 +935,9 @@ def test_build_mod_guide_projects_workflow_inside_unified_quest_contract() -> No
     vendors = {source["name"]: source for source in obtain["sources"] if source["type"] == "vendor"}
     assert set(vendors) == {"Vendor A", "Vendor B"}
     assert vendors["Vendor A"]["instruction"] == "Buy Arena Fee."
-    assert vendors["Vendor A"]["required_quest_db_names"] == ["UNLOCK_A"]
+    assert data["_conditions"][vendors["Vendor A"]["condition"]] == [[{"kind": "quest_done", "ref": "UNLOCK_A"}]]
     assert vendors["Vendor B"]["instruction"] == "Buy Arena Fee."
-    assert vendors["Vendor B"]["required_quest_db_names"] == ["UNLOCK_B"]
+    assert data["_conditions"][vendors["Vendor B"]["condition"]] == [[{"kind": "quest_done", "ref": "UNLOCK_B"}]]
     assert any(source["type"] == "drop" and source["name"] == "Previous Chest" for source in obtain["sources"])
 
     go_to = workflow["steps"][1]
@@ -1216,22 +1168,22 @@ def test_manual_pickup_preserves_instruction_and_requires_the_quest_that_enables
         edges=[
             Edge(quest.key, item.key, EdgeType.REQUIRES_ITEM),
             Edge(table.key, item.key, EdgeType.YIELDS_ITEM),
-            # The table exists only once the claim quest is complete.
-            Edge(claim.key, table.key, EdgeType.UNLOCKS_ITEM_BAG),
         ],
+        # The table exists only once the claim quest is complete.
+        gates=[quest_gate(SubjectKind.ITEM_BAG, table.key, (claim.key,))],
     )
-    entry = _main_entry(build_mod_guide(graph, compile_graph(graph)))
-    assert entry["required_items"][0]["sources"] == [
-        {
-            "type": "pickup",
-            "name": "Planning Table",
-            "scene": "Reliquary",
-            "level": 16,
-            "source_key": table.key,
-            "instruction": "Take it from the planning table's portal slot.",
-            "required_quest_db_names": ["CLAIM"],
-        }
-    ]
+    data = build_mod_guide(graph, compile_graph(graph))
+    [source] = _main_entry(data)["required_items"][0]["sources"]
+    assert source == {
+        "type": "pickup",
+        "name": "Planning Table",
+        "scene": "Reliquary",
+        "level": 16,
+        "source_key": table.key,
+        "instruction": "Take it from the planning table's portal slot.",
+        "condition": source["condition"],
+    }
+    assert data["_conditions"][source["condition"]] == [[{"kind": "quest_done", "ref": "CLAIM"}]]
 
 
 def test_guide_only_steps_include_all_background_sources_after_normal_sources() -> None:

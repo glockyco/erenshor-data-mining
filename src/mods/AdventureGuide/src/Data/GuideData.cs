@@ -44,18 +44,13 @@ public sealed partial class GuideData
     public IReadOnlyList<ChainGroupEntry> ChainGroups { get; private set; } =
         Array.Empty<ChainGroupEntry>();
 
-    /// <summary>Character quest unlock requirements: stable_key → OR-of-ANDs quest groups.</summary>
-    public IReadOnlyDictionary<string, List<List<string>>> CharacterQuestUnlocks
-    {
-        get;
-        private set;
-    } = new Dictionary<string, List<List<string>>>();
+    public IReadOnlyList<List<List<GateAtom>>> Conditions { get; private set; } =
+        Array.Empty<List<List<GateAtom>>>();
 
-    /// <summary>
-    /// Reliquary furniture sets that place furnishing characters: item stable
-    /// key → display name. A spawn naming a set exists only while the planning
-    /// table holds that set in the spawn's room.
-    /// </summary>
+    public IReadOnlyDictionary<string, GateItem> GateItems { get; private set; } =
+        new Dictionary<string, GateItem>();
+
+    /// <summary>Display names for furniture sets referenced by room conditions.</summary>
     public IReadOnlyDictionary<string, string> FurnitureSetNames { get; private set; } =
         new Dictionary<string, string>();
 
@@ -141,8 +136,8 @@ public sealed partial class GuideData
             wrapper.CharacterSpawns ?? new Dictionary<string, List<SpawnPoint>>();
         data.ZoneLines = wrapper.ZoneLines ?? new List<ZoneLineEntry>();
         data.ChainGroups = wrapper.ChainGroups ?? new List<ChainGroupEntry>();
-        data.CharacterQuestUnlocks =
-            wrapper.CharacterQuestUnlocks ?? new Dictionary<string, List<List<string>>>();
+        data.Conditions = wrapper.Conditions ?? new List<List<List<GateAtom>>>();
+        data.GateItems = wrapper.GateItems ?? new Dictionary<string, GateItem>();
         var furnitureSetNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         if (wrapper.FurnitureSets != null)
         {
@@ -179,9 +174,9 @@ public sealed partial class GuideData
 
     internal static void ValidateWrapper(GuideWrapper wrapper)
     {
-        if (wrapper.Version != 6)
+        if (wrapper.Version != 7)
             throw new InvalidDataException(
-                $"Unsupported quest guide schema version {wrapper.Version}; expected 6"
+                $"Unsupported quest guide schema version {wrapper.Version}. Expected 7"
             );
         if (wrapper.Quests == null)
             throw new InvalidDataException("Quest guide has no quests collection");
@@ -218,26 +213,17 @@ public sealed partial class GuideData
                 );
         }
 
-        var gameDbNames = new HashSet<string>(
-            wrapper.Quests.Where(quest => !quest.IsGuideOnly).Select(quest => quest.DBName),
-            StringComparer.OrdinalIgnoreCase
-        );
         foreach (var quest in wrapper.Quests)
         {
             if (quest.Steps != null)
                 foreach (var step in quest.Steps)
-                    ValidateSources(
-                        step.Sources,
-                        step.TargetName ?? "",
-                        gameDbNames,
-                        quest.StableKey
-                    );
+                    ValidateSources(step.Sources, step.TargetName ?? "", quest.StableKey);
             if (quest.RequiredItems != null)
                 foreach (var item in quest.RequiredItems)
-                    ValidateSources(item.Sources, item.ItemName, gameDbNames, quest.StableKey);
+                    ValidateSources(item.Sources, item.ItemName, quest.StableKey);
         }
 
-        ValidateFurnishings(wrapper);
+        ValidateConditions(wrapper);
 
         if (wrapper.ExcludedQuests != null)
         {
@@ -251,39 +237,85 @@ public sealed partial class GuideData
         }
     }
 
-    /// <summary>
-    /// A furnishing spawn names both its set and its room, and the set is
-    /// listed with a display name for the requirement text.
-    /// </summary>
-    private static void ValidateFurnishings(GuideWrapper wrapper)
+    private static void ValidateConditions(GuideWrapper wrapper)
     {
-        if (wrapper.CharacterSpawns == null)
-            return;
-        foreach (var (characterKey, spawns) in wrapper.CharacterSpawns)
+        var conditions = wrapper.Conditions ?? new List<List<List<GateAtom>>>();
+        foreach (var groups in conditions)
         {
-            foreach (var spawn in spawns)
+            foreach (var group in groups)
             {
-                bool hasSet = spawn.FurnitureItemStableKey != null;
-                if (hasSet != (spawn.FurnitureSlot != null))
-                    throw new InvalidDataException(
-                        $"Furnishing spawn of {characterKey} names a set or a room but not both"
-                    );
-                if (
-                    hasSet
-                    && (
-                        wrapper.FurnitureSets == null
-                        || !wrapper.FurnitureSets.ContainsKey(spawn.FurnitureItemStableKey!)
-                    )
-                )
-                    throw new InvalidDataException(
-                        $"Furnishing spawn of {characterKey} names unknown set {spawn.FurnitureItemStableKey}"
-                    );
-                if (hasSet && !FurnishingPolicy.IsRoomSlot(spawn.FurnitureSlot!))
-                    throw new InvalidDataException(
-                        $"Furnishing spawn of {characterKey} names unknown room {spawn.FurnitureSlot}"
-                    );
+                foreach (var atom in group)
+                {
+                    if (string.IsNullOrWhiteSpace(atom.Ref))
+                        throw new InvalidDataException("Gate atom has no reference");
+                    switch (atom.Kind)
+                    {
+                        case GateAtomKind.ItemHeld:
+                        case GateAtomKind.KeyHeld:
+                        case GateAtomKind.RoomFurnished:
+                            if (
+                                wrapper.GateItems == null
+                                || !wrapper.GateItems.TryGetValue(atom.Ref, out var item)
+                            )
+                                throw new InvalidDataException(
+                                    $"Gate atom names unknown item {atom.Ref}"
+                                );
+                            atom.GameId = item.GameId;
+                            if (
+                                atom.Kind == GateAtomKind.RoomFurnished
+                                && (atom.Slot == null || !FurnishingPolicy.IsRoomSlot(atom.Slot))
+                            )
+                                throw new InvalidDataException(
+                                    $"Gate atom names unknown room {atom.Slot}"
+                                );
+                            break;
+                        case GateAtomKind.QuestDone:
+                        case GateAtomKind.QuestNotDone:
+                        case GateAtomKind.EncounterWon:
+                            break;
+                        default:
+                            throw new InvalidDataException($"Unknown gate atom kind {atom.Kind}");
+                    }
+                }
             }
         }
+
+        void ValidateIndex(int? index)
+        {
+            if (index.HasValue && (index.Value < 0 || index.Value >= conditions.Count))
+                throw new InvalidDataException($"Gate condition index {index} is out of range");
+        }
+
+        void ValidateSourceConditions(List<ItemSource>? sources)
+        {
+            if (sources == null)
+                return;
+            foreach (var source in sources)
+            {
+                ValidateIndex(source.Condition);
+                ValidateSourceConditions(source.Children);
+            }
+        }
+
+        if (wrapper.ZoneLines != null)
+            foreach (var line in wrapper.ZoneLines)
+                ValidateIndex(line.Condition);
+        if (wrapper.CharacterSpawns != null)
+            foreach (var spawns in wrapper.CharacterSpawns.Values)
+            foreach (var spawn in spawns)
+                ValidateIndex(spawn.Condition);
+        foreach (var quest in wrapper.Quests!)
+        {
+            if (quest.Steps != null)
+                foreach (var step in quest.Steps)
+                    ValidateSourceConditions(step.Sources);
+            if (quest.RequiredItems != null)
+                foreach (var item in quest.RequiredItems)
+                    ValidateSourceConditions(item.Sources);
+        }
+        if (wrapper.GateItems != null)
+            foreach (var item in wrapper.GateItems.Values)
+                ValidateSourceConditions(item.Sources);
     }
 
     private static void ValidateSteps(QuestEntry quest)
@@ -519,12 +551,7 @@ public sealed partial class GuideData
             throw new InvalidDataException($"{context} has invalid trigger bounds");
     }
 
-    private static void ValidateSources(
-        List<ItemSource>? sources,
-        string itemName,
-        HashSet<string> gameDbNames,
-        string questKey
-    )
+    private static void ValidateSources(List<ItemSource>? sources, string itemName, string questKey)
     {
         if (sources == null)
             return;
@@ -586,23 +613,9 @@ public sealed partial class GuideData
             if (source.Type == "vendor" && source.Instruction != $"Buy {itemName}.")
                 throw new InvalidDataException($"{questKey} has invalid vendor instruction");
 
-            if (source.RequiredQuestDBNames != null)
-            {
-                if (source.RequiredQuestDBNames.Count == 0)
-                    throw new InvalidDataException($"{questKey} has an empty source gate");
-                var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                foreach (var dbName in source.RequiredQuestDBNames)
-                {
-                    if (!seen.Add(dbName) || !gameDbNames.Contains(dbName))
-                        throw new InvalidDataException(
-                            $"{questKey} references invalid source unlock quest {dbName}"
-                        );
-                }
-            }
             ValidateSources(
                 source.Children,
                 source.Type == "item_use" ? source.Name! : itemName,
-                gameDbNames,
                 questKey
             );
         }
@@ -632,8 +645,11 @@ internal sealed class GuideWrapper
     [JsonProperty("_chain_groups")]
     public List<ChainGroupEntry>? ChainGroups { get; set; }
 
-    [JsonProperty("_character_quest_unlocks")]
-    public Dictionary<string, List<List<string>>>? CharacterQuestUnlocks { get; set; }
+    [JsonProperty("_conditions")]
+    public List<List<List<GateAtom>>>? Conditions { get; set; }
+
+    [JsonProperty("_gate_items")]
+    public Dictionary<string, GateItem>? GateItems { get; set; }
 
     [JsonProperty("_furniture_sets")]
     public Dictionary<string, FurnitureSetInfo>? FurnitureSets { get; set; }
@@ -689,26 +705,14 @@ public sealed class SpawnPoint
     [JsonProperty("night_spawn")]
     public bool NightSpawn { get; set; }
 
-    [JsonProperty("spawn_upon_quest_complete_stable_key")]
-    public string? SpawnUponQuestCompleteStableKey { get; set; }
+    [JsonProperty("condition")]
+    public int? Condition { get; set; }
 
     [JsonProperty("is_directly_placed")]
     public bool IsDirectlyPlaced { get; set; }
 
     [JsonProperty("source_script")]
     public string? SourceScript { get; set; }
-
-    /// <summary>
-    /// The furniture set (item stable key) whose placement in
-    /// <see cref="FurnitureSlot"/> of the Reliquary planning table turns this
-    /// furnishing on. Null for every other spawn.
-    /// </summary>
-    [JsonProperty("furniture_item_stable_key")]
-    public string? FurnitureItemStableKey { get; set; }
-
-    /// <summary>The planning table room slot (L1..L4, R1..R4) holding this furnishing.</summary>
-    [JsonProperty("furniture_slot")]
-    public string? FurnitureSlot { get; set; }
 }
 
 /// <summary>A zone transition point.</summary>
@@ -726,9 +730,6 @@ public sealed class ZoneLineEntry
     [JsonProperty("z")]
     public float Z { get; set; }
 
-    [JsonProperty("is_enabled")]
-    public bool IsEnabled { get; set; } = true;
-
     [JsonProperty("destination_zone_key")]
     public string DestinationZoneKey { get; set; } = "";
 
@@ -744,8 +745,8 @@ public sealed class ZoneLineEntry
     [JsonProperty("landing_z")]
     public float? LandingZ { get; set; }
 
-    [JsonProperty("required_quest_groups")]
-    public List<List<string>>? RequiredQuestGroups { get; set; }
+    [JsonProperty("condition")]
+    public int? Condition { get; set; }
 }
 
 /// <summary>A pre-computed quest chain group.</summary>

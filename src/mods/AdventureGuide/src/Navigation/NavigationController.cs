@@ -47,6 +47,9 @@ public sealed class NavigationController
     private readonly HashSet<string> _activeSourceKeys = new(
         System.StringComparer.OrdinalIgnoreCase
     );
+    private readonly HashSet<string> _previousManualSourceKeys = new(
+        System.StringComparer.OrdinalIgnoreCase
+    );
 
     /// <summary>Item names the navigated quest still needs; refilled every frame.</summary>
     private readonly HashSet<string> _neededItems = new(System.StringComparer.OrdinalIgnoreCase);
@@ -107,7 +110,7 @@ public sealed class NavigationController
         _timers = timers;
         _miningTracker = miningTracker;
         _lootScanner = lootScanner;
-        _zoneGraph = new ZoneGraph(data, state);
+        _zoneGraph = new ZoneGraph(data, state.Gates);
     }
 
     /// <summary>
@@ -294,7 +297,7 @@ public sealed class NavigationController
         if (step.TargetKey == null)
             return false;
 
-        if (step.TargetType == "character")
+        if (step.TargetType == "character" && _state.Gates.IsCharacterAvailable(step.TargetKey))
         {
             var playerPos = GetPlayerPosition();
             if (playerPos.HasValue)
@@ -496,8 +499,7 @@ public sealed class NavigationController
                 _resolvedStep,
                 _data,
                 currentScene,
-                _state.IsGameQuestCompleted,
-                _state.Furnishings.IsAvailablePredicate
+                _state.Gates.IsSourceAvailable
             )
         )
             ResolveCharacterTarget(_resolvedStep, quest, currentScene);
@@ -611,8 +613,14 @@ public sealed class NavigationController
         _zoneGraph.Rebuild();
         ObserveScene(currentScene);
         InvalidateCrossZoneCache();
-        if (Target == null || _navigatingTreasure)
+        if (_navigatingTreasure)
             return;
+        if (Target == null)
+        {
+            if (_originQuestKey != null)
+                ResolveOrigin(currentScene);
+            return;
+        }
 
         var quest = _data.GetByRuntimeKey(Target.QuestKey);
         if (quest?.Steps == null)
@@ -645,7 +653,7 @@ public sealed class NavigationController
             && ContainsItemUse(ItemSourcePolicy.SourcesFor(quest, _resolvedStep))
         )
         {
-            ResolveAndNavigate(_resolvedStep, quest, currentScene);
+            RefreshResolvedStep(quest, currentScene);
             return;
         }
         // Determine which step the player is currently on
@@ -665,9 +673,7 @@ public sealed class NavigationController
         // Nav step is still the current step or ahead of it
         if (navStepIdx < 0 || navStepIdx >= currentStepIdx)
         {
-            // Recompute auto source set for the new zone (unless manually overridden)
-            if (!_manualOverride && _allItemSources.Count > 0)
-                ComputeAutoSourceSet(currentScene);
+            RefreshResolvedStep(quest, currentScene);
             return;
         }
 
@@ -687,6 +693,33 @@ public sealed class NavigationController
         Clear();
     }
 
+    private void RefreshResolvedStep(QuestEntry quest, string currentScene)
+    {
+        var step = _resolvedStep;
+        if (step == null)
+            return;
+        _previousManualSourceKeys.Clear();
+        if (_manualOverride)
+            _previousManualSourceKeys.UnionWith(_activeSourceKeys);
+        ResolveAndNavigate(step, quest, currentScene);
+        if (_previousManualSourceKeys.Count == 0 || _navigatingTreasure)
+            return;
+        _activeSourceKeys.Clear();
+        foreach (var source in _allItemSources)
+        {
+            if (
+                source.SourceKey != null
+                && _previousManualSourceKeys.Contains(source.SourceKey)
+                && _state.Gates.IsSourceAvailable(source)
+            )
+                _activeSourceKeys.Add(source.SourceKey);
+        }
+        _manualOverride = _activeSourceKeys.Count > 0;
+        if (!_manualOverride)
+            ComputeAutoSourceSet(currentScene);
+        ResolveClosestActiveSource(quest, step, currentScene);
+    }
+
     /// <summary>
     /// The Reliquary rooms changed, so a furnishing the navigated step can use
     /// appeared, moved to another room, or vanished. Resolve that step again;
@@ -699,12 +732,12 @@ public sealed class NavigationController
         var quest = _data.GetByRuntimeKey(Target.QuestKey);
         if (quest == null || !StepUsesFurnishings(_resolvedStep, quest))
             return;
-        ResolveAndNavigate(_resolvedStep, quest, currentScene);
+        RefreshResolvedStep(quest, currentScene);
     }
 
     private bool StepUsesFurnishings(QuestStep step, QuestEntry quest)
     {
-        if (step.TargetKey != null && IsFurnishing(step.TargetKey))
+        if (step.TargetKey != null && _state.Gates.CharacterUsesFurnishings(step.TargetKey))
             return true;
         if (step.TargetType != "item" || quest.RequiredItems == null)
             return false;
@@ -728,16 +761,19 @@ public sealed class NavigationController
             return false;
         foreach (var source in sources)
         {
-            if (source.SourceKey != null && IsFurnishing(source.SourceKey))
+            if (
+                _state.Gates.UsesFurnishings(source.Condition)
+                || (
+                    source.SourceKey != null
+                    && _state.Gates.CharacterUsesFurnishings(source.SourceKey)
+                )
+            )
                 return true;
             if (UsesFurnishings(source.Children))
                 return true;
         }
         return false;
     }
-
-    private bool IsFurnishing(string characterKey) =>
-        _state.Furnishings.StatusOf(characterKey) != FurnishingStatus.Ungated;
 
     /// <summary>
     /// Call each frame. Updates distance/direction to the active target.
@@ -944,6 +980,8 @@ public sealed class NavigationController
             return false;
 
         var spawn = PickBestSpawn(spawns, currentScene);
+        if (spawn == null)
+            return false;
         Target = MakeTarget(
             NavigationTarget.Kind.Character,
             new Vector3(spawn.X, spawn.Y, spawn.Z),
@@ -1068,7 +1106,7 @@ public sealed class NavigationController
     {
         foreach (var src in sources)
         {
-            if (!IsSourceAvailable(src))
+            if (!_state.Gates.IsSourceAvailable(src))
                 continue;
             if (
                 ItemSourcePolicy.IsRandomSource(src)
@@ -1111,14 +1149,6 @@ public sealed class NavigationController
         }
     }
 
-    private bool IsSourceAvailable(Data.ItemSource source)
-    {
-        return (
-                source.RequiredQuestDBNames == null
-                || source.RequiredQuestDBNames.TrueForAll(_state.IsGameQuestCompleted)
-            ) && (source.SourceKey == null || _state.Furnishings.IsAvailable(source.SourceKey));
-    }
-
     /// <summary>
     /// Compute the auto source set based on zone preference.
     /// In-zone sources take priority; falls back to lowest-level cross-zone source.
@@ -1130,7 +1160,7 @@ public sealed class NavigationController
         // Find all sources with spawns/presence in the current zone
         foreach (var src in _allItemSources)
         {
-            if (src.SourceKey == null)
+            if (src.SourceKey == null || !_state.Gates.IsSourceAvailable(src))
                 continue;
 
             if (_positionedSources.TryGetValue(src.SourceKey, out var positioned))
@@ -1151,6 +1181,7 @@ public sealed class NavigationController
             if (
                 spawns.Exists(s =>
                     string.Equals(s.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase)
+                    && _state.Gates.IsSpawnAvailable(s)
                 )
             )
                 _activeSourceKeys.Add(src.SourceKey);
@@ -1251,7 +1282,7 @@ public sealed class NavigationController
                         spawn.Scene,
                         currentScene,
                         System.StringComparison.OrdinalIgnoreCase
-                    ) || !_state.Furnishings.IsPresent(spawn)
+                    ) || !_state.Gates.IsSpawnAvailable(spawn)
                 )
                     continue;
                 var position =
@@ -1355,7 +1386,7 @@ public sealed class NavigationController
                 {
                     foreach (var spawn in spawns)
                     {
-                        if (_state.Furnishings.IsPresent(spawn))
+                        if (_state.Gates.IsSpawnAvailable(spawn))
                             Consider(
                                 spawn.Scene,
                                 new Vector3(spawn.X, spawn.Y, spawn.Z),
@@ -1555,7 +1586,7 @@ public sealed class NavigationController
     /// spawns (PathComplete), then partially reachable (PathPartial), then
     /// the spatially closest as a last resort.
     /// </summary>
-    private Data.SpawnPoint PickBestSpawn(List<Data.SpawnPoint> spawns, string currentScene)
+    private Data.SpawnPoint? PickBestSpawn(List<Data.SpawnPoint> spawns, string currentScene)
     {
         var playerPos = GetPlayerPosition();
         Data.SpawnPoint? bestComplete = null;
@@ -1569,7 +1600,7 @@ public sealed class NavigationController
         {
             if (
                 !string.Equals(sp.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase)
-                || !_state.Furnishings.IsPresent(sp)
+                || !_state.Gates.IsSpawnAvailable(sp)
             )
                 continue;
 
@@ -1613,74 +1644,33 @@ public sealed class NavigationController
     }
 
     /// <summary>
-    /// A spawn in another scene: the first that exists now, else the first.
-    /// An absent furnishing still has a place, the Reliquary, which the
-    /// target's requirement text explains.
+    /// Return a spawn in another scene only when its condition holds.
     /// </summary>
-    private Data.SpawnPoint FirstPresentSpawn(List<Data.SpawnPoint> spawns)
+    private Data.SpawnPoint? FirstPresentSpawn(List<Data.SpawnPoint> spawns)
     {
         foreach (var spawn in spawns)
         {
-            if (_state.Furnishings.IsPresent(spawn))
+            if (_state.Gates.IsSpawnAvailable(spawn))
                 return spawn;
         }
-        return spawns[0];
+        return null;
     }
 
     // ── Zone line helpers ──────────────────────────────────────────
 
-    /// <summary>
-    /// Check if a zone line is accessible to the player based on quest completion.
-    /// Enabled by default with no requirements = accessible. Otherwise, any unlock
-    /// group being fully completed = accessible.
-    /// </summary>
-    private bool IsZoneLineAccessible(ZoneLineEntry zl)
-    {
-        if (zl.IsEnabled && (zl.RequiredQuestGroups == null || zl.RequiredQuestGroups.Count == 0))
-            return true;
+    /// <summary>Check the shared gate condition for a zone line.</summary>
+    private bool IsZoneLineAccessible(ZoneLineEntry zl) => _state.Gates.IsAvailable(zl.Condition);
 
-        if (zl.RequiredQuestGroups == null || zl.RequiredQuestGroups.Count == 0)
-            return zl.IsEnabled;
-
-        foreach (var group in zl.RequiredQuestGroups)
-        {
-            if (group.TrueForAll(q => _state.IsGameQuestCompleted(q)))
-                return true;
-        }
-        return false;
-    }
-
-    /// <summary>
-    /// Get the display text describing why a zone line is locked.
-    /// Returns the quest name(s) from the smallest incomplete unlock group.
-    /// </summary>
+    /// <summary>Describe the requirements for the closest viable gate alternative.</summary>
     private string? GetZoneLineLockReason(ZoneLineEntry zl)
     {
-        if (zl.RequiredQuestGroups == null || zl.RequiredQuestGroups.Count == 0)
+        var atoms = _state.Gates.Explain(zl.Condition);
+        if (atoms.Count == 0)
             return null;
-
-        // Find the smallest incomplete group (fewest quests to complete)
-        List<string>? best = null;
-        foreach (var group in zl.RequiredQuestGroups)
-        {
-            var incomplete = group.FindAll(q => !_state.IsGameQuestCompleted(q));
-            if (incomplete.Count == 0)
-                return null; // group satisfied
-            if (best == null || incomplete.Count < best.Count)
-                best = incomplete;
-        }
-
-        if (best == null)
-            return null;
-
-        // Look up display names for the required quests
-        var names = new System.Collections.Generic.List<string>();
-        foreach (var dbName in best)
-        {
-            var entry = _data.GetByDBName(dbName);
-            names.Add(entry?.DisplayName ?? dbName);
-        }
-        return string.Join(" and ", names);
+        var descriptions = new string[atoms.Count];
+        for (int i = 0; i < atoms.Count; i++)
+            descriptions[i] = _state.Gates.Describe(atoms[i]);
+        return string.Join(" and ", descriptions);
     }
 
     private ZoneLineEntry? FindClosestZoneLine(
@@ -1829,7 +1819,7 @@ public sealed class NavigationController
     {
         foreach (var src in sources)
         {
-            if (!IsSourceAvailable(src))
+            if (!_state.Gates.IsSourceAvailable(src))
                 continue;
             if (
                 ItemSourcePolicy.IsRandomSource(src)
@@ -1883,42 +1873,20 @@ public sealed class NavigationController
         return pc != null ? pc.transform.position : null;
     }
 
-    /// <summary>
-    /// If a character has unmet quest unlock requirements, append a
-    /// "Requires: Complete ..." line to the display name for the arrow; for a
-    /// furnishing no Reliquary room holds, the furniture sets it needs.
-    /// </summary>
+    /// <summary>Append gate requirements and advisory guidance to the target name.</summary>
     private string WithCharacterUnlockText(string displayName, string? targetKey)
     {
         if (targetKey == null)
             return displayName;
-        var furnishing = _state.Furnishings.RequirementText(targetKey);
-        if (furnishing != null)
-            return $"{displayName}\n{furnishing}";
-        if (!_data.CharacterQuestUnlocks.TryGetValue(targetKey, out var groups))
-            return displayName;
-
-        // Find smallest incomplete group
-        List<string>? best = null;
-        foreach (var group in groups)
-        {
-            var incomplete = group.FindAll(q => !_state.IsGameQuestCompleted(q));
-            if (incomplete.Count == 0)
-                return displayName; // group satisfied, NPC available
-            if (best == null || incomplete.Count < best.Count)
-                best = incomplete;
-        }
-
-        if (best == null)
-            return displayName;
-
-        var names = new System.Collections.Generic.List<string>();
-        foreach (var dbName in best)
-        {
-            var entry = _data.GetByDBName(dbName);
-            names.Add(entry?.DisplayName ?? dbName);
-        }
-        return $"{displayName}\nRequires: Complete \"{string.Join("\" and \"", names)}\"";
+        var atoms = _state.Gates.ExplainCharacter(targetKey);
+        if (atoms.Count == 0)
+            return _state.Gates.IsCharacterAvailable(targetKey)
+                ? displayName
+                : $"{displayName}\nUnavailable";
+        var descriptions = new string[atoms.Count];
+        for (int i = 0; i < atoms.Count; i++)
+            descriptions[i] = _state.Gates.Describe(atoms[i]);
+        return $"{displayName}\n{string.Join("\n", descriptions)}";
     }
 
     /// <summary>

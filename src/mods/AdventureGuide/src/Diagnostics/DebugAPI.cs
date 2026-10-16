@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text;
 using AdventureGuide.Data;
 using AdventureGuide.Navigation;
 using AdventureGuide.State;
@@ -105,6 +107,176 @@ public static class DebugAPI
 
     /// <summary>Dump the current world markers: type, name, sub-text, and spawn point.</summary>
     public static string DumpMarkers() => Markers?.Describe() ?? "Not initialized";
+
+    /// <summary>
+    /// Dump conditions for a character stable key, spawn:scene:x:y:z, or
+    /// scene|destination (destination scene, stable key, or display name).
+    /// </summary>
+    public static string DumpGate(string subject)
+    {
+        if (Data == null || State == null)
+            return "Not initialized";
+
+        subject = subject.Trim();
+        var lines = new StringBuilder();
+        if (Data.CharacterSpawns.TryGetValue(subject, out var characterSpawns))
+        {
+            lines.AppendLine($"Character: {subject}");
+            lines.AppendLine($"Available: {State.Gates.IsCharacterAvailable(subject)}");
+            foreach (var spawn in characterSpawns)
+            {
+                lines.AppendLine($"Spawn: {SpawnGateKey(spawn)}");
+                AppendGate(lines, spawn.Condition);
+            }
+            return lines.ToString();
+        }
+
+        if (TryParseSpawnGateKey(subject, out var scene, out var x, out var y, out var z))
+        {
+            foreach (var character in Data.CharacterSpawns)
+            {
+                foreach (var spawn in character.Value)
+                {
+                    if (
+                        !string.Equals(spawn.Scene, scene, StringComparison.OrdinalIgnoreCase)
+                        || Math.Abs(spawn.X - x) > 0.005f
+                        || Math.Abs(spawn.Y - y) > 0.005f
+                        || Math.Abs(spawn.Z - z) > 0.005f
+                    )
+                        continue;
+                    lines.AppendLine($"Spawn: {SpawnGateKey(spawn)}");
+                    lines.AppendLine($"Character: {character.Key}");
+                    lines.AppendLine($"Available: {State.Gates.IsSpawnAvailable(spawn)}");
+                    AppendGate(lines, spawn.Condition);
+                }
+            }
+            return lines.Length > 0 ? lines.ToString() : $"Spawn '{subject}' not found";
+        }
+
+        int separator = subject.IndexOf('|');
+        if (separator > 0 && separator < subject.Length - 1)
+        {
+            scene = subject.Substring(0, separator).Trim();
+            string destination = subject.Substring(separator + 1).Trim();
+            string? destinationKey = Data.ZoneLookup.TryGetValue(destination, out var zone)
+                ? zone.StableKey
+                : null;
+            foreach (var line in Data.ZoneLines)
+            {
+                if (
+                    !string.Equals(line.Scene, scene, StringComparison.OrdinalIgnoreCase)
+                    || !(
+                        string.Equals(
+                            line.DestinationZoneKey,
+                            destinationKey ?? destination,
+                            StringComparison.OrdinalIgnoreCase
+                        )
+                        || string.Equals(
+                            line.DestinationDisplay,
+                            destination,
+                            StringComparison.OrdinalIgnoreCase
+                        )
+                    )
+                )
+                    continue;
+                lines.AppendLine(
+                    $"Zone line: {line.Scene}|{line.DestinationZoneKey} ({line.DestinationDisplay})"
+                );
+                lines.AppendLine(
+                    FormattableString.Invariant(
+                        $"Position: {line.X:0.##}, {line.Y:0.##}, {line.Z:0.##}"
+                    )
+                );
+                AppendGate(lines, line.Condition);
+            }
+            return lines.Length > 0 ? lines.ToString() : $"Zone line '{subject}' not found";
+        }
+
+        return $"Gate subject '{subject}' not found. Use a character stable key, "
+            + "spawn:scene:x:y:z, or scene|destination.";
+    }
+
+    private static void AppendGate(StringBuilder lines, int? condition)
+    {
+        var gates = State!.Gates;
+        lines.AppendLine(
+            $"  Condition: {condition?.ToString(CultureInfo.InvariantCulture) ?? "(none)"}, available={gates.IsAvailable(condition)}"
+        );
+        if (!condition.HasValue)
+        {
+            lines.AppendLine("  Ungated");
+            return;
+        }
+        if (condition.Value < 0 || condition.Value >= Data!.Conditions.Count)
+        {
+            lines.AppendLine("  Condition index is unresolved");
+            return;
+        }
+
+        var groups = Data.Conditions[condition.Value];
+        lines.AppendLine($"  Groups: {groups.Count} (any group, all atoms)");
+        for (int i = 0; i < groups.Count; i++)
+        {
+            var group = groups[i];
+            bool held = true;
+            foreach (var atom in group)
+                held &= gates.Holds(atom);
+            lines.AppendLine($"  Group {i}: held={held}");
+            foreach (var atom in group)
+            {
+                lines.AppendLine(
+                    $"    {atom.Kind} ref={atom.Ref} slot={atom.Slot ?? "(none)"} held={gates.Holds(atom)}"
+                );
+                lines.AppendLine($"      {gates.Describe(atom)}");
+                if (atom.Kind is GateAtomKind.KeyHeld or GateAtomKind.ItemHeld)
+                {
+                    Data.GateItems.TryGetValue(atom.Ref, out var item);
+                    string? gameId = item?.GameId ?? atom.GameId;
+                    string onKeyring = string.IsNullOrEmpty(gameId)
+                        ? "(unresolved)"
+                        : gates.Facts.IsOnKeyring(gameId).ToString();
+                    lines.AppendLine(
+                        $"      Item: {item?.Name ?? atom.Ref}, game_id={gameId ?? "(unresolved)"}"
+                    );
+                    lines.AppendLine(
+                        $"      Inventory: {gates.Facts.ItemCount(atom.Ref)}, keyring={onKeyring}"
+                    );
+                }
+                else if (atom.Kind == GateAtomKind.RoomFurnished && atom.Slot != null)
+                    lines.AppendLine(
+                        $"      Room {atom.Slot}: {gates.Facts.FurnitureIn(atom.Slot) ?? "(empty)"}"
+                    );
+            }
+        }
+    }
+
+    private static string SpawnGateKey(AdventureGuide.Data.SpawnPoint spawn) =>
+        FormattableString.Invariant(
+            $"spawn:{spawn.Scene}:{spawn.X:0.##}:{spawn.Y:0.##}:{spawn.Z:0.##}"
+        );
+
+    private static bool TryParseSpawnGateKey(
+        string subject,
+        out string scene,
+        out float x,
+        out float y,
+        out float z
+    )
+    {
+        scene = "";
+        x = y = z = 0;
+        var parts = subject.Split(':');
+        if (
+            parts.Length != 5
+            || !string.Equals(parts[0], "spawn", StringComparison.OrdinalIgnoreCase)
+            || !float.TryParse(parts[2], NumberStyles.Float, CultureInfo.InvariantCulture, out x)
+            || !float.TryParse(parts[3], NumberStyles.Float, CultureInfo.InvariantCulture, out y)
+            || !float.TryParse(parts[4], NumberStyles.Float, CultureInfo.InvariantCulture, out z)
+        )
+            return false;
+        scene = parts[1];
+        return true;
+    }
 
     /// <summary>Dump full details for a specific quest by DB name or display name.</summary>
     public static string DumpQuest(string name)

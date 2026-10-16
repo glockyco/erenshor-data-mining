@@ -287,7 +287,7 @@ public sealed class WorkflowCycleStateTests
                         Type = "vendor",
                         Name = "Unlocked Seller",
                         SourceKey = "character:unlocked seller",
-                        RequiredQuestDBNames = ["GateQuest"],
+                        Condition = 0,
                         Instruction = "Buy Test Token.",
                     },
                     new ItemSource
@@ -304,11 +304,15 @@ public sealed class WorkflowCycleStateTests
 
         Assert.Equal(
             "character:initial seller",
-            StepSceneResolver.FindFirstSourceKey(quest, obtain, _ => false)
+            StepSceneResolver.FindFirstSourceKey(
+                quest,
+                obtain,
+                isSourceAvailable: source => source.Condition == null
+            )
         );
         Assert.Equal(
             "character:unlocked seller",
-            StepSceneResolver.FindFirstSourceKey(quest, obtain, _ => true)
+            StepSceneResolver.FindFirstSourceKey(quest, obtain, isSourceAvailable: _ => true)
         );
     }
 }

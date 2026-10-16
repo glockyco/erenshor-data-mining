@@ -2,7 +2,7 @@ from erenshor.application.guide.compiler import compile_graph
 from erenshor.application.guide.graph import EntityGraph
 from erenshor.application.guide.graph_validation import _best_interaction_zone_key, _estimate_quest_level
 from erenshor.application.guide.mod_writer import build_mod_guide
-from erenshor.application.guide.schema import Edge, EdgeType, Node, NodeType
+from erenshor.application.guide.schema import AtomKind, Edge, EdgeType, Gate, GateAtom, Node, NodeType, SubjectKind
 
 
 def _member(graph: EntityGraph, key: str, item: str, slot: str) -> None:
@@ -23,6 +23,9 @@ def _member(graph: EntityGraph, key: str, item: str, slot: str) -> None:
     )
     graph.add_edge(Edge(key, spawn, EdgeType.HAS_SPAWN))
     graph.add_edge(Edge("quest:test", key, EdgeType.COMPLETED_BY))
+    graph.add_gate(
+        Gate(SubjectKind.SPAWN_POINT, spawn, "furnishing", ((GateAtom(AtomKind.ROOM_FURNISHED, item, slot),),))
+    )
 
 
 def test_single_set_group_merges_prefab_and_deduplicates_edges() -> None:
@@ -53,11 +56,11 @@ def test_multiple_sets_preserve_distinct_vendor_stock() -> None:
     assert not graph.out_edges("character:vendor@item:wood", EdgeType.SELLS_ITEM)
 
 
-def test_ungated_zone_level_and_completion_preferred_and_spawn_fields_emitted() -> None:
+def test_ungated_zone_level_and_completion_preferred_and_furnishing_condition_emitted() -> None:
     graph = EntityGraph()
     quest = Node("quest:test", NodeType.QUEST, "Test", db_name="TEST")
     graph.add_node(quest)
-    graph.add_node(Node("item:smithy", NodeType.ITEM, "Smithy Set"))
+    graph.add_node(Node("item:smithy", NodeType.ITEM, "Smithy Set", game_id="123"))
     _member(graph, "character:golem:reliquary:1:2:3", "item:smithy", "L1")
     graph.add_node(Node("character:world", NodeType.CHARACTER, "World", zone_key="zone:world"))
     graph.add_edge(Edge(quest.key, "character:world", EdgeType.COMPLETED_BY))
@@ -70,6 +73,8 @@ def test_ungated_zone_level_and_completion_preferred_and_spawn_fields_emitted() 
     guide = build_mod_guide(graph, compile_graph(graph))
     assert guide["_furniture_sets"] == {"item:smithy": {"display_name": "Smithy Set"}}
     spawn = guide["_character_spawns"]["character:golem"][0]
-    assert spawn["furniture_item_stable_key"] == "item:smithy"
-    assert spawn["furniture_slot"] == "L1"
+    assert guide["_conditions"][spawn["condition"]] == [
+        [{"kind": "room_furnished", "ref": "item:smithy", "slot": "L1"}]
+    ]
+    assert guide["_gate_items"]["item:smithy"]["game_id"] == "123"
     assert guide["quests"][0]["completion"][0]["source_stable_key"] == "character:world"

@@ -3,18 +3,31 @@
 from __future__ import annotations
 
 from erenshor.application.guide.graph import EntityGraph
-from erenshor.application.guide.schema import Edge, Node, NodeType
+from erenshor.application.guide.schema import AtomKind, Edge, Gate, GateAtom, Node, NodeType, SubjectKind
 
 
-def build_graph(*nodes: Node, edges: list[Edge] | None = None) -> EntityGraph:
+def build_graph(*nodes: Node, edges: list[Edge] | None = None, gates: list[Gate] | None = None) -> EntityGraph:
     """Build and index a graph from the supplied synthetic entities."""
     graph = EntityGraph()
     for node in nodes:
         graph.add_node(node)
     for edge in edges or []:
         graph.add_edge(edge)
+    for gate in gates or []:
+        graph.add_gate(gate)
     graph.build_indexes()
     return graph
+
+
+def quest_gate(kind: SubjectKind, subject: str, *groups: tuple[str, ...], item: str | None = None) -> Gate:
+    """A gate that opens once every quest of one of its groups is complete."""
+    return Gate(
+        subject_kind=kind,
+        subject_key=subject,
+        gate="activation",
+        groups=tuple(tuple(GateAtom(AtomKind.QUEST_DONE, quest) for quest in group) for group in groups),
+        item_key=item,
+    )
 
 
 def quest_node(key: str, db_name: str | None = None, **kwargs: object) -> Node:

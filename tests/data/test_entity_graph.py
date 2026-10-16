@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, ClassVar
 
 import pytest
 
-from erenshor.application.guide.schema import EdgeType, NodeType
+from erenshor.application.guide.schema import AtomKind, EdgeType, GateAtom, NodeType, SubjectKind
 
 if TYPE_CHECKING:
     from erenshor.application.guide.graph import EntityGraph
@@ -183,8 +183,10 @@ class TestAnglerRingChain:
         assert len(edges) == 1
 
     def test_unlocks_bassle(self, graph: EntityGraph) -> None:
-        edges = graph.out_edges("quest:anglerring", EdgeType.UNLOCKS_CHARACTER)
-        assert any("bassle" in e.target for e in edges)
+        gates = graph.gates_for(SubjectKind.CHARACTER, "character:bassle wavebreak")
+        assert any(
+            GateAtom(AtomKind.QUEST_DONE, "quest:anglerring") in group for gate in gates for group in gate.groups
+        )
 
     def test_is_implicit(self, graph: EntityGraph) -> None:
         """Angler's Ring has no acquisition source — it's implicit."""
@@ -214,19 +216,11 @@ class TestImplicitQuests:
 
 
 class TestZoneLineUnlocks:
-    """Verify zone line unlock edges."""
+    """Verify zone line gates."""
 
-    def test_stowaway_to_hidden_unlocked(self, graph: EntityGraph) -> None:
-        """The Stowaway→Hidden zone line has incoming unlock edges."""
-        zl_key = "zoneline:stowaway:hidden:424.04:10.79:820.42"
-        unlock_edges = graph.in_edges(zl_key, EdgeType.UNLOCKS_ZONE_LINE)
-        assert len(unlock_edges) > 0, "Expected unlock edges on Stowaway→Hidden zone line"
-
-    def test_unlock_edges_have_groups(self, graph: EntityGraph) -> None:
-        """Zone line unlock edges should have group for AND/OR semantics."""
-        unlock_edges = [e for e in graph.all_edges() if e.type == EdgeType.UNLOCKS_ZONE_LINE]
-        with_group = [e for e in unlock_edges if e.group is not None]
-        assert len(with_group) > 0, "Expected some unlock edges to have groups"
+    def test_stowaway_to_hidden_needs_a_way_to_erenshor(self, graph: EntityGraph) -> None:
+        gates = graph.gates_for(SubjectKind.ZONE_LINE, "zoneline:stowaway:hidden:424.04:10.79:820.42")
+        assert any(atom.ref == "quest:a way to erenshor" for gate in gates for group in gate.groups for atom in group)
 
 
 class TestCharacterSpawns:

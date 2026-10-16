@@ -87,6 +87,11 @@ resources/
    renders the GPS arrow, optional ground path, and floating world markers above
    quest-relevant NPCs.
 
+Gate availability is shared by quest sources, spawns, and zone routes. The guide
+uses live quest, inventory, keyring, and room furniture state to evaluate access.
+Locked sources and zone lines show the missing requirements, with quest links
+where available.
+
 ## Data Pipeline
 
 `uv run erenshor guide export-mod` reads the selected variant's clean database,

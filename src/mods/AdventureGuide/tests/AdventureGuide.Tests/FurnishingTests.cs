@@ -1,104 +1,86 @@
 using AdventureGuide.Data;
+using AdventureGuide.State;
 
 namespace AdventureGuide.Tests;
 
 public sealed class FurnishingTests
 {
     private const string StoneVendor = "item:furniture - stone vendor";
-    private const string WoodVendor = "item:furniture - wood vendor";
-
-    private sealed class Rooms : IFurnitureSlots
-    {
-        private readonly Dictionary<string, string> _items = new();
-
-        public Rooms With(string slot, string itemKey)
-        {
-            _items[slot] = itemKey;
-            return this;
-        }
-
-        public string? ItemKeyIn(string slot) => _items.TryGetValue(slot, out var key) ? key : null;
-    }
-
-    private static SpawnPoint Furnishing(string slot, string set) =>
-        new()
-        {
-            Scene = "Reliquary",
-            FurnitureSlot = slot,
-            FurnitureItemStableKey = set,
-        };
 
     [Fact]
-    public void A_furnishing_stands_only_where_its_room_holds_its_set()
+    public void A_furnishing_requires_its_set_in_its_specific_room()
     {
-        var spawn = Furnishing("L2", StoneVendor);
-
-        Assert.False(FurnishingPolicy.IsPresent(spawn, new Rooms()));
-        Assert.False(FurnishingPolicy.IsPresent(spawn, new Rooms().With("L1", StoneVendor)));
-        Assert.False(FurnishingPolicy.IsPresent(spawn, new Rooms().With("L2", WoodVendor)));
-        Assert.True(FurnishingPolicy.IsPresent(spawn, new Rooms().With("L2", StoneVendor)));
-        // Game item keys and guide keys differ only in case conventions.
-        Assert.True(
-            FurnishingPolicy.IsPresent(
-                spawn,
-                new Rooms().With("L2", "item:Furniture - Stone Vendor")
-            )
-        );
-        Assert.True(FurnishingPolicy.IsPresent(new SpawnPoint { Scene = "Hidden" }, new Rooms()));
-    }
-
-    [Fact]
-    public void A_character_is_absent_until_one_of_its_rooms_holds_its_set()
-    {
-        var spawns = new List<SpawnPoint>
-        {
-            Furnishing("L1", StoneVendor),
-            Furnishing("R4", StoneVendor),
-        };
-
-        Assert.Equal(FurnishingStatus.Absent, FurnishingPolicy.StatusOf(spawns, new Rooms()));
-        Assert.Equal(
-            FurnishingStatus.Present,
-            FurnishingPolicy.StatusOf(spawns, new Rooms().With("R4", StoneVendor))
-        );
-        // A prefab merged into the group with a spawn of its own exists anyway.
-        spawns.Add(new SpawnPoint { Scene = "Azure" });
-        Assert.Equal(FurnishingStatus.Ungated, FurnishingPolicy.StatusOf(spawns, new Rooms()));
-        Assert.Equal(FurnishingStatus.Ungated, FurnishingPolicy.StatusOf(null, new Rooms()));
-    }
-
-    [Fact]
-    public void Requirement_names_each_set_once()
-    {
-        Assert.Equal(
-            "Requires Stone Vendor Set or Wood Vendor Set in a Reliquary room",
-            FurnishingPolicy.RequirementText(
-                new[] { "Stone Vendor Set", "Wood Vendor Set", "Stone Vendor Set" }
-            )
-        );
-    }
-
-    [Fact]
-    public void Scene_resolution_skips_an_absent_furnishing_source()
-    {
-        // Bread's cheapest source is a Pocket Vendor; without the set in a
-        // room the tracker must name the next source's zone, not the Reliquary.
         var data = GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 6,
+                Version = 7,
                 Quests = [],
-                CharacterSpawns = new Dictionary<string, List<SpawnPoint>>
+                Conditions =
+                [
+                    [
+                        [
+                            new GateAtom
+                            {
+                                Kind = GateAtomKind.RoomFurnished,
+                                Ref = StoneVendor,
+                                Slot = "L2",
+                            },
+                        ],
+                    ],
+                ],
+                GateItems = new()
                 {
-                    ["character:a rift vendor@" + StoneVendor] = [Furnishing("L1", StoneVendor)],
-                    ["character:shopkeeper"] = [new SpawnPoint { Scene = "Stowaway" }],
-                },
-                FurnitureSets = new Dictionary<string, FurnitureSetInfo>
-                {
-                    [StoneVendor] = new() { DisplayName = "Stone Vendor Set" },
+                    [StoneVendor] = new GateItem { Name = "Stone Vendor Set", GameId = "stone" },
                 },
             }
         );
+        var facts = new GateTestFacts();
+        var gates = new GateConditions(data, facts);
+        var spawn = new SpawnPoint { Scene = "Reliquary", Condition = 0 };
+
+        Assert.False(gates.IsSpawnAvailable(spawn));
+        facts.Rooms["L1"] = StoneVendor;
+        Assert.False(gates.IsSpawnAvailable(spawn));
+        facts.Rooms["L2"] = "item:furniture - wood vendor";
+        Assert.False(gates.IsSpawnAvailable(spawn));
+        facts.Rooms["L2"] = StoneVendor;
+        Assert.True(gates.IsSpawnAvailable(spawn));
+        Assert.True(gates.IsSpawnAvailable(new SpawnPoint { Scene = "Hidden" }));
+    }
+
+    [Fact]
+    public void Scene_resolution_skips_a_source_without_a_furnished_placement()
+    {
+        var data = GuideData.FromWrapper(
+            new GuideWrapper
+            {
+                Version = 7,
+                Quests = [],
+                Conditions =
+                [
+                    [
+                        [
+                            new GateAtom
+                            {
+                                Kind = GateAtomKind.RoomFurnished,
+                                Ref = StoneVendor,
+                                Slot = "L1",
+                            },
+                        ],
+                    ],
+                ],
+                GateItems = new()
+                {
+                    [StoneVendor] = new GateItem { Name = "Stone Vendor Set", GameId = "stone" },
+                },
+                CharacterSpawns = new()
+                {
+                    ["character:vendor"] = [new SpawnPoint { Scene = "Reliquary", Condition = 0 }],
+                    ["character:shopkeeper"] = [new SpawnPoint { Scene = "Stowaway" }],
+                },
+            }
+        );
+        var gates = new GateConditions(data, new GateTestFacts());
         var step = new QuestStep { TargetType = "item", TargetName = "Bread" };
         var quest = new QuestEntry
         {
@@ -109,7 +91,7 @@ public sealed class FurnishingTests
                     ItemName = "Bread",
                     Sources =
                     [
-                        new ItemSource { SourceKey = "character:a rift vendor@" + StoneVendor },
+                        new ItemSource { SourceKey = "character:vendor" },
                         new ItemSource { SourceKey = "character:shopkeeper" },
                     ],
                 },
@@ -123,7 +105,7 @@ public sealed class FurnishingTests
                 quest,
                 step,
                 data,
-                isSourceAvailable: key => !key.Contains('@')
+                isSourceAvailable: gates.IsSourceAvailable
             )
         );
         Assert.False(
@@ -132,38 +114,34 @@ public sealed class FurnishingTests
                 step,
                 data,
                 "Reliquary",
-                isSourceAvailable: key => !key.Contains('@')
+                isSourceAvailable: gates.IsSourceAvailable
             )
         );
     }
 
     [Theory]
-    [InlineData("L2", null)]
-    [InlineData(null, StoneVendor)]
-    [InlineData("L2", "item:furniture - missing")]
-    [InlineData("Statue", StoneVendor)]
-    public void Loading_rejects_incomplete_furnishing_spawns(string? slot, string? set)
+    [InlineData(null)]
+    [InlineData("Statue")]
+    public void Loading_rejects_unknown_room_slots(string? slot)
     {
         var wrapper = new GuideWrapper
         {
-            Version = 6,
+            Version = 7,
             Quests = [],
-            CharacterSpawns = new Dictionary<string, List<SpawnPoint>>
-            {
-                ["character:a rift vendor"] =
+            Conditions =
+            [
                 [
-                    new SpawnPoint
-                    {
-                        Scene = "Reliquary",
-                        FurnitureSlot = slot,
-                        FurnitureItemStableKey = set,
-                    },
+                    [
+                        new GateAtom
+                        {
+                            Kind = GateAtomKind.RoomFurnished,
+                            Ref = StoneVendor,
+                            Slot = slot,
+                        },
+                    ],
                 ],
-            },
-            FurnitureSets = new Dictionary<string, FurnitureSetInfo>
-            {
-                [StoneVendor] = new() { DisplayName = "Stone Vendor Set" },
-            },
+            ],
+            GateItems = new() { [StoneVendor] = new GateItem { GameId = "stone" } },
         };
 
         Assert.Throws<InvalidDataException>(() => GuideData.FromWrapper(wrapper));

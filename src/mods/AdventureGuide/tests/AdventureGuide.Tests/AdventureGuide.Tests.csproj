@@ -46,6 +46,8 @@
         <Compile Include="../../src/Data/QuestEntry.cs" Link="Data/QuestEntry.cs" />
         <Compile Include="../../src/Data/CharacterStableKey.cs" Link="Data/CharacterStableKey.cs" />
         <Compile Include="../../src/Data/FurnishingPolicy.cs" Link="Data/FurnishingPolicy.cs" />
+        <Compile Include="../../src/Data/GateAtom.cs" Link="Data/GateAtom.cs" />
+        <Compile Include="../../src/State/GateConditions.cs" Link="State/GateConditions.cs" />
         <Compile Include="../../src/Data/ItemSourcePolicy.cs" Link="Data/ItemSourcePolicy.cs" />
         <Compile Include="../../src/State/TreasureHuntState.cs" Link="State/TreasureHuntState.cs" />
         <Compile Include="../../src/Data/StepSceneResolver.cs" Link="Data/StepSceneResolver.cs" />

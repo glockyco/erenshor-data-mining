@@ -17,7 +17,7 @@ from dataclasses import astuple, replace
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .schema import Edge, EdgeType, Node, NodeType
+    from .schema import Edge, EdgeType, Gate, Node, NodeType, SubjectKind
 
 
 class EntityGraph:
@@ -34,13 +34,17 @@ class EntityGraph:
         graph.out_edges("quest:anglerring", EdgeType.REQUIRES_ITEM)
     """
 
-    __slots__ = ("_edges", "_in", "_nodes", "_out")
+    __slots__ = ("_edges", "_gates", "_gates_by_subject", "_in", "_nodes", "_out", "_quest_db_names")
 
     def __init__(self) -> None:
         self._nodes: dict[str, Node] = {}
         self._edges: list[Edge] = []
         self._out: dict[str, list[Edge]] = defaultdict(list)
         self._in: dict[str, list[Edge]] = defaultdict(list)
+        self._gates: list[Gate] = []
+        self._gates_by_subject: dict[tuple[SubjectKind, str, str | None], list[Gate]] = defaultdict(list)
+        # Gates can name quests that the guide leaves out, such as hidden marker quests.
+        self._quest_db_names: dict[str, str] = {}
 
     # -- Mutation (build phase) --
 
@@ -54,9 +58,18 @@ class EntityGraph:
         """Append an edge.  Nodes need not exist yet."""
         self._edges.append(edge)
 
+    def add_gate(self, gate: Gate) -> None:
+        """Add a gate. Gates on one subject combine with AND."""
+        self._gates.append(gate)
+        self._gates_by_subject[(gate.subject_kind, gate.subject_key, gate.item_key)].append(gate)
+
+    def add_quest_db_name(self, quest_key: str, db_name: str) -> None:
+        """Record the DB name of a quest that a gate names."""
+        self._quest_db_names[quest_key] = db_name
+
     def group_furnishing_characters(self) -> None:
         """Collapse room copies, keeping set-specific stock and every spawn."""
-        from .schema import EdgeType, NodeType
+        from .schema import EdgeType, NodeType, SubjectKind
 
         spawns: dict[str, list[Node]] = defaultdict(list)
         for edge in self._edges:
@@ -101,6 +114,16 @@ class EntityGraph:
             )
             deduped[astuple(rewritten)] = rewritten
         self._edges = list(deduped.values())
+        gates: dict[Gate, None] = {}
+        for gate in self._gates:
+            renamed = gate
+            if gate.subject_kind in (SubjectKind.CHARACTER, SubjectKind.VENDOR_ITEM):
+                renamed = replace(gate, subject_key=replacements.get(gate.subject_key, gate.subject_key))
+            gates[renamed] = None
+        self._gates = []
+        self._gates_by_subject = defaultdict(list)
+        for gate in gates:
+            self.add_gate(gate)
         for key, group_key in replacements.items():
             if key != group_key:
                 del self._nodes[key]
@@ -158,6 +181,21 @@ class EntityGraph:
         for node in self._nodes.values():
             if node.type == node_type:
                 yield node
+
+    def all_gates(self) -> Iterable[Gate]:
+        return iter(self._gates)
+
+    def gates_for(self, kind: SubjectKind, key: str, item_key: str | None = None) -> list[Gate]:
+        return self._gates_by_subject.get((kind, key, item_key), [])
+
+    def quest_db_name(self, quest_key: str) -> str:
+        """DB name of a quest that a gate names, which the game's state is keyed by."""
+        node = self._nodes.get(quest_key)
+        if node is not None and node.db_name:
+            return node.db_name
+        if quest_key not in self._quest_db_names:
+            raise ValueError(f"no DB name for quest {quest_key!r}")
+        return self._quest_db_names[quest_key]
 
     def out_edges(self, key: str, edge_type: EdgeType | None = None) -> list[Edge]:
         """Outgoing edges from ``key``, optionally filtered by type."""

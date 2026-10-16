@@ -27,6 +27,7 @@ public sealed class QuestDetailPanel
     private readonly List<(string Text, bool Secondary)> _rewardLines = new();
     private readonly List<(Prerequisite Prerequisite, string Label)> _prerequisites = new();
     private readonly Dictionary<QuestStep, ZoneLineAlternativeLabels> _zoneLineLabels = new();
+    private readonly Dictionary<ZoneLineEntry, List<GateRequirement>> _zoneRequirements = new();
     private HashSet<string>? _stepTreeQuestKeys;
     private DisplayCacheRevision _displayCacheRevision;
     private string? _levelZoneLine;
@@ -302,12 +303,7 @@ public sealed class QuestDetailPanel
         ImGui.Text(display.Text);
         ImGui.PopStyleColor();
 
-        if (display.Requirement != null)
-        {
-            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-            ImGui.Text(display.Requirement);
-            ImGui.PopStyleColor();
-        }
+        DrawGateRequirements(display.Requirements);
 
         // Drop/vendor sources and tips for collect steps
         DrawStepSources(step, quest, visited);
@@ -463,30 +459,14 @@ public sealed class QuestDetailPanel
                     ImGui.TextUnformatted(row.Text);
                     ImGui.PopStyleVar();
 
-                    // Required quests as clickable links on the next line
-                    if (line.RequiredQuestGroups != null)
+                    if (!_zoneRequirements.TryGetValue(line, out var requirements))
                     {
-                        foreach (var group in line.RequiredQuestGroups)
-                        {
-                            foreach (var questDBName in group)
-                            {
-                                if (_state.IsGameQuestCompleted(questDBName))
-                                    continue;
-                                var entry = _data.GetByDBName(questDBName);
-                                if (entry == null)
-                                    continue;
-                                ImGui.Indent();
-                                if (
-                                    ImGui.Selectable(
-                                        row.Requirement(entry.DisplayName, questDBName)
-                                    )
-                                )
-                                    _state.SelectQuest(entry);
-                                ImGui.Unindent();
-                            }
-                            break; // show only the first group
-                        }
+                        requirements = CacheGateRequirements(_state.Gates.Explain(line.Condition));
+                        _zoneRequirements.Add(line, requirements);
                     }
+                    ImGui.PushID(i);
+                    DrawGateRequirements(requirements);
+                    ImGui.PopID();
                 }
                 else
                 {
@@ -523,11 +503,20 @@ public sealed class QuestDetailPanel
         bool allowNavigation = true
     )
     {
-        if (!IsSourceAvailable(src))
-            return;
+        var available = IsSourceAvailable(src);
         // Consistent format: {what}  ·  {where}  ·  Lv {N}
         var display = _questDisplay[quest].Steps[step].Sources[(src, depth)];
         string label = display.Label;
+        if (!available)
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.SourceDimmed);
+            ImGui.TextUnformatted(label);
+            ImGui.PopStyleColor();
+            ImGui.PushID(display.ChildrenLabel);
+            DrawGateRequirements(display.Requirements);
+            ImGui.PopID();
+            return;
+        }
 
         // Quest reward with a resolvable sub-quest: render its steps inline
         if (allowNavigation && src.Type == "quest_reward" && src.QuestKey != null)
@@ -540,6 +529,9 @@ public sealed class QuestDetailPanel
             )
             {
                 DrawQuestRewardTree(subQuest, display, visited);
+                ImGui.PushID(display.ChildrenLabel);
+                DrawGateRequirements(display.Requirements);
+                ImGui.PopID();
                 return;
             }
         }
@@ -617,6 +609,9 @@ public sealed class QuestDetailPanel
             ImGui.TextUnformatted(label);
             ImGui.PopStyleColor();
         }
+        ImGui.PushID(display.ChildrenLabel);
+        DrawGateRequirements(display.Requirements);
+        ImGui.PopID();
         if (src.Type != "vendor" && src.Instruction != null)
         {
             ImGui.Indent();
@@ -859,11 +854,7 @@ public sealed class QuestDetailPanel
         public string? MoreSourcesLabel;
         public string? SubQuestLabel;
 
-        /// <summary>
-        /// The indented requirement line for an absent furnishing target, built
-        /// with the cache so drawing does not allocate.
-        /// </summary>
-        public string? Requirement;
+        public List<GateRequirement>? Requirements;
         public bool HasRequiredQuantity;
         public bool Navigable;
         public readonly List<ItemSource> VisibleSources = new();
@@ -881,6 +872,54 @@ public sealed class QuestDetailPanel
         public string? OpenQuestLabel;
         public string AddTooltip = "";
         public string RemoveTooltip = "";
+        public List<GateRequirement>? Requirements;
+    }
+
+    private sealed class GateRequirement
+    {
+        public string Text = "";
+        public QuestEntry? Quest;
+    }
+
+    private List<GateRequirement> CacheGateRequirements(IReadOnlyList<GateAtom> atoms)
+    {
+        var requirements = new List<GateRequirement>(atoms.Count);
+        foreach (var atom in atoms)
+        {
+            requirements.Add(
+                new GateRequirement
+                {
+                    Text = _state.Gates.Describe(atom),
+                    Quest = atom.Kind is GateAtomKind.QuestDone or GateAtomKind.QuestNotDone
+                        ? _data.GetByDBName(atom.Ref)
+                        : null,
+                }
+            );
+        }
+        return requirements;
+    }
+
+    private void DrawGateRequirements(List<GateRequirement>? requirements)
+    {
+        if (requirements == null || requirements.Count == 0)
+            return;
+        ImGui.Indent();
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+        for (int i = 0; i < requirements.Count; i++)
+        {
+            var requirement = requirements[i];
+            if (requirement.Quest is QuestEntry quest)
+            {
+                ImGui.PushID(i);
+                if (ImGui.Selectable(requirement.Text))
+                    _state.SelectQuest(quest);
+                ImGui.PopID();
+            }
+            else
+                ImGui.TextWrapped(requirement.Text);
+        }
+        ImGui.PopStyleColor();
+        ImGui.Unindent();
     }
 
     /// <summary>
@@ -892,6 +931,7 @@ public sealed class QuestDetailPanel
     {
         _questDisplay.Clear();
         _zoneLineLabels.Clear();
+        _zoneRequirements.Clear();
         _visited.Clear();
         _acquisitionLines.Clear();
         _completionLines.Clear();
@@ -1164,10 +1204,13 @@ public sealed class QuestDetailPanel
         else if (step.TargetType == "character")
         {
             display.Navigable =
-                step.TargetKey != null && _data.CharacterSpawns.ContainsKey(step.TargetKey);
-            var requirement = _state.Furnishings.RequirementText(step.TargetKey);
-            if (requirement != null)
-                display.Requirement = "     " + requirement;
+                step.TargetKey != null
+                && _data.CharacterSpawns.ContainsKey(step.TargetKey)
+                && _state.Gates.IsCharacterAvailable(step.TargetKey);
+            if (step.TargetKey != null)
+                display.Requirements = CacheGateRequirements(
+                    _state.Gates.ExplainCharacter(step.TargetKey)
+                );
         }
         else if (step.TargetType == "zone")
             display.Navigable = step.ZoneName != null || step.TargetKey != null;
@@ -1180,8 +1223,6 @@ public sealed class QuestDetailPanel
         {
             foreach (var source in sources)
             {
-                if (!IsSourceAvailable(source))
-                    continue;
                 display.VisibleSources.Add(source);
                 CacheSourceLabels(source, step, display);
             }
@@ -1228,6 +1269,11 @@ public sealed class QuestDetailPanel
                     ? "Navigate to the active treasure dig site."
                     : $"Remove from navigation: {src.Name ?? src.Zone ?? src.Scene}",
         };
+        display.Requirements = CacheGateRequirements(_state.Gates.Explain(src.Condition));
+        if (src.SourceKey != null)
+            display.Requirements.AddRange(
+                CacheGateRequirements(_state.Gates.ExplainCharacter(src.SourceKey))
+            );
         if (display.SourceId != null)
             display.SelectableLabel =
                 $"{label}##src_{step.Order}_{depth}_{display.SourceId}_{src.Level}_{src.LevelMax}";
@@ -1249,19 +1295,7 @@ public sealed class QuestDetailPanel
 
     // ── Helpers ──────────────────────────────────────────────────────
 
-    private bool IsSourceAvailable(ItemSource source)
-    {
-        if (source.RequiredQuestDBNames != null)
-        {
-            foreach (var dbName in source.RequiredQuestDBNames)
-            {
-                if (!_state.IsGameQuestCompleted(dbName))
-                    return false;
-            }
-        }
-        // A furnishing that no Reliquary room holds sells and gives nothing.
-        return source.SourceKey == null || _state.Furnishings.IsAvailable(source.SourceKey);
-    }
+    private bool IsSourceAvailable(ItemSource source) => _state.Gates.IsSourceAvailable(source);
 
     private bool HasNavigableSource(ItemSource s)
     {

@@ -2,13 +2,13 @@ namespace AdventureGuide.Navigation;
 
 public static class ZoneLineText
 {
-    public static string Format(string destination, bool locked, string? requiredQuest)
+    public static string Format(string destination, bool locked, string? requirement)
     {
         var text = $"To: {destination}";
         if (!locked)
             return text;
-        return string.IsNullOrWhiteSpace(requiredQuest)
+        return string.IsNullOrWhiteSpace(requirement)
             ? text + "\nRoute locked"
-            : text + $"\nRequires: Complete \"{requiredQuest}\"";
+            : text + "\n" + requirement;
     }
 }

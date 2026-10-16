@@ -11,18 +11,15 @@ public static class StepSceneResolver
 {
     /// <summary>
     /// Resolve the scene name for a specific quest step.
-    /// Tries step.ZoneName → target spawn location → item source NPC location.
+    /// Tries the step zone, target spawn location, then item source location.
     /// Returns null when the scene cannot be determined. Sources failing
-    /// <paramref name="isQuestCompleted"/> (quest-unlocked vendor stock) or
-    /// <paramref name="isSourceAvailable"/> (a furnishing no Reliquary room
-    /// holds) are skipped.
+    /// <paramref name="isSourceAvailable"/> are skipped.
     /// </summary>
     public static string? ResolveScene(
         QuestEntry quest,
         QuestStep step,
         GuideData data,
-        Func<string, bool>? isQuestCompleted = null,
-        Func<string, bool>? isSourceAvailable = null,
+        Func<ItemSource, bool>? isSourceAvailable = null,
         Func<string, int>? countItem = null
     )
     {
@@ -48,13 +45,7 @@ public static class StepSceneResolver
         }
 
         // For item steps, check source NPC spawns or zone-level sources
-        var sourceKey = FindFirstSourceKey(
-            quest,
-            step,
-            isQuestCompleted,
-            isSourceAvailable,
-            countItem
-        );
+        var sourceKey = FindFirstSourceKey(quest, step, isSourceAvailable, countItem);
         if (sourceKey != null)
         {
             if (PositionedSource.TryParse(sourceKey, out var positioned))
@@ -78,8 +69,7 @@ public static class StepSceneResolver
     public static string? FindFirstSourceKey(
         QuestEntry quest,
         QuestStep step,
-        Func<string, bool>? isQuestCompleted = null,
-        Func<string, bool>? isSourceAvailable = null,
+        Func<ItemSource, bool>? isSourceAvailable = null,
         Func<string, int>? countItem = null
     )
     {
@@ -88,13 +78,12 @@ public static class StepSceneResolver
         var sources = ItemSourcePolicy.SourcesFor(quest, step);
         return sources == null
             ? null
-            : FindFirstLeafSourceKey(sources, isQuestCompleted, isSourceAvailable, countItem);
+            : FindFirstLeafSourceKey(sources, isSourceAvailable, countItem);
     }
 
     private static string? FindFirstLeafSourceKey(
         List<ItemSource> sources,
-        Func<string, bool>? isQuestCompleted,
-        Func<string, bool>? isSourceAvailable,
+        Func<ItemSource, bool>? isSourceAvailable,
         Func<string, int>? countItem
     )
     {
@@ -105,11 +94,7 @@ public static class StepSceneResolver
                 || !ItemSourcePolicy.NeedsUsedItem(src, countItem)
             )
                 continue;
-            if (
-                isQuestCompleted != null
-                && src.RequiredQuestDBNames != null
-                && !src.RequiredQuestDBNames.All(isQuestCompleted)
-            )
+            if (isSourceAvailable != null && !isSourceAvailable(src))
                 continue;
 
             // Container keys describe a reward or used item, not a spawn.
@@ -118,32 +103,18 @@ public static class StepSceneResolver
                 var childKey =
                     src.Children == null
                         ? null
-                        : FindFirstLeafSourceKey(
-                            src.Children,
-                            isQuestCompleted,
-                            isSourceAvailable,
-                            countItem
-                        );
+                        : FindFirstLeafSourceKey(src.Children, isSourceAvailable, countItem);
                 if (childKey != null)
                     return childKey;
                 continue;
             }
 
             if (src.SourceKey != null)
-            {
-                if (isSourceAvailable == null || isSourceAvailable(src.SourceKey))
-                    return src.SourceKey;
-                continue;
-            }
+                return src.SourceKey;
 
             if (src.Children != null)
             {
-                var childKey = FindFirstLeafSourceKey(
-                    src.Children,
-                    isQuestCompleted,
-                    isSourceAvailable,
-                    countItem
-                );
+                var childKey = FindFirstLeafSourceKey(src.Children, isSourceAvailable, countItem);
                 if (childKey != null)
                     return childKey;
             }
@@ -161,8 +132,7 @@ public static class StepSceneResolver
         QuestStep step,
         GuideData data,
         string scene,
-        Func<string, bool>? isQuestCompleted = null,
-        Func<string, bool>? isSourceAvailable = null,
+        Func<ItemSource, bool>? isSourceAvailable = null,
         Func<string, int>? countItem = null
     )
     {
@@ -175,27 +145,18 @@ public static class StepSceneResolver
                 string.Equals(sp.Scene, scene, StringComparison.OrdinalIgnoreCase)
             );
         if (step.TargetType != "item")
-            return ResolveScene(quest, step, data, isQuestCompleted, isSourceAvailable, countItem)
-                    is string s
+            return ResolveScene(quest, step, data, isSourceAvailable, countItem) is string s
                 && string.Equals(s, scene, System.StringComparison.OrdinalIgnoreCase);
         var sources = ItemSourcePolicy.SourcesFor(quest, step);
         return sources != null
-            && AnySourceInScene(
-                sources,
-                data,
-                scene,
-                isQuestCompleted,
-                isSourceAvailable,
-                countItem
-            );
+            && AnySourceInScene(sources, data, scene, isSourceAvailable, countItem);
     }
 
     private static bool AnySourceInScene(
         List<ItemSource> sources,
         GuideData data,
         string scene,
-        Func<string, bool>? isQuestCompleted,
-        Func<string, bool>? isSourceAvailable,
+        Func<ItemSource, bool>? isSourceAvailable,
         Func<string, int>? countItem
     )
     {
@@ -206,11 +167,7 @@ public static class StepSceneResolver
                 || !ItemSourcePolicy.NeedsUsedItem(src, countItem)
             )
                 continue;
-            if (
-                isQuestCompleted != null
-                && src.RequiredQuestDBNames != null
-                && !src.RequiredQuestDBNames.All(isQuestCompleted)
-            )
+            if (isSourceAvailable != null && !isSourceAvailable(src))
                 continue;
 
             // Container source keys are not the places their children come from.
@@ -218,23 +175,13 @@ public static class StepSceneResolver
             {
                 if (
                     src.Children != null
-                    && AnySourceInScene(
-                        src.Children,
-                        data,
-                        scene,
-                        isQuestCompleted,
-                        isSourceAvailable,
-                        countItem
-                    )
+                    && AnySourceInScene(src.Children, data, scene, isSourceAvailable, countItem)
                 )
                     return true;
                 continue;
             }
 
-            if (
-                src.SourceKey != null
-                && (isSourceAvailable == null || isSourceAvailable(src.SourceKey))
-            )
+            if (src.SourceKey != null)
             {
                 if (PositionedSource.TryParse(src.SourceKey, out var positioned))
                 {
@@ -264,14 +211,7 @@ public static class StepSceneResolver
             }
             if (
                 src.Children != null
-                && AnySourceInScene(
-                    src.Children,
-                    data,
-                    scene,
-                    isQuestCompleted,
-                    isSourceAvailable,
-                    countItem
-                )
+                && AnySourceInScene(src.Children, data, scene, isSourceAvailable, countItem)
             )
                 return true;
         }

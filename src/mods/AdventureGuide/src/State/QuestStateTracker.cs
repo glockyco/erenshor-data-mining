@@ -24,6 +24,7 @@ public sealed class QuestStateTracker
     );
     private bool _dirty = true;
     private NavigationHistory? _history;
+    private int _keyringCount;
 
     public int Version { get; private set; }
     public string CurrentZone { get; private set; } = "";
@@ -32,6 +33,7 @@ public sealed class QuestStateTracker
 
     /// <summary>The Reliquary rooms' furniture, which decides where furnishings stand.</summary>
     public ReliquaryFurnishings Furnishings { get; }
+    public GateConditions Gates { get; }
 
     internal TreasureHunt TreasureHunt { get; } = new();
     internal event Action<TreasureHuntChange>? TreasureHuntChanged;
@@ -57,7 +59,9 @@ public sealed class QuestStateTracker
         CountItemDelegate = CountItem;
         _gameState = gameState;
         Workflows = new GuideWorkflowState(data, entities);
-        Furnishings = new ReliquaryFurnishings(data);
+        Furnishings = new ReliquaryFurnishings();
+        Gates = new GateConditions(data, new GameGateFacts(this));
+        _keyringCount = GameData.Keyring?.Count ?? 0;
         Workflows.Changed += OnWorkflowChanged;
         Workflows.CycleReset += OnWorkflowCycleReset;
 
@@ -174,6 +178,12 @@ public sealed class QuestStateTracker
     public void Update(float deltaTime)
     {
         Workflows.Update(deltaTime, CountItemDelegate);
+        int keyringCount = GameData.Keyring?.Count ?? 0;
+        if (keyringCount != _keyringCount)
+        {
+            _keyringCount = keyringCount;
+            Version++;
+        }
         // A furnishing appears or vanishes with its room's set, which changes
         // which sources, targets and markers exist.
         if (Furnishings.Poll())

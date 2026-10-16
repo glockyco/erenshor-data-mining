@@ -86,7 +86,7 @@ public sealed class SpecialItemSourceTests
 
     private static void Validate(ItemSource source)
     {
-        GuideData.ValidateWrapper(new GuideWrapper { Version = 6, Quests = [Quest([source])] });
+        GuideData.ValidateWrapper(new GuideWrapper { Version = 7, Quests = [Quest([source])] });
     }
 
     [Fact]
@@ -165,7 +165,7 @@ public sealed class SpecialItemSourceTests
         quest.RequiredItems = null;
         quest.Steps![0].Sources = [WorldDrop(null)];
         Assert.Throws<InvalidDataException>(() =>
-            GuideData.ValidateWrapper(new GuideWrapper { Version = 6, Quests = [quest] })
+            GuideData.ValidateWrapper(new GuideWrapper { Version = 7, Quests = [quest] })
         );
     }
 
@@ -204,7 +204,7 @@ public sealed class SpecialItemSourceTests
         var data = GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 6,
+                Version = 7,
                 Quests = [Quest([])],
                 CharacterSpawns = new Dictionary<string, List<SpawnPoint>>
                 {
@@ -287,7 +287,7 @@ public sealed class SpecialItemSourceTests
                 Scene = "Reliquary",
             },
         ]);
-        var data = GuideData.FromWrapper(new GuideWrapper { Version = 6, Quests = [quest] });
+        var data = GuideData.FromWrapper(new GuideWrapper { Version = 7, Quests = [quest] });
         Assert.Equal("reliquary", StepSceneResolver.ResolveScene(quest, quest.Steps![0], data));
         Assert.True(StepSceneResolver.HasSourceInScene(quest, quest.Steps[0], data, "Reliquary"));
     }

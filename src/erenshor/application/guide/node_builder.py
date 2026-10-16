@@ -142,7 +142,7 @@ def _add_quest_nodes(conn: sqlite3.Connection, graph: EntityGraph) -> None:
 
 def _add_item_nodes(conn: sqlite3.Connection, graph: EntityGraph) -> None:
     rows = conn.execute("""
-        SELECT stable_key, display_name, item_level, stackable, is_unique,
+        SELECT stable_key, id, display_name, item_level, stackable, is_unique,
                template, teach_spell_stable_key, assign_quest_on_read_stable_key,
                complete_on_read_stable_key, lore
         FROM items
@@ -155,6 +155,7 @@ def _add_item_nodes(conn: sqlite3.Connection, graph: EntityGraph) -> None:
                 type=NodeType.ITEM,
                 display_name=r["display_name"],
                 item_level=r["item_level"],
+                game_id=r["id"],
                 stackable=bool(r["stackable"]),
                 is_unique=bool(r["is_unique"]),
                 template=bool(r["template"]),

@@ -1,8 +1,9 @@
-"""Load manual nodes and edges from graph_overrides.toml.
+"""Load guide-only nodes, edges, and gates from graph_overrides.toml.
 
-Custom scripted relationships (Evadne/brazier, ward bosses, doors, etc.)
-cannot be auto-detected from DB data.  This module reads a TOML file
-with manual node and edge definitions and merges them into the graph.
+The file holds what the guide needs and no game data states, such as the
+Reliquary planning table as a pickup and scripted quest relationships. Facts
+that every consumer needs belong in the clean database instead: corrections
+in mapping.json and what doors guard in barriers.toml.
 """
 
 from __future__ import annotations
@@ -14,14 +15,13 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from .graph import EntityGraph
 
-from .schema import Edge, EdgeType, Node, NodeType
+from .schema import AtomKind, Edge, EdgeType, Gate, GateAtom, Node, NodeType, SubjectKind
 
 
 def merge_overrides(graph: EntityGraph, overrides_path: Path) -> None:
-    """Merge manual nodes and edges from a TOML file into the graph.
+    """Merge manual nodes, edges, and gates from a TOML file into the graph.
 
-    Silently skips if the file does not exist.  This lets the pipeline
-    run without overrides during early development.
+    Silently skips if the file does not exist.
     """
     if not overrides_path.exists():
         return
@@ -37,6 +37,9 @@ def merge_overrides(graph: EntityGraph, overrides_path: Path) -> None:
     for edge_data in data.get("edges", []):
         edge = _parse_edge(edge_data)
         graph.add_edge(edge)
+
+    for gate_data in data.get("gates", []):
+        graph.add_gate(_parse_gate(gate_data))
 
 
 def _parse_node(data: dict[str, Any]) -> Node:
@@ -73,4 +76,20 @@ def _parse_edge(data: dict[str, Any]) -> Edge:
         chance=data.get("chance"),
         amount=data.get("amount"),
         slot=data.get("slot"),
+    )
+
+
+def _parse_gate(data: dict[str, Any]) -> Gate:
+    """Parse a gate: groups of atoms, any group of which opens it."""
+    groups = data["groups"]
+    if not isinstance(groups, list) or not groups:
+        raise ValueError(f"override gate on {data.get('subject')!r} needs at least one group")
+    return Gate(
+        subject_kind=SubjectKind(data["subject_kind"]),
+        subject_key=data["subject"],
+        gate=data["gate"],
+        groups=tuple(
+            tuple(GateAtom(AtomKind(atom["kind"]), atom["ref"], atom.get("slot")) for atom in group) for group in groups
+        ),
+        item_key=data.get("item"),
     )

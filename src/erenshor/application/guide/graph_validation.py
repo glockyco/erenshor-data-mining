@@ -10,7 +10,7 @@ import sqlite3
 from typing import TYPE_CHECKING
 
 from .node_builder import _zone_display
-from .schema import Edge, EdgeType, Node, NodeType
+from .schema import AtomKind, Edge, EdgeType, GateAtom, Node, NodeType, SubjectKind
 
 if TYPE_CHECKING:
     from .graph import EntityGraph
@@ -92,7 +92,7 @@ def _place_level(char_key: str, ctx: _LevelContext) -> int | None:
     """Level of reaching a character: its zone's level, raised by its unlocks."""
     zone_key = _target_zone_key(char_key, ctx.graph, ctx.char_zones)
     zone_level = ctx.zone_medians.get(zone_key) if zone_key else None
-    unlock = _unlock_requirement_level(char_key, EdgeType.UNLOCKS_CHARACTER, ctx, set())
+    unlock = _unlock_requirement_level(char_key, ctx, set())
     if zone_level is not None and unlock is not None:
         return max(zone_level, unlock)
     return zone_level if zone_level is not None else unlock
@@ -444,12 +444,7 @@ def _character_accessibility_level(
         ctx.char_zones,
         ctx.zone_medians,
     )
-    unlock = _unlock_requirement_level(
-        char_key,
-        EdgeType.UNLOCKS_CHARACTER,
-        ctx,
-        visiting,
-    )
+    unlock = _unlock_requirement_level(char_key, ctx, visiting)
     if base is not None and unlock is not None:
         return max(base, unlock)
     return base if base is not None else unlock
@@ -457,64 +452,32 @@ def _character_accessibility_level(
 
 def _unlock_requirement_level(
     target_key: str,
-    edge_type: EdgeType,
     ctx: _LevelContext,
     visiting: set[str],
 ) -> int | None:
-    """Level to satisfy unlock requirements on a target node.
+    """Level to satisfy the gates on a character.
 
-    Uses OR-of-AND group semantics:
-    - Same group = AND: all sources in the group must be obtained → max
-    - Different groups = OR: any group suffices → min across groups
-    - Null group = unconditional standalone source
+    A gate holds through its easiest group, whose level is that of its hardest
+    atom. Every gate must hold, so the hardest gate sets the level.
     """
-    edges = ctx.graph.in_edges(target_key, edge_type)
-    if not edges:
-        return None
-
-    # Partition by group. Null-group edges are standalone (each is its own group).
-    unconditional: list[int] = []
-    groups: dict[str, list[Edge]] = {}
-    for edge in edges:
-        if edge.group is None:
-            source = ctx.graph.get_node(edge.source)
-            if source is None:
-                continue
-            lvl = _unlock_source_level(source, ctx, visiting)
-            if lvl is not None:
-                unconditional.append(lvl)
-        else:
-            groups.setdefault(edge.group, []).append(edge)
-
-    # Each named group is AND (max within), groups are OR (min across)
-    group_levels: list[int] = []
-    for group_edges in groups.values():
-        and_levels: list[int] = []
-        for edge in group_edges:
-            source = ctx.graph.get_node(edge.source)
-            if source is None:
-                continue
-            lvl = _unlock_source_level(source, ctx, visiting)
-            if lvl is not None:
-                and_levels.append(lvl)
-        if and_levels:
-            group_levels.append(max(and_levels))
-
-    # Combine: unconditional sources are standalone alternatives
-    all_alternatives = unconditional + group_levels
-    return min(all_alternatives) if all_alternatives else None
+    gate_levels: list[int] = []
+    for gate in ctx.graph.gates_for(SubjectKind.CHARACTER, target_key):
+        group_levels: list[int] = []
+        for group in gate.groups:
+            atom_levels = [level for atom in group if (level := _atom_level(atom, ctx, visiting)) is not None]
+            if atom_levels:
+                group_levels.append(max(atom_levels))
+        if group_levels:
+            gate_levels.append(min(group_levels))
+    return max(gate_levels) if gate_levels else None
 
 
-def _unlock_source_level(
-    source: Node,
-    ctx: _LevelContext,
-    visiting: set[str],
-) -> int | None:
-    """Level contributed by a single unlock source (item or quest)."""
-    if source.type == NodeType.ITEM:
-        return _item_obtainability_level(source.key, ctx, visiting)
-    if source.type == NodeType.QUEST:
-        return ctx.quest_levels.get(source.key)
+def _atom_level(atom: GateAtom, ctx: _LevelContext, visiting: set[str]) -> int | None:
+    """Level of satisfying one atom: obtaining its item or completing its quest."""
+    if atom.kind in (AtomKind.ITEM_HELD, AtomKind.KEY_HELD):
+        return _item_obtainability_level(atom.ref, ctx, visiting)
+    if atom.kind == AtomKind.QUEST_DONE:
+        return ctx.quest_levels.get(atom.ref)
     return None
 
 
