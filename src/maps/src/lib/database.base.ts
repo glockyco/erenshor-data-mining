@@ -1786,15 +1786,16 @@ export class RepositoryBase {
 
     getWorldStats(): { zones: number; classes: number; items: number; quests: number } {
         if (!this.db) throw new Error('DB not initialized');
-        const count = (table: string): number => {
-            const res = this.db!.exec(`SELECT COUNT(*) AS n FROM ${table}`);
+        const count = (query: string): number => {
+            const res = this.db!.exec(query);
             return (res[0]?.values[0][0] as number) ?? 0;
         };
         return {
-            zones: count('zones'),
-            classes: count('classes'),
-            items: count('items'),
-            quests: count('quests')
+            zones: count('SELECT COUNT(*) FROM zones'),
+            // Default is the game's template class, which players cannot pick.
+            classes: count("SELECT COUNT(*) FROM classes WHERE class_name != 'Default'"),
+            items: count('SELECT COUNT(*) FROM items'),
+            quests: count('SELECT COUNT(*) FROM quests')
         };
     }
 

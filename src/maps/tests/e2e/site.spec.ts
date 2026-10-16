@@ -51,7 +51,8 @@ const test = base.extend<{ pageProblems: string[] }>({
 test('home page renders fixture statistics and provenance', async ({ page }) => {
     await page.goto('/');
 
-    await expect(page.getByText('three classes')).toBeVisible();
+    // The fixture has two playable classes and the Default template class.
+    await expect(page.getByText('two classes')).toBeVisible();
     // The footer provenance is a server load. A missing table fails every page
     // in the (app) group, so assert the rendered date.
     await expect(page.getByText('January 1, 2020')).toBeVisible();

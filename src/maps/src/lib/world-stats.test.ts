@@ -19,7 +19,8 @@ describe('getWorldStats', () => {
 	it('counts the intended fixture tables', () => {
 		expect(db.getWorldStats()).toEqual({
 			zones: Object.keys(MAPS).length,
-			classes: 3,
+			// The fixture's Default template class is not a playable class.
+			classes: 2,
 			// Eight wiki-backed items plus the twelve loot-table fillers that exercise
 			// an uncapped drop list and a name shared by two characters. This counts
 			// every item row, not just searchable ones, so the fillers show up here
