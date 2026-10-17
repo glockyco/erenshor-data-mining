@@ -681,4 +681,55 @@ public sealed class CanonicalSourceNavigationTests
         Assert.Equal(8, result.Step.Quantity);
         Assert.Equal("item:crafted key", quest.Steps[0].TargetKey);
     }
+
+    [Fact]
+    public void Completing_an_explicit_material_resumes_its_recipe_and_other_inputs()
+    {
+        var recipe = new ItemSource
+        {
+            Type = "crafting",
+            AcquisitionKey = "acquisition:recipe",
+            ItemStableKey = "item:crafted key",
+        };
+        var quest = Quest(recipe);
+        var wrapper = Wrapper(quest);
+        AddFact(wrapper, recipe, "crafting");
+        var ore = Located("ore", "A");
+        var wood = Located("wood", "B");
+        AddFact(wrapper, ore);
+        AddFact(wrapper, wood);
+        recipe.Children = [];
+        for (int slot = 1; slot <= 8; slot++)
+        {
+            var input = Ingredient(wrapper, "item:ore", 1, ore, slot.ToString());
+            wrapper.ItemUses[input.UseKey!].TargetStableKey = "recipe:key";
+            recipe.Children.Add(input);
+        }
+        recipe.Children.Add(Ingredient(wrapper, "item:wood", 1, wood, "wood"));
+        var facts = new GateTestFacts();
+        facts.Inventory["item:ore"] = 7;
+        var (_, resolver, _) = Build(wrapper, facts);
+        var selection = new SourceNavigationSelection();
+        var row = ItemSourcePolicy.PresentationSources(recipe.Children)[0];
+        Assert.True(selection.Select(row, quest.Steps![0], quest));
+        var missingOre = selection.Resolve(resolver, quest, quest.Steps[0], "Home");
+        Assert.True(missingOre.CanNavigate, missingOre.Message);
+        Assert.Equal("item:ore", missingOre.Step.TargetKey);
+        Assert.Equal(8, missingOre.Step.Quantity);
+
+        facts.Inventory["item:ore"] = 8;
+        var missingWood = selection.Resolve(resolver, quest, quest.Steps[0], "Home");
+        Assert.True(missingWood.CanNavigate, missingWood.Message);
+        Assert.Equal("item:wood", missingWood.Step.TargetKey);
+        Assert.Equal(1, missingWood.Step.Quantity);
+        Assert.Same(recipe, selection.Choice!.Primary);
+        Assert.Equal("item:crafted key", quest.Steps[0].TargetKey);
+
+        facts.Inventory["item:ore"] = 7;
+        var usedOre = selection.Resolve(resolver, quest, quest.Steps[0], "Home");
+        Assert.True(usedOre.CanNavigate, usedOre.Message);
+        Assert.Equal("item:ore", usedOre.Step.TargetKey);
+        Assert.Equal(8, usedOre.Step.Quantity);
+        Assert.Same(recipe, selection.Choice.Primary);
+    }
 }

@@ -154,7 +154,9 @@ A checked task proves its named behavior and checks, not newer shared-data integ
 - [ ] 10.5 Verify the final crafting label and remaining reasonably feasible nested-source, timing, account/return and narrow/wide UI states. Preserve sound0 and actual responsive input.
 - [x] 10.6 Show equivalent native recipe slots as one cumulative ingredient row without replacing their original choices or use records. Keep distinct recipes, items, variants, qualities, conditions and source contexts separate. Remove item-use instruction repetition independently of probability formatting.
   - All 743 consumer cases pass and both native loaders build without warnings or errors. The actual Lunaris Resolving Fluid recipe shows one quantity-eight shard row plus its separate recipe input. Native quantity one retains ingredient NAV and quantity eight removes it. Native inventory controls were restored. The actual Treasure Map picker shows its item-use action and chance once.
-- [ ] 10.7 Resume the parent recipe when an explicitly chosen ingredient is complete. Preserve the original quest, the chosen recipe and other pending ingredients. Verify the live quantity-eight dead end and its correction separately from rendering.
+- [x] 10.7 Resume the parent recipe when an explicitly chosen ingredient is complete. Preserve the original quest, the chosen recipe and other pending ingredients. Verify the live quantity-eight dead end and its correction separately from rendering.
+  - All 744 consumer cases pass and both native loaders build without warnings or errors. At the same actual native quantity-eight boundary, Lunaris retains ArenaToken step 1, promotes the chosen input to its exact Resolving Fluid parent and continues with a navigable requirement instead of the prior dead end. The native task inventory control was restored.
+- [ ] 10.8 Preserve cumulative recipe input thresholds in world-marker recursion. The remaining marker caller omits sibling context and can stop marking a repeated ingredient after only its first slot is covered.
 
 ## 8. Close-out
 

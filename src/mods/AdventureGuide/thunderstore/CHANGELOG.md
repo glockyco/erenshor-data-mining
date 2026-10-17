@@ -25,6 +25,7 @@
 - Clarify which mold a crafting source uses.
 - Show repeated recipe ingredients with their total quantity.
 - Avoid repeating item-use instructions beside their chances.
+- Resume the recipe after gathering a chosen ingredient.
 
 ## v2026.1008.0
 

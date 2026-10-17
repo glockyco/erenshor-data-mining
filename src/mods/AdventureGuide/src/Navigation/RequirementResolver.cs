@@ -93,6 +93,9 @@ public sealed class RequirementResolver
         _currentStep = currentStep;
     }
 
+    internal bool NeedsInput(ItemSource source, List<ItemSource> siblings) =>
+        ItemSourcePolicy.NeedsUsedItem(source, _gates.Facts.ItemCount, siblings);
+
     public QuestStep? BuildAcquisitionStep(QuestEntry quest)
     {
         if (quest.Acquisition == null || quest.Acquisition.Count == 0)
