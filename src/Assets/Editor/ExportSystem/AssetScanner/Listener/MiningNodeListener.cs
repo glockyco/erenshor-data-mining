@@ -70,59 +70,59 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
         string miningNodeStableKey
     )
     {
-        // Calculate drop chances based on the logic in MiningNode.Mine()
-        // Legend = 96-99, Rare = 75-95, Common = 20-75, Guarantee = 0-19
-        const float guaranteeChance = 20.00f; // 20 - 0 = 20
-        const float commonChance = 55.00f; // 75 - 20 = 55
-        const float rareChance = 21.00f; // 96 - 75 = 21
-        const float legendChance = 4.00f; // 100 - 96 = 4
+        // code-fact: mining.outcome_roll
+        // code-fact: mining.roll_range
+        // Percent per mined node at the standard runtime rate.
+        const float guaranteeChance = 20f;
+        const float commonChance = 55f;
+        const float rareChance = 21f;
+        const float legendChance = 4f;
 
         var itemTotalDropChances = new Dictionary<string, float>();
 
-        // Guarantee
+        // code-fact: mining.guarantee_fallback
         var guaranteeItem = node.guarantee ?? GameData.GM?.GuaranteeMine;
-        if (guaranteeItem != null && !string.IsNullOrEmpty(guaranteeItem.name))
+        if (guaranteeItem == null || string.IsNullOrEmpty(guaranteeItem.name))
         {
-            var itemStableKey = StableKeyGenerator.ForItem(guaranteeItem);
-            itemTotalDropChances.TryAdd(itemStableKey, 0f);
-            itemTotalDropChances[itemStableKey] += guaranteeChance;
+            throw new System.InvalidOperationException(
+                $"Mining node {miningNodeStableKey} has no resolvable guarantee item. "
+                    + "Export requires its serialized guarantee or an available GameManager.GuaranteeMine."
+            );
         }
 
-        // Common
-        if (node.Common is { Count: > 0 })
+        void AddItem(Item? item, float chance)
         {
-            var dropChancePerItem = commonChance / node.Common.Count;
-            foreach (var item in node.Common.Where(i => i != null && !string.IsNullOrEmpty(i.name)))
+            if (item == null || string.IsNullOrEmpty(item.name))
             {
-                var itemStableKey = StableKeyGenerator.ForItem(item);
-                itemTotalDropChances.TryAdd(itemStableKey, 0f);
-                itemTotalDropChances[itemStableKey] += dropChancePerItem;
+                return;
+            }
+            var key = StableKeyGenerator.ForItem(item);
+            itemTotalDropChances.TryAdd(key, 0f);
+            itemTotalDropChances[key] += chance;
+        }
+
+        // code-fact: mining.empty_common_fallback
+        // code-fact: mining.empty_rare_fallback
+        // code-fact: mining.empty_legend_fallback
+        void AddPool(List<Item> pool, float chance)
+        {
+            if (pool.Count == 0)
+            {
+                AddItem(guaranteeItem, chance);
+                return;
+            }
+            // Null slots retain their share rather than increasing other items' chances.
+            var perSlot = chance / pool.Count;
+            foreach (var item in pool)
+            {
+                AddItem(item, perSlot);
             }
         }
 
-        // Rare
-        if (node.Rare is { Count: > 0 })
-        {
-            var dropChancePerItem = rareChance / node.Rare.Count;
-            foreach (var item in node.Rare.Where(i => i != null && !string.IsNullOrEmpty(i.name)))
-            {
-                var itemStableKey = StableKeyGenerator.ForItem(item);
-                itemTotalDropChances.TryAdd(itemStableKey, 0f);
-                itemTotalDropChances[itemStableKey] += dropChancePerItem;
-            }
-        }
-
-        // Legend
-        if (node.Legend is { Count: > 0 })
-        {
-            var dropChancePerItem = legendChance / node.Legend.Count;
-            foreach (var item in node.Legend.Where(i => i != null && !string.IsNullOrEmpty(i.name)))
-            {
-                var itemStableKey = StableKeyGenerator.ForItem(item);
-                itemTotalDropChances.TryAdd(itemStableKey, 0f);
-                itemTotalDropChances[itemStableKey] += dropChancePerItem;
-            }
-        }
+        AddItem(guaranteeItem, guaranteeChance);
+        AddPool(node.Common, commonChance);
+        AddPool(node.Rare, rareChance);
+        AddPool(node.Legend, legendChance);
 
         // Create one record per item
         var itemRecords = itemTotalDropChances

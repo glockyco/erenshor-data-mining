@@ -9,6 +9,17 @@
   ],
   "facts": [
     {
+      "id": "loot.host_eligibility",
+      "mode": "assert",
+      "type": "LootTable",
+      "method": "InitLootTable",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (hostChar == null || hostChar.DestroyOnDeath || (GetComponent<NPC> () != null && GetComponent<NPC> ().DoNotLeaveCorpse)) { return; }"
+      }
+    },
+    {
       "id": "loot.common_world_items_substitution",
       "mode": "assert",
       "type": "LootTable",
@@ -39,6 +50,105 @@
       "args": {
         "kind": "IfElseStatement",
         "shape": "if (Random.Range (0, 20) == 0) { caughtItem = GameData.GM.Maps [Random.Range (0, 4)]; }"
+      }
+    },
+    {
+      "id": "water.empty_night_fallback",
+      "mode": "assert",
+      "type": "Water",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (NightFishables.Count == 0) { NightFishables = DayFishables; }"
+      }
+    },
+    {
+      "id": "fishing.source_eligibility",
+      "mode": "assert",
+      "type": "Fishing",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BinaryOperatorExpression",
+        "shape": "waitForFish <= 0f && fishWater.Fishables.Count > 0"
+      }
+    },
+    {
+      "id": "fishing.native_pool_draw",
+      "mode": "assert",
+      "type": "Fishing",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "ExpressionStatement",
+        "shape": "caughtItem = fishWater.Fishables [Random.Range (0, fishWater.Fishables.Count)];"
+      }
+    },
+    {
+      "id": "mining.guarantee_fallback",
+      "mode": "assert",
+      "type": "MiningNode",
+      "method": "Mine",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (guarantee == null) { guarantee = GameData.GM.GuaranteeMine; }"
+      }
+    },
+    {
+      "id": "mining.empty_common_fallback",
+      "mode": "assert",
+      "type": "MiningNode",
+      "method": "Mine",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (Common.Count == 0) { Common.Add (guarantee); }"
+      }
+    },
+    {
+      "id": "mining.empty_rare_fallback",
+      "mode": "assert",
+      "type": "MiningNode",
+      "method": "Mine",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (Rare.Count == 0) { Rare.Add (guarantee); }"
+      }
+    },
+    {
+      "id": "mining.empty_legend_fallback",
+      "mode": "assert",
+      "type": "MiningNode",
+      "method": "Mine",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (Legend.Count == 0) { Legend.Add (guarantee); }"
+      }
+    },
+    {
+      "id": "mining.roll_range",
+      "mode": "assert",
+      "type": "MiningNode",
+      "method": "Mine",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "VariableDeclarationStatement",
+        "shape": "int num = Random.Range (0, 100);"
+      }
+    },
+    {
+      "id": "mining.outcome_roll",
+      "mode": "assert",
+      "type": "MiningNode",
+      "method": "Mine",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (num >= 96) { item = Legend [Random.Range (0, Legend.Count)]; } else if (num >= 75) { item = Rare [Random.Range (0, Rare.Count)]; } else { item = ((num < 20) ? guarantee : Common [Random.Range (0, Common.Count)]); }"
       }
     },
     {

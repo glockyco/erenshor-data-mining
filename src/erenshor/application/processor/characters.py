@@ -689,6 +689,14 @@ def process_characters(
     logger.info(f"Characters: {len(chars)} after mapping, {len(model_images)} with an image of their own model")
     all_keys: set[str] = {c.stable_key for c in chars}
 
+    # code-fact: loot.host_eligibility
+    # InitLootTable returns before every drop roll for either host flag.
+    loot_eligible_keys = {
+        c.stable_key for c in chars if not c.raw.get("DestroyOnDeath") and not c.raw.get("DoNotLeaveCorpse")
+    }
+    # Script-destroyed phases also never reach their serialized loot tables.
+    loot_eligible_keys -= {key for key, rule in mapping.items() if rule["loot_unreachable"]}
+
     # ------------------------------------------------------------------
     # Step 2: Load spawn data
     # ------------------------------------------------------------------
@@ -986,6 +994,8 @@ def process_characters(
     tmp_loot: dict[str, set[tuple[str, float]]] = defaultdict(set)
     for r in loot_rows:
         ck = str(r["CharacterStableKey"])
+        if ck not in loot_eligible_keys:
+            continue
         prob = float(cast("float", r["DropProbability"])) if r["DropProbability"] is not None else 0.0
         tmp_loot[ck].add((str(r["ItemStableKey"]), prob))
     loot_by_char = {k: frozenset(v) for k, v in tmp_loot.items()}
@@ -1436,10 +1446,7 @@ def process_characters(
 
     # Loot drops
     ld_rows = _load_rows(raw, "SELECT * FROM LootDrops")
-    # A character that the game never kills, such as a boss phase that its
-    # fight script destroys, never rolls its loot table (mapping.json).
-    unreachable = {key for key, rule in mapping.items() if rule["loot_unreachable"]}
-    ld_rows = [r for r in ld_rows if r["CharacterStableKey"] in all_keys and r["CharacterStableKey"] not in unreachable]
+    ld_rows = [r for r in ld_rows if r["CharacterStableKey"] in loot_eligible_keys]
     writer.insert_loot_drops(
         [
             {

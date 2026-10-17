@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import sqlite3
 from collections import Counter
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from loguru import logger
 
@@ -144,6 +144,75 @@ def derive_fishing_bonus_catches(maps_pool: list[str | None]) -> list[dict[str, 
         }
         for key, count in sorted(drawn.items())
     ]
+
+
+def derive_water_fishables(
+    pools: Mapping[str, Mapping[str, list[str | None]]],
+    maps_pool: list[str | None],
+) -> list[dict[str, object]]:
+    """Final percent per successful catch, including the global replacement once.
+
+    Native serialized slots remain in the raw export. Null slots keep their
+    selection mass, so emitted item probabilities need not sum to 100.
+    """
+    bonus = {
+        str(row["item_stable_key"]): cast("float", row["chance_per_catch"])
+        for row in derive_fishing_bonus_catches(maps_pool)
+    }
+    rows: list[dict[str, object]] = []
+    for water_key, times in sorted(pools.items()):
+        day = times.get("DayFishable", [])
+        # code-fact: water.empty_night_fallback
+        night = times.get("NightFishable", []) or day
+        for time, pool in (("DayFishable", day), ("NightFishable", night)):
+            # code-fact: fishing.source_eligibility
+            if not pool:
+                continue
+            # code-fact: fishing.native_pool_draw
+            # code-fact: fishing.map_bonus
+            native_share = 100 * (1 - 1 / _FISHING_BONUS_ONE_IN)
+            counts = Counter(key for key in pool if key is not None)
+            for key in sorted(counts.keys() | bonus.keys()):
+                rows.append(
+                    {
+                        "water_stable_key": water_key,
+                        "type": time,
+                        "item_stable_key": key,
+                        "drop_chance": native_share * counts[key] / len(pool) + bonus.get(key, 0),
+                    }
+                )
+    return rows
+
+
+def process_water_fishables(raw: sqlite3.Connection, writer: Writer) -> None:
+    """Combine native water slots with the same bonus used by the global source."""
+    if "Position" not in {row[1] for row in raw.execute("PRAGMA table_info(WaterFishables)")}:
+        raise ValueError(
+            "WaterFishables lacks native pool positions. Run extract export, then extract code-facts "
+            "before rebuilding the clean database."
+        )
+    required = {
+        "water.empty_night_fallback",
+        "fishing.source_eligibility",
+        "fishing.native_pool_draw",
+        "fishing.map_bonus",
+    }
+    facts = {str(row[0]) for row in raw.execute("SELECT DISTINCT fact_id FROM code_facts")}
+    if missing := sorted(required - facts):
+        raise ValueError(f"Fishing code facts missing: {missing}")
+    pools: dict[str, dict[str, list[str | None]]] = {}
+    for water, time, item in raw.execute(
+        "SELECT WaterStableKey, Type, ItemStableKey FROM WaterFishables ORDER BY WaterStableKey, Type, Position"
+    ):
+        pools.setdefault(water, {}).setdefault(time, []).append(item)
+    maps = [
+        row[0]
+        for row in raw.execute(
+            "SELECT ItemStableKey FROM SpecialWorldDropItems WHERE Pool = ? ORDER BY Position",
+            (_FISHING_BONUS_POOL,),
+        )
+    ]
+    writer.insert_water_fishables(derive_water_fishables(pools, maps))
 
 
 def derive_item_zone_restrictions(time_stone_key: str, zone_by_scene: dict[str, str]) -> list[dict[str, object]]:

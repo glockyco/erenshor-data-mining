@@ -1,7 +1,6 @@
 #nullable enable
 
 using System.Collections.Generic;
-using System.Linq;
 using SQLite;
 using UnityEngine;
 
@@ -73,48 +72,18 @@ public class WaterListener : IAssetScanListener<Water>
     {
         var waterFishableRecords = new List<WaterFishableRecord>();
 
-        // Treasure map piece stable keys (normalized item names)
-        var treasureMapPieceStableKeys = new List<string>
-        {
-            "item:torn treasure map (top right)",
-            "item:torn treasure map (top left)",
-            "item:torn treasure map (bottom right)",
-            "item:torn treasure map (bottom left)",
-        };
-
         void AddFishableRecords(List<Item> fishables, string type)
         {
-            if (fishables is not { Count: > 0 })
+            for (var position = 0; position < fishables.Count; position++)
             {
-                return;
-            }
-
-            var mapFragmentChance = 5f;
-            var fishableChance = 95f / fishables.Count;
-
-            var itemTotalDropChances = new Dictionary<string, float>();
-            foreach (var item in fishables.Where(i => i != null && !string.IsNullOrEmpty(i.name)))
-            {
-                var itemStableKey = StableKeyGenerator.ForItem(item);
-                itemTotalDropChances.TryAdd(itemStableKey, 0f);
-                itemTotalDropChances[itemStableKey] += fishableChance;
-            }
-            foreach (var itemStableKey in treasureMapPieceStableKeys)
-            {
-                itemTotalDropChances.TryAdd(itemStableKey, 0f);
-                itemTotalDropChances[itemStableKey] +=
-                    mapFragmentChance / treasureMapPieceStableKeys.Count;
-            }
-
-            foreach (var kvp in itemTotalDropChances)
-            {
+                var item = fishables[position];
                 waterFishableRecords.Add(
                     new WaterFishableRecord
                     {
                         WaterStableKey = waterStableKey,
                         Type = type,
-                        ItemStableKey = kvp.Key,
-                        DropChance = kvp.Value,
+                        Position = position,
+                        ItemStableKey = item != null ? StableKeyGenerator.ForItem(item) : null,
                     }
                 );
             }

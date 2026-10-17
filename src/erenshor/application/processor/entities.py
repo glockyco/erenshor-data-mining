@@ -29,6 +29,7 @@ from loguru import logger
 
 from .auction import derive_is_auctionable, validate_auction_gates
 from .cosmetics import load_cosmetic_effects
+from .item_mechanics import process_water_fishables
 
 if TYPE_CHECKING:
     from .mapping import MappingOverride
@@ -149,12 +150,12 @@ def _filter_junction(
 
 
 # ---------------------------------------------------------------------------
-# World / placement tables (copied verbatim, no exclusion filtering)
+# World / placement tables and local fishing outcome derivation
 # ---------------------------------------------------------------------------
 
 
 def process_world_tables(raw: sqlite3.Connection, writer: Writer) -> None:
-    """Copy all world/placement tables verbatim (snake_case rename only)."""
+    """Copy world placements and derive fishing outcomes from native pool slots."""
 
     simple_tables = [
         ("SELECT * FROM Teleports", writer.insert_teleports, {"TeleportItemStableKey": "teleport_item_stable_key"}),
@@ -212,18 +213,8 @@ def process_world_tables(raw: sqlite3.Connection, writer: Writer) -> None:
     )
     writer.insert_mining_node_items(rows)
 
-    # Waters + WaterFishables
-    rows = _rows(raw, "SELECT * FROM WaterFishables")
-    rows = _rename_cols(
-        rows,
-        {
-            "WaterStableKey": "water_stable_key",
-            "Type": "type",
-            "ItemStableKey": "item_stable_key",
-            "DropChance": "drop_chance",
-        },
-    )
-    writer.insert_water_fishables(rows)
+    # Final per-catch chances, not additive to the global fishing bonus source.
+    process_water_fishables(raw, writer)
 
     # SpellCreatedItems: items created by using another item (spell trigger).
     # The spell-to-item mapping is hardcoded in SpellVessel.cs and cannot be

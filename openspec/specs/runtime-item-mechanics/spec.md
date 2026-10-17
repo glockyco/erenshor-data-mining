@@ -47,6 +47,48 @@ The clean database SHALL hold one row for each item that can replace a fishing c
 - **WHEN** the exported `Maps` pool has fewer entries than the game draws from
 - **THEN** the clean build fails
 
+### Requirement: Local gathering probabilities preserve runtime outcomes
+
+The raw export SHALL preserve each native fishing pool slot, including duplicate and null entries. The clean build SHALL derive local day and night item probabilities from those slots and the pinned fishing replacement rule. Local probabilities SHALL be conditional on a successful catch, not per cast. The global fishing bonus SHALL remain a separate background source, not an additional probability to add to a local combined outcome.
+
+#### Scenario: A native fish is also a bonus map
+
+- **WHEN** an item occurs in a water's native pool and the exported fishing bonus pool
+- **THEN** its local outcome combines the native share after replacement and its bonus share exactly once using the actual exported item identity
+
+#### Scenario: Night has no serialized pool
+
+- **WHEN** the night pool is empty
+- **THEN** night uses the day pool
+- **AND** a water with no entries in either pool has no local fishing outcomes, including no bonus outcomes
+
+#### Scenario: Duplicate or null slots
+
+- **WHEN** a nonempty native or bonus pool has duplicate or null entries
+- **THEN** duplicates contribute repeated selection shares
+- **AND** null entries retain their denominator mass without increasing another item's probability
+
+#### Scenario: A mining tier has no entries
+
+- **WHEN** any mining tier is empty
+- **THEN** its probability share contributes to the guarantee item
+- **AND** all empty tiers produce the guarantee item with certainty
+- **AND** an item shared by a tier and the guarantee combines both shares once per mined node
+
+#### Scenario: A mining guarantee cannot be resolved during export
+
+- **WHEN** a mining node has no serialized guarantee and the editor has no usable global guarantee item
+- **THEN** export fails with the node's identity and the missing guarantee requirement
+- **AND** it does not emit an incomplete item probability distribution
+
+#### Scenario: A host cannot roll loot
+
+- **WHEN** a character is destroyed on death or leaves no corpse
+- **THEN** its raw serialized loot remains available for inspection
+- **AND** the clean database has no ordinary loot outcomes for that host
+- **AND** summoned characters without either flag retain their ordinary loot outcomes
+
+
 ### Requirement: Item zone restrictions
 
 The clean database SHALL hold one row for each zone where an item's use has a different outcome, naming the item, the zone, and the outcome.

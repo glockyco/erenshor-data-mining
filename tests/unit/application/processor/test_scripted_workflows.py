@@ -20,7 +20,8 @@ def processed_db(tmp_path):
             StableKey TEXT PRIMARY KEY, ObjectName TEXT, NPCName TEXT,
             IsSimPlayer INTEGER, Scene TEXT, X REAL, Y REAL, Z REAL,
             IsEnabled INTEGER, IsCommon INTEGER, IsRare INTEGER, IsUnique INTEGER,
-            IsFriendly INTEGER, ModelKey TEXT NOT NULL DEFAULT ''
+            IsFriendly INTEGER, ModelKey TEXT NOT NULL DEFAULT '',
+            DestroyOnDeath INTEGER, DoNotLeaveCorpse INTEGER
         );
         CREATE TABLE SpawnPoints (
             StableKey TEXT, Scene TEXT, X REAL, Y REAL, Z REAL,
@@ -223,6 +224,28 @@ def processed_db(tmp_path):
            VALUES ('character:ordinary', ?, ?)""",
         [("item:coin", 1), ("item:mal-food", 0)],
     )
+    hosts = [
+        ("Chosen Fawn", 1, 1),
+        ("Constellation: Wolf", 1, 0),
+        ("Fawn of Fernalla", 1, 1),
+        ("Pack Mother", 1, 1),
+        ("Corpse-only guard", 0, 1),
+        ("Summoned Dire Wolf", 0, 0),
+        ("Azynthian Warhound", 0, 0),
+        ("Fallen Warrior", 0, 0),
+    ]
+    raw.executemany(
+        """INSERT INTO Characters
+           (StableKey, ObjectName, NPCName, IsSimPlayer, DestroyOnDeath, DoNotLeaveCorpse)
+           VALUES (?, ?, ?, 0, ?, ?)""",
+        [(f"character:{name}", name, name, destroy, corpse) for name, destroy, corpse in hosts],
+    )
+    raw.executemany(
+        """INSERT INTO LootDrops
+           (CharacterStableKey, ItemStableKey, DropProbability, ExpectedPerKill)
+           VALUES (?, 'item:coin', 100, 1)""",
+        [(f"character:{name}",) for name, _, _ in hosts],
+    )
 
     writer = Writer(clean_path)
     writer.create_schema()
@@ -265,6 +288,7 @@ def processed_db(tmp_path):
         },
         {"item:coin", "item:mal-food", "item:bad-food"},
     )
+    assert raw.execute("SELECT count(*) FROM LootDrops WHERE DropProbability = 100").fetchone()[0] == len(hosts)
     raw.close()
     yield writer._conn
     writer._conn.close()
@@ -277,6 +301,28 @@ def test_common_world_item_flag_survives_character_processing(processed_db):
            ORDER BY item_stable_key"""
     ).fetchall()
     assert [tuple(row) for row in rows] == [("item:coin", 1), ("item:mal-food", 0)]
+
+
+@pytest.mark.parametrize(
+    ("name", "expected_count"),
+    [
+        ("Chosen Fawn", 0),
+        ("Constellation: Wolf", 0),
+        ("Fawn of Fernalla", 0),
+        ("Pack Mother", 0),
+        ("Corpse-only guard", 0),
+        ("Summoned Dire Wolf", 1),
+        ("Azynthian Warhound", 1),
+        ("Fallen Warrior", 1),
+    ],
+)
+def test_ordinary_loot_requires_a_host_that_reaches_the_rolls(processed_db, name, expected_count):
+    assert (
+        processed_db.execute(
+            "SELECT count(*) FROM loot_drops WHERE character_stable_key = ?", (f"character:{name}",)
+        ).fetchone()[0]
+        == expected_count
+    )
 
 
 def test_scripted_trigger_rows_preserve_items_bounds_and_identity(processed_db):
