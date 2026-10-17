@@ -20,6 +20,7 @@
 - Keep navigation guidance in the tracker while browsing other quests.
 - Keep the original quest visible while following its prerequisites.
 - Keep source actions, locations, levels and chances compact.
+- Group repeated sources without hiding their access requirements.
 
 ## v2026.1008.0
 

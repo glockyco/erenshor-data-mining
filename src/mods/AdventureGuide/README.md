@@ -106,6 +106,9 @@ chooses among available sources, including another deposit when one is mined.
 Use "Choose a source" to follow a specific alternative or its ingredient and
 quest sources. Crafted sources retain their recipe while navigation follows
 missing materials. Repeated material slots require their combined quantity.
+Repeated placements share one source choice. Expand its locations to inspect
+their positions and access requirements. Furnished-room vendors remain separate
+by room so selecting one does not hide the other rooms.
 Browsing quests does not change tracking or navigation. The tracker retains the
 current next action, and the quest panel shows it when that quest is selected.
 The source picker keeps chances with their actions and shows fishing rates with

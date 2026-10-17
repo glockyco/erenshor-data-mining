@@ -7,28 +7,28 @@ internal sealed class SourceNavigationSelection
 {
     private string? _questKey;
     private int _stepOrder;
-    private ItemSource? _source;
-    internal bool IsActive => _source != null;
-    internal ItemSource? Source => _source;
+    private SourceChoice? _choice;
+    internal bool IsActive => _choice != null;
+    internal SourceChoice? Choice => _choice;
 
-    internal bool Select(ItemSource source, QuestStep step, QuestEntry quest)
+    internal bool Select(SourceChoice choice, QuestStep step, QuestEntry quest)
     {
-        if (!Contains(ItemSourcePolicy.SourcesFor(quest, step), source))
+        if (!IsCurrent(ItemSourcePolicy.SourcesFor(quest, step), choice))
             return false;
         _questKey = quest.RuntimeKey;
         _stepOrder = step.Order;
-        _source = source;
+        _choice = choice;
         return true;
     }
 
     internal void Clear()
     {
         _questKey = null;
-        _source = null;
+        _choice = null;
     }
 
     internal bool IsFor(QuestEntry quest, QuestStep step) =>
-        _source != null && _questKey == quest.RuntimeKey && _stepOrder == step.Order;
+        _choice != null && _questKey == quest.RuntimeKey && _stepOrder == step.Order;
 
     internal RequirementResolution Resolve(
         RequirementResolver resolver,
@@ -36,14 +36,18 @@ internal sealed class SourceNavigationSelection
         QuestStep step,
         string scene,
         ZoneLineEntry? pinnedLine = null
-    ) => resolver.Resolve(quest, step, scene, pinnedLine, IsFor(quest, step) ? _source : null);
+    ) => resolver.Resolve(quest, step, scene, pinnedLine, IsFor(quest, step) ? _choice : null);
 
-    internal static bool Contains(List<ItemSource>? sources, ItemSource? selected)
+    internal static bool IsCurrent(List<ItemSource>? sources, SourceChoice? choice) =>
+        choice != null
+        && ReferenceEquals(SourceChoice.FindContaining(sources, choice.Primary), choice);
+
+    internal static bool ContainsMember(List<ItemSource>? sources, SourceChoice choice)
     {
-        if (sources == null || selected == null)
+        if (sources == null)
             return false;
         foreach (var source in sources)
-            if (ReferenceEquals(source, selected) || Contains(source.Children, selected))
+            if (choice.Contains(source) || ContainsMember(source.Children, choice))
                 return true;
         return false;
     }

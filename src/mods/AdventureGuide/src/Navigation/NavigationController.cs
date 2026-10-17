@@ -76,7 +76,7 @@ public sealed class NavigationController
         && NavigationResolutionPolicy.CanUseZoneLine(line, _state.Gates);
 
     public ItemSource? SelectedItemSource { get; private set; }
-    public ItemSource? ChosenItemSource => _sourceSelection.Source;
+    public SourceChoice? ChosenSourceChoice => _sourceSelection.Choice;
     public string? SelectedSourceSummary { get; private set; }
     public string? SelectedSourceLocation { get; private set; }
     public string? SelectedSourceOdds { get; private set; }
@@ -291,15 +291,15 @@ public sealed class NavigationController
         return ResolveAndNavigate(step, quest, currentScene);
     }
 
-    /// <summary>Choose one source without toggling the auto-selected source off.</summary>
+    /// <summary>Choose an acquisition while allowing its actual placements to be resolved.</summary>
     public bool NavigateToSource(
-        ItemSource source,
+        SourceChoice choice,
         QuestStep step,
         QuestEntry quest,
         string currentScene
     )
     {
-        if (!_sourceSelection.Select(source, step, quest))
+        if (!_sourceSelection.Select(choice, step, quest))
             return false;
         _navigationOverride = null;
         _pinnedZoneLine = null;
@@ -757,6 +757,7 @@ public sealed class NavigationController
     {
         SavePerCharacter();
         _treasureHunt.Drop();
+        _sourceSelection.Clear();
         ResetTargetState();
         _navigationOverride = null;
         _originQuestKey = null;
@@ -790,6 +791,7 @@ public sealed class NavigationController
         // Switching characters: save outgoing state before rebinding
         SavePerCharacter();
         _treasureHunt.Drop();
+        _sourceSelection.Clear();
         ResetTargetState();
         _originQuestKey = null;
         _originStepOrder = 0;

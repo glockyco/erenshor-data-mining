@@ -37,18 +37,39 @@ internal static class SourceListText
     {
         string? zone = source.Zone ?? source.Scene;
         string? level = AreaLabel(source);
-        return zone == null ? level
+        string? location =
+            zone == null ? level
             : level == null ? zone
             : $"{zone} · {level}";
+        string? slot = RoomSlot(source);
+        return slot == null ? location
+            : location == null ? $"Room {slot}"
+            : $"{location} · Room {slot}";
+    }
+
+    private static string? RoomSlot(ItemSource source)
+    {
+        if (source.CanonicalLocation == null)
+            return null;
+        string? slot = null;
+        foreach (var condition in source.CanonicalLocation.Conditions)
+        {
+            if (condition.Phase != "availability" || condition.Predicate != "room_furnished")
+                continue;
+            if (slot != null && slot != condition.ReferenceSlot)
+                return null;
+            slot = condition.ReferenceSlot;
+        }
+        return slot;
     }
 
     public static string? AreaLabel(ItemSource source)
     {
         if (ItemSourcePolicy.IsRandomSource(source) || source.Level is not int level)
             return null;
-        return source.Type is "fishing" or "mining" ? $"Area Lv {level}"
-            : source.Type is "drop" or "vendor" or "dialog_give" ? $"NPC Lv {level}"
-            : $"Lv {level}";
+        return source.Type is "fishing" or "mining" ? $"Area Lv{level}"
+            : source.Type is "drop" or "vendor" or "dialog_give" ? $"NPC Lv{level}"
+            : $"Lv{level}";
     }
 
     public static string? OptionOdds(ItemSource source)

@@ -150,7 +150,7 @@ public sealed class RequirementResolver
         QuestStep step,
         string scene,
         ZoneLineEntry? pinnedLine = null,
-        ItemSource? selectedSource = null
+        SourceChoice? selectedChoice = null
     )
     {
         var chain = new List<RequirementLink>();
@@ -167,11 +167,11 @@ public sealed class RequirementResolver
             Candidate? best = null;
             bool gatedAlternative = false;
             List<Candidate>? available = step.TargetType == "item" ? new List<Candidate>() : null;
-            var sourceChoice = SourceNavigationSelection.Contains(
+            var sourceChoice = SourceNavigationSelection.IsCurrent(
                 ItemSourcePolicy.SourcesFor(quest, step),
-                selectedSource
+                selectedChoice
             )
-                ? selectedSource
+                ? selectedChoice
                 : null;
             foreach (var candidate in Candidates(quest, step, routes, sourceChoice))
             {
@@ -191,9 +191,16 @@ public sealed class RequirementResolver
                 if (
                     !requirement
                     && step.TargetType == "item"
-                    && HasAvailableRandomSource(ItemSourcePolicy.SourcesFor(quest, step))
+                    && HasAvailableRandomSource(
+                        ItemSourcePolicy.SourcesFor(quest, step),
+                        sourceChoice
+                    )
                 )
+                {
+                    if (sourceChoice != null)
+                        step = SourceStep(step, new List<ItemSource>(sourceChoice.Members));
                     return Finish(true, null);
+                }
                 if (requirement)
                     chain.Add(
                         new RequirementLink(
@@ -405,7 +412,7 @@ public sealed class RequirementResolver
         QuestEntry quest,
         QuestStep step,
         ZoneGraph.RouteLookup routes,
-        ItemSource? selectedSource
+        SourceChoice? selectedChoice
     )
     {
         if (step.Location != null)
@@ -417,7 +424,7 @@ public sealed class RequirementResolver
         {
             var sources = ItemSourcePolicy.SourcesFor(quest, step);
             if (sources != null)
-                foreach (var candidate in SourceCandidates(sources, routes, selectedSource))
+                foreach (var candidate in SourceCandidates(sources, routes, selectedChoice))
                     yield return candidate;
             yield break;
         }
@@ -462,7 +469,7 @@ public sealed class RequirementResolver
     private IEnumerable<Candidate> SourceCandidates(
         List<ItemSource> sources,
         ZoneGraph.RouteLookup routes,
-        ItemSource? selectedSource = null
+        SourceChoice? selectedChoice = null
     )
     {
         bool gated = sources.Exists(source =>
@@ -471,9 +478,9 @@ public sealed class RequirementResolver
         foreach (var source in sources)
         {
             if (
-                selectedSource != null
-                && !ReferenceEquals(source, selectedSource)
-                && !SourceNavigationSelection.Contains(source.Children, selectedSource)
+                selectedChoice != null
+                && !selectedChoice.Contains(source)
+                && !SourceNavigationSelection.ContainsMember(source.Children, selectedChoice)
             )
                 continue;
             if (!ItemSourcePolicy.NeedsUsedItem(source, _gates.Facts.ItemCount, sources))
@@ -509,7 +516,7 @@ public sealed class RequirementResolver
                     var candidate in SourceCandidates(
                         source.Children,
                         routes,
-                        ReferenceEquals(source, selectedSource) ? null : selectedSource
+                        selectedChoice?.Contains(source) == true ? null : selectedChoice
                     )
                 )
                 {
@@ -806,16 +813,29 @@ public sealed class RequirementResolver
         return best;
     }
 
-    private bool HasAvailableRandomSource(List<ItemSource>? sources)
+    private bool HasAvailableRandomSource(
+        List<ItemSource>? sources,
+        SourceChoice? selectedChoice = null
+    )
     {
         if (sources == null)
             return false;
         foreach (var source in sources)
         {
+            if (
+                selectedChoice != null
+                && !selectedChoice.Contains(source)
+                && !SourceNavigationSelection.ContainsMember(source.Children, selectedChoice)
+            )
+                continue;
             if (!_gates.IsSourceAvailable(source))
                 continue;
             if (
-                ItemSourcePolicy.IsRandomSource(source) || HasAvailableRandomSource(source.Children)
+                ItemSourcePolicy.IsRandomSource(source)
+                || HasAvailableRandomSource(
+                    source.Children,
+                    selectedChoice?.Contains(source) == true ? null : selectedChoice
+                )
             )
                 return true;
         }
