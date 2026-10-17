@@ -20,6 +20,8 @@ export default defineConfig({
     projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'], channel: 'chromium' } }],
     webServer: {
         command: `node scripts/serve-fixture-site.mjs ${PORT}`,
+        // Fixture browsing must not send synthetic traffic to production analytics.
+        env: { PUBLIC_CLOUDFLARE_ANALYTICS_TOKEN: '' },
         url: `http://127.0.0.1:${PORT}/`,
         reuseExistingServer: false,
         timeout: 300_000,
