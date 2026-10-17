@@ -21,6 +21,10 @@ description: Build, verify, deploy, or debug the interactive map. Use when chang
    The canonical service deploys first, then the legacy service.
    If the second deploy fails, resume with `uv run erenshor maps deploy --target legacy`.
 
+Production analytics uses the tracked public configuration in `src/maps/.env.production`.
+Do not require a machine-local token to publish the normal site.
+Development leaves analytics off so local browsing does not count as site traffic.
+
 Use the CLI rather than `pnpm dev` or `pnpm build`.
 It sets `ERENSHOR_MAPS_DATABASE_PATH` to the selected clean database.
 The Node-side `sql.js` repository reads that database during prerender and dev-server loads.
