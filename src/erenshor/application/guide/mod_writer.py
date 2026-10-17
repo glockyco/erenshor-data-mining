@@ -809,19 +809,32 @@ def _required_items(
         if quest_key != quest.key:
             continue
         canonical_items.add(item_key)
+        grouped: dict[tuple[str | None, str | None], list[ItemUse]] = {}
         for use in sorted(uses, key=lambda use: use.use_key):
+            grouped.setdefault((use.variant_key, _requested_quality(use)), []).append(use)
+        for (variant, quality), members in grouped.items():
             canonical_item = nodes[item_key]
-            quantity = use.quantity_min
-            if quantity is None or not math.isfinite(quantity) or quantity < 0 or int(quantity) != quantity:
-                raise ValueError(f"Quest requirement has no integer quantity: {use.use_key}")
+            total = 0
+            for use in members:
+                quantity = use.quantity_min
+                if (
+                    quantity is None
+                    or isinstance(quantity, bool)
+                    or not math.isfinite(quantity)
+                    or quantity < 0
+                    or use.quantity_kind != "exact"
+                    or use.quantity_max != quantity
+                    or int(quantity) != quantity
+                ):
+                    raise ValueError(f"Quest requirement has no integer quantity: {use.use_key}")
+                total += int(quantity)
             value: dict[str, Any] = {
                 "item_name": canonical_item.display_name,
                 "item_stable_key": item_key,
-                "use_key": use.use_key,
-                "quantity": int(quantity),
+                "use_keys": [use.use_key for use in members],
+                "quantity": total,
             }
-            _put_if(value, "or_group", use.variant_key)
-            quality = _requested_quality(use)
+            _put_if(value, "variant_key", variant)
             _put_if(value, "output_quality", quality)
             sources = _canonical_item_sources(compiled, item_key, nodes, quest.key, frozenset(), quality)
             if sources:
@@ -845,7 +858,15 @@ def _required_items(
             if sources:
                 value["sources"] = sources
             result.append(value)
-    return sorted(result, key=lambda row: (row["item_stable_key"], row.get("or_group", ""), row.get("use_key", "")))
+    return sorted(
+        result,
+        key=lambda row: (
+            row.get("variant_key", ""),
+            row["item_stable_key"],
+            row.get("output_quality", ""),
+            row.get("or_group", ""),
+        ),
+    )
 
 
 def _with_source_conditions(sources: list[dict[str, Any]], item: Node, compiled: CompiledData) -> list[dict[str, Any]]:
@@ -1077,6 +1098,8 @@ def _steps(
             "quantity": item["quantity"],
         }
         _put_if(step, "or_group", item.get("or_group"))
+        _put_if(step, "requirement_variant", item.get("variant_key"))
+        _put_if(step, "output_quality", item.get("output_quality"))
         _put_if(step, "level_estimate", level_for(nodes[item["item_stable_key"]], action))
         if quest.guide_only and item.get("sources"):
             step["sources"] = item["sources"]
@@ -1606,6 +1629,7 @@ def _normalize_source_tables(result: dict[str, Any], compiled: CompiledData) -> 
                 acquisition_keys.add(value["acquisition_key"])
             if "use_key" in value:
                 use_keys.add(value["use_key"])
+            use_keys.update(value.get("use_keys", ()))
             use_keys.update(value.get("operation_use_keys", ()))
             for member in value.values():
                 visit(member)

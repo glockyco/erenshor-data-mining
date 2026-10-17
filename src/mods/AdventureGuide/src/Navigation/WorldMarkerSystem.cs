@@ -452,14 +452,11 @@ public sealed class WorldMarkerSystem
 
     private void EmitItemSourceMarkers(QuestEntry quest, string scene)
     {
-        if (quest.RequiredItems == null)
-            return;
-
-        foreach (var ri in quest.RequiredItems)
+        var missing = StepProgress.MissingRequirements(quest, _state.CountItemDelegate);
+        while (missing.MoveNext())
         {
-            int have = _state.CountItem(ri.ItemStableKey);
-            if (have >= ri.Quantity)
-                continue;
+            var ri = missing.Current;
+            int have = missing.Have;
 
             string? progress = null;
 
@@ -821,10 +818,12 @@ public sealed class WorldMarkerSystem
                 int need = 1;
                 foreach (var quest in _data.All)
                 {
-                    if (!_state.IsActionable(quest) || quest.RequiredItems == null)
+                    if (!_state.IsActionable(quest))
                         continue;
-                    foreach (var ri in quest.RequiredItems)
+                    var missing = StepProgress.MissingRequirements(quest, _state.CountItemDelegate);
+                    while (missing.MoveNext())
                     {
+                        var ri = missing.Current;
                         if (
                             string.Equals(
                                 ri.ItemName,
@@ -833,7 +832,7 @@ public sealed class WorldMarkerSystem
                             )
                         )
                         {
-                            have = _state.CountItem(ri.ItemStableKey);
+                            have = missing.Have;
                             need = ri.Quantity;
                             break;
                         }
@@ -1190,18 +1189,8 @@ public sealed class WorldMarkerSystem
     }
 
     /// <summary>Check if all required items for a quest are in the player's inventory.</summary>
-    private bool HasAllRequiredItems(QuestEntry quest)
-    {
-        if (quest.RequiredItems == null || quest.RequiredItems.Count == 0)
-            return false;
-
-        foreach (var ri in quest.RequiredItems)
-        {
-            if (_state.CountItem(ri.ItemStableKey) < ri.Quantity)
-                return false;
-        }
-        return true;
-    }
+    private bool HasAllRequiredItems(QuestEntry quest) =>
+        StepProgress.HasRequiredItems(quest, _state.CountItemDelegate);
 
     /// <summary>
     /// Identity of a marker intent: an empty live spawn point, a character at

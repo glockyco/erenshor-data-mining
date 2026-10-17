@@ -48,6 +48,37 @@ public static class StepProgress
         for (int i = start; i < steps.Count; )
         {
             var step = steps[i];
+            if (step.RequirementVariant != null)
+            {
+                int end = i;
+                while (end < steps.Count && steps[end].RequirementVariant != null)
+                    end++;
+                bool satisfied = false;
+                for (int bundle = i; bundle < end; )
+                {
+                    string variant = steps[bundle].RequirementVariant!;
+                    bool complete = true;
+                    do
+                    {
+                        complete &= IsStepComplete(steps[bundle], state, data);
+                        bundle++;
+                    } while (bundle < end && steps[bundle].RequirementVariant == variant);
+                    satisfied |= complete;
+                }
+                if (satisfied)
+                {
+                    i = end;
+                    continue;
+                }
+                string firstVariant = step.RequirementVariant;
+                while (
+                    i < end
+                    && steps[i].RequirementVariant == firstVariant
+                    && IsStepComplete(steps[i], state, data)
+                )
+                    i++;
+                return i;
+            }
             string? group = step.OrGroup;
             if (group != null)
             {
@@ -103,7 +134,7 @@ public static class StepProgress
         return false;
     }
 
-    private static bool IsStepComplete(QuestStep step, QuestStateTracker state, GuideData data)
+    internal static bool IsStepComplete(QuestStep step, QuestStateTracker state, GuideData data)
     {
         if (
             string.Equals(step.Action, "collect", System.StringComparison.Ordinal)
@@ -125,6 +156,114 @@ public static class StepProgress
 
         // Can't verify: treat as current (conservative).
         return false;
+    }
+
+    internal static bool HasRequiredItems(QuestEntry quest, Func<string, int> countItem)
+    {
+        if (quest.RequiredItems is not { Count: > 0 })
+            return false;
+        var missing = MissingRequirements(quest, countItem);
+        return !missing.MoveNext();
+    }
+
+    internal static MissingRequirementEnumerator MissingRequirements(
+        QuestEntry quest,
+        Func<string, int> countItem
+    ) => new(quest.RequiredItems, countItem);
+
+    // Scan-local projection. A complete native bundle suppresses every native
+    // alternative, but never suppresses independent AND or authored OR requirements.
+    internal struct MissingRequirementEnumerator
+    {
+        private readonly List<RequiredItemInfo>? _items;
+        private readonly Func<string, int> _countItem;
+        private readonly bool _nativeSatisfied;
+        private int _index;
+
+        internal MissingRequirementEnumerator(
+            List<RequiredItemInfo>? items,
+            Func<string, int> countItem
+        )
+        {
+            _items = items;
+            _countItem = countItem;
+            _nativeSatisfied = false;
+            _index = -1;
+            Current = null!;
+            Have = 0;
+            if (items == null)
+                return;
+            for (int i = 0; i < items.Count; i++)
+            {
+                string? variant = items[i].VariantKey;
+                if (variant == null)
+                    continue;
+                bool seen = false;
+                for (int previous = 0; previous < i; previous++)
+                    if (items[previous].VariantKey == variant)
+                    {
+                        seen = true;
+                        break;
+                    }
+                if (seen)
+                    continue;
+                bool complete = true;
+                for (int member = i; member < items.Count; member++)
+                    if (
+                        items[member].VariantKey == variant
+                        && countItem(items[member].ItemStableKey) < items[member].Quantity
+                    )
+                    {
+                        complete = false;
+                        break;
+                    }
+                if (complete)
+                {
+                    _nativeSatisfied = true;
+                    break;
+                }
+            }
+        }
+
+        public MissingRequirementEnumerator GetEnumerator() => this;
+
+        public RequiredItemInfo Current { get; private set; }
+        public int Have { get; private set; }
+
+        public bool MoveNext()
+        {
+            if (_items == null)
+                return false;
+            while (++_index < _items.Count)
+            {
+                var item = _items[_index];
+                if (item.VariantKey != null && _nativeSatisfied)
+                    continue;
+                int have = _countItem(item.ItemStableKey);
+                if (have >= item.Quantity)
+                    continue;
+                if (item.VariantKey == null && item.OrGroup != null)
+                {
+                    bool satisfied = false;
+                    foreach (var alternative in _items)
+                        if (
+                            alternative.VariantKey == null
+                            && alternative.OrGroup == item.OrGroup
+                            && _countItem(alternative.ItemStableKey) >= alternative.Quantity
+                        )
+                        {
+                            satisfied = true;
+                            break;
+                        }
+                    if (satisfied)
+                        continue;
+                }
+                Current = item;
+                Have = have;
+                return true;
+            }
+            return false;
+        }
     }
 
     /// <summary>

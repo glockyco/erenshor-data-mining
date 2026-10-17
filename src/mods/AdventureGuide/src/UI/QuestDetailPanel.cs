@@ -228,8 +228,15 @@ public sealed class QuestDetailPanel
         {
             var step = quest.Steps[i];
 
-            // Show "OR" separator between consecutive steps in the same or_group
-            if (step.OrGroup != null && step.OrGroup == prevOrGroup)
+            if (
+                (step.OrGroup != null && step.OrGroup == prevOrGroup)
+                || (
+                    i > 0
+                    && step.RequirementVariant != null
+                    && quest.Steps[i - 1].RequirementVariant != null
+                    && step.RequirementVariant != quest.Steps[i - 1].RequirementVariant
+                )
+            )
             {
                 ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
                 ImGui.TextUnformatted("  -- OR --");
@@ -237,7 +244,12 @@ public sealed class QuestDetailPanel
             }
 
             StepState state;
-            if (i < currentStepIndex)
+            if (
+                step.RequirementVariant != null
+                    ? currentStepIndex == quest.Steps.Count
+                        || _questDisplay[quest].Steps[step].HasRequiredQuantity
+                    : i < currentStepIndex
+            )
                 state = StepState.Completed;
             else if (i == currentStepIndex)
                 state = StepState.Current;

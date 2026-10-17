@@ -10,11 +10,16 @@ internal static class ItemSourcePolicy
         if (quest.RequiredItems != null)
             foreach (var item in quest.RequiredItems)
                 if (
-                    item.ItemStableKey == step.TargetKey
-                    || string.Equals(
-                        item.ItemName,
-                        step.TargetName,
-                        StringComparison.OrdinalIgnoreCase
+                    item.VariantKey == step.RequirementVariant
+                    && item.OutputQuality == step.OutputQuality
+                    && (
+                        step.TargetKey != null
+                            ? item.ItemStableKey == step.TargetKey
+                            : string.Equals(
+                                item.ItemName,
+                                step.TargetName,
+                                StringComparison.OrdinalIgnoreCase
+                            )
                     )
                 )
                     return item.Sources;

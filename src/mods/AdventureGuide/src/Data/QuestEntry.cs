@@ -118,6 +118,12 @@ public sealed class QuestStep
     [JsonProperty("or_group")]
     public string? OrGroup { get; set; }
 
+    [JsonProperty("requirement_variant")]
+    public string? RequirementVariant { get; set; }
+
+    [JsonProperty("output_quality")]
+    public string? OutputQuality { get; set; }
+
     [JsonProperty("level_estimate")]
     public LevelEstimate? LevelEstimate { get; set; }
 
@@ -315,6 +321,21 @@ public sealed class RequiredItemInfo
 
     [JsonProperty("or_group")]
     public string? OrGroup { get; set; }
+
+    [JsonProperty("use_keys")]
+    public List<string>? UseKeys { get; set; }
+
+    [JsonProperty("use_key")]
+    private string? LegacyUseKey
+    {
+        set => throw new InvalidDataException("Native required items must provide use_keys");
+    }
+
+    [JsonProperty("variant_key")]
+    public string? VariantKey { get; set; }
+
+    [JsonProperty("output_quality")]
+    public string? OutputQuality { get; set; }
 
     [JsonProperty("sources")]
     public List<ItemSource>? Sources { get; set; }

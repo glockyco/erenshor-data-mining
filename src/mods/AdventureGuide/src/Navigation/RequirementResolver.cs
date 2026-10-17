@@ -999,6 +999,8 @@ public sealed class RequirementResolver
             Keyword = original.Keyword,
             Tips = original.Tips,
             OrGroup = original.OrGroup,
+            RequirementVariant = original.RequirementVariant,
+            OutputQuality = original.OutputQuality,
             LevelEstimate = original.LevelEstimate,
             Sources = sources,
         };

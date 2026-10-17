@@ -166,19 +166,10 @@ public sealed class LootScanner
                     }
                 }
             }
-            if (quest.RequiredItems == null)
-                continue;
-            foreach (var ri in quest.RequiredItems)
+            foreach (var ri in StepProgress.MissingRequirements(quest, state.CountItemDelegate))
             {
-                if (state.CountItem(ri.ItemStableKey) < ri.Quantity)
-                {
-                    _neededItems.Add(ri.ItemName);
-                    ItemSourcePolicy.AddUsedItems(
-                        ri.Sources,
-                        state.CountItemDelegate,
-                        _neededItems
-                    );
-                }
+                _neededItems.Add(ri.ItemName);
+                ItemSourcePolicy.AddUsedItems(ri.Sources, state.CountItemDelegate, _neededItems);
             }
         }
         if (_neededItems.Count == 0)

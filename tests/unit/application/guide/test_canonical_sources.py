@@ -269,19 +269,142 @@ def test_item_operation_inputs_are_real_use_children(tmp_path, kind):
     assert child["children"][0]["acquisition_key"] == "input-source"
 
 
-def test_two_quest_variants_and_repeated_requirement_slots_are_not_collapsed(tmp_path):
+@pytest.mark.parametrize(
+    ("slots", "expected"),
+    [
+        (
+            [("octo", "item:result", slot, 1) for slot in range(4)],
+            [("octo", "item:result", 4)],
+        ),
+        (
+            [("bundle", "item:result", 0, 1), ("bundle", "item:input", 1, 2)],
+            [("bundle", "item:input", 2), ("bundle", "item:result", 1)],
+        ),
+        (
+            [
+                ("a", "item:result", 0, 1),
+                ("a", "item:result", 1, 2),
+                ("a", "item:input", 2, 1),
+                ("b", "item:result", 0, 3),
+                ("b", "item:result", 1, 4),
+                ("b", "item:input", 2, 2),
+            ],
+            [
+                ("a", "item:input", 1),
+                ("a", "item:result", 3),
+                ("b", "item:input", 2),
+                ("b", "item:result", 7),
+            ],
+        ),
+        (
+            [("a", "item:result", 0, 2), ("b", "item:result", 0, 3)],
+            [("a", "item:result", 2), ("b", "item:result", 3)],
+        ),
+        (
+            [(None, "item:result", 0, 1), (None, "item:result", 1, 2), (None, "item:input", 2, 1)],
+            [(None, "item:input", 1), (None, "item:result", 3)],
+        ),
+    ],
+    ids=["octorunners-four-slots", "mixed-item-and", "repeated-items-in-two-bundles", "single-slot-or", "ordinary-and"],
+)
+def test_native_requirement_bundles_aggregate_without_losing_slots(tmp_path, slots, expected):
     graph = _graph()
-    fact = ItemAcquisition("vendor", "item:result", "vendor", "character:source")
-    uses = [
-        _required("first", "variant-a"),
-        replace(_required("second", "variant-b"), material_slot=4, quantity_min=3, quantity_max=3),
+    facts = [
+        ItemAcquisition(f"vendor:{item}:{alternative}", item, "vendor", "character:source")
+        for item in ("item:result", "item:input")
+        for alternative in ("first", "second")
     ]
-    load_canonical_sources(tmp_path, graph, [fact], uses)
-    quest = next(row for row in _payload(graph)["quests"] if row["db_name"] == "MAIN")
-    assert {(row["use_key"], row["or_group"], row["quantity"]) for row in quest["required_items"]} == {
-        ("first", "variant-a", 2),
-        ("second", "variant-b", 3),
+    uses = [
+        replace(
+            _required(f"slot:{variant}:{slot}", variant),
+            item_stable_key=item,
+            material_slot=slot,
+            quantity_min=quantity,
+            quantity_max=quantity,
+        )
+        for variant, item, slot, quantity in slots
+    ]
+    load_canonical_sources(tmp_path, graph, facts, uses)
+    payload = _payload(graph)
+    quest = next(row for row in payload["quests"] if row["db_name"] == "MAIN")
+    assert [
+        (row.get("variant_key"), row["item_stable_key"], row["quantity"]) for row in quest["required_items"]
+    ] == expected
+    assert [
+        (step.get("requirement_variant"), step["target_key"], step["quantity"])
+        for step in quest["steps"]
+        if step["action"] == "collect"
+    ] == expected
+    assert all("or_group" not in row and "use_key" not in row for row in quest["required_items"])
+    assert all("or_group" not in step for step in quest["steps"] if step["action"] == "collect")
+    for row in quest["required_items"]:
+        assert row["use_keys"] == sorted(
+            use.use_key
+            for use in uses
+            if use.variant_key == row.get("variant_key") and use.item_stable_key == row["item_stable_key"]
+        )
+        assert {source["acquisition_key"] for source in row["sources"]} == {
+            f"vendor:{row['item_stable_key']}:{alternative}" for alternative in ("first", "second")
+        }
+    assert payload["_item_uses"] == {
+        use.use_key: {key: json.loads(json.dumps(value)) for key, value in asdict(use).items() if key != "evidence"}
+        for use in uses
     }
+
+
+def test_native_requirement_aggregation_keeps_requested_quality_separate(tmp_path):
+    graph = _graph()
+    uses = [
+        replace(_required(f"{quality}:{slot}", "bundle", quality), material_slot=slot)
+        for quality in ("normal", "perfect")
+        for slot in range(2)
+    ]
+    facts = [
+        ItemAcquisition(
+            f"vendor:{quality}",
+            "item:result",
+            "vendor",
+            "character:source",
+            conditions=(ProvenanceCondition("quality", 0, 0, "quality", value=quality, phase="operation_outcome"),),
+        )
+        for quality in ("normal", "perfect")
+    ]
+    load_canonical_sources(tmp_path, graph, facts, uses)
+    payload = _payload(graph)
+    quest = next(row for row in payload["quests"] if row["db_name"] == "MAIN")
+    assert [(row["output_quality"], row["quantity"]) for row in quest["required_items"]] == [
+        ("normal", 4),
+        ("perfect", 4),
+    ]
+    for row in quest["required_items"]:
+        assert row["use_keys"] == [f"{row['output_quality']}:{slot}" for slot in range(2)]
+        assert [source["acquisition_key"] for source in row["sources"]] == [f"vendor:{row['output_quality']}"]
+    assert set(payload["_item_uses"]) == {use.use_key for use in uses}
+    assert [
+        (step["requirement_variant"], step["output_quality"], step["quantity"])
+        for step in quest["steps"]
+        if step["action"] == "collect"
+    ] == [("bundle", "normal", 4), ("bundle", "perfect", 4)]
+
+
+@pytest.mark.parametrize("quantity", [None, -1, 0.5, float("inf"), float("nan"), True])
+def test_native_requirement_aggregation_rejects_nonintegral_slot_quantities(quantity):
+    graph = _graph()
+    graph.quest_uses[("quest:main", "item:result")] = [
+        replace(_required(), quantity_min=quantity, quantity_max=quantity)
+    ]
+    with pytest.raises(ValueError, match="Quest requirement has no integer quantity: required"):
+        _payload(graph)
+
+
+@pytest.mark.parametrize("maximum,kind", [(2, "bounded"), (1, "unknown"), (None, "unknown")])
+def test_native_requirement_aggregation_rejects_uncertain_slot_quantities(maximum, kind):
+    graph = _graph()
+    graph.quest_uses[("quest:main", "item:result")] = [
+        replace(_required(), quantity_min=1, quantity_max=maximum, quantity_kind=kind)
+    ]
+    with pytest.raises(ValueError, match="integer quantity"):
+        _payload(graph)
 
 
 def test_actor_qualifiers_and_initialization_are_annotations_with_exact_phase_and_scope(tmp_path):

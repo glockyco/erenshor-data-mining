@@ -1,4 +1,5 @@
 using AdventureGuide.Data;
+using AdventureGuide.State;
 
 namespace AdventureGuide.Navigation;
 
@@ -22,13 +23,12 @@ public static class CorpsePriorityPolicy
             return;
         if (step.Action == "loot")
         {
-            if (quest?.RequiredItems != null)
-                foreach (var item in quest.RequiredItems)
-                    if (countItem(item.ItemStableKey) < item.Quantity)
-                    {
-                        output.Add(item.ItemName);
-                        ItemSourcePolicy.AddUsedItems(item.Sources, countItem, output);
-                    }
+            if (quest != null)
+                foreach (var item in StepProgress.MissingRequirements(quest, countItem))
+                {
+                    output.Add(item.ItemName);
+                    ItemSourcePolicy.AddUsedItems(item.Sources, countItem, output);
+                }
         }
         else if (step.TargetType == "item" && step.TargetName != null)
         {

@@ -15,23 +15,17 @@ public static class MarkerTextFormatter
             return "Talk to";
         }
 
-        // Filter out or_group alternatives — only count truly required items
+        // Without player state, alternative bundles have no chosen item count.
         int count = 0;
         string? firstName = null;
         foreach (var ri in quest.RequiredItems)
         {
-            if (ri.OrGroup != null)
-                continue;
+            if (ri.VariantKey != null || ri.OrGroup != null)
+                return "Turn in required items";
             count++;
             firstName ??= ri.ItemName;
         }
 
-        if (count == 0)
-        {
-            if (comp.Keyword != null)
-                return $"Say '{comp.Keyword}'";
-            return "Talk to";
-        }
         if (count == 1)
             return $"Give {firstName}";
         return $"Give {count} items";
