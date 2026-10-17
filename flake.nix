@@ -79,7 +79,7 @@
       # for Hatchling to discover the live source tree. Unrelated repository
       # edits must not rebuild the Python environment.
       editableSourceOverlay = _final: prev: {
-        erenshor = prev.erenshor.overrideAttrs (_old: {
+        erenshor = prev.erenshor.overrideAttrs (old: {
           src = nixpkgs.lib.fileset.toSource {
             root = ./.;
             fileset = nixpkgs.lib.fileset.unions [
@@ -88,6 +88,13 @@
               ./src/erenshor/__init__.py
             ];
           };
+          # Keep uv2nix's editable installation, but select its live source at
+          # Python startup so an inherited shell also works after changing worktrees.
+          postInstall = (old.postInstall or "") + ''
+            cp ${./nix/editable.py} "$out/${prev.python.sitePackages}/_erenshor_editable.py"
+            echo 'import _erenshor_editable; _erenshor_editable.install()' \
+              > "$out/${prev.python.sitePackages}/_editable_impl_erenshor.pth"
+          '';
         });
       };
 

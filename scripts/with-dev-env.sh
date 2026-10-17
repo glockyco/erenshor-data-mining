@@ -17,6 +17,7 @@ if [ "$#" -eq 0 ]; then
 fi
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export REPO_ROOT="$repo_root"
 
 # Nix installs into profiles that a GUI process never sources, so direnv and
 # nix themselves have to be findable before they can provide anything else.

@@ -41,7 +41,7 @@ from erenshor.application.extract.rip_workflow import RipRequest, RipWorkflow
 from erenshor.application.services.backup_service import BackupError, BackupService
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, raw_database_exists
-from erenshor.cli.preconditions.checks.extract import comparison_databases, ide_sources
+from erenshor.cli.preconditions.checks.extract import clean_build_outputs, comparison_databases, ide_sources
 from erenshor.cli.preconditions.checks.field_coverage import export_field_coverage_current
 from erenshor.cli.preconditions.checks.inputs import game_installation, required_path
 from erenshor.cli.preconditions.checks.unity import (
@@ -523,7 +523,7 @@ def export(
 
 
 @app.command()
-@require_preconditions(game_installation, raw_database_exists)
+@require_preconditions(clean_build_outputs, game_installation, raw_database_exists)
 def build(ctx: typer.Context) -> None:
     """Build the clean database from the raw export.
 
@@ -565,6 +565,7 @@ def build(ctx: typer.Context) -> None:
         with _profile_command(profile, command_name, cli_ctx, terminal=True):
             result = CleanDatabaseWorkflow().run(
                 CleanDatabaseRequest(
+                    repo_root=cli_ctx.repo_root,
                     raw_db_path=raw_db_path,
                     clean_db_path=clean_db_path,
                     mapping_json_path=mapping_json_path,

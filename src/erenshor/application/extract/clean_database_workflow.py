@@ -19,6 +19,7 @@ from loguru import logger
 
 from erenshor.application.processor.build import build as build_clean_db
 from erenshor.application.processor.pictures import CATALOG_DIRECTORY, prune_catalog
+from erenshor.infrastructure.config.paths import require_owned_write_path
 
 
 class CleanDatabaseBuilder(Protocol):
@@ -44,6 +45,7 @@ class CleanDatabaseWorkflowError(RuntimeError):
 class CleanDatabaseRequest:
     """Resolved inputs and destination for one clean-database build."""
 
+    repo_root: Path
     raw_db_path: Path
     clean_db_path: Path
     mapping_json_path: Path
@@ -75,6 +77,8 @@ class CleanDatabaseWorkflow:
         that the published database references.  After publication, the catalog
         files that the new database does not reference are removed.
         """
+        require_owned_write_path(request.clean_db_path, request.repo_root)
+        require_owned_write_path(request.images_dir / CATALOG_DIRECTORY, request.repo_root)
         request.clean_db_path.parent.mkdir(parents=True, exist_ok=True)
         staged_path = self._make_staged_path(request.clean_db_path)
 

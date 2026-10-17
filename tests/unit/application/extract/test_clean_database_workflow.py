@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import sqlite3
-from dataclasses import FrozenInstanceError
+from dataclasses import FrozenInstanceError, replace
 from pathlib import Path
 
 import pytest
@@ -12,10 +12,12 @@ from erenshor.application.extract.clean_database_workflow import (
     CleanDatabaseWorkflow,
     CleanDatabaseWorkflowError,
 )
+from erenshor.infrastructure.config.paths import PathResolutionError
 
 
 def _request(tmp_path: Path) -> CleanDatabaseRequest:
     return CleanDatabaseRequest(
+        repo_root=tmp_path,
         raw_db_path=tmp_path / "database_raw.sqlite",
         clean_db_path=tmp_path / "database.sqlite",
         mapping_json_path=tmp_path / "mapping.json",
@@ -163,3 +165,65 @@ def test_a_failed_build_leaves_every_catalog_file(tmp_path: Path) -> None:
         CleanDatabaseWorkflow(builder).run(request)
 
     assert [path.name for path in catalog.iterdir()] == ["kept.png"]
+
+
+@pytest.mark.parametrize("destination_kind", ["file_symlink", "directory_symlink", "absolute", "images"])
+def test_cross_checkout_outputs_fail_before_builder_or_staging(tmp_path: Path, destination_kind: str) -> None:
+    root = tmp_path / "worktree"
+    root.mkdir()
+    (root / ".git").write_text("gitdir: ../main/.git/worktrees/test")
+    owner = tmp_path / "main"
+    owner.mkdir()
+    (owner / ".git").mkdir()
+    target = owner / "database.sqlite"
+    target.write_bytes(b"original")
+    request = _request(root)
+    if destination_kind == "file_symlink":
+        request.clean_db_path.symlink_to(target)
+    elif destination_kind == "directory_symlink":
+        (root / "shared").symlink_to(owner, target_is_directory=True)
+        request = replace(request, clean_db_path=root / "shared/database.sqlite")
+    elif destination_kind == "absolute":
+        request = replace(request, clean_db_path=target)
+    else:
+        (root / "images").symlink_to(owner / "images", target_is_directory=True)
+    before = sorted(str(path.relative_to(tmp_path)) for path in tmp_path.rglob("*"))
+
+    def builder(**_kwargs: object) -> None:
+        pytest.fail("builder must not run for another checkout's output")
+
+    with pytest.raises(PathResolutionError, match="Refusing cross-checkout write"):
+        CleanDatabaseWorkflow(builder).run(request)
+
+    assert target.read_bytes() == b"original"
+    assert sorted(str(path.relative_to(tmp_path)) for path in tmp_path.rglob("*")) == before
+
+
+def test_owned_database_accepts_read_only_shared_inputs(tmp_path: Path) -> None:
+    root = tmp_path / "worktree"
+    root.mkdir()
+    (root / ".git").write_text("gitdir: ../main/.git/worktrees/test")
+    owner = tmp_path / "main"
+    owner.mkdir()
+    (owner / ".git").mkdir()
+    raw = owner / "database_raw.sqlite"
+    raw.write_bytes(b"read-only input")
+    raw.chmod(0o444)
+    unity = owner / "unity"
+    unity.mkdir()
+    request = _request(root)
+    request.raw_db_path.symlink_to(raw)
+    request.export_dir.symlink_to(unity, target_is_directory=True)
+
+    def builder(**kwargs: object) -> None:
+        staged = kwargs["clean_db_path"]
+        assert isinstance(staged, Path)
+        assert request.raw_db_path.read_bytes() == b"read-only input"
+        assert request.export_dir.resolve() == unity.resolve()
+        _write_sqlite(staged)
+
+    CleanDatabaseWorkflow(builder).run(request)
+
+    assert request.clean_db_path.is_file()
+    assert not request.clean_db_path.is_symlink()
+    assert raw.read_bytes() == b"read-only input"

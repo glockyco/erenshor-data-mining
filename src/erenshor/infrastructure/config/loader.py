@@ -21,6 +21,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from .paths import checkout_root
 from .schema import Config
 
 
@@ -35,10 +36,9 @@ class ConfigLoadError(Exception):
 
 
 def _find_repo_root() -> Path:
-    """Find repository root by searching for .git directory.
+    """Find the repository root using a .git directory or worktree file.
 
-    Searches upward from current working directory until .git directory
-    is found or filesystem root is reached.
+    Searches upward from the current working directory.
 
     Returns:
         Path to repository root directory.
@@ -46,12 +46,9 @@ def _find_repo_root() -> Path:
     Raises:
         ConfigLoadError: If repository root cannot be found.
     """
-    current = Path.cwd().resolve()
-
-    # Search upward for .git directory
-    for parent in [current, *current.parents]:
-        if (parent / ".git").exists():
-            return parent
+    root = checkout_root(Path.cwd())
+    if root is not None:
+        return root
 
     raise ConfigLoadError(
         "Could not find repository root. Make sure you are running from within the Erenshor repository."
@@ -105,8 +102,8 @@ def _deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any
 def get_repo_root() -> Path:
     """Get repository root directory.
 
-    Searches upward from current working directory until .git directory
-    is found. This is the same logic used by load_config().
+    Searches upward from the current working directory for a .git directory
+    or worktree file. This is the same logic used by load_config().
 
     Returns:
         Path to repository root directory.

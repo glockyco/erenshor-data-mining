@@ -5,9 +5,34 @@ from __future__ import annotations
 from typing import Any
 
 from erenshor.cli.preconditions.base import PreconditionResult
-from erenshor.infrastructure.config.paths import PathResolutionError
+from erenshor.infrastructure.config.paths import PathResolutionError, require_owned_write_path
 from erenshor.infrastructure.csproj_generator import UnityPaths
 from erenshor.infrastructure.steam.installation import GameInstallationError, find_game_installation
+
+
+def clean_build_outputs(context: dict[str, Any]) -> PreconditionResult:
+    """Require owned outputs before profiling, cataloguing, or publication."""
+    variant = context["config"].variants[context["variant"]]
+    root = context["repo_root"]
+    outputs = {
+        "database": variant.resolved_database(root),
+        "profiles": variant.resolved_profiles(root),
+        "images_output catalog": variant.resolved_images_output(root) / "catalog",
+        "backups": variant.resolved_backups(root),
+    }
+    for setting, path in outputs.items():
+        try:
+            require_owned_write_path(path, root)
+        except (OSError, RuntimeError, PathResolutionError) as error:
+            return PreconditionResult(
+                False,
+                "clean_build_outputs",
+                f"Clean build output is not owned by this checkout: {setting}",
+                f"{error}\nConfigure {setting} under this worktree. "
+                "For images_output and backups, use owned APFS clones when existing files are required. "
+                "Keep shared backups, Unity, images, and wiki symlinks as read-only inputs.",
+            )
+    return PreconditionResult(True, "clean_build_outputs", "Clean build outputs belong to this checkout")
 
 
 def comparison_databases(context: dict[str, Any]) -> PreconditionResult:

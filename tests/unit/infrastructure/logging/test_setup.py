@@ -463,3 +463,27 @@ class TestLoggingSetup:
         assert log_dir.exists()
         assert (tmp_path / "variants").exists()
         assert (tmp_path / "variants" / "main").exists()
+
+
+@pytest.mark.parametrize("variant", [None, "main"])
+def test_logging_rejects_cross_checkout_directory_before_writing(
+    minimal_config: Config, tmp_path: Path, monkeypatch, variant: str | None
+) -> None:
+    root = tmp_path / "worktree"
+    root.mkdir()
+    (root / ".git").write_text("gitdir: ../main/.git/worktrees/test")
+    owner = tmp_path / "main"
+    owner.mkdir()
+    (owner / ".git").mkdir()
+    (root / "shared").symlink_to(owner, target_is_directory=True)
+    destination = "shared/logs"
+    if variant is None:
+        minimal_config.global_.paths.logs = destination
+    else:
+        minimal_config.variants[variant].logs = destination
+    monkeypatch.setattr("erenshor.infrastructure.logging.setup.get_repo_root", lambda: root)
+
+    with pytest.raises(LoggingSetupError, match="Refusing cross-checkout write"):
+        setup_logging(minimal_config, variant=variant)
+
+    assert not (owner / "logs").exists()

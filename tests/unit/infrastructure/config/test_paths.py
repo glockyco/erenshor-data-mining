@@ -15,6 +15,8 @@ import pytest
 
 from erenshor.infrastructure.config.paths import (
     PathResolutionError,
+    checkout_root,
+    require_owned_write_path,
     resolve_path,
 )
 
@@ -351,3 +353,54 @@ class TestResolvePathRealWorld:
         for result in resolved.values():
             assert str(result).startswith(str(tmp_path))
             assert result.is_absolute()
+
+
+@pytest.mark.parametrize("git_marker", ["directory", "file"])
+def test_checkout_root_recognizes_main_and_linked_worktrees(tmp_path: Path, git_marker: str) -> None:
+    if git_marker == "directory":
+        (tmp_path / ".git").mkdir()
+    else:
+        (tmp_path / ".git").write_text("gitdir: /another/checkout/.git/worktrees/test")
+    nested = tmp_path / "nested" / "missing.sqlite"
+
+    assert checkout_root(nested) == tmp_path.resolve()
+
+
+@pytest.mark.parametrize("destination_kind", ["file_symlink", "directory_symlink", "absolute"])
+def test_write_path_rejects_another_checkout_before_mutation(tmp_path: Path, destination_kind: str) -> None:
+    root = tmp_path / "worktree"
+    root.mkdir()
+    (root / ".git").write_text("gitdir: ../main/.git/worktrees/test")
+    other = tmp_path / "main"
+    other.mkdir()
+    (other / ".git").mkdir()
+    target = other / "database.sqlite"
+    target.write_bytes(b"unchanged")
+    if destination_kind == "file_symlink":
+        destination = root / "database.sqlite"
+        destination.symlink_to(target)
+    elif destination_kind == "directory_symlink":
+        (root / "shared").symlink_to(other, target_is_directory=True)
+        destination = root / "shared" / "database.sqlite"
+    else:
+        destination = target
+
+    with pytest.raises(PathResolutionError, match="Refusing cross-checkout write"):
+        require_owned_write_path(destination, root)
+
+    assert target.read_bytes() == b"unchanged"
+    assert not list(other.glob(".*.tmp"))
+
+
+def test_write_path_accepts_owned_files_and_explicit_external_configuration(tmp_path: Path) -> None:
+    root = tmp_path / "checkout"
+    root.mkdir()
+    (root / ".git").mkdir()
+    owned = root / "database.sqlite"
+    owned.write_bytes(b"owned")
+
+    require_owned_write_path(owned, root)
+    require_owned_write_path(root / "new" / "database.sqlite", root)
+    require_owned_write_path(tmp_path / "explicit-output" / "database.sqlite", root)
+
+    assert owned.read_bytes() == b"owned"

@@ -22,6 +22,7 @@ import sys
 from loguru import logger
 
 from erenshor.infrastructure.config.loader import get_repo_root
+from erenshor.infrastructure.config.paths import PathResolutionError, require_owned_write_path
 from erenshor.infrastructure.config.schema import Config
 
 
@@ -112,6 +113,11 @@ def setup_logging(config: Config, variant: str | None = None) -> None:
         # Global logs
         log_dir = config.global_.paths.resolved_logs(repo_root)
         log_file = log_dir / "erenshor_{time:YYYY-MM-DD}.log"
+
+    try:
+        require_owned_write_path(log_dir, repo_root)
+    except (OSError, RuntimeError, PathResolutionError) as error:
+        raise LoggingSetupError(str(error)) from error
 
     # Create log directory if it doesn't exist
     try:

@@ -238,6 +238,16 @@ class TestGetRepoRoot:
         repo_root = get_repo_root()
         assert repo_root == tmp_path
 
+    def test_get_repo_root_from_linked_worktree_with_stale_shell_root(self, tmp_path: Path, monkeypatch):
+        """The working directory wins over a shell inherited from another checkout."""
+        (tmp_path / ".git").write_text("gitdir: /main/.git/worktrees/test")
+        nested = tmp_path / "nested"
+        nested.mkdir()
+        monkeypatch.chdir(nested)
+        monkeypatch.setenv("REPO_ROOT", "/main")
+
+        assert get_repo_root() == tmp_path.resolve()
+
     def test_get_repo_root_fails_outside_repo(self, tmp_path: Path, monkeypatch):
         """Test that get_repo_root() fails when not in a git repository."""
         # No .git directory

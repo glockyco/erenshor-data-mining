@@ -78,6 +78,20 @@ Three things the shell cannot provide:
 - **CrossOver with a Steam bottle** that has each variant installed. The CLI finds an install by its Steam app ID. Set `CROSSOVER_BOTTLE` when there are several bottles.
 - **Credentials.** Copy `config.local.toml.example` to `.erenshor/config.local.toml` and fill in the wiki bot and interface logins. The Google service account key path is set there too. The Thunderstore token goes into `.env` (see `.env.example`). `config.toml` holds the tracked defaults, and an unknown key is an error.
 
+### Git worktrees
+
+Enter the dev shell and run the existing bootstrap command in each new worktree. The editable Python installation selects the checkout containing the current directory at interpreter startup. This also applies to `python`, `erenshor`, and `uv run` inherited from another checkout's dev shell. No `PYTHONPATH` override is needed.
+
+```sh
+python -c 'import erenshor; from erenshor.infrastructure.config import get_repo_root; print(erenshor.__file__); print(get_repo_root())'
+```
+
+Resolve variant paths from `config.toml` and any local overrides before copying data. Give each worktree its own raw and clean SQLite files. On macOS, `/bin/cp -c` creates owned APFS clones without duplicating their unchanged data blocks. Use `/bin/cp` because the dev shell's GNU `cp` does not support APFS cloning. Do not symlink the SQLite files or their writable parent directory to another checkout, because a clean build replaces the published database.
+
+Unity, images, wiki, and backups may remain symlinks when used only as read inputs. A clean build also writes its image catalog, profiles, and clean-database backup. For builds on macOS, clone the image and backup directories into owned locations with `/bin/cp -cR`, then point the selected variant's `images_output` and `backups` local overrides at those clones. Keep the shared symlinks for read-only work. This preserves the existing catalog and backup contracts without changing another checkout's files.
+
+`extract build` rejects outputs resolving into another checkout before profiling or building. Correct the named path in `.erenshor/config.local.toml` or replace its symlink with an owned clone. Explicit output paths outside Git checkouts remain supported.
+
 ## Common work
 
 | Command | What it does |

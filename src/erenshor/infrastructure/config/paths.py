@@ -88,3 +88,28 @@ def resolve_path(path: str, repo_root: Path, validate: bool = False) -> Path:
         )
 
     return resolved_path
+
+
+def checkout_root(path: Path) -> Path | None:
+    """Find the checkout containing a path, including Git worktree files."""
+    resolved = path.resolve()
+    return next((parent for parent in (resolved, *resolved.parents) if (parent / ".git").exists()), None)
+
+
+def require_owned_write_path(path: Path, repo_root: Path) -> None:
+    """Reject output paths that resolve into a different checkout.
+
+    Explicit output locations outside Git checkouts remain valid. Both the
+    target and its parent matter because atomic publication replaces the
+    directory entry rather than following a final file symlink.
+    """
+    expected_root = repo_root.resolve()
+    for destination in (path, path.parent):
+        owner = checkout_root(destination)
+        if owner is not None and owner != expected_root:
+            raise PathResolutionError(
+                f"Refusing cross-checkout write: {path} resolves into {owner}, "
+                f"not {expected_root}. Use a worktree-owned output path in "
+                ".erenshor/config.local.toml. On macOS, clone SQLite files with "
+                "/bin/cp -c instead of symlinking them. Shared inputs may remain symlinks."
+            )

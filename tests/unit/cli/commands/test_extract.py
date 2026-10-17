@@ -525,3 +525,35 @@ def test_changes_without_an_earlier_build(cli_context: CLIContext, tmp_path: Pat
 
     assert result.exit_code == 1
     assert "No earlier build is backed up" in result.output
+
+
+@pytest.mark.parametrize("setting", ["database", "images_output", "backups"])
+def test_build_rejects_shared_outputs_before_any_handler_side_effect(
+    cli_context: CLIContext, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, setting: str
+) -> None:
+    cli_context.repo_root = tmp_path
+    (tmp_path / ".git").write_text("gitdir: /main/.git/worktrees/test")
+    owner = tmp_path / "other-checkout"
+    owner.mkdir()
+    (owner / ".git").mkdir()
+    target = owner / "database.sqlite"
+    target.write_bytes(b"unchanged")
+    variant = cli_context.config.variants["main"]
+    destination = target if setting == "database" else owner / setting
+    cli_context.config.variants["main"] = variant.model_copy(update={setting: str(destination)})
+    Path(variant.database_raw).touch()
+    monkeypatch.setattr("erenshor.application.mods.local_workflow.get_game_path", lambda _ctx: tmp_path)
+    monkeypatch.setattr(extract, "_open_profile", lambda *_args, **_kwargs: pytest.fail("opened a profile"))
+    monkeypatch.setattr(
+        extract.CleanDatabaseWorkflow, "run", lambda *_args, **_kwargs: pytest.fail("started the builder")
+    )
+    monkeypatch.setattr(
+        extract.BackupService, "add_clean_database", lambda *_args, **_kwargs: pytest.fail("wrote a backup")
+    )
+
+    result = CliRunner().invoke(extract.app, ["build"], obj=cli_context)
+
+    assert result.exit_code == 1
+    assert "Refusing cross-checkout write" in result.output
+    assert target.read_bytes() == b"unchanged"
+    assert not (tmp_path / "profiles").exists()
