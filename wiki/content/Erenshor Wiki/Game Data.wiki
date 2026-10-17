@@ -75,6 +75,30 @@ On character pages, the type (Boss, Elite, Enemy, NPC, or Chest) comes from the 
 
 Each infobox that the bot makes has a <code>stablekey</code>. The key ties the infobox to one thing in the game, for example to one of several variants with the same name. Do not change or remove it.
 
+== Data-backed item pages ==
+Pages using [[Template:ItemData|ItemData]] read their item values from the game data. A data update does not rewrite the surrounding article text. Keep the call's <code>stablekey</code> unchanged, because it identifies the exact item variant.
+
+These fields belong to editors and remain unchanged:
+{| class="wikitable"
+! Template !! Field !! Your value
+|-
+| ItemData || <code>type</code> || Kept
+|-
+| ItemData || <code>questsource</code> || Kept
+|-
+| ItemData || <code>relatedquest</code> || Kept
+|-
+| ItemData || <code>othersource</code> || Kept
+|}
+
+Put strategy and other prose outside the call. Report incorrect game values instead of adding stat or source overrides.
+
+Use [[Template:ItemData/SourceNote|ItemData/SourceNote]] for an editor's source note whose item and source identities are known. When the data covers that source, compare the note with the displayed source and remove only redundant text. Leave other notes unchanged until reviewed.
+
+* [[:Category:Item data calls with invalid identities]] means the call needs the correct item key.
+* [[:Category:Item data calls with unsupported parameters]] means a parameter is not an editor field. Preserve its useful text outside the call and report any missing game data.
+* [[:Category:Item data notes covered by game data]] identifies source notes ready for review.
+
 == When the game data is wrong or missing ==
 Do not correct a value that the bot writes. The next update replaces your correction. Report the value instead. The fix then goes into the export, so that every page and the interactive map show the correct value.
 
@@ -124,6 +148,46 @@ Links to items, characters, abilities, quests, zones, factions, and classes use 
 * In the source editor, the '''Erenshor link''' button in the ''Insert'' group finds the correct template and key for you.
 
 The tooltip templates show the in-game tooltip on a page: [[Template:ItemTooltip|ItemTooltip]], [[Template:SpellTooltip|SpellTooltip]], [[Template:SkillTooltip|SkillTooltip]], and [[Template:StanceTooltip|StanceTooltip]].
+
+== Data-backed lists and quest panels ==
+Place a view template on a page to show a list from the game data. It changes after a data update without replacing the surrounding article text. Keep strategy and editor-written sub-area notes outside the template.
+
+{| class="wikitable"
+! View !! Data module !! Use
+|-
+| [[Template:Vendor stock|Vendor stock]] || [[Module:Erenshor/Data/VendorStock]] || A vendor's items, prices, and unlock conditions
+|-
+| [[Template:Zone roster|Zone roster]] || [[Module:Erenshor/Data/ZoneRosters]] || A zone's characters by encounter tier, with level ranges and spawn conditions
+|-
+| [[Template:Class abilities|Class abilities]] || [[Module:Erenshor/Data/ClassAbilities]] || The spells and skills taught by obtainable items, with class-specific required levels and alternative teaching items
+|-
+| [[Template:Quest data|Quest data]] || [[Module:Erenshor/Data/Quests]] || A quest's acquisition and completion routes, requirements, rewards, and alternatives
+|-
+| [[Template:World drops|World drops]] || [[Module:Erenshor/Data/WorldDrops]] || Special world drop rolls on eligible loot-bearing kills
+|}
+
+For example, write <code><nowiki>{{Zone roster}}</nowiki></code> on a zone page, or <code><nowiki>{{Class abilities|stablekey=class:druid}}</nowiki></code> to select a class explicitly. A view without a key uses the entity of its kind on the current page. If several entities share that page, give the template the intended <code>stablekey</code>.
+
+Spawn chances are chances per eligible spawn roll, not the chance of meeting a character anywhere in a zone. Scripted encounters do not imply a fixed spawn position. Furniture-only rows require the named set to be placed.
+
+=== Reading data in your own module ===
+Each data module's opening comment describes its fields and their types. Use [[Module:Erenshor/Link]] for article-backed identities so links and tooltips follow [[Module:Erenshor/Data/Links]]. Some fields carry native references with a name and an optional page. Preserve those references instead of guessing a page for an entity without an article. For example:
+
+<syntaxhighlight lang="lua">
+local data = mw.loadData("Module:Erenshor/Data/ClassAbilities")
+local Link = require("Module:Erenshor/Link")
+local p = {}
+function p.example()
+    local out = {}
+    for _, row in ipairs(data["class:druid"] or {}) do
+        table.insert(out, Link.render({ kind = "ability", stablekey = row.ability }))
+    end
+    return table.concat(out, "<br>")
+end
+return p
+</syntaxhighlight>
+
+Your own module is editor-maintained. Do not edit a generated data page to add a missing fact, because the next update replaces it. [[#How to report|Report the missing fact]] so the export and every view can use the correction.
 
 == Images ==
 Every picture's file name says what it shows and whose it is: the name of its subject, then its role.
@@ -179,6 +243,12 @@ These hidden categories collect pages that need a fix.
 | [[:Category:Pages with missing Erenshor treasure guardian data]] || {{PAGESINCATEGORY:Pages with missing Erenshor treasure guardian data}} || <code><nowiki>{{TreasureGuardianStats}}</nowiki></code> names no treasure guardian of the game data. Give it the guardian's current <code>stablekey</code>, or remove the template.
 |-
 | [[:Category:Pages with missing Erenshor vendor stock data]] || {{PAGESINCATEGORY:Pages with missing Erenshor vendor stock data}} || <code><nowiki>{{Vendor stock}}</nowiki></code> finds no vendor or no stock for the page. Pass the vendor's <code>stablekey</code>, or remove the template.
+|-
+| [[:Category:Pages with missing Erenshor zone roster data]] || {{PAGESINCATEGORY:Pages with missing Erenshor zone roster data}} || <code><nowiki>{{Zone roster}}</nowiki></code> finds no zone or roster. Give it the intended zone key, or report the missing data.
+|-
+| [[:Category:Pages with missing Erenshor class abilities data]] || {{PAGESINCATEGORY:Pages with missing Erenshor class abilities data}} || <code><nowiki>{{Class abilities}}</nowiki></code> finds no class or learned abilities. Give it the intended class key, or report the missing data.
+|-
+| [[:Category:Pages with missing Erenshor quest data]] || {{PAGESINCATEGORY:Pages with missing Erenshor quest data}} || <code><nowiki>{{Quest data}}</nowiki></code> finds no quest. Give it the intended quest key, or report the missing data.
 |}
 
 == Templates that the project maintains ==
@@ -186,16 +256,20 @@ Each of these templates has its documentation on its own page.
 
 ; Infoboxes
 : [[Template:Item|Item]], [[Template:Character|Character]], [[Template:Ability|Ability]], [[Template:Stance|Stance]], [[Template:Quest|Quest]], [[Template:Zone|Zone]]
+; Data-backed item pages
+: [[Template:ItemData|ItemData]], [[Template:ItemData/SourceNote|ItemData/SourceNote]]
 ; Item tooltips and their parts
 : [[Template:ItemTooltip|ItemTooltip]], [[Template:Item/Weapon|Item/Weapon]], [[Template:Item/Armor|Item/Armor]], [[Template:Item/General|Item/General]], [[Template:Item/Aura|Item/Aura]], [[Template:Item/Charm|Item/Charm]], [[Template:Item/CharmScaling|Item/CharmScaling]], [[Template:Item/Consumable|Item/Consumable]], [[Template:Item/Mold|Item/Mold]], [[Template:Item/SkillBook|Item/SkillBook]], [[Template:Item/SpellScroll|Item/SpellScroll]], [[Template:Item/Header|Item/Header]], [[Template:Item/Stats|Item/Stats]], [[Template:Item/Resists|Item/Resists]], [[Template:Item/Vitals|Item/Vitals]], [[Template:Item/DPS|Item/DPS]], [[Template:Item/ClassRestrictions|Item/ClassRestrictions]], [[Template:Item/Categories|Item/Categories]], [[Template:Item/SpellDetails|Item/SpellDetails]], [[Template:SparkleIcon|SparkleIcon]]
 ; Ability tooltips
 : [[Template:SpellTooltip|SpellTooltip]], [[Template:SkillTooltip|SkillTooltip]], [[Template:StanceTooltip|StanceTooltip]]
 ; Character parts
 : [[Template:TreasureGuardianStats|TreasureGuardianStats]], [[Template:Vendor stock|Vendor stock]]
+; Data-backed views
+: [[Template:Zone roster|Zone roster]], [[Template:Class abilities|Class abilities]], [[Template:Quest data|Quest data]]
 ; Links
 : [[Template:ItemLink|ItemLink]], [[Template:CharacterLink|CharacterLink]], [[Template:AbilityLink|AbilityLink]], [[Template:QuestLink|QuestLink]], [[Template:ZoneLink|ZoneLink]], [[Template:FactionLink|FactionLink]], [[Template:ClassLink|ClassLink]]
 ; Other
-: [[Template:World drops|World drops]] (the special world drops of every kill), [[Template:Icon|Icon]] (an icon in its frame), [[Template:MapLink|MapLink]], [[Template:Zone Navbox|Zone Navbox]], [[Template:Historical Content|Historical Content]], [[Template:Gear/Slot|Gear/Slot]], [[Template:Smoke|Smoke]] (used by the project's tests)
+: [[Template:World drops|World drops]] (special world drops on eligible kills), [[Template:Icon|Icon]] (an icon in its frame), [[Template:MapLink|MapLink]], [[Template:Zone Navbox|Zone Navbox]], [[Template:Historical Content|Historical Content]], [[Template:Gear/Slot|Gear/Slot]], [[Template:Smoke|Smoke]] (used by the project's tests)
 
 == For administrators ==
 * WoWBot is a bot account of [[User:WoWMuch|WoWMuch]]. Its edits are marked as bot edits.

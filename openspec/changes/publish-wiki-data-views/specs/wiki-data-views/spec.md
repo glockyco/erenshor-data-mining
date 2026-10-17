@@ -91,13 +91,13 @@ The vendor stock view SHALL list the items that the copies of the vendor in the 
 
 ### Requirement: World drops list every special world drop roll
 
-The world drop view SHALL list each item that a special world drop roll of the current build can yield, with its chance per kill at the default loot rate and the lowest level of an enemy that rolls it, and SHALL say that the chances hold at the default loot rate. Each item SHALL link to its page.
+The world drop view SHALL list each item that a special world drop roll of the current build can select, with its drop chance at the default loot rate and the lowest enemy level. It SHALL use a concise default-rate note and link each item to its page. Exact host eligibility, bonus handling, independent checks and owned unique-item replacement SHALL remain documented for developers rather than added as visitor-facing disclaimers.
 
 #### Scenario: The Enemies page
 
 - **WHEN** `{{World drops}}` is placed on the Enemies page on the current main build
 - **THEN** it lists 38 items
-- **AND** Sivakrux shows 1% from enemy level 11, and each torn treasure map piece 0.625% at any level
+- **AND** Sivakrux shows 1% from eligible enemy level 11, and each torn treasure map piece 0.625% without an additional level gate
 - **AND** Mask: Eldoth shows 0.002% and links to its page
 
 ### Requirement: The Game Board lists the bosses that its pieces summon
@@ -122,12 +122,29 @@ The zone roster SHALL list each character that the clean database places in the 
 
 ### Requirement: Class ability lists show how each ability is learned
 
-The class abilities view SHALL list each ability that an item teaches to the class, with its required level and the items that teach it.
+The class abilities view SHALL list each ability that an obtainable item teaches to the class, with its required level and its obtainable teaching items. Obtainability SHALL use the shared generated item-source relationships, including Auction House sources. Classes SHALL come from the exported classes table, excluding Default.
 
 #### Scenario: Druid summons
 
 - **WHEN** `{{Class abilities}}` is placed on the Druid page on the current main build
-- **THEN** it lists the six Druid summon spells, each with the spell scroll that teaches it
+- **THEN** it lists the seven Druid summon spells, each with the spell scroll that teaches it
+
+#### Scenario: An obsolete teaching item
+
+- **WHEN** a wiki-visible teaching item has no obtainable source in the shared item provenance
+- **THEN** it does not appear in the class ability list
+- **AND** an ability with no obtainable teacher does not appear
+
+#### Scenario: An Auction House teaching item
+
+- **WHEN** a teaching item's only obtainable source is the Auction House
+- **THEN** its ability and teaching item appear for each class that can learn it
+
+#### Scenario: An unrestricted teaching item
+
+- **WHEN** an obtainable scroll has no item class restrictions
+- **THEN** its spell appears for every exported class except Default, including newly added classes
+
 
 ### Requirement: The quest panel shows how a quest is reached and what it gives
 
