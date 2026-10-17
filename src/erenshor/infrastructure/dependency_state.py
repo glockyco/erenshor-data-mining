@@ -23,7 +23,7 @@ _ROOT_DEPENDENCY_FILES = (
     "renovate.json",
     "src/Directory.Build.props",
     "src/Directory.Packages.props",
-    "src/mods/nuget.config",
+    "src/nuget.config",
     "uv.lock",
 )
 

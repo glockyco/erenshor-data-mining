@@ -100,10 +100,9 @@
       "allowedVersions": "<9.4.0"
     },
     {
-      "description": "BepInEx publishes its packages on its own feed. src/mods/nuget.config names it, but Renovate looks up src/Directory.Packages.props only through the NuGet configs beside it or above it, so it would search nuget.org alone. The mods build against BepInEx 5, the loader that Erenshor's BepInEx pack installs; BepInEx 6 is another loader line.",
+      "description": "Keep BepInEx on the loader line installed by Erenshor's BepInEx pack.",
       "matchManagers": ["nuget"],
       "matchPackageNames": ["BepInEx.*"],
-      "registryUrls": ["https://nuget.bepinex.dev/v3/index.json"],
       "allowedVersions": "<6"
     },
     {

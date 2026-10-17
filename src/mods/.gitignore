@@ -43,7 +43,6 @@ ExportedObj/
 !resources/
 !resources/**
 !resources/**/*.dll
-!nuget.config
 !ILRepack.targets
 !packages.config
 !thunderstore.toml

@@ -154,6 +154,8 @@ erenshor -V main test release        # adds main data, clean wiki parity, real b
 
 Renovate updates everything except Nix. The private `glockyco/dependency-automation` workflow updates Nix and the pnpm version in `flake.nix`, and opens a pull request. After a manual change, regenerate the lock (`uv lock`, `pnpm install --lockfile-only`, `dotnet restore --force-evaluate` once per mod loader, or `nix flake update` and `nix run .#sync-pnpm-version`) and run `erenshor test dependency-state`.
 
+Keep NuGet feeds and package source mappings beside the central package versions, so Renovate's generated restore configuration and project builds discover the same sources.
+
 ## Troubleshooting
 
 - **Setup.** `erenshor status` reports tool paths, installs, and database state. Logs are in `.erenshor/logs/` and `variants/<variant>/logs/`.
