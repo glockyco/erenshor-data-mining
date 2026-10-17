@@ -1,0 +1,4 @@
+__HIDDENCAT__
+Pages where the class abilities view cannot resolve a class or find its generated data.
+
+Pass the intended class's <code>stablekey</code> when several classes share a page. Report missing game data at [[Erenshor Wiki:Game Data]].
