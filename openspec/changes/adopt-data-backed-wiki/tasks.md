@@ -175,8 +175,8 @@
 
 ## 8. Step 4: convert the articles
 
-- [ ] 8.1 Propose the conversion from design D3, step 4, with the template names, the owned-field sets, the tracking category, and the known points of D3. Verify: `openspec validate --strict` passes.
-  - The item proposal is `convert-item-pages-to-data`, with `unify-item-provenance` as its correctness dependency. Both strictly validate. Proposals for the other page types remain pending.
+- [x] 8.1 Propose the conversion from design D3, step 4, with the template names, the owned-field sets, the tracking category, and the known points of D3. Verify: `openspec validate --strict` passes.
+  - The type changes are `convert-item-pages-to-data`, `convert-stance-pages-to-data`, `convert-ability-pages-to-data`, `convert-zone-pages-to-data` and `convert-character-pages-to-data`. All strictly validate. Shared provenance remains the correctness dependency for item sources and uses. The remaining changes reuse the native conversion boundary and retain their full comparison, preservation, actual-host and rollback gates.
   - Execute task 8.6 first, followed by 8.2 to 8.5. Task identifiers stay stable for existing references.
 - [ ] 8.2 Convert Stance. Verify: its pages pass the production parse check, and its legacy generator code is deleted.
 - [ ] 8.3 Convert spells and skills, with their categories. Same verification.
