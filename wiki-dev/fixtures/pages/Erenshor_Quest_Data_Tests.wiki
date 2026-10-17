@@ -1,0 +1,1 @@
+{{#invoke:Erenshor/QuestData/testcases|run}}

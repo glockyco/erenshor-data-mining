@@ -243,6 +243,17 @@ Class Abilities Fixture	elem:.wikitable=Abilities and spells
 Class Abilities Fixture	elem:.erenshor-link--ability=Ember
 Class Abilities Fixture	elem:.erenshor-link--item=Scroll of Ember
 Class Abilities Fixture	!category:Pages_with_missing_Erenshor_class_abilities_data
+Erenshor Quest Data Tests	text:PASS Erenshor QuestData testcases
+A Skeleton Eye for Alyssia Fearnon	elem:table.erenshor-quest-data
+A Skeleton Eye for Alyssia Fearnon	text:155
+A Skeleton Eye for Alyssia Fearnon	text:favor
+A Skeleton Eye for Alyssia Fearnon	elem:[data-erenshor-key="item:belt - 5 - bonestudded belt"]
+Secure Port Azure	elem:[data-erenshor-key="quest:inteltokilkay"]
+Secure Port Azure	elem:[data-erenshor-key="quest:inteltoripper"]
+Secure Port Azure	elem:[data-erenshor-key="character:guard captain azure"]
+The Tragedy at Goodsoil	text:No experience, gold, or item reward.
+Erenshor Quest Variants	text:Option 1
+Erenshor Quest Variants	text:Option 2
 # Image tracking: neither picture uploaded means the page joins its Needs Image category.
 Image Tracking Uploaded	category:Characters
 Image Tracking Uploaded	!category*:Needs_
