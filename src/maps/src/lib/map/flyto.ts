@@ -7,6 +7,8 @@ import { cubicInOut } from 'svelte/easing';
  * `zoom` from them, so a transition must interpolate those two. Interpolating
  * `zoom` alone lets zoomX and zoomY jump to their end values on the first
  * frame, while only the target animates.
+ * The transition manager caches raw camera props before normalizing them, so
+ * initial, restored and instant camera states must supply both axes as well.
  */
 const VIEW_PROPS = ['target', 'zoomX', 'zoomY'];
 
@@ -165,6 +167,8 @@ export function flyTo(
         initialViewState: {
             target: [view.x, view.y, 0],
             zoom: view.zoom,
+            zoomX: view.zoom,
+            zoomY: view.zoom,
             minZoom: INITIAL_VIEW_STATE.minZoom,
             maxZoom: INITIAL_VIEW_STATE.maxZoom,
             transitionDuration: duration,
@@ -219,6 +223,8 @@ export function flyToBounds(
         initialViewState: {
             target: [view.x, view.y, 0],
             zoom: view.zoom,
+            zoomX: view.zoom,
+            zoomY: view.zoom,
             minZoom: INITIAL_VIEW_STATE.minZoom,
             maxZoom: INITIAL_VIEW_STATE.maxZoom,
             transitionDuration: duration,

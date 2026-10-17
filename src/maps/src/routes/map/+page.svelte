@@ -594,6 +594,8 @@
             initialViewState: {
                 target: [targetX, targetY, 0],
                 zoom: currentViewState.zoom,
+                zoomX: currentViewState.zoom,
+                zoomY: currentViewState.zoom,
                 minZoom: INITIAL_VIEW_STATE.minZoom,
                 maxZoom: INITIAL_VIEW_STATE.maxZoom,
                 transitionDuration: 0
@@ -939,6 +941,8 @@
                         initialViewState: {
                             target: [urlState.x, urlState.y, 0] as [number, number, number],
                             zoom: urlState.zoom,
+                            zoomX: urlState.zoom,
+                            zoomY: urlState.zoom,
                             minZoom: INITIAL_VIEW_STATE.minZoom,
                             maxZoom: INITIAL_VIEW_STATE.maxZoom
                         }
@@ -1311,6 +1315,8 @@
                 initialViewState: {
                     target: [initialX, initialY, 0] as [number, number, number],
                     zoom: initialZoom,
+                    zoomX: initialZoom,
+                    zoomY: initialZoom,
                     minZoom: INITIAL_VIEW_STATE.minZoom,
                     maxZoom: INITIAL_VIEW_STATE.maxZoom
                 },

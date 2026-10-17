@@ -89,6 +89,8 @@ Extend it when changing a companion-facing URL or database contract.
 
 A TileLayer without `extent` can hide tiles below its `minZoom`.
 A fly-to that interpolates only `zoom` snaps because the orthographic controller uses `zoomX` and `zoomY`.
+Keep both orthographic axes in initial, restored and instant camera updates,
+because later transitions use those raw values as their starting state.
 The overlay has crashed with deck.gl 9.4.0 and luma.gl 9.4.2 on Direct3D 11.
 
 ## Add or debug a zone

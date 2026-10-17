@@ -1,9 +1,13 @@
+const INITIAL_ZOOM = -2;
+
 /**
  * Initial view state for deck.gl (world map view)
  */
 export const INITIAL_VIEW_STATE = {
     target: [0, 0, 0] as [number, number, number],
-    zoom: -2,
+    zoom: INITIAL_ZOOM,
+    zoomX: INITIAL_ZOOM,
+    zoomY: INITIAL_ZOOM,
     minZoom: -6,
     maxZoom: 4
 } as const;
