@@ -21,6 +21,7 @@
 - Keep the original quest visible while following its prerequisites.
 - Keep source actions, locations, levels and chances compact.
 - Group repeated sources without hiding their access requirements.
+- Fix Guide loading on Lunaris.
 
 ## v2026.1008.0
 

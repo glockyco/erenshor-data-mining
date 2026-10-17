@@ -159,14 +159,22 @@ public sealed class EncounterProjectionTests : IDisposable
             );
     }
 
-    [Fact]
-    public void Schema_eight_rejects_missing_encounter_contract()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Schema_eight_rejects_missing_or_null_encounter_contract(bool explicitNull)
     {
         var payload = JObject.FromObject(Wrapper());
-        payload.Remove("_encounters");
+        if (explicitNull)
+            payload["_encounters"] = JValue.CreateNull();
+        else
+            payload.Remove("_encounters");
         Assert.Throws<InvalidDataException>(() => GuideData.Parse(payload.ToString()));
         payload = JObject.FromObject(Wrapper());
-        ((JObject)payload["_encounters"]!).Remove("encounter_event_conditions");
+        if (explicitNull)
+            ((JObject)payload["_encounters"]!)["encounter_event_conditions"] = JValue.CreateNull();
+        else
+            ((JObject)payload["_encounters"]!).Remove("encounter_event_conditions");
         Assert.Throws<JsonSerializationException>(() => GuideData.Parse(payload.ToString()));
     }
 

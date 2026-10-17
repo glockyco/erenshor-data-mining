@@ -164,6 +164,33 @@ public sealed class GuideContractTests
         Assert.Throws<InvalidDataException>(() => GuideData.Parse(json));
     }
 
+    [Theory]
+    [InlineData("_source_facts", false)]
+    [InlineData("_source_facts", true)]
+    [InlineData("_item_uses", false)]
+    [InlineData("_item_uses", true)]
+    [InlineData("_quest_state_keys", false)]
+    [InlineData("_quest_state_keys", true)]
+    [InlineData("_zone_line_destination_contexts", false)]
+    [InlineData("_zone_line_destination_contexts", true)]
+    public void Loading_rejects_missing_or_null_required_source_contracts(
+        string field,
+        bool explicitNull
+    )
+    {
+        var payload = Newtonsoft.Json.Linq.JObject.FromObject(
+            TestData.NativeRequirements(("item:runner", null, [4]))
+        );
+        if (explicitNull)
+            payload[field] = Newtonsoft.Json.Linq.JValue.CreateNull();
+        else
+            payload.Remove(field);
+
+        Assert.Throws<Newtonsoft.Json.JsonSerializationException>(() =>
+            GuideData.Parse(payload.ToString())
+        );
+    }
+
     [Fact]
     public void Native_slot_evidence_survives_json_loading_without_collapsing_slots()
     {

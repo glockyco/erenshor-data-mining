@@ -4,16 +4,17 @@ namespace AdventureGuide.Data;
 
 public sealed class EncounterContext
 {
-    [JsonProperty("encounter_placements", Required = Required.Always)]
+    // JsonRequired rejects missing/null values without enum metadata that Lunaris cannot scan.
+    [JsonProperty("encounter_placements"), JsonRequired]
     public List<EncounterPlacement> Placements { get; set; } = null!;
 
-    [JsonProperty("encounter_conditions", Required = Required.Always)]
+    [JsonProperty("encounter_conditions"), JsonRequired]
     public List<EncounterCondition> Conditions { get; set; } = null!;
 
-    [JsonProperty("encounter_completions", Required = Required.Always)]
+    [JsonProperty("encounter_completions"), JsonRequired]
     public List<EncounterCompletion> Completions { get; set; } = null!;
 
-    [JsonProperty("encounter_event_conditions", Required = Required.Always)]
+    [JsonProperty("encounter_event_conditions"), JsonRequired]
     public List<EncounterEventCondition> EventConditions { get; set; } = null!;
 
     internal void Validate(IReadOnlyList<QuestEntry> quests)
@@ -175,66 +176,66 @@ public static class EncounterStateKeys
 
 public abstract class EncounterRow
 {
-    [JsonProperty("encounter_key", Required = Required.Always)]
+    [JsonProperty("encounter_key"), JsonRequired]
     public string EncounterKey { get; set; } = "";
 }
 
 public sealed class EncounterPlacement : EncounterRow
 {
-    [JsonProperty("context_kind", Required = Required.Always)]
+    [JsonProperty("context_kind"), JsonRequired]
     public string ContextKind { get; set; } = "";
 
-    [JsonProperty("post_completion_role", Required = Required.Always)]
+    [JsonProperty("post_completion_role"), JsonRequired]
     public string PostCompletionRole { get; set; } = "";
 
-    [JsonProperty("root_spawn_stable_key", Required = Required.Always)]
+    [JsonProperty("root_spawn_stable_key"), JsonRequired]
     public string RootSpawnStableKey { get; set; } = "";
 
-    [JsonProperty("member_spawn_stable_key", Required = Required.Always)]
+    [JsonProperty("member_spawn_stable_key"), JsonRequired]
     public string MemberSpawnStableKey { get; set; } = "";
 
-    [JsonProperty("role", Required = Required.Always)]
+    [JsonProperty("role"), JsonRequired]
     public string Role { get; set; } = "";
 }
 
 public sealed class EncounterCondition : EncounterRow
 {
-    [JsonProperty("state_scope", Required = Required.Always)]
+    [JsonProperty("state_scope"), JsonRequired]
     public string StateScope { get; set; } = "";
 
-    [JsonProperty("state_key", Required = Required.Always)]
+    [JsonProperty("state_key"), JsonRequired]
     public string StateKey { get; set; } = "";
 
-    [JsonProperty("required_value", Required = Required.Always)]
+    [JsonProperty("required_value"), JsonRequired]
     public string RequiredValue { get; set; } = "";
 }
 
 public sealed class EncounterCompletion : EncounterRow
 {
-    [JsonProperty("event_kind", Required = Required.Always)]
+    [JsonProperty("event_kind"), JsonRequired]
     public string EventKind { get; set; } = "";
 
-    [JsonProperty("state_scope", Required = Required.Always)]
+    [JsonProperty("state_scope"), JsonRequired]
     public string StateScope { get; set; } = "";
 
-    [JsonProperty("state_key", Required = Required.Always)]
+    [JsonProperty("state_key"), JsonRequired]
     public string StateKey { get; set; } = "";
 
-    [JsonProperty("result_value", Required = Required.Always)]
+    [JsonProperty("result_value"), JsonRequired]
     public string ResultValue { get; set; } = "";
 }
 
 public sealed class EncounterEventCondition : EncounterRow
 {
-    [JsonProperty("event_kind", Required = Required.Always)]
+    [JsonProperty("event_kind"), JsonRequired]
     public string EventKind { get; set; } = "";
 
-    [JsonProperty("state_scope", Required = Required.Always)]
+    [JsonProperty("state_scope"), JsonRequired]
     public string StateScope { get; set; } = "";
 
-    [JsonProperty("state_key", Required = Required.Always)]
+    [JsonProperty("state_key"), JsonRequired]
     public string StateKey { get; set; } = "";
 
-    [JsonProperty("required_value", Required = Required.Always)]
+    [JsonProperty("required_value"), JsonRequired]
     public string RequiredValue { get; set; } = "";
 }

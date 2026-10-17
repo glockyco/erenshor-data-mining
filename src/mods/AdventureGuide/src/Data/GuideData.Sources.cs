@@ -642,12 +642,12 @@ public sealed partial class GuideData
 
 internal sealed partial class GuideWrapper
 {
-    [JsonProperty("_source_facts", Required = Required.Always)]
+    [JsonProperty("_source_facts"), JsonRequired]
     public Dictionary<string, SourceFact> SourceFacts { get; set; } = new(StringComparer.Ordinal);
 
-    [JsonProperty("_item_uses", Required = Required.Always)]
+    [JsonProperty("_item_uses"), JsonRequired]
     public Dictionary<string, ItemUseFact> ItemUses { get; set; } = new(StringComparer.Ordinal);
 
-    [JsonProperty("_quest_state_keys", Required = Required.Always)]
+    [JsonProperty("_quest_state_keys"), JsonRequired]
     public Dictionary<string, string> QuestStateKeys { get; set; } = new(StringComparer.Ordinal);
 }

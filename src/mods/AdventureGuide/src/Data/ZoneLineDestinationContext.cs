@@ -4,25 +4,25 @@ namespace AdventureGuide.Data;
 
 public sealed class ZoneLineDestinationContext
 {
-    [JsonProperty("zone_line_stable_key", Required = Required.Always)]
+    [JsonProperty("zone_line_stable_key"), JsonRequired]
     public string ZoneLineStableKey { get; set; } = "";
 
-    [JsonProperty("kind", Required = Required.Always)]
+    [JsonProperty("kind"), JsonRequired]
     public string Kind { get; set; } = "";
 
-    [JsonProperty("destination_state_key", Required = Required.Always)]
+    [JsonProperty("destination_state_key"), JsonRequired]
     public string DestinationStateKey { get; set; } = "";
 
-    [JsonProperty("landing_state_key", Required = Required.Always)]
+    [JsonProperty("landing_state_key"), JsonRequired]
     public string LandingStateKey { get; set; } = "";
 
-    [JsonProperty("source_key", Required = Required.Always)]
+    [JsonProperty("source_key"), JsonRequired]
     public string SourceKey { get; set; } = "";
 }
 
 internal sealed partial class GuideWrapper
 {
-    [JsonProperty("_zone_line_destination_contexts", Required = Required.Always)]
+    [JsonProperty("_zone_line_destination_contexts"), JsonRequired]
     public Dictionary<string, ZoneLineDestinationContext>? ZoneLineDestinationContexts { get; set; }
 }
 
