@@ -140,6 +140,38 @@ public sealed class SavedReturnRouteTests
     }
 
     [Fact]
+    public void Shipping_return_routes_directly_when_native_saved_state_is_valid()
+    {
+        using var stream = typeof(GuideData).Assembly.GetManifestResourceStream(
+            "AdventureGuide.quest-guide.json"
+        );
+        Assert.NotNull(stream);
+        using var reader = new StreamReader(stream);
+        var data = GuideData.Parse(reader.ReadToEnd());
+        var facts = new Facts
+        {
+            ReturnScene = "ShiveringStep",
+            ReturnLanding = new Vector3(11, 12, 13),
+        };
+        var graph = new ZoneGraph(data, new GateConditions(data, facts));
+        var line = data.ZoneLines.First(entry =>
+            data.ZoneLineDestinationContexts.ContainsKey(entry.StableKey!)
+        );
+        var destination = graph.ResolveDestination(line);
+        Assert.NotNull(destination);
+        Assert.Equal(facts.ReturnScene, destination.Value.Scene);
+        AssertLanding(destination.Value.Landing, 11, 12, 13);
+        var route = graph.FindRoute(line.Scene!, facts.ReturnScene);
+        Assert.NotNull(route);
+        Assert.False(route.IsLocked);
+        Assert.Equal(new[] { line.Scene, facts.ReturnScene }, route.Path);
+
+        facts.ReturnScene = null;
+        graph.Rebuild();
+        Assert.Null(graph.ResolveDestination(line));
+    }
+
+    [Fact]
     public void Saved_scene_projects_to_zone_key_and_preserves_physical_line_identity()
     {
         var facts = new Facts { ReturnScene = "a" };

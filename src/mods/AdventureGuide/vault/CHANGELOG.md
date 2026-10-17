@@ -13,7 +13,7 @@
 - Check stored portal stones and runes, and show where to place them on the planning table.
 - Follow crafting recipes to missing ingredients without losing the original quest.
 - Skip the Reliquary claiming fight on accounts that already claimed it.
-- Follow the current character's saved return destination from the Reliquary.
+- Take the active Reliquary return portal back to the current character's saved destination.
 - Close the guide with Escape without opening the game menu.
 - Count repeated quest items together and keep alternative turn-ins separate.
 - Keep item-read quest guidance working with alternative turn-ins.

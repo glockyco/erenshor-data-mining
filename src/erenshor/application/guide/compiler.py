@@ -658,8 +658,12 @@ def _compile_conditions(graph: EntityGraph, compiled: CompiledData) -> None:
 
     for line in sorted(graph.nodes_of_type(NodeType.ZONE_LINE), key=lambda node: node.key):
         gates = graph.gates_for(SubjectKind.ZONE_LINE, line.key)
-        # A zone line that starts disabled stays shut unless a gate says what activates it.
-        add(SubjectKind.ZONE_LINE, line.key, combine_gates(gates) if gates or line.is_enabled else ())
+        context = graph.zone_line_destination_contexts.get(line.key)
+        stored_return = context is not None and context["kind"] == "stored_return"
+        # A validated stored return is activated by its native initializer.
+        # Unknown saved destinations remain absent from runtime routing.
+        condition = combine_gates(gates) if gates or line.is_enabled or stored_return else ()
+        add(SubjectKind.ZONE_LINE, line.key, condition)
     for character in sorted(graph.nodes_of_type(NodeType.CHARACTER), key=lambda node: node.key):
         character_gates = graph.gates_for(SubjectKind.CHARACTER, character.key)
         for edge in graph.out_edges(character.key, EdgeType.HAS_SPAWN):
