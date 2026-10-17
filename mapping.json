@@ -3291,11 +3291,11 @@
       "reason": "Map to main quest page"
     },
     "quest:bellwainletters2": {
-      "wiki_page_name": null,
+      "wiki_page_name": "The Mystery of Bellwain Island",
       "display_name": "Bellwain's Lost Letters",
       "image_name": "Bellwain's Lost Letters",
-      "mapping_type": "exclude",
-      "reason": "Quest should not appear in wiki but is completable in-game",
+      "mapping_type": "custom",
+      "reason": "The Captain Bellwain turn-in returns the notes for Bellsie and belongs to the same Bellwain Island walkthrough. Keep its distinct quest identity on that shared page.",
       "is_wiki_generated": 0,
       "is_map_visible": 1
     },
@@ -3428,38 +3428,38 @@
       "reason": null
     },
     "quest:soulgemleah": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Aragath's Imprisonment",
       "display_name": "Capture Leah's Soul",
       "image_name": "Capture Leah's Soul",
-      "mapping_type": "exclude",
-      "reason": "Soul gem quest should not appear in wiki but is completable in-game",
+      "mapping_type": "custom",
+      "reason": "Giving Leah's Soul Gem to the corresponding Watchlight is a soul-capture substep of the Aragath's Imprisonment walkthrough. Keep its distinct quest identity on that shared page.",
       "is_wiki_generated": 0,
       "is_map_visible": 1
     },
     "quest:soulgemposta": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Aragath's Imprisonment",
       "display_name": "Capture Posta's Soul",
       "image_name": "Capture Posta's Soul",
-      "mapping_type": "exclude",
-      "reason": "Soul gem quest should not appear in wiki but is completable in-game",
+      "mapping_type": "custom",
+      "reason": "Giving Posta's Soul Gem to the corresponding Watchlight is a soul-capture substep of the Aragath's Imprisonment walkthrough. Keep its distinct quest identity on that shared page.",
       "is_wiki_generated": 0,
       "is_map_visible": 1
     },
     "quest:soulgemrevid": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Aragath's Imprisonment",
       "display_name": "Capture Revid's Soul",
       "image_name": "Capture Revid's Soul",
-      "mapping_type": "exclude",
-      "reason": "Soul gem quest should not appear in wiki but is completable in-game",
+      "mapping_type": "custom",
+      "reason": "Giving Revid's Soul Gem to the corresponding Watchlight is a soul-capture substep of the Aragath's Imprisonment walkthrough. Keep its distinct quest identity on that shared page.",
       "is_wiki_generated": 0,
       "is_map_visible": 1
     },
     "quest:soulgemstalzo": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Aragath's Imprisonment",
       "display_name": "Capture Stalzo's Soul",
       "image_name": "Capture Stalzo's Soul",
-      "mapping_type": "exclude",
-      "reason": "Soul gem quest should not appear in wiki but is completable in-game",
+      "mapping_type": "custom",
+      "reason": "Giving Stalzo's Soul Gem to the corresponding Watchlight is a soul-capture substep of the Aragath's Imprisonment walkthrough. Keep its distinct quest identity on that shared page.",
       "is_wiki_generated": 0,
       "is_map_visible": 1
     },
@@ -3795,43 +3795,53 @@
       "display_name": "Azynthi's Garden (Dimensional Rift)",
       "image_name": "Azynthi's Garden (Dimensional Rift)",
       "mapping_type": "custom",
-      "reason": "Distinguish from AzynthiClear zone"
+      "reason": "Distinguish from AzynthiClear zone. Retain the public Outdoor class of the same Garden area as its clear state. Dimensional Rift swaps Azynthi and AzynthiClear at the same position while changing sunlight.",
+      "zone_type": "Outdoor"
     },
     "zone:duskenportal": {
       "wiki_page_name": "Mysterious Portal",
       "display_name": "Mysterious Portal (1)",
       "image_name": "Mysterious Portal (1)",
       "mapping_type": "custom",
-      "reason": "Distinguish the three portal zones"
+      "zone_type": "Dungeon",
+      "reason": "Distinguish the three portal zones. Retain the reviewed Dungeon class of this ritual-gated encounter scene, whose exported WaveEvent advances through combat waves to its boss. The native flag controls SimPlayer tasks."
     },
     "zone:fernallaportal": {
       "wiki_page_name": "Mysterious Portal",
       "display_name": "Mysterious Portal (2)",
       "image_name": "Mysterious Portal (2)",
       "mapping_type": "custom",
-      "reason": "Distinguish the three portal zones"
+      "zone_type": "Dungeon",
+      "reason": "Distinguish the three portal zones. Retain the reviewed Dungeon class of this ritual-gated encounter scene, whose exported FernallaPortalEvent controls its combat waves. The native flag controls SimPlayer tasks."
     },
     "zone:ripperportal": {
       "wiki_page_name": "Mysterious Portal",
       "display_name": "Mysterious Portal (3)",
       "image_name": "Mysterious Portal (3)",
       "mapping_type": "custom",
-      "reason": "Distinguish the three portal zones"
+      "zone_type": "Dungeon",
+      "reason": "Distinguish the three portal zones. Retain the reviewed Dungeon class of the separate encounter scene reached only after the exported Ripper ritual gate. The native flag controls SimPlayer tasks."
     },
     "zone:shiveringtomb": {
       "wiki_page_name": "Shivering Tomb",
       "display_name": "Shivering Tomb (1)",
-      "image_name": "Shivering Tomb (1)"
+      "image_name": "Shivering Tomb (1)",
+      "zone_type": "Event",
+      "reason": "Reviewed event region in the ShiverEvent quest sequence, reached from Shivering Step by its exported zone line."
     },
     "zone:shiveringtomb2": {
       "wiki_page_name": "Shivering Tomb",
       "display_name": "Shivering Tomb (2)",
-      "image_name": "Shivering Tomb (2)"
+      "image_name": "Shivering Tomb (2)",
+      "zone_type": "Event",
+      "reason": "Reviewed event region continuing the ShiverEvent sequence. Its exported ShiveringPhantomWardListener controls the final ward encounter."
     },
     "zone:tutorial": {
       "wiki_page_name": "Island Tomb",
       "display_name": "Island Tomb",
-      "image_name": "Island Tomb"
+      "image_name": "Island Tomb",
+      "reason": "Retain the reviewed public Dungeon grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Dungeon"
     },
     "stance:normal": {
       "wiki_page_name": "Normal",
@@ -4077,6 +4087,258 @@
       "image_name": "Group Regrowth (effect)",
       "mapping_type": "custom",
       "reason": "The effect of Group Regrowth shares the cast spell's page but draws the Regrowth flower icon, not the cast spell's"
+    },
+    "zone:shiveringstep": {
+      "wiki_page_name": "Shivering Step",
+      "display_name": "Shivering Step",
+      "image_name": "Shivering Step",
+      "zone_type": "Event",
+      "reason": "Reviewed event region. The exported SHIVER EVENT controller runs ShiverEvent's phased quest and lighting sequence."
+    },
+    "zone:summerevent": {
+      "wiki_page_name": "Bellwain Island",
+      "display_name": "Bellwain Island",
+      "image_name": "Bellwain Island",
+      "zone_type": "Event",
+      "reason": "Reviewed event region. The scene attaches BellEvent to its seven-step bell sequence and reveal effect, and SimPlayerMngr explicitly prevents ordinary SimPlayer travel here."
+    },
+    "zone:rockshade": {
+      "wiki_page_name": "Rockshade Hold",
+      "display_name": "Rockshade Hold",
+      "image_name": "Rockshade Hold",
+      "zone_type": "Dungeon",
+      "reason": "Retain the reviewed Dungeon class. The game's Rockshade atlas entry marks Dungeon while the scene's native flag selects SimPlayer task behavior."
+    },
+    "zone:undercity": {
+      "wiki_page_name": "Lost Cellar",
+      "display_name": "Lost Cellar",
+      "image_name": "Lost Cellar",
+      "zone_type": "Dungeon",
+      "reason": "Retain the reviewed Dungeon class. The game's Undercity atlas entry marks Dungeon while the scene's native flag selects SimPlayer task behavior."
+    },
+    "zone:prielplateau": {
+      "wiki_page_name": "Prielian Cascade",
+      "display_name": "Prielian Cascade",
+      "image_name": "Prielian Cascade",
+      "zone_type": "Dungeon",
+      "reason": "Retain the reviewed Dungeon class. The game's PrielPlateau atlas entry marks Dungeon while the scene's native flag selects SimPlayer task behavior."
+    },
+    "zone:bloomingsepulcher": {
+      "wiki_page_name": "Blooming Sepulcher",
+      "display_name": "Blooming Sepulcher",
+      "image_name": "Blooming Sepulcher",
+      "zone_type": "Dungeon",
+      "reason": "Retain the reviewed Dungeon class of the quest-staged area. Exported FernallaFightEvent and NPCFightEvent encounters and the Sepulcher quest completion spawn preserve its progression role. The native flag selects SimPlayer tasks."
+    },
+    "zone:stowawayportal": {
+      "wiki_page_name": "Secluded Sanctuary",
+      "display_name": "Secluded Sanctuary",
+      "image_name": "Secluded Sanctuary",
+      "zone_type": "Dungeon",
+      "reason": "Retain the reviewed mini-dungeon class. Its exported StowawayPortal controller advances from four skeletons to the Keeper encounter after the ritual-gated entry. The native flag selects SimPlayer tasks."
+    },
+    "zone:detention": {
+      "wiki_page_name": "Prison",
+      "display_name": "Prison",
+      "image_name": "Prison",
+      "zone_type": "Dungeon",
+      "reason": "Retain the reviewed public Dungeon grouping for the sun-disabled detention destination used by BlessingAltar and off-nav recovery. The native scene flag selects SimPlayer tasks rather than public area classification."
+    },
+    "zone:azure": {
+      "wiki_page_name": "Port Azure",
+      "display_name": "Port Azure",
+      "image_name": "Port Azure",
+      "reason": "Retain the reviewed public Outdoor grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Outdoor"
+    },
+    "zone:reliquary": {
+      "wiki_page_name": "Reliquary Hall",
+      "display_name": "Reliquary Hall",
+      "image_name": "Reliquary Hall",
+      "reason": "Retain the reviewed public Outdoor grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Outdoor"
+    },
+    "zone:stowaway": {
+      "wiki_page_name": "Stowaway's Step",
+      "display_name": "Stowaway's Step",
+      "image_name": "Stowaway's Step",
+      "reason": "Retain the reviewed public Outdoor grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Outdoor"
+    },
+    "zone:willowwatch": {
+      "wiki_page_name": "Willowwatch Ridge",
+      "display_name": "Willowwatch Ridge",
+      "image_name": "Willowwatch Ridge",
+      "reason": "Retain the reviewed public Outdoor grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Outdoor"
+    },
+    "zone:hidden": {
+      "wiki_page_name": "Hidden Hills",
+      "display_name": "Hidden Hills",
+      "image_name": "Hidden Hills",
+      "reason": "Retain the reviewed public Outdoor grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Outdoor"
+    },
+    "zone:brake": {
+      "wiki_page_name": "Faerie's Brake",
+      "display_name": "Faerie's Brake",
+      "image_name": "Faerie's Brake",
+      "reason": "Retain the reviewed public Outdoor grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Outdoor"
+    },
+    "zone:vitheo": {
+      "wiki_page_name": "Vitheo's Watch",
+      "display_name": "Vitheo's Watch",
+      "image_name": "Vitheo's Watch",
+      "reason": "Retain the reviewed public Outdoor grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Outdoor"
+    },
+    "zone:fernallafield": {
+      "wiki_page_name": "Fernalla's Revival Plains",
+      "display_name": "Fernalla's Revival Plains",
+      "image_name": "Fernalla's Revival Plains",
+      "reason": "Retain the reviewed public Outdoor grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Outdoor"
+    },
+    "zone:duskenlight": {
+      "wiki_page_name": "The Duskenlight Coast",
+      "display_name": "The Duskenlight Coast",
+      "image_name": "The Duskenlight Coast",
+      "reason": "Retain the reviewed public Outdoor grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Outdoor"
+    },
+    "zone:saltedstrand": {
+      "wiki_page_name": "Blacksalt Strand",
+      "display_name": "Blacksalt Strand",
+      "image_name": "Blacksalt Strand",
+      "reason": "Retain the reviewed public Outdoor grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Outdoor"
+    },
+    "zone:rottenfoot": {
+      "wiki_page_name": "Rottenfoot",
+      "display_name": "Rottenfoot",
+      "image_name": "Rottenfoot",
+      "reason": "Retain the reviewed public Outdoor grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Outdoor"
+    },
+    "zone:braxonian": {
+      "wiki_page_name": "Braxonian Desert",
+      "display_name": "Braxonian Desert",
+      "image_name": "Braxonian Desert",
+      "reason": "Retain the reviewed public Outdoor grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Outdoor"
+    },
+    "zone:silkengrass": {
+      "wiki_page_name": "Silkengrass Meadowlands",
+      "display_name": "Silkengrass Meadowlands",
+      "image_name": "Silkengrass Meadowlands",
+      "reason": "Retain the reviewed public Outdoor grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Outdoor"
+    },
+    "zone:windwashed": {
+      "wiki_page_name": "Windwashed Pass",
+      "display_name": "Windwashed Pass",
+      "image_name": "Windwashed Pass",
+      "reason": "Retain the reviewed public Outdoor grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Outdoor"
+    },
+    "zone:malaroth": {
+      "wiki_page_name": "Malaroth's Nesting Grounds",
+      "display_name": "Malaroth's Nesting Grounds",
+      "image_name": "Malaroth's Nesting Grounds",
+      "reason": "Retain the reviewed public Outdoor grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Outdoor"
+    },
+    "zone:loomingwood": {
+      "wiki_page_name": "Loomingwood Forest",
+      "display_name": "Loomingwood Forest",
+      "image_name": "Loomingwood Forest",
+      "reason": "Retain the reviewed public Outdoor grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Outdoor"
+    },
+    "zone:blight": {
+      "wiki_page_name": "The Blight",
+      "display_name": "The Blight",
+      "image_name": "The Blight",
+      "reason": "Retain the reviewed public Outdoor grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Outdoor"
+    },
+    "zone:soluna": {
+      "wiki_page_name": "Soluna's Landing",
+      "display_name": "Soluna's Landing",
+      "image_name": "Soluna's Landing",
+      "reason": "Retain the reviewed public Outdoor grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Outdoor"
+    },
+    "zone:ripper": {
+      "wiki_page_name": "Ripper's Keep",
+      "display_name": "Ripper's Keep",
+      "image_name": "Ripper's Keep",
+      "reason": "Retain the reviewed public Outdoor grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Outdoor"
+    },
+    "zone:azynthiclear": {
+      "wiki_page_name": "Azynthi's Garden",
+      "display_name": "Azynthi's Garden",
+      "image_name": "Azynthi's Garden",
+      "reason": "Retain the reviewed public Outdoor grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Outdoor"
+    },
+    "zone:bonepits": {
+      "wiki_page_name": "The Bonepits",
+      "display_name": "The Bonepits",
+      "image_name": "The Bonepits",
+      "reason": "Retain the reviewed public Dungeon grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Dungeon"
+    },
+    "zone:krakengard": {
+      "wiki_page_name": "Old Krakengard",
+      "display_name": "Old Krakengard",
+      "image_name": "Old Krakengard",
+      "reason": "Retain the reviewed public Dungeon grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Dungeon"
+    },
+    "zone:underspine": {
+      "wiki_page_name": "Underspine Hollow",
+      "display_name": "Underspine Hollow",
+      "image_name": "Underspine Hollow",
+      "reason": "Retain the reviewed public Dungeon grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Dungeon"
+    },
+    "zone:elderstone": {
+      "wiki_page_name": "The Elderstone Mines",
+      "display_name": "The Elderstone Mines",
+      "image_name": "The Elderstone Mines",
+      "reason": "Retain the reviewed public Dungeon grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Dungeon"
+    },
+    "zone:vitheosend": {
+      "wiki_page_name": "Vitheo's Rest",
+      "display_name": "Vitheo's Rest",
+      "image_name": "Vitheo's Rest",
+      "reason": "Retain the reviewed public Dungeon grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Dungeon"
+    },
+    "zone:abyssal": {
+      "wiki_page_name": "Abyssal Lake",
+      "display_name": "Abyssal Lake",
+      "image_name": "Abyssal Lake",
+      "reason": "Retain the reviewed public Dungeon grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Dungeon"
+    },
+    "zone:braxonia": {
+      "wiki_page_name": "Fallen Braxonia",
+      "display_name": "Fallen Braxonia",
+      "image_name": "Fallen Braxonia",
+      "reason": "Retain the reviewed public Dungeon grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Dungeon"
+    },
+    "zone:jaws": {
+      "wiki_page_name": "Jaws of Sivakaya",
+      "display_name": "Jaws of Sivakaya",
+      "image_name": "Jaws of Sivakaya",
+      "reason": "Retain the reviewed public Dungeon grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Dungeon"
     }
   }
 }

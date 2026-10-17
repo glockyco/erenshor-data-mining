@@ -6,7 +6,7 @@ import { MAPS } from './maps';
 import { buildSearchIndex, itemResultSummaryParts } from './map/search';
 import { ItemSearchProvider } from './map/search/item-source-provider';
 import { deserializeSelection } from './types/selection';
-import type { WorldTreasureLoc, WorldNpc } from './types/world-map';
+import type { WorldTreasureLoc } from './types/world-map';
 
 const DETAIL_ZONE = 'Stowaway';
 
@@ -72,9 +72,9 @@ describe('Repository', () => {
     it('loads deterministic enemy data for the fixture zone', async () => {
         expect(await db.getZoneEnemyInfo(DETAIL_ZONE)).toEqual({
             levelRange: { min: 7, max: 7 },
-            bosses: [{ name: 'Fixture Enemy', wikiPageName: 'Fixture Enemy', level: 7 }],
+            bosses: [{ name: 'Fixture Enemy', wikiPageName: 'Fixture Enemy', level: 7, levelMax: 7 }],
             elites: [],
-            chests: [{ name: 'Fixture Chest', wikiPageName: 'Fixture Chest', level: 18 }]
+            chests: [{ name: 'Fixture Chest', wikiPageName: 'Fixture Chest', level: 18, levelMax: 18 }]
         });
     });
 
@@ -145,254 +145,101 @@ describe('Repository', () => {
                 wikiPageName: 'Runtime Enemy',
                 portraitHash: null,
                 level: 12,
+                levelMax: 12,
                 encounterTier: 'elite'
             }
         ]);
     });
 
-    it('loads all searchable items and the quest-unlocked vendor item', async () => {
-        const items = await db.getAllItems();
-        expect(items).toHaveLength(11);
-        expect(items.every((item) => (item.wikiPageName?.trim().length ?? 0) > 0)).toBe(true);
-        expect(
-            items.find((item) => item.itemStableKey === 'item:furniture - enchanted smithy')
-        ).toEqual({
-            itemStableKey: 'item:furniture - enchanted smithy',
-            displayName: 'Enchanted Smithy',
-            wikiPageName: 'Enchanted Smithy',
-            iconHash: 'enchanted_smithy'
-        });
-
-        const sources = await db.getItemSources();
-        expect(
-            sources.find(
-                (source) =>
-                    source.kind === 'vendor' &&
-                    source.itemStableKey === 'item:furniture - enchanted smithy'
-            )
-        ).toMatchObject({
-            kind: 'vendor',
-            characterStableKey: 'character:breena carpenter'
-        });
-        expect(
-            sources.find(
-                (source) =>
-                    source.kind === 'drop' &&
-                    source.characterStableKey === 'character:fixture enemy'
-            )
-        ).toMatchObject({ kind: 'drop', encounterTier: 'boss' });
-    });
-
-    it('lists the drops of copies players meet under the representative that keys the markers', async () => {
-        const drops = (await db.getItemSources()).filter((row) => row.kind === 'drop');
-
-        // Only unplaced copies drop the key, one of them the guard's representative prefab.
-        expect(drops.some((row) => row.itemStableKey === 'item:fixture key')).toBe(false);
-        expect(drops.find((row) => row.itemStableKey === 'item:fixture ore')).toMatchObject({
-            characterStableKey: 'character:fixture guard',
-            dropProbability: 10
-        });
-    });
-
-    it('aggregates only positive replacement-only facts and retains combined named drops', async () => {
+    it('loads searchable items and preserves canonical vendor unlocks', async () => {
+        expect(await db.getAllItems()).toHaveLength(11);
         const rows = await db.getItemSources();
-        expect(rows.filter((row) => row.kind === 'common_world_item')).toEqual([
-            expect.objectContaining({
-                itemStableKey: 'item:fixture drop',
-                dropProbability: 1.04,
-                dropProbabilityMax: 1.049
-            }),
-            expect.objectContaining({
-                itemStableKey: 'item:fixture relic',
-                dropProbability: 0.92,
-                dropProbabilityMax: 8.12
-            })
-        ]);
-        const drops = rows.filter((row) => row.kind === 'drop');
-        expect(drops.some((row) => row.itemStableKey === 'item:fixture relic')).toBe(false);
-        expect(drops.filter((row) => row.itemStableKey === 'item:fixture drop')).toEqual([
-            expect.objectContaining({
-                characterStableKey: 'character:fixture enemy',
-                dropProbability: 25
-            })
-        ]);
+        expect(rows.find((row) => row.kind === 'vendor' && row.itemStableKey === 'item:furniture - enchanted smithy')).toMatchObject({
+            characterStableKey: 'character:breena carpenter',
+            provenance: { source_copy_stable_key: 'character:breena carpenter', conditions: [
+                expect.objectContaining({ predicate: 'quest_done', reference_stable_key: 'quest:vendor-unlock' })
+            ] }
+        });
+        expect(rows.some((row) => row.provenance.source_copy_stable_key === 'character:fixture enemy backup')).toBe(false);
+        expect(rows.filter((row) => row.kind === 'character_drop').some((row) => row.itemStableKey === 'item:fixture key')).toBe(false);
     });
 
-    it('counts common-world replacements as unlocated world sources without markers', async () => {
-        const rows = (await db.getItemSources()).filter((row) => row.kind === 'common_world_item');
-        const provider = new ItemSearchProvider(rows, [], [], [], []);
-        const result = provider.getResult('item:fixture relic')!;
-        expect(result.hasKnownSource).toBe(true);
-        expect(result.sourceCounts.worldDrops).toBe(1);
-        expect(result.sourceCounts.droppers).toBe(0);
-        expect(result.zoneCount).toBe(0);
-        expect(itemResultSummaryParts(result)).toEqual(['1 world drop']);
-        expect(provider.getSourcesForItem(result.itemStableKey)).toHaveLength(1);
-        expect(provider.getMarkersForItem(result.itemStableKey)).toEqual([]);
-        expect(provider.resolveHighlight(result)).toEqual({ type: 'none' });
-    });
-
-    it('loads every map-visible acquisition source kind', async () => {
+    it('keeps every persisted player acquisition kind and its route identity', async () => {
         const rows = await db.getItemSources();
-
         expect([...new Set(rows.map((row) => row.kind))].sort()).toEqual([
-            'auction_house',
-            'bag',
-            'common_world_item',
-            'craft',
-            'dialog',
-            'drop',
-            'fishing',
-            'item_use',
-            'mining',
-            'quest',
-            'starting',
-            'treasure',
-            'vendor',
-            'world'
+            'auction_house', 'character_drop', 'common_world_item', 'crafting', 'dialog', 'fishing',
+            'item_bag', 'item_conversion', 'item_drop', 'mining', 'quest_reward',
+            'special_world_drop', 'spell_created', 'starting_class', 'ui_grant', 'vendor'
         ]);
-        expect(rows.every((row) => row.itemStableKey.length > 0)).toBe(true);
-        expect(rows.every((row) => row.displayName.length > 0)).toBe(true);
+        const auctions = rows.filter((row) => row.kind === 'auction_house');
+        expect(auctions.map((row) => row.provenance.variant_key).sort()).toEqual(['consumable', 'equipment']);
+        expect(new Set(rows.map((row) => row.acquisitionKey)).size).toBe(rows.length);
+        expect(rows.every((row) => row.acquisitionKey === row.provenance.acquisition_key &&
+            row.originatingItemStableKey === row.provenance.item_stable_key)).toBe(true);
     });
-    it('loads dialog prerequisites, turn-ins and non-map sources without inventing locations', async () => {
+
+    it('retains unlocated sources and conditional native UI grants without inventing markers', async () => {
         const rows = await db.getItemSources();
-        expect(rows.filter((r) => r.kind === 'dialog')).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({
-                    characterStableKey: 'character:breena carpenter',
-                    requiredQuestName: 'Fixture Quest'
-                }),
-                expect.objectContaining({
-                    characterStableKey: 'character:fixture guard',
-                    requiredQuestName: null
-                })
-            ])
-        );
-        expect(
-            rows.some(
-                (r) => r.kind === 'dialog' && r.characterStableKey === 'character:fixture enemy'
-            )
-        ).toBe(false);
-        expect(rows.filter((r) => r.kind === 'quest')).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({
-                    questStableKey: 'quest:vendor-unlock',
-                    turnInCharacterStableKey: 'character:breena carpenter'
-                }),
-                expect.objectContaining({
-                    questStableKey: 'quest:fixture-secondary',
-                    turnInCharacterStableKey: null
-                })
-            ])
-        );
-        expect(rows.filter((r) => r.kind === 'item_use')).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({
-                    sourceItemStableKey: 'item:fixture key',
-                    dropProbability: 25,
-                    zoneName: null
-                }),
-                expect.objectContaining({
-                    sourceItemStableKey: 'item:fixture bag',
-                    dropProbability: null,
-                    zoneName: null
-                }),
-                expect.objectContaining({
-                    sourceItemStableKey: 'item:fixture ore',
-                    dropProbability: null,
-                    zoneName: 'Braxonian Desert'
-                })
-            ])
-        );
-        expect(rows.filter((r) => r.kind === 'starting')).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({ classDisplayName: 'Nightblade', allClasses: true }),
-                expect.objectContaining({
-                    classDisplayName: 'Nightblade',
-                    itemStableKey: 'item:fixture fish',
-                    allClasses: false
-                })
-            ])
-        );
-        expect(rows.some((r) => r.kind === 'starting' && r.className === 'Default')).toBe(false);
+        const provider = new ItemSearchProvider(rows, [], [], [], [], await db.getAllItems());
+        const ui = provider.getSourcesForItem('item:fixture relic').find((source) => source.kind === 'ui_grant')!;
+        expect(ui.markers).toEqual([]);
+        expect(ui.row.provenance).toMatchObject({
+            player_access_state: 'verified_player', quantity_min: 1, quantity_max: 2,
+            locations: [expect.objectContaining({ relation: 'unlocated', conditions: expect.arrayContaining([
+                expect.objectContaining({ predicate: 'room_furnished', reference_slot: 'room:1' }),
+                expect.objectContaining({ predicate: 'account_state', actor: 'account',
+                    reference_stable_key: 'account_state:reliquary_claimed', value: 'false', phase: 'availability', scope: 'room:unlocated' }),
+                expect.objectContaining({ predicate: 'account_state', value: 'true', phase: 'operation_outcome' })
+            ]), entry_zone_line_keys: ['zone-line:stowaway-fixture'] })]
+        });
+        expect(provider.getResult('item:fixture relic')?.hasKnownSource).toBe(true);
+        expect(provider.getMarkersForItem('item:fixture relic')).toEqual([]);
+        expect(provider.getSourcesForItem('item:fixture relic').some((source) => source.kind === 'internal_equipment')).toBe(false);
     });
 
-    it('loads one Auction House source across routes and resolves every broker without guessing locations', async () => {
-        const rows = (await db.getItemSources()).filter((source) => source.kind === 'auction_house');
-        expect(rows).toHaveLength(1);
-        expect(rows[0]).toMatchObject({ itemStableKey: 'item:fixture bag' });
-        expect(rows[0]).not.toHaveProperty('price');
-        expect(rows[0]).not.toHaveProperty('dropProbability');
-        const markers = (await db.getSpawnPointMarkers(DETAIL_ZONE)).map((marker) => ({
-            ...marker,
-            zone: DETAIL_ZONE,
-            zoneName: 'Stowaway Step',
-            worldPosition: [marker.position.x, marker.position.y] as [number, number]
-        })) as WorldNpc[];
-        const provider = new ItemSearchProvider(rows, markers, [], [], []);
-        const sources = provider.getSourcesForItem('item:fixture bag');
-        expect(sources).toHaveLength(1);
-        const source = sources[0];
-        expect(source.kind).toBe('auction_house');
-        if (source.kind !== 'auction_house') throw new Error('Expected Auction House source');
-        expect(source.markers.map((marker) => marker.stableKey).sort()).toEqual([
-            'spawn:stowaway-breena', 'spawn:stowaway-dummy'
+    it('carries hidden variants to exactly one visible alias without collapsing acquisition origins', async () => {
+        const rows = (await db.getItemSources()).filter((row) => row.itemStableKey === 'item:fixture meditate');
+        expect(rows).toHaveLength(3);
+        expect(rows.map((row) => row.originatingItemStableKey).sort()).toEqual([
+            'item:fixture meditate', 'item:fixture meditate dru', 'item:fixture meditate dru'
         ]);
-        expect(source.brokers.find((broker) =>
-            broker.row.characterStableKey === 'character:runtime enemy'
-        )).toMatchObject({ row: { npcName: 'Runtime Enemy' }, markers: [] });
-        const result = provider.getResult('item:fixture bag')!;
-        expect(result).toMatchObject({
-            hasKnownSource: true, zoneCount: 1, sourceCounts: { auctionHouses: 1 }
-        });
-        expect(itemResultSummaryParts(result)).toEqual(['Auction House', '1 zone']);
-        expect(provider.getMarkersForItem(result.itemStableKey)).toEqual(source.markers);
-        expect(provider.resolveHighlight(result)).toMatchObject({
-            type: 'positions', stableKeys: ['spawn:stowaway-breena', 'spawn:stowaway-dummy']
-        });
-        const unlocated = new ItemSearchProvider(rows, [], [], [], []);
-        expect(unlocated.getResult(result.itemStableKey)?.hasKnownSource).toBe(true);
-        expect(unlocated.getMarkersForItem(result.itemStableKey)).toEqual([]);
-        expect(unlocated.getSourcesForItem(result.itemStableKey)).toHaveLength(1);
+        expect(new Set(rows.map((row) => row.acquisitionKey)).size).toBe(3);
+        const provider = new ItemSearchProvider(rows, [], [], [], [], await db.getAllItems());
+        expect(provider.getResult('item:fixture meditate dru')).toBeNull();
+        expect(provider.getSourcesForItem('item:fixture meditate')).toHaveLength(3);
+        expect(provider.getResult('item:fixture meditate')?.sourceCounts.vendors).toBe(2);
     });
 
-    it('resolves fixture acquisition paths and keeps unlocated rewards known', async () => {
-        const markers = (await db.getSpawnPointMarkers(DETAIL_ZONE)).map((marker) => ({
-            ...marker,
-            zone: DETAIL_ZONE,
-            zoneName: 'Stowaway Step',
-            worldPosition: [marker.position.x, marker.position.y] as [number, number]
-        })) as WorldNpc[];
-        const provider = new ItemSearchProvider(
-            await db.getItemSources(),
-            markers,
-            [],
-            [],
-            [],
-            await db.getAllItems()
-        );
-        const givers = provider
-            .getSourcesForItem('item:fixture key')
-            .filter((s) => s.kind === 'dialog');
-        expect(givers.length).toBeGreaterThan(0);
-        expect(givers.every((s) => s.markers.length > 0)).toBe(true);
-        expect(provider.getSourcesForItem('item:fixture relic').map((s) => s.kind)).toEqual(
-            expect.arrayContaining(['quest', 'craft', 'item_use', 'starting'])
-        );
-        const quest = provider
-            .getSourcesForItem('item:fixture relic')
-            .find((s) => s.kind === 'quest');
-        expect(
-            quest?.kind === 'quest' &&
-                quest.markers.some((m) =>
-                    m.characters.some((c) => c.stableKey === 'character:breena carpenter')
-                )
-        ).toBe(true);
-        const unlocated = new ItemSearchProvider(await db.getItemSources(), [], [], [], [], await db.getAllItems());
-        const result = unlocated.getResult('item:furniture - enchanted smithy')!;
-        expect(result.hasKnownSource).toBe(true);
-        expect(unlocated.getMarkersForItem(result.itemStableKey)).toEqual([]);
-        expect(itemResultSummaryParts(result)).toEqual(['1 vendor', '1 quest']);
+    it('groups pure global fishing finals as Any water while retaining local enhanced rates and every member identity', async () => {
+        const rows = (await db.getItemSources()).filter((row) => row.itemStableKey === 'item:fixture fish' && row.kind === 'fishing');
+        const waters = (await Promise.all(['Stowaway', 'StowawayPortal', 'Brake'].map(async (zone) =>
+            (await db.getWaterMarkers(zone)).map((marker) => ({ ...marker, zone, zoneName: zone,
+                worldPosition: [marker.position.x, marker.position.y] as [number, number],
+                worldPolygon: [[marker.position.x, marker.position.y],
+                    [marker.position.x + marker.width, marker.position.y],
+                    [marker.position.x + marker.width, marker.position.y + marker.height],
+                    [marker.position.x, marker.position.y + marker.height]] as [number, number][] }))))).flat();
+        const provider = new ItemSearchProvider(rows, [], [], waters, []);
+        const sources = provider.getSourcesForItem('item:fixture fish');
+        const grouped = sources.filter((source) => source.presentation === 'any_water');
+        expect(grouped).toHaveLength(1);
+        expect(grouped[0].members).toHaveLength(4);
+        expect(grouped[0].markers).toEqual([]);
+        expect(grouped[0].unlocated).toEqual([]);
+        expect(grouped[0].members.every((row) => row.provenance.probability_min === 1.25 &&
+            row.fishingBonus?.probability_stage === 'native_pool')).toBe(true);
+        const local = sources.filter((source) => source.presentation === 'source');
+        expect(local.map((source) => source.row.provenance.probability_min).sort()).toEqual([7.1875, 7.583333333333333]);
+        expect(local.map((source) => source.row.provenance.conditions[0].value).sort()).toEqual(['day', 'night']);
+        expect(provider.getMarkersForItem('item:fixture fish').map((marker) => marker.stableKey)).toEqual(['water:stowaway-fixture']);
+        expect(provider.getResult('item:fixture fish')).toMatchObject({
+            hasKnownSource: true, zoneCount: 1, sourceCounts: { fishingSpots: 1, anyWater: 1 }
+        });
+        expect(sources.flatMap((source) => source.members.map((member) => member.acquisitionKey)).sort()).toEqual(rows.map((row) => row.acquisitionKey).sort());
+        const globalOnly = new ItemSearchProvider(grouped[0].members, [], [], waters, []);
+        expect(globalOnly.getResult('item:fixture fish')).toMatchObject({ zoneCount: 0, sourceCounts: { fishingSpots: 0, anyWater: 1 } });
+        expect(globalOnly.resolveHighlight(globalOnly.getResult('item:fixture fish')!)).toEqual({ type: 'none' });
+        expect(itemResultSummaryParts(globalOnly.getResult('item:fixture fish')!)).toEqual(['Any water']);
     });
 
     it('derives reachable chest levels and guardian ranges from reading eligibility', async () => {
@@ -493,37 +340,28 @@ describe('Repository', () => {
         expect(reward).toMatchObject({
             hasKnownSource: true, sourceCounts: { droppers: 2 }, zoneCount: 3
         });
-        expect(items.getSourcesForItem(reward.itemStableKey)).toHaveLength(5);
-        expect(items.getSourcesForItem(reward.itemStableKey)).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({
-                    kind: 'treasure',
-                    row: expect.objectContaining({
-                        chestName: 'Lost Treasure (20-30)', playerLevelMin: 21, playerLevelMax: 29,
-                        treasureLocationStableKey: 'treasure:stowaway-fixture'
-                    })
-                })
-            ])
+        expect(items.getSourcesForItem(reward.itemStableKey)).toHaveLength(2);
+        expect(items.getSourcesForItem(reward.itemStableKey).flatMap((source) => source.row.provenance.locations)).toEqual(
+            expect.arrayContaining([expect.objectContaining({
+                relation: 'possible_treasure', player_level_min: 21, player_level_max: 29,
+                coordinate_stable_key: 'treasure:stowaway-fixture'
+            })])
         );
         expect(items.resolveHighlight(reward)).toMatchObject({
             type: 'positions', stableKeys: expect.arrayContaining(sites.map((site) => site.stableKey))
         });
         expect(items.getMarkersForItem(reward.itemStableKey)).toHaveLength(3);
-        expect((await db.getItemSources()).filter((s) => s.kind === 'drop' &&
-            s.itemStableKey === reward.itemStableKey)).toEqual([]);
+        expect(items.getSourcesForItem(reward.itemStableKey).every((source) =>
+            source.row.provenance.locations.every((location) => location.relation === 'possible_treasure'))).toBe(true);
         const runtime = items.getResult('item:fixture runtime')!;
         expect(runtime).toMatchObject({
             hasKnownSource: true, zoneCount: 0, sourceCounts: { droppers: 1, vendors: 1 }
         });
-        expect(items.getSourcesForItem(runtime.itemStableKey)).toMatchObject([
-            { kind: 'drop', markers: [], row: { npcWikiPageName: 'Runtime Enemy' } },
-            { kind: 'vendor', markers: [], row: { npcWikiPageName: 'Runtime Enemy' } }
+        expect(items.getSourcesForItem(runtime.itemStableKey).every((source) => source.markers.length === 0)).toBe(true);
+        expect(items.getSourcesForItem(runtime.itemStableKey).map((source) => source.row.sourceWikiPageName)).toEqual([
+            'Runtime Enemy', 'Runtime Enemy'
         ]);
         expect(items.getResult('item:fixture meditate dru')).toBeNull();
-        expect(items.getResult('item:fixture meditate')).toMatchObject({
-            itemName: 'Spell Scroll: Meditative Trance', hasKnownSource: true,
-            sourceCounts: { vendors: 2 }
-        });
-        expect(items.getSourcesForItem('item:fixture meditate')).toHaveLength(2);
+        expect(items.getSourcesForItem('item:fixture meditate')).toHaveLength(3);
     });
 });

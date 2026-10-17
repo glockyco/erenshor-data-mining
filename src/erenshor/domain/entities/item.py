@@ -21,6 +21,7 @@ class Item(BaseEntity):
 
     # Primary keys and identifiers
     stable_key: str = Field(description="Stable key from database (primary key)")
+    item_db_index: int | None = Field(default=None, description="Index used by the in-game /additem command")
 
     # Canonical wiki names (populated by the Layer 2 processor)
     display_name: str | None = Field(default=None, description="Canonical display name for wiki")

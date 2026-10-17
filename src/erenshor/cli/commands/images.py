@@ -25,11 +25,11 @@ from erenshor.application.services.model_image_manifest import (
     load_game_build,
     load_scene_landings,
 )
-from erenshor.application.wiki.lifecycle import load_content_lifecycle
 from erenshor.cli.mediawiki import create_readonly_mediawiki_client
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_valid
 from erenshor.cli.preconditions.checks.inputs import required_path, wiki_credentials
+from erenshor.infrastructure.content_lifecycle import load_content_lifecycle
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence

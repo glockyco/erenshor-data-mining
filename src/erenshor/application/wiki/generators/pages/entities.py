@@ -6,7 +6,6 @@ Handles multi-entity pages where multiple entities share the same wiki_page_name
 
 from __future__ import annotations
 
-import sqlite3
 from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
@@ -27,7 +26,16 @@ from erenshor.domain.enriched_data.stance import EnrichedStanceData
 from erenshor.domain.entities import Character, Item, Skill, Spell, Stance
 from erenshor.domain.value_objects.proc_info import ProcInfo
 from erenshor.domain.value_objects.source_info import SourceInfo
-from erenshor.domain.value_objects.wiki_link import AbilityLink, ClassLink, ItemLink, WikiLink, class_stable_key
+from erenshor.domain.value_objects.wiki_link import (
+    AbilityLink,
+    CharacterLink,
+    ClassLink,
+    ItemLink,
+    QuestLink,
+    StandardLink,
+    WikiLink,
+    ZoneLink,
+)
 
 if TYPE_CHECKING:
     from erenshor.application.wiki.generators.context import GeneratorContext
@@ -53,6 +61,7 @@ class EntityPageGenerator(PageGenerator):
         super().__init__(context)
 
         self._cached_entities: list[Item | Character | Spell | Skill | Stance] | None = None
+        self.item_provenance_manifest: dict[str, object] = {}
 
     def _load_entities(self) -> list[Item | Character | Spell | Skill | Stance]:
         if self._cached_entities is not None:
@@ -288,92 +297,84 @@ class EntityPageGenerator(PageGenerator):
         return None
 
     def _assemble_source_info(self, item: Item) -> SourceInfo:
-        vendors = self.context.character_repo.get_vendors_selling_item(item.stable_key)
-
-        drops: list[tuple[WikiLink, float]] = list(
-            self.context.character_repo.get_characters_dropping_item(item.stable_key)
+        """Resolve presentation links without selecting acquisition facts again."""
+        repo = self.context.item_provenance_repo
+        disposition = repo.get_disposition(item.stable_key)
+        if disposition is None:
+            raise ValueError(f"Canonical item disposition is missing: {item.stable_key}")
+        acquisitions = tuple(repo.get_acquisitions(item.stable_key))
+        uses = tuple(repo.get_uses(item.stable_key))
+        if not hasattr(self, "_item_source_links"):
+            link_types = {
+                "item": ItemLink,
+                "character": CharacterLink,
+                "quest": QuestLink,
+                "zone": ZoneLink,
+                "class": ClassLink,
+                "ability": AbilityLink,
+            }
+            self._item_source_links: dict[str, WikiLink] = {
+                entry.key: link_types.get(entry.kind, StandardLink)(
+                    page_title=entry.page,
+                    display_name=entry.name,
+                    stable_key=entry.key,
+                )
+                for entry in self.context.link_catalog_entries()
+            }
+            for candidate in self.context.item_repo.get_items_for_link_catalog():
+                self._item_source_links.setdefault(
+                    candidate.stable_key,
+                    ItemLink(
+                        candidate.wiki_page_name,
+                        candidate.display_name or candidate.item_name or "Item",
+                        candidate.image_name,
+                        candidate.stable_key,
+                    ),
+                )
+        links = self._item_source_links
+        for fact in acquisitions:
+            key = fact.source_stable_key
+            if (
+                key
+                and key.startswith("character:")
+                and key not in links
+                and (character_link := self.context.character_repo.get_character_link(key))
+            ):
+                links[key] = character_link
+        sources = SourceInfo(acquisitions=acquisitions, uses=uses, links=links, disposition=disposition)
+        for use in uses:
+            link = links.get(use.target_stable_key or "")
+            if use.kind == "quest_requirement" and isinstance(link, QuestLink):
+                sources.quest_requirements.append(link)
+            elif use.kind == "crafting_material" and isinstance(link, ItemLink):
+                sources.component_for.append(link)
+            if use.outcome_key:
+                # A use can target a fuel or tool rather than its resulting item.
+                if not hasattr(self, "_item_outcomes"):
+                    self._item_outcomes = {fact.acquisition_key: fact for fact in repo.iter_acquisitions()}
+                outcome = self._item_outcomes.get(use.outcome_key)
+                if outcome is None:
+                    raise ValueError(f"Canonical item use outcome is missing: {use.use_key}")
+                sources.outcomes[use.outcome_key] = outcome
+        recipe_keys = sorted(
+            {
+                fact.source_stable_key
+                for fact in acquisitions
+                if fact.kind == "crafting" and fact.mechanic != "remove_blessing" and fact.source_stable_key is not None
+            }
         )
-
-        quest_rewards = self.context.quest_repo.get_quests_rewarding_item(item.stable_key)
-        quest_requirements = self.context.quest_repo.get_quests_requiring_item(item.stable_key)
-
-        craft_sources_links = self.context.item_repo.get_items_producing_item(item.stable_key)
-        component_for = self.context.item_repo.get_items_requiring_item(item.stable_key)
-
-        # Build craft_recipe from the first mold's recipe.
-        # Query the first mold's stable key directly from crafting_rewards.
-        craft_recipe: list[tuple[ItemLink, int]] = []
-        if craft_sources_links:
-            first_mold_rows = self._execute_raw_direct(
-                """
-                SELECT cr.recipe_item_stable_key
-                FROM crafting_rewards cr
-                WHERE cr.reward_item_stable_key = ?
-                LIMIT 1
-                """,
-                (item.stable_key,),
-            )
-            if first_mold_rows:
-                mold_stable_key = str(first_mold_rows[0]["recipe_item_stable_key"])
-                recipe = self.context.item_repo.get_crafting_recipe(mold_stable_key)
-                if recipe:
-                    # Mold itself (1x)
-                    craft_recipe.append((craft_sources_links[0], 1))
-                    craft_recipe.extend(recipe.materials)
-
-        crafting_results: list[tuple[ItemLink, int]] = []
-        recipe_ingredients: list[tuple[ItemLink, int]] = []
+        for recipe_key in recipe_keys:
+            recipe = self.context.item_repo.get_crafting_recipe(recipe_key)
+            link = links.get(recipe_key)
+            if recipe is None or not isinstance(link, ItemLink):
+                raise ValueError(f"Canonical crafting source has no recipe presentation: {recipe_key}")
+            sources.recipes.append((link, recipe))
         own_recipe = self.context.item_repo.get_crafting_recipe(item.stable_key)
-        if own_recipe:
-            crafting_results = own_recipe.results
-            recipe_ingredients = own_recipe.materials
-
-        starting_names = self.context.item_repo.get_starting_class_names(item.stable_key)
-        starting_classes = [
-            ClassLink(
-                page_title=self.context.class_display.get_display_name(class_name),
-                display_name=self.context.class_display.get_display_name(class_name),
-                stable_key=class_stable_key(class_name),
-            )
-            for class_name in starting_names
-        ]
-        every_class = bool(starting_names) and set(starting_names) == set(
-            self.context.class_display.get_all_internal_names()
-        )
-
-        return SourceInfo(
-            vendors=vendors,
-            drops=drops,
-            givers=self.context.character_repo.get_item_givers(item.stable_key),
-            item_uses=self.context.item_repo.get_item_use_source_links(item.stable_key),
-            mining=self.context.zone_repo.get_mining_zones_for_item(item.stable_key),
-            fishing=self.context.zone_repo.get_fishing_zones_for_item(item.stable_key),
-            fishing_bonus=[
-                source.probability
-                for source in self.context.item_repo.get_fishing_bonus_sources(item.stable_key)
-                if source.probability is not None
-            ],
-            item_bags=self.context.zone_repo.get_item_bag_zones_for_item(item.stable_key),
-            starting_classes=starting_classes,
-            every_class_starts_with_item=every_class,
-            quest_rewards=quest_rewards,
-            quest_requirements=quest_requirements,
-            craft_sources=craft_sources_links,
-            craft_recipe=craft_recipe,
-            component_for=component_for,
-            crafting_results=crafting_results,
-            recipe_ingredients=recipe_ingredients,
-            item_drops=self.context.item_repo.get_item_drops(item.stable_key),
-            world_drops=self.context.item_repo.get_special_world_drops(item.stable_key),
-            obtained_from=[
-                *self.context.character_repo.get_common_world_item_sources(item.stable_key),
-                *self.context.item_repo.get_auction_house_sources(item.stable_key),
-            ],
-        )
-
-    def _execute_raw_direct(self, query: str, params: tuple[object, ...]) -> list[sqlite3.Row]:
-        """Execute a raw query via the item repository's connection (convenience helper)."""
-        return self.context.item_repo._execute_raw(query, params)
+        if own_recipe is not None:
+            sources.crafting_results = own_recipe.results
+            sources.recipe_ingredients = own_recipe.materials
+        self.item_provenance_manifest[item.stable_key] = self.item_generator.provenance_manifest(sources)
+        return sources
 
     def _assemble_spell(self, spell: Spell) -> EnrichedSpellData:
         obtainable_teaching_items = self.context.item_repo.get_obtainable_items_that_teach_spell(spell.stable_key)

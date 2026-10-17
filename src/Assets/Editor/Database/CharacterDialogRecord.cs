@@ -23,6 +23,9 @@ public class CharacterDialogRecord
     [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string? AssignQuestStableKey { get; set; }
 
+    [ForeignKey(typeof(QuestVariantRecord), "ResourceName")]
+    public string? AssignQuestVariantResourceName { get; set; }
+
     [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string? CompleteQuestStableKey { get; set; }
     public string? RepeatingQuestDialog { get; set; }

@@ -3,19 +3,25 @@ using AdventureGuide.Data;
 namespace AdventureGuide.State;
 
 /// <summary>
-/// Which furniture set each room of the player's Reliquary holds, read from
-/// the planning table. The game loads the table at login
-/// (GameManager.LoadReliquary from CharSelectManager.Play), so a furnishing's
-/// availability is known in every zone, not only in the Reliquary.
+/// The room furnishings, planar stones and runes stored in the Reliquary planning table.
+/// The game loads the table at login, so availability is known in every zone.
 /// </summary>
 public sealed class ReliquaryFurnishings : IFurnitureSlots
 {
-    private readonly Item?[] _items = new Item?[FurnishingPolicy.RoomSlots.Length];
-    private readonly string?[] _keys = new string?[FurnishingPolicy.RoomSlots.Length];
+    private readonly Item?[] _items = new Item?[
+        FurnishingPolicy.RoomSlots.Length
+            + FurnishingPolicy.PlanarSlots.Length
+            + FurnishingPolicy.RuneSlots.Length
+    ];
+    private readonly string?[] _keys = new string?[
+        FurnishingPolicy.RoomSlots.Length
+            + FurnishingPolicy.PlanarSlots.Length
+            + FurnishingPolicy.RuneSlots.Length
+    ];
 
     /// <summary>
-    /// Re-read the room slots. Returns true when any slot holds a different
-    /// item than at the last call. Reference checks only, so it runs every frame.
+    /// Re-read stored slots. Returns true when a slot changes.
+    /// Reference checks only, so it runs every frame without allocation.
     /// </summary>
     public bool Poll()
     {
@@ -36,7 +42,15 @@ public sealed class ReliquaryFurnishings : IFurnitureSlots
     public string? ItemKeyIn(string slot)
     {
         int index = Array.IndexOf(FurnishingPolicy.RoomSlots, slot);
-        return index >= 0 ? _keys[index] : null;
+        if (index >= 0)
+            return _keys[index];
+        index = Array.IndexOf(FurnishingPolicy.PlanarSlots, slot);
+        if (index >= 0)
+            return _keys[FurnishingPolicy.RoomSlots.Length + index];
+        index = Array.IndexOf(FurnishingPolicy.RuneSlots, slot);
+        return index >= 0
+            ? _keys[FurnishingPolicy.RoomSlots.Length + FurnishingPolicy.PlanarSlots.Length + index]
+            : null;
     }
 
     private static string? KeyOf(Item? item)
@@ -46,7 +60,7 @@ public sealed class ReliquaryFurnishings : IFurnitureSlots
         return "item:" + item.name.Trim().ToLowerInvariant();
     }
 
-    // FurnishingPolicy.RoomSlots order.
+    // RoomSlots followed by PlanarSlots and RuneSlots.
     private static ItemIcon? SlotIcon(PlanningTableUI table, int index) =>
         index switch
         {
@@ -58,6 +72,16 @@ public sealed class ReliquaryFurnishings : IFurnitureSlots
             5 => table.R2,
             6 => table.R3,
             7 => table.R4,
+            8 => table.PlanarFern,
+            9 => table.PlanarBrax,
+            10 => table.PlanarVith,
+            11 => table.PlanarSol,
+            12 => table.Rune1,
+            13 => table.Rune2,
+            14 => table.Rune3,
+            15 => table.Rune4,
+            16 => table.Rune5,
+            17 => table.Rune6,
             _ => null,
         };
 }

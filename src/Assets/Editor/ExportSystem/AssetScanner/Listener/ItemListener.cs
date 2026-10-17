@@ -361,7 +361,7 @@ public class ItemListener : IAssetScanListener<Item>
 
     /// <summary>
     /// Creates CraftingRecipeRecords from an item's template ingredients.
-    /// Counts duplicate ingredients to determine quantities.
+    /// Retains each native ingredient slot, including repeated items.
     /// </summary>
     private List<CraftingRecipeRecord> CreateCraftingRecipeRecords(Item item)
     {
@@ -372,33 +372,20 @@ public class ItemListener : IAssetScanListener<Item>
 
         var recipeItemStableKey = StableKeyGenerator.ForItem(item);
 
-        // Count occurrences to determine quantities (using stable keys)
-        var ingredientCounts = new Dictionary<string, int>();
-        foreach (var ingredient in item.TemplateIngredients)
+        for (var index = 0; index < item.TemplateIngredients.Count; index++)
         {
-            if (ingredient != null && !string.IsNullOrEmpty(ingredient.name))
-            {
-                var ingredientStableKey = StableKeyGenerator.ForItem(ingredient);
-                if (!ingredientCounts.ContainsKey(ingredientStableKey))
-                    ingredientCounts[ingredientStableKey] = 0;
-                ingredientCounts[ingredientStableKey]++;
-            }
-        }
-
-        // Create records with slot numbers
-        int slot = 1;
-        foreach (var kvp in ingredientCounts)
-        {
+            var ingredient = item.TemplateIngredients[index];
+            if (ingredient == null || string.IsNullOrEmpty(ingredient.name))
+                continue;
             records.Add(
                 new CraftingRecipeRecord
                 {
                     RecipeItemStableKey = recipeItemStableKey,
-                    MaterialSlot = slot,
-                    MaterialItemStableKey = kvp.Key,
-                    MaterialQuantity = kvp.Value,
+                    MaterialSlot = index + 1,
+                    MaterialItemStableKey = StableKeyGenerator.ForItem(ingredient),
+                    MaterialQuantity = 1,
                 }
             );
-            slot++;
         }
 
         return records;

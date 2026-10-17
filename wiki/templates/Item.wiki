@@ -1,4 +1,4 @@
-<includeonly><templatestyles src="Template:Item/styles.css" />{{#if:{{{historical_state|}}}|{{Historical Content|state={{{historical_state}}}|thing=item|update={{{historical_update|}}}|date={{{historical_date|}}}|url={{{historical_url|}}}}}}}<infobox type="Item">
+<includeonly><templatestyles src="Template:Item/styles.css" />{{#if:{{{historical_state|}}}|{{Historical Content|state={{{historical_state}}}|thing=item|update={{{historical_update|}}}|date={{{historical_date|}}}|url={{{historical_url|}}}|chat={{{historical_chat|}}}}}}}<infobox type="Item">
     <title source="title"/>
     <image>
         <default>{{#if:{{#ifexist:Media:{{{render|}}}|1}}{{#ifexist:Media:{{{render_male|}}}|1}}{{#ifexist:Media:{{{render_female|}}}|1}}{{#ifexist:Media:{{{screenshot|}}}|1}}|{{#tag:gallery|{{#ifexist:Media:{{{render|}}}|{{{render}}}{{!}}Render}}
@@ -9,6 +9,10 @@
     <data source="imagecaption" />
     <data source="type"><label>Type</label></data>
     <data source="aka"><label>Formerly</label></data>
+    <data source="slot"><label>Slot</label></data>
+    <data source="itemlevel"><label>Item level</label></data>
+    <data source="item_flags"><label>Properties</label></data>
+    <data source="item_db_index"><label>Item database index</label></data>
     <data>
         <label>Map</label>
         <default>{{#if:{{{stablekey|}}}|[https://erenshor.compendiums.org/map?sel=item:{{urlencode:{{{stablekey|}}}}} View on the interactive map]}}</default>
@@ -73,6 +77,14 @@ The [[Template:ItemTooltip|ItemTooltip]] or <code>Item/&lt;kind&gt;</code> toolt
 |-
 | '''stablekey''' || No || Canonical item key, e.g. <code>item:gen - bread</code>. Identifies the item and supplies its interactive-map link.
 |-
+| '''item_db_index''' || No || Item index used by the in-game <code>/additem</code> command
+|-
+| '''slot''' || No || Required equipment slot
+|-
+| '''itemlevel''' || No || Item level
+|-
+| '''item_flags''' || No || Item properties
+|-
 | '''aka''' || No || Former name of this item
 |-
 | '''historical_state''' || No || Set to <code>removed</code>, <code>unobtainable</code>, or <code>unused</code> to show the corresponding content notice
@@ -82,6 +94,8 @@ The [[Template:ItemTooltip|ItemTooltip]] or <code>Item/&lt;kind&gt;</code> toolt
 | '''historical_date''' || No || Update date, such as July 13, 2026
 |-
 | '''historical_url''' || No || Link to the update's patch notes
+|-
+| '''historical_chat''' || No || Set when simulated players can still name unused content in chat
 |-
 | '''icon''' || Yes || Full item icon file title, including its extension, such as <code>Copper Sword icon.png</code>
 |-

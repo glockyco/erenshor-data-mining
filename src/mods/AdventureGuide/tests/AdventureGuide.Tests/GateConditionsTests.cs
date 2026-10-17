@@ -9,19 +9,196 @@ internal sealed class GateTestFacts : IGateFacts
     public Dictionary<string, int> Inventory { get; } = new(StringComparer.OrdinalIgnoreCase);
     public HashSet<string> Keyring { get; } = new(StringComparer.OrdinalIgnoreCase);
     public Dictionary<string, string> Rooms { get; } = new(StringComparer.OrdinalIgnoreCase);
+    public bool AccountClaimed { get; set; }
+    public string? ReturnZone { get; set; }
+    public UnityEngine.Vector3? ReturnLanding { get; set; }
+    public int PlayerLevel { get; set; }
 
     public bool IsQuestCompleted(string questDbName) => Quests.Contains(questDbName);
+
+    public bool ReadAccountState(string key) =>
+        key == EncounterStateKeys.ReliquaryClaimed
+            ? AccountClaimed
+            : throw new ArgumentException($"Unknown account state {key}", nameof(key));
+
+    public string? ReadCharacterZoneState(string key) =>
+        key == EncounterStateKeys.ReturnZone
+            ? ReturnZone
+            : throw new ArgumentException($"Unknown character zone state {key}", nameof(key));
+
+    public UnityEngine.Vector3? ReadCharacterPositionState(string key) =>
+        key == EncounterStateKeys.ReturnLanding
+            ? ReturnLanding
+            : throw new ArgumentException($"Unknown character position state {key}", nameof(key));
 
     public int ItemCount(string itemStableKey) => Inventory.GetValueOrDefault(itemStableKey);
 
     public bool IsOnKeyring(string gameId) => Keyring.Contains(gameId);
 
-    public string? FurnitureIn(string slot) => Rooms.GetValueOrDefault(slot);
+    public string? StoredItemIn(string slot) => Rooms.GetValueOrDefault(slot);
 }
 
 public sealed class GateConditionsTests
 {
     private const string Item = "item:key";
+
+    [Theory]
+    [InlineData("PlanarFern")]
+    [InlineData("PlanarBrax")]
+    [InlineData("PlanarVith")]
+    [InlineData("PlanarSol")]
+    [InlineData("Rune1")]
+    [InlineData("Rune2")]
+    [InlineData("Rune3")]
+    [InlineData("Rune4")]
+    [InlineData("Rune5")]
+    [InlineData("Rune6")]
+    public void Stored_portal_item_requires_exact_slot_and_tracks_replacement(string slot)
+    {
+        string instruction = slot.StartsWith("Rune", StringComparison.Ordinal)
+            ? "Place Portal stone in a rune slot on your planning table."
+            : "Place Portal stone in the planning-table slot for Test destination.";
+        string json = """
+            {"_version":8,"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},"_source_facts":{},"_item_uses":{},"_quest_state_keys":{},"quests":[],"_conditions":[[[{"kind":"planning_slot_item","ref":"item:key","slot":"SLOT","instruction":INSTRUCTION}]]],
+             "_zone_line_destination_contexts":{},
+             "_gate_items":{"item:key":{"name":"Portal stone","game_id":"134379"}}}
+            """.Replace("SLOT", slot).Replace(
+            "INSTRUCTION",
+            Newtonsoft.Json.JsonConvert.SerializeObject(instruction)
+        );
+        var facts = new GateTestFacts();
+        facts.Inventory[Item] = 1;
+        facts.Keyring.Add("134379");
+        facts.Quests.Add("RELIQ-PLANE");
+        var gates = new GateConditions(GuideData.Parse(json), facts);
+        Assert.False(gates.IsAvailable(0));
+        facts.Rooms["L1"] = Item;
+        Assert.False(gates.IsAvailable(0));
+        facts.Rooms[slot == "PlanarFern" ? "PlanarBrax" : "PlanarFern"] = Item;
+        Assert.False(gates.IsAvailable(0));
+        facts.Rooms[slot] = "item:wrong stone";
+        Assert.False(gates.IsAvailable(0));
+        facts.Rooms[slot] = Item;
+        Assert.True(gates.IsAvailable(0));
+        facts.Rooms[slot] = "item:replacement";
+        Assert.False(gates.IsAvailable(0));
+        facts.Rooms[slot] = Item;
+        Assert.True(gates.IsAvailable(0));
+        facts.Rooms.Remove(slot);
+        Assert.False(gates.IsAvailable(0));
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("L1")]
+    [InlineData("PlanarUnknown")]
+    [InlineData("Rune7")]
+    public void Stored_portal_item_rejects_unknown_or_room_slot(string? slot)
+    {
+        var atom = Atom(GateAtomKind.PlanningSlotItem);
+        atom.Slot = slot;
+        atom.Instruction = "Place Portal stone in a rune slot on your planning table.";
+        Assert.Throws<InvalidDataException>(() =>
+            Data([
+                [
+                    [atom],
+                ],
+            ])
+        );
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    public void Stored_portal_item_rejects_missing_instruction(string? instruction)
+    {
+        string json = """
+            {"_version":8,"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},"_source_facts":{},"_item_uses":{},"_quest_state_keys":{},"quests":[],"_conditions":[[[{"kind":"planning_slot_item","ref":"item:key","slot":"Rune1","instruction":INSTRUCTION}]]],
+             "_zone_line_destination_contexts":{},
+             "_gate_items":{"item:key":{"name":"Portal stone","game_id":"2096280"}}}
+            """.Replace("INSTRUCTION", Newtonsoft.Json.JsonConvert.SerializeObject(instruction));
+        Assert.Throws<InvalidDataException>(() => GuideData.Parse(json));
+    }
+
+    [Fact]
+    public void Stored_portal_item_rejects_absent_instruction_property()
+    {
+        const string json = """
+            {"_version":8,"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},"_source_facts":{},"_item_uses":{},"_quest_state_keys":{},"quests":[],"_conditions":[[[{"kind":"planning_slot_item","ref":"item:key","slot":"Rune1"}]]],
+             "_zone_line_destination_contexts":{},
+             "_gate_items":{"item:key":{"name":"Portal stone","game_id":"2096280"}}}
+            """;
+        Assert.Throws<InvalidDataException>(() => GuideData.Parse(json));
+    }
+
+    [Theory]
+    [InlineData("Rune1")]
+    [InlineData("Rune2")]
+    [InlineData("Rune3")]
+    [InlineData("Rune4")]
+    [InlineData("Rune5")]
+    [InlineData("Rune6")]
+    public void Rune_alternatives_keep_slot_identity_but_explain_one_generated_action(string slot)
+    {
+        const string instruction = "Place Portal stone in a rune slot on your planning table.";
+        var groups = FurnishingPolicy
+            .RuneSlots.Select(rune => new List<GateAtom>
+            {
+                new()
+                {
+                    Kind = GateAtomKind.PlanningSlotItem,
+                    Ref = Item,
+                    Slot = rune,
+                    Instruction = instruction,
+                },
+            })
+            .ToList();
+        var data = Data([groups]);
+        var facts = new GateTestFacts();
+        facts.Inventory[Item] = 1;
+        facts.Keyring.Add("key-id");
+        facts.Quests.Add("RELIQ-RUNE");
+        facts.Rooms["PlanarFern"] = Item;
+        facts.Rooms["L1"] = Item;
+        var gates = new GateConditions(data, facts);
+        Assert.Equal(6, data.Conditions[0].Count);
+        Assert.Equal(FurnishingPolicy.RuneSlots, groups.Select(group => Assert.Single(group).Slot));
+        Assert.False(gates.IsAvailable(0));
+        Assert.Equal(instruction, gates.Describe(Assert.Single(gates.Explain(0))));
+        facts.Rooms[slot] = "item:wrong";
+        Assert.False(gates.IsAvailable(0));
+        facts.Rooms[slot] = Item;
+        Assert.True(gates.IsAvailable(0));
+        Assert.Empty(gates.Explain(0));
+        facts.Rooms[slot] = "item:replacement";
+        Assert.False(gates.IsAvailable(0));
+        facts.Rooms.Remove(slot);
+        Assert.False(gates.IsAvailable(0));
+        Assert.Equal(6, data.Conditions[0].Count);
+    }
+
+    [Fact]
+    public void Dedicated_instruction_uses_generated_destination_text()
+    {
+        const string instruction = "Place Portal stone in the planning-table slot for Fernalla.";
+        var atom = new GateAtom
+        {
+            Kind = GateAtomKind.PlanningSlotItem,
+            Ref = Item,
+            Slot = "PlanarFern",
+            Instruction = instruction,
+        };
+        var gates = new GateConditions(
+            Data([
+                [
+                    [atom],
+                ],
+            ]),
+            new GateTestFacts()
+        );
+        Assert.Equal(instruction, gates.Describe(atom));
+    }
 
     private static GateAtom Atom(GateAtomKind kind, string reference = Item) =>
         new() { Kind = kind, Ref = reference };
@@ -33,7 +210,8 @@ public sealed class GateConditionsTests
         GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 7,
+                Version = 8,
+                Encounters = TestData.EmptyEncounters(),
                 Quests = [],
                 Conditions = conditions,
                 GateItems = new()
@@ -296,7 +474,8 @@ public sealed class GateConditionsTests
     {
         var wrapper = new GuideWrapper
         {
-            Version = 7,
+            Version = 8,
+            Encounters = TestData.EmptyEncounters(),
             Quests = [],
             Conditions =
             [
@@ -343,7 +522,8 @@ public sealed class GateConditionsTests
     {
         var wrapper = new GuideWrapper
         {
-            Version = 7,
+            Version = 8,
+            Encounters = TestData.EmptyEncounters(),
             Quests = [],
             Conditions =
             [

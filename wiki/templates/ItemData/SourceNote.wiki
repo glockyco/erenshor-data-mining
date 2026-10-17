@@ -1,0 +1,13 @@
+<includeonly>{{#invoke:Erenshor/ItemData|sourceNote}}</includeonly><noinclude>
+== ItemData/SourceNote ==
+Preserves an editor's source note and identifies the item, source kind and source by stable key so that it can be reviewed when game data covers it.
+<pre>{{ItemData/SourceNote
+|item=item:example
+|kind=vendor
+|source=character:example
+|text=The editor's source note.
+}}</pre>
+Use the item's key in <code>item</code>, the canonical acquisition kind in <code>kind</code>, the source's key in <code>source</code> and the note in <code>text</code>. Put this call in [[Template:ItemData|ItemData]]'s <code>othersource</code> field or in article text. It does not add a canonical source, chance or condition.
+
+When a verified source with this exact identity is in the game data, the note stays visible and the page joins [[:Category:Item data notes covered by game data]]. Compare the note with the displayed source and remove the redundant part. Report any fact that the data still misses on [[Erenshor Wiki talk:Game Data]]. Leave freeform legacy notes unchanged until reviewed.
+</noinclude>

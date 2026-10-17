@@ -1,18 +1,19 @@
-SELECT * FROM
-(
-    SELECT
-        w.stable_key AS water_stable_key,
-        z.zone_name,
-        ROUND(w.x, 2) AS position_x,
-        ROUND(w.y, 2) AS position_y,
-        ROUND(w.z, 2) AS position_z,
-        i.display_name,
-        MAX(CASE WHEN wf.type = 'DayFishable' THEN ROUND(wf.drop_chance, 2) END) AS 'DayFishableChance (%)',
-        MAX(CASE WHEN wf.type = 'NightFishable' THEN ROUND(wf.drop_chance, 2) END) AS 'NightFishableChance (%)'
-    FROM waters w
-    LEFT JOIN water_fishables wf ON w.stable_key = wf.water_stable_key
-    LEFT JOIN items i ON i.stable_key = wf.item_stable_key
-    JOIN zones z ON z.scene_name = w.scene
-    GROUP BY w.stable_key, z.zone_name, w.x, w.y, w.z, i.display_name
-)
-ORDER BY water_stable_key, zone_name, "DayFishableChance (%)" DESC, "NightFishableChance (%)" DESC, display_name;
+-- Day, night and bonus routes remain separate acquisitions with typed conditions.
+SELECT
+    a.source_stable_key AS water_stable_key,
+    z.zone_name,
+    l.x AS position_x,
+    l.y AS position_y,
+    l.z AS position_z,
+    i.display_name,
+    CASE WHEN a.probability_kind = 'exact' THEN a.probability_min END AS 'Chance (%)',
+    l.location_key,
+    a.*
+FROM item_acquisitions a
+LEFT JOIN items i ON i.stable_key = a.item_stable_key
+LEFT JOIN item_acquisition_locations l ON l.owner_key = a.acquisition_key
+LEFT JOIN zones z ON z.stable_key = l.zone_stable_key
+WHERE a.kind IN ('fishing', 'fishing_bonus')
+    AND a.player_access_state = 'verified_player'
+    AND a.probability_stage = 'final_acquisition'
+ORDER BY a.source_stable_key, a.item_stable_key, a.acquisition_key, l.location_key;

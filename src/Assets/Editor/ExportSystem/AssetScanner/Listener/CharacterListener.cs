@@ -501,6 +501,7 @@ public class CharacterListener : IAssetScanListener<Character>
         {
             NPC => "NPC",
             Stats => "Stats",
+            Character => "Character",
             _ => "TestDummy",
         };
 
@@ -757,6 +758,28 @@ public class CharacterListener : IAssetScanListener<Character>
                     : null,
             DestroyOnDeath = character.DestroyOnDeath,
         };
+        var startComponents = character
+            .GetComponents<Component>()
+            .Where(component =>
+                component is Character
+                || component is NPC
+                || component is Stats
+                || component is TestDummy
+            )
+            .ToList();
+        record.StartComponentsListed = string.Join(",", startComponents.Select(StartComponentName));
+        if (prefabType == PrefabAssetType.NotAPrefab)
+        {
+            record.StartComponentsByFileId = string.Join(
+                ",",
+                startComponents
+                    .OrderBy(component =>
+                        GlobalObjectId.GetGlobalObjectIdSlow(component).targetObjectId
+                    )
+                    .Select(StartComponentName)
+            );
+            record.IsActiveAtLoad = character.gameObject.activeInHierarchy;
+        }
 
         if (npc != null)
         {
@@ -792,28 +815,6 @@ public class CharacterListener : IAssetScanListener<Character>
 
             // NPC Combat Mechanics
             record.HandSetResistances = npc.HandSetResistances;
-            var startComponents = character
-                .GetComponents<Component>()
-                .Where(component =>
-                    component is NPC || component is Stats || component is TestDummy
-                )
-                .ToList();
-            record.StartComponentsListed = string.Join(
-                ",",
-                startComponents.Select(StartComponentName)
-            );
-            if (prefabType == PrefabAssetType.NotAPrefab)
-            {
-                record.StartComponentsByFileId = string.Join(
-                    ",",
-                    startComponents
-                        .OrderBy(component =>
-                            GlobalObjectId.GetGlobalObjectIdSlow(component).targetObjectId
-                        )
-                        .Select(StartComponentName)
-                );
-                record.IsActiveAtLoad = character.gameObject.activeInHierarchy;
-            }
             record.HardSetAC = npc.HardSetAC;
             record.BaseAtkDmg = npc.BaseAtkDmg;
             record.OHAtkDmg = npc.OHAtkDmg;
@@ -950,6 +951,8 @@ public class CharacterListener : IAssetScanListener<Character>
                 dialog.QuestToAssign != null
                     ? StableKeyGenerator.ForQuest(dialog.QuestToAssign)
                     : null,
+            AssignQuestVariantResourceName =
+                dialog.QuestToAssign != null ? dialog.QuestToAssign.name : null,
             CompleteQuestStableKey =
                 dialog.QuestToComplete != null
                     ? StableKeyGenerator.ForQuest(dialog.QuestToComplete)
@@ -1245,25 +1248,22 @@ public class CharacterListener : IAssetScanListener<Character>
     )
     {
         var records = new List<CharacterVendorItemRecord>();
-        var seenItemStableKeys = new HashSet<string>();
 
         if (vendorInventory.ItemsForSale != null && vendorInventory.ItemsForSale.Count > 0)
         {
-            foreach (var item in vendorInventory.ItemsForSale)
+            for (var index = 0; index < vendorInventory.ItemsForSale.Count; index++)
             {
+                var item = vendorInventory.ItemsForSale[index];
                 if (item != null && !string.IsNullOrEmpty(item.name))
                 {
-                    var itemStableKey = StableKeyGenerator.ForItem(item);
-                    if (seenItemStableKeys.Add(itemStableKey))
-                    {
-                        records.Add(
-                            new CharacterVendorItemRecord
-                            {
-                                CharacterStableKey = characterStableKey,
-                                ItemStableKey = itemStableKey,
-                            }
-                        );
-                    }
+                    records.Add(
+                        new CharacterVendorItemRecord
+                        {
+                            CharacterStableKey = characterStableKey,
+                            ItemSlot = index + 1,
+                            ItemStableKey = StableKeyGenerator.ForItem(item),
+                        }
+                    );
                 }
             }
         }
@@ -1277,28 +1277,26 @@ public class CharacterListener : IAssetScanListener<Character>
     )
     {
         var records = new List<CharacterVendorQuestUnlockRecord>();
-        var seenQuestStableKeys = new HashSet<string>();
 
         if (
             vendorInventory.QuestRewardsForSale != null
             && vendorInventory.QuestRewardsForSale.Count > 0
         )
         {
-            foreach (var quest in vendorInventory.QuestRewardsForSale)
+            for (var index = 0; index < vendorInventory.QuestRewardsForSale.Count; index++)
             {
+                var quest = vendorInventory.QuestRewardsForSale[index];
                 if (quest != null && !string.IsNullOrEmpty(quest.DBName))
                 {
-                    var questStableKey = StableKeyGenerator.ForQuest(quest);
-                    if (seenQuestStableKeys.Add(questStableKey))
-                    {
-                        records.Add(
-                            new CharacterVendorQuestUnlockRecord
-                            {
-                                CharacterStableKey = characterStableKey,
-                                QuestStableKey = questStableKey,
-                            }
-                        );
-                    }
+                    records.Add(
+                        new CharacterVendorQuestUnlockRecord
+                        {
+                            CharacterStableKey = characterStableKey,
+                            QuestSlot = index + 1,
+                            QuestVariantResourceName = quest.name,
+                            QuestStableKey = StableKeyGenerator.ForQuest(quest),
+                        }
+                    );
                 }
             }
         }
@@ -1436,25 +1434,23 @@ public class CharacterListener : IAssetScanListener<Character>
     )
     {
         var records = new List<CharacterQuestManagerRecord>();
-        var seenQuestStableKeys = new HashSet<string>();
 
         if (questManager.NPCQuests != null && questManager.NPCQuests.Count > 0)
         {
-            foreach (var quest in questManager.NPCQuests)
+            for (var index = 0; index < questManager.NPCQuests.Count; index++)
             {
+                var quest = questManager.NPCQuests[index];
                 if (quest != null && !string.IsNullOrEmpty(quest.DBName))
                 {
-                    var questStableKey = StableKeyGenerator.ForQuest(quest);
-                    if (seenQuestStableKeys.Add(questStableKey))
-                    {
-                        records.Add(
-                            new CharacterQuestManagerRecord
-                            {
-                                CharacterStableKey = characterStableKey,
-                                QuestStableKey = questStableKey,
-                            }
-                        );
-                    }
+                    records.Add(
+                        new CharacterQuestManagerRecord
+                        {
+                            CharacterStableKey = characterStableKey,
+                            QuestSlot = index + 1,
+                            QuestVariantResourceName = quest.name,
+                            QuestStableKey = StableKeyGenerator.ForQuest(quest),
+                        }
+                    );
                 }
             }
         }

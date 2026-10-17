@@ -2,6 +2,24 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type Plugin, type Connect } from 'vite';
 import { GAME_VERSION_PATH, handleGameVersion } from './src/lib/game-version';
+import { fileURLToPath } from 'node:url';
+import { writeMapProvenanceManifest } from './src/lib/item-provenance-coverage.server';
+
+let provenanceManifest: Promise<void> | null = null;
+
+function itemProvenanceCoverage(): Plugin {
+    return {
+        name: 'erenshor-item-provenance-coverage',
+        apply: 'build',
+        buildStart() {
+            provenanceManifest ??= writeMapProvenanceManifest(
+                process.env.ERENSHOR_MAPS_PROVENANCE_MANIFEST_PATH ??
+                    fileURLToPath(new URL('../../artifacts/item-provenance-map.json', import.meta.url))
+            );
+            return provenanceManifest;
+        }
+    };
+}
 
 /**
  * Serve the site's one dynamic endpoint in `dev` and `preview`.
@@ -39,7 +57,7 @@ function gameVersionEndpoint(): Plugin {
 }
 
 export default defineConfig({
-    plugins: [gameVersionEndpoint(), sveltekit(), tailwindcss()],
+    plugins: [gameVersionEndpoint(), itemProvenanceCoverage(), sveltekit(), tailwindcss()],
     assetsInclude: ['**/*.wasm'],
     ssr: {
         noExternal: ['@lucide/svelte', 'bits-ui']

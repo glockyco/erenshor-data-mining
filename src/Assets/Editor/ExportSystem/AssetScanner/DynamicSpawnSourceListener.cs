@@ -68,13 +68,24 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
         var isPrefabAsset = PrefabUtility.IsPartOfPrefabAsset(comp.gameObject);
         var isChainedHost = comp.GetComponent<Character>() != null && isPrefabAsset;
 
-        // Walk public instance fields by reflection — matches catalog field names directly
-        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+        // Include private inspector fields, but not runtime-only or readonly state.
+        var fields = type.GetFields(FieldFlags);
         foreach (var field in fields)
         {
+            if (!UnknownSpawnCandidateResolver.IsSerializedField(field))
+                continue;
             var fieldName = field.Name;
             var entry = _catalog.Classify(scriptName, fieldName);
-            if (entry.Classification == DynamicSpawnClassification.Denied)
+            // code-fact: simplayer.host_character_binding
+            if (comp is SimPlayer && fieldName == "Myself")
+                UnknownSpawnCandidateResolver.ValidateHostCharacterCache(
+                    comp.gameObject,
+                    field.GetValue(comp)
+                );
+            if (
+                entry.Classification == DynamicSpawnClassification.Denied
+                || entry.Classification == DynamicSpawnClassification.Activation
+            )
                 continue;
 
             var triggerMetadata =
@@ -85,16 +96,19 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
             if (value == null)
                 continue;
 
+            if (entry.Classification == DynamicSpawnClassification.Unknown)
+            {
+                // Unknown candidates are actor/GameObject references, not arbitrary
+                // components whose host hierarchy happens to contain an actor.
+                var character = UnknownSpawnCandidateResolver.Resolve(value);
+                if (character != null)
+                    RecordFinding(comp, scriptName, fieldName, field, character);
+                continue;
+            }
+
             var characters = ResolveCharacters(value);
             if (characters.Count == 0)
                 continue;
-
-            if (entry.Classification == DynamicSpawnClassification.Unknown)
-            {
-                // Field resolves to a Character prefab but isn't classified — record finding
-                RecordFinding(comp, scriptName, fieldName, field, value, characters[0]);
-                continue;
-            }
 
             // A prefab asset holds no placement. The scan exports the placed
             // copies from the scenes, so only a Character host, whose spawns
@@ -513,7 +527,7 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
 
     private List<Vector3> ResolvePositions(MonoBehaviour host, string? positionField)
     {
-        if (string.IsNullOrEmpty(positionField))
+        if (positionField == null || positionField.Length == 0)
             return new List<Vector3> { host.transform.position };
 
         // Support comma-separated position fields (e.g. "Spawn1,Spawn2")
@@ -561,7 +575,6 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
         string scriptName,
         string fieldName,
         FieldInfo field,
-        object value,
         Character exampleCharacter
     )
     {

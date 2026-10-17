@@ -11,6 +11,10 @@ public class ItemDropRecord
 {
     public const string TableName = "ItemDrops";
 
+    [Indexed(Name = "ItemDrops_Primary_IDX", Order = 3, Unique = true)]
+    [ForeignKey(typeof(ItemDropPoolRecord), "PoolStableKey")]
+    public string PoolStableKey { get; set; } = string.Empty;
+
     /// <summary>
     /// Stable key of the source item that produces drops when used.
     /// Format: "item:resource_name" (e.g., "item:gen - braxonian fossil")
@@ -29,13 +33,12 @@ public class ItemDropRecord
 
     /// <summary>
     /// Probability that this specific item drops (as percentage, 0-100).
-    /// Calculated from item frequency in the weighted drop list.
+    /// Calculated from item frequency divided by all native slots, including nulls.
     /// </summary>
     public double DropProbability { get; set; }
 
     /// <summary>
-    /// Whether one item from the pool always drops when the source is used.
-    /// True for fossils (one random item always drops).
+    /// Whether using the source performs a guaranteed pool roll, not a guaranteed item grant.
     /// </summary>
     public bool IsGuaranteed { get; set; }
 }

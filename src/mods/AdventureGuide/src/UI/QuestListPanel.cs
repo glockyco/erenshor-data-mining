@@ -92,11 +92,11 @@ public sealed class QuestListPanel
         {
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
             if (_data.Count == 0)
-                ImGui.TextWrapped("No quest data loaded.");
+                Theme.TextWrapped("No quest data loaded.");
             else if (!string.IsNullOrEmpty(_filter.SearchText))
-                ImGui.TextWrapped("No quests match your search.");
+                Theme.TextWrapped("No quests match your search.");
             else
-                ImGui.TextWrapped("No quests in this category.");
+                Theme.TextWrapped("No quests in this category.");
             ImGui.PopStyleColor();
         }
 
@@ -396,7 +396,7 @@ public sealed class QuestListPanel
         {
             ImGui.BeginTooltip();
             if (quest.ZoneContext != null)
-                ImGui.Text(quest.ZoneContext);
+                ImGui.TextUnformatted(quest.ZoneContext);
             string status = _state.Workflows.IsUnverifiable(quest)
                 ? "Workflow state unavailable"
                 : _state.GetStatus(quest) switch
@@ -406,9 +406,9 @@ public sealed class QuestListPanel
                     QuestRuntimeStatus.Active => "Active",
                     _ => "Available",
                 };
-            ImGui.Text(status);
+            ImGui.TextUnformatted(status);
             if (quest.LevelEstimate?.Recommended is int tipLvl)
-                ImGui.Text($"Level {tipLvl}");
+                ImGui.TextUnformatted($"Level {tipLvl}");
             ImGui.EndTooltip();
         }
 

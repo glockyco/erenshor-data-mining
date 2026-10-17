@@ -1,0 +1,23 @@
+.item-data-root {
+	display: flow-root;
+	clear: both;
+}
+
+.item-data-provenance,
+.item-data-editorial,
+.item-data-book-title {
+	clear: both;
+}
+
+.item-data-provenance .wikitable {
+	width: 100%;
+}
+
+.item-data-provenance th,
+.item-data-provenance td {
+	vertical-align: top;
+}
+
+.item-data-editor-note h3 {
+	font-size: 100%;
+}

@@ -6,8 +6,8 @@ namespace AdventureGuide.State;
 
 /// <summary>
 /// Single status boundary for game-backed and guide-only quest entries.
-/// Ordinary quests mirror GameData; guide-only workflows delegate exclusively
-/// to GuideWorkflowState and never read or mutate game quest collections.
+/// Game quests retain raw mirrors and project completion only through common encounter bindings.
+/// Guide-only workflows never read or mutate game quest collections.
 /// </summary>
 public sealed class QuestStateTracker
 {
@@ -25,6 +25,10 @@ public sealed class QuestStateTracker
     private bool _dirty = true;
     private NavigationHistory? _history;
     private int _keyringCount;
+    private bool _accountClaimed;
+    private string? _returnZone;
+    private UnityEngine.Vector3? _returnLanding;
+    private int _playerLevel;
 
     public int Version { get; private set; }
     public string CurrentZone { get; private set; } = "";
@@ -53,6 +57,9 @@ public sealed class QuestStateTracker
     /// <summary>A key joined or left the keyring, which can open or close door gates.</summary>
     public event Action? KeyringChanged;
 
+    /// <summary>Supported account or character primitives changed after Version moved.</summary>
+    public event Action? PrimitiveStateChanged;
+
     public QuestStateTracker(GuideData data, EntityRegistry entities)
         : this(data, entities, LiveQuestGameState.Instance) { }
 
@@ -65,6 +72,7 @@ public sealed class QuestStateTracker
         Furnishings = new ReliquaryFurnishings();
         Gates = new GateConditions(data, new GameGateFacts(this));
         _keyringCount = GameData.Keyring?.Count ?? 0;
+        CapturePrimitiveState();
         Workflows.Changed += OnWorkflowChanged;
         Workflows.CycleReset += OnWorkflowCycleReset;
 
@@ -80,7 +88,11 @@ public sealed class QuestStateTracker
 
     public void LoadFromConfig(GuideConfig config) => Workflows.LoadFromConfig(config);
 
-    public void OnCharacterLoaded() => Workflows.OnCharacterLoaded(CountItemDelegate);
+    public void OnCharacterLoaded()
+    {
+        SyncFromGameData();
+        Workflows.OnCharacterLoaded(CountItemDelegate);
+    }
 
     public void SaveToConfig() => Workflows.SaveToConfig();
 
@@ -109,6 +121,8 @@ public sealed class QuestStateTracker
                 Workflows.IsInProgress(quest)
             );
 
+        if (Gates.IsProjectedQuestCompleted(quest))
+            return QuestRuntimeStatus.Completed;
         if (_activeQuests.Contains(quest.DBName))
             return QuestRuntimeStatus.Active;
         if (_completedQuests.Contains(quest.DBName))
@@ -136,6 +150,15 @@ public sealed class QuestStateTracker
 
     public bool IsGameQuestActive(string dbName) => _activeQuests.Contains(dbName);
 
+    public bool ReadAccountState(string key) => _gameState.ReadAccountState(key);
+
+    public string? ReadCharacterZoneState(string key) => _gameState.ReadCharacterZoneState(key);
+
+    public UnityEngine.Vector3? ReadCharacterPositionState(string key) =>
+        _gameState.ReadCharacterPositionState(key);
+
+    public int PlayerLevel => _gameState.PlayerLevel;
+
     public void SyncFromGameData()
     {
         _activeQuests.Clear();
@@ -145,6 +168,8 @@ public sealed class QuestStateTracker
 
         _dirty = true;
         Version++;
+        if (CapturePrimitiveState())
+            PrimitiveStateChanged?.Invoke();
     }
 
     public void OnQuestAssigned(string dbName)
@@ -180,6 +205,11 @@ public sealed class QuestStateTracker
 
     public void Update(float deltaTime)
     {
+        if (CapturePrimitiveState())
+        {
+            Version++;
+            PrimitiveStateChanged?.Invoke();
+        }
         Workflows.Update(deltaTime, CountItemDelegate);
         int keyringCount = GameData.Keyring?.Count ?? 0;
         if (keyringCount != _keyringCount)
@@ -215,6 +245,35 @@ public sealed class QuestStateTracker
         EnsureCacheCurrent();
         return _inventoryCache.TryGetValue(itemStableKey, out int count) ? count : 0;
     }
+
+    private bool CapturePrimitiveState()
+    {
+        bool claimed = ReadAccountState(EncounterStateKeys.ReliquaryClaimed);
+        string? zone = ReadCharacterZoneState(EncounterStateKeys.ReturnZone);
+        var landing = ReadCharacterPositionState(EncounterStateKeys.ReturnLanding);
+        int level = PlayerLevel;
+        bool changed =
+            claimed != _accountClaimed
+            || level != _playerLevel
+            || !string.Equals(zone, _returnZone, StringComparison.Ordinal)
+            || !SamePosition(landing, _returnLanding);
+        _accountClaimed = claimed;
+        _returnZone = zone;
+        _returnLanding = landing;
+        _playerLevel = level;
+        return changed;
+    }
+
+    private static bool SamePosition(UnityEngine.Vector3? left, UnityEngine.Vector3? right) =>
+        left.HasValue == right.HasValue
+        && (
+            !left.HasValue
+            || (
+                left.Value.x.Equals(right!.Value.x)
+                && left.Value.y.Equals(right.Value.y)
+                && left.Value.z.Equals(right.Value.z)
+            )
+        );
 
     private void EnsureCacheCurrent()
     {

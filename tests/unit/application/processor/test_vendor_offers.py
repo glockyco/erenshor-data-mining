@@ -49,25 +49,26 @@ def conn(tmp_path: Path) -> Iterator[sqlite3.Connection]:
         " VALUES ('character:chest', 'treasure:loc', 1, 9, 1, 9)"
     )
     conn.executemany(
-        "INSERT INTO character_vendor_items (character_stable_key, item_stable_key) VALUES (?, ?)",
+        "INSERT INTO character_vendor_items (character_stable_key,item_slot,item_stable_key) VALUES (?, ?, ?)",
         [
-            ("character:shop", "item:a"),
-            ("character:shop bkp", "item:a"),
-            ("character:shop bkp", "item:b"),
-            ("character:summon", "item:c"),
-            ("character:chest", "item:d"),
-            ("character:orphan", "item:g"),
-            ("character:unused", "item:h"),
+            ("character:shop", 1, "item:a"),
+            ("character:shop bkp", 1, "item:a"),
+            ("character:shop bkp", 2, "item:b"),
+            ("character:summon", 1, "item:c"),
+            ("character:chest", 1, "item:d"),
+            ("character:orphan", 1, "item:g"),
+            ("character:unused", 1, "item:h"),
         ],
-    )
-    conn.executemany(
-        "INSERT INTO character_vendor_quest_unlocks (character_stable_key, quest_stable_key) VALUES (?, ?)",
-        [("character:shop", "quest:r"), ("character:shop bkp", "quest:q")],
     )
     conn.executemany(
         "INSERT INTO quest_variants (resource_name, quest_stable_key, unlock_item_for_vendor_stable_key)"
         " VALUES (?, ?, ?)",
         [("R", "quest:r", "item:f"), ("Q", "quest:q", "item:e")],
+    )
+    conn.executemany(
+        "INSERT INTO character_vendor_quest_unlocks"
+        " (character_stable_key,quest_slot,quest_stable_key,quest_variant_resource_name) VALUES (?, ?, ?, ?)",
+        [("character:shop", 1, "quest:r", "R"), ("character:shop bkp", 1, "quest:q", "Q")],
     )
     yield conn
     conn.close()

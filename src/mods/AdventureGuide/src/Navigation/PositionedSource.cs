@@ -29,6 +29,29 @@ public readonly struct PositionedSource
         Z = z;
     }
 
+    public static bool TryCreate(AdventureGuide.Data.ItemSource item, out PositionedSource source)
+    {
+        source = default;
+        if (item.AcquisitionKey == null)
+            return TryParse(item.SourceKey, out source);
+        var location = item.CanonicalLocation;
+        if (
+            location?.Scene == null
+            || !location.X.HasValue
+            || !location.Y.HasValue
+            || !location.Z.HasValue
+        )
+            return false;
+        source = new PositionedSource(
+            item.Type == "fishing" ? "water" : item.Type,
+            location.Scene,
+            location.X.Value,
+            location.Y.Value,
+            location.Z.Value
+        );
+        return true;
+    }
+
     public static bool TryParse(string? key, out PositionedSource source)
     {
         source = default;

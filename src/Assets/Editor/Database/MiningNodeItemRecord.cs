@@ -14,5 +14,5 @@ public class MiningNodeItemRecord
     [Indexed(Name = "MiningNodeItems_Primary_IDX", Order = 2, Unique = true)]
     [ForeignKey(typeof(ItemRecord), "StableKey")]
     public string ItemStableKey { get; set; } = string.Empty;
-    public float DropChance { get; set; }
+    public double DropChance { get; set; }
 }

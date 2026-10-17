@@ -1,14 +1,15 @@
-"""Load guide-only nodes, edges, and gates from graph_overrides.toml.
+"""Load guide-only content and reviewed preparation wording.
 
-The file holds what the guide needs and no game data states, such as the
-Reliquary planning table as a pickup and scripted quest relationships. Facts
-that every consumer needs belong in the clean database instead: corrections
-in mapping.json and what doors guard in barriers.toml.
+Shared game facts belong in the clean database. Authored source notes refine
+player instructions without changing availability and are checked against the
+current release mechanism and referenced items.
 """
 
 from __future__ import annotations
 
+import sqlite3
 import tomllib
+from contextlib import closing
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
 from .schema import AtomKind, Edge, EdgeType, Gate, GateAtom, Node, NodeType, SubjectKind
 
 
-def merge_overrides(graph: EntityGraph, overrides_path: Path) -> None:
+def merge_overrides(graph: EntityGraph, overrides_path: Path, *, db_path: Path | None = None) -> None:
     """Merge manual nodes, edges, and gates from a TOML file into the graph.
 
     Silently skips if the file does not exist.
@@ -40,6 +41,45 @@ def merge_overrides(graph: EntityGraph, overrides_path: Path) -> None:
 
     for gate_data in data.get("gates", []):
         graph.add_gate(_parse_gate(gate_data))
+
+    notes = data.get("source_notes", [])
+    if notes:
+        if db_path is None:
+            raise ValueError("Source preparation notes require the clean database for validation")
+        with closing(sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)) as conn:
+            for entry in notes:
+                _merge_source_note(graph, conn, entry)
+
+
+def _merge_source_note(graph: EntityGraph, conn: sqlite3.Connection, entry: dict[str, Any]) -> None:
+    """Replace presentation text only when its underlying release still exists."""
+    if set(entry) - {"source", "mechanism", "text", "items"}:
+        raise ValueError(f"Unknown source preparation note fields: {entry!r}")
+    source, mechanism, text = (entry.get(key) for key in ("source", "mechanism", "text"))
+    if not all(isinstance(value, str) and value.strip() for value in (source, mechanism, text)):
+        raise ValueError(f"Source preparation note needs source, mechanism and text: {entry!r}")
+    items = entry.get("items", [])
+    if not isinstance(items, list) or not all(isinstance(item, str) for item in items):
+        raise ValueError(f"Invalid preparation item references for {source}")
+    for item in items:
+        item_node = graph.get_node(item)
+        if item_node is None or item_node.type != NodeType.ITEM:
+            raise ValueError(f"Preparation note references missing item: {item}")
+    mechanisms = {
+        row[0]
+        for row in conn.execute(
+            "SELECT DISTINCT mechanism FROM character_damage_releases"
+            " WHERE character_stable_key = ? AND can_release = 1 AND controller_enabled = 1",
+            (source,),
+        )
+    }
+    if mechanisms != {mechanism}:
+        raise ValueError(f"Preparation mechanism changed for {source}: {sorted(mechanisms)}")
+    edges = [edge for edge in graph.all_edges() if edge.source == source and edge.type == EdgeType.DROPS_ITEM]
+    if not edges or any(not edge.note for edge in edges):
+        raise ValueError(f"Preparation note has no supported drop instructions to replace: {source}")
+    for edge in edges:
+        edge.note = text
 
 
 def _parse_node(data: dict[str, Any]) -> Node:

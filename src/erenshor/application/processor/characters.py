@@ -42,6 +42,7 @@ from typing import TYPE_CHECKING, cast
 from loguru import logger
 
 from .model_images import PageCharacter, model_image_names
+from .npc_rewards import reward_columns
 from .npc_spawn import (
     PLAYER_LEVEL_CAP,
     StartLevels,
@@ -296,12 +297,12 @@ def _spawned_stats(
         resists = dict.fromkeys(base_resists, resist_range(levels.stats))
     return {
         "effective_hp": balanced_hp(int(cast("int", r.get("BaseHP") or 0)), levels.npc, constants),
-        # CalcStats runs after the last level change: in TestDummy.Start, and
-        # in Stats.Start when that runs later.
+        # Stats.Start and TestDummy.Start recalculate the unbuffed baseline.
+        # A later NPC level roll does not itself perform that calculation.
         # code-fact: test_dummy.start_recalc
         # code-fact: npc.start_recalc
         "effective_ac": armor_class(
-            levels.final,
+            levels.calculated,
             int(cast("int", r.get("HardSetAC") or 0)),
             class_mitigation(mitigations, cast("str | None", r.get("ClassResourceName"))),
         ),
@@ -313,7 +314,9 @@ def _spawned_stats(
             floors_at_level=not r.get("HandSetResistances"),
             damage_balance_factor=constants.damage_balance_factor,
         ),
-        "effective_attack_ability": attack_ability(levels.final, float(cast("float", r.get("ArmorPenMult") or 0.0))),
+        "effective_attack_ability": attack_ability(
+            levels.calculated, float(cast("float", r.get("ArmorPenMult") or 0.0))
+        ),
         **_resist_columns(resists),
     }
 
@@ -339,16 +342,20 @@ def _effective_stats(
     player's level.
     """
     if not r.get("HasStats"):
-        no_stats: dict[str, object] = dict.fromkeys(_EFFECTIVE_COLUMNS, 0)
+        no_stats: dict[str, object] = dict.fromkeys(_EFFECTIVE_COLUMNS)
         return no_stats | {"level_scales_with_player": 0, "ac_per_player_level": None}
     if not r.get("IsNPC"):
-        base_resists = {name: int(cast("int", r.get(column) or 0)) for name, column in _RESIST_COLUMNS}
         return {
-            "effective_hp": 0,
-            "effective_ac": 0,
-            "effective_base_atk_dmg": int(cast("int", r.get("BaseAtkDmg") or 0)),
-            "effective_attack_ability": 0.0,
-            **_resist_columns({name: (value, value) for name, value in base_resists.items()}),
+            # Non-NPC CalcStats also reads inventory and attribute scaling.
+            "effective_hp": None,
+            "effective_ac": None,
+            "effective_base_atk_dmg": r.get("BaseAtkDmg"),
+            "effective_attack_ability": None,
+            **{
+                f"effective_{bound}_{name}": r.get(column)
+                for name, column in _RESIST_COLUMNS
+                for bound in ("min", "max")
+            },
             "level_scales_with_player": 0,
             "ac_per_player_level": None,
         }
@@ -624,7 +631,7 @@ def process_characters(
         """
         SELECT c.*, lt.NumberOfGuaranteedDrops
         FROM Characters c
-        LEFT JOIN CharacterLootTables lt ON lt.CharacterStableKey = c.StableKey
+        LEFT JOIN LootTableSources lt ON lt.CharacterStableKey = c.StableKey
         WHERE COALESCE(c.ObjectName, '') != ''
           AND COALESCE(c.IsSimPlayer, 0) = 0
           AND c.ObjectName != 'Player'
@@ -1159,6 +1166,14 @@ def process_characters(
             "base_xp_min": r.get("BaseXpMin"),
             "base_xp_max": r.get("BaseXpMax"),
             "boss_xp_multiplier": r.get("BossXpMultiplier"),
+            **reward_columns(
+                _start_order(r),
+                cast("int | None", r.get("Level")) if r.get("HasStats") else None,
+                cast("float | None", r.get("BossXpMultiplier")),
+            ),
+            "start_components_listed": r.get("StartComponentsListed"),
+            "start_components_by_file_id": r.get("StartComponentsByFileId"),
+            "is_active_at_load": r.get("IsActiveAtLoad"),
             "base_hp": r.get("BaseHP"),
             "base_ac": r.get("BaseAC"),
             "base_mana": r.get("BaseMana"),
@@ -1350,12 +1365,13 @@ def process_characters(
     )
 
     # Vendor items
-    vi_rows = _load_rows(raw, "SELECT CharacterStableKey, ItemStableKey FROM CharacterVendorItems")
+    vi_rows = _load_rows(raw, "SELECT CharacterStableKey, ItemSlot, ItemStableKey FROM CharacterVendorItems")
     vi_rows = [r for r in vi_rows if r["CharacterStableKey"] in all_keys]
     writer.insert_character_vendor_items(
         [
             {
                 "character_stable_key": r["CharacterStableKey"],
+                "item_slot": r["ItemSlot"],
                 "item_stable_key": r["ItemStableKey"],
             }
             for r in vi_rows
@@ -1419,26 +1435,38 @@ def process_characters(
     )
 
     # Vendor quest unlocks
-    vqu_rows = _load_rows(raw, "SELECT CharacterStableKey, QuestStableKey FROM CharacterVendorQuestUnlocks")
+    vqu_rows = _load_rows(
+        raw,
+        "SELECT CharacterStableKey, QuestStableKey, QuestSlot, QuestVariantResourceName "
+        "FROM CharacterVendorQuestUnlocks",
+    )
     vqu_rows = [r for r in vqu_rows if r["CharacterStableKey"] in all_keys]
     writer.insert_character_vendor_quest_unlocks(
         [
             {
                 "character_stable_key": r["CharacterStableKey"],
                 "quest_stable_key": r["QuestStableKey"],
+                "quest_slot": r["QuestSlot"],
+                "quest_variant_resource_name": r["QuestVariantResourceName"],
             }
             for r in vqu_rows
         ]
     )
 
     # Quest manager quests
-    qm_rows = _load_rows(raw, "SELECT CharacterStableKey, QuestStableKey FROM CharacterQuestManagerQuests")
+    qm_rows = _load_rows(
+        raw,
+        "SELECT CharacterStableKey, QuestStableKey, QuestSlot, QuestVariantResourceName "
+        "FROM CharacterQuestManagerQuests",
+    )
     qm_rows = [r for r in qm_rows if r["CharacterStableKey"] in all_keys]
     writer.insert_character_quest_manager_quests(
         [
             {
                 "character_stable_key": r["CharacterStableKey"],
                 "quest_stable_key": r["QuestStableKey"],
+                "quest_slot": r["QuestSlot"],
+                "quest_variant_resource_name": r["QuestVariantResourceName"],
             }
             for r in qm_rows
         ]
@@ -1447,11 +1475,17 @@ def process_characters(
     # Loot drops
     ld_rows = _load_rows(raw, "SELECT * FROM LootDrops")
     ld_rows = [r for r in ld_rows if r["CharacterStableKey"] in loot_eligible_keys]
+    loot_source_enabled = {
+        row["StableKey"]: row["ComponentIsEnabled"]
+        for row in _load_rows(raw, "SELECT StableKey,ComponentIsEnabled FROM LootTableSources")
+    }
     writer.insert_loot_drops(
         [
             {
                 "character_stable_key": r["CharacterStableKey"],
                 "item_stable_key": r["ItemStableKey"],
+                "loot_table_stable_key": r["LootTableStableKey"],
+                "source_component_is_enabled": loot_source_enabled[r["LootTableStableKey"]],
                 "drop_probability": r["DropProbability"],
                 "expected_per_kill": r["ExpectedPerKill"],
                 "drop_count_distribution": r["DropCountDistribution"],
@@ -1491,6 +1525,7 @@ def process_characters(
                 "keywords": r["Keywords"],
                 "give_item_stable_key": r["GiveItemStableKey"],
                 "assign_quest_stable_key": r["AssignQuestStableKey"],
+                "assign_quest_variant_resource_name": r["AssignQuestVariantResourceName"],
                 "complete_quest_stable_key": r["CompleteQuestStableKey"],
                 "repeating_quest_dialog": r["RepeatingQuestDialog"],
                 "kill_self_on_say": r["KillSelfOnSay"],

@@ -30,12 +30,16 @@ public sealed class ExportListenerRegistrationContext
         Database = database;
         CharacterKeyResolver = new CharacterStableKeyResolver();
         ZoneLineKeyResolver = new ZoneLineStableKeyResolver();
+        MiningNodeKeyResolver = new MiningNodeStableKeyResolver();
+        ActivationTargets = new ActivationTargetResolver(CharacterKeyResolver, ZoneLineKeyResolver);
     }
 
     public AssetScanner Scanner { get; }
     public SQLiteConnection Database { get; }
     public CharacterStableKeyResolver CharacterKeyResolver { get; }
     public ZoneLineStableKeyResolver ZoneLineKeyResolver { get; }
+    public MiningNodeStableKeyResolver MiningNodeKeyResolver { get; }
+    public ActivationTargetResolver ActivationTargets { get; }
 
     /// <summary>
     /// The dynamic-spawn listener created by the spawnpoints registration action.
@@ -155,11 +159,7 @@ public static class ExportListenerRegistry
                 Array.Empty<string>(),
                 context =>
                     context.RegisterGameObjectListener(
-                        new QuestActivationListener(
-                            context.Database,
-                            context.ZoneLineKeyResolver,
-                            context.CharacterKeyResolver
-                        )
+                        new QuestActivationListener(context.Database, context.ActivationTargets)
                     )
             ),
             new(
@@ -287,7 +287,10 @@ public static class ExportListenerRegistry
                 "Doors",
                 ExportScanChannel.Component,
                 Array.Empty<string>(),
-                context => context.RegisterComponentListener(new DoorListener(context.Database))
+                context =>
+                    context.RegisterComponentListener(
+                        new DoorListener(context.Database, context.ActivationTargets)
+                    )
             ),
             new(
                 "forges",
@@ -309,7 +312,10 @@ public static class ExportListenerRegistry
                 "Item Bags",
                 ExportScanChannel.Component,
                 Array.Empty<string>(),
-                context => context.RegisterComponentListener(new ItemBagListener(context.Database))
+                context =>
+                    context.RegisterComponentListener(
+                        new ItemBagListener(context.Database, context.ActivationTargets)
+                    )
             ),
             new(
                 "classstartingitems",
@@ -320,21 +326,6 @@ public static class ExportListenerRegistry
                     context.RegisterComponentListener(
                         new ClassStartingItemsListener(context.Database)
                     )
-            ),
-            new(
-                "loottables",
-                "Loot Tables",
-                ExportScanChannel.Component,
-                Array.Empty<string>(),
-                context =>
-                {
-                    var listener = new LootTableListener(
-                        context.Database,
-                        context.CharacterKeyResolver
-                    );
-                    context.RegisterComponentListener<LootTable>(listener);
-                    context.RegisterComponentListener<GameManager>(listener);
-                }
             ),
             new(
                 "arenarounds",
@@ -386,11 +377,29 @@ public static class ExportListenerRegistry
                     context.RegisterComponentListener(new CosmeticItemListener(context.Database))
             ),
             new(
+                "uiitemsources",
+                "Native UI Item Sources",
+                ExportScanChannel.GameObject,
+                new[] { "items", "quests" },
+                context =>
+                    context.RegisterGameObjectListener(new UiItemSourceListener(context.Database))
+            ),
+            new(
                 "itemdrops",
                 "Item Drops",
                 ExportScanChannel.Component,
-                Array.Empty<string>(),
+                new[] { "items", "spells" },
                 context => context.RegisterComponentListener(new MiscListener(context.Database))
+            ),
+            new(
+                "nativeitembindings",
+                "Native Item Bindings",
+                ExportScanChannel.Component,
+                new[] { "items" },
+                context =>
+                    context.RegisterComponentListener(
+                        new GameManagerItemBindingListener(context.Database)
+                    )
             ),
             new(
                 "specialworlddrops",
@@ -405,12 +414,29 @@ public static class ExportListenerRegistry
                 }
             ),
             new(
-                "miningnodes",
-                "Mining Nodes",
+                "zonewidespawns",
+                "Zone-wide Spawn Candidates",
                 ExportScanChannel.Component,
                 Array.Empty<string>(),
                 context =>
-                    context.RegisterComponentListener(new MiningNodeListener(context.Database))
+                    context.RegisterComponentListener(
+                        new ZoneWideSpawnListener(context.Database, context.CharacterKeyResolver)
+                    )
+            ),
+            new(
+                "miningnodes",
+                "Mining Nodes",
+                ExportScanChannel.Component,
+                new[] { "items" },
+                context =>
+                {
+                    var listener = new MiningNodeListener(
+                        context.Database,
+                        context.MiningNodeKeyResolver
+                    );
+                    context.RegisterComponentListener<MiningNode>(listener);
+                    context.RegisterComponentListener<GameManager>(listener);
+                }
             ),
             new(
                 "spawnpoints",
@@ -422,12 +448,17 @@ public static class ExportListenerRegistry
                     // Registration order is significant: classic spawn points and
                     // trigger encounters must precede dynamic spawn source scanning.
                     context.RegisterComponentListener(
-                        new SpawnPointListener(context.Database, context.CharacterKeyResolver)
+                        new SpawnPointListener(
+                            context.Database,
+                            context.CharacterKeyResolver,
+                            context.ActivationTargets
+                        )
                     );
                     context.RegisterComponentListener(
                         new SpawnPointTriggerListener(
                             context.Database,
-                            context.CharacterKeyResolver
+                            context.CharacterKeyResolver,
+                            context.ActivationTargets
                         )
                     );
 
@@ -451,6 +482,14 @@ public static class ExportListenerRegistry
                         catalog
                     );
                     context.RegisterComponentListener(context.DynamicSpawnListener);
+                    context.RegisterComponentListener(
+                        new ScriptedActivatorListener(
+                            context.Database,
+                            context.CharacterKeyResolver,
+                            context.ActivationTargets,
+                            catalog
+                        )
+                    );
                 }
             ),
             new(
@@ -502,6 +541,46 @@ public static class ExportListenerRegistry
                 context =>
                     context.RegisterComponentListener(
                         new CharacterListener(context.Database, context.CharacterKeyResolver)
+                    )
+            ),
+            new(
+                "loottables",
+                "Loot Tables",
+                ExportScanChannel.Component,
+                new[] { "characters", "items", "miningnodes" },
+                context =>
+                {
+                    var listener = new LootTableListener(
+                        context.Database,
+                        context.CharacterKeyResolver,
+                        context.MiningNodeKeyResolver
+                    );
+                    context.RegisterComponentListener<LootTable>(listener);
+                    context.RegisterComponentListener<GameManager>(listener);
+                }
+            ),
+            new(
+                "characterdamagereleases",
+                "Character Damage Releases",
+                ExportScanChannel.Component,
+                new[] { "characters", "spawnpoints", "quests" },
+                context =>
+                    context.RegisterComponentListener<MonoBehaviour>(
+                        new CharacterDamageReleaseListener(
+                            context.Database,
+                            context.CharacterKeyResolver,
+                            context.ActivationTargets
+                        )
+                    )
+            ),
+            new(
+                "authoredsims",
+                "Authored SimPlayers",
+                ExportScanChannel.Component,
+                new[] { "characters", "items", "classes" },
+                context =>
+                    context.RegisterComponentListener(
+                        new AuthoredSimListener(context.Database, context.CharacterKeyResolver)
                     )
             ),
         }.AsReadOnly();

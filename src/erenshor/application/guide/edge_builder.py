@@ -10,7 +10,8 @@ import sqlite3
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
-from .node_builder import SWAP_ONLY_DROP
+from erenshor.application.processor.gates import SHIVER_MEET_ALL
+
 from .schema import AtomKind, Edge, EdgeType, Gate, GateAtom, NodeType, SubjectKind
 
 if TYPE_CHECKING:
@@ -25,33 +26,21 @@ def build_edges(
     """Add every relationship edge in the established deterministic order."""
     _add_quest_acquisition_edges(conn, graph)
     _add_quest_completion_edges(conn, graph)
-    _add_quest_required_item_edges(conn, graph)
     _add_quest_chain_edges(conn, graph)
     _add_quest_also_completes_edges(conn, graph)
-    _add_quest_reward_edges(conn, graph)
     _add_quest_faction_edges(conn, graph)
     _add_gates(conn, graph)
     _add_target_entries(conn, graph)
     _add_quest_step_edges(conn, graph)
     _add_quest_dialog_prerequisite_edges(conn, graph)
-    _add_character_drop_edges(conn, graph)
-    _add_character_vendor_edges(conn, graph)
-    _add_quest_unlocked_stock_edges(conn, graph)
-    _add_character_dialog_give_edges(conn, graph)
     _add_character_spawn_edges(conn, graph)
     _add_character_faction_edges(conn, graph)
     _add_spawn_point_protector_edges(conn, graph)
     _add_zone_line_connect_edges(conn, graph)
     _add_zone_connect_edges(conn, graph, scene_to_zone)
     _add_zone_contain_edges(conn, graph, scene_to_zone)
-    _add_mining_yield_edges(conn, graph)
-    _add_water_yield_edges(conn, graph)
-    _add_item_bag_yield_edges(conn, graph)
-    _add_crafting_edges(conn, graph)
-    _add_item_craft_edges(conn, graph)
     _add_item_quest_edges(conn, graph)
     _add_item_spell_edges(conn, graph)
-    _add_item_use_edges(conn, graph)
 
 
 def _add_quest_acquisition_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
@@ -171,60 +160,17 @@ def _add_quest_completion_edges(conn: sqlite3.Connection, graph: EntityGraph) ->
         )
 
 
-def _add_quest_required_item_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """quest → item (REQUIRES_ITEM) from quest_required_items.
-
-    For multi-variant quests (same quest_stable_key, different variants),
-    items from different variants are OR-grouped: the player needs any
-    one variant's items, not all variants' items.  Items within the same
-    variant are AND (all required).  Single-variant quests get no group
-    (unconditional).
-    """
-    rows = conn.execute("""
-        SELECT qri.quest_variant_resource_name, qri.item_stable_key, qri.quantity,
-               qv.quest_stable_key
-        FROM quest_required_items qri
-        JOIN quest_variants qv ON qv.resource_name = qri.quest_variant_resource_name
-    """)
-    # Check which quests have multiple distinct variants (count resource_names,
-    # not rows — a single variant with N items must not be treated as N variants).
-    variant_resource_names: dict[str, set[str]] = {}
-    for r in rows:
-        qk = r["quest_stable_key"]
-        variant_resource_names.setdefault(qk, set()).add(r["quest_variant_resource_name"])
-    is_multi_variant = {qk: len(names) > 1 for qk, names in variant_resource_names.items()}
-
-    # Re-execute to iterate (sqlite3 cursors are single-pass)
-    rows = conn.execute("""
-        SELECT qri.quest_variant_resource_name, qri.item_stable_key, qri.quantity,
-               qv.quest_stable_key
-        FROM quest_required_items qri
-        JOIN quest_variants qv ON qv.resource_name = qri.quest_variant_resource_name
-    """)
-    for r in rows:
-        quest_key = r["quest_stable_key"]
-        item_key = r["item_stable_key"]
-        if not graph.has_node(quest_key) or not graph.has_node(item_key):
-            continue
-        # Use variant resource_name as group only for genuinely multi-variant quests.
-        group = r["quest_variant_resource_name"] if is_multi_variant.get(quest_key) else None
-        graph.add_edge(
-            Edge(
-                source=quest_key,
-                target=item_key,
-                type=EdgeType.REQUIRES_ITEM,
-                quantity=r["quantity"],
-                group=group,
-            )
-        )
-
-
 def _add_quest_chain_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """quest → quest (CHAINS_TO) from quest_variants.assign_new_quest_on_complete_stable_key."""
+    """Quest chains from completion grants and canonical scripted acquisitions."""
     rows = conn.execute("""
         SELECT quest_stable_key, assign_new_quest_on_complete_stable_key
         FROM quest_variants
         WHERE assign_new_quest_on_complete_stable_key IS NOT NULL
+        UNION
+        SELECT source_stable_key AS quest_stable_key,
+               quest_stable_key AS assign_new_quest_on_complete_stable_key
+        FROM quest_acquisition_sources
+        WHERE method = 'quest_chain' AND source_type = 'quest' AND source_stable_key IS NOT NULL
     """)
     for r in rows:
         src = r["quest_stable_key"]
@@ -247,44 +193,6 @@ def _add_quest_also_completes_edges(conn: sqlite3.Connection, graph: EntityGraph
         if not graph.has_node(src) or not graph.has_node(tgt):
             continue
         graph.add_edge(Edge(source=src, target=tgt, type=EdgeType.ALSO_COMPLETES))
-
-
-def _add_quest_reward_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """quest → item (REWARDS_ITEM) from quest_variants.item_on_complete_stable_key.
-
-    When different variants of the same quest reward different items, each edge
-    carries group=resource_name so the renderer can show per-variant outcomes.
-    When all variants give the same item (or only one variant has a reward),
-    a single ungrouped edge is emitted instead.
-    """
-    rows = conn.execute("""
-        SELECT quest_stable_key, resource_name, item_on_complete_stable_key
-        FROM quest_variants
-        WHERE item_on_complete_stable_key IS NOT NULL
-    """).fetchall()
-
-    # Group by quest: {quest_key: {resource_name: item_key}}
-    by_quest: dict[str, dict[str, str]] = {}
-    for r in rows:
-        by_quest.setdefault(r["quest_stable_key"], {})[r["resource_name"]] = r["item_on_complete_stable_key"]
-
-    for quest_key, variant_rewards in by_quest.items():
-        if not graph.has_node(quest_key):
-            continue
-        distinct_items = set(variant_rewards.values())
-        if len(distinct_items) <= 1:
-            # All variants give the same item — one ungrouped edge, no duplication.
-            item_key = next(iter(distinct_items))
-            if graph.has_node(item_key):
-                graph.add_edge(Edge(source=quest_key, target=item_key, type=EdgeType.REWARDS_ITEM))
-        else:
-            # Different rewards per variant — group each edge by variant so the
-            # renderer can show which recipe produces which item.
-            for resource_name, item_key in variant_rewards.items():
-                if graph.has_node(item_key):
-                    graph.add_edge(
-                        Edge(source=quest_key, target=item_key, type=EdgeType.REWARDS_ITEM, group=resource_name)
-                    )
 
 
 def _add_quest_faction_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
@@ -336,7 +244,13 @@ def _add_gates(conn: sqlite3.Connection, graph: EntityGraph) -> None:
     groups: dict[tuple[str, str, str | None, str], dict[int, list[GateAtom]]] = defaultdict(lambda: defaultdict(list))
     quest_keys: set[str] = set()
     for r in rows:
-        atom = GateAtom(AtomKind(r["atom_kind"]), r["atom_stable_key"], r["atom_slot"])
+        atom_kind = AtomKind(r["atom_kind"])
+        instruction = (
+            _planning_slot_instruction(conn, r["subject_stable_key"], r["atom_slot"], r["atom_stable_key"])
+            if atom_kind == AtomKind.PLANNING_SLOT_ITEM
+            else None
+        )
+        atom = GateAtom(atom_kind, r["atom_stable_key"], r["atom_slot"], instruction)
         if atom.kind in (AtomKind.QUEST_DONE, AtomKind.QUEST_NOT_DONE):
             quest_keys.add(atom.ref)
         subject = (r["subject_kind"], r["subject_stable_key"], r["item_stable_key"], r["gate"])
@@ -356,6 +270,28 @@ def _add_gates(conn: sqlite3.Connection, graph: EntityGraph) -> None:
         if key not in db_names:
             raise ValueError(f"gate names quest {key!r}, which has no DB name")
         graph.add_quest_db_name(key, db_names[key])
+
+
+def _planning_slot_instruction(conn: sqlite3.Connection, line: str, slot: str, item: str) -> str:
+    rows = conn.execute(
+        """
+        SELECT p.slot_kind, i.display_name AS item_name, z.display_name AS destination_name
+        FROM planning_portal_slots p
+        JOIN zone_lines l ON l.stable_key = p.zone_line_stable_key
+        JOIN zones z ON z.stable_key = l.destination_zone_stable_key
+        JOIN items i ON i.stable_key = ?
+        WHERE p.zone_line_stable_key = ? AND p.slot = ?
+        """,
+        (item, line, slot),
+    ).fetchall()
+    if len(rows) != 1 or not rows[0]["item_name"] or not rows[0]["destination_name"]:
+        raise ValueError(f"Missing or ambiguous planning-slot instruction: {line}.{slot}")
+    row = rows[0]
+    if row["slot_kind"] == "dedicated":
+        return f"Place {row['item_name']} in the planning-table slot for {row['destination_name']}."
+    if row["slot_kind"] == "rune":
+        return f"Place {row['item_name']} in a rune slot on your planning table."
+    raise ValueError(f"Unknown planning-slot role {row['slot_kind']!r} for {line}.{slot}")
 
 
 def _add_quest_step_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
@@ -491,93 +427,6 @@ def _add_quest_dialog_prerequisite_edges(conn: sqlite3.Connection, graph: Entity
         if not graph.has_node(src) or not graph.has_node(tgt):
             continue
         graph.add_edge(Edge(source=src, target=tgt, type=EdgeType.REQUIRES_QUEST))
-
-
-def _add_character_drop_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """character → item (DROPS_ITEM) from loot_drops."""
-    # Common world item swap rows become one background source of the item.
-    rows = conn.execute(f"""
-        SELECT ld.character_stable_key, ld.item_stable_key, ld.drop_probability
-        FROM loot_drops ld
-        WHERE NOT {SWAP_ONLY_DROP}
-    """)
-    for r in rows:
-        if not graph.has_node(r["character_stable_key"]) or not graph.has_node(r["item_stable_key"]):
-            continue
-        graph.add_edge(
-            Edge(
-                source=r["character_stable_key"],
-                target=r["item_stable_key"],
-                type=EdgeType.DROPS_ITEM,
-                chance=r["drop_probability"],
-            )
-        )
-
-
-def _add_character_vendor_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """character → item (SELLS_ITEM) for each copy in the game that always has the item, from vendor_offers."""
-    rows = conn.execute("""
-        SELECT DISTINCT copy_stable_key AS character_stable_key, item_stable_key
-        FROM vendor_offers
-        WHERE quest_stable_key IS NULL
-    """)
-    for r in rows:
-        if not graph.has_node(r["character_stable_key"]) or not graph.has_node(r["item_stable_key"]):
-            continue
-        graph.add_edge(
-            Edge(
-                source=r["character_stable_key"],
-                target=r["item_stable_key"],
-                type=EdgeType.SELLS_ITEM,
-            )
-        )
-
-
-def _add_quest_unlocked_stock_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """vendor → item (SELLS_ITEM) for stock that a quest adds; its vendor_item gate holds the quest."""
-    rows = conn.execute("""
-        SELECT DISTINCT copy_stable_key AS character_stable_key,
-               item_stable_key AS unlock_item_for_vendor_stable_key
-        FROM vendor_offers
-        WHERE quest_stable_key IS NOT NULL
-    """)
-    for r in rows:
-        char_key = r["character_stable_key"]
-        item_key = r["unlock_item_for_vendor_stable_key"]
-        if not graph.has_node(item_key):
-            continue
-        # Vendor → item: for item obtainability chains
-        if graph.has_node(char_key):
-            graph.add_edge(
-                Edge(
-                    source=char_key,
-                    target=item_key,
-                    type=EdgeType.SELLS_ITEM,
-                )
-            )
-
-
-def _add_character_dialog_give_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """character → item (GIVES_ITEM) from character_dialogs.give_item_stable_key."""
-    rows = conn.execute("""
-        SELECT character_stable_key, give_item_stable_key, keywords
-        FROM character_dialogs
-        WHERE give_item_stable_key IS NOT NULL
-    """)
-    for r in rows:
-        if not graph.has_node(r["character_stable_key"]) or not graph.has_node(r["give_item_stable_key"]):
-            continue
-        # keywords is comma-separated; take first as the primary keyword
-        keywords = r["keywords"]
-        keyword = keywords.split(",")[0].strip() if keywords else None
-        graph.add_edge(
-            Edge(
-                source=r["character_stable_key"],
-                target=r["give_item_stable_key"],
-                type=EdgeType.GIVES_ITEM,
-                keyword=keyword,
-            )
-        )
 
 
 def _add_character_spawn_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
@@ -749,151 +598,6 @@ def _add_zone_contain_edges(
             )
 
 
-def _add_mining_yield_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """mining_node → item (YIELDS_ITEM) from mining_node_items."""
-    rows = conn.execute("SELECT mining_node_stable_key, item_stable_key, drop_chance FROM mining_node_items")
-    for r in rows:
-        if graph.has_node(r["mining_node_stable_key"]) and graph.has_node(r["item_stable_key"]):
-            graph.add_edge(
-                Edge(
-                    source=r["mining_node_stable_key"],
-                    target=r["item_stable_key"],
-                    type=EdgeType.YIELDS_ITEM,
-                    chance=r["drop_chance"],
-                )
-            )
-
-
-def _add_water_yield_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """water → item (YIELDS_ITEM) from water_fishables, deduplicated per (water, item)."""
-    rows = conn.execute("SELECT water_stable_key, item_stable_key, type, drop_chance FROM water_fishables")
-    # Group by (water, item) to merge day/night entries.
-    pairs: dict[tuple[str, str], dict[str, float | None]] = {}
-    for r in rows:
-        key = (r["water_stable_key"], r["item_stable_key"])
-        if key not in pairs:
-            pairs[key] = {}
-        pairs[key][r["type"]] = r["drop_chance"]
-
-    for (water_key, item_key), types in pairs.items():
-        if not (graph.has_node(water_key) and graph.has_node(item_key)):
-            continue
-
-        has_day = "DayFishable" in types
-        has_night = "NightFishable" in types
-        if has_day and has_night:
-            time_restriction = None
-            chance = max(c for c in types.values() if c is not None) if any(types.values()) else None
-        elif has_day:
-            time_restriction = "day"
-            chance = types.get("DayFishable")
-        else:
-            time_restriction = "night"
-            chance = types.get("NightFishable")
-
-        graph.add_edge(
-            Edge(
-                source=water_key,
-                target=item_key,
-                type=EdgeType.YIELDS_ITEM,
-                chance=chance,
-                time_restriction=time_restriction,
-            )
-        )
-
-
-def _add_item_bag_yield_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """item_bag → item (YIELDS_ITEM) from item_bags.item_stable_key."""
-    rows = conn.execute("SELECT stable_key, item_stable_key FROM item_bags WHERE item_stable_key IS NOT NULL")
-    for r in rows:
-        if graph.has_node(r["stable_key"]) and graph.has_node(r["item_stable_key"]):
-            graph.add_edge(
-                Edge(
-                    source=r["stable_key"],
-                    target=r["item_stable_key"],
-                    type=EdgeType.YIELDS_ITEM,
-                )
-            )
-
-
-def _add_crafting_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """recipe → item (REQUIRES_MATERIAL) + recipe → item (PRODUCES) from crafting tables."""
-    # Materials
-    rows = conn.execute("""
-        SELECT recipe_item_stable_key, material_slot, material_item_stable_key, material_quantity
-        FROM crafting_recipes
-    """)
-    for r in rows:
-        recipe_key = f"recipe:{r['recipe_item_stable_key']}"
-        item_key = r["material_item_stable_key"]
-        if graph.has_node(recipe_key) and graph.has_node(item_key):
-            graph.add_edge(
-                Edge(
-                    source=recipe_key,
-                    target=item_key,
-                    type=EdgeType.REQUIRES_MATERIAL,
-                    quantity=r["material_quantity"],
-                    slot=r["material_slot"],
-                )
-            )
-
-    # Mold (template item): the template is consumed on a successful craft.
-    # Smithing.DoSuccess() clears Template.MyItem just like the ingredients,
-    # confirming it is an ingredient. Its key is derived by stripping "recipe:"
-    # from the recipe key — that naming convention is enforced by _add_recipe_nodes.
-    # Slot 0 is reserved for the template; ingredient slots come from the DB.
-    for recipe_node in graph.nodes_of_type(NodeType.RECIPE):
-        template_key = recipe_node.key[len("recipe:") :]
-        if graph.has_node(template_key):
-            graph.add_edge(
-                Edge(
-                    source=recipe_node.key,
-                    target=template_key,
-                    type=EdgeType.REQUIRES_MATERIAL,
-                    quantity=1,
-                    slot=0,
-                )
-            )
-
-    # Products
-    rows = conn.execute("""
-        SELECT recipe_item_stable_key, reward_slot, reward_item_stable_key, reward_quantity
-        FROM crafting_rewards
-    """)
-    for r in rows:
-        recipe_key = f"recipe:{r['recipe_item_stable_key']}"
-        item_key = r["reward_item_stable_key"]
-        if graph.has_node(recipe_key) and graph.has_node(item_key):
-            graph.add_edge(
-                Edge(
-                    source=recipe_key,
-                    target=item_key,
-                    type=EdgeType.PRODUCES,
-                    quantity=r["reward_quantity"],
-                    slot=r["reward_slot"],
-                )
-            )
-
-
-def _add_item_craft_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """item → recipe (CRAFTED_FROM) — reverse link from product to recipe."""
-    rows = conn.execute("""
-        SELECT recipe_item_stable_key, reward_item_stable_key
-        FROM crafting_rewards
-    """)
-    for r in rows:
-        recipe_key = f"recipe:{r['recipe_item_stable_key']}"
-        item_key = r["reward_item_stable_key"]
-        if graph.has_node(item_key) and graph.has_node(recipe_key):
-            graph.add_edge(
-                Edge(
-                    source=item_key,
-                    target=recipe_key,
-                    type=EdgeType.CRAFTED_FROM,
-                )
-            )
-
-
 def _add_item_quest_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
     """item → quest (ASSIGNS_QUEST / COMPLETES_QUEST) from items table."""
     rows = conn.execute("""
@@ -992,6 +696,9 @@ def _quest_source_alternative_groups(
     prefix = "acquisition" if acquisition else "completion"
     groups: dict[tuple[str, str], str] = {}
     for quest_key, targets in targets_by_quest.items():
+        # The event finishes only after every keeper conversation.
+        if not acquisition and quest_key == SHIVER_MEET_ALL:
+            continue
         if len(targets) > 1:
             group = f"{prefix}:{quest_key}"
             for target_key in targets:
@@ -1026,11 +733,3 @@ def _find_dialog_keyword(
         keywords: str = row["keywords"]
         return keywords.split(",")[0].strip()
     return None
-
-
-def _add_item_use_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """Using an item casts a spell that creates another item."""
-    for row in conn.execute("SELECT source_item_stable_key, created_item_stable_key FROM spell_created_items"):
-        source, target = row["source_item_stable_key"], row["created_item_stable_key"]
-        if graph.has_node(source) and graph.has_node(target):
-            graph.add_edge(Edge(source=source, target=target, type=EdgeType.CREATES_ITEM))

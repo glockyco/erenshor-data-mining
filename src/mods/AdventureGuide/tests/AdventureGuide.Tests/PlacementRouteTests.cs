@@ -21,7 +21,8 @@ public sealed class PlacementRouteTests
     ) =>
         new()
         {
-            Version = 7,
+            Version = 8,
+            Encounters = TestData.EmptyEncounters(),
             Quests = [],
             Conditions = conditions ?? [],
             CharacterSpawns = new() { ["target"] = [spawn] },

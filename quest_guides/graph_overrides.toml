@@ -1,26 +1,11 @@
-# Guide-only nodes, edges, and gates for scripted content that the export
-# does not record yet. Facts every consumer needs belong in the clean
-# database: corrections in mapping.json, what keyed doors guard in
-# barriers.toml.
+# Guide-only nodes, edges, gates and reviewed player instructions.
+# Shared game facts belong in the clean database. Spatial containment
+# belongs in barriers.toml.
 #
 # A gate holds when every atom of one of its groups holds. Gates on one
 # subject combine with AND, also with the gates of the clean database.
 
 # ── Jaws of Sivakaya ────────────────────────────────────────────────────
-
-# MemorySphere shows a Memory of Sivakaya statue while the player stands
-# near it with the Nighthollow Candle in the inventory.
-[[gates]]
-subject_kind = "character"
-subject = "character:memorystatue (1):jaws:1183.73:0.87:235.21"
-gate = "override:memory_sphere"
-groups = [[{ kind = "item_held", ref = "item:hand - 100 - the nighthollow candle" }]]
-
-[[gates]]
-subject_kind = "character"
-subject = "character:memorystatue (1):jaws:1407.73:-9.46:109.21"
-gate = "override:memory_sphere"
-groups = [[{ kind = "item_held", ref = "item:hand - 100 - the nighthollow candle" }]]
 
 # Vessel Siraethe requires A Pious Guest quest completed.
 [[gates]]
@@ -40,53 +25,6 @@ groups = [
     [{ kind = "item_held", ref = "item:hand - 100 - the nighthollow candle" }],
     [{ kind = "quest_done", ref = "quest:jawsseen" }],
 ]
-
-# ── Shivering Step quest chain (ShiverEvent.cs scripted logic) ───────────────
-
-[[edges]]
-source = "quest:shiver-meetall"
-target = "quest:shiver-watchman"
-type = "requires_quest"
-
-[[edges]]
-source = "quest:shiver-meetall"
-target = "quest:shiver-curator"
-type = "requires_quest"
-
-[[edges]]
-source = "quest:shiver-meetall"
-target = "quest:shiver-gatekeeper"
-type = "requires_quest"
-
-[[edges]]
-source = "quest:shiver-meetall"
-target = "quest:shiver-harbinger"
-type = "requires_quest"
-
-[[edges]]
-source = "quest:shiver-meetall"
-target = "quest:shiver-torch"
-type = "chains_to"
-note = "ShiverEvent.cs: assigned when all 4 keeper quests complete"
-
-[[edges]]
-source = "quest:shiver-torch"
-target = "quest:shiver-hider"
-type = "chains_to"
-note = "ShiverEvent.cs: darkness phase begins after Shivering Torch completes"
-
-[[edges]]
-source = "quest:shiver-hider"
-target = "quest:shiver-flamelit"
-type = "chains_to"
-note = "The Hider gives Warming the Isle on completion"
-
-# ShiverEvent.cs: the spawn triggers activate during the darkness after The Shivering Torch.
-[[gates]]
-subject_kind = "character"
-subject = "character:shiverman"
-gate = "override:shiver_event"
-groups = [[{ kind = "quest_done", ref = "quest:shiver-torch" }]]
 
 # ── Shivering Tomb 2 zone line gate ──────────────────────────────────────────
 
@@ -125,3 +63,16 @@ subject_kind = "item_bag"
 subject = "planningtable:reliquary:267.40:0.09:321.30"
 gate = "override:planning_desk"
 groups = [[{ kind = "quest_done", ref = "quest:claimreliquary" }]]
+
+# Wording names the visible brazier and the optional way to summon rain.
+# The release mechanism and referenced item are checked against current data.
+[[source_notes]]
+source = "character:evadne"
+mechanism = "npc_protector_weather"
+items = ["item:ring - 20 - tempestalia"]
+text = "Rain puts out her brazier and makes her vulnerable. Tempestalia, Ring of Storms can summon rain."
+
+[[source_notes]]
+source = "character:warded phantom:shiveringtomb2:-76.96:-68.40:284.89"
+mechanism = "shivering_phantom_wards"
+text = "Defeat both Phantom's Wards to make Warded Shadow vulnerable."

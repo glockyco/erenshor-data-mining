@@ -2,15 +2,28 @@
 
 from __future__ import annotations
 
+import json
 import sqlite3
+from collections.abc import Iterator
 from contextlib import closing
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
+from erenshor.application.processor.writer import Writer
 from erenshor.domain.entities.item import Item
+from erenshor.domain.value_objects.item_provenance import (
+    PROVENANCE_SCHEMA_VERSION,
+    ItemAcquisition,
+    ItemUse,
+    ProvenanceCondition,
+    ProvenanceLocation,
+    fact_to_dict,
+)
 from erenshor.infrastructure.database.connection import DatabaseConnection, DatabaseConnectionError
+from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
 from erenshor.infrastructure.database.repositories.items import ItemRepository
+from erenshor.infrastructure.database.repository import RepositoryError
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -23,32 +36,68 @@ def item_repo(integration_db: Path) -> ItemRepository:
     return ItemRepository(db)
 
 
-def test_auction_house_sources_collapse_routes_and_omit_listing_details(tmp_path: Path):
-    db_path = tmp_path / "auction.sqlite"
-    with closing(sqlite3.connect(db_path)) as conn, conn:
-        conn.executescript("""
-            CREATE TABLE auction_house_items (
-                item_stable_key TEXT, route TEXT,
-                min_sim_level INTEGER, max_sim_level INTEGER,
-                min_player_level INTEGER, max_player_level INTEGER,
-                PRIMARY KEY (item_stable_key, route)
-            );
-            INSERT INTO auction_house_items VALUES
-                ('item:listed', 'equipment', 1, 40, 1, 40),
-                ('item:listed', 'rare', NULL, NULL, 30, NULL);
-        """)
-    repo = ItemRepository(DatabaseConnection(db_path))
+@pytest.fixture
+def canonical_writer(tmp_path: Path) -> Iterator[Writer]:
+    writer = Writer(tmp_path / "canonical.sqlite")
+    writer.create_schema()
+    writer.conn.execute(
+        "INSERT INTO item_provenance_meta VALUES (?, 'fixture-build', '{}')", (PROVENANCE_SCHEMA_VERSION,)
+    )
+    try:
+        yield writer
+    finally:
+        writer.conn.close()
 
-    sources = repo.get_auction_house_sources("item:listed")
 
-    assert len(sources) == 1
-    assert sources[0].source_type == "auction_house"
-    assert sources[0].source_key is None
-    assert sources[0].probability is None
-    assert sources[0].quantity is None
-    assert sources[0].condition is None
-    assert sources[0].is_guaranteed is False
-    assert repo.get_auction_house_sources("item:unlisted") == []
+def _insert(writer: Writer, table: str, values: dict[str, object]) -> None:
+    writer.conn.execute(
+        f"INSERT INTO {table} ({','.join(values)}) VALUES ({','.join('?' for _ in values)})",
+        tuple(values.values()),
+    )
+
+
+def _insert_fact(writer: Writer, fact: ItemAcquisition | ItemUse) -> None:
+    data: dict[str, Any] = fact_to_dict(fact)
+    conditions = data.pop("conditions")
+    locations = data.pop("locations")
+    evidence = data.pop("evidence")
+    family = "acquisition" if isinstance(fact, ItemAcquisition) else "use"
+    key = fact.acquisition_key if isinstance(fact, ItemAcquisition) else fact.use_key
+    _insert(writer, f"item_{family}s", data)
+    for condition in conditions:
+        _insert(writer, f"item_{family}_conditions", {"owner_key": key, **condition})
+    for location in locations:
+        _insert(
+            writer,
+            f"item_{family}_locations",
+            {
+                "owner_key": key,
+                **location,
+                "conditions": json.dumps(location["conditions"]),
+                "entry_zone_line_keys": json.dumps(location["entry_zone_line_keys"]),
+            },
+        )
+    for row in evidence:
+        _insert(writer, "item_provenance_evidence", {"owner_key": key, **row})
+
+
+def _item(writer: Writer, key: str, name: str | None = None, **metadata: object) -> None:
+    _insert(
+        writer,
+        "items",
+        {
+            "stable_key": key,
+            "display_name": name or key,
+            "wiki_page_name": name or key,
+            "image_name": name or key,
+            **metadata,
+        },
+    )
+
+
+def _repo(writer: Writer, tmp_path: Path) -> ItemRepository:
+    writer.conn.commit()
+    return ItemRepository(DatabaseConnection(tmp_path / "canonical.sqlite", read_only=True))
 
 
 def test_get_items_for_wiki_generation_returns_all_items(item_repo: ItemRepository):
@@ -187,56 +236,6 @@ def test_get_item_stats_orders_all_quality_tiers(tmp_path: Path):
     ]
 
 
-def test_item_relationship_links_keep_stable_keys_for_shared_pages(tmp_path: Path) -> None:
-    """Relationship queries preserve identity when records share a wiki page."""
-    db_path = tmp_path / "relationships.sqlite"
-    with closing(sqlite3.connect(db_path)) as conn, conn:
-        conn.execute("CREATE TABLE items (stable_key TEXT, display_name TEXT, wiki_page_name TEXT, image_name TEXT)")
-        conn.execute("CREATE TABLE crafting_rewards (recipe_item_stable_key TEXT, reward_item_stable_key TEXT)")
-        conn.executemany(
-            "INSERT INTO items VALUES (?, ?, ?, ?)",
-            [
-                ("item:mold-alpha", "Alpha Mold", "Shared Mold", "Alpha Mold"),
-                ("item:mold-beta", "Beta Mold", "Shared Mold", "Beta Mold"),
-                ("item:reward", "Reward", "Reward", "Reward"),
-            ],
-        )
-        conn.executemany(
-            "INSERT INTO crafting_rewards VALUES (?, ?)",
-            [("item:mold-alpha", "item:reward"), ("item:mold-beta", "item:reward")],
-        )
-        conn.commit()
-
-    with DatabaseConnection(db_path, read_only=True) as db:
-        links = ItemRepository(db).get_items_producing_item("item:reward")
-
-    assert [(link.display_name, link.stable_key, str(link)) for link in links] == [
-        (
-            "Alpha Mold",
-            "item:mold-alpha",
-            "{{ItemLink|stablekey=item:mold-alpha}}",
-        ),
-        (
-            "Beta Mold",
-            "item:mold-beta",
-            "{{ItemLink|stablekey=item:mold-beta}}",
-        ),
-    ]
-
-
-def test_item_use_source_links_cover_breaking_spells_and_conversions(item_repo: ItemRepository) -> None:
-    """Item pages name each item whose use yields the item, with its chance or the zone it needs."""
-
-    def sources(key: str) -> list[tuple[str | None, float | None, str | None]]:
-        return [(link.stable_key, chance, zone) for link, chance, zone in item_repo.get_item_use_source_links(key)]
-
-    assert sources("item:gen - sivak") == [("item:gen - braxonian fossil", 21.05, None)]
-    assert sources("item:gen - offering stone") == [("item:gen - bag of offering stones", None, None)]
-    assert sources("item:template - a strange figurine") == [
-        ("item:quest - game piece the candlekeeper", None, "Braxonian Desert")
-    ]
-
-
 def test_item_repository_rejects_a_missing_database(tmp_path: Path) -> None:
     """Test that repository raises RepositoryError on database errors."""
     # Create a database path that doesn't exist
@@ -260,60 +259,319 @@ def test_item_repository_validates_data_types(item_repo: ItemRepository):
         assert item.required_slot is None or isinstance(item.required_slot, str)
 
 
-def test_obtained_from_item_sources_cover_craft_use_and_starting(item_repo: ItemRepository) -> None:
-    """Item provenance retains source keys, deterministic quantities, and classes."""
-    # The forge gives one Ghostly Key per mold, as forging it in game shows.
-    craft = item_repo.get_recipes_rewarding_item("item:key - ghostly key")
-    assert [(source.source_key, source.quantity) for source in craft] == [("item:template - a chewed key mold", 1)]
-
-    use = item_repo.get_item_use_sources("item:gen - offering stone")
-    assert [(source.source_key, source.probability) for source in use] == [("item:gen - bag of offering stones", None)]
-
-    starting = item_repo.get_classes_starting_with_item("item:cons - bread")
-    assert [source.source_key for source in starting] == [
-        "class:arcanist",
-        "class:druid",
-        "class:duelist",
-        "class:paladin",
-        "class:reaver",
-        "class:stormcaller",
-    ]
-
-
-def test_used_in_sources_cover_crafting_and_smithing(item_repo: ItemRepository) -> None:
-    craft = item_repo.get_crafting_material_sources("item:ore - bronze ore")
-    assert craft
-    assert all(source.use_type == "craft_material" for source in craft)
-    assert all(source.target_key.startswith("item:template") for source in craft)
-    assert all(source.quantity is not None and source.slot is not None for source in craft)
-
-    planar = item_repo.get_item_smithing_special_uses("item:ore - planar stone")
-    assert [(source.use_type, source.target_key) for source in planar] == [
-        ("upgrade_material", "item:template - an otherwordly mold")
-    ]
-
-    diamond = item_repo.get_item_smithing_special_uses("item:template - inert diamond")
-    assert [(source.use_type, source.target_key) for source in diamond] == [
-        ("blessing_removal_material", "item:template - inert diamond")
-    ]
-
-    merging_vessel = item_repo.get_item_smithing_special_uses("item:template - merging vessel")
-    assert merging_vessel == []
-
-
-@pytest.mark.parametrize("fact_value", [None, "31377423,2298018"])
-def test_smithing_code_fact_drift_fails_fast(tmp_path: Path, fact_value: str | None) -> None:
-    """Smithing special-use resolution rejects missing or changed facts."""
+@pytest.mark.parametrize("version", [None, PROVENANCE_SCHEMA_VERSION + 1])
+def test_source_projections_require_supported_canonical_schema(tmp_path: Path, version: int | None) -> None:
+    """Raw facts never substitute for missing or unsupported canonical facts."""
     db_path = tmp_path / "smithing.sqlite"
     with closing(sqlite3.connect(db_path)) as conn, conn:
         conn.execute("CREATE TABLE code_facts (fact_id TEXT, key TEXT, value TEXT)")
-        if fact_value is not None:
-            conn.execute(
-                "INSERT INTO code_facts (fact_id, key, value) VALUES (?, ?, ?)",
-                ("smithing.upgrade_ids", "strings", fact_value),
-            )
-        conn.commit()
-
+        conn.execute("INSERT INTO code_facts VALUES ('smithing.upgrade_ids', 'strings', '31377423,2298018,2265228')")
+        if version is not None:
+            conn.execute("CREATE TABLE item_provenance_meta (schema_version INTEGER)")
+            conn.execute("INSERT INTO item_provenance_meta VALUES (?)", (version,))
     repo = ItemRepository(DatabaseConnection(db_path, read_only=True))
-    with pytest.raises(ValueError, match="Smithing code-fact drift"):
-        repo.get_item_smithing_special_uses("item:ore - planar stone")
+    with pytest.raises(RepositoryError, match="item provenance schema"):
+        repo.is_item_obtainable("item:ore - planar stone")
+
+
+@pytest.mark.parametrize(
+    ("access", "stage", "disposition", "probability", "conditions", "locations", "expected"),
+    [
+        ("verified_player", "final_acquisition", "current", 25, (), (), True),
+        ("verified_player", "final_acquisition", None, 25, (), (), False),
+        ("verified_player", "final_acquisition", "removed", 25, (), (), False),
+        ("unconfirmed_player", "final_acquisition", "current", 25, (), (), False),
+        ("internal_only", "final_acquisition", "current", 25, (), (), False),
+        ("non_acquirable", "final_acquisition", "current", 25, (), (), False),
+        ("verified_player", "native_pool", "current", 25, (), (), False),
+        ("verified_player", "final_acquisition", "current", 0, (), (), False),
+        (
+            "verified_player",
+            "final_acquisition",
+            "current",
+            25,
+            (ProvenanceCondition("gate", 0, 0, "never"),),
+            (),
+            False,
+        ),
+        (
+            "verified_player",
+            "final_acquisition",
+            "current",
+            25,
+            (
+                ProvenanceCondition("gate", 0, 0, "never"),
+                ProvenanceCondition("gate", 1, 0, "quest_done", "quest:open"),
+            ),
+            (),
+            True,
+        ),
+        (
+            "verified_player",
+            "final_acquisition",
+            "current",
+            25,
+            (ProvenanceCondition("level", 0, 0, "actor_level", minimum=20, maximum=10),),
+            (),
+            False,
+        ),
+        (
+            "verified_player",
+            "final_acquisition",
+            "current",
+            25,
+            (),
+            (ProvenanceLocation("closed", "fixed", conditions=(ProvenanceCondition("gate", 0, 0, "never"),)),),
+            False,
+        ),
+        (
+            "verified_player",
+            "final_acquisition",
+            "current",
+            25,
+            (),
+            (
+                ProvenanceLocation("closed", "fixed", conditions=(ProvenanceCondition("gate", 0, 0, "never"),)),
+                ProvenanceLocation("open", "fixed"),
+            ),
+            True,
+        ),
+    ],
+)
+def test_obtainability_and_teaching_share_canonical_player_access(
+    canonical_writer: Writer,
+    tmp_path: Path,
+    access: Any,
+    stage: Any,
+    disposition: str | None,
+    probability: float,
+    conditions: tuple[ProvenanceCondition, ...],
+    locations: tuple[ProvenanceLocation, ...],
+    expected: bool,
+) -> None:
+    _item(canonical_writer, "item:scroll", teach_spell_stable_key="spell:learn", teach_skill_stable_key="skill:learn")
+    _insert_fact(
+        canonical_writer,
+        ItemAcquisition(
+            "origin",
+            "item:scroll",
+            "ui_grant",
+            "character:panel",
+            player_access_state=access,
+            probability_stage=stage,
+            probability_kind="exact",
+            probability_min=probability,
+            probability_max=probability,
+            conditions=conditions,
+            locations=locations,
+        ),
+    )
+    if disposition is not None:
+        _insert(
+            canonical_writer,
+            "item_dispositions",
+            {
+                "item_stable_key": "item:scroll",
+                "disposition": disposition,
+                "current_pages": "[]",
+                "former_pages": "[]",
+            },
+        )
+    for table in (
+        "loot_drops",
+        "vendor_offers",
+        "quest_variants",
+        "character_dialogs",
+        "water_fishables",
+        "mining_node_items",
+        "crafting_rewards",
+        "item_bags",
+    ):
+        canonical_writer.conn.execute(f"DROP TABLE {table}")
+    repo = _repo(canonical_writer, tmp_path)
+
+    assert repo.is_item_obtainable("item:scroll") is expected
+    assert [link.stable_key for link in repo.get_obtainable_items_that_teach_spell("spell:learn")] == (
+        ["item:scroll"] if expected else []
+    )
+    assert [link.stable_key for link in repo.get_obtainable_items_that_teach_skill("skill:learn")] == (
+        ["item:scroll"] if expected else []
+    )
+
+
+def test_crafting_recipe_preserves_slots_and_displays_only_actionable_rewards(
+    canonical_writer: Writer,
+    tmp_path: Path,
+) -> None:
+    for key in ("item:recipe", "item:material-alpha", "item:material-beta", "item:reward", "item:other"):
+        _item(canonical_writer, key, "Shared page")
+    for slot, item_key, quantity in (
+        (10, "item:material-beta", 7),
+        (2, "item:material-alpha", 3),
+        (1, "item:material-alpha", 2),
+    ):
+        _insert_fact(
+            canonical_writer,
+            ItemUse(
+                f"material:{slot}",
+                item_key,
+                "item:recipe",
+                "crafting_material",
+                material_slot=slot,
+                quantity_min=quantity,
+                quantity_max=quantity,
+                quantity_kind="exact",
+            ),
+        )
+    for slot, quantity in ((10, 9), (2, 4), (1, 2)):
+        _insert_fact(
+            canonical_writer,
+            ItemAcquisition(
+                f"outcome:{slot}",
+                "item:reward",
+                "crafting",
+                "item:recipe",
+                variant_key=str(slot),
+                quantity_min=quantity,
+                quantity_max=quantity,
+                quantity_kind="exact",
+                player_access_state="non_acquirable" if slot == 2 else "verified_player",
+            ),
+        )
+        _insert_fact(
+            canonical_writer,
+            ItemUse(
+                f"recipe:{slot}",
+                "item:recipe",
+                "item:reward",
+                "crafting_recipe",
+                variant_key=str(slot),
+                quantity_min=1,
+                quantity_max=1,
+                quantity_kind="exact",
+                outcome_key=f"outcome:{slot}",
+            ),
+        )
+    _insert_fact(
+        canonical_writer,
+        ItemUse(
+            "unrelated",
+            "item:other",
+            "item:recipe",
+            "item_conversion",
+            quantity_min=99,
+            quantity_max=99,
+            quantity_kind="exact",
+        ),
+    )
+    canonical_writer.conn.execute("DROP TABLE crafting_recipes")
+    canonical_writer.conn.execute("DROP TABLE crafting_rewards")
+    repo = _repo(canonical_writer, tmp_path)
+
+    recipe = repo.get_crafting_recipe("item:recipe")
+
+    assert recipe is not None
+    assert [(link.stable_key, quantity) for link, quantity in recipe.materials] == [
+        ("item:material-alpha", 2),
+        ("item:material-alpha", 3),
+        ("item:material-beta", 7),
+    ]
+    assert [(link.stable_key, quantity) for link, quantity in recipe.results] == [
+        ("item:reward", 2),
+        ("item:reward", 9),
+    ]
+    assert repo.get_crafting_recipe("item:other") is None
+    provenance = ItemProvenanceRepository(DatabaseConnection(tmp_path / "canonical.sqlite", read_only=True))
+    assert {fact.variant_key for fact in provenance.get_uses("item:recipe")} == {"1", "2", "10"}
+    assert {
+        (fact.variant_key, fact.quantity_min, fact.player_access_state)
+        for fact in provenance.get_acquisitions("item:reward")
+    } == {
+        ("1", 2, "verified_player"),
+        ("2", 4, "non_acquirable"),
+        ("10", 9, "verified_player"),
+    }
+
+
+def test_crafting_recipe_rejects_an_unlinked_canonical_outcome(
+    canonical_writer: Writer,
+    tmp_path: Path,
+) -> None:
+    _item(canonical_writer, "item:recipe")
+    _item(canonical_writer, "item:reward")
+    _insert_fact(
+        canonical_writer,
+        ItemUse(
+            "recipe:1",
+            "item:recipe",
+            "item:reward",
+            "crafting_recipe",
+            variant_key="1",
+            outcome_key="missing",
+        ),
+    )
+    with pytest.raises(RepositoryError, match="Missing canonical crafting outcome"):
+        _repo(canonical_writer, tmp_path).get_crafting_recipe("item:recipe")
+
+
+@pytest.mark.parametrize(
+    ("kind", "quantity_min", "quantity_max", "quantity_kind", "message"),
+    [
+        ("material", None, None, "unknown", "Missing exact crafting material quantity"),
+        ("material", 1, 2, "bounded", "Missing exact crafting material quantity"),
+        ("reward", None, None, "unknown", "Missing exact crafting reward quantity"),
+        ("reward", 1.5, 1.5, "exact", "Non-integral item quantity"),
+    ],
+)
+def test_crafting_recipe_does_not_invent_quantities(
+    canonical_writer: Writer,
+    tmp_path: Path,
+    kind: str,
+    quantity_min: float | None,
+    quantity_max: float | None,
+    quantity_kind: str,
+    message: str,
+) -> None:
+    _item(canonical_writer, "item:recipe")
+    _item(canonical_writer, "item:component")
+    if kind == "material":
+        _insert_fact(
+            canonical_writer,
+            ItemUse(
+                "material:1",
+                "item:component",
+                "item:recipe",
+                "crafting_material",
+                material_slot=1,
+                quantity_min=quantity_min,
+                quantity_max=quantity_max,
+                quantity_kind=quantity_kind,
+            ),
+        )
+    else:
+        _insert_fact(
+            canonical_writer,
+            ItemAcquisition(
+                "outcome:1",
+                "item:component",
+                "crafting",
+                "item:recipe",
+                variant_key="1",
+                quantity_min=quantity_min,
+                quantity_max=quantity_max,
+                quantity_kind=quantity_kind,
+            ),
+        )
+        _insert_fact(
+            canonical_writer,
+            ItemUse(
+                "recipe:1",
+                "item:recipe",
+                "item:component",
+                "crafting_recipe",
+                variant_key="1",
+                outcome_key="outcome:1",
+            ),
+        )
+    with pytest.raises(RepositoryError, match=message):
+        _repo(canonical_writer, tmp_path).get_crafting_recipe("item:recipe")

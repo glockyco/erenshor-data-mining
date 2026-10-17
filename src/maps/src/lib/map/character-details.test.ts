@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 import { getMapsDatabasePath } from '$lib/database-path.server';
 import { Repository } from '$lib/database.node';
-import type { ItemDropSource } from '$lib/map-markers';
+import { acquisition, source } from '$lib/testing/item-provenance';
 import { indexCharacterDetails, resolveLiveCandidates, type CharacterDetails } from './character-details';
 
 let details: CharacterDetails;
@@ -17,19 +17,11 @@ beforeAll(async () => {
     }
 });
 
-function drop(displayName: string, dropProbability: number): ItemDropSource {
-    return {
-        kind: 'drop',
-        itemStableKey: `item:${displayName}`,
-        displayName,
-        wikiPageName: null,
-        iconHash: null,
-        characterStableKey: 'character:hoarder',
-        npcName: 'Hoarder',
-        npcWikiPageName: 'Hoarder',
-        encounterTier: 'enemy',
-        dropProbability
-    };
+function drop(displayName: string, dropProbability: number) {
+    return source(acquisition({ acquisition_key: displayName, item_stable_key: `item:${displayName}`,
+        probability_min: dropProbability, probability_max: dropProbability }), {
+        displayName, characterStableKey: 'character:hoarder'
+    });
 }
 
 describe('indexCharacterDetails', () => {
@@ -48,26 +40,29 @@ describe('indexCharacterDetails', () => {
     });
 
     it('lists direct and quest-unlocked vendor stock by item name', () => {
-        expect(details.vendorItems.get('character:breena carpenter')).toEqual([
+        expect(details.vendorItems.get('character:breena carpenter')?.map(({ name, price }) => ({ name, price }))).toEqual([
             { name: 'Enchanted Smithy', price: 250 },
             { name: 'Fixture Key', price: 10 },
+            { name: 'Spell Scroll: Meditative Trance', price: 10 },
             { name: 'Spell Scroll: Meditative Trance', price: 10 }
         ]);
+        const smithy = details.vendorItems.get('character:breena carpenter')?.find((item) => item.name === 'Enchanted Smithy');
+        expect(smithy?.provenance?.conditions[0].reference_stable_key).toBe('quest:vendor-unlock');
     });
 
     it('leaves out drops that the mapping hides from the map', () => {
         // The fixture enemy also drops twelve hoard items that are not map-visible.
-        expect(details.drops.get('character:fixture enemy')).toEqual([
-            { itemName: 'Fixture Drop', dropProbability: 25 }
+        expect(details.drops.get('character:fixture enemy')).toMatchObject([
+            { itemName: 'Fixture Drop', dropProbability: 25, provenance: { kind: 'character_drop' } }
         ]);
     });
 
     it('omits swap-only rows from every character popup while retaining combined drops', () => {
-        expect(details.drops.get('character:fixture enemy')).toEqual([
+        expect(details.drops.get('character:fixture enemy')).toMatchObject([
             { itemName: 'Fixture Drop', dropProbability: 25 }
         ]);
         expect(details.drops.get('character:fixture enemy twin')).toBeUndefined();
-        expect(details.drops.get('character:runtime enemy')).toEqual([
+        expect(details.drops.get('character:runtime enemy')).toMatchObject([
             { itemName: 'Fixture Runtime Reward', dropProbability: 50 }
         ]);
         expect([...details.drops.values()].flat().some((row) => row.itemName === 'Fixture Relic')).toBe(false);

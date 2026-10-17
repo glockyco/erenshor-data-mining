@@ -29,8 +29,11 @@ from pathlib import Path
 from loguru import logger
 
 from .auction import process_auction_listings
+from .authored_sims import process_authored_sims
 from .characters import process_characters
 from .code_facts import process_code_facts
+from .combat_eligibility import process_combat_eligibility
+from .encounters import process_encounters
 from .entities import (
     process_class_starting_items,
     process_factions,
@@ -45,12 +48,16 @@ from .entities import (
 from .gates import process_gates
 from .item_mechanics import process_item_mechanics
 from .item_models import process_item_models
+from .item_provenance import process_item_provenance
 from .knowledge_base import process_knowledge_base
 from .mapping import load_mapping, validate_character_name_overrides
+from .navigation_contexts import process_zone_line_destinations
 from .pictures import process_pictures
 from .special_world_drops import process_common_world_items, process_special_world_drops
 from .treasure import process_treasure
+from .ui_items import process_ui_items
 from .writer import Writer
+from .zone_wide_spawns import process_zone_wide_spawns
 
 
 def build(
@@ -129,6 +136,9 @@ def build(
         logger.info("Processing class starting items...")
         process_class_starting_items(raw, writer, item_keys)
 
+        logger.info("Processing authored SimPlayer defaults...")
+        process_authored_sims(raw, writer)
+
         logger.info("Processing common world items...")
         process_common_world_items(raw, writer, item_keys)
 
@@ -150,6 +160,15 @@ def build(
         logger.info("Processing characters...")
         process_characters(raw, writer, mapping, item_keys, spawn_mapping)
 
+        logger.info("Processing combat eligibility...")
+        process_combat_eligibility(raw, writer)
+
+        logger.info("Processing encounter state and completion...")
+        process_encounters(raw, writer)
+
+        logger.info("Processing stored return destinations...")
+        process_zone_line_destinations(raw, writer)
+
         logger.info("Processing gates...")
         process_gates(raw, writer, barriers_path)
 
@@ -161,6 +180,9 @@ def build(
 
         logger.info("Processing treasure hunting...")
         process_treasure(raw, writer)
+
+        logger.info("Processing zone-wide spawn eligibility...")
+        process_zone_wide_spawns(raw, writer)
 
         logger.info("Processing item models...")
         process_item_models(raw, writer)
@@ -176,6 +198,18 @@ def build(
 
         writer.insert_ae_event_mutations(AE_EVENT_MUTATIONS)
         logger.info(f"AE event mutations: {len(AE_EVENT_MUTATIONS)} rows")
+
+        logger.info("Processing native UI item sources...")
+        process_ui_items(raw, writer.conn)
+
+        logger.info("Selecting canonical item provenance...")
+        provenance_report = process_item_provenance(
+            writer.conn,
+            mapping_json_path.parent / "content-lifecycle.json",
+            raw,
+            reviewed_unreachable=frozenset(key for key, rule in mapping.items() if rule["loot_unreachable"]),
+        )
+        logger.info(f"Item provenance input coverage: {provenance_report}")
 
         logger.info("Finalising clean DB (VACUUM + ANALYZE)...")
         writer.finalize()

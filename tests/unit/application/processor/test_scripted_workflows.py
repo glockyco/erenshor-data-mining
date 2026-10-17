@@ -66,16 +66,20 @@ def processed_db(tmp_path):
         );
         INSERT INTO PlanarBosses VALUES ('Plane:character:boss', 'Plane', 'boss', 'character:boss');
         CREATE TABLE LootDrops (
-            CharacterStableKey TEXT, ItemStableKey TEXT, DropProbability REAL,
+            LootTableStableKey TEXT, CharacterStableKey TEXT, ItemStableKey TEXT, DropProbability REAL,
             ExpectedPerKill REAL, DropCountDistribution TEXT, IsActual INTEGER,
             IsGuaranteed INTEGER, IsCommon INTEGER, IsUncommon INTEGER, IsRare INTEGER,
             IsLegendary INTEGER, IsUltraRare INTEGER, IsUnique INTEGER, IsVisible INTEGER,
             Zone TEXT, IsCommonWorldItem INTEGER
         );
-        CREATE TABLE CharacterLootTables (CharacterStableKey TEXT PRIMARY KEY, NumberOfGuaranteedDrops INTEGER);
+        CREATE TABLE LootTableSources (
+            StableKey TEXT PRIMARY KEY, CharacterStableKey TEXT, ComponentIsEnabled INTEGER,
+            NumberOfGuaranteedDrops INTEGER
+        );
         CREATE TABLE CharacterDialogs (
             CharacterStableKey TEXT, DialogIndex INTEGER, DialogText TEXT, Keywords TEXT,
-            GiveItemStableKey TEXT, AssignQuestStableKey TEXT, CompleteQuestStableKey TEXT,
+            GiveItemStableKey TEXT, AssignQuestStableKey TEXT, AssignQuestVariantResourceName TEXT,
+            CompleteQuestStableKey TEXT,
             RepeatingQuestDialog TEXT, KillSelfOnSay INTEGER,
             RequiredQuestStableKey TEXT, SpawnCharacterStableKey TEXT
         );
@@ -92,8 +96,10 @@ def processed_db(tmp_path):
         CREATE TABLE CharacterCCSpells (CharacterStableKey TEXT, SpellStableKey TEXT);
         CREATE TABLE CharacterTauntSpells (CharacterStableKey TEXT, SpellStableKey TEXT);
         CREATE TABLE CharacterAttackSkills (CharacterStableKey TEXT, SkillStableKey TEXT);
-        CREATE TABLE CharacterVendorItems (CharacterStableKey TEXT, ItemStableKey TEXT);
-        CREATE TABLE CharacterQuestManagerQuests (CharacterStableKey TEXT, QuestStableKey TEXT);
+        CREATE TABLE CharacterVendorItems (CharacterStableKey TEXT, ItemSlot INTEGER, ItemStableKey TEXT);
+        CREATE TABLE CharacterQuestManagerQuests (
+            CharacterStableKey TEXT, QuestStableKey TEXT, QuestSlot INTEGER, QuestVariantResourceName TEXT
+        );
         CREATE TABLE CharacterAggressiveFactions (CharacterStableKey TEXT, FactionName TEXT);
         CREATE TABLE CharacterAlliedFactions (CharacterStableKey TEXT, FactionName TEXT);
         CREATE TABLE CharacterFactionModifiers (
@@ -103,7 +109,7 @@ def processed_db(tmp_path):
             CharacterStableKey TEXT, SequenceIndex INTEGER, ShoutText TEXT
         );
         CREATE TABLE CharacterVendorQuestUnlocks (
-            CharacterStableKey TEXT, QuestStableKey TEXT
+            CharacterStableKey TEXT, QuestStableKey TEXT, QuestSlot INTEGER, QuestVariantResourceName TEXT
         );
         CREATE TABLE SpawnPointPatrolPoints (
             SpawnPointStableKey TEXT, SequenceIndex INTEGER, X REAL, Y REAL, Z REAL
@@ -220,8 +226,8 @@ def processed_db(tmp_path):
     )
     raw.executemany(
         """INSERT INTO LootDrops
-           (CharacterStableKey, ItemStableKey, IsCommonWorldItem)
-           VALUES ('character:ordinary', ?, ?)""",
+           (LootTableStableKey, CharacterStableKey, ItemStableKey, IsCommonWorldItem)
+           VALUES ('character:ordinary:script:LootTable:0', 'character:ordinary', ?, ?)""",
         [("item:coin", 1), ("item:mal-food", 0)],
     )
     hosts = [
@@ -242,9 +248,16 @@ def processed_db(tmp_path):
     )
     raw.executemany(
         """INSERT INTO LootDrops
-           (CharacterStableKey, ItemStableKey, DropProbability, ExpectedPerKill)
-           VALUES (?, 'item:coin', 100, 1)""",
-        [(f"character:{name}",) for name, _, _ in hosts],
+           (LootTableStableKey, CharacterStableKey, ItemStableKey, DropProbability, ExpectedPerKill)
+           VALUES (?, ?, 'item:coin', 100, 1)""",
+        [(f"character:{name}:script:LootTable:0", f"character:{name}") for name, _, _ in hosts],
+    )
+    raw.executemany(
+        "INSERT INTO LootTableSources VALUES (?, ?, 1, 0)",
+        [
+            (f"{key}:script:LootTable:0", key)
+            for key in ("character:ordinary", *(f"character:{name}" for name, _, _ in hosts))
+        ],
     )
 
     writer = Writer(clean_path)

@@ -50,7 +50,7 @@ The item renderer SHALL consume shared item provenance without independent sourc
 #### Scenario: A source is internal or transfer remains unconfirmed
 
 - WHEN canonical evidence records an internal UI/mechanic use without a verified player transfer
-- THEN the item page preserves that distinction with explicit wording
+- THEN internal evidence and audit coverage preserve that distinction without advertising an unverified player source or adding public research disclaimers
 - AND does not claim a verified acquisition or infer an unobtainable lifecycle state
 
 ### Requirement: Tooltips and visible details remain compatible

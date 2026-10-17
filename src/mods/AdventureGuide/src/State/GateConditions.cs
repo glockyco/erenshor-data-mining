@@ -5,13 +5,17 @@ namespace AdventureGuide.State;
 public interface IGateFacts
 {
     bool IsQuestCompleted(string questDbName);
+    bool ReadAccountState(string key);
+    string? ReadCharacterZoneState(string key);
+    UnityEngine.Vector3? ReadCharacterPositionState(string key);
+    int PlayerLevel { get; }
     int ItemCount(string itemStableKey);
     bool IsOnKeyring(string gameId);
-    string? FurnitureIn(string slot);
+    string? StoredItemIn(string slot);
 }
 
 /// <summary>OR groups of AND atoms, with encounter atoms retained as guidance.</summary>
-public sealed class GateConditions
+public sealed partial class GateConditions
 {
     private readonly GuideData _data;
     private readonly Dictionary<string, string> _characterNames = new(
@@ -53,17 +57,27 @@ public sealed class GateConditions
         }
     }
 
+    public bool IsProjectedQuestCompleted(QuestEntry quest) =>
+        !quest.IsGuideOnly
+        && _data.EncounterProjection.IsBoundQuest(quest.DBName)
+        && _data.EncounterProjection.IsQuestCompleted(quest.DBName, Facts);
+
     public bool Holds(GateAtom atom) =>
         atom.Kind switch
         {
-            GateAtomKind.QuestDone => Facts.IsQuestCompleted(atom.Ref),
-            GateAtomKind.QuestNotDone => !Facts.IsQuestCompleted(atom.Ref),
+            GateAtomKind.QuestDone => _data.EncounterProjection.IsQuestCompleted(atom.Ref, Facts),
+            GateAtomKind.QuestNotDone => !_data.EncounterProjection.IsQuestCompleted(
+                atom.Ref,
+                Facts
+            ),
+            GateAtomKind.AccountState => _data.EncounterProjection.ReadAccountState(atom.Ref, Facts)
+                == (atom.Value == "true"),
             GateAtomKind.ItemHeld => Facts.ItemCount(atom.Ref) > 0,
             GateAtomKind.KeyHeld => Facts.ItemCount(atom.Ref) > 0
                 || (atom.GameId != null && Facts.IsOnKeyring(atom.GameId)),
-            GateAtomKind.RoomFurnished => atom.Slot != null
+            GateAtomKind.RoomFurnished or GateAtomKind.PlanningSlotItem => atom.Slot != null
                 && string.Equals(
-                    Facts.FurnitureIn(atom.Slot),
+                    Facts.StoredItemIn(atom.Slot),
                     atom.Ref,
                     StringComparison.OrdinalIgnoreCase
                 ),
@@ -100,7 +114,12 @@ public sealed class GateConditions
         {
             bool possible = true;
             foreach (var atom in group)
-                if (atom.Kind == GateAtomKind.QuestNotDone && !Holds(atom))
+                if (
+                    (
+                        atom.Kind == GateAtomKind.QuestNotDone
+                        || (atom.Kind == GateAtomKind.AccountState && atom.Value == "false")
+                    ) && !Holds(atom)
+                )
                 {
                     possible = false;
                     break;
@@ -126,7 +145,12 @@ public sealed class GateConditions
 
     public bool IsSourceAvailable(ItemSource source) =>
         IsAvailable(source.Condition)
-        && (source.SourceKey == null || IsCharacterAvailable(source.SourceKey));
+        && IsCanonicalSourceAvailable(source)
+        && (
+            source.AcquisitionKey != null
+                ? source.CanonicalSpawn == null || IsSpawnAvailable(source.CanonicalSpawn)
+                : source.SourceKey == null || IsCharacterAvailable(source.SourceKey)
+        );
 
     public bool UsesFurnishings(int? condition)
     {
@@ -229,6 +253,9 @@ public sealed class GateConditions
 
     public string Describe(GateAtom atom)
     {
+        if (atom.Kind == GateAtomKind.PlanningSlotItem)
+            return atom.Instruction
+                ?? throw new InvalidOperationException("Planning slot atom has no instruction");
         string name =
             _data.GetByDBName(atom.Ref)?.DisplayName
             ?? _data.GetByStableKey(atom.Ref)?.DisplayName
@@ -244,6 +271,9 @@ public sealed class GateConditions
             GateAtomKind.ItemHeld => DescribeItemRequirement(atom.Ref, name),
             GateAtomKind.KeyHeld => DescribeItemRequirement(atom.Ref, name),
             GateAtomKind.RoomFurnished => name + " in a Reliquary room",
+            GateAtomKind.AccountState => atom.Value == "false"
+                ? "Before claiming your Reliquary"
+                : "Claim your Reliquary",
             GateAtomKind.EncounterWon => "Defeat " + name + " first",
             _ => throw new InvalidOperationException($"Unknown gate atom kind '{atom.Kind}'"),
         };

@@ -147,6 +147,8 @@ class AtomKind(str, Enum):
     ITEM_HELD = "item_held"
     KEY_HELD = "key_held"
     ROOM_FURNISHED = "room_furnished"
+    PLANNING_SLOT_ITEM = "planning_slot_item"
+    ACCOUNT_STATE = "account_state"
     # Advisory: the mod cannot observe it reliably, so it guides and never hides.
     ENCOUNTER_WON = "encounter_won"
     # No game state satisfies it, such as a door whose key cannot be obtained.
@@ -160,6 +162,11 @@ class GateAtom:
     kind: AtomKind
     ref: str
     slot: str | None = None
+    instruction: str | None = None
+    actor: str | None = None
+    value: str | None = None
+    phase: str | None = None
+    scope: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -205,12 +212,13 @@ class BackgroundSource:
 
     type: str
     name: str
-    chance: float
+    chance: float | None
     level: int | None = None
     level_max: int | None = None
     chance_max: float | None = None
     source_key: str | None = None
     instruction: str | None = None
+    provenance_key: str | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -250,6 +258,7 @@ class Node:
     is_enabled: bool = True
 
     # Quest-specific
+    step_note: str | None = None
     xp_reward: int | None = None
     gold_reward: int | None = None
     reward_item_key: str | None = None
@@ -367,3 +376,7 @@ class Edge:
     amount: int | None = None
     slot: int | None = None
     time_restriction: str | None = None  # "day" or "night"; None = always
+    # Fishing percentages per successful catch, not per cast.
+    day_chance: float | None = None
+    night_chance: float | None = None
+    provenance_key: str | None = None

@@ -15,17 +15,22 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
     private readonly List<SpawnPointStopQuestRecord> _spawnPointStopQuestRecords = new();
     private readonly List<SpawnPointPatrolPointRecord> _spawnPointPatrolPointRecords = new();
     private readonly List<SpawnPointEssentialLinkRecord> _spawnPointEssentialLinkRecords = new();
-    private readonly DuplicateKeyTracker _keyTracker = new("SpawnPointListener");
+    private readonly ActivationTargetResolver _activationTargets;
 
     // Spawn delay multipliers from GameManager.SpawnTimeMod (lines 209-224)
     private const float SpawnDelayMultiplier2 = 1.1f; // 1-2 group members
     private const float SpawnDelayMultiplier3 = 1.5f; // 3 group members
     private const float SpawnDelayMultiplier4 = 1.8f; // 4 group members
 
-    public SpawnPointListener(SQLiteConnection db, CharacterStableKeyResolver characterKeyResolver)
+    public SpawnPointListener(
+        SQLiteConnection db,
+        CharacterStableKeyResolver characterKeyResolver,
+        ActivationTargetResolver activationTargets
+    )
     {
         _db = db;
         _characterKeyResolver = characterKeyResolver;
+        _activationTargets = activationTargets;
     }
 
     public void OnScanFinished()
@@ -75,8 +80,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         var y = asset.transform.position.y;
         var z = asset.transform.position.z;
 
-        var baseStableKey = StableKeyGenerator.ForSpawnPoint(scene, x, y, z);
-        var stableKey = _keyTracker.GetUniqueKey(baseStableKey, asset.gameObject.name);
+        var stableKey = _activationTargets.GetStableKey(asset);
 
         var spawnPointRecord = CreateSpawnPointRecord(asset, stableKey, scene, x, y, z);
         _spawnPointRecords.Add(spawnPointRecord);
@@ -305,15 +309,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
             if (essential == null)
                 continue;
 
-            // Resolve the essential spawn point to its stable key using the same
-            // scene+position convention as the source spawn point.
-            var essentialScene = essential.gameObject.scene.name;
-            var essentialKey = StableKeyGenerator.ForSpawnPoint(
-                essentialScene,
-                essential.transform.position.x,
-                essential.transform.position.y,
-                essential.transform.position.z
-            );
+            var essentialKey = _activationTargets.GetStableKey(essential);
 
             if (seenKeys.Add(essentialKey))
             {

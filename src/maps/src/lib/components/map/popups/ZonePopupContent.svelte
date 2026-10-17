@@ -39,7 +39,7 @@
                     <div class="flex items-center justify-between gap-2 text-sm">
                         <span class="text-zinc-300 truncate min-w-0">{enemy.name}</span>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span class="text-zinc-500">Lv. {enemy.level}</span>
+                            <span class="text-zinc-500">Lv. {enemy.level === enemy.levelMax ? enemy.level : `${enemy.level}-${enemy.levelMax}`}</span>
                             <WikiLink pageName={enemy.wikiPageName} />
                         </div>
                     </div>
@@ -57,7 +57,7 @@
                     <div class="flex items-center justify-between gap-2 text-sm">
                         <span class="text-zinc-300 truncate min-w-0">{enemy.name}</span>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span class="text-zinc-500">Lv. {enemy.level}</span>
+                            <span class="text-zinc-500">Lv. {enemy.level === enemy.levelMax ? enemy.level : `${enemy.level}-${enemy.levelMax}`}</span>
                             <WikiLink pageName={enemy.wikiPageName} />
                         </div>
                     </div>
@@ -73,7 +73,7 @@
                     <div class="flex items-center justify-between gap-2 text-sm">
                         <span class="text-zinc-300 truncate min-w-0">{chest.name}</span>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span class="text-zinc-500">Lv. {chest.level}</span>
+                            <span class="text-zinc-500">Lv. {chest.level === chest.levelMax ? chest.level : `${chest.level}-${chest.levelMax}`}</span>
                             <WikiLink pageName={chest.wikiPageName} />
                         </div>
                     </div>

@@ -2,8 +2,19 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+from erenshor.application.guide.canonical_sources import add_canonical_sources
 from erenshor.application.guide.graph import EntityGraph
 from erenshor.application.guide.schema import AtomKind, Edge, Gate, GateAtom, Node, NodeType, SubjectKind
+from erenshor.application.processor.item_provenance import ProvenanceBuilder
+from erenshor.application.processor.writer import Writer
+from erenshor.infrastructure.database.connection import DatabaseConnection
+from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
+
+if TYPE_CHECKING:
+    from erenshor.domain.value_objects.item_provenance import ItemAcquisition, ItemUse
 
 
 def build_graph(*nodes: Node, edges: list[Edge] | None = None, gates: list[Gate] | None = None) -> EntityGraph:
@@ -73,3 +84,34 @@ def spawn_node(
         z=z,
         **kwargs,
     )
+
+
+def load_canonical_sources(
+    tmp_path: Path,
+    graph: EntityGraph,
+    acquisitions: list[ItemAcquisition],
+    uses: list[ItemUse] | None = None,
+    raw_outcomes_sql: str = "",
+) -> None:
+    """Persist typed facts through the real producer and read them through its repository."""
+    path = tmp_path / "canonical.sqlite"
+    writer = Writer(path)
+    writer.create_schema()
+    conn = writer.conn
+    item_keys = {fact.item_stable_key for fact in (*acquisitions, *(uses or []))}
+    item_keys.update(node.key for node in graph.nodes_of_type(NodeType.ITEM))
+    conn.executemany(
+        "INSERT INTO items (stable_key,display_name,image_name) VALUES (?,?,?)",
+        [(key, key, key) for key in sorted(item_keys)],
+    )
+    conn.execute("INSERT INTO item_provenance_meta VALUES (1,'fixture','{}')")
+    builder = ProvenanceBuilder(conn)
+    builder.acquisitions.extend(acquisitions)
+    builder.uses.extend(uses or [])
+    builder.persist()
+    conn.executescript(raw_outcomes_sql)
+    conn.commit()
+    conn.close()
+    with DatabaseConnection(path, read_only=True) as database, database.connect() as connection:
+        add_canonical_sources(ItemProvenanceRepository(database), connection, graph)
+    graph.build_indexes()

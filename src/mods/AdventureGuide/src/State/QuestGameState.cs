@@ -1,3 +1,4 @@
+using AdventureGuide.Data;
 using UnityEngine;
 
 namespace AdventureGuide.State;
@@ -15,7 +16,15 @@ internal interface IQuestGameState
 
     void CopyInventoryCountsTo(Dictionary<string, int> destination);
 
+    bool ReadAccountState(string key);
+
+    string? ReadCharacterZoneState(string key);
+
+    Vector3? ReadCharacterPositionState(string key);
+
     Vector3? PlayerPosition { get; }
+
+    int PlayerLevel { get; }
 }
 
 internal sealed class LiveQuestGameState : IQuestGameState
@@ -26,6 +35,32 @@ internal sealed class LiveQuestGameState : IQuestGameState
 
     public Vector3? PlayerPosition =>
         GameData.PlayerControl != null ? GameData.PlayerControl.transform.position : null;
+
+    public int PlayerLevel => GameData.PlayerStats != null ? GameData.PlayerStats.Level : 0;
+
+    public bool ReadAccountState(string key) =>
+        key switch
+        {
+            EncounterStateKeys.ReliquaryClaimed => GameData.AccountClaimedReliquary,
+            _ => throw new ArgumentException($"Unknown account state {key}", nameof(key)),
+        };
+
+    public string? ReadCharacterZoneState(string key) =>
+        key switch
+        {
+            EncounterStateKeys.ReturnZone => GameData.ReliqDest,
+            _ => throw new ArgumentException($"Unknown character zone state {key}", nameof(key)),
+        };
+
+    public Vector3? ReadCharacterPositionState(string key) =>
+        key switch
+        {
+            EncounterStateKeys.ReturnLanding => GameData.ReliqLanding,
+            _ => throw new ArgumentException(
+                $"Unknown character position state {key}",
+                nameof(key)
+            ),
+        };
 
     public void CopyActiveQuestsTo(HashSet<string> destination)
     {

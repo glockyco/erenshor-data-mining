@@ -26,17 +26,23 @@ The contract SHALL model UI grants and non-world mechanic transfers as source ki
 - THEN the contract represents the UI grant directly with its replenishment semantics
 - AND does not invent a vendor or dialog source
 
-#### Scenario: A portal box is seeded but transfer is unconfirmed
+#### Scenario: A portal box transfers once from its planning slot
 
-- WHEN evidence establishes a PlanningTable Portal item but player transfer still needs confirmation
-- THEN the candidate mechanic source remains unconfirmed and auditable
-- AND navigation and affirmative obtainability do not advertise it as a verified acquisition
+- WHEN native planning desk activation and normal UI transfer are verified
+- THEN the contract represents the player transfer and its activation conditions
+- AND records that the source slot remains empty rather than claiming replenishment or unlimited supply
 
 #### Scenario: An item is generated for simulated-player equipment
 
 - WHEN internal item generation is established but no player-transfer path is confirmed
 - THEN internal use and the unresolved transfer state remain distinct from verified player access
 - AND the item is not marked removed or unobtainable solely for lacking a confirmed player source
+
+#### Scenario: An account claim suppresses a later encounter
+
+- WHEN shipped placement lifecycle reads an account claim and suppresses the loot-bearing host
+- THEN each affected acquisition retains the native host binding and account-scoped availability condition
+- AND current-character quest completion alone does not replace that account condition
 
 ### Requirement: Stable identity and complete alternatives
 
@@ -159,3 +165,40 @@ Canonical loot acquisition SHALL honor the game's actual host predicate before c
 
 - WHEN a summoned host exists and both destroy-on-death and no-corpse flags are false
 - THEN summon status alone does not suppress its otherwise valid loot acquisition facts
+
+### Requirement: Visitor-facing source text is concise
+
+Wiki and map acquisition displays SHALL use established concise terms and brief actionable conditions. Exact technical semantics SHALL remain preserved in data and offline validation without requiring public implementation labels or explanatory caveats about conventional drop chances.
+
+#### Scenario: A global drop needs a rate annotation
+
+- WHEN a visitor sees a global drop chance at the default loot rate
+- THEN the display uses familiar wording such as "Any enemy" and "At the default loot rate."
+- AND does not add paragraphs about ownership replacement, probability stages or independent rolls
+
+#### Scenario: A source has an actionable condition
+
+- WHEN obtaining an item requires a quest, furnished room, time period or player level
+- THEN the display states that condition briefly in player-facing language
+- AND internal access-state names and audit dispositions remain developer evidence
+
+### Requirement: Quest acquisition follows executed reward routes
+
+A configured quest reward SHALL NOT become an item acquisition solely because a variant field is populated. Canonical reward outcomes SHALL retain the completion route, selected variant and branch conditions that execute the grant. Raw configured fields SHALL remain producer evidence. Completion marking and reward granting SHALL be distinct facts.
+
+#### Scenario: A completion route only marks the quest complete
+
+- WHEN a dialogue, zone, read or kill route marks completion without executing the configured reward grant
+- THEN the route contributes no item, XP or gold reward outcome from those fields
+- AND item obtainability does not advertise its configured item as a quest acquisition
+
+#### Scenario: A successful turn-in grants its selected variant reward
+
+- WHEN a successful trade route executes an item reward for a selected quest variant
+- THEN canonical acquisition retains that route, variant and its conditions
+- AND other completion routes do not inherit the grant
+
+#### Scenario: A reward route completes additional quests
+
+- WHEN a reward-granting route also marks another quest complete without executing that other quest's reward grant
+- THEN it does not create acquisitions for the other quest's configured rewards

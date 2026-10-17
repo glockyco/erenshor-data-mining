@@ -1,0 +1,34 @@
+<includeonly><templatestyles src="Template:ItemData/styles.css" />{{#invoke:Erenshor/ItemData|render}}</includeonly><noinclude>
+== ItemData ==
+Renders an item's infobox, quality cards, effect details, sources and uses from the game data. Use one call for each item identity on the page:
+<pre>{{ItemData|stablekey=item:gen - bread}}</pre>
+
+The required <code>stablekey</code> identifies one item, not a page name. On a page with several items, keep a separate call for each key. [[Template:Item|Item]] remains available for parameter-based infoboxes.
+
+=== Editor additions ===
+These fields append editor contributions. They do not replace game data.
+{| class="wikitable"
+! Field !! Use
+|-
+| <code>type</code> || Additional classifications
+|-
+| <code>questsource</code> || Additional reward relationships
+|-
+| <code>relatedquest</code> || Additional quest associations
+|-
+| <code>othersource</code> || Other source notes while the pipeline does not cover them
+|}
+Keep strategy and other prose outside the call. Report wrong or missing facts on [[Erenshor Wiki talk:Game Data]]. Other parameters cannot override facts and place the page in [[:Category:Item data calls with unsupported parameters]]. A missing or invalid key places it in [[:Category:Item data calls with invalid identities]].
+
+For a source note with known identities, use [[Template:ItemData/SourceNote|ItemData/SourceNote]] inside <code>othersource</code>. When game data covers the same source, the note stays visible and the page joins [[:Category:Item data notes covered by game data]]. Review and remove only the redundant note. Freeform notes are not matched by their wording.
+
+The renderer shows full file titles from the image catalog, including male and female models where present. It shows existing renders and screenshots, then the icon when no larger picture exists. Item tooltips retain all supported quality cards and inline effect details. No separate right-click details interaction is provided.
+
+=== Data for editor-written modules ===
+<code>Module:Erenshor/Data/ItemsV2</code> has <code>schemaVersion=2</code>, <code>provenanceSchemaVersion=1</code> and <code>byKey</code>, which maps stable keys to child-module buckets. Load only the child's row for the requested key. Records retain the original Items fields and add <code>stableKey</code>, <code>kind</code>, <code>itemDbIndex</code>, <code>renders</code>, <code>effects</code>, <code>lifecycle</code>, <code>build</code> and <code>provenanceShard</code>. Picture fields are complete file titles, not stems.
+The index's <code>provenanceByKey</code> also includes identities without an article. Resolve a use's <code>outcome_key</code> through <code>outcomeItemByKey</code> to find the exact acquisition owner, then load that item's provenance bucket. A use's <code>target_stable_key</code> may identify a material or operation rather than the produced item. Resolve the recorded outcome instead of selecting another source, so chances, quantities, byproducts and pool guarantees retain their meaning.
+Use the recorded provenance shard name rather than deriving it from the item key. Provenance modules split when they grow, so their names can be longer than entity bucket names.
+
+The matching row of <code>Module:Erenshor/Data/ItemProvenanceV1/&lt;bucket&gt;</code> contains <code>acquisitions</code>, <code>uses</code> and <code>disposition</code> in the canonical snake_case schema. Conditions retain their gate, alternative group, atom and scope. Locations retain their relation, placement, coordinates, entrance identities and local conditions. Preserve source/copy identities, probability stage and basis, quantities, distinct alternatives and disposition. Internal evidence, native-pool evidence and unconfirmed transfers stay available for audits, not as player acquisition claims. Existing <code>Module:Erenshor/Data/Items</code> readers keep their original schema.
+The owner's <code>references</code> table gives native names and optional article pages by exact stable key, including copies and quests without articles. Render a reference without a page as plain text. Keep its key in audit attributes, because a named native identity does not imply an article. Pass the current owner's references explicitly to provenance helpers and use the outcome owner's references for outcome details, so multiple item roots do not share rendering state.
+</noinclude>

@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from erenshor.application.wiki_lua.links import class_link_refs, link_ref
 from erenshor.application.wiki_lua.lua_writer import module_text
 from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
-from erenshor.domain.value_objects.source_info import ObtainedFromInfo, SourceInfo, UsedInInfo, WorldDropInfo
 from erenshor.domain.value_objects.wiki_filename import picture_file_title
 from erenshor.shared.game_constants import TIER_ORDER_MAP, TIER_SORT_DEFAULT
 
@@ -19,76 +18,19 @@ if TYPE_CHECKING:
     from erenshor.domain.entities.item_stats import ItemStats
     from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
     from erenshor.domain.value_objects.wiki_link import ItemLink
+    from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
 
 
 class ItemDataRepository(Protocol):
     """Repository methods needed to build the item data module."""
 
-    def get_items_for_wiki_generation(self) -> list[Item]: ...
+    def get_items_for_wiki_generation(self) -> Sequence[Item]: ...
 
     def get_item_stats(self, stable_key: str) -> list[ItemStats]: ...
 
     def get_item_classes(self, stable_key: str) -> list[str]: ...
 
     def get_crafting_recipe(self, stable_key: str, /) -> CraftingRecipe | None: ...
-
-    def get_item_zone_restrictions(self, item_stable_key: str) -> list[tuple[str, str]]: ...
-
-
-class ItemProvenanceItemRepository(Protocol):
-    """Item repository methods needed for item source fields."""
-
-    def get_recipes_rewarding_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
-
-    def get_item_use_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
-
-    def get_special_world_drops(self, item_stable_key: str) -> list[WorldDropInfo]: ...
-
-    def get_classes_starting_with_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
-
-    def get_crafting_material_sources(self, item_stable_key: str) -> list[UsedInInfo]: ...
-
-    def get_item_smithing_special_uses(self, item_stable_key: str) -> list[UsedInInfo]: ...
-
-    def get_fishing_bonus_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
-
-    def get_auction_house_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
-
-    def get_item_conversion_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
-
-    def get_item_conversion_uses(self, item_stable_key: str) -> list[UsedInInfo]: ...
-
-    def get_quality_offering_uses(self, item_stable_key: str) -> list[UsedInInfo]: ...
-
-
-class ItemProvenanceCharacterRepository(Protocol):
-    """Character repository methods needed for item source fields."""
-
-    def get_character_drop_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
-
-    def get_common_world_item_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
-
-    def get_vendor_sources_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
-
-    def get_characters_giving_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
-
-
-class ItemProvenanceQuestRepository(Protocol):
-    """Quest repository methods needed for item source fields."""
-
-    def get_quest_reward_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
-
-    def get_quest_requirement_sources(self, item_stable_key: str) -> list[UsedInInfo]: ...
-
-
-class ItemProvenanceZoneRepository(Protocol):
-    """Zone methods needed for item obtainability source fields."""
-
-    def get_mining_nodes_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
-
-    def get_fishing_waters_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
-
-    def get_item_bag_sources_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
 
 
 LuaData = dict[str, object]
@@ -191,7 +133,7 @@ _STAT_FIELD_MAP = (
 
 def generate_items_modules(
     item_repo: ItemDataRepository,
-    sources_by_item: Mapping[str, SourceInfo] | None = None,
+    provenance_repo: ItemProvenanceRepository,
     class_display_names: Mapping[str, str] | None = None,
 ) -> dict[str, str]:
     """Generate `Module:Erenshor/Data/Items` index and shard module content."""
@@ -201,14 +143,18 @@ def generate_items_modules(
     classes_by_item = {item.stable_key: item_repo.get_item_classes(item.stable_key) for item in items}
     recipes_by_item = {item.stable_key: item_repo.get_crafting_recipe(item.stable_key) for item in items}
     zone_restrictions_by_item = {
-        item.stable_key: item_repo.get_item_zone_restrictions(item.stable_key) for item in items
+        item.stable_key: [
+            (use.target_stable_key, use.mechanic or "")
+            for use in provenance_repo.get_uses(item.stable_key)
+            if use.kind == "zone_restriction" and use.target_stable_key is not None
+        ]
+        for item in items
     }
     data = build_items_data(
         items,
         stats_by_item,
         classes_by_item,
         recipes_by_item=recipes_by_item,
-        sources_by_item=sources_by_item,
         class_display_names=class_display_names,
         zone_restrictions_by_item=zone_restrictions_by_item,
     )
@@ -223,7 +169,7 @@ def generate_items_modules(
 def write_items_modules(
     item_repo: ItemDataRepository,
     output_root: Path,
-    sources_by_item: Mapping[str, SourceInfo] | None = None,
+    provenance_repo: ItemProvenanceRepository,
     class_display_names: Mapping[str, str] | None = None,
 ) -> list[Path]:
     """Write the generated item data index and shard modules below an output root."""
@@ -231,7 +177,7 @@ def write_items_modules(
     written_paths: list[Path] = []
     for relative_path, module in generate_items_modules(
         item_repo,
-        sources_by_item=sources_by_item,
+        provenance_repo,
         class_display_names=class_display_names,
     ).items():
         output_path = output_dir / relative_path
@@ -241,59 +187,11 @@ def write_items_modules(
     return written_paths
 
 
-def build_item_sources_by_item(
-    items: Iterable[Item],
-    item_repo: ItemProvenanceItemRepository,
-    character_repo: ItemProvenanceCharacterRepository,
-    quest_repo: ItemProvenanceQuestRepository,
-    zone_repo: ItemProvenanceZoneRepository,
-) -> dict[str, SourceInfo]:
-    """Build item-owned stable-keyed source metadata for each item."""
-    sources_by_item: dict[str, SourceInfo] = {}
-    for item in items:
-        item_key = item.stable_key
-        used_in = [
-            *item_repo.get_crafting_material_sources(item_key),
-            *quest_repo.get_quest_requirement_sources(item_key),
-            *item_repo.get_item_smithing_special_uses(item_key),
-            *item_repo.get_item_conversion_uses(item_key),
-            *item_repo.get_quality_offering_uses(item_key),
-        ]
-        obtained_from = [
-            *character_repo.get_character_drop_sources(item_key),
-            *character_repo.get_common_world_item_sources(item_key),
-            *character_repo.get_vendor_sources_for_item(item_key),
-            *character_repo.get_characters_giving_item(item_key),
-            *quest_repo.get_quest_reward_sources(item_key),
-            *item_repo.get_recipes_rewarding_item(item_key),
-            *item_repo.get_item_use_sources(item_key),
-            *item_repo.get_item_conversion_sources(item_key),
-            *zone_repo.get_mining_nodes_for_item(item_key),
-            *zone_repo.get_fishing_waters_for_item(item_key),
-            *item_repo.get_fishing_bonus_sources(item_key),
-            *item_repo.get_auction_house_sources(item_key),
-            *zone_repo.get_item_bag_sources_for_item(item_key),
-            *item_repo.get_classes_starting_with_item(item_key),
-            *(
-                ObtainedFromInfo(
-                    source_type="world_drop",
-                    source_key=None,
-                    probability=drop.probability,
-                    condition=drop.condition,
-                )
-                for drop in item_repo.get_special_world_drops(item_key)
-            ),
-        ]
-        sources_by_item[item_key] = SourceInfo(obtained_from=obtained_from, used_in=used_in)
-    return sources_by_item
-
-
 def build_items_data(
     items: Iterable[Item],
     stats_by_item: Mapping[str, list[ItemStats]],
     classes_by_item: Mapping[str, list[str]],
     recipes_by_item: Mapping[str, CraftingRecipe | None] | None = None,
-    sources_by_item: Mapping[str, SourceInfo] | None = None,
     class_display_names: Mapping[str, str] | None = None,
     zone_restrictions_by_item: Mapping[str, list[tuple[str, str]]] | None = None,
 ) -> LuaData:
@@ -311,7 +209,6 @@ def build_items_data(
             stats=stats_by_item.get(item.stable_key, []),
             classes=classes_by_item.get(item.stable_key, []),
             recipe=recipes_by_item.get(item.stable_key) if recipes_by_item is not None else None,
-            sources=sources_by_item.get(item.stable_key) if sources_by_item is not None else None,
             class_display_names=class_display_names,
             zone_restrictions=zone_restrictions_by_item.get(item.stable_key, [])
             if zone_restrictions_by_item is not None
@@ -356,7 +253,6 @@ def _item_record(
     stats: list[ItemStats],
     classes: list[str],
     recipe: CraftingRecipe | None,
-    sources: SourceInfo | None,
     class_display_names: Mapping[str, str] | None,
     zone_restrictions: list[tuple[str, str]],
 ) -> LuaData:
@@ -382,9 +278,6 @@ def _item_record(
         row["classes"] = ordered_classes
         row["classLinks"] = class_link_refs(ordered_classes, class_display_names or {})
 
-    if sources is not None:
-        _put(row, "usedIn", _format_used_in(sources))
-        _put(row, "obtainedFrom", _format_obtained_from(sources))
     if zone_restrictions:
         row["zoneRestrictions"] = [{"zoneKey": zone, "outcome": outcome} for zone, outcome in zone_restrictions]
 
@@ -405,62 +298,6 @@ def _item_record(
 
 def _quality_order(quality: str) -> int:
     return TIER_ORDER_MAP.get(quality, TIER_SORT_DEFAULT)
-
-
-def _format_obtained_from(sources: SourceInfo) -> list[LuaData]:
-    """Format stable-keyed item provenance with deterministic ordering."""
-    ordered = sorted(
-        sources.obtained_from,
-        key=lambda source: (
-            source.source_type,
-            source.source_key or "",
-            source.condition or "",
-            source.probability is None,
-            source.probability if source.probability is not None else 0.0,
-            source.probability_max is None,
-            source.probability_max if source.probability_max is not None else 0.0,
-            source.quantity is None,
-            source.quantity if source.quantity is not None else 0,
-            source.is_guaranteed,
-        ),
-    )
-    result: list[LuaData] = []
-    for source in ordered:
-        row: LuaData = {}
-        _put(row, "type", source.source_type)
-        _put(row, "sourceKey", source.source_key)
-        _put(row, "probability", source.probability)
-        _put(row, "probabilityMax", source.probability_max)
-        if source.is_guaranteed:
-            row["guaranteed"] = True
-        _put(row, "quantity", source.quantity)
-        _put(row, "condition", source.condition)
-        result.append(row)
-    return result
-
-
-def _format_used_in(sources: SourceInfo) -> list[LuaData]:
-    """Format stable-keyed item usage with deterministic ordering."""
-    ordered = sorted(
-        sources.used_in,
-        key=lambda source: (
-            source.use_type,
-            source.target_key,
-            source.quantity is None,
-            source.quantity if source.quantity is not None else 0,
-            source.slot is None,
-            source.slot if source.slot is not None else 0,
-        ),
-    )
-    result: list[LuaData] = []
-    for source in ordered:
-        row: LuaData = {}
-        _put(row, "type", source.use_type)
-        _put(row, "targetKey", source.target_key)
-        _put(row, "quantity", source.quantity)
-        _put(row, "slot", source.slot)
-        result.append(row)
-    return result
 
 
 def _summary_stat(stats: list[ItemStats]) -> ItemStats | None:

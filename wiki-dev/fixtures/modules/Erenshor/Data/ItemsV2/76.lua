@@ -1,0 +1,33 @@
+return {
+	["item:ember_longsword"] = {
+		stableKey = "item:ember_longsword",
+		provenanceShard = "76",
+		itemDbIndex = 101,
+		kind = "weapon",
+		name = "Ember Longsword",
+		type = "Weapon",
+		icon = "Ember Longsword icon.png",
+		slot = "Primary",
+		weaponType = "OneHandMelee",
+		weaponDelay = 2.5,
+		itemLevel = 12,
+		buyValue = 12500,
+		sellValue = 3125,
+		relic = true,
+		mustBeEquippedToClick = true,
+		description = "A blade wreathed in embers that never cool.",
+		aliases = { "Old Ember Blade" },
+		classes = { "Duelist", "Paladin", "Reaver" },
+		classLinks = {
+			{ kind = "class", stablekey = "class:duelist" },
+			{ kind = "class", stablekey = "class:paladin" },
+			{ kind = "class", stablekey = "class:reaver" },
+		},
+		stats = { { quality = "Standard", weaponDamage = 18, str = 5, dex = 2, mr = 3 } },
+		effects = {
+			{ kind = "clickEffect", spellKey = "spell:ember_proc" },
+			{ kind = "wornEffect", spellKey = "spell:ancient_presence" },
+		},
+		build = { gameBuildId = "fixture", publishedAt = "2026-01-01T00:00:00Z" },
+	},
+}

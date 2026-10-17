@@ -252,14 +252,15 @@ class TestWikiGenerateCommand:
         self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext
     ):
         """Test generation receives the concrete faction and class services."""
-        repositories = tuple(MagicMock(name=f"repo_{index}") for index in range(11))
-        generation = MagicMock(written_paths=[], validation_tools={})
+        repositories = tuple(MagicMock(name=f"repo_{index}") for index in range(12))
+        generation = MagicMock(written_paths=[], validation_tools={}, manifest_paths=())
         create = wiki._create_lua_repositories
         monkeypatch.setattr(
             wiki, "_create_lua_repositories", lambda cli_ctx: create(cli_ctx, repositories=repositories)
         )
         generate = MagicMock(return_value=generation)
         monkeypatch.setattr(wiki, "generate_lua_data_modules", generate)
+        monkeypatch.setattr(wiki, "_load_retired_lifecycle", lambda _ctx: "reviewed lifecycle")
 
         result = runner.invoke(wiki.app, ["generate-lua"], obj=cli_context)
 
@@ -269,6 +270,19 @@ class TestWikiGenerateCommand:
         assert kwargs["class_display"] is repositories[8]
         assert kwargs["build_repo"] is repositories[9]
         assert kwargs["treasure_repo"] is repositories[10]
+        assert kwargs["provenance_repo"] is repositories[11]
+        assert kwargs["lifecycle"] == "reviewed lifecycle"
+
+    def test_article_composition_injects_canonical_provenance_repository(
+        self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext
+    ) -> None:
+        provenance = MagicMock()
+        create_provenance = MagicMock(return_value=provenance)
+        monkeypatch.setattr(wiki, "ItemProvenanceRepository", create_provenance)
+
+        with wiki._create_wiki_composition(cli_context, with_client=False) as composition:
+            assert composition.context.item_provenance_repo is provenance
+            create_provenance.assert_called_once_with(composition.database)
 
     def test_lua_repository_factory_shares_one_read_only_database(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
@@ -307,6 +321,7 @@ class TestWikiGenerateCommand:
             "ClassDisplayNameService",
             "BuildMetadataRepository",
             "TreasureRepository",
+            "ItemProvenanceRepository",
         )
         constructor_connections: list[object] = []
 
@@ -335,18 +350,21 @@ class TestWikiGenerateCommand:
         assert "Dry run" in result.output
         for module in (
             "Items.lua",
+            "Characters.lua",
             "Links.lua",
             "Spells.lua",
             "Skills.lua",
             "Stances.lua",
+            "StanceRelations.lua",
+            "EntityLifecycle.lua",
+            "Quests.lua",
         ):
             assert module in result.output
         wiki_root = cli_context.config.variants["main"].resolved_wiki(cli_context.repo_root)
         assert str(wiki_root / "lua/Erenshor/Data/Items.lua") in result.output
         assert str(wiki_root / "lua/Erenshor/Data/Items") in result.output
         assert str(wiki_root / "lua/Erenshor/Data/Links.lua") in result.output
-        for removed in ("Characters.lua", "Quests.lua", "Zones.lua"):
-            assert removed not in result.output
+        assert "Zones.lua" not in result.output
 
 
 class TestWikiLinkAuditCommand:

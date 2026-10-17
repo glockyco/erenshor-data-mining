@@ -18,45 +18,61 @@ internal static class NavigationDisplay
         && nav.OriginStep?.Order == step.Order;
 
     internal static bool HasGuidance(NavigationController nav) =>
-        nav.Requirements is RequirementResolution requirements
-        && (
-            requirements.Chain.Count > 1
-            || requirements.Advisories.Count > 0
-            || !string.IsNullOrEmpty(requirements.Message)
+        nav.SelectedItemSource != null
+        || (
+            nav.Requirements is RequirementResolution requirements
+            && (
+                requirements.Chain.Count > 1
+                || requirements.Advisories.Count > 0
+                || !string.IsNullOrEmpty(requirements.Message)
+            )
         );
 
     internal static void DrawRequirements(NavigationController nav, string currentScene)
     {
         var requirements = nav.Requirements;
-        if (requirements == null)
+        if (requirements == null && nav.SelectedItemSource == null)
             return;
 
         ImGui.PushID("navigation-requirements");
-        ImGui.Indent();
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-        for (int i = 0; i < requirements.Chain.Count; i++)
-        {
-            var link = requirements.Chain[i];
-            if (link.Atom is { Kind: GateAtomKind.EncounterWon } atom)
-            {
-                ImGui.PushID(i);
-                if (ImGui.SmallButton("[NAV]"))
-                    nav.NavigateToRequirementCharacter(atom.Ref, link.Label, currentScene);
-                ImGui.PopID();
-                ImGui.SameLine();
-            }
-            ImGui.TextWrapped(link.Label);
-            for (int j = 0; j < link.Alternatives.Count; j++)
-            {
-                ImGui.TextUnformatted("Alternative:");
-                ImGui.SameLine();
-                ImGui.TextWrapped(link.Alternatives[j]);
-            }
-        }
-        if (!string.IsNullOrEmpty(requirements.Message))
-            ImGui.TextWrapped(requirements.Message);
+        if (nav.NextActionLabel is string nextAction)
+            Theme.TextWrapped(nextAction);
+        if (nav.SelectedItemSource is { Type: "drop", Instruction: not null } preparedSource)
+            Theme.TextWrapped(preparedSource.Instruction);
+        if (nav.SelectedSourceTiming is string timing)
+            Theme.TextWrapped(timing);
+        if (nav.ImmediateRequirement is string blocker)
+            Theme.TextWrapped(blocker);
+        if (!string.IsNullOrEmpty(requirements?.Message))
+            Theme.TextWrapped(requirements!.Message!);
         ImGui.PopStyleColor();
-        ImGui.Unindent();
+
+        if (ImGui.TreeNode("Why this route?"))
+        {
+            if (nav.SelectedSourceDetails is string details)
+                Theme.TextWrapped(details);
+            for (int i = 0; requirements != null && i < requirements.Chain.Count; i++)
+            {
+                var link = requirements.Chain[i];
+                if (link.Atom is { Kind: GateAtomKind.EncounterWon } atom)
+                {
+                    ImGui.PushID(i);
+                    if (ImGui.SmallButton("[NAV]"))
+                        nav.NavigateToRequirementCharacter(atom.Ref, link.Label, currentScene);
+                    ImGui.PopID();
+                    ImGui.SameLine();
+                }
+                Theme.TextWrapped(link.Label);
+                for (int j = 0; j < link.Alternatives.Count; j++)
+                {
+                    ImGui.TextUnformatted("Alternative");
+                    ImGui.SameLine();
+                    Theme.TextWrapped(link.Alternatives[j]);
+                }
+            }
+            ImGui.TreePop();
+        }
         ImGui.PopID();
     }
 

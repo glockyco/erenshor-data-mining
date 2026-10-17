@@ -149,7 +149,8 @@ public sealed class RequirementResolver
         QuestEntry quest,
         QuestStep step,
         string scene,
-        ZoneLineEntry? pinnedLine = null
+        ZoneLineEntry? pinnedLine = null,
+        ItemSource? selectedSource = null
     )
     {
         var chain = new List<RequirementLink>();
@@ -166,7 +167,13 @@ public sealed class RequirementResolver
             Candidate? best = null;
             bool gatedAlternative = false;
             List<Candidate>? available = step.TargetType == "item" ? new List<Candidate>() : null;
-            foreach (var candidate in Candidates(quest, step, routes))
+            var sourceChoice = SourceNavigationSelection.Contains(
+                ItemSourcePolicy.SourcesFor(quest, step),
+                selectedSource
+            )
+                ? selectedSource
+                : null;
+            foreach (var candidate in Candidates(quest, step, routes, sourceChoice))
             {
                 Evaluate(candidate, quest, routes, requirement ? null : pinnedLine);
                 if (
@@ -285,9 +292,32 @@ public sealed class RequirementResolver
                 requirement = true;
                 continue;
             }
+            if (best.Input != null && available != null)
+                for (int i = available.Count - 1; i >= 0; i--)
+                    if (!ReferenceEquals(available[i].Input, best.Input))
+                        available.RemoveAt(i);
+            if (best.Input != null)
+            {
+                if (!requirement)
+                    chain.Insert(
+                        0,
+                        new RequirementLink(
+                            step.TargetName ?? step.Description,
+                            Array.Empty<string>()
+                        )
+                    );
+                step = IngredientStep(step, best.Input, best.InputQuantity);
+                requirement = true;
+            }
             bool constrainSource =
                 best.Source != null
-                && (requirement || best.HadGatedAlternative || gatedAlternative);
+                && (
+                    sourceChoice != null
+                    || requirement
+                    || best.HadGatedAlternative
+                    || best.Source.AcquisitionKey != null
+                    || gatedAlternative
+                );
             List<AdventureGuide.Data.SpawnPoint>? availableSpawns = null;
             if (constrainSource)
             {
@@ -345,9 +375,9 @@ public sealed class RequirementResolver
 
     private sealed class Choice
     {
-        public int Condition = -1;
         public List<GateAtom>? Group;
         public GateAtom? First;
+        public IReadOnlyList<List<GateAtom>>? Groups;
         public int Missing;
         public int Cost = int.MaxValue;
         public string? Failure;
@@ -362,6 +392,9 @@ public sealed class RequirementResolver
         public QuestEntry? RewardQuest;
         public readonly List<int> Conditions = new();
         public readonly List<GateAtom> Advisories = new();
+        public readonly List<ItemSource> SourceChain = new();
+        public ItemSource? Input;
+        public double InputQuantity;
         public Choice? Missing;
         public string? Failure;
         public int Hops;
@@ -371,7 +404,8 @@ public sealed class RequirementResolver
     private IEnumerable<Candidate> Candidates(
         QuestEntry quest,
         QuestStep step,
-        ZoneGraph.RouteLookup routes
+        ZoneGraph.RouteLookup routes,
+        ItemSource? selectedSource
     )
     {
         if (step.Location != null)
@@ -383,7 +417,7 @@ public sealed class RequirementResolver
         {
             var sources = ItemSourcePolicy.SourcesFor(quest, step);
             if (sources != null)
-                foreach (var candidate in SourceCandidates(sources, routes))
+                foreach (var candidate in SourceCandidates(sources, routes, selectedSource))
                     yield return candidate;
             yield break;
         }
@@ -427,7 +461,8 @@ public sealed class RequirementResolver
 
     private IEnumerable<Candidate> SourceCandidates(
         List<ItemSource> sources,
-        ZoneGraph.RouteLookup routes
+        ZoneGraph.RouteLookup routes,
+        ItemSource? selectedSource = null
     )
     {
         bool gated = sources.Exists(source =>
@@ -435,7 +470,13 @@ public sealed class RequirementResolver
         );
         foreach (var source in sources)
         {
-            if (!ItemSourcePolicy.NeedsUsedItem(source, _gates.Facts.ItemCount))
+            if (
+                selectedSource != null
+                && !ReferenceEquals(source, selectedSource)
+                && !SourceNavigationSelection.Contains(source.Children, selectedSource)
+            )
+                continue;
+            if (!ItemSourcePolicy.NeedsUsedItem(source, _gates.Facts.ItemCount, sources))
                 continue;
             if (source.Type == "quest_reward" && source.QuestKey != null)
             {
@@ -451,6 +492,7 @@ public sealed class RequirementResolver
                         Source = source,
                         RewardQuest = quest,
                         HadGatedAlternative = gated,
+                        SourceChain = { source },
                     };
                     if (source.Condition.HasValue)
                         candidate.Conditions.Add(source.Condition.Value);
@@ -458,19 +500,60 @@ public sealed class RequirementResolver
                 }
                 continue;
             }
-            if (source.Children is { Count: > 0 })
+            if (
+                source.Children is { Count: > 0 }
+                && ItemSourcePolicy.HasPendingChildren(source, _gates.Facts.ItemCount)
+            )
             {
-                foreach (var candidate in SourceCandidates(source.Children, routes))
+                foreach (
+                    var candidate in SourceCandidates(
+                        source.Children,
+                        routes,
+                        ReferenceEquals(source, selectedSource) ? null : selectedSource
+                    )
+                )
                 {
                     if (source.Condition.HasValue)
                         candidate.Conditions.Insert(0, source.Condition.Value);
                     candidate.HadGatedAlternative |= gated;
+                    candidate.SourceChain.Insert(0, source);
+                    if (source.Type == "ingredient")
+                    {
+                        candidate.Input = source;
+                        candidate.InputQuantity = ItemSourcePolicy.RequiredInputQuantity(
+                            source,
+                            sources
+                        );
+                    }
                     yield return candidate;
                 }
                 continue;
             }
             if (!ItemSourcePolicy.IsStaticCandidate(source))
                 continue;
+            if (source.AcquisitionKey != null)
+            {
+                var location = source.CanonicalLocation;
+                if (location?.Scene != null && location.Relation != "unlocated")
+                {
+                    var spawn = source.CanonicalSpawn;
+                    var candidate = new Candidate
+                    {
+                        Scene = location.Scene,
+                        Source = source,
+                        Spawn = spawn,
+                        SourceChain = { source },
+                        HadGatedAlternative = gated,
+                    };
+                    if (source.Condition.HasValue)
+                        candidate.Conditions.Add(source.Condition.Value);
+                    if (spawn?.Condition is int condition)
+                        candidate.Conditions.Add(condition);
+                    yield return candidate;
+                }
+                continue;
+            }
+
             if (
                 source.SourceKey != null
                 && _data.CharacterSpawns.TryGetValue(source.SourceKey, out var spawns)
@@ -488,6 +571,7 @@ public sealed class RequirementResolver
                         Spawn = spawn,
                         Placement = placement,
                         HadGatedAlternative = gated,
+                        SourceChain = { source },
                     };
                     if (source.Condition.HasValue)
                         candidate.Conditions.Add(source.Condition.Value);
@@ -508,6 +592,7 @@ public sealed class RequirementResolver
                     Scene = sourceScene,
                     Source = source,
                     HadGatedAlternative = gated,
+                    SourceChain = { source },
                 };
                 if (source.Condition.HasValue)
                     candidate.Conditions.Add(source.Condition.Value);
@@ -518,6 +603,8 @@ public sealed class RequirementResolver
 
     private bool HasEntryPlacement(ItemSource source)
     {
+        if (source.AcquisitionKey != null)
+            return source.CanonicalSpawn?.Entries != null;
         if (
             source.SourceKey != null
             && _data.CharacterSpawns.TryGetValue(source.SourceKey, out var spawns)
@@ -535,6 +622,12 @@ public sealed class RequirementResolver
     )
     {
         string scene = routes.Scene;
+        foreach (var source in candidate.SourceChain)
+        {
+            candidate.Failure ??= _gates.CanonicalSourceFailure(source);
+            foreach (var groups in _gates.SourceRequirements(source))
+                Apply(candidate, SelectGroups(groups, owner, routes));
+        }
         if (candidate.Spawn != null)
             candidate.Placement ??= routes.GetPlacementRoute(candidate.Spawn);
         if (candidate.Spawn != null && candidate.Placement == null)
@@ -546,6 +639,7 @@ public sealed class RequirementResolver
             candidate.Spawn?.Entries == null
             && pinnedLine?.Condition is int pinnedCondition
             && string.Equals(scene, pinnedLine.Scene, StringComparison.OrdinalIgnoreCase)
+            && _graph.ResolveDestination(pinnedLine).HasValue
             && !string.Equals(scene, candidate.Scene, StringComparison.OrdinalIgnoreCase)
         )
             Apply(candidate, Select(pinnedCondition, owner, routes));
@@ -605,27 +699,37 @@ public sealed class RequirementResolver
                 candidate.Failure = choice.Failure;
             }
         }
-        if (choice.Condition < 0 || choice.Condition >= _data.Conditions.Count)
+        if (choice.Groups == null)
             return;
-        foreach (var group in _data.Conditions[choice.Condition])
+        foreach (var group in choice.Groups)
         foreach (var atom in group)
             if (atom.Kind == GateAtomKind.EncounterWon)
                 candidate.Advisories.Add(atom);
     }
 
-    private Choice Select(int condition, QuestEntry owner, ZoneGraph.RouteLookup routes)
+    private Choice Select(int condition, QuestEntry owner, ZoneGraph.RouteLookup routes) =>
+        SelectGroups(_data.Conditions[condition], owner, routes);
+
+    private Choice SelectGroups(
+        IReadOnlyList<List<GateAtom>> groups,
+        QuestEntry owner,
+        ZoneGraph.RouteLookup routes
+    )
     {
         Choice? best = null;
-        foreach (var group in _data.Conditions[condition])
+        foreach (var group in groups)
         {
-            var choice = new Choice { Condition = condition, Group = group };
+            var choice = new Choice { Groups = groups, Group = group };
             foreach (var atom in group)
             {
                 if (_gates.Holds(atom))
                     continue;
                 choice.Missing++;
                 choice.First ??= atom;
-                if (atom.Kind == GateAtomKind.QuestNotDone)
+                if (
+                    atom.Kind == GateAtomKind.QuestNotDone
+                    || atom.Kind == GateAtomKind.AccountState && atom.Value == "false"
+                )
                     choice.Failure = "This target is no longer available.";
             }
             if (choice.First != null && choice.Failure == null)
@@ -640,7 +744,7 @@ public sealed class RequirementResolver
         return best
             ?? new Choice
             {
-                Condition = condition,
+                Groups = groups,
                 Failure = "This target has no available condition group.",
             };
     }
@@ -676,7 +780,7 @@ public sealed class RequirementResolver
             return int.MaxValue;
         int best = int.MaxValue;
         bool hasCandidate = false;
-        foreach (var candidate in Candidates(quest, step, routes))
+        foreach (var candidate in Candidates(quest, step, routes, null))
         {
             hasCandidate = true;
             // A reward's current step can name another reward. Follow it only
@@ -778,8 +882,11 @@ public sealed class RequirementResolver
             return true;
         }
         if (
-            atom.Kind is GateAtomKind.ItemHeld or GateAtomKind.KeyHeld
-            && _data.GateItems.TryGetValue(atom.Ref, out var item)
+            (
+                atom.Kind is GateAtomKind.ItemHeld or GateAtomKind.KeyHeld
+                || atom.Kind == GateAtomKind.PlanningSlotItem
+                    && _gates.Facts.ItemCount(atom.Ref) <= 0
+            ) && _data.GateItems.TryGetValue(atom.Ref, out var item)
         )
         {
             step = new QuestStep
@@ -793,7 +900,7 @@ public sealed class RequirementResolver
             };
             return true;
         }
-        if (atom.Kind == GateAtomKind.RoomFurnished)
+        if (atom.Kind is GateAtomKind.RoomFurnished or GateAtomKind.PlanningSlotItem)
         {
             foreach (var entry in _data.All)
             {
@@ -801,14 +908,14 @@ public sealed class RequirementResolver
                     foreach (var required in entry.RequiredItems)
                         if (FindPlanningTable(required.Sources) is { } source)
                         {
-                            step = PlanningStep(source);
+                            step = PlanningStep(source, atom);
                             return true;
                         }
                 if (entry.Steps != null)
                     foreach (var entryStep in entry.Steps)
                         if (FindPlanningTable(entryStep.Sources) is { } source)
                         {
-                            step = PlanningStep(source);
+                            step = PlanningStep(source, atom);
                             return true;
                         }
             }
@@ -833,7 +940,7 @@ public sealed class RequirementResolver
         return null;
     }
 
-    private static QuestStep PlanningStep(ItemSource source)
+    private static QuestStep PlanningStep(ItemSource source, GateAtom atom)
     {
         PositionedSource.TryParse(source.SourceKey, out var position);
         return new QuestStep
@@ -842,7 +949,13 @@ public sealed class RequirementResolver
             TargetType = "location",
             TargetKey = source.SourceKey,
             TargetName = source.Name,
-            Description = "Furnish the Reliquary room at the planning table.",
+            Description =
+                atom.Kind == GateAtomKind.PlanningSlotItem
+                    ? atom.Instruction
+                        ?? throw new InvalidOperationException(
+                            "Planning slot atom has no instruction"
+                        )
+                    : "Furnish the Reliquary room at the planning table.",
             Location = new WorkflowLocation
             {
                 StableKey = source.SourceKey!,
@@ -854,6 +967,23 @@ public sealed class RequirementResolver
             },
         };
     }
+
+    private static QuestStep IngredientStep(
+        QuestStep original,
+        ItemSource input,
+        double quantity
+    ) =>
+        new()
+        {
+            Order = original.Order,
+            Action = "obtain",
+            Description = "Obtain " + input.Name + ".",
+            TargetName = input.Name,
+            TargetType = "item",
+            TargetKey = input.ItemStableKey,
+            Quantity = (int)Math.Ceiling(quantity),
+            Sources = input.Children,
+        };
 
     private static QuestStep SourceStep(QuestStep original, List<ItemSource> sources) =>
         new()
@@ -885,7 +1015,7 @@ public sealed class RequirementResolver
     private IReadOnlyList<string> Alternatives(Choice choice)
     {
         var alternatives = new List<string>();
-        foreach (var group in _data.Conditions[choice.Condition])
+        foreach (var group in choice.Groups!)
         {
             if (ReferenceEquals(group, choice.Group))
                 continue;

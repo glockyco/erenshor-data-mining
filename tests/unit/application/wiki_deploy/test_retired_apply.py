@@ -5,11 +5,11 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from erenshor.application.wiki.lifecycle import ContentLifecycle, LifecyclePage, LifecycleRename, LifecycleSplit
 from erenshor.application.wiki_deploy.manifest import read_repo_page_manifest
 from erenshor.application.wiki_deploy.retired_apply import apply_retired_edits, plan_retired_edits
 from erenshor.application.wiki_deploy.retired_pages import RetiredPage, RetiredPageReport
 from erenshor.application.wiki_deploy.rollback import rollback_repo_pages
+from erenshor.infrastructure.content_lifecycle import ContentLifecycle, LifecyclePage, LifecycleRename, LifecycleSplit
 from erenshor.infrastructure.wiki import MediaWikiEditConflictError, MediaWikiPageRevision, MediaWikiPageSnapshot
 
 

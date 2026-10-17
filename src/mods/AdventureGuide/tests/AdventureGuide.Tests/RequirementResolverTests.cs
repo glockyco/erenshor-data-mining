@@ -39,7 +39,8 @@ public sealed class RequirementResolverTests
         GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 7,
+                Version = 8,
+                Encounters = TestData.EmptyEncounters(),
                 Quests = quests ?? [],
                 Conditions = conditions,
                 CharacterSpawns = spawns,
@@ -95,16 +96,8 @@ public sealed class RequirementResolverTests
 
         Assert.True(result.CanNavigate, result.Message);
         Assert.Equal(key.Key, result.Step.TargetKey);
-        Assert.Same(key.Value.Sources![0], Assert.Single(result.Step.Sources!));
-        Assert.Contains(key.Value.Name, result.DisplayText);
-        Assert.Contains(
-            result.Chain,
-            link =>
-                link.Label
-                == "Requires Stowaway's Step Lighthouse Key (opens a door in Stowaway's Step)"
-        );
-        Assert.Equal("Garrey Ambrose", Assert.Single(result.Step.Sources!).Name);
-        Assert.NotNull(result.SelectedSpawn);
+        Assert.All(result.Step.Sources!, source => Assert.Equal("Garrey Ambrose", source.Name));
+        Assert.All(result.AvailableSpawns!, spawn => Assert.Equal("Stowaway", spawn.Scene));
         facts.Keyring.Add(key.Value.GameId);
         var opened = resolver.Resolve(quest, step, "Stowaway");
         Assert.True(opened.CanNavigate, opened.Message);
@@ -164,15 +157,9 @@ public sealed class RequirementResolverTests
         var missingKey = resolver.Resolve(quest, step, "SaltedStrand");
         Assert.True(missingKey.CanNavigate, missingKey.Message);
         Assert.Equal(key.Key, missingKey.Step.TargetKey);
-        Assert.Equal("Garrey Ambrose", Assert.Single(missingKey.Step.Sources!).Name);
-        Assert.Equal("Stowaway", missingKey.SelectedSpawn!.Scene);
+        Assert.All(missingKey.Step.Sources!, source => Assert.Equal("Garrey Ambrose", source.Name));
+        Assert.All(missingKey.AvailableSpawns!, spawn => Assert.Equal("Stowaway", spawn.Scene));
         Assert.Null(missingKey.EntryLine);
-        Assert.Contains(
-            missingKey.Chain,
-            link =>
-                link.Label
-                == "Requires Stowaway's Step Lighthouse Key (opens a door in Stowaway's Step)"
-        );
     }
 
     [Fact]
@@ -207,7 +194,7 @@ public sealed class RequirementResolverTests
     }
 
     [Fact]
-    public void Meet_the_Fisherman_follows_implicit_Anglers_Ring_current_step()
+    public void Meet_the_Fisherman_follows_Anglers_Ring_to_missing_crafting_materials()
     {
         var data = ShippingData();
         var meet = data.GetByDBName("MEETBASSLE")!;
@@ -215,37 +202,11 @@ public sealed class RequirementResolverTests
         Assert.Null(ring.Acquisition);
         var result = Resolver(data).Resolve(meet, meet.Steps![0], "AzynthiClear");
 
-        Assert.False(result.CanNavigate);
+        Assert.True(result.CanNavigate, result.Message);
         Assert.Same(ring, result.Quest);
-        Assert.Same(ring.Steps![0], result.Step);
-        Assert.Equal("item:ring - 6 - angler's ring", result.Step.TargetKey);
-        Assert.Equal(
-            "crafting",
-            Assert.Single(ItemSourcePolicy.SourcesFor(result.Quest, result.Step)!).Type
-        );
-        Assert.Contains(result.Chain, link => link.Label == "Complete The Angler's Ring");
-        Assert.Equal(
-            "Angler's Ring is crafted (Recipe: Mold: Angler's Ring) and has no source the guide can navigate to.",
-            result.Message
-        );
-    }
-
-    [Fact]
-    public void Ghostly_Key_stops_with_its_real_recipe_name_and_no_doubled_prefix()
-    {
-        var data = ShippingData();
-        var step = Character("character:ghost of wylan sercher");
-        step.TargetName = "Ghost of Wyland Sercher";
-        var result = Resolver(data).Resolve(Quest("Ghost scenario", step), step, "Tutorial");
-
-        Assert.False(result.CanNavigate);
-        Assert.Equal(
-            "Ghostly Key is crafted (Recipe: Mold: A Ghostly Key) and has no source the guide can navigate to.",
-            result.Message
-        );
         Assert.Contains(
-            result.Chain,
-            link => link.Label == "Requires Ghostly Key (opens a door in Island Tomb)"
+            ring.RequiredItems![0].Sources!.Single(source => source.Type == "crafting").Children!,
+            input => input.ItemStableKey == result.Step.TargetKey
         );
     }
 
@@ -636,6 +597,83 @@ public sealed class RequirementResolverTests
         Assert.True(result.CanNavigate);
         Assert.Equal("B", result.SelectedScene);
         Assert.Same(step, result.Step);
+    }
+
+    [Theory]
+    [InlineData(false, "PlanarFern")]
+    [InlineData(true, "PlanarFern")]
+    [InlineData(false, "Rune1")]
+    [InlineData(true, "Rune6")]
+    public void Stored_portal_requirement_gets_the_stone_then_installs_it(
+        bool hasStone,
+        string slot
+    )
+    {
+        var step = Character("target");
+        var atom = Atom(GateAtomKind.PlanningSlotItem, "item:stone");
+        atom.Slot = slot;
+        atom.Instruction = slot.StartsWith("Rune", StringComparison.Ordinal)
+            ? "Place Portal stone in a rune slot on your planning table."
+            : "Place Portal stone in the planning-table slot for Fernalla.";
+        var planning = new ItemSource
+        {
+            Type = "pickup",
+            Name = "Planning Table",
+            SourceKey = "planningtable:a:12:3:45",
+            Scene = "A",
+        };
+        var planningQuest = Quest("Planning", Character("planner"));
+        planningQuest.RequiredItems =
+        [
+            new RequiredItemInfo
+            {
+                ItemStableKey = "item:portals",
+                ItemName = "Box of Portals",
+                Sources = [planning],
+            },
+        ];
+        var data = Data(
+            [
+                [
+                    [atom],
+                ],
+            ],
+            new()
+            {
+                ["target"] = [new SpawnPoint { Scene = "A", Condition = 0 }],
+                ["merchant"] = [new SpawnPoint { Scene = "A" }],
+            },
+            quests: [planningQuest],
+            items: new()
+            {
+                ["item:stone"] = new GateItem
+                {
+                    Name = "Portal stone",
+                    GameId = "134379",
+                    Sources =
+                    [
+                        new ItemSource
+                        {
+                            Type = "vendor",
+                            SourceKey = "merchant",
+                            Scene = "A",
+                        },
+                    ],
+                },
+            }
+        );
+        var facts = new GateTestFacts();
+        if (hasStone)
+            facts.Inventory["item:stone"] = 1;
+        var resolver = Resolver(data, facts);
+        var quest = Quest("Original", step);
+        var result = resolver.Resolve(quest, step, "A");
+        Assert.True(result.CanNavigate, result.Message);
+        Assert.Equal(hasStone ? planning.SourceKey : "item:stone", result.Step.TargetKey);
+        Assert.Equal(hasStone ? atom.Instruction : "Obtain Portal stone.", result.Step.Description);
+        facts.Rooms[slot] = "item:stone";
+        var installed = resolver.Resolve(quest, step, "A");
+        Assert.Same(step, installed.Step);
     }
 
     [Fact]

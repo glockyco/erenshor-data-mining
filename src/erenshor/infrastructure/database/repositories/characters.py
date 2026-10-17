@@ -1,13 +1,16 @@
 """Character repository for specialized character queries."""
 
+import json
+
 from loguru import logger
 
+from erenshor.application.processor.npc_spawn import SpawnConstants, load_spawn_constants
 from erenshor.domain.entities.character import Character
 from erenshor.domain.value_objects.faction import FactionModifier
 from erenshor.domain.value_objects.loot import LootDropDisplayInfo
-from erenshor.domain.value_objects.source_info import ObtainedFromInfo
 from erenshor.domain.value_objects.vendor_stock import VendorStockEntry
-from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink, QuestLink
+from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink
+from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
 
@@ -16,6 +19,305 @@ class CharacterRepository(BaseRepository[Character]):
 
     All queries target the clean snake_case database written by ``extract build``.
     """
+
+    def get_character_data_catalog(self) -> dict[str, dict[str, object]]:
+        """Read canonical labels, including identities without a public article."""
+        tables = ("characters", "items", "spells", "skills", "quests", "factions", "zones")
+        query = (
+            " UNION ALL ".join(
+                f"SELECT stable_key, display_name AS name, wiki_page_name AS page FROM {table}" for table in tables
+            )
+            + " ORDER BY stable_key"
+        )
+        return {
+            str(row["stable_key"]): {"name": row["name"], "page": row["page"]} for row in self._execute_raw(query, ())
+        }
+
+    def get_character_data_classes(self) -> list[dict[str, object]]:
+        """Read resource identity and class metadata without fabricating article targets."""
+        return [
+            dict(row)
+            for row in self._execute_raw(
+                "SELECT resource_name, class_name, display_name, mitigation_bonus FROM classes ORDER BY resource_name",
+                (),
+            )
+        ]
+
+    def get_character_data_spawn_constants(self) -> SpawnConstants:
+        """Read the constants through the existing initialization owner."""
+        with self.db.connect() as connection:
+            return load_spawn_constants(connection)
+
+    def get_character_data_summoners(self) -> list[dict[str, object]]:
+        """Read every actual summon edge, including abilities without wiki pages."""
+        return [
+            dict(row)
+            for row in self._execute_raw(
+                """
+                SELECT pet_to_summon_stable_key AS character_stable_key,
+                       stable_key AS ability_key, display_name AS name, wiki_page_name AS page
+                FROM spells
+                WHERE pet_to_summon_stable_key IS NOT NULL
+                ORDER BY pet_to_summon_stable_key, stable_key
+                """,
+                (),
+            )
+        ]
+
+    def get_character_data_members(self, stable_key: str) -> list[Character]:
+        """Read every eligible fact source without promoting representative facts."""
+        rows = self._execute_raw(
+            """
+            SELECT c.*, f.display_name AS my_world_faction_display_name,
+                   f.wiki_page_name AS my_world_faction_wiki_page_name
+            FROM character_fact_sources s
+            JOIN characters c ON c.stable_key = s.member_stable_key
+            LEFT JOIN factions f ON f.stable_key = c.my_world_faction_stable_key
+            WHERE s.group_key = (
+                SELECT group_key FROM character_deduplications
+                WHERE member_stable_key = ?
+            )
+            ORDER BY c.stable_key
+            """,
+            (stable_key,),
+        )
+        members = [Character.model_validate(dict(row)) for row in rows]
+        modifiers = self._get_faction_modifiers_for_characters([member.stable_key for member in members])
+        for member in members:
+            member.faction_modifiers = modifiers.get(member.stable_key, [])
+        return members
+
+    def get_character_data_abilities(self, stable_key: str) -> list[dict[str, object]]:
+        """Return actual ability usages with the copy that supplies each relation."""
+        rows = self._execute_raw(
+            """
+            WITH members AS (
+                SELECT member_stable_key FROM character_fact_sources
+                WHERE group_key = (
+                    SELECT group_key FROM character_deduplications WHERE member_stable_key = ?
+                )
+            ), usages AS (
+                SELECT character_stable_key, skill_stable_key AS ability_key,
+                       'attack_skill' AS usage FROM character_attack_skills
+                UNION ALL SELECT character_stable_key, spell_stable_key, 'attack' FROM character_attack_spells
+                UNION ALL SELECT character_stable_key, spell_stable_key, 'buff' FROM character_buff_spells
+                UNION ALL SELECT character_stable_key, spell_stable_key, 'heal' FROM character_heal_spells
+                UNION ALL SELECT character_stable_key, spell_stable_key, 'group_heal' FROM character_group_heal_spells
+                UNION ALL SELECT character_stable_key, spell_stable_key, 'cc' FROM character_cc_spells
+                UNION ALL SELECT character_stable_key, spell_stable_key, 'taunt' FROM character_taunt_spells
+                UNION ALL SELECT stable_key, pet_spell_stable_key, 'pet' FROM characters
+                UNION ALL SELECT stable_key, spawn_with_status_stable_key, 'spawn_status' FROM characters
+                UNION ALL SELECT stable_key, group_hot_spell_stable_key, 'group_hot' FROM characters
+                UNION ALL SELECT stable_key, emit_vitae_spell_stable_key, 'emit_vitae' FROM characters
+                UNION ALL SELECT stable_key, hot_spell_stable_key, 'hot' FROM characters
+                UNION ALL SELECT stable_key, ae_taunt_spell_stable_key, 'ae_taunt' FROM characters
+                UNION ALL SELECT stable_key, proc_on_hit_stable_key, 'proc_on_hit' FROM characters
+            )
+            SELECT DISTINCT u.character_stable_key, u.ability_key, u.usage,
+                   COALESCE(s.display_name, k.display_name) AS name,
+                   COALESCE(s.wiki_page_name, k.wiki_page_name) AS page,
+                   CASE WHEN u.usage = 'proc_on_hit' THEN owner.proc_on_hit_chance END AS chance
+            FROM usages u
+            JOIN members m ON m.member_stable_key = u.character_stable_key
+            JOIN characters owner ON owner.stable_key = u.character_stable_key
+            LEFT JOIN spells s ON s.stable_key = u.ability_key
+            LEFT JOIN skills k ON k.stable_key = u.ability_key
+            WHERE u.ability_key IS NOT NULL AND u.ability_key != ''
+            ORDER BY u.ability_key, u.usage, u.character_stable_key
+            """,
+            (stable_key,),
+        )
+        return [dict(row) for row in rows]
+
+    def get_character_placements(self) -> list[dict[str, object]]:
+        """Read the shared full copy-keyed placement boundary without combat filtering."""
+        rows = self._execute_raw(
+            """
+            WITH reps AS (
+                SELECT group_key, MIN(member_stable_key) AS stable_key
+                FROM character_deduplications
+                WHERE is_wiki_generated = 1 GROUP BY group_key
+            ), page_reps AS (
+                SELECT c.wiki_page_name, c.encounter_tier, MIN(r.stable_key) AS stable_key
+                FROM reps r JOIN characters c ON c.stable_key = r.stable_key
+                GROUP BY c.wiki_page_name, c.encounter_tier
+            )
+            SELECT cs.*, d.group_key,
+                   c.stable_key AS source_member_stable_key,
+                   r.stable_key AS representative_stable_key,
+                   p.stable_key AS page_character_stable_key,
+                   d.is_wiki_generated AS member_is_wiki_generated,
+                   d.is_map_visible AS member_is_map_visible,
+                   c.display_name AS character_display_name,
+                   c.wiki_page_name AS character_wiki_page_name,
+                   c.encounter_tier, c.level, c.group_encounter,
+                   c.level_scales_with_player, c.can_be_damaged, c.dps_dummy,
+                   c.invulnerable AS initial_invulnerable,
+                   z.display_name AS zone_display_name,
+                   z.wiki_page_name AS zone_wiki_page_name,
+                   z.is_map_visible AS zone_is_map_visible,
+                   pr.stable_key AS protector_representative_stable_key,
+                   (SELECT json_group_array(sq.quest_stable_key)
+                    FROM spawn_point_stop_quests sq
+                    WHERE sq.spawn_point_stable_key = cs.spawn_point_stable_key) AS stop_quests,
+                   (SELECT json_group_array(json_object(
+                        'mechanism', dr.mechanism,
+                        'source_stable_key', dr.source_stable_key,
+                        'condition_kind', dr.condition_kind,
+                        'condition_stable_key', dr.condition_stable_key,
+                        'quest_stable_key', CASE WHEN dr.condition_kind = 'quest_variant' THEN
+                            (SELECT qv.quest_stable_key FROM quest_variants qv
+                             WHERE qv.resource_name = dr.condition_stable_key) END,
+                        'can_release', dr.can_release,
+                        'controller_enabled', dr.controller_enabled))
+                    FROM character_damage_releases dr
+                    WHERE dr.character_stable_key = c.stable_key) AS damage_releases,
+                   (SELECT json_group_array(json_object(
+                        'subject_kind', gc.subject_kind,
+                        'subject_stable_key', gc.subject_stable_key,
+                        'gate', gc.gate, 'group_index', gc.group_index,
+                        'atom_kind', gc.atom_kind, 'atom_stable_key', gc.atom_stable_key,
+                        'atom_slot', gc.atom_slot))
+                    FROM gate_conditions gc
+                    WHERE (gc.subject_kind = 'character' AND gc.subject_stable_key = c.stable_key)
+                       OR (gc.subject_kind = 'spawn_point' AND gc.subject_stable_key = cs.spawn_point_stable_key)
+                   ) AS gates,
+                   (SELECT json_group_array(te.zone_line_stable_key)
+                    FROM target_entries te
+                    WHERE (te.target_kind = 'character' AND te.target_stable_key = c.stable_key)
+                       OR (te.target_kind = 'spawn_point' AND te.target_stable_key = cs.spawn_point_stable_key)
+                   ) AS entry_zone_line_keys,
+                   (SELECT json_group_array(json_object(
+                        'key', zl.stable_key, 'source_zone_key', ez.stable_key,
+                        'source_zone_name', ez.display_name, 'source_zone_page', ez.wiki_page_name,
+                        'x', zl.x, 'y', zl.y, 'z', zl.z,
+                        'destination_zone_key', zl.destination_zone_stable_key))
+                    FROM target_entries te
+                    JOIN zone_lines zl ON zl.stable_key = te.zone_line_stable_key
+                    LEFT JOIN zones ez ON ez.scene_name = zl.scene
+                    WHERE (te.target_kind = 'character' AND te.target_stable_key = c.stable_key)
+                       OR (te.target_kind = 'spawn_point' AND te.target_stable_key = cs.spawn_point_stable_key)
+                   ) AS entries
+            FROM character_fact_sources fs
+            JOIN character_deduplications d ON d.group_key = fs.group_key
+                                           AND d.member_stable_key = fs.member_stable_key
+            JOIN reps r ON r.group_key = d.group_key
+            JOIN characters c ON c.stable_key = fs.member_stable_key
+            LEFT JOIN wiki_character_spawns cs ON cs.character_stable_key = c.stable_key
+            LEFT JOIN page_reps p ON p.wiki_page_name = c.wiki_page_name
+                           AND p.encounter_tier = c.encounter_tier
+            LEFT JOIN zones z ON z.stable_key = cs.zone_stable_key
+            LEFT JOIN character_deduplications pd ON pd.member_stable_key = cs.protector_stable_key
+            LEFT JOIN reps pr ON pr.group_key = pd.group_key
+            ORDER BY r.stable_key, cs.character_stable_key,
+                     cs.spawn_point_stable_key, cs.is_directly_placed
+            """,
+            (),
+        )
+        result = [dict(row) for row in rows]
+        for row in result:
+            for field in ("stop_quests", "damage_releases", "gates", "entry_zone_line_keys", "entries"):
+                row[field] = sorted(json.loads(str(row[field])), key=lambda value: json.dumps(value, sort_keys=True))
+            row["placement_kind"] = "placement" if row["character_stable_key"] is not None else "unplaced"
+            row["character_stable_key"] = row.pop("source_member_stable_key")
+        treasure_rows = self._execute_raw(
+            """
+            WITH reps AS (
+                SELECT group_key, MIN(member_stable_key) AS stable_key
+                FROM character_deduplications WHERE is_wiki_generated = 1 GROUP BY group_key
+            ), subjects AS (
+                SELECT DISTINCT ts.chest_character_stable_key AS character_stable_key,
+                       ts.chest_character_stable_key, 'chest' AS treasure_role
+                FROM treasure_chest_possible_spawns ts
+                UNION
+                SELECT chain.child_stable_key, chain.parent_stable_key, 'guardian'
+                FROM character_chained_spawns chain
+                WHERE chain.source_script = 'TreasureChestEvent'
+            )
+            SELECT ts.*, subject.character_stable_key, subject.treasure_role,
+                   d.group_key, r.stable_key AS representative_stable_key,
+                   d.is_wiki_generated AS member_is_wiki_generated,
+                   d.is_map_visible AS member_is_map_visible,
+                   c.display_name AS character_display_name,
+                   c.wiki_page_name AS character_wiki_page_name,
+                   c.encounter_tier, c.level, c.group_encounter, c.level_scales_with_player,
+                   c.can_be_damaged, c.dps_dummy, c.invulnerable AS initial_invulnerable,
+                   z.stable_key AS zone_stable_key, z.display_name AS zone_display_name,
+                   z.wiki_page_name AS zone_wiki_page_name,
+                   z.is_map_visible AS zone_is_map_visible
+            FROM subjects subject
+            JOIN treasure_chest_possible_spawns ts
+              ON ts.chest_character_stable_key = subject.chest_character_stable_key
+            JOIN character_deduplications d ON d.member_stable_key = subject.character_stable_key
+            JOIN character_fact_sources fs ON fs.group_key = d.group_key
+                                         AND fs.member_stable_key = subject.character_stable_key
+            JOIN reps r ON r.group_key = d.group_key
+            JOIN characters c ON c.stable_key = subject.character_stable_key
+            LEFT JOIN zones z ON z.scene_name = ts.scene
+            ORDER BY r.stable_key, subject.character_stable_key, ts.treasure_location_stable_key
+            """,
+            (),
+        )
+        for source in treasure_rows:
+            row = dict(source)
+            row.update(
+                placement_kind="possible_treasure",
+                is_directly_placed=0,
+                is_map_visible=0,
+                level_mod=0,
+                spawn_point_stable_key=None,
+                stop_quests=[],
+                damage_releases=[],
+                gates=[],
+                entry_zone_line_keys=[],
+                entries=[],
+            )
+            result.append(row)
+        return result
+
+    def get_zone_roster_spawns(self) -> list[dict[str, object]]:
+        """Return wiki-visible spawn copies with their conditions and canonical character keys."""
+        query = """
+            WITH reps AS (
+                SELECT group_key, MIN(member_stable_key) AS stable_key
+                FROM character_deduplications WHERE is_wiki_generated = 1 GROUP BY group_key
+            ), page_reps AS (
+                SELECT c.wiki_page_name, c.encounter_tier, MIN(r.stable_key) AS stable_key
+                FROM reps r JOIN characters c ON c.stable_key = r.stable_key
+                GROUP BY c.wiki_page_name, c.encounter_tier
+            )
+            SELECT cs.zone_stable_key AS zone, page_rep.stable_key AS character, c.encounter_tier AS tier,
+                   c.level, COALESCE(cs.level_mod, 0) AS levelMod,
+                   COALESCE(c.group_encounter, 0) AS "group",
+                   COALESCE(c.level_scales_with_player, 0) AS scales,
+                   COALESCE(cs.night_spawn, 0) AS night, COALESCE(cs.is_rare, 0) AS rare,
+                   cs.spawn_chance AS chance, cs.source_script AS script,
+                   cs.furniture_item_stable_key AS furniture,
+                   cs.spawn_upon_quest_complete_stable_key AS quest,
+                   cs.trigger_item_stable_key AS triggerItem, pr.stable_key AS protector,
+                   (SELECT json_group_array(sq.quest_stable_key) FROM spawn_point_stop_quests sq
+                    WHERE sq.spawn_point_stable_key = cs.spawn_point_stable_key) AS stopQuests
+            FROM wiki_character_spawns cs
+            JOIN character_deduplications d ON d.member_stable_key = cs.character_stable_key
+                                         AND d.is_wiki_generated = 1
+            JOIN reps r ON r.group_key = d.group_key
+            JOIN characters c ON c.stable_key = cs.character_stable_key
+            JOIN page_reps page_rep ON page_rep.wiki_page_name = c.wiki_page_name
+                                  AND page_rep.encounter_tier = c.encounter_tier
+            JOIN zones z ON z.stable_key = cs.zone_stable_key AND z.wiki_page_name IS NOT NULL
+            LEFT JOIN character_deduplications pd ON pd.member_stable_key = cs.protector_stable_key
+            LEFT JOIN reps pr ON pr.group_key = pd.group_key
+            WHERE (cs.spawn_chance > 0 OR cs.source_script IS NOT NULL OR cs.is_directly_placed = 1)
+              AND c.wiki_page_name IS NOT NULL
+            ORDER BY zone, character, cs.spawn_point_stable_key
+        """
+        try:
+            rows = [dict(row) for row in self._execute_raw(query, ())]
+            for row in rows:
+                row["stopQuests"] = json.loads(str(row["stopQuests"]))
+            return rows
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve zone roster spawns: {e}") from e
 
     def get_characters_for_wiki_generation(self) -> list[Character]:
         """Get all characters for wiki page generation.
@@ -32,9 +334,8 @@ class CharacterRepository(BaseRepository[Character]):
         """
         query = """
             WITH vendor_status AS (
-                -- Vendor status is not part of the dedup identity, so the group
-                -- is a vendor when one of its copies in the game is, as
-                -- vendor_offers reads the stock that the page lists.
+                -- Vendor status is not part of the dedup identity, so a group
+                -- is a vendor when one of its encountered copies is.
                 SELECT s.group_key, MAX(m.is_vendor) AS group_is_vendor
                 FROM character_fact_sources s
                 JOIN characters m ON m.stable_key = s.member_stable_key
@@ -51,6 +352,12 @@ class CharacterRepository(BaseRepository[Character]):
             SELECT
                 c.stable_key,
                 c.object_name,
+                c.guid,
+                c.resources_path,
+                c.class_resource_name,
+                c.start_components_listed,
+                c.start_components_by_file_id,
+                c.is_active_at_load,
                 c.npc_name,
                 c.display_name,
                 c.wiki_page_name,
@@ -78,6 +385,7 @@ class CharacterRepository(BaseRepository[Character]):
                 c.has_modify_faction,
                 c.is_enabled,
                 c.invulnerable,
+                c.can_be_damaged,
                 c.can_never_see_invis,
                 c.dps_dummy,
                 c.is_wyrm,
@@ -99,6 +407,9 @@ class CharacterRepository(BaseRepository[Character]):
                 c.base_xp_min,
                 c.base_xp_max,
                 c.boss_xp_multiplier,
+                c.initialized_xp,
+                c.xp_per_player_level,
+                c.effective_xp_multiplier,
                 c.base_hp,
                 c.base_ac,
                 c.base_mana,
@@ -296,174 +607,41 @@ class CharacterRepository(BaseRepository[Character]):
             raise RepositoryError(f"Failed to retrieve character link for '{stable_key}': {e}") from e
 
     def get_character_loot_drops(self, character_stable_key: str) -> list[LootDropDisplayInfo]:
-        """Get resolved item drops for a character's wiki page.
-
-        Rows whose item has no display name are excluded, matching the legacy
-        character drop renderer's repository path. Results are ordered by drop
-        probability descending, then item display name case-insensitively.
-
-        Raises:
-            RepositoryError: If query execution fails.
-        """
+        """Project one copy's canonical drops with equipped-item display metadata."""
         query = """
-            SELECT
-                i.stable_key,
-                i.display_name,
-                i.wiki_page_name,
-                i.image_name,
-                ld.drop_probability,
-                COALESCE(ld.is_guaranteed, 0) AS is_guaranteed,
+            SELECT i.stable_key, i.display_name, i.wiki_page_name, i.image_name,
+                a.probability_min AS drop_probability,
+                a.guarantee_scope = 'pool' AS is_guaranteed,
                 COALESCE(ld.is_visible, 0) AS is_visible,
                 COALESCE(i.is_unique, 0) AS item_unique
-            FROM loot_drops ld
-            JOIN items i ON i.stable_key = ld.item_stable_key
-            WHERE ld.character_stable_key = ?
-              AND i.display_name IS NOT NULL
-              AND (
-                  COALESCE(ld.is_common_world_item, 0) = 0
-                  OR COALESCE(ld.is_common, 0) OR COALESCE(ld.is_uncommon, 0)
-                  OR COALESCE(ld.is_rare, 0) OR COALESCE(ld.is_legendary, 0)
-                  OR COALESCE(ld.is_ultra_rare, 0) OR COALESCE(ld.is_guaranteed, 0)
-                  OR COALESCE(ld.is_actual, 0)
-              )
-            ORDER BY ld.drop_probability DESC, i.display_name COLLATE NOCASE
+            FROM item_acquisitions a
+            JOIN items i ON i.stable_key = a.item_stable_key
+            LEFT JOIN loot_drops ld
+              ON ld.character_stable_key = a.source_copy_stable_key
+             AND ld.item_stable_key = a.item_stable_key
+            WHERE a.kind = 'character_drop' AND a.source_copy_stable_key = ?
+              AND i.display_name IS NOT NULL AND a.probability_min IS NOT NULL
+            ORDER BY a.probability_min DESC, i.display_name COLLATE NOCASE, a.acquisition_key
         """
-
         try:
-            rows = self._execute_raw(query, (character_stable_key,))
-            loot_drops = [
+            ItemProvenanceRepository(self.db)
+            return [
                 LootDropDisplayInfo(
                     item_link=ItemLink(
                         page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
                         display_name=str(row["display_name"]),
                         image_name=str(row["image_name"]) if row["image_name"] else None,
-                        stable_key=str(row["stable_key"]) if row["stable_key"] else None,
+                        stable_key=str(row["stable_key"]),
                     ),
                     drop_probability=float(row["drop_probability"]),
                     is_guaranteed=bool(row["is_guaranteed"]),
                     is_visible=bool(row["is_visible"]),
                     item_unique=bool(row["item_unique"]),
                 )
-                for row in rows
+                for row in self._execute_raw(query, (character_stable_key,))
             ]
-            logger.debug(f"Retrieved {len(loot_drops)} loot drops for character {character_stable_key}")
-            return loot_drops
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve loot for character {character_stable_key}: {e}") from e
-
-    def get_vendors_selling_item(self, item_stable_key: str) -> list[CharacterLink]:
-        """Get characters (vendors) that sell the given item.
-
-        Includes both directly-stocked vendor items and quest-gated stock a vendor
-        only sells after the player completes an unlocking quest.
-
-        Returns pre-built CharacterLink objects — section generators call str(link)
-        directly without resolver lookup.
-
-        Args:
-            item_stable_key: Item stable key (format: 'item:resource_name')
-
-        Returns:
-            List of CharacterLink objects sorted by display name.
-
-        Raises:
-            RepositoryError: If query execution fails
-        """
-        query = """
-            WITH vendor_groups AS (
-                SELECT DISTINCT vendor_stable_key AS group_key
-                FROM vendor_offers
-                WHERE item_stable_key = ?
-            ),
-            reps AS (
-                SELECT vg.group_key, MIN(d.member_stable_key) AS rep_stable_key
-                FROM vendor_groups vg
-                JOIN character_deduplications d ON d.group_key = vg.group_key
-                WHERE d.is_wiki_generated = 1
-                GROUP BY vg.group_key
-            )
-            SELECT c.stable_key, c.display_name, c.wiki_page_name
-            FROM reps r
-            JOIN characters c ON c.stable_key = r.rep_stable_key
-            ORDER BY c.display_name COLLATE NOCASE
-        """
-
-        try:
-            rows = self._execute_raw(query, (item_stable_key,))
-            links = [
-                CharacterLink(
-                    page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
-                    display_name=str(row["display_name"]),
-                    stable_key=str(row["stable_key"]),
-                )
-                for row in rows
-            ]
-            logger.debug(f"Found {len(links)} vendors selling '{item_stable_key}'")
-            return links
-        except Exception as e:
-            raise RepositoryError(f"Failed to retrieve vendors for item '{item_stable_key}': {e}") from e
-
-    def get_characters_dropping_item(self, item_stable_key: str) -> list[tuple[CharacterLink, float]]:
-        """Get characters that drop the given item.
-
-        Returns pre-built CharacterLink objects with drop probabilities — section
-        generators call str(link) directly without resolver lookup.
-
-        Args:
-            item_stable_key: Item stable key (format: 'item:resource_name')
-
-        Returns:
-            List of (CharacterLink, drop_probability) tuples sorted by display name.
-
-        Raises:
-            RepositoryError: If query execution fails
-        """
-        query = """
-            WITH drop_groups AS (
-                SELECT d.group_key, MAX(ld.drop_probability) AS drop_probability
-                FROM character_fact_sources d
-                JOIN loot_drops ld ON ld.character_stable_key = d.member_stable_key
-                WHERE ld.item_stable_key = ?
-                  AND ld.drop_probability > 0.0
-                  AND (
-                      COALESCE(ld.is_common_world_item, 0) = 0
-                      OR COALESCE(ld.is_common, 0) OR COALESCE(ld.is_uncommon, 0)
-                      OR COALESCE(ld.is_rare, 0) OR COALESCE(ld.is_legendary, 0)
-                      OR COALESCE(ld.is_ultra_rare, 0) OR COALESCE(ld.is_guaranteed, 0)
-                      OR COALESCE(ld.is_actual, 0)
-                  )
-                GROUP BY d.group_key
-            ),
-            reps AS (
-                SELECT dg.group_key, dg.drop_probability, MIN(d.member_stable_key) AS rep_stable_key
-                FROM drop_groups dg
-                JOIN character_deduplications d ON d.group_key = dg.group_key
-                WHERE d.is_wiki_generated = 1
-                GROUP BY dg.group_key, dg.drop_probability
-            )
-            SELECT c.stable_key, c.display_name, c.wiki_page_name, r.drop_probability
-            FROM reps r
-            JOIN characters c ON c.stable_key = r.rep_stable_key
-            ORDER BY c.display_name COLLATE NOCASE
-        """
-
-        try:
-            rows = self._execute_raw(query, (item_stable_key,))
-            results = [
-                (
-                    CharacterLink(
-                        page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
-                        display_name=str(row["display_name"]),
-                        stable_key=str(row["stable_key"]),
-                    ),
-                    float(row["drop_probability"]) if row["drop_probability"] is not None else 0.0,
-                )
-                for row in rows
-            ]
-            logger.debug(f"Found {len(results)} characters dropping '{item_stable_key}'")
-            return results
-        except Exception as e:
-            raise RepositoryError(f"Failed to retrieve droppers for item '{item_stable_key}': {e}") from e
 
     def get_characters_using_spell(self, spell_stable_key: str) -> list[CharacterLink]:
         """Get characters that use the given spell.
@@ -525,257 +703,50 @@ class CharacterRepository(BaseRepository[Character]):
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve characters using spell '{spell_stable_key}': {e}") from e
 
-    def get_character_drop_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        """Return stable-keyed character groups that drop an item."""
-        query = """
-            WITH drop_rows AS (
-                SELECT d.group_key, d.member_stable_key, ld.drop_probability, ld.is_guaranteed
-                FROM character_fact_sources d
-                JOIN loot_drops ld ON ld.character_stable_key = d.member_stable_key
-                WHERE ld.item_stable_key = ?
-                  AND ld.drop_probability > 0.0
-                  AND (
-                      COALESCE(ld.is_common_world_item, 0) = 0
-                      OR COALESCE(ld.is_common, 0) OR COALESCE(ld.is_uncommon, 0)
-                      OR COALESCE(ld.is_rare, 0) OR COALESCE(ld.is_legendary, 0)
-                      OR COALESCE(ld.is_ultra_rare, 0) OR COALESCE(ld.is_guaranteed, 0)
-                      OR COALESCE(ld.is_actual, 0)
-                  )
-            ),
-            drop_groups AS (
-                SELECT group_key, MAX(drop_probability) AS drop_probability
-                FROM drop_rows
-                GROUP BY group_key
-            ),
-            reps AS (
-                SELECT
-                    dg.group_key,
-                    dg.drop_probability,
-                    MAX(CASE WHEN dr.drop_probability = dg.drop_probability THEN dr.is_guaranteed ELSE 0 END)
-                        AS is_guaranteed,
-                    MIN(d.member_stable_key) AS rep_stable_key
-                FROM drop_groups dg
-                JOIN drop_rows dr ON dr.group_key = dg.group_key
-                JOIN character_deduplications d ON d.group_key = dg.group_key
-                WHERE d.is_wiki_generated = 1
-                GROUP BY dg.group_key, dg.drop_probability
-            )
-            SELECT r.rep_stable_key, r.drop_probability, r.is_guaranteed
-            FROM reps r
-            ORDER BY r.rep_stable_key
-        """
-        try:
-            rows = self._execute_raw(query, (item_stable_key,))
-            return [
-                ObtainedFromInfo(
-                    source_type="drop",
-                    source_key=str(row["rep_stable_key"]),
-                    probability=float(row["drop_probability"]),
-                    is_guaranteed=bool(row["is_guaranteed"]),
-                )
-                for row in rows
-            ]
-        except Exception as e:
-            raise RepositoryError(f"Failed to retrieve stable drop sources for '{item_stable_key}': {e}") from e
-
-    def get_common_world_item_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        """Return the swap-only chance range over the characters represented in game."""
-        query = """
-            SELECT MIN(ld.drop_probability) AS probability, MAX(ld.drop_probability) AS probability_max
-            FROM loot_drops ld
-            JOIN character_fact_sources d ON d.member_stable_key = ld.character_stable_key
-            WHERE ld.item_stable_key = ?
-              AND ld.is_common_world_item = 1
-              AND ld.drop_probability > 0
-              AND NOT (
-                  COALESCE(ld.is_common, 0) OR COALESCE(ld.is_uncommon, 0)
-                  OR COALESCE(ld.is_rare, 0) OR COALESCE(ld.is_legendary, 0)
-                  OR COALESCE(ld.is_ultra_rare, 0) OR COALESCE(ld.is_guaranteed, 0)
-                  OR COALESCE(ld.is_actual, 0)
-              )
-        """
-        try:
-            rows = self._execute_raw(query, (item_stable_key,))
-            return [
-                ObtainedFromInfo(
-                    source_type="common_world_item",
-                    source_key=None,
-                    probability=float(row["probability"]),
-                    probability_max=float(row["probability_max"]),
-                )
-                for row in rows
-                if row["probability"] is not None
-            ]
-        except Exception as e:
-            raise RepositoryError(f"Failed to retrieve common world item sources for '{item_stable_key}': {e}") from e
-
     def get_vendor_stock(self) -> list[VendorStockEntry]:
-        """Return each item that a copy of a vendor with a page sells, from vendor_offers.
-
-        A vendor is a deduplication group, so its copies in the game, such as
-        the furniture placements that share a page, sell as one vendor. A copy
-        has a furniture set when every spawn of it comes from that one set.
-        """
+        """Project canonical offers with copy-local furniture and stock-unlock gates."""
         query = """
-            SELECT o.vendor_stable_key, o.copy_stable_key,
-                (SELECT CASE
-                    WHEN COUNT(*) = COUNT(cs.furniture_item_stable_key)
-                     AND COUNT(DISTINCT cs.furniture_item_stable_key) = 1
-                    THEN MIN(cs.furniture_item_stable_key) END
-                 FROM character_spawns cs
-                 WHERE cs.character_stable_key = o.copy_stable_key) AS furniture_key,
-                o.item_stable_key, o.quest_stable_key
-            FROM vendor_offers o
-            JOIN characters c ON c.stable_key = o.vendor_stable_key
-            WHERE c.wiki_page_name IS NOT NULL
-            ORDER BY o.vendor_stable_key, o.copy_stable_key, o.item_stable_key, o.quest_stable_key
+            WITH location_furniture AS (
+                SELECT l.owner_key, l.location_key,
+                    CASE WHEN COUNT(DISTINCT json_extract(atom.value, '$.reference_stable_key')) = 1
+                    THEN MIN(json_extract(atom.value, '$.reference_stable_key')) END AS furniture_key
+                FROM item_acquisition_locations l
+                JOIN item_acquisitions a ON a.acquisition_key = l.owner_key AND a.kind = 'vendor'
+                LEFT JOIN json_each(l.conditions) atom
+                  ON json_extract(atom.value, '$.predicate') = 'room_furnished'
+                GROUP BY l.owner_key, l.location_key
+            ),
+            furniture AS (
+                SELECT owner_key,
+                    CASE WHEN COUNT(*) = COUNT(furniture_key) AND COUNT(DISTINCT furniture_key) = 1
+                    THEN MIN(furniture_key) END AS furniture_key
+                FROM location_furniture
+                GROUP BY owner_key
+            )
+            SELECT a.acquisition_key, a.source_group_key, a.source_copy_stable_key,
+                a.item_stable_key, f.furniture_key, q.reference_stable_key AS quest_key
+            FROM item_acquisitions a
+            LEFT JOIN furniture f ON f.owner_key = a.acquisition_key
+            LEFT JOIN item_acquisition_conditions q ON q.owner_key = a.acquisition_key
+              AND q.gate_key = 'stock_unlock' AND q.predicate = 'quest_done'
+            WHERE a.kind = 'vendor'
+            ORDER BY a.source_group_key, a.source_copy_stable_key, a.item_stable_key, quest_key
         """
         try:
-            rows = self._execute_raw(query, ())
-            return [
-                VendorStockEntry(
-                    vendor_key=str(row["vendor_stable_key"]),
-                    copy_key=str(row["copy_stable_key"]),
-                    furniture_key=None if row["furniture_key"] is None else str(row["furniture_key"]),
-                    item_key=str(row["item_stable_key"]),
-                    quest_key=None if row["quest_stable_key"] is None else str(row["quest_stable_key"]),
+            ItemProvenanceRepository(self.db)
+            stock = []
+            for row in self._execute_raw(query):
+                if not row["source_group_key"] or not row["source_copy_stable_key"]:
+                    raise RepositoryError(f"Canonical vendor offer has no copy identity: {row['acquisition_key']}")
+                stock.append(
+                    VendorStockEntry(
+                        vendor_key=str(row["source_group_key"]),
+                        copy_key=str(row["source_copy_stable_key"]),
+                        furniture_key=str(row["furniture_key"]) if row["furniture_key"] else None,
+                        item_key=str(row["item_stable_key"]),
+                        quest_key=str(row["quest_key"]) if row["quest_key"] else None,
+                    )
                 )
-                for row in rows
-            ]
+            return stock
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve vendor stock: {e}") from e
-
-    def get_vendor_sources_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        """Return stable-keyed vendors that sell an item, with the quest when only a quest adds it."""
-        query = """
-            WITH offers AS (
-                SELECT vendor_stable_key AS group_key, quest_stable_key
-                FROM vendor_offers
-                WHERE item_stable_key = ?
-            ),
-            reps AS (
-                SELECT o.group_key, MIN(d.member_stable_key) AS rep_stable_key
-                FROM (SELECT DISTINCT group_key FROM offers) o
-                JOIN character_deduplications d ON d.group_key = o.group_key
-                WHERE d.is_wiki_generated = 1
-                GROUP BY o.group_key
-            ),
-            conditions AS (
-                -- A vendor that always has the item sells it without a condition.
-                SELECT DISTINCT o.group_key, o.quest_stable_key
-                FROM offers o
-                WHERE o.quest_stable_key IS NULL
-                   OR NOT EXISTS (
-                        SELECT 1 FROM offers a WHERE a.group_key = o.group_key AND a.quest_stable_key IS NULL
-                   )
-            )
-            SELECT r.rep_stable_key, c.quest_stable_key, q.display_name AS quest_display_name
-            FROM reps r
-            JOIN conditions c ON c.group_key = r.group_key
-            LEFT JOIN quests q ON q.stable_key = c.quest_stable_key
-            ORDER BY r.rep_stable_key, c.quest_stable_key
-        """
-        try:
-            rows = self._execute_raw(query, (item_stable_key,))
-            return [
-                ObtainedFromInfo(
-                    source_type="vendor",
-                    source_key=str(row["rep_stable_key"]),
-                    condition=(
-                        f"requires quest {row['quest_display_name'] or row['quest_stable_key']}"
-                        if row["quest_stable_key"]
-                        else None
-                    ),
-                )
-                for row in rows
-            ]
-        except Exception as e:
-            raise RepositoryError(f"Failed to retrieve stable vendor sources for '{item_stable_key}': {e}") from e
-
-    def get_characters_giving_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        """Return dialog characters that give an item, including quest gates."""
-        query = """
-            WITH dialog_rows AS (
-                SELECT DISTINCT d.group_key, cd.required_quest_stable_key
-                FROM character_fact_sources d
-                JOIN character_dialogs cd ON cd.character_stable_key = d.member_stable_key
-                WHERE cd.give_item_stable_key = ?
-            ),
-            reps AS (
-                SELECT dr.group_key, MIN(d.member_stable_key) AS rep_stable_key, dr.required_quest_stable_key
-                FROM dialog_rows dr
-                JOIN character_deduplications d ON d.group_key = dr.group_key
-                WHERE d.is_wiki_generated = 1
-                GROUP BY dr.group_key, dr.required_quest_stable_key
-            )
-            SELECT r.rep_stable_key, r.required_quest_stable_key, q.display_name AS quest_display_name
-            FROM reps r
-            LEFT JOIN quests q ON q.stable_key = r.required_quest_stable_key
-            ORDER BY r.rep_stable_key, r.required_quest_stable_key
-        """
-        try:
-            rows = self._execute_raw(query, (item_stable_key,))
-            return [
-                ObtainedFromInfo(
-                    source_type="dialog",
-                    source_key=str(row["rep_stable_key"]),
-                    condition=(
-                        f"requires quest {row['quest_display_name'] or row['required_quest_stable_key']}"
-                        if row["required_quest_stable_key"]
-                        else None
-                    ),
-                )
-                for row in rows
-            ]
-        except Exception as e:
-            raise RepositoryError(f"Failed to retrieve dialog sources for '{item_stable_key}': {e}") from e
-
-    def get_item_givers(self, item_stable_key: str) -> list[tuple[CharacterLink, QuestLink | None]]:
-        """Return the characters whose dialog gives an item, with the quest it requires, by name.
-
-        The rows are the givers of ``get_characters_giving_item``: each group that players
-        meet, linked through its generated representative.
-        """
-        query = """
-            WITH dialog_rows AS (
-                SELECT DISTINCT d.group_key, cd.required_quest_stable_key
-                FROM character_fact_sources d
-                JOIN character_dialogs cd ON cd.character_stable_key = d.member_stable_key
-                WHERE cd.give_item_stable_key = ?
-            ),
-            reps AS (
-                SELECT dr.group_key, MIN(d.member_stable_key) AS rep_stable_key, dr.required_quest_stable_key
-                FROM dialog_rows dr
-                JOIN character_deduplications d ON d.group_key = dr.group_key
-                WHERE d.is_wiki_generated = 1
-                GROUP BY dr.group_key, dr.required_quest_stable_key
-            )
-            SELECT c.stable_key, c.display_name, c.wiki_page_name,
-                q.stable_key AS quest_stable_key, q.display_name AS quest_display_name,
-                q.wiki_page_name AS quest_wiki_page_name
-            FROM reps r
-            JOIN characters c ON c.stable_key = r.rep_stable_key
-            LEFT JOIN quests q ON q.stable_key = r.required_quest_stable_key
-            ORDER BY c.display_name COLLATE NOCASE, q.display_name COLLATE NOCASE
-        """
-        try:
-            rows = self._execute_raw(query, (item_stable_key,))
-            return [
-                (
-                    CharacterLink(
-                        page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
-                        display_name=str(row["display_name"]),
-                        stable_key=str(row["stable_key"]),
-                    ),
-                    QuestLink(
-                        page_title=str(row["quest_wiki_page_name"]) if row["quest_wiki_page_name"] else None,
-                        display_name=str(row["quest_display_name"] or row["quest_stable_key"]),
-                        stable_key=str(row["quest_stable_key"]),
-                    )
-                    if row["quest_stable_key"]
-                    else None,
-                )
-                for row in rows
-            ]
-        except Exception as e:
-            raise RepositoryError(f"Failed to retrieve item givers for '{item_stable_key}': {e}") from e

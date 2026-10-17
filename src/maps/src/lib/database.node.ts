@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs/promises';
-import { RepositoryBase } from '$lib/database.base';
+import { RepositoryBase } from './database.base';
 import initSqlJs from 'sql.js/dist/sql-wasm.js';
 
 export class Repository extends RepositoryBase {

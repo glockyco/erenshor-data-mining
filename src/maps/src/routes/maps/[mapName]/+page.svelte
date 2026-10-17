@@ -96,11 +96,12 @@
     $effect(() => {
         for (const { marker, leafletMarker, group } of filteredMarkers) {
             const levels = marker.category === 'enemy'
-                ? marker.characters.filter((c) => !c.isInvulnerable).map((c) => c.level)
+                ? marker.characters.filter((character) => character.canBeDamaged && character.encounterTier !== 'npc')
+                    .flatMap((character) => [character.level, character.levelMax])
                 : [];
             const visible = marker.category === 'treasure-loc'
                 ? levelsOverlap(marker.levelMin, marker.levelMax, levelFilter)
-                : levels.length === 0 || levelsOverlap(Math.min(...levels), Math.max(...levels), levelFilter);
+                : marker.category !== 'enemy' || (levels.length > 0 && levelsOverlap(Math.min(...levels), Math.max(...levels), levelFilter));
             if (visible) group.addLayer(leafletMarker);
             else group.removeLayer(leafletMarker);
         }

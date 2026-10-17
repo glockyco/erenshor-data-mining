@@ -1,12 +1,53 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="../../../src/Assets/Editor/LootTableProbabilityCalculator.cs" Link="LootTableProbabilityCalculator.cs" />
-    <Compile Include="../../../src/Assets/Editor/LootTableInputs.cs" Link="LootTableInputs.cs" />
-  </ItemGroup>
+<Project>
+    <!-- Select shared package versions before the SDK discovers NuGet configuration. -->
+    <PropertyGroup>
+        <DirectoryPackagesPropsPath>$(MSBuildThisFileDirectory)../../../src/Directory.Packages.props</DirectoryPackagesPropsPath>
+    </PropertyGroup>
+    <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile
+            Include="../../../src/Assets/Editor/LootTableProbabilityCalculator.cs"
+            Link="LootTableProbabilityCalculator.cs"
+        />
+        <Compile
+            Include="../../../src/Assets/Editor/LootTableInputs.cs"
+            Link="LootTableInputs.cs"
+        />
+        <Compile
+            Include="../../../src/Assets/Editor/ExportSystem/AssetScanner/Listener/LootTableListener.cs"
+            Link="LootTableListener.cs"
+        />
+        <Compile
+            Include="../../../src/Assets/Editor/ExportSystem/MiningNodeStableKeyResolver.cs"
+            Link="MiningNodeStableKeyResolver.cs"
+        />
+        <Compile
+            Include="../../../src/Assets/Editor/ExportSystem/DuplicateKeyTracker.cs"
+            Link="DuplicateKeyTracker.cs"
+        />
+        <Compile
+            Include="../../../src/Assets/Editor/Database/MiningNodeRecord.cs"
+            Link="MiningNodeRecord.cs"
+        />
+        <Compile
+            Include="../../../src/Assets/Editor/Database/LootTableRecord.cs"
+            Link="LootTableRecord.cs"
+        />
+        <Compile
+            Include="../../../src/Assets/Editor/Database/LootTableSourceRecord.cs"
+            Link="LootTableSourceRecord.cs"
+        />
+        <Compile
+            Include="../../../src/Assets/Editor/Database/CommonWorldItemRecord.cs"
+            Link="CommonWorldItemRecord.cs"
+        />
+        <PackageReference Include="Newtonsoft.Json" />
+    </ItemGroup>
+    <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 </Project>

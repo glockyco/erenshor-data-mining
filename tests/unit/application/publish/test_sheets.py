@@ -16,6 +16,7 @@ from erenshor.application.publish import sheets
 from erenshor.application.publish.models import PublishError, SurfaceUncertainError
 from erenshor.application.sheets.formatter import SheetsFormatter
 from erenshor.application.sheets.service import SheetsService
+from erenshor.domain.value_objects.item_provenance import PROVENANCE_SCHEMA_VERSION
 from erenshor.infrastructure.publishers.sheets import GoogleSheetsPublisher, SheetsRequestError
 
 
@@ -24,6 +25,13 @@ def environment(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple:
     database = tmp_path / "source.sqlite"
     engine = create_engine(f"sqlite:///{database}")
     with engine.begin() as connection:
+        connection.execute(
+            text("CREATE TABLE item_provenance_meta (schema_version INTEGER, game_build_id TEXT, input_digests TEXT)")
+        )
+        connection.execute(
+            text("INSERT INTO item_provenance_meta VALUES (:version, 'fixture-build', '{}')"),
+            {"version": PROVENANCE_SCHEMA_VERSION},
+        )
         connection.execute(text("CREATE TABLE entries (id INTEGER, ratio REAL, label TEXT, nullable TEXT)"))
         connection.execute(text("INSERT INTO entries VALUES (7, 1.25, '=literal', NULL), (8, 2.5, 'other', '')"))
     queries = tmp_path / "queries"

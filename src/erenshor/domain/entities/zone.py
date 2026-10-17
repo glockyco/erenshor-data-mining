@@ -27,7 +27,8 @@ class Zone(BaseEntity):
     # Zone identification
     scene_name: str = Field(description="Unity scene name; doubles as interactive map key")
     zone_name: str = Field(description="Raw display name from game data")
-    is_dungeon: int = Field(description="1 for dungeon zones, 0 for outdoor/event zones")
+    is_dungeon: int = Field(description="Native scene flag used for SimPlayer task selection")
+    zone_type: str = Field(description="Public area class from raid encounter metadata or reviewed mapping")
     raid_capable: bool = Field(default=False, description="True if active raids persist in this zone")
     use_zone_as_temp_bind: str = Field(default="", description="Temporary bind/respawn redirect zone name")
 

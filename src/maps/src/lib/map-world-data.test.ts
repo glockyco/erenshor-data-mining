@@ -81,23 +81,27 @@ describe('buildMapWorldData', () => {
         expect(data.allItems).toHaveLength(11);
         expect([...new Set(data.itemSources.map((source) => source.kind))].sort()).toEqual([
             'auction_house',
-            'bag',
+            'character_drop',
             'common_world_item',
-            'craft',
+            'crafting',
             'dialog',
-            'drop',
             'fishing',
-            'item_use',
+            'item_bag',
+            'item_conversion',
+            'item_drop',
             'mining',
-            'quest',
-            'starting',
-            'treasure',
-            'vendor',
-            'world'
+            'quest_reward',
+            'special_world_drop',
+            'spell_created',
+            'starting_class',
+            'ui_grant',
+            'vendor'
         ]);
         expect(close).toHaveBeenCalledTimes(1);
 
-        expect(data.markers.water).toHaveLength(1);
+        expect(data.markers.water.map((marker) => marker.stableKey).sort()).toEqual([
+            'water:pure-global-one', 'water:pure-global-two', 'water:stowaway-fixture'
+        ]);
         expect(data.markers.water[0].worldPolygon).toHaveLength(4);
         expect(data.markers.water[0].worldPosition).toEqual([
             (data.markers.water[0].worldPolygon[0][0] + data.markers.water[0].worldPolygon[2][0]) / 2,

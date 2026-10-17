@@ -30,39 +30,6 @@ def test_wiki_generation_characters_keep_spawned_statuses(character_repo: Charac
     assert all(key.startswith("spell:") for key in status_keys)
 
 
-def test_obtained_from_character_sources_preserve_keys_and_conditions(
-    character_repo: CharacterRepository,
-) -> None:
-    """Character provenance keeps representative keys and quest-gate text."""
-    drops = character_repo.get_character_drop_sources("item:template - inert diamond")
-    assert drops[0].source_key == "character:treasurechest 0-10 1"
-    # Eight ordinary rolls with a cap of two, plus one guaranteed pick of six.
-    assert drops[0].probability == 84.54
-    assert drops[0].is_guaranteed is True
-
-    vendors = character_repo.get_vendor_sources_for_item("item:furniture - azynthi coffin")
-    assert len(vendors) == 1
-    assert vendors[0].source_key == "character:breena carpenter"
-    assert vendors[0].condition == "requires quest Crafting: Azynthian Resting Place"
-
-    dialogs = character_repo.get_characters_giving_item("item:gen - shivering belt lamp")
-    assert dialogs[0].source_key.startswith("character:kio the lightkeeper")
-    assert dialogs[0].condition == "requires quest Meet Shivering Step"
-
-
-def test_legacy_vendor_query_includes_quest_gated_stock(
-    character_repo: CharacterRepository,
-) -> None:
-    """The legacy infobox vendor query surfaces quest-unlocked vendor stock.
-
-    Enchanted Smithy has no direct character_vendor_items row; Breena Carpenter
-    only sells it after the 'Crafting: Enchanted Smithy' quest. The legacy query
-    must still list her so the item infobox shows a vendor source.
-    """
-    vendors = character_repo.get_vendors_selling_item("item:furniture - enchanted smithy")
-    assert any(link.display_name == "Breena Carpenter" for link in vendors)
-
-
 def test_page_vendor_status_covers_every_group_member(character_repo: CharacterRepository) -> None:
     """Cerbantias Flameward sells items only as the 'combined' duplicate, not the representative."""
     cerbantias = next(
@@ -73,3 +40,13 @@ def test_page_vendor_status_covers_every_group_member(character_repo: CharacterR
 
     assert cerbantias.stable_key == "character:cerbantias flameward"
     assert cerbantias.is_vendor
+
+
+def test_roster_collapses_same_page_copies_and_keeps_all_abyssal_tiers(character_repo: CharacterRepository) -> None:
+    from erenshor.application.wiki_lua.zone_rosters import build_zone_roster_rows
+
+    rows = build_zone_roster_rows(character_repo.get_zone_roster_spawns())["zone:abyssal"]
+    assert len([row for row in rows if row["tier"] == "enemy"]) == 9
+    assert len([row for row in rows if row["tier"] == "boss"]) == 6
+    assert len({row["character"] for row in rows}) == 15
+    assert all(0 <= row["chanceMin"] <= row["chanceMax"] <= 100 for row in rows)

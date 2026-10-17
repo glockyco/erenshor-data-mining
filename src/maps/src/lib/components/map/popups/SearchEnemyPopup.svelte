@@ -30,14 +30,14 @@
         for (const marker of markers) {
             for (const char of marker.characters) {
                 if (char.name !== name) continue;
-                if (char.isInvulnerable) continue;
+                if (!char.canBeDamaged) continue;
                 min = Math.min(min, char.level);
-                max = Math.max(max, char.level);
+                max = Math.max(max, char.levelMax);
             }
         }
         for (const enemy of unlocated) {
             min = Math.min(min, enemy.level);
-            max = Math.max(max, enemy.level);
+            max = Math.max(max, enemy.levelMax);
         }
         if (!isFinite(min)) return null;
         return min === max ? `Level ${min}` : `Level ${min}–${max}`;

@@ -596,8 +596,8 @@ def _denormalize_zone_and_source_levels(conn: sqlite3.Connection, graph: EntityG
 def _build_zone_medians(conn: sqlite3.Connection) -> dict[str, int]:
     """Compute zone median mob level: {zone_key → median_level}.
 
-    Only non-friendly characters with level > 0 contribute. Chests are no
-    combatants: the TreasureChest faction gives them level 1.
+    Only visible, damageable, non-friendly characters with positive levels
+    contribute. Chests are not combatants.
 
     A guardian raises its zone to at least its own level; see
     ``_zone_guardian_levels``.
@@ -609,6 +609,7 @@ def _build_zone_medians(conn: sqlite3.Connection) -> dict[str, int]:
         FROM character_spawns cs
         JOIN characters c ON cs.character_stable_key = c.stable_key
         WHERE c.is_friendly = 0 AND c.level > 0 AND c.is_map_visible = 1
+            AND c.can_be_damaged = 1
             AND c.encounter_tier IS NOT 'chest'
             AND cs.spawn_point_stable_key IS NOT NULL
     """).fetchall()
@@ -636,6 +637,7 @@ def _zone_guardian_levels(conn: sqlite3.Connection) -> dict[str, int]:
         FROM characters g
         JOIN character_spawns gs ON gs.character_stable_key = g.stable_key
         WHERE g.quest_complete_on_death IS NOT NULL AND g.level > 0 AND g.is_map_visible = 1
+            AND g.can_be_damaged = 1
             AND gs.zone_stable_key IS NOT NULL AND gs.spawn_point_stable_key IS NOT NULL
             AND NOT EXISTS (
                 SELECT 1
@@ -643,6 +645,7 @@ def _zone_guardian_levels(conn: sqlite3.Connection) -> dict[str, int]:
                 JOIN characters h ON h.stable_key = hs.character_stable_key
                 WHERE hs.zone_stable_key = gs.zone_stable_key
                     AND h.is_friendly = 0 AND h.level > 0 AND h.is_map_visible = 1
+                    AND h.can_be_damaged = 1
                     AND h.encounter_tier IS NOT 'chest'
                     AND hs.spawn_point_stable_key IS NOT NULL
                     AND NOT EXISTS (
@@ -657,9 +660,10 @@ def _zone_guardian_levels(conn: sqlite3.Connection) -> dict[str, int]:
 
 
 def _build_char_levels(conn: sqlite3.Connection) -> dict[str, int]:
-    """Return {character_key → level} for non-friendly characters with level > 0."""
+    """Return combat levels from the shared damageability producer."""
     rows = conn.execute(
-        "SELECT stable_key, level FROM characters WHERE level > 0 AND is_friendly = 0 AND is_map_visible = 1"
+        "SELECT stable_key, level FROM characters"
+        " WHERE level > 0 AND is_friendly = 0 AND is_map_visible = 1 AND can_be_damaged = 1"
     ).fetchall()
     return {r["stable_key"]: r["level"] for r in rows}
 

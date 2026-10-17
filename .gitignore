@@ -850,6 +850,8 @@ unity_*.log
 tests/**/*.db
 tests/**/*.sqlite
 !tests/fixtures/database/*.sql
+# Fixture projects are source inputs for native contract tests.
+!tests/fixtures/**/*.csproj
 tests/.test-temp/
 
 # Companion mod source and config files managed by src/mods/.gitignore

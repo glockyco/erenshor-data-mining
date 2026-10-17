@@ -10,7 +10,12 @@ from typing import TYPE_CHECKING, Literal
 from erenshor.infrastructure.wiki.template_parser import TemplateParser
 
 if TYPE_CHECKING:
-    from erenshor.application.wiki.lifecycle import ContentLifecycle, LifecyclePage, LifecycleRename, LifecycleSplit
+    from erenshor.infrastructure.content_lifecycle import (
+        ContentLifecycle,
+        LifecyclePage,
+        LifecycleRename,
+        LifecycleSplit,
+    )
     from erenshor.infrastructure.wiki.client import MediaWikiClient, MediaWikiPageSnapshot, MediaWikiTitleStatus
 
 RetiredState = Literal[

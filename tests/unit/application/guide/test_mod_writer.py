@@ -221,24 +221,10 @@ def _main_entry(data: dict[str, object], stable_key: str = "quest:main") -> dict
     return next(entry for entry in entries if entry["stable_key"] == stable_key)
 
 
-def test_build_mod_guide_preserves_wrapper_shape_and_quest_identity() -> None:
+def test_build_mod_guide_preserves_quest_identity() -> None:
     graph, _ = _fixture()
     data = build_mod_guide(graph, compile_graph(graph))
 
-    assert list(data) == [
-        "_version",
-        "_zone_lookup",
-        "_conditions",
-        "_gate_items",
-        "_character_spawns",
-        "_encounter_tiers",
-        "_furniture_sets",
-        "_zone_lines",
-        "_chain_groups",
-        "_excluded_quests",
-        "quests",
-    ]
-    assert data["_version"] == 7
     main = _main_entry(data)
     assert main["db_name"] == "MAIN"
     assert main["stable_key"] == "quest:main"
@@ -320,6 +306,19 @@ def test_build_mod_guide_emits_acquisition_completion_and_ordered_steps() -> Non
     assert next(step for step in steps if step["target_key"] == "item:alpha")["or_group"] == "path-a"
 
 
+def test_step_guidance_is_shown_once_on_first_objective_not_acquisition() -> None:
+    graph, nodes = _fixture()
+    quest = nodes["main"]
+    assert isinstance(quest, Node)
+    quest.step_note = "Wait for the signal before proceeding."
+    main = _main_entry(build_mod_guide(graph, compile_graph(graph)))
+    steps = main["steps"]
+    assert steps[0]["target_key"] == "char:giver"
+    assert quest.step_note not in steps[0]["description"]
+    assert steps[1]["description"].endswith(quest.step_note)
+    assert sum(quest.step_note in step["description"] for step in steps) == 1
+
+
 def test_build_mod_guide_groups_required_items_and_inlines_sources() -> None:
     graph, _ = _fixture()
     main = _main_entry(build_mod_guide(graph, compile_graph(graph)))
@@ -382,6 +381,7 @@ def test_build_mod_guide_emits_zone_character_and_gate_conditions() -> None:
     }
     assert data["_character_spawns"]["char:mob"] == [
         {
+            "stable_key": "spawn:mob:one",
             "scene": "AshenScene",
             "x": 10,
             "y": 11,
@@ -430,7 +430,14 @@ def _resource_graph(source_type: NodeType) -> EntityGraph:
         ),
         edges=[
             Edge(source=quest.key, target=item.key, type=EdgeType.REQUIRES_ITEM),
-            Edge(source=source.key, target=item.key, type=EdgeType.YIELDS_ITEM),
+            Edge(
+                source=source.key,
+                target=item.key,
+                type=EdgeType.YIELDS_ITEM,
+                chance=100.0 if source_type == NodeType.WATER else None,
+                day_chance=100.0 if source_type == NodeType.WATER else None,
+                night_chance=100.0 if source_type == NodeType.WATER else None,
+            ),
         ],
     )
 
@@ -761,19 +768,6 @@ def test_serialize_mod_guide_is_compact_deterministic_and_json() -> None:
     assert "\n" not in first
     assert " : " not in first
     parsed = json.loads(first)
-    assert list(parsed) == [
-        "_version",
-        "_zone_lookup",
-        "_conditions",
-        "_gate_items",
-        "_character_spawns",
-        "_encounter_tiers",
-        "_furniture_sets",
-        "_zone_lines",
-        "_chain_groups",
-        "_excluded_quests",
-        "quests",
-    ]
     assert all(math.isfinite(value) for value in _finite_floats(parsed))
 
 

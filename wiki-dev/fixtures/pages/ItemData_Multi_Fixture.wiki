@@ -1,0 +1,2 @@
+{{ItemData|stablekey=item:shared-page-common}}
+{{ItemData|stablekey=item:shared-page-rare}}

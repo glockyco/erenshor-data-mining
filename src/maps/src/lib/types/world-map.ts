@@ -155,9 +155,9 @@ export const DEFAULT_LAYER_VISIBILITY: LayerVisibility = {
 
 export interface ZoneEnemyInfo {
     levelRange: { min: number; max: number } | null;
-    bosses: { name: string; wikiPageName: string | null; level: number }[];
-    elites: { name: string; wikiPageName: string | null; level: number }[];
-    chests: { name: string; wikiPageName: string | null; level: number }[];
+    bosses: { name: string; wikiPageName: string | null; level: number; levelMax: number }[];
+    elites: { name: string; wikiPageName: string | null; level: number; levelMax: number }[];
+    chests: { name: string; wikiPageName: string | null; level: number; levelMax: number }[];
 }
 
 export interface LevelRange {

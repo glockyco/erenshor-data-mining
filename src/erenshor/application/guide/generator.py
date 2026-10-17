@@ -24,7 +24,7 @@ def generate(db_path: Path, overrides_path: Path | None = None) -> EntityGraph:
     """
     graph = build_graph(db_path)
     if overrides_path:
-        merge_overrides(graph, overrides_path)
+        merge_overrides(graph, overrides_path, db_path=db_path)
         graph.build_indexes()  # rebuild after adding override edges
     denormalize_quest_metadata(graph, db_path)
     return graph

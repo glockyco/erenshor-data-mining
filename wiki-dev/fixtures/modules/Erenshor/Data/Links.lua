@@ -1,38 +1,5 @@
 return {
 	["byKey"] = {
-		["quest:shared-line-a"] = {
-			["key"] = "quest:shared-line-a",
-			["kind"] = "quest",
-			["name"] = "Quest Line Fixture A",
-			["page"] = "Quest Line Fixture",
-		},
-		["quest:shared-line-b"] = {
-			["key"] = "quest:shared-line-b",
-			["kind"] = "quest",
-			["name"] = "Quest Line Fixture B",
-			["page"] = "Quest Line Fixture",
-		},
-		["item:name-collision"] = {
-			["key"] = "item:name-collision",
-			["kind"] = "item",
-			["name"] = "Abyssal Plate",
-			["page"] = "Name Collision Fixture",
-			["image"] = "Different icon.png",
-		},
-		["item:different-image-a"] = {
-			["key"] = "item:different-image-a",
-			["kind"] = "item",
-			["name"] = "Different Image Fixture A",
-			["page"] = "Different Image Fixture",
-			["image"] = "First icon.png",
-		},
-		["item:different-image-b"] = {
-			["key"] = "item:different-image-b",
-			["kind"] = "item",
-			["name"] = "Different Image Fixture B",
-			["page"] = "Different Image Fixture",
-			["image"] = "Second icon.png",
-		},
 		["character:a_grizzly_bear"] = {
 			["image"] = "A Grizzly Bear render.png",
 			["key"] = "character:a_grizzly_bear",
@@ -40,6 +7,30 @@ return {
 			["name"] = "A Grizzly Bear",
 			["page"] = "A Grizzly Bear",
 			["subtype"] = "Enemy",
+		},
+		["character:alexander farland"] = {
+			["image"] = "Alexander Farland render.png",
+			["key"] = "character:alexander farland",
+			["kind"] = "character",
+			["name"] = "Alexander Farland",
+			["page"] = "Alexander Farland",
+			["subtype"] = "NPC",
+		},
+		["character:alyssa fearnon"] = {
+			["image"] = "Alyssia Fearnon render.png",
+			["key"] = "character:alyssa fearnon",
+			["kind"] = "character",
+			["name"] = "Alyssia Fearnon",
+			["page"] = "Alyssia Fearnon",
+			["subtype"] = "NPC",
+		},
+		["character:azure guard lieutenant"] = {
+			["image"] = "Lieutenant Ulrik render.png",
+			["key"] = "character:azure guard lieutenant",
+			["kind"] = "character",
+			["name"] = "Lieutenant Ulrik",
+			["page"] = "Lieutenant Ulrik",
+			["subtype"] = "NPC",
 		},
 		["character:captain_rowan"] = {
 			["image"] = "Captain Rowan render.png",
@@ -64,6 +55,14 @@ return {
 			["name"] = "Dire Wolf",
 			["page"] = "Dire Wolf",
 			["subtype"] = "Enemy",
+		},
+		["character:guard captain azure"] = {
+			["image"] = "Captain Kilkay render.png",
+			["key"] = "character:guard captain azure",
+			["kind"] = "character",
+			["name"] = "Captain Kilkay",
+			["page"] = "Captain Kilkay",
+			["subtype"] = "NPC",
 		},
 		["character:rare_cave_spider"] = {
 			["image"] = "Rare Cave Spider render.png",
@@ -112,18 +111,35 @@ return {
 			["page"] = "Stormcaller",
 		},
 		["faction:evil"] = {
-			["image"] = nil,
 			["key"] = "faction:evil",
 			["kind"] = "faction",
 			["name"] = "The Followers of Evil",
 			["page"] = "The Followers of Evil",
 		},
+		["faction:fernalla"] = {
+			["key"] = "faction:fernalla",
+			["kind"] = "faction",
+			["name"] = "Fernalla's Children",
+			["page"] = "Fernalla's Children",
+		},
 		["faction:good"] = {
-			["image"] = nil,
 			["key"] = "faction:good",
 			["kind"] = "faction",
 			["name"] = "The Followers of Good",
 			["page"] = "The Followers of Good",
+		},
+		["faction:sivakayans"] = {
+			["key"] = "faction:sivakayans",
+			["kind"] = "faction",
+			["name"] = "The Children of Sivakaya",
+			["page"] = "The Children of Sivakaya",
+		},
+		["item:arm - 19  - ancient guardian sleeve"] = {
+			["key"] = "item:arm - 19  - ancient guardian sleeve",
+			["kind"] = "item",
+			["name"] = "Ancient Guardian Sleeve",
+			["page"] = "ItemData Key Fixture",
+			["subtype"] = "armor",
 		},
 		["item:bear_claw"] = {
 			["image"] = "Bear Claw icon.png",
@@ -149,6 +165,14 @@ return {
 			["page"] = "Bear Pelt",
 			["subtype"] = "general",
 		},
+		["item:belt - 5 - bonestudded belt"] = {
+			["image"] = "Bonestudded Belt icon.png",
+			["key"] = "item:belt - 5 - bonestudded belt",
+			["kind"] = "item",
+			["name"] = "Bonestudded Belt",
+			["page"] = "Bonestudded Belt",
+			["subtype"] = "armor",
+		},
 		["item:chest - 38 - abyssal plate"] = {
 			["image"] = "Abyssal Plate icon.png",
 			["key"] = "item:chest - 38 - abyssal plate",
@@ -165,6 +189,20 @@ return {
 			["page"] = "Copper Armor Mold",
 			["subtype"] = "mold",
 		},
+		["item:different-image-a"] = {
+			["image"] = "First icon.png",
+			["key"] = "item:different-image-a",
+			["kind"] = "item",
+			["name"] = "Different Image Fixture A",
+			["page"] = "Different Image Fixture",
+		},
+		["item:different-image-b"] = {
+			["image"] = "Second icon.png",
+			["key"] = "item:different-image-b",
+			["kind"] = "item",
+			["name"] = "Different Image Fixture B",
+			["page"] = "Different Image Fixture",
+		},
 		["item:ember_aura"] = {
 			["image"] = "Ember Aura icon.png",
 			["key"] = "item:ember_aura",
@@ -180,6 +218,21 @@ return {
 			["name"] = "Ember Longsword",
 			["page"] = "Ember Longsword",
 			["subtype"] = "weapon",
+		},
+		["item:furniture - stone training"] = {
+			["key"] = "item:furniture - stone training",
+			["kind"] = "item",
+			["name"] = "Stone Training Set",
+			["page"] = "Stone Training Set",
+			["subtype"] = "general",
+		},
+		["item:gen - ealdred's journal"] = {
+			["image"] = "Ealdred's Journal icon.png",
+			["key"] = "item:gen - ealdred's journal",
+			["kind"] = "item",
+			["name"] = "Ealdred's Journal",
+			["page"] = "Ealdred's Journal",
+			["subtype"] = "general",
 		},
 		["item:gen - nightmare crystal"] = {
 			["image"] = "Nightmare Crystal icon.png",
@@ -205,6 +258,14 @@ return {
 			["page"] = "Priel Note",
 			["subtype"] = "general",
 		},
+		["item:gen - skeleton eye"] = {
+			["image"] = "Skeleton Eye icon.png",
+			["key"] = "item:gen - skeleton eye",
+			["kind"] = "item",
+			["name"] = "Skeleton Eye",
+			["page"] = "Skeleton Eye",
+			["subtype"] = "general",
+		},
 		["item:healing_draught"] = {
 			["image"] = "Healing Draught icon.png",
 			["key"] = "item:healing_draught",
@@ -228,6 +289,13 @@ return {
 			["name"] = "Magical Bag",
 			["page"] = "Magical Bag",
 			["subtype"] = "general",
+		},
+		["item:name-collision"] = {
+			["image"] = "Different icon.png",
+			["key"] = "item:name-collision",
+			["kind"] = "item",
+			["name"] = "Abyssal Plate",
+			["page"] = "Name Collision Fixture",
 		},
 		["item:ore - bronze ore"] = {
 			["image"] = "Bronze Ore icon.png",
@@ -284,25 +352,64 @@ return {
 			["subtype"] = "general",
 		},
 		["quest:a hermit's request"] = {
-			["image"] = nil,
 			["key"] = "quest:a hermit's request",
 			["kind"] = "quest",
 			["name"] = "A Hermit's Request",
 			["page"] = "A Hermit's Request",
 		},
+		["quest:a skeleton eye for alyssa fearnon"] = {
+			["key"] = "quest:a skeleton eye for alyssa fearnon",
+			["kind"] = "quest",
+			["name"] = "A Skeleton Eye for Alyssia Fearnon",
+			["page"] = "A Skeleton Eye for Alyssia Fearnon",
+		},
 		["quest:catfordeer"] = {
-			["image"] = nil,
 			["key"] = "quest:catfordeer",
 			["kind"] = "quest",
 			["name"] = "A Cat for a Deer",
 			["page"] = "A Cat for a Deer",
 		},
+		["quest:findazynthi"] = {
+			["key"] = "quest:findazynthi",
+			["kind"] = "quest",
+			["name"] = "Secure Port Azure",
+			["page"] = "Secure Port Azure",
+		},
+		["quest:goodsoil"] = {
+			["key"] = "quest:goodsoil",
+			["kind"] = "quest",
+			["name"] = "The Tragedy at Goodsoil",
+			["page"] = "The Tragedy at Goodsoil",
+		},
+		["quest:inteltokilkay"] = {
+			["key"] = "quest:inteltokilkay",
+			["kind"] = "quest",
+			["name"] = "Sivakayan Intel for Kilkay (1)",
+			["page"] = "Sivakayan Intel for Kilkay",
+		},
+		["quest:inteltoripper"] = {
+			["key"] = "quest:inteltoripper",
+			["kind"] = "quest",
+			["name"] = "Sivakayan Intel for Ripper",
+			["page"] = "Sivakayan Intel for Ripper",
+		},
 		["quest:magical_sword"] = {
-			["image"] = nil,
 			["key"] = "quest:magical_sword",
 			["kind"] = "quest",
 			["name"] = "A Magical Sword in Port Azure",
 			["page"] = "A Magical Sword in Port Azure",
+		},
+		["quest:shared-line-a"] = {
+			["key"] = "quest:shared-line-a",
+			["kind"] = "quest",
+			["name"] = "Quest Line Fixture A",
+			["page"] = "Quest Line Fixture",
+		},
+		["quest:shared-line-b"] = {
+			["key"] = "quest:shared-line-b",
+			["kind"] = "quest",
+			["name"] = "Quest Line Fixture B",
+			["page"] = "Quest Line Fixture",
 		},
 		["skill:backstab"] = {
 			["image"] = "Backstab icon.png",
@@ -441,7 +548,6 @@ return {
 			["subtype"] = "stance",
 		},
 		["zone:ElderstoneMines"] = {
-			["image"] = nil,
 			["key"] = "zone:ElderstoneMines",
 			["kind"] = "zone",
 			["name"] = "The Elderstone Mines",
@@ -449,7 +555,6 @@ return {
 			["subtype"] = "Dungeon",
 		},
 		["zone:PortAzure"] = {
-			["image"] = nil,
 			["key"] = "zone:PortAzure",
 			["kind"] = "zone",
 			["name"] = "Port Azure",
@@ -457,7 +562,6 @@ return {
 			["subtype"] = "Zone",
 		},
 		["zone:saltedstrand"] = {
-			["image"] = nil,
 			["key"] = "zone:saltedstrand",
 			["kind"] = "zone",
 			["name"] = "Blacksalt Strand",
@@ -466,9 +570,6 @@ return {
 		},
 	},
 	["byPage"] = {
-		["Quest Line Fixture"] = { "quest:shared-line-a", "quest:shared-line-b" },
-		["Name Collision Fixture"] = { "item:name-collision" },
-		["Different Image Fixture"] = { "item:different-image-a", "item:different-image-b" },
 		["A Cat for a Deer"] = {
 			"quest:catfordeer",
 		},
@@ -481,11 +582,20 @@ return {
 		["A Magical Sword in Port Azure"] = {
 			"quest:magical_sword",
 		},
+		["A Skeleton Eye for Alyssia Fearnon"] = {
+			"quest:a skeleton eye for alyssa fearnon",
+		},
 		["A Subterranean Magmite"] = {
 			"character:subterranean magmite",
 		},
 		["Abyssal Plate"] = {
 			"item:chest - 38 - abyssal plate",
+		},
+		["Alexander Farland"] = {
+			"character:alexander farland",
+		},
+		["Alyssia Fearnon"] = {
+			"character:alyssa fearnon",
 		},
 		["Ancient Presence"] = {
 			"spell:ancient_presence",
@@ -505,8 +615,14 @@ return {
 		["Blacksalt Strand"] = {
 			"zone:saltedstrand",
 		},
+		["Bonestudded Belt"] = {
+			"item:belt - 5 - bonestudded belt",
+		},
 		["Bronze Ore"] = {
 			"item:ore - bronze ore",
+		},
+		["Captain Kilkay"] = {
+			"character:guard captain azure",
 		},
 		["Captain Rowan"] = {
 			"character:captain_rowan",
@@ -517,6 +633,10 @@ return {
 		["Defensive"] = {
 			"stance:defensive",
 		},
+		["Different Image Fixture"] = {
+			"item:different-image-a",
+			"item:different-image-b",
+		},
 		["Dire Wolf"] = {
 			"character:dire_wolf_alpha",
 			"character:dire_wolf_young",
@@ -526,6 +646,9 @@ return {
 		},
 		["Druid"] = {
 			"class:druid",
+		},
+		["Ealdred's Journal"] = {
+			"item:gen - ealdred's journal",
 		},
 		["Ember"] = {
 			"spell:ember",
@@ -539,6 +662,9 @@ return {
 		["Ember Longsword"] = {
 			"item:ember_longsword",
 		},
+		["Fernalla's Children"] = {
+			"faction:fernalla",
+		},
 		["Flame Bolt"] = {
 			"spell:flame_bolt",
 			"spell:flame_bolt_greater",
@@ -549,8 +675,14 @@ return {
 		["Inert Diamond"] = {
 			"item:template - inert diamond",
 		},
+		["ItemData Key Fixture"] = {
+			"item:arm - 19  - ancient guardian sleeve",
+		},
 		["Lava Coat"] = {
 			"spell:none - lava coat",
+		},
+		["Lieutenant Ulrik"] = {
+			"character:azure guard lieutenant",
 		},
 		["Lucky Charm"] = {
 			"item:lucky_charm",
@@ -563,6 +695,9 @@ return {
 		},
 		["Minor Lightning"] = {
 			"spell:minor_lightning",
+		},
+		["Name Collision Fixture"] = {
+			"item:name-collision",
 		},
 		["Nightmare Crystal"] = {
 			"item:gen - nightmare crystal",
@@ -583,6 +718,10 @@ return {
 			"item:gen - priel note",
 			"item:gen - priel note 1",
 		},
+		["Quest Line Fixture"] = {
+			"quest:shared-line-a",
+			"quest:shared-line-b",
+		},
 		["Rare Cave Spider"] = {
 			"character:rare_cave_spider",
 		},
@@ -595,13 +734,28 @@ return {
 		["Scroll of Ember"] = {
 			"item:scroll_of_ember",
 		},
+		["Secure Port Azure"] = {
+			"quest:findazynthi",
+		},
 		["Shared Item Fixture"] = {
 			"item:shared-page-common",
 			"item:shared-page-rare",
 		},
+		["Sivakayan Intel for Kilkay"] = {
+			"quest:inteltokilkay",
+		},
+		["Sivakayan Intel for Ripper"] = {
+			"quest:inteltoripper",
+		},
+		["Skeleton Eye"] = {
+			"item:gen - skeleton eye",
+		},
 		["Stance: Aggressive"] = {
 			"skill:stance - aggressive",
 			"stance:aggressive",
+		},
+		["Stone Training Set"] = {
+			"item:furniture - stone training",
 		},
 		["Stormcaller"] = {
 			"class:stormcaller",
@@ -615,6 +769,9 @@ return {
 		["Taunting"] = {
 			"stance:taunting",
 		},
+		["The Children of Sivakaya"] = {
+			"faction:sivakayans",
+		},
 		["The Elderstone Mines"] = {
 			"zone:ElderstoneMines",
 		},
@@ -624,47 +781,16 @@ return {
 		["The Followers of Good"] = {
 			"faction:good",
 		},
+		["The Tragedy at Goodsoil"] = {
+			"quest:goodsoil",
+		},
 		["Windblade"] = {
 			"class:duelist",
 		},
 	},
-	["catalogSha256"] = "8b861507ccc99739a50f9817959308fe8873925d484c45f47057384275d94f54",
+	["catalogSha256"] = "d85c79d8d773f4ed59547f2f9ae309f05d08c813c087872b9c89d15fed0c5c75",
 	["entries"] = {
 		{
-			["key"] = "quest:shared-line-a",
-			["kind"] = "quest",
-			["name"] = "Quest Line Fixture A",
-			["page"] = "Quest Line Fixture",
-		},
-		{
-			["key"] = "quest:shared-line-b",
-			["kind"] = "quest",
-			["name"] = "Quest Line Fixture B",
-			["page"] = "Quest Line Fixture",
-		},
-		{
-			["key"] = "item:name-collision",
-			["kind"] = "item",
-			["name"] = "Abyssal Plate",
-			["page"] = "Name Collision Fixture",
-			["image"] = "Different icon.png",
-		},
-		{
-			["key"] = "item:different-image-a",
-			["kind"] = "item",
-			["name"] = "Different Image Fixture A",
-			["page"] = "Different Image Fixture",
-			["image"] = "First icon.png",
-		},
-		{
-			["key"] = "item:different-image-b",
-			["kind"] = "item",
-			["name"] = "Different Image Fixture B",
-			["page"] = "Different Image Fixture",
-			["image"] = "Second icon.png",
-		},
-		{
-			["image"] = nil,
 			["key"] = "quest:catfordeer",
 			["kind"] = "quest",
 			["name"] = "A Cat for a Deer",
@@ -679,18 +805,22 @@ return {
 			["subtype"] = "Enemy",
 		},
 		{
-			["image"] = nil,
 			["key"] = "quest:a hermit's request",
 			["kind"] = "quest",
 			["name"] = "A Hermit's Request",
 			["page"] = "A Hermit's Request",
 		},
 		{
-			["image"] = nil,
 			["key"] = "quest:magical_sword",
 			["kind"] = "quest",
 			["name"] = "A Magical Sword in Port Azure",
 			["page"] = "A Magical Sword in Port Azure",
+		},
+		{
+			["key"] = "quest:a skeleton eye for alyssa fearnon",
+			["kind"] = "quest",
+			["name"] = "A Skeleton Eye for Alyssia Fearnon",
+			["page"] = "A Skeleton Eye for Alyssia Fearnon",
 		},
 		{
 			["image"] = "A Subterranean Magmite render.png",
@@ -699,6 +829,13 @@ return {
 			["name"] = "A Subterranean Magmite",
 			["page"] = "A Subterranean Magmite",
 			["subtype"] = "Enemy",
+		},
+		{
+			["image"] = "Different icon.png",
+			["key"] = "item:name-collision",
+			["kind"] = "item",
+			["name"] = "Abyssal Plate",
+			["page"] = "Name Collision Fixture",
 		},
 		{
 			["image"] = "Abyssal Plate icon.png",
@@ -715,6 +852,29 @@ return {
 			["name"] = "Aggressive",
 			["page"] = "Stance: Aggressive",
 			["subtype"] = "stance",
+		},
+		{
+			["image"] = "Alexander Farland render.png",
+			["key"] = "character:alexander farland",
+			["kind"] = "character",
+			["name"] = "Alexander Farland",
+			["page"] = "Alexander Farland",
+			["subtype"] = "NPC",
+		},
+		{
+			["image"] = "Alyssia Fearnon render.png",
+			["key"] = "character:alyssa fearnon",
+			["kind"] = "character",
+			["name"] = "Alyssia Fearnon",
+			["page"] = "Alyssia Fearnon",
+			["subtype"] = "NPC",
+		},
+		{
+			["key"] = "item:arm - 19  - ancient guardian sleeve",
+			["kind"] = "item",
+			["name"] = "Ancient Guardian Sleeve",
+			["page"] = "ItemData Key Fixture",
+			["subtype"] = "armor",
 		},
 		{
 			["image"] = "Aura Ancient Presence icon.png",
@@ -757,12 +917,19 @@ return {
 			["subtype"] = "general",
 		},
 		{
-			["image"] = nil,
 			["key"] = "zone:saltedstrand",
 			["kind"] = "zone",
 			["name"] = "Blacksalt Strand",
 			["page"] = "Blacksalt Strand",
 			["subtype"] = "Zone",
+		},
+		{
+			["image"] = "Bonestudded Belt icon.png",
+			["key"] = "item:belt - 5 - bonestudded belt",
+			["kind"] = "item",
+			["name"] = "Bonestudded Belt",
+			["page"] = "Bonestudded Belt",
+			["subtype"] = "armor",
 		},
 		{
 			["image"] = "Bronze Ore icon.png",
@@ -771,6 +938,14 @@ return {
 			["name"] = "Bronze Ore",
 			["page"] = "Bronze Ore",
 			["subtype"] = "general",
+		},
+		{
+			["image"] = "Captain Kilkay render.png",
+			["key"] = "character:guard captain azure",
+			["kind"] = "character",
+			["name"] = "Captain Kilkay",
+			["page"] = "Captain Kilkay",
+			["subtype"] = "NPC",
 		},
 		{
 			["image"] = "Captain Rowan render.png",
@@ -795,6 +970,20 @@ return {
 			["name"] = "Defensive",
 			["page"] = "Defensive",
 			["subtype"] = "stance",
+		},
+		{
+			["image"] = "First icon.png",
+			["key"] = "item:different-image-a",
+			["kind"] = "item",
+			["name"] = "Different Image Fixture A",
+			["page"] = "Different Image Fixture",
+		},
+		{
+			["image"] = "Second icon.png",
+			["key"] = "item:different-image-b",
+			["kind"] = "item",
+			["name"] = "Different Image Fixture B",
+			["page"] = "Different Image Fixture",
 		},
 		{
 			["image"] = "Dire Wolf render.png",
@@ -827,6 +1016,14 @@ return {
 			["page"] = "Druid",
 		},
 		{
+			["image"] = "Ealdred's Journal icon.png",
+			["key"] = "item:gen - ealdred's journal",
+			["kind"] = "item",
+			["name"] = "Ealdred's Journal",
+			["page"] = "Ealdred's Journal",
+			["subtype"] = "general",
+		},
+		{
 			["image"] = "Ember icon.png",
 			["key"] = "spell:ember",
 			["kind"] = "ability",
@@ -857,6 +1054,12 @@ return {
 			["name"] = "Ember Longsword",
 			["page"] = "Ember Longsword",
 			["subtype"] = "weapon",
+		},
+		{
+			["key"] = "faction:fernalla",
+			["kind"] = "faction",
+			["name"] = "Fernalla's Children",
+			["page"] = "Fernalla's Children",
 		},
 		{
 			["image"] = "Flame Bolt icon.png",
@@ -897,6 +1100,14 @@ return {
 			["name"] = "Lava Coat",
 			["page"] = "Lava Coat",
 			["subtype"] = "spell",
+		},
+		{
+			["image"] = "Lieutenant Ulrik render.png",
+			["key"] = "character:azure guard lieutenant",
+			["kind"] = "character",
+			["name"] = "Lieutenant Ulrik",
+			["page"] = "Lieutenant Ulrik",
+			["subtype"] = "NPC",
 		},
 		{
 			["image"] = "Lucky Charm icon.png",
@@ -961,7 +1172,6 @@ return {
 			["subtype"] = "general",
 		},
 		{
-			["image"] = nil,
 			["key"] = "zone:PortAzure",
 			["kind"] = "zone",
 			["name"] = "Port Azure",
@@ -983,6 +1193,18 @@ return {
 			["name"] = "Priel Note (2)",
 			["page"] = "Priel Note",
 			["subtype"] = "general",
+		},
+		{
+			["key"] = "quest:shared-line-a",
+			["kind"] = "quest",
+			["name"] = "Quest Line Fixture A",
+			["page"] = "Quest Line Fixture",
+		},
+		{
+			["key"] = "quest:shared-line-b",
+			["kind"] = "quest",
+			["name"] = "Quest Line Fixture B",
+			["page"] = "Quest Line Fixture",
 		},
 		{
 			["image"] = "Rare Cave Spider render.png",
@@ -1015,6 +1237,12 @@ return {
 			["subtype"] = "spellscroll",
 		},
 		{
+			["key"] = "quest:findazynthi",
+			["kind"] = "quest",
+			["name"] = "Secure Port Azure",
+			["page"] = "Secure Port Azure",
+		},
+		{
 			["key"] = "item:shared-page-common",
 			["kind"] = "item",
 			["name"] = "Shared Item Fixture",
@@ -1029,12 +1257,39 @@ return {
 			["subtype"] = "general",
 		},
 		{
+			["key"] = "quest:inteltokilkay",
+			["kind"] = "quest",
+			["name"] = "Sivakayan Intel for Kilkay (1)",
+			["page"] = "Sivakayan Intel for Kilkay",
+		},
+		{
+			["key"] = "quest:inteltoripper",
+			["kind"] = "quest",
+			["name"] = "Sivakayan Intel for Ripper",
+			["page"] = "Sivakayan Intel for Ripper",
+		},
+		{
+			["image"] = "Skeleton Eye icon.png",
+			["key"] = "item:gen - skeleton eye",
+			["kind"] = "item",
+			["name"] = "Skeleton Eye",
+			["page"] = "Skeleton Eye",
+			["subtype"] = "general",
+		},
+		{
 			["image"] = "Stance Aggressive icon.png",
 			["key"] = "skill:stance - aggressive",
 			["kind"] = "ability",
 			["name"] = "Stance: Aggressive",
 			["page"] = "Stance: Aggressive",
 			["subtype"] = "skill",
+		},
+		{
+			["key"] = "item:furniture - stone training",
+			["kind"] = "item",
+			["name"] = "Stone Training Set",
+			["page"] = "Stone Training Set",
+			["subtype"] = "general",
 		},
 		{
 			["key"] = "class:stormcaller",
@@ -1067,7 +1322,12 @@ return {
 			["subtype"] = "stance",
 		},
 		{
-			["image"] = nil,
+			["key"] = "faction:sivakayans",
+			["kind"] = "faction",
+			["name"] = "The Children of Sivakaya",
+			["page"] = "The Children of Sivakaya",
+		},
+		{
 			["key"] = "zone:ElderstoneMines",
 			["kind"] = "zone",
 			["name"] = "The Elderstone Mines",
@@ -1075,18 +1335,22 @@ return {
 			["subtype"] = "Dungeon",
 		},
 		{
-			["image"] = nil,
 			["key"] = "faction:evil",
 			["kind"] = "faction",
 			["name"] = "The Followers of Evil",
 			["page"] = "The Followers of Evil",
 		},
 		{
-			["image"] = nil,
 			["key"] = "faction:good",
 			["kind"] = "faction",
 			["name"] = "The Followers of Good",
 			["page"] = "The Followers of Good",
+		},
+		{
+			["key"] = "quest:goodsoil",
+			["kind"] = "quest",
+			["name"] = "The Tragedy at Goodsoil",
+			["page"] = "The Tragedy at Goodsoil",
 		},
 		{
 			["key"] = "class:duelist",

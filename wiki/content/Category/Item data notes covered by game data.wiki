@@ -1,0 +1,2 @@
+Pages with an [[Template:ItemData/SourceNote|identified editor source note]] already covered by game data. Compare the note with the canonical source and remove only the redundant part. Report details that the data still misses on [[Erenshor Wiki talk:Game Data]].
+__HIDDENCAT__

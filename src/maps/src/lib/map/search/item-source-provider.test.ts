@@ -1,758 +1,121 @@
-import { describe, it, expect } from 'vitest';
-import type {
-    ItemDropSource,
-    ItemVendorSource,
-    ItemMiningSource,
-    ItemFishingSource,
-    ItemBagSource,
-    ItemWorldDropSource,
-    ItemSourceItemMeta,
-    ItemSourceRow
-} from '$lib/map-markers';
-import type {
-    WorldEnemy,
-    WorldNpc,
-    WorldMiningNode,
-    WorldWater,
-    WorldItemBag
-} from '$lib/types/world-map';
+import { describe, expect, it } from 'vitest';
+import type { WorldEnemy } from '$lib/types/world-map';
+import type { ItemAcquisition } from '$lib/item-provenance';
+import { acquisition, condition, disposition, location, source } from '$lib/testing/item-provenance';
 import { ItemSearchProvider } from './item-source-provider';
-import type { ItemSearchResult } from './types';
 
-/** Type guard: narrows SearchResult to the item variant. */
-function isItemResult(result: { type: string }): result is ItemSearchResult {
-    return result.type === 'item';
-}
+const marker: WorldEnemy = {
+    stableKey: 'spawn:fixture', category: 'enemy', characters: [], spawnDelay: null, isNightSpawn: false,
+    position: { x: 10, y: 30 }, worldPosition: [10, 30], zone: 'Stowaway', zoneName: 'Stowaway Step',
+    popup: '', isEnabled: true, encounterTier: 'enemy', movement: null,
+    worldPatrolWaypoints: null, levelMin: 1, levelMax: 1
+};
 
-// Minimal marker factory: only fields the provider touches are populated.
-function makeEnemy(
-    stableKey: string,
-    zone: string,
-    zoneName: string,
-    charStableKey: string,
-    charName: string
-): WorldEnemy {
-    return {
-        stableKey,
-        zone,
-        zoneName,
-        worldPosition: [0, 0],
-        characters: [
-            {
-                name: charName,
-                wikiPageName: null,
-                portraitHash: null,
-                stableKey: charStableKey,
-                level: 10,
-                spawnChance: 100,
-                sourceScript: null,
-                eventPosition: null,
-                encounterTier: 'enemy',
-                isInvulnerable: false,
-                isVendor: false,
-                hasDialog: false
-            }
-        ]
-    } as unknown as WorldEnemy;
-}
-
-function makeNpc(
-    stableKey: string,
-    zone: string,
-    zoneName: string,
-    charStableKey: string,
-    charName: string
-): WorldNpc {
-    return {
-        stableKey,
-        zone,
-        zoneName,
-        worldPosition: [1, 1],
-        characters: [
-            {
-                name: charName,
-                wikiPageName: null,
-                portraitHash: null,
-                stableKey: charStableKey,
-                level: 5,
-                spawnChance: 100,
-                sourceScript: null,
-                eventPosition: null,
-                encounterTier: 'npc',
-                isInvulnerable: false,
-                isVendor: false,
-                hasDialog: false
-            }
-        ]
-    } as unknown as WorldNpc;
-}
-
-function auctionRow(
-    brokers: { characterStableKey: string; npcName: string; npcWikiPageName: string | null }[]
-): Extract<ItemSourceRow, { kind: 'auction_house' }> {
-    return {
-        kind: 'auction_house',
-        itemStableKey: 'item:auction',
-        displayName: 'Auction Item',
-        wikiPageName: 'Auction Item',
-        iconHash: null,
-        brokers
-    };
-}
-
-function row(
-    itemStableKey: string,
-    displayName: string,
-    charStableKey: string,
-    npcName: string,
-    dropProbability: number,
-    opts: Partial<ItemDropSource> = {}
-): ItemDropSource {
-    return {
-        kind: 'drop',
-        itemStableKey,
-        displayName,
-        wikiPageName: displayName,
-        iconHash: null,
-        characterStableKey: charStableKey,
-        npcName,
-        npcWikiPageName: npcName,
-        encounterTier: 'enemy',
-        dropProbability,
-        ...opts
-    };
-}
-
-function vendorRow(
-    itemStableKey: string,
-    displayName: string,
-    charStableKey: string,
-    npcName: string,
-    price: number,
-    opts: Partial<ItemVendorSource> = {}
-): ItemVendorSource {
-    return {
-        kind: 'vendor',
-        itemStableKey,
-        displayName,
-        wikiPageName: displayName,
-        iconHash: null,
-        characterStableKey: charStableKey,
-        npcName,
-        npcWikiPageName: npcName,
-        price,
-        ...opts
-    };
-}
-
-function miningRow(
-    itemStableKey: string,
-    displayName: string,
-    nodeStableKey: string,
-    dropChance: number,
-    opts: Partial<ItemMiningSource> = {}
-): ItemMiningSource {
-    return {
-        kind: 'mining',
-        itemStableKey,
-        displayName,
-        wikiPageName: displayName,
-        iconHash: null,
-        nodeStableKey,
-        dropChance,
-        ...opts
-    };
-}
-
-function fishingRow(
-    itemStableKey: string,
-    displayName: string,
-    waterStableKey: string,
-    period: 'day' | 'night',
-    dropChance: number,
-    opts: Partial<ItemFishingSource> = {}
-): ItemFishingSource {
-    return {
-        kind: 'fishing',
-        itemStableKey,
-        displayName,
-        wikiPageName: displayName,
-        iconHash: null,
-        waterStableKey,
-        period,
-        dropChance,
-        ...opts
-    };
-}
-
-function bagRow(
-    itemStableKey: string,
-    displayName: string,
-    bagStableKey: string,
-    opts: Partial<ItemBagSource> = {}
-): ItemBagSource {
-    return {
-        kind: 'bag',
-        itemStableKey,
-        displayName,
-        wikiPageName: displayName,
-        iconHash: null,
-        bagStableKey,
-        ...opts
-    };
-}
-
-function makeMiningNode(
-    stableKey: string,
-    zone: string,
-    zoneName: string,
-    worldPosition: [number, number] = [2, 2]
-): WorldMiningNode {
-    return {
-        stableKey,
-        category: 'mining-node',
-        position: { x: worldPosition[0], y: worldPosition[1] },
-        items: [],
-        respawnTime: 0,
-        zone,
-        zoneName,
-        worldPosition
-    } as WorldMiningNode;
-}
-
-function makeWater(
-    stableKey: string,
-    zone: string,
-    zoneName: string,
-    worldPosition: [number, number] = [3, 3]
-): WorldWater {
-    return {
-        stableKey,
-        category: 'water',
-        position: { x: worldPosition[0], y: worldPosition[1] },
-        width: 1,
-        height: 1,
-        daytimeItems: [],
-        nighttimeItems: [],
-        worldPolygon: [],
-        zone,
-        zoneName,
-        worldPosition
-    };
-}
-
-function makeBag(
-    stableKey: string,
-    zone: string,
-    zoneName: string,
-    worldPosition: [number, number] = [4, 4]
-): WorldItemBag {
-    return {
-        stableKey,
-        category: 'item-bag',
-        position: { x: worldPosition[0], y: worldPosition[1] },
-        itemName: 'Bag Item',
-        itemWikiPageName: null,
-        respawnTimer: 0,
-        respawns: true,
-        zone,
-        zoneName,
-        worldPosition
-    };
-}
-
-describe('ItemSearchProvider', () => {
-    it('retains every listed source without markers but drops unlocated dialog givers', () => {
-        const item = {
-            itemStableKey: 'item:listed',
-            displayName: 'Listed',
-            wikiPageName: 'Listed',
-            iconHash: null
-        };
-        const rows: ItemSourceRow[] = [
-            {
-                ...item,
-                kind: 'dialog',
-                characterStableKey: 'absent',
-                npcName: 'Absent',
-                requiredQuestStableKey: null,
-                requiredQuestName: null,
-                requiredQuestWikiPageName: null
-            },
-            {
-                ...item,
-                kind: 'quest',
-                questStableKey: 'quest:a',
-                questName: 'A',
-                questWikiPageName: 'A',
-                turnInCharacterStableKey: 'absent',
-                turnInCharacterName: 'Absent'
-            },
-            {
-                ...item,
-                kind: 'craft',
-                recipeStableKey: 'item:mold',
-                recipeName: 'Mold',
-                recipeWikiPageName: 'Mold'
-            },
-            {
-                ...item,
-                kind: 'item_use',
-                sourceItemStableKey: 'item:source',
-                sourceItemName: 'Source',
-                sourceItemWikiPageName: 'Source',
-                dropProbability: 25,
-                zoneName: null
-            },
-            {
-                ...item,
-                kind: 'starting',
-                className: 'Nightblade',
-                classDisplayName: 'Nightblade',
-                allClasses: false
-            }
-        ];
-        const provider = new ItemSearchProvider(rows, [], [], [], []);
-        const result = provider.getResult(item.itemStableKey)!;
-        expect(result.hasKnownSource).toBe(true);
-        expect(result.sourceCounts).toMatchObject({
-            givers: 0,
-            quests: 1,
-            recipes: 1,
-            itemUses: 1,
-            startingClasses: 1
-        });
-        expect(provider.getSourcesForItem(item.itemStableKey).map((s) => s.kind)).toEqual([
-            'quest',
-            'craft',
-            'item_use',
-            'starting'
-        ]);
-        expect(provider.getMarkersForItem(item.itemStableKey)).toEqual([]);
-        expect(provider.resolveHighlight(result)).toEqual({ type: 'none' });
+describe('canonical ItemSearchProvider', () => {
+    it('retains every dimension and identity through serialization, resolution and highlighting', () => {
+        const fact = acquisition({ locations: [location()], conditions: [condition()] });
+        const row = source(fact);
+        const provider = new ItemSearchProvider(JSON.parse(JSON.stringify([row])), [marker], [], [], []);
+        const result = provider.getResult(row.itemStableKey)!;
+        expect(provider.getSourcesForItem(row.itemStableKey)).toEqual([{ kind: fact.kind, row,
+            presentation: 'source', members: [row], markers: [marker], unlocated: [], entries: [] }]);
+        expect(JSON.parse(JSON.stringify(provider.getSourcesForItem(row.itemStableKey)[0].row.provenance))).toEqual(fact);
+        expect(result).toMatchObject({ hasKnownSource: true, zoneCount: 1, sourceCounts: { droppers: 1 } });
+        expect(provider.resolveHighlight(result)).toEqual({ type: 'positions', positions: [[10, 30]], stableKeys: ['spawn:fixture'] });
     });
 
-    it('indexes wiki items with no map source rows as unknown', () => {
-        const allItems: ItemSourceItemMeta[] = [
-            {
-                itemStableKey: 'item:quest-only',
-                displayName: 'Quest Reward',
-                wikiPageName: 'Quest Reward',
-                iconHash: 'quest-reward'
-            }
-        ];
-        const provider = new ItemSearchProvider([], [], [], [], [], allItems);
-
-        expect(provider.getResult('item:quest-only')).toMatchObject({
-            itemStableKey: 'item:quest-only',
-            itemName: 'Quest Reward',
-            hasKnownSource: false,
-            sourceCounts: {
-                droppers: 0,
-                vendors: 0,
-                miningNodes: 0,
-                fishingSpots: 0,
-                itemBags: 0,
-                worldDrops: 0,
-                auctionHouses: 0,
-                givers: 0,
-                quests: 0,
-                recipes: 0,
-                itemUses: 0,
-                startingClasses: 0
-            },
-            zoneCount: 0
-        });
-        expect(provider.buildIndex()).toHaveLength(1);
-    });
-
-    it('indexes items keyed by stable key, not display name', () => {
-        // Two items share the same display name but have different stable keys
-        const rows = [
-            row('item:a', 'Shared Name', 'char:1', 'Goblin', 10),
-            row('item:b', 'Shared Name', 'char:2', 'Orc', 20)
-        ];
-        const provider = new ItemSearchProvider(
-            rows,
-            [
-                makeEnemy('sp:1', 'Duskenlight', 'Duskenlight', 'char:1', 'Goblin'),
-                makeEnemy('sp:2', 'Braxonian', 'Braxonian', 'char:2', 'Orc')
-            ],
-            [],
-            [],
-            []
-        );
-        const entries = provider.buildIndex();
-
-        expect(entries).toHaveLength(2);
-        const keys = entries
-            .map((e) => e.result)
-            .filter(isItemResult)
-            .map((r) => r.itemStableKey);
-        expect(keys).toContain('item:a');
-        expect(keys).toContain('item:b');
-    });
-
-    it('indexes items whose source locations cannot be resolved', () => {
-        const rows = [
-            row('item:has-spawn', 'Dropped Sword', 'char:spawn', 'Goblin', 10),
-            row('item:no-spawn', 'Vendor Only', 'char:none', 'Merchant', 50)
-        ];
-        const provider = new ItemSearchProvider(
-            rows,
-            [
-                makeEnemy('sp:1', 'Duskenlight', 'Duskenlight', 'char:spawn', 'Goblin')
-                // No marker for char:none — merchant never spawns on the map
-            ],
-            [],
-            [],
-            []
-        );
-        const entries = provider.buildIndex();
-
-        expect(entries).toHaveLength(2);
-        const result = entries.find(
-            (entry) => isItemResult(entry.result) && entry.result.itemStableKey === 'item:no-spawn'
-        )?.result;
-        expect(result).toBeDefined();
-        if (result && isItemResult(result)) {
-            expect(result.hasKnownSource).toBe(true);
-            expect(result.sourceCounts).toEqual({
-                droppers: 1,
-                vendors: 0,
-                miningNodes: 0,
-                fishingSpots: 0,
-                itemBags: 0,
-                worldDrops: 0,
-                auctionHouses: 0,
-                givers: 0,
-                quests: 0,
-                recipes: 0,
-                itemUses: 0,
-                startingClasses: 0
-            });
-            expect(provider.getMarkersForItem('item:no-spawn')).toEqual([]);
-            expect(provider.getSourcesForItem('item:no-spawn')).toMatchObject([
-                { kind: 'drop', row: { npcWikiPageName: 'Merchant' }, markers: [] }
-            ]);
-        }
-    });
-
-    it('retains an unlocated vendor and its wiki link without coordinates', () => {
-        const provider = new ItemSearchProvider(
-            [vendorRow('item:scroll', 'Scroll', 'char:absent', 'Absent Merchant', 125)],
-            [], [], [], []
-        );
-        expect(provider.getResult('item:scroll')).toMatchObject({
-            hasKnownSource: true, zoneCount: 0, sourceCounts: { vendors: 1 }
-        });
-        expect(provider.getSourcesForItem('item:scroll')).toMatchObject([
-            { kind: 'vendor', row: { npcWikiPageName: 'Absent Merchant' }, markers: [] }
-        ]);
-        expect(provider.resolveHighlight(provider.getResult('item:scroll')!)).toEqual({ type: 'none' });
-    });
-
-    it('indexes a vendor-only item when its vendor spawns', () => {
-        const provider = new ItemSearchProvider(
-            [vendorRow('item:scroll', 'Vendor Scroll', 'char:merchant', 'Merchant', 125)],
-            [makeNpc('sp:merchant', 'Duskenlight', 'Duskenlight', 'char:merchant', 'Merchant')],
-            [],
-            [],
-            []
-        );
-
-        const result = provider.getResult('item:scroll');
-        expect(result).not.toBeNull();
-        expect(result?.sourceCounts).toEqual({
-            droppers: 0,
-            vendors: 1,
-            miningNodes: 0,
-            fishingSpots: 0,
-            itemBags: 0,
-            worldDrops: 0,
-            auctionHouses: 0,
-            givers: 0,
-            quests: 0,
-            recipes: 0,
-            itemUses: 0,
-            startingClasses: 0
-        });
-    });
-
-    it('resolves fishing-only items and deduplicates day and night rows for one water', () => {
-        const water = makeWater('water:1', 'Jaws', 'Jaws', [10, 11]);
-        const provider = new ItemSearchProvider(
-            [
-                fishingRow('item:fish', 'Rare Fish', 'water:1', 'day', 25),
-                fishingRow('item:fish', 'Rare Fish', 'water:1', 'night', 40)
-            ],
-            [],
-            [],
-            [water],
-            []
-        );
-
-        const result = provider.getResult('item:fish');
-        expect(result?.sourceCounts.fishingSpots).toBe(1);
-        expect(provider.getMarkersForItem('item:fish')).toEqual([water]);
-        expect(provider.getSourcesForItem('item:fish')).toHaveLength(2);
-        expect(
-            provider.getSourcesForItem('item:fish').every((source) => source.kind === 'fishing')
-        ).toBe(true);
-    });
-
-    it('resolves mining and bag sources by marker key and drops missing markers', () => {
-        const mining = makeMiningNode('mining:1', 'Braxonian', 'Braxonian', [20, 21]);
-        const bag = makeBag('bag:1', 'Silkengrass', 'Silkengrass', [30, 31]);
-        const provider = new ItemSearchProvider(
-            [
-                miningRow('item:resources', 'Resources', 'mining:1', 50),
-                miningRow('item:resources', 'Resources', 'mining:missing', 50),
-                bagRow('item:resources', 'Resources', 'bag:1'),
-                bagRow('item:resources', 'Resources', 'bag:missing')
-            ],
-            [],
-            [mining],
-            [],
-            [bag]
-        );
-
-        expect(provider.getResult('item:resources')?.sourceCounts).toEqual({
-            droppers: 0,
-            vendors: 0,
-            miningNodes: 1,
-            fishingSpots: 0,
-            itemBags: 1,
-            worldDrops: 0,
-            auctionHouses: 0,
-            givers: 0,
-            quests: 0,
-            recipes: 0,
-            itemUses: 0,
-            startingClasses: 0
-        });
-        expect(provider.getSourcesForItem('item:resources')).toHaveLength(2);
-        expect(provider.getSourcesForItem('item:resources').map((source) => source.kind)).toEqual([
-            'mining',
-            'bag'
-        ]);
-
-        const unresolvable = new ItemSearchProvider(
-            [
-                miningRow('item:missing', 'Missing', 'mining:none', 1),
-                fishingRow('item:missing', 'Missing', 'water:none', 'day', 1),
-                bagRow('item:missing', 'Missing', 'bag:none')
-            ],
-            [],
-            [],
-            [],
-            []
-        );
-        expect(unresolvable.getResult('item:missing')?.hasKnownSource).toBe(false);
-        expect(unresolvable.buildIndex()).toHaveLength(1);
-    });
-
-    it('returns resource sources and highlights every resource marker position', () => {
-        const mining = makeMiningNode('mining:1', 'Braxonian', 'Braxonian', [20, 21]);
-        const water = makeWater('water:1', 'Jaws', 'Jaws', [30, 31]);
-        const bag = makeBag('bag:1', 'Silkengrass', 'Silkengrass', [40, 41]);
-        const provider = new ItemSearchProvider(
-            [
-                miningRow('item:all', 'All Resources', 'mining:1', 10),
-                fishingRow('item:all', 'All Resources', 'water:1', 'day', 20),
-                bagRow('item:all', 'All Resources', 'bag:1')
-            ],
-            [],
-            [mining],
-            [water],
-            [bag]
-        );
-
-        const sources = provider.getSourcesForItem('item:all');
-        expect(sources.map((source) => source.kind)).toEqual(['mining', 'fishing', 'bag']);
-        const result = provider.getResult('item:all');
-        expect(result).not.toBeNull();
-        if (!result) return;
-        const highlight = provider.resolveHighlight(result);
-        expect(highlight).toEqual({
-            type: 'positions',
-            positions: [
-                [20, 21],
-                [30, 31],
-                [40, 41]
-            ],
-            stableKeys: ['mining:1', 'water:1', 'bag:1']
-        });
-    });
-
-    it('counts zones contributed by different source kinds', () => {
-        const provider = new ItemSearchProvider(
-            [
-                row('item:mixed', 'Mixed Sources', 'char:dropper', 'Goblin', 10),
-                miningRow('item:mixed', 'Mixed Sources', 'mining:1', 20)
-            ],
-            [makeEnemy('sp:dropper', 'Duskenlight', 'Duskenlight', 'char:dropper', 'Goblin')],
-            [makeMiningNode('mining:1', 'Braxonian', 'Braxonian')],
-            [],
-            []
-        );
-
-        expect(provider.getResult('item:mixed')?.zoneCount).toBe(2);
-    });
-    it('knows the source of an item that only world drops yield, without a map location', () => {
-        const worldRow: ItemWorldDropSource = {
-            kind: 'world',
-            itemStableKey: 'item:balance',
-            displayName: 'Crystallized Balance',
-            wikiPageName: 'Crystallized Balance',
-            iconHash: null,
-            pool: 'CrystallizedBalance',
-            dropProbability: 0.05,
-            minLevelExclusive: 30
-        };
-        const provider = new ItemSearchProvider([worldRow], [], [], [], []);
-
-        const result = provider.getResult('item:balance');
-        expect(result?.hasKnownSource).toBe(true);
-        expect(result?.sourceCounts.worldDrops).toBe(1);
-        expect(result?.zoneCount).toBe(0);
-        expect(provider.getMarkersForItem('item:balance')).toEqual([]);
-        expect(provider.resolveHighlight(result!)).toEqual({ type: 'none' });
-    });
-
-    it('deduplicates broker markers while retaining every unlocated Auction House broker', () => {
-        const marker = makeNpc('spawn:broker', 'Azure', 'Port Azure', 'character:broker-a', 'Broker A');
-        marker.characters.push({ ...marker.characters[0], stableKey: 'character:broker-b', name: 'Broker B' });
-        const rows = [auctionRow(['a', 'b', 'unlocated'].map((name) => ({
-            characterStableKey: `character:broker-${name}`,
-            npcName: `Broker ${name}`,
-            npcWikiPageName: null
-        })))];
+    it('lists every unlocated kind rather than dropping location-bound or UI sources', () => {
+        const kinds = ['character_drop', 'common_world_item', 'special_world_drop', 'vendor', 'dialog', 'quest_reward',
+            'crafting', 'item_drop', 'spell_created', 'mining', 'fishing', 'fishing_bonus', 'auction_house',
+            'item_bag', 'starting_class', 'ui_grant', 'item_conversion'];
+        const rows = kinds.map((kind) => source(acquisition({ kind, acquisition_key: `acquisition:${kind}`,
+            locations: [location({ relation: 'unlocated', coordinate_stable_key: null })] })));
         const provider = new ItemSearchProvider(rows, [marker], [], [], []);
-        const sources = provider.getSourcesForItem('item:auction');
-        expect(sources).toHaveLength(1);
-        const source = sources[0];
-        if (source.kind !== 'auction_house') throw new Error('Expected Auction House source');
-        expect(source.brokers.map((broker) => broker.markers.length)).toEqual([1, 1, 0]);
-        expect(source.markers).toEqual([marker]);
-        expect(provider.getMarkersForItem('item:auction')).toEqual([marker]);
-        expect(provider.getResult('item:auction')).toMatchObject({
-            sourceCounts: { auctionHouses: 1, vendors: 0 }, zoneCount: 1, hasKnownSource: true
-        });
+        expect(provider.getSourcesForItem('item:fixture').map((entry) => entry.row.acquisitionKey)).toEqual(rows.map((row) => row.acquisitionKey));
+        expect(provider.getSourcesForItem('item:fixture').every((entry) => entry.unlocated.length === 1)).toBe(true);
+        expect(provider.getMarkersForItem('item:fixture')).toEqual([]);
+        expect(provider.getResult('item:fixture')?.hasKnownSource).toBe(true);
     });
 
-    it('resolves highlight to positions of all dropper spawns', () => {
-        const rows = [row('item:1', 'Gem', 'char:1', 'Goblin', 5)];
-        const enemy1 = makeEnemy('sp:1', 'Duskenlight', 'Duskenlight', 'char:1', 'Goblin');
-        const enemy2 = makeEnemy('sp:2', 'Braxonian', 'Braxonian', 'char:1', 'Goblin');
-        const provider = new ItemSearchProvider(rows, [enemy1, enemy2], [], [], []);
+    it('does not substitute character markers for missing or explicitly unlocated placements', () => {
+        const row = source(acquisition({ locations: [location({ coordinate_stable_key: 'missing' })] }));
+        const provider = new ItemSearchProvider([row], [{ ...marker, characters: [{ stableKey: 'character:fixture' }] } as WorldEnemy], [], [], []);
+        expect(provider.getMarkersForItem(row.itemStableKey)).toEqual([]);
+        expect(provider.getSourcesForItem(row.itemStableKey)[0].unlocated).toEqual(row.provenance.locations);
+    });
 
-        const result = provider.resolveHighlight({
-            type: 'item',
-            itemStableKey: 'item:1',
-            itemName: 'Gem',
-            iconHash: null,
-            wikiPageName: null,
-            sourceCounts: {
-                droppers: 1,
-                vendors: 0,
-                miningNodes: 0,
-                fishingSpots: 0,
-                itemBags: 0,
-                worldDrops: 0,
-                auctionHouses: 0,
-                givers: 0,
-                quests: 0,
-                recipes: 0,
-                itemUses: 0,
-                startingClasses: 0
-            },
-            zoneCount: 2,
-            hasKnownSource: true
-        });
+    it('preserves variant, copy and original item keys when aliases share one visible result', () => {
+        const rows = ['one', 'two'].map((suffix) => source(acquisition({ acquisition_key: suffix,
+            item_stable_key: `item:hidden-${suffix}`, variant_key: suffix, source_copy_stable_key: `copy:${suffix}` }),
+        { itemStableKey: 'item:visible' }));
+        const provider = new ItemSearchProvider(rows, [], [], [], []);
+        expect(provider.getSourcesForItem('item:visible').map((entry) => entry.row)).toEqual(rows);
+        expect(provider.getResult('item:hidden-one')).toBeNull();
+        expect(provider.getResult('item:visible')?.sourceCounts.droppers).toBe(1);
+    });
 
-        expect(result.type).toBe('positions');
-        if (result.type === 'positions') {
-            expect(result.positions).toHaveLength(2);
-            expect(result.stableKeys).toContain('sp:1');
-            expect(result.stableKeys).toContain('sp:2');
+    it.each([null, 0, 1, 7])('keeps guaranteed pool roll count %s through the provider payload without promoting item chance', (count) => {
+        const fact = acquisition({ guarantee_scope: 'pool', guaranteed_roll_count: count,
+            probability_kind: 'exact', probability_min: 25, probability_max: 25 });
+        const row = source(fact);
+        const provider = new ItemSearchProvider(JSON.parse(JSON.stringify([row])), [], [], [], []);
+        const projected = provider.getSourcesForItem(row.itemStableKey)[0].row.provenance;
+        expect(JSON.parse(JSON.stringify(projected))).toEqual(fact);
+        expect(projected.guaranteed_roll_count).toBe(count);
+        expect(projected.guarantee_scope).toBe('pool');
+        expect(projected.probability_min).toBe(25);
+        expect(projected.probability_max).toBe(25);
+    });
+
+    it('uses matching canonical bonus metadata only and never publishes the native-pool record itself', () => {
+        const bonus = acquisition({ acquisition_key: 'bonus', kind: 'fishing_bonus', source_stable_key: null,
+            mechanic: 'fishing_global_replacement', probability_kind: 'exact', probability_stage: 'native_pool',
+            probability_min: 1.25, probability_max: 1.25 });
+        const final = acquisition({ acquisition_key: 'final', kind: 'fishing', probability_kind: 'exact',
+            probability_min: 1.25, probability_max: 1.25, conditions: [condition({ predicate: 'time_of_day', value: 'day' })] });
+        const first = source(final, { fishingBonus: bonus });
+        const second = source({ ...final, acquisition_key: 'second', variant_key: 'NightFishable',
+            conditions: [condition({ predicate: 'time_of_day', value: 'night' })] }, { fishingBonus: bonus });
+        const provider = new ItemSearchProvider([first, second, source(bonus)], [], [], [], []);
+        const summaries = provider.getSourcesForItem(final.item_stable_key);
+        expect(summaries).toHaveLength(1);
+        expect(summaries[0].presentation).toBe('any_water');
+        expect(JSON.parse(JSON.stringify(summaries[0].members))).toEqual([first, second]);
+        expect(summaries[0].markers).toEqual([]);
+        expect(summaries[0].row.provenance.probability_min).toBe(1.25);
+        expect(summaries[0].members.map((member) => member.provenance.conditions[0].value)).toEqual(['day', 'night']);
+        const invalidBonuses: Partial<ItemAcquisition>[] = [{ item_stable_key: 'item:other-origin' },
+            { probability_stage: 'final_acquisition' }, { mechanic: 'other' }, { probability_kind: 'bounded' },
+            { probability_max: 1.2500000001 }];
+        for (const invalid of invalidBonuses) {
+            const row = source(final, { fishingBonus: { ...bonus, ...invalid } });
+            expect(new ItemSearchProvider([row], [], [], [], []).getSourcesForItem(final.item_stable_key)[0].presentation).toBe('source');
         }
+        const enhanced = source({ ...final, probability_min: 7.1875, probability_max: 7.1875 }, { fishingBonus: bonus });
+        const unchanged = new ItemSearchProvider([enhanced], [], [], [], []).getSourcesForItem(final.item_stable_key)[0];
+        expect(unchanged.presentation).toBe('source');
+        expect(unchanged.row.provenance.probability_min).toBe(7.1875);
     });
 
-    it('getMarkersForItem and getSourcesForItem return data for the item', () => {
-        const rows = [
-            row('item:1', 'Gem', 'char:1', 'Goblin', 5, { encounterTier: 'elite' }),
-            row('item:1', 'Gem', 'char:2', 'Orc', 30, { encounterTier: 'boss' })
-        ];
-        const provider = new ItemSearchProvider(
-            rows,
-            [
-                makeEnemy('sp:1', 'Duskenlight', 'Duskenlight', 'char:1', 'Goblin'),
-                makeEnemy('sp:2', 'Duskenlight', 'Duskenlight', 'char:2', 'Orc')
-            ],
-            [],
-            [],
-            []
-        );
-
-        const markers = provider.getMarkersForItem('item:1');
-        expect(markers).toHaveLength(2);
-
-        const dropSources = provider
-            .getSourcesForItem('item:1')
-            .filter((source) => source.kind === 'drop');
-        expect(dropSources).toHaveLength(2);
-        // Sorted by drop probability descending, preserving the old row assertion intent
-        const probabilities = dropSources
-            .map((source) => source.row.dropProbability)
-            .sort((a, b) => b - a);
-        expect(probabilities).toEqual([30, 5]);
+    it('keeps distinct stable keys with the same display name and unknown-source items', () => {
+        const row = source();
+        const other = { ...row, itemStableKey: 'item:other' };
+        const provider = new ItemSearchProvider([row], [], [], [], [], [row, other]);
+        expect(provider.buildIndex()).toHaveLength(2);
+        expect(provider.getResult('item:other')?.hasKnownSource).toBe(false);
+        expect(provider.resolveHighlight(provider.getResult('item:other')!)).toEqual({ type: 'none' });
     });
 
-    it('getResult returns the cached result for URL restore', () => {
-        const rows = [row('item:1', 'Gem', 'char:1', 'Goblin', 5)];
-        const provider = new ItemSearchProvider(
-            rows,
-            [makeEnemy('sp:1', 'Duskenlight', 'Duskenlight', 'char:1', 'Goblin')],
-            [],
-            [],
-            []
-        );
-
-        const result = provider.getResult('item:1');
-        expect(result).not.toBeNull();
-        expect(result?.itemStableKey).toBe('item:1');
-        expect(result?.itemName).toBe('Gem');
-        expect(result?.sourceCounts.droppers).toBe(1);
-        expect(result?.zoneCount).toBe(1);
-
-        // Unknown key returns null
-        expect(provider.getResult('item:missing')).toBeNull();
-    });
-
-    it('counts unique dropper characters and zones across enemy and npc markers', () => {
-        const rows = [
-            row('item:1', 'Gem', 'char:e', 'Goblin', 5),
-            row('item:1', 'Gem', 'char:n', 'Merchant', 10)
-        ];
-        const provider = new ItemSearchProvider(
-            rows,
-            [
-                makeEnemy('sp:1', 'Duskenlight', 'Duskenlight', 'char:e', 'Goblin'),
-                makeNpc('sp:2', 'Braxonian', 'Braxonian', 'char:n', 'Merchant')
-            ],
-            [],
-            [],
-            []
-        );
-        const entries = provider.buildIndex();
-
-        expect(entries).toHaveLength(1);
-        const result = entries[0].result;
-        expect(isItemResult(result)).toBe(true);
-        if (isItemResult(result)) {
-            expect(result.sourceCounts.droppers).toBe(2); // one enemy + one npc character
-            expect(result.zoneCount).toBe(2); // Duskenlight + Braxonian
-        }
+    it('requires current lifecycle on both the originating variant and its visible representative', () => {
+        const fact = acquisition();
+        const retired = source(fact, { originatingDisposition: disposition(fact.item_stable_key, { disposition: 'removed' }) });
+        const retiredProvider = new ItemSearchProvider([retired], [], [], [], []);
+        expect(retiredProvider.getResult(retired.itemStableKey)?.hasKnownSource).toBe(false);
+        expect(retiredProvider.getSourcesForItem(retired.itemStableKey)).toEqual([]);
+        const alias = source(fact, { itemStableKey: 'item:alias',
+            displayDisposition: disposition('item:alias', { disposition: 'unused' }) });
+        expect(new ItemSearchProvider([alias], [], [], [], []).getResult('item:alias')?.hasKnownSource).toBe(false);
+        const mismatched = source(fact, { originatingDisposition: disposition('item:unrelated') });
+        expect(() => new ItemSearchProvider([mismatched], [], [], [], [])).toThrow('lifecycle identity mismatch');
     });
 });

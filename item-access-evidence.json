@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "assembly_sha256": "b840cb8076ed0553f7dc3beb4042aba653917882f763181ec0d2c13c26c17847",
+  "observations": [
+    {
+      "component_type": "ReplenishTMOGHide",
+      "slot": "MyIcon",
+      "player_access_state": "verified_player",
+      "transfer": "normal_pointer_inventory_transfer",
+      "replenishment": "while_source_active",
+      "receipt": "The cosmetic source supplied two inventory copies through its normal icon and cursor-drop actions. The active source replenished to one after each transfer. No item was injected."
+    },
+    {
+      "component_type": "PlanningTableUI",
+      "slot": "Portal",
+      "player_access_state": "verified_player",
+      "transfer": "normal_pointer_inventory_transfer",
+      "replenishment": "none_observed",
+      "receipt": "The native planning slot transferred one Box of Portals to inventory and remained empty. The nearby PlanningDesk became available after its native quest condition was completed through the game's quest API. No item was injected and no recurring supply was established."
+    }
+  ]
+}

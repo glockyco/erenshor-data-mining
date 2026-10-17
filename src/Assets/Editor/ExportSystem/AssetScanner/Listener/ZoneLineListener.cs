@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using SQLite;
 using UnityEngine;
 
@@ -54,6 +55,14 @@ public class ZoneLineListener : IAssetScanListener<Zoneline>
             Y = zoneLine.transform.position.y,
             Z = zoneLine.transform.position.z,
             IsEnabled = zoneLine.isActiveAndEnabled,
+            ObjectIsActive = zoneLine.gameObject.activeInHierarchy,
+            ComponentIsEnabled = zoneLine.enabled,
+            ColliderIsTrigger = zoneLine
+                .GetComponents<Collider>()
+                .Any(collider => collider.isTrigger),
+            HasEnabledTrigger = zoneLine
+                .GetComponents<Collider>()
+                .Any(collider => collider.enabled && collider.isTrigger),
             DisplayText = zoneLine.DisplayText,
             DestinationZoneStableKey = !string.IsNullOrEmpty(zoneLine.DestinationZone)
                 ? StableKeyGenerator.ForZoneFromSceneName(zoneLine.DestinationZone)

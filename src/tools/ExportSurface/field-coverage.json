@@ -42,7 +42,41 @@
     "TestDummy",
     "ModularPar",
     "ModularParts",
-    "Inventory"
+    "Inventory",
+    "SimPlayerMngr",
+    "SimPlayer",
+    "ReplenishTMOGHide",
+    "PlanningTableUI",
+    "ItemIcon",
+    "QuestSpawnListener",
+    "ShiverEvent",
+    "MemorySphere",
+    "SivTorchLight",
+    "ShiveringAngel",
+    "ShiveringPhantomWardListener",
+    "FernallaFight",
+    "SolunaFight",
+    "BraxFightEvent",
+    "NPCAliveListener",
+    "MorphTrigger",
+    "PietyTrigger",
+    "NPCShoutListener",
+    "ReliquaryFiend",
+    "MultiQuestListener",
+    "DynamicContentManager",
+    "DynamicContent",
+    "NPCInvuln",
+    "ActivateInWeather",
+    "NPCPhaseShiftManager",
+    "NPCPhaseShift",
+    "QuestManager",
+    "FernallaFightEvent",
+    "PhantomFightEvent",
+    "SprinklesEvent",
+    "ReliqDisableFiendSpawn",
+    "FernallaPortalBoss",
+    "AngelScript",
+    "ReliqPortalListener"
   ],
   "fields": {
     "AchievementTrigger": {
@@ -1039,9 +1073,9 @@
         "type": "Item"
       },
       "BlazeNPC": {
-        "by": null,
-        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
-        "status": "ignored",
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "Candlekeeper": {
@@ -1051,9 +1085,9 @@
         "type": "Item"
       },
       "CandlekeeperNPC": {
-        "by": null,
-        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
-        "status": "ignored",
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "Ember": {
@@ -1063,9 +1097,9 @@
         "type": "Item"
       },
       "EmberNPC": {
-        "by": null,
-        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
-        "status": "ignored",
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "Faceless": {
@@ -1075,39 +1109,39 @@
         "type": "Item"
       },
       "FacelessArc": {
-        "by": null,
-        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
-        "status": "ignored",
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "FacelessDru": {
-        "by": null,
-        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
-        "status": "ignored",
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "FacelessDuel": {
-        "by": null,
-        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
-        "status": "ignored",
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "FacelessPal": {
-        "by": null,
-        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
-        "status": "ignored",
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "FacelessReaver": {
-        "by": null,
-        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
-        "status": "ignored",
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "FacelessStorm": {
-        "by": null,
-        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
-        "status": "ignored",
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "Kingsman": {
@@ -1117,9 +1151,9 @@
         "type": "Item"
       },
       "KingsmanNPC": {
-        "by": null,
-        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
-        "status": "ignored",
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "Monarch": {
@@ -1129,9 +1163,9 @@
         "type": "Item"
       },
       "MonarchNPC": {
-        "by": null,
-        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
-        "status": "ignored",
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "Peon": {
@@ -1141,9 +1175,9 @@
         "type": "Item"
       },
       "PeonNPC": {
-        "by": null,
-        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
-        "status": "ignored",
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "ReplaceStatue": {
@@ -1153,9 +1187,9 @@
         "type": "Item"
       },
       "SpawnLoc": {
-        "by": null,
-        "reason": "spawn position of the game pieces; read by DynamicSpawnSourceListener through the catalog's position_field",
-        "status": "ignored",
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.Transform"
       }
     },
@@ -2419,9 +2453,9 @@
         "type": "UnityEngine.AudioClip"
       },
       "SivakayanSpectres": {
-        "by": null,
-        "reason": "Category C zone-random-spawner source deferred to the Category C follow-up note",
-        "status": "ignored",
+        "by": "ZoneWideSpawnListener",
+        "reason": null,
+        "status": "captured",
         "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
       },
       "SmithingOpen": {
@@ -2473,9 +2507,9 @@
         "type": "UnityEngine.AudioClip"
       },
       "TMOGHIDE": {
-        "by": null,
-        "reason": "GameData.Misc UI/audio/effect singleton reference not exported",
-        "status": "ignored",
+        "by": "UiItemSourceListener",
+        "reason": null,
+        "status": "captured",
         "type": "Item"
       },
       "TargetRing": {
@@ -5061,9 +5095,9 @@
         "type": "PlanarMusicManager"
       },
       "RestoredVitheo": {
-        "by": null,
-        "reason": "arena helper/position/toggle fields not emitted by arena-round or dynamic-spawn exporters",
-        "status": "ignored",
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "SpawnLoc1": {
@@ -5739,9 +5773,9 @@
         "type": "System.Single"
       },
       "GuaranteeMine": {
-        "by": null,
-        "reason": "GameManager runtime state, UI, or scene reference not exported",
-        "status": "ignored",
+        "by": "MiningNodeListener",
+        "reason": null,
+        "status": "captured",
         "type": "Item"
       },
       "HKManager": {
@@ -5811,7 +5845,7 @@
         "type": "Item"
       },
       "PlanarShard": {
-        "by": "SpecialWorldDropListener",
+        "by": "GameManagerItemBindingListener",
         "reason": null,
         "status": "captured",
         "type": "Item"
@@ -6149,39 +6183,39 @@
         "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
       },
       "Soluna": {
-        "by": null,
-        "reason": "rune portal that a rune opens at a rune slot, holding the zone line to its zone",
-        "status": "ignored",
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "Hidden": {
-        "by": null,
-        "reason": "rune portal that a rune opens at a rune slot, holding the zone line to its zone",
-        "status": "ignored",
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "Ripper": {
-        "by": null,
-        "reason": "rune portal that a rune opens at a rune slot, holding the zone line to its zone",
-        "status": "ignored",
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "Silkengrass": {
-        "by": null,
-        "reason": "rune portal that a rune opens at a rune slot, holding the zone line to its zone",
-        "status": "ignored",
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "Braxonian": {
-        "by": null,
-        "reason": "rune portal that a rune opens at a rune slot, holding the zone line to its zone",
-        "status": "ignored",
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "Windwashed": {
-        "by": null,
-        "reason": "rune portal that a rune opens at a rune slot, holding the zone line to its zone",
-        "status": "ignored",
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "Rune1": {
@@ -6269,27 +6303,27 @@
         "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
       },
       "BraxPort": {
-        "by": null,
-        "reason": "raid portal that a planar item opens, without a character for the export to place",
-        "status": "ignored",
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "FernPort": {
-        "by": null,
-        "reason": "raid portal that a planar item opens, without a character for the export to place",
-        "status": "ignored",
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "VithPort": {
-        "by": null,
-        "reason": "raid portal that a planar item opens, without a character for the export to place",
-        "status": "ignored",
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "SolPort": {
-        "by": null,
-        "reason": "raid portal that a planar item opens, without a character for the export to place",
-        "status": "ignored",
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       }
     },
@@ -6793,9 +6827,9 @@
         "type": "System.Collections.Generic.List`1<ItemIcon>"
       },
       "EquippedItems": {
-        "by": null,
-        "reason": "the character's items and their worn effects, filled at runtime from the save",
-        "status": "ignored",
+        "by": "AuthoredSimListener",
+        "reason": null,
+        "status": "captured",
         "type": "System.Collections.Generic.List`1<Item>"
       },
       "FernallanLensObj": {
@@ -7105,9 +7139,9 @@
         "type": "System.Collections.Generic.List`1<Spell>"
       },
       "isMale": {
-        "by": null,
-        "reason": "the runtime body choice of the character",
-        "status": "ignored",
+        "by": "AuthoredSimListener",
+        "reason": null,
+        "status": "captured",
         "type": "System.Boolean"
       },
       "isPlayer": {
@@ -7121,6 +7155,2437 @@
         "reason": "inventory window UI",
         "status": "ignored",
         "type": "ItemIcon"
+      }
+    },
+    "SimPlayer": {
+      "ATeamer": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "Abbreviates": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "AllHeldItems": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<ItemSaveData>"
+      },
+      "AskForInv": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "Bio": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.String"
+      },
+      "BioIndex": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "CanRespec": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "CurrentPullPhase": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "SimPlayer/PullPhases"
+      },
+      "Dedication": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "DedicationLevel": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "DisallowUpgrades": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "FearSpell": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "Spell"
+      },
+      "GearChase": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "Greed": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "GuardSpot": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "HairColor": {
+        "by": "AuthoredSimListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Int32"
+      },
+      "HairName": {
+        "by": "AuthoredSimListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.String"
+      },
+      "IgnoreAllCombat": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "InCampWhilePulling": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "InGroup": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "InMeleeRange": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "InRaid": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "InTutorial": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "InvisPlayerIfISeeHim": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "InvisSpell": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "Spell"
+      },
+      "IsGMCharacter": {
+        "by": "AuthoredSimListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Boolean"
+      },
+      "KnownStances": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<Stance>"
+      },
+      "LootWanted": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<Item>"
+      },
+      "LoreChase": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "LovesEmojis": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "MeditateSpell": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "Spell"
+      },
+      "MetPlayer": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "Mods": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "ModularParts"
+      },
+      "MyAcquiredSpells": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<Spell>"
+      },
+      "MyDialog": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "SimPlayerLanguage"
+      },
+      "MyEquipment": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<SimInvSlot>"
+      },
+      "MyPOI": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "PointOfInterest"
+      },
+      "MySimTracking": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "SimPlayerTracking"
+      },
+      "MyStats": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "Stats"
+      },
+      "MyTask": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "PointOfInterest/POIType"
+      },
+      "NavWatch": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "NearFlamewell": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "NearForge": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "OpinionOfPlayer": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "Patience": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "PersonalityType": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "PullTarget": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "Character"
+      },
+      "PullerPulling": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "RefersToSelfAs": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.String"
+      },
+      "Rival": {
+        "by": "AuthoredSimListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Boolean"
+      },
+      "RunningAway": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "SeekPlayer": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "SignOffLine": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "SimCosArm": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "ItemSaveData"
+      },
+      "SimCosBack": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "ItemSaveData"
+      },
+      "SimCosChest": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "ItemSaveData"
+      },
+      "SimCosFoot": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "ItemSaveData"
+      },
+      "SimCosHand": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "ItemSaveData"
+      },
+      "SimCosHead": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "ItemSaveData"
+      },
+      "SimCosLeg": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "ItemSaveData"
+      },
+      "SimCosWrist": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "ItemSaveData"
+      },
+      "SkillLevel": {
+        "by": "AuthoredSimListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Single"
+      },
+      "Skillbook": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<SimPlayerSkillSlot>"
+      },
+      "SkinColor": {
+        "by": "AuthoredSimListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Int32"
+      },
+      "SnareSpell": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "Spell"
+      },
+      "SocialChase": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "Spellbook": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<SimPlayerSpellSlot>"
+      },
+      "StoredItems": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<Item>"
+      },
+      "TiedToSlot": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "TimeOnTask": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "Troublemaker": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "TypesInAllCaps": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "TypesInAllLowers": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "TypesInThirdPerson": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "TypoChance": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "TypoRate": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "VerifyLoadComplete": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "WTB": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "Item"
+      },
+      "WaitForInv": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "assistCall": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "awaitInvite": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "banterDel": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "didGreet": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "freeRoamAzure": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "myIndex": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "pursuing": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "randomizeMagnitude": {
+        "by": null,
+        "reason": "simulation personality or behavior configuration, outside authored identity, class, equipment and appearance seeds",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "returnItemQual": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "returnSecondItemQual": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "sitting": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "suspendGuard": {
+        "by": null,
+        "reason": "runtime simulation state or behavior references, not authored identity or new-save seed data",
+        "status": "ignored",
+        "type": "Character"
+      }
+    },
+    "SimPlayerMngr": {
+      "AcknowledgeGratitude": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "ActiveSimInstances": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<SimPlayer>"
+      },
+      "ActualSims": {
+        "by": "AuthoredSimListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "Affirmations": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "Apologies": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "ApologyResponses": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "AuctionHouseMsg": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "AvoidPulls": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<Character/Faction>"
+      },
+      "BlankSPTemplate": {
+        "by": null,
+        "reason": "generic simulation template, not ActualSims membership",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "CongratsForWorldEvent": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "Count": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "TMPro.TextMeshProUGUI"
+      },
+      "Declinations": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "DenyGroup": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "DidNotUnderstand": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "Died": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "EnsureBow": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "Item"
+      },
+      "FinalizingMsg": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "FriendsClubResponseToWorldEvent": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "GMWarningsObscenities": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "GenericGreeting": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "Goodnight": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "Gratitude": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "GreetPlayerCooldown": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "GroupRequest": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "GroupedAlreadyAccept": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "GuildMsg": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "HairColors": {
+        "by": null,
+        "reason": "shared simulation palette, while authored appearance records retain serialized palette indices",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.Color>"
+      },
+      "HelpReq": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "Impressed": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "ImpressedEnd": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "InfoWanted": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "InvisReq": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "InviteEnd": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "Invites": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "JoinMyGuild": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "JoinYourGuild": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "LFGs": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "LevelCheck": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "LevelUpCelebrations": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "LevelUpCongratulations": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "LiveGroups": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<SimPlayerIndependentGroup>"
+      },
+      "LoadSplash": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "LoadedSimplayers": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "LocReq": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "LowLevelFallbacks": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<Item>"
+      },
+      "MeanDescriptions": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "NameDatabaseFemale": {
+        "by": null,
+        "reason": "random-name pool for generated sims, not authored identities",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "NameDatabaseMale": {
+        "by": null,
+        "reason": "random-name pool for generated sims, not authored identities",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "NamesUsed": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "NiceDesciptions": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "OTW": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "Obscenities": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "Responses": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<WhisperData>"
+      },
+      "RivalFemales": {
+        "by": null,
+        "reason": "random-name pool for generated sims, not authored identities",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "RivalMales": {
+        "by": null,
+        "reason": "random-name pool for generated sims, not authored identities",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "SPTemplate": {
+        "by": null,
+        "reason": "generic simulation template, not ActualSims membership",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "ServerPop": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "SimDict": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.Dictionary`2<System.String,SimPlayerTracking>"
+      },
+      "Sims": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<SimPlayerTracking>"
+      },
+      "SimsInZones": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "SkinColors": {
+        "by": null,
+        "reason": "shared simulation palette, while authored appearance records retain serialized palette indices",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.Color>"
+      },
+      "SmallTalk": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "TryhardDescriptions": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "TutDatabaseFemale": {
+        "by": null,
+        "reason": "random-name pool for generated sims, not authored identities",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "TutDatabaseMale": {
+        "by": null,
+        "reason": "random-name pool for generated sims, not authored identities",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "WTBs": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "WhatsUp": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "WhereDidYouGet": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "XPLossMsg": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "activeSimCongrats": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.String"
+      },
+      "spawnableZones": {
+        "by": null,
+        "reason": "simulation manager UI, behavior or runtime tracking, not authored prefab identity or seed data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      }
+    },
+    "PlanningTableUI": {
+      "Portal": {
+        "by": "UiItemSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "ItemIcon"
+      },
+      "LiveTable": {
+        "by": null,
+        "reason": "runtime pointer assigned by PlanningTable.Start, not a serialized access route",
+        "status": "ignored",
+        "type": "PlanningTable"
+      },
+      "L1": {
+        "by": null,
+        "reason": "player-supplied furnishing input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "L2": {
+        "by": null,
+        "reason": "player-supplied furnishing input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "L3": {
+        "by": null,
+        "reason": "player-supplied furnishing input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "L4": {
+        "by": null,
+        "reason": "player-supplied furnishing input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "R1": {
+        "by": null,
+        "reason": "player-supplied furnishing input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "R2": {
+        "by": null,
+        "reason": "player-supplied furnishing input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "R3": {
+        "by": null,
+        "reason": "player-supplied furnishing input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "R4": {
+        "by": null,
+        "reason": "player-supplied furnishing input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "Rune1": {
+        "by": null,
+        "reason": "player-supplied portal input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "Rune2": {
+        "by": null,
+        "reason": "player-supplied portal input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "Rune3": {
+        "by": null,
+        "reason": "player-supplied portal input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "Rune4": {
+        "by": null,
+        "reason": "player-supplied portal input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "Rune5": {
+        "by": null,
+        "reason": "player-supplied portal input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "Rune6": {
+        "by": null,
+        "reason": "player-supplied portal input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "StatueFL": {
+        "by": null,
+        "reason": "player-supplied furnishing input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "StatueFR": {
+        "by": null,
+        "reason": "player-supplied furnishing input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "StatueBR": {
+        "by": null,
+        "reason": "player-supplied furnishing input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "StatueBL": {
+        "by": null,
+        "reason": "player-supplied furnishing input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "PlanarSol": {
+        "by": null,
+        "reason": "player-supplied portal input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "PlanarBrax": {
+        "by": null,
+        "reason": "player-supplied portal input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "PlanarVith": {
+        "by": null,
+        "reason": "player-supplied portal input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "PlanarFern": {
+        "by": null,
+        "reason": "player-supplied portal input, not a native item grant",
+        "status": "ignored",
+        "type": "ItemIcon"
+      }
+    },
+    "ItemIcon": {
+      "MyItem": {
+        "by": "UiItemSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "Quantity": {
+        "by": "UiItemSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Int32"
+      },
+      "ThisSlotType": {
+        "by": "UiItemSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item/SlotType"
+      },
+      "DisplayOnly": {
+        "by": "UiItemSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Boolean"
+      },
+      "VendorSlot": {
+        "by": "UiItemSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Boolean"
+      },
+      "LootSlot": {
+        "by": "UiItemSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Boolean"
+      },
+      "BankSlot": {
+        "by": "UiItemSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Boolean"
+      },
+      "MouseSlot": {
+        "by": "UiItemSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Boolean"
+      },
+      "PlayerOwned": {
+        "by": "UiItemSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Boolean"
+      },
+      "NotInInventory": {
+        "by": "UiItemSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Boolean"
+      },
+      "dragging": {
+        "by": null,
+        "reason": "transient mouse interaction state",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "PlayerAHSlot": {
+        "by": null,
+        "reason": "auction-house interaction flag outside native UI grant slots",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "ParCol": {
+        "by": null,
+        "reason": "UI color",
+        "status": "ignored",
+        "type": "UnityEngine.Color"
+      },
+      "assignedHotkey": {
+        "by": null,
+        "reason": "runtime hotkey binding",
+        "status": "ignored",
+        "type": "Hotkeys"
+      },
+      "QuantityBox": {
+        "by": null,
+        "reason": "UI quantity label container",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "QuantityTxt": {
+        "by": null,
+        "reason": "UI quantity label",
+        "status": "ignored",
+        "type": "TMPro.TextMeshProUGUI"
+      },
+      "TrashSlot": {
+        "by": null,
+        "reason": "destination trash handling, not native source contents",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "ALLSLOTSINDEX": {
+        "by": null,
+        "reason": "runtime inventory slot index",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "MySparkler": {
+        "by": null,
+        "reason": "UI quality effect",
+        "status": "ignored",
+        "type": "UnityEngine.UI.Image"
+      },
+      "CanTakeBlessedItem": {
+        "by": null,
+        "reason": "destination item-quality restriction",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "CosmeticOnly": {
+        "by": null,
+        "reason": "destination cosmetic restriction",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "NoStackables": {
+        "by": null,
+        "reason": "destination stacking restriction",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "DistSlot": {
+        "by": null,
+        "reason": "loot distribution interaction outside native UI grant slots",
+        "status": "ignored",
+        "type": "System.Boolean"
+      }
+    },
+    "ReplenishTMOGHide": {
+      "MyIcon": {
+        "by": "UiItemSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "ItemIcon"
+      }
+    },
+    "QuestSpawnListener": {
+      "Quest": {
+        "by": "QuestActivationListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Quest"
+      },
+      "ActiveQuest": {
+        "by": "QuestActivationListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Quest"
+      },
+      "item": {
+        "by": "QuestActivationListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "EnableOnQuestComplete": {
+        "by": "QuestActivationListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "DestroyOnQuestComplete": {
+        "by": "QuestActivationListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "DestroyOnDemo": {
+        "by": null,
+        "reason": "not read by shipped QuestSpawnListener",
+        "status": "ignored",
+        "type": "System.Boolean"
+      }
+    },
+    "ActivateInWeather": {
+      "ActiveInRain": {
+        "by": "CharacterDamageReleaseListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "ActiveNoRain": {
+        "by": "CharacterDamageReleaseListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      }
+    },
+    "BraxFightEvent": {
+      "AddSpawnLocs": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "Brax": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "Character"
+      },
+      "BraxAE": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "AEEvent"
+      },
+      "BraxNPC": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "NPC"
+      },
+      "BraxSpawn": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "SpawnPoint"
+      },
+      "BraxStats": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "Stats"
+      },
+      "CheckedIn": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "Corruptor": {
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "Dead": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "ECrystal1": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "Character"
+      },
+      "ECrystal2": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "Character"
+      },
+      "ECrystal3": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "Character"
+      },
+      "ECrystal4": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "Character"
+      },
+      "ElementalCrystal": {
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "Engaged": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "Fire1Pos": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.Transform"
+      },
+      "Fire2Pos": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.Transform"
+      },
+      "GodBraxRestored": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "Ice1Pos": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.Transform"
+      },
+      "Ice2Pos": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.Transform"
+      },
+      "IceGolem": {
+        "by": null,
+        "reason": "Assigned to SpawnOnDeath at runtime, not Instantiate.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "LavaGolem": {
+        "by": null,
+        "reason": "Assigned to SpawnOnDeath at runtime, not Instantiate.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "SpawnPos1": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.Transform"
+      },
+      "SpawnPos2": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.Transform"
+      },
+      "Spawned": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<Character>"
+      },
+      "SpawnedCrystals": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "elementalConstruct": {
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      }
+    },
+    "DynamicContent": {
+      "AffectedByQuest": {
+        "by": "QuestActivationListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "RefQuest": {
+        "by": "QuestActivationListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Quest"
+      }
+    },
+    "DynamicContentManager": {
+      "ActivateWorldItems": {
+        "by": "QuestActivationListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<DynamicContent>"
+      },
+      "DisableWorldItems": {
+        "by": "QuestActivationListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<DynamicContent>"
+      }
+    },
+    "FernallaFight": {
+      "Corruptor": {
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "Defeated": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "Engaged": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "Fawn": {
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "Fern": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "Character"
+      },
+      "FernAE": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "AEEvent"
+      },
+      "FernNPC": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "NPC"
+      },
+      "FernShape": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "ShapeshiftMngr"
+      },
+      "FernSpawnPoint": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "SpawnPoint"
+      },
+      "FernStats": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "Stats"
+      },
+      "Pref": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "ParticleRef"
+      },
+      "RestoredFernalla": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "SpawnPoints": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.Transform>"
+      },
+      "Spiderings": {
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "Wolves": {
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "checkedIn": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Boolean"
+      }
+    },
+    "FernallaFightEvent": {
+      "BoomSound": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "UnityEngine.AudioClip"
+      },
+      "BorderFlames": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "BurstMana": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "UnityEngine.ParticleSystem"
+      },
+      "BurstManaSFX": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "UnityEngine.AudioClip"
+      },
+      "FawnToSpawn": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "FinalFernalla": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "MyAnim": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "UnityEngine.Animator"
+      },
+      "MyChar": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "Character"
+      },
+      "MyNPC": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "NPC"
+      },
+      "Phase2Assault": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Phase2Ward": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "thisSpawnPoint": {
+        "by": "CharacterDamageReleaseListener",
+        "reason": null,
+        "status": "captured",
+        "type": "SpawnPoint"
+      }
+    },
+    "MemorySphere": {
+      "Lore": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.String"
+      },
+      "Memory": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "RequiredInInventory": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "SFX": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.AudioClip"
+      },
+      "Smoke": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.ParticleSystem"
+      }
+    },
+    "MorphTrigger": {
+      "Disable": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "Enable": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "RiseAmt": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "RisePar": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Sfx": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.AudioClip"
+      },
+      "ShakeScreen": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "SinkAmt": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "SinkMorph": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "SinkPar": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "engageFog": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Boolean"
+      }
+    },
+    "MultiQuestListener": {
+      "DestroyOnDemo": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "DestroyOnQuestComplete": {
+        "by": "QuestActivationListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "Emote": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.String"
+      },
+      "EnableOnQuestComplete": {
+        "by": "QuestActivationListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "Quest": {
+        "by": "QuestActivationListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Quest"
+      },
+      "Quest2": {
+        "by": "QuestActivationListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Quest"
+      }
+    },
+    "NPCAliveListener": {
+      "DespawnIfAlive": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "SpawnIfAlive": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "SpawnPoint": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "SpawnPoint"
+      }
+    },
+    "NPCInvuln": {
+      "Protector": {
+        "by": "CharacterDamageReleaseListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      }
+    },
+    "NPCPhaseShift": {
+      "AttackDamageMod": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "AttackSpeed": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "DelayBeforeCombat": {
+        "by": "CharacterDamageReleaseListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Single"
+      },
+      "RefillLife": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "ShoutLine": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "System.String"
+      },
+      "TeachSpells": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<Spell>"
+      }
+    },
+    "NPCPhaseShiftManager": {
+      "Phases": {
+        "by": "CharacterDamageReleaseListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<NPCPhaseShift>"
+      },
+      "ShiftAtLife": {
+        "by": "CharacterDamageReleaseListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Int32"
+      }
+    },
+    "NPCShoutListener": {
+      "KeyWord": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.String"
+      },
+      "MySpawn": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "SpawnPoint"
+      },
+      "Responses": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "TriggerQuest": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Quest"
+      },
+      "UseEssentialSpawnsToBlockThisInstance": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Boolean"
+      }
+    },
+    "PhantomFightEvent": {
+      "LivingWards": {
+        "by": "CharacterDamageReleaseListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<Character>"
+      },
+      "WardSpawnPoints": {
+        "by": "CharacterDamageReleaseListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<UnityEngine.Transform>"
+      },
+      "WardsToSpawn": {
+        "by": "CharacterDamageReleaseListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      }
+    },
+    "PietyTrigger": {
+      "Guardians": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "Piety": {
+        "by": null,
+        "reason": "Unused character reference, not consulted by the guardian quest gate.",
+        "status": "ignored",
+        "type": "Character"
+      },
+      "RequiredQuest": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Quest"
+      },
+      "evil": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "WorldFaction"
+      }
+    },
+    "QuestManager": {
+      "NPCQuests": {
+        "by": "CharacterDamageReleaseListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<Quest>"
+      },
+      "SimUsable": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "System.Boolean"
+      }
+    },
+    "ReliquaryFiend": {
+      "Shouts": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      }
+    },
+    "ShiverEvent": {
+      "BlueCone": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "FirstKio": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "GoDarkSFX": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.AudioClip"
+      },
+      "Hider": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "Kio": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "Light": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "LightsOut": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.Color"
+      },
+      "NewLight": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.Color"
+      },
+      "OrigLight": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.Color"
+      },
+      "Phantom": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "Phase": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "PhaseDel": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "RedCone": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "SpawnTriggers": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "WarmFlame": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "Warming": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.Color"
+      },
+      "WelcomeCrew": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      }
+    },
+    "ShiveringAngel": {
+      "Rumble": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.AudioClip"
+      }
+    },
+    "ShiveringPhantomWardListener": {
+      "ward1": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Character"
+      },
+      "ward2": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Character"
+      }
+    },
+    "SivTorchLight": {
+      "BreakWall": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "Eye1": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Eye2": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      }
+    },
+    "SolunaFight": {
+      "AddPositions": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.Transform>"
+      },
+      "ConstellationStar": {
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "Corruptor1": {
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "Corruptor2": {
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "RestoredSoluna": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "Shadow": {
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "SolunaAE": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "AEEvent"
+      },
+      "SolunaChar": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "Character"
+      },
+      "SolunaNPC": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "NPC"
+      },
+      "SolunaSpawn": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "SpawnPoint"
+      },
+      "SolunaStats": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "Stats"
+      },
+      "SpecificSpawn1": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "SpecificSpawn2": {
+        "by": null,
+        "reason": "Combat mechanics, presentation, or runtime state outside the serialized activation references. Gate rules are pinned by CodeFacts.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      }
+    },
+    "SprinklesEvent": {
+      "CheckedIn": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "ForestWard": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Sprinkles": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "Character"
+      },
+      "SprinklesAddPosition1": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "UnityEngine.Transform"
+      },
+      "SprinklesAddPosition2": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "UnityEngine.Transform"
+      },
+      "SprinklesAnim": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "UnityEngine.Animator"
+      },
+      "SprinklesLifetapEvent": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "AEEvent"
+      },
+      "SprinklesNPC": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "NPC"
+      },
+      "SprinklesOffensiveEvent": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "AEEvent"
+      },
+      "SprinklesSpawn": {
+        "by": "CharacterDamageReleaseListener",
+        "reason": null,
+        "status": "captured",
+        "type": "SpawnPoint"
+      },
+      "SprinklesStats": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "Stats"
+      },
+      "Trickster": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "WardSpawnPoints": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "wardUpTime": {
+        "by": null,
+        "reason": "Presentation, combat effects, or runtime encounter state outside the damage-release proof. CharacterDamageReleaseListener validates each consumed field shape.",
+        "status": "ignored",
+        "type": "System.Single"
+      }
+    },
+    "ReliqDisableFiendSpawn": {},
+    "ReliqPortalListener": {
+      "ReliqZL": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Zoneline"
+      },
+      "ReliqPort": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "Txt": {
+        "by": null,
+        "reason": "display label computed from the saved return destination",
+        "status": "ignored",
+        "type": "TMPro.TextMeshPro"
+      }
+    },
+    "AngelScript": {
+      "IsDone": {
+        "by": null,
+        "reason": "runtime puzzle completion state",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "HomeY": {
+        "by": null,
+        "reason": "statue animation destination, not an activation target",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "Torches": {
+        "by": null,
+        "reason": "torch-color puzzle inputs, outside the activation reference contract",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<IslandTorches>"
+      },
+      "Beams": {
+        "by": null,
+        "reason": "puzzle completion particle effects",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "Rainbows": {
+        "by": null,
+        "reason": "puzzle completion particle effects",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "BeamIgnite": {
+        "by": null,
+        "reason": "puzzle sound effect",
+        "status": "ignored",
+        "type": "UnityEngine.AudioClip"
+      },
+      "Rumble": {
+        "by": null,
+        "reason": "puzzle sound effect",
+        "status": "ignored",
+        "type": "UnityEngine.AudioClip"
+      },
+      "Step": {
+        "by": null,
+        "reason": "runtime puzzle sequence phase",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "StepDelay": {
+        "by": null,
+        "reason": "unused sequence timing field",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "ActualDelay": {
+        "by": null,
+        "reason": "runtime sequence countdown",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "Stop": {
+        "by": null,
+        "reason": "puzzle sound effect",
+        "status": "ignored",
+        "type": "UnityEngine.AudioClip"
+      },
+      "Shouts": {
+        "by": null,
+        "reason": "puzzle completion dialogue, not an activation reference",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "TheBellwains": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      }
+    },
+    "FernallaPortalBoss": {
+      "Ward1": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "Ward2": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "Ward3": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
       }
     }
   }

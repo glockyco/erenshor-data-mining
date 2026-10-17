@@ -86,9 +86,9 @@ def test_a_training_dummy_takes_the_player_level_below_42_and_42_above() -> None
 
 
 def test_a_start_after_the_training_dummy_sees_the_level_it_gave() -> None:
-    assert start_levels(("TestDummy", "Stats", "NPC"), 1, 20) == StartLevels(npc=20, stats=20, final=20)
-    assert start_levels(("NPC", "Stats", "TestDummy"), 1, 20) == StartLevels(npc=1, stats=1, final=20)
-    assert start_levels(("Stats", "NPC"), 7, None) == StartLevels(npc=7, stats=7, final=7)
+    assert start_levels(("TestDummy", "Stats", "NPC"), 1, 20) == StartLevels(npc=20, stats=20, final=20, calculated=20)
+    assert start_levels(("NPC", "Stats", "TestDummy"), 1, 20) == StartLevels(npc=1, stats=1, final=20, calculated=20)
+    assert start_levels(("Stats", "NPC"), 7, None) == StartLevels(npc=7, stats=7, final=7, calculated=7)
     with pytest.raises(ValueError, match="takes the player's level"):
         start_levels(("TestDummy", "Stats", "NPC"), 1, None)
 
@@ -106,3 +106,15 @@ def test_scene_characters_start_in_file_id_order_and_reverse_it_when_activated_l
     assert not starts_before(start_order("Stats,NPC", "NPC,Stats", True), "Stats", "NPC")
     assert starts_before(start_order("Stats,NPC", "NPC,Stats", False), "Stats", "NPC")
     assert start_order("NPC,Stats,TestDummy", "NPC,Stats,TestDummy", False) == ("TestDummy", "Stats", "NPC")
+
+
+def test_variance_after_stats_does_not_recalculate_unbuffed_armor() -> None:
+    stats_first = start_levels(("Stats", "NPC", "Character"), 34, None, npc_level=35)
+    npc_first = start_levels(("NPC", "Stats", "Character"), 34, None, npc_level=35)
+    assert (stats_first.final, stats_first.calculated) == (35, 34)
+    assert (npc_first.final, npc_first.calculated) == (35, 35)
+
+
+def test_dummy_recalculation_stays_at_player_level_before_later_npc_variance() -> None:
+    levels = start_levels(("TestDummy", "Stats", "NPC"), 1, 20, npc_level=21)
+    assert (levels.npc, levels.stats, levels.final, levels.calculated) == (21, 20, 21, 20)

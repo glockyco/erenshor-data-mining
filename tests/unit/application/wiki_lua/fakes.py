@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from collections.abc import Iterable, Iterator
 from types import SimpleNamespace
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
+from erenshor.application.processor.npc_spawn import SpawnConstants
 from erenshor.domain.entities.character import Character
 from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.quest import Quest
@@ -10,19 +12,91 @@ from erenshor.domain.entities.skill import Skill
 from erenshor.domain.entities.spell import Spell
 from erenshor.domain.entities.stance import Stance
 from erenshor.domain.entities.zone import Zone
+from erenshor.domain.value_objects.item_provenance import (
+    ItemAcquisition,
+    ItemDisposition,
+    ItemUse,
+    conditions_satisfiable,
+)
+from erenshor.domain.value_objects.wiki_link import AbilityLink
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.item_stats import ItemStats
     from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
     from erenshor.domain.value_objects.faction import FactionModifier
-    from erenshor.domain.value_objects.source_info import ObtainedFromInfo, UsedInInfo, WorldDropInfo
     from erenshor.domain.value_objects.vendor_stock import VendorStockEntry
-    from erenshor.domain.value_objects.wiki_link import (
-        CharacterLink,
-        ItemLink,
-        QuestLink,
-        StandardLink,
-    )
+    from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink
+
+
+class FakeItemProvenanceRepository:
+    def __init__(
+        self,
+        item_keys: list[str],
+        acquisitions: list[ItemAcquisition] | None = None,
+        uses: list[ItemUse] | None = None,
+        dispositions: list[ItemDisposition] | None = None,
+        common_world_characters: frozenset[str] = frozenset(),
+    ) -> None:
+        self._acquisitions = acquisitions or []
+        self._uses = uses or []
+        self._common_world_characters = common_world_characters
+        self._dispositions = {
+            row.item_stable_key: row
+            for row in (
+                dispositions
+                if dispositions is not None
+                else [ItemDisposition(key, "current", current_pages=(key.removeprefix("item:"),)) for key in item_keys]
+            )
+        }
+
+    def get_acquisitions(self, item_key: str) -> list[ItemAcquisition]:
+        return [row for row in self._acquisitions if row.item_stable_key == item_key]
+
+    def get_character_drop_acquisitions(self, actual_copy_keys: Iterable[str]) -> list[ItemAcquisition]:
+        copies = set(actual_copy_keys)
+        return [
+            row for row in self._acquisitions if row.kind == "character_drop" and row.source_copy_stable_key in copies
+        ]
+
+    def get_uses(self, item_key: str) -> list[ItemUse]:
+        return [row for row in self._uses if row.item_stable_key == item_key]
+
+    def get_uses_targeting(self, target_key: str) -> list[ItemUse]:
+        return [row for row in self._uses if row.target_stable_key == target_key]
+
+    def get_disposition(self, item_key: str) -> ItemDisposition | None:
+        return self._dispositions.get(item_key)
+
+    def get_player_access(self, item_key: str) -> Literal["verified_player", "unconfirmed_player", "no_verified_path"]:
+        disposition = self.get_disposition(item_key)
+        if disposition is None or disposition.disposition != "current":
+            return "no_verified_path"
+        for access in ("verified_player", "unconfirmed_player"):
+            if any(
+                fact.player_access_state == access
+                and fact.probability_stage == "final_acquisition"
+                and not (fact.probability_max is not None and fact.probability_max <= 0)
+                and conditions_satisfiable(fact.conditions)
+                and (
+                    not fact.locations
+                    or any(conditions_satisfiable(fact.conditions + location.conditions) for location in fact.locations)
+                )
+                for fact in self.get_acquisitions(item_key)
+            ):
+                return access
+        return "no_verified_path"
+
+    def iter_acquisitions(self) -> Iterator[ItemAcquisition]:
+        return iter(self._acquisitions)
+
+    def iter_uses(self) -> Iterator[ItemUse]:
+        return iter(self._uses)
+
+    def iter_dispositions(self) -> Iterator[ItemDisposition]:
+        return iter(sorted(self._dispositions.values(), key=lambda row: row.item_stable_key))
+
+    def get_common_world_character_keys(self) -> frozenset[str]:
+        return self._common_world_characters
 
 
 class FakeItemRepository:
@@ -32,45 +106,21 @@ class FakeItemRepository:
         stats: dict[str, list[ItemStats]],
         classes: dict[str, list[str]],
         recipes: dict[str, CraftingRecipe] | None = None,
-        item_sources: dict[str, list[tuple[StandardLink, float]]] | None = None,
-        items_requiring: dict[str, list[ItemLink]] | None = None,
-        item_drops: dict[str, list[tuple[ItemLink, float, bool]]] | None = None,
-        craft_sources: dict[str, list[ObtainedFromInfo]] | None = None,
-        crafting_material_sources: dict[str, list[UsedInInfo]] | None = None,
-        smithing_sources: dict[str, list[UsedInInfo]] | None = None,
-        item_use_sources: dict[str, list[ObtainedFromInfo]] | None = None,
-        starting_sources: dict[str, list[ObtainedFromInfo]] | None = None,
-        world_drops: dict[str, list[WorldDropInfo]] | None = None,
         spell_teaching_items: dict[str, list[ItemLink]] | None = None,
         skill_teaching_items: dict[str, list[ItemLink]] | None = None,
         spell_effect_items: dict[str, list[ItemLink]] | None = None,
         skill_effect_items: dict[str, list[ItemLink]] | None = None,
         catalog_items: list[Item] | None = None,
-        mechanic_sources: dict[str, list[ObtainedFromInfo]] | None = None,
-        mechanic_uses: dict[str, list[UsedInInfo]] | None = None,
-        zone_restrictions: dict[str, list[tuple[str, str]]] | None = None,
     ) -> None:
         self._items = items
         self._catalog_items = items if catalog_items is None else catalog_items
         self._stats = stats
         self._classes = classes
         self._recipes = recipes or {}
-        self._item_sources = item_sources or {}
-        self._items_requiring = items_requiring or {}
-        self._item_drops = item_drops or {}
-        self._craft_sources = craft_sources or {}
-        self._crafting_material_sources = crafting_material_sources or {}
-        self._smithing_sources = smithing_sources or {}
-        self._item_use_sources = item_use_sources or {}
-        self._starting_sources = starting_sources or {}
-        self._world_drops = world_drops or {}
         self._spell_teaching_items = spell_teaching_items or {}
         self._skill_teaching_items = skill_teaching_items or {}
         self._spell_effect_items = spell_effect_items or {}
         self._skill_effect_items = skill_effect_items or {}
-        self._mechanic_sources = mechanic_sources or {}
-        self._mechanic_uses = mechanic_uses or {}
-        self._zone_restrictions = zone_restrictions or {}
 
     def get_items_for_wiki_generation(self) -> list[Item]:
         return self._items
@@ -87,65 +137,8 @@ class FakeItemRepository:
     def get_crafting_recipe(self, stable_key: str) -> CraftingRecipe | None:
         return self._recipes.get(stable_key)
 
-    def get_item_zone_restrictions(self, item_stable_key: str) -> list[tuple[str, str]]:
-        return self._zone_restrictions.get(item_stable_key, [])
-
-    def get_auction_house_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        return [
-            source
-            for source in self._mechanic_sources.get(item_stable_key, [])
-            if source.source_type == "auction_house"
-        ]
-
-    def get_fishing_bonus_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        return [
-            source
-            for source in self._mechanic_sources.get(item_stable_key, [])
-            if source.source_type == "fishing_bonus"
-        ]
-
-    def get_item_conversion_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        return [
-            source
-            for source in self._mechanic_sources.get(item_stable_key, [])
-            if source.source_type == "item_conversion"
-        ]
-
-    def get_item_conversion_uses(self, item_stable_key: str) -> list[UsedInInfo]:
-        return [use for use in self._mechanic_uses.get(item_stable_key, []) if use.use_type == "item_conversion"]
-
-    def get_quality_offering_uses(self, item_stable_key: str) -> list[UsedInInfo]:
-        return [use for use in self._mechanic_uses.get(item_stable_key, []) if use.use_type == "quality_offering"]
-
-    def get_item_sources(self, item_stable_key: str) -> list[tuple[StandardLink, float]]:
-        return self._item_sources.get(item_stable_key, [])
-
-    def get_items_requiring_item(self, item_stable_key: str) -> list[ItemLink]:
-        return self._items_requiring.get(item_stable_key, [])
-
-    def get_item_drops(self, source_item_stable_key: str) -> list[tuple[ItemLink, float, bool]]:
-        return self._item_drops.get(source_item_stable_key, [])
-
-    def get_recipes_rewarding_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        return self._craft_sources.get(item_stable_key, [])
-
-    def get_item_use_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        return self._item_use_sources.get(item_stable_key, [])
-
-    def get_crafting_material_sources(self, item_stable_key: str) -> list[UsedInInfo]:
-        return self._crafting_material_sources.get(item_stable_key, [])
-
-    def get_item_smithing_special_uses(self, item_stable_key: str) -> list[UsedInInfo]:
-        return self._smithing_sources.get(item_stable_key, [])
-
-    def get_classes_starting_with_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        return self._starting_sources.get(item_stable_key, [])
-
-    def get_special_world_drops(self, item_stable_key: str) -> list[WorldDropInfo]:
-        return self._world_drops.get(item_stable_key, [])
-
-    def get_all_special_world_drops(self) -> list[tuple[str, WorldDropInfo]]:
-        return [(item_key, drop) for item_key, drops in sorted(self._world_drops.items()) for drop in drops]
+    def get_item_renders(self, stable_key: str) -> dict[str | None, str]:
+        return {}
 
     def get_obtainable_items_that_teach_spell(self, spell_stable_key: str) -> list[ItemLink]:
         return self._spell_teaching_items.get(spell_stable_key, [])
@@ -171,51 +164,79 @@ class FakeCharacterRepository:
     def __init__(
         self,
         characters: list[Character],
-        vendors: dict[str, list[CharacterLink]] | None = None,
-        drops: dict[str, list[tuple[CharacterLink, float]]] | None = None,
-        drop_sources: dict[str, list[ObtainedFromInfo]] | None = None,
-        vendor_sources: dict[str, list[ObtainedFromInfo]] | None = None,
-        dialog_sources: dict[str, list[ObtainedFromInfo]] | None = None,
         spell_users: dict[str, list[CharacterLink]] | None = None,
         vendor_stock: list[VendorStockEntry] | None = None,
-        common_world_item_sources: dict[str, list[ObtainedFromInfo]] | None = None,
+        members: dict[str, list[Character]] | None = None,
+        placements: list[dict[str, object]] | None = None,
+        abilities: dict[str, list[dict[str, object]]] | None = None,
+        catalog: dict[str, dict[str, object]] | None = None,
+        classes: list[dict[str, object]] | None = None,
+        summoners: list[dict[str, object]] | None = None,
     ) -> None:
         self._characters = characters
-        self._vendors = vendors or {}
-        self._drops = drops or {}
-        self._drop_sources = drop_sources or {}
-        self._vendor_sources = vendor_sources or {}
-        self._dialog_sources = dialog_sources or {}
         self._spell_users = spell_users or {}
         self._vendor_stock = vendor_stock or []
-        self._common_world_item_sources = common_world_item_sources or {}
+        self._members = (
+            members if members is not None else {character.stable_key: [character] for character in characters}
+        )
+        self._placements = placements
+        self._abilities = abilities or {}
+        self._catalog = catalog or {}
+        self._character_classes = classes or []
+        self._summoners = summoners or []
 
     def get_characters_for_wiki_generation(self) -> list[Character]:
         return self._characters
 
-    def get_vendors_selling_item(self, item_stable_key: str) -> list[CharacterLink]:
-        return self._vendors.get(item_stable_key, [])
+    def get_character_data_members(self, stable_key: str) -> list[Character]:
+        return self._members[stable_key]
 
-    def get_characters_dropping_item(self, item_stable_key: str) -> list[tuple[CharacterLink, float]]:
-        return self._drops.get(item_stable_key, [])
+    def get_character_data_abilities(self, stable_key: str) -> list[dict[str, object]]:
+        return self._abilities.get(stable_key, [])
 
-    def get_character_drop_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        return self._drop_sources.get(item_stable_key, [])
+    def get_character_placements(self) -> list[dict[str, object]]:
+        if self._placements is not None:
+            return self._placements
+        return [
+            {
+                "representative_stable_key": representative,
+                "character_stable_key": member.stable_key,
+                "placement_kind": "unplaced",
+                "can_be_damaged": bool(member.can_be_damaged),
+                "initial_invulnerable": bool(member.invulnerable),
+                "stop_quests": [],
+                "gates": [],
+                "entries": [],
+                "damage_releases": [],
+            }
+            for representative, members in self._members.items()
+            for member in members
+        ]
 
-    def get_common_world_item_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        return self._common_world_item_sources.get(item_stable_key, [])
+    def get_character_data_catalog(self) -> dict[str, dict[str, object]]:
+        return {
+            member.stable_key: {"name": member.display_name, "page": member.wiki_page_name}
+            for members in self._members.values()
+            for member in members
+        } | self._catalog
 
-    def get_vendor_sources_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        return self._vendor_sources.get(item_stable_key, [])
+    def get_character_data_classes(self) -> list[dict[str, object]]:
+        return self._character_classes
 
-    def get_characters_giving_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        return self._dialog_sources.get(item_stable_key, [])
+    def get_character_data_spawn_constants(self) -> SpawnConstants:
+        return SpawnConstants(1, 1.3, 1.75, 1.1, 1.1)
+
+    def get_character_data_summoners(self) -> list[dict[str, object]]:
+        return self._summoners
 
     def get_characters_using_spell(self, spell_stable_key: str) -> list[CharacterLink]:
         return self._spell_users.get(spell_stable_key, [])
 
     def get_vendor_stock(self) -> list[VendorStockEntry]:
         return self._vendor_stock
+
+    def get_zone_roster_spawns(self) -> list[dict[str, object]]:
+        return []
 
 
 class FakeSpellRepository:
@@ -229,6 +250,9 @@ class FakeSpellRepository:
     def get_spell_classes(self, stable_key: str) -> list[str]:
         return self._classes.get(stable_key, [])
 
+    def get_class_ability_teachers(self) -> list[dict[str, object]]:
+        return []
+
 
 class FakeSkillRepository:
     def __init__(self, skills: list[Skill], class_display_names: dict[str, str] | None = None) -> None:
@@ -240,6 +264,18 @@ class FakeSkillRepository:
 
     def get_class_display_names(self) -> dict[str, str]:
         return self._class_display_names
+
+    def get_skills_using_stance(self, stance_stable_key: str) -> list[AbilityLink]:
+        return [
+            AbilityLink(
+                page_title=skill.wiki_page_name,
+                display_name=skill.display_name or skill.skill_name or skill.stable_key,
+                image_name=skill.image_name,
+                stable_key=skill.stable_key,
+            )
+            for skill in sorted(self._skills, key=lambda row: (row.display_name or "").casefold())
+            if skill.stance_to_use_stable_key == stance_stable_key
+        ]
 
 
 class FakeFactionRepository:
@@ -274,17 +310,12 @@ class FakeQuestRepository:
         self,
         quests: list[Quest],
         faction_changes: dict[str, list[FactionModifier]] | None = None,
-        quest_rewards: dict[str, list[QuestLink]] | None = None,
-        quest_requirements: dict[str, list[QuestLink]] | None = None,
-        reward_sources: dict[str, list[ObtainedFromInfo]] | None = None,
-        requirement_sources: dict[str, list[UsedInInfo]] | None = None,
     ) -> None:
         self._quests = quests
         self._faction_changes = faction_changes or {}
-        self._quest_rewards = quest_rewards or {}
-        self._quest_requirements = quest_requirements or {}
-        self._reward_sources = reward_sources or {}
-        self._requirement_sources = requirement_sources or {}
+
+    def get_quest_panel_rows(self) -> dict[str, list[dict[str, object]]]:
+        return {}
 
     def get_quests_for_wiki_generation(self) -> list[Quest]:
         return self._quests
@@ -292,48 +323,21 @@ class FakeQuestRepository:
     def get_faction_changes_for_quests(self, stable_keys: list[str]) -> dict[str, list[FactionModifier]]:
         return {stable_key: self._faction_changes.get(stable_key, []) for stable_key in stable_keys}
 
-    def get_quests_rewarding_item(self, item_stable_key: str) -> list[QuestLink]:
-        return self._quest_rewards.get(item_stable_key, [])
-
-    def get_quest_reward_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        return self._reward_sources.get(item_stable_key, [])
-
-    def get_quest_requirement_sources(self, item_stable_key: str) -> list[UsedInInfo]:
-        return self._requirement_sources.get(item_stable_key, [])
-
-    def get_quests_requiring_item(self, item_stable_key: str) -> list[QuestLink]:
-        return self._quest_requirements.get(item_stable_key, [])
-
 
 class FakeZoneRepository:
     def __init__(
         self,
         zones: list[Zone],
         connections: dict[str, list[str]],
-        mining_sources: dict[str, list[ObtainedFromInfo]] | None = None,
-        fishing_sources: dict[str, list[ObtainedFromInfo]] | None = None,
-        item_bag_sources: dict[str, list[ObtainedFromInfo]] | None = None,
     ) -> None:
         self._zones = zones
         self._connections = connections
-        self._mining_sources = mining_sources or {}
-        self._fishing_sources = fishing_sources or {}
-        self._item_bag_sources = item_bag_sources or {}
 
     def get_all_zones(self) -> list[Zone]:
         return self._zones
 
     def get_zone_connections(self, scene_name: str) -> list[str]:
         return self._connections.get(scene_name, [])
-
-    def get_mining_nodes_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        return self._mining_sources.get(item_stable_key, [])
-
-    def get_fishing_waters_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        return self._fishing_sources.get(item_stable_key, [])
-
-    def get_item_bag_sources_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        return self._item_bag_sources.get(item_stable_key, [])
 
 
 def make_faction(**overrides: object) -> object:
@@ -351,6 +355,7 @@ def make_item(**overrides: object) -> Item:
     values = {
         "stable_key": "item:sword_of_flames",
         "item_name": "Sword of Flames",
+        "item_db_index": 1,
         "display_name": "Sword of Flames",
         "wiki_page_name": "Sword of Flames",
         "image_name": "Sword of Flames",
@@ -465,6 +470,7 @@ def make_zone(**overrides: object) -> Zone:
         "wiki_page_name": "Port Azure",
         "image_name": "Port Azure",
         "is_dungeon": 0,
+        "zone_type": "Outdoor",
         "raid_capable": False,
         "use_zone_as_temp_bind": "",
         "is_wiki_generated": 1,

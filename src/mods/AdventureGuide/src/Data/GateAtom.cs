@@ -11,6 +11,8 @@ public enum GateAtomKind
     KeyHeld,
     RoomFurnished,
     EncounterWon,
+    PlanningSlotItem,
+    AccountState,
 }
 
 internal sealed class GateAtomKindConverter : JsonConverter
@@ -30,7 +32,9 @@ internal sealed class GateAtomKindConverter : JsonConverter
             "item_held" => GateAtomKind.ItemHeld,
             "key_held" => GateAtomKind.KeyHeld,
             "room_furnished" => GateAtomKind.RoomFurnished,
+            "planning_slot_item" => GateAtomKind.PlanningSlotItem,
             "encounter_won" => GateAtomKind.EncounterWon,
+            "account_state" => GateAtomKind.AccountState,
             _ => throw new InvalidDataException($"Unknown gate atom kind {reader.Value}"),
         };
 
@@ -43,7 +47,9 @@ internal sealed class GateAtomKindConverter : JsonConverter
             GateAtomKind.ItemHeld => "item_held",
             GateAtomKind.KeyHeld => "key_held",
             GateAtomKind.RoomFurnished => "room_furnished",
+            GateAtomKind.PlanningSlotItem => "planning_slot_item",
             GateAtomKind.EncounterWon => "encounter_won",
+            GateAtomKind.AccountState => "account_state",
             _ => throw new InvalidDataException($"Unknown gate atom kind {value}"),
         };
         writer.WriteValue(name);
@@ -60,6 +66,21 @@ public sealed class GateAtom
 
     [JsonProperty("slot")]
     public string? Slot { get; set; }
+
+    [JsonProperty("instruction")]
+    public string? Instruction { get; set; }
+
+    [JsonProperty("actor")]
+    public string? Actor { get; set; }
+
+    [JsonProperty("value")]
+    public string? Value { get; set; }
+
+    [JsonProperty("phase")]
+    public string? Phase { get; set; }
+
+    [JsonProperty("scope")]
+    public string? Scope { get; set; }
 
     [JsonIgnore]
     public string? GameId { get; internal set; }

@@ -208,6 +208,17 @@ public sealed class ItemSource
     [JsonProperty("chance_max")]
     public double? ChanceMax { get; set; }
 
+    /// <summary>Percent per successful catch in the water's daytime pool.</summary>
+    [JsonProperty("day_chance")]
+    public double? DayChance { get; set; }
+
+    /// <summary>Percent per successful catch in the water's nighttime pool.</summary>
+    [JsonProperty("night_chance")]
+    public double? NightChance { get; set; }
+
+    [JsonProperty("time_restriction")]
+    public string? TimeRestriction { get; set; }
+
     [JsonProperty("source_key")]
     public string? SourceKey { get; set; }
 
@@ -226,15 +237,67 @@ public sealed class ItemSource
     [JsonProperty("instruction")]
     public string? Instruction { get; set; }
 
+    [JsonProperty("keyword")]
+    public string? Keyword { get; set; }
+
     [JsonProperty("condition")]
     public int? Condition { get; set; }
 
     [JsonProperty("children")]
     public List<ItemSource>? Children { get; set; }
 
+    [JsonProperty("acquisition_key")]
+    public string? AcquisitionKey { get; set; }
+
+    [JsonProperty("location_key")]
+    public string? LocationKey { get; set; }
+
+    [JsonProperty("use_key")]
+    public string? UseKey { get; set; }
+
+    [JsonProperty("operation_use_keys")]
+    public string[]? OperationUseKeys { get; set; }
+
+    [JsonProperty("item_stable_key")]
+    public string? ItemStableKey { get; set; }
+
+    [JsonProperty("quantity")]
+    public double? Quantity { get; set; }
+
+    [JsonProperty("output_quality")]
+    public string? OutputQuality { get; set; }
+
+    [JsonProperty("x")]
+    public float? X { get; set; }
+
+    [JsonProperty("y")]
+    public float? Y { get; set; }
+
+    [JsonProperty("z")]
+    public float? Z { get; set; }
+
+    [JsonProperty("entry_zone_line_keys")]
+    public List<string>? EntryZoneLineKeys { get; set; }
+
+    [JsonIgnore]
+    internal SourceFact? CanonicalFact { get; set; }
+
+    [JsonIgnore]
+    internal SourceLocation? CanonicalLocation { get; set; }
+
+    [JsonIgnore]
+    internal ItemUseFact? CanonicalUse { get; set; }
+
+    [JsonIgnore]
+    internal string? CanonicalSourceId { get; set; }
+
+    [JsonIgnore]
+    internal SpawnPoint? CanonicalSpawn => CanonicalLocation?.Spawn;
+
     /// <summary>Identity for fixed sources and the active treasure dig site.</summary>
     public string? MakeSourceId() =>
         Type == "treasure_chest" ? "treasure:dig-site"
+        : CanonicalSourceId != null ? CanonicalSourceId
         : !ItemSourcePolicy.IsStaticCandidate(this) ? null
         : SourceKey ?? (Scene != null ? $"{Type}:{Scene}" : null);
 }

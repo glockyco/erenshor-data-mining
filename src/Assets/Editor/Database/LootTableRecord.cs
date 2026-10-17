@@ -8,6 +8,10 @@ public class LootTableRecord
     public const string TableName = "LootDrops";
 
     [Indexed(Name = "LootDrops_Primary_IDX", Order = 1, Unique = true)]
+    [ForeignKey(typeof(LootTableSourceRecord), "StableKey")]
+    public string LootTableStableKey { get; set; } = string.Empty;
+
+    [Indexed]
     [ForeignKey(typeof(CharacterRecord), "StableKey")]
     public string CharacterStableKey { get; set; } = string.Empty;
 
@@ -16,13 +20,13 @@ public class LootTableRecord
     public string ItemStableKey { get; set; } = string.Empty;
 
     // Probability that this item drops at least once per kill
-    public double DropProbability { get; set; }
+    public double? DropProbability { get; set; }
 
     // Expected number of this item per kill
-    public double ExpectedPerKill { get; set; }
+    public double? ExpectedPerKill { get; set; }
 
     // JSON-serialized array of per-kill DropCountProbabilities, e.g. [0.7,0.25,0.05]
-    public string DropCountDistribution { get; set; } = string.Empty;
+    public string? DropCountDistribution { get; set; }
 
     public bool IsActual { get; set; }
     public bool IsGuaranteed { get; set; }

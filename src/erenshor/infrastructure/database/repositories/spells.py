@@ -151,6 +151,50 @@ class SpellRepository(BaseRepository[Spell]):
     All queries target the clean snake_case database written by ``extract build``.
     """
 
+    def get_class_ability_teachers(self) -> list[dict[str, object]]:
+        """Return teaching items eligible for each class under ItemIcon's learning gates."""
+        query = """
+            WITH playable_classes(name) AS (
+                SELECT class_name FROM classes WHERE class_name != 'Default'
+            ), teachers AS (
+                SELECT cl.name AS class_name, s.stable_key AS ability, s.required_level AS level,
+                       i.stable_key AS item
+                FROM items i
+                JOIN spells s ON s.stable_key = i.teach_spell_stable_key
+                CROSS JOIN playable_classes cl
+                WHERE i.wiki_page_name IS NOT NULL AND s.wiki_page_name IS NOT NULL
+                  AND (NOT EXISTS (SELECT 1 FROM item_classes ic WHERE ic.item_stable_key = i.stable_key)
+                       OR EXISTS (SELECT 1 FROM item_classes ic
+                                  WHERE ic.item_stable_key = i.stable_key AND ic.class_name = cl.name))
+                UNION ALL
+                SELECT cl.name, s.stable_key,
+                       CASE cl.name
+                           WHEN 'Arcanist' THEN s.arcanist_required_level
+                           WHEN 'Druid' THEN s.druid_required_level
+                           WHEN 'Duelist' THEN s.duelist_required_level
+                           WHEN 'Paladin' THEN s.paladin_required_level
+                           WHEN 'Stormcaller' THEN s.stormcaller_required_level
+                           WHEN 'Reaver' THEN s.reaver_required_level
+                       END AS level,
+                       i.stable_key
+                FROM items i
+                JOIN skills s ON s.stable_key = i.teach_skill_stable_key
+                CROSS JOIN playable_classes cl
+                WHERE i.wiki_page_name IS NOT NULL AND s.wiki_page_name IS NOT NULL
+                  AND (NOT EXISTS (SELECT 1 FROM item_classes ic WHERE ic.item_stable_key = i.stable_key)
+                       OR EXISTS (SELECT 1 FROM item_classes ic
+                                  WHERE ic.item_stable_key = i.stable_key AND ic.class_name = cl.name))
+            )
+            SELECT 'class:' || lower(class_name) AS class, ability, level, item
+            FROM teachers
+            WHERE ability LIKE 'spell:%' OR level > 0
+            ORDER BY class, level, ability, item
+        """
+        try:
+            return [dict(row) for row in self._execute_raw(query, ())]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve class ability teachers: {e}") from e
+
     def get_spells_for_wiki_generation(self) -> list[Spell]:
         """Get all spells for wiki page generation.
 

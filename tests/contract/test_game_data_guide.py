@@ -51,6 +51,19 @@ def test_guide_field_table_equals_the_preservation_rules() -> None:
     )
 
 
+def test_itemdata_editor_fields_match_the_reader_and_remain_kept() -> None:
+    source = (REPO_ROOT / "wiki/modules/Erenshor/ItemData.lua").read_text()
+    declaration = re.search(r"p\.EDITOR_FIELDS\s*=\s*\{([^}]+)\}", source)
+    assert declaration is not None
+    editor_fields = set(re.findall(r"([a-z]+)\s*=\s*true", declaration.group(1)))
+    assert editor_fields
+    rows = {
+        (match.group(1), match.group(2), match.group(3))
+        for match in _FIELD_ROW.finditer(_section("Data-backed item pages"))
+    }
+    assert rows == {("ItemData", field, "Kept") for field in editor_fields}
+
+
 def test_guide_lists_every_repository_template() -> None:
     section = _section("Templates that the project maintains")
     listed = {match.group(1) for match in _TEMPLATE_LINK.finditer(section)}

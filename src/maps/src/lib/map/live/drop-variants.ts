@@ -12,6 +12,7 @@
  * than one endpoint, so nothing here asserts a number no variant actually has.
  */
 import type { CharacterDrop } from '$lib/map-markers';
+import type { ItemAcquisition } from '$lib/item-provenance';
 
 export interface AggregatedDrop {
 	itemName: string;
@@ -21,6 +22,7 @@ export interface AggregatedDrop {
 	maxProbability: number;
 	/** How many of the candidates drop it at all. */
 	droppedBy: number;
+    acquisitions: ItemAcquisition[];
 }
 
 /**
@@ -32,21 +34,28 @@ export interface AggregatedDrop {
 export function aggregateDropVariants(lists: CharacterDrop[][]): AggregatedDrop[] {
 	const merged = new Map<string, AggregatedDrop>();
 
-	for (const list of lists) {
-		for (const drop of list) {
-			const existing = merged.get(drop.itemName);
-			if (!existing) {
-				merged.set(drop.itemName, {
-					itemName: drop.itemName,
-					minProbability: drop.dropProbability,
-					maxProbability: drop.dropProbability,
-					droppedBy: 1
-				});
-				continue;
-			}
-			existing.minProbability = Math.min(existing.minProbability, drop.dropProbability);
-			existing.maxProbability = Math.max(existing.maxProbability, drop.dropProbability);
-			existing.droppedBy += 1;
+    for (const list of lists) {
+        const seen = new Set<string>();
+        for (const drop of list) {
+            const key = drop.provenance.item_stable_key;
+            const existing = merged.get(key);
+            if (!existing) {
+                merged.set(key, {
+                    itemName: drop.itemName,
+                    minProbability: drop.dropProbability,
+                    maxProbability: drop.dropProbability,
+                    droppedBy: 1,
+                    acquisitions: [drop.provenance]
+                });
+            } else {
+                existing.minProbability = Math.min(existing.minProbability, drop.dropProbability);
+                existing.maxProbability = Math.max(existing.maxProbability, drop.dropProbability);
+                if (!seen.has(key)) existing.droppedBy += 1;
+                if (!existing.acquisitions.some((fact) => fact.acquisition_key === drop.provenance.acquisition_key)) {
+                    existing.acquisitions.push(drop.provenance);
+                }
+            }
+            seen.add(key);
 		}
 	}
 

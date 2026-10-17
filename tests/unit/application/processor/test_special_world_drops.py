@@ -13,7 +13,7 @@ from erenshor.application.processor.special_world_drops import (
 )
 from erenshor.application.processor.writer import Writer
 from erenshor.application.wiki_lua.world_drops import build_world_drop_rows
-from erenshor.domain.value_objects.source_info import WorldDropInfo
+from erenshor.domain.value_objects.item_provenance import ItemAcquisition, ProvenanceCondition
 
 _SINGLE_POOLS = (
     "Sivak",
@@ -113,11 +113,26 @@ def test_default_roll_outcomes_at_strict_level_boundaries(pool: str, fact_id: st
     drop = _by_item(rows)[item_key]
     view = build_world_drop_rows(
         [
-            (
+            ItemAcquisition(
+                f"acquisition:world:{pool}",
                 item_key,
-                WorldDropInfo(
-                    probability=float(drop["drop_probability"]),
-                    min_level_exclusive=int(drop["min_level_exclusive"]),
+                "special_world_drop",
+                f"world:{pool}",
+                probability_kind="exact",
+                probability_min=float(drop["drop_probability"]),
+                probability_max=float(drop["drop_probability"]),
+                probability_basis="per_kill",
+                probability_stage="final_acquisition",
+                conditions=(
+                    ProvenanceCondition(
+                        f"world-level:{pool}",
+                        0,
+                        0,
+                        "actor_level",
+                        actor="enemy",
+                        minimum=float(drop["min_level_exclusive"]),
+                        minimum_inclusive=False,
+                    ),
                 ),
             )
         ]

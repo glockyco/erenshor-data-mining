@@ -51,7 +51,7 @@ def test_renamed_copies_list_only_other_names_of_unspawned_excluded_prefabs() ->
 
 def test_unclaimed_chat_names_skip_carried_renamed_and_quiet_names() -> None:
     from erenshor.application.wiki.chat_knowledge import ChatKnowledge, KnowledgeEntry
-    from erenshor.application.wiki.lifecycle import ContentLifecycle, LifecyclePage, LifecycleRename
+    from erenshor.infrastructure.content_lifecycle import ContentLifecycle, LifecyclePage, LifecycleRename
 
     audit = load_audit()
     db = sqlite3.connect(":memory:")

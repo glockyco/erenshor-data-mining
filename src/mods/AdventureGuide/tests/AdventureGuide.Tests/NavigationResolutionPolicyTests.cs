@@ -132,7 +132,8 @@ public sealed class NavigationResolutionPolicyTests
         var data = GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 7,
+                Version = 8,
+                Encounters = TestData.EmptyEncounters(),
                 Quests = [],
                 GateItems = new()
                 {

@@ -1,14 +1,20 @@
 SELECT
-    m.stable_key AS mining_node_stable_key,
+    a.source_stable_key AS mining_node_stable_key,
     z.zone_name,
-    ROUND(m.x, 2) AS position_x,
-    ROUND(m.y, 2) AS position_y,
-    ROUND(m.z, 2) AS position_z,
+    l.x AS position_x,
+    l.y AS position_y,
+    l.z AS position_z,
     m.respawn_time,
     i.display_name,
-    ROUND(mi.drop_chance, 2) AS 'DropChance (%)'
-FROM mining_nodes m
-JOIN mining_node_items mi ON m.stable_key = mi.mining_node_stable_key
-JOIN items i ON i.stable_key = mi.item_stable_key
-JOIN zones z ON z.scene_name = m.scene
-ORDER BY z.zone_name, m.stable_key, mi.drop_chance DESC;
+    CASE WHEN a.probability_kind = 'exact' THEN a.probability_min END AS 'DropChance (%)',
+    l.location_key,
+    a.*
+FROM item_acquisitions a
+LEFT JOIN mining_nodes m ON m.stable_key = a.source_stable_key
+LEFT JOIN items i ON i.stable_key = a.item_stable_key
+LEFT JOIN item_acquisition_locations l ON l.owner_key = a.acquisition_key
+LEFT JOIN zones z ON z.stable_key = l.zone_stable_key
+WHERE a.kind = 'mining'
+    AND a.player_access_state = 'verified_player'
+    AND a.probability_stage = 'final_acquisition'
+ORDER BY z.zone_name, a.source_stable_key, a.probability_min DESC, a.acquisition_key, l.location_key;

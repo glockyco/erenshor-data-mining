@@ -24,6 +24,12 @@ class Character(BaseEntity):
     stable_key: str = Field(description="Stable key from database (primary key)")
     object_name: str | None = Field(default=None, description="Stable object identifier")
     npc_name: str | None = Field(default=None, description="Display name")
+    guid: str | None = Field(default=None, description="Native prefab GUID or scene object anchor")
+    resources_path: str | None = Field(default=None, description="Exported Resources asset path")
+    class_resource_name: str | None = Field(default=None, description="Exported class asset identity")
+    start_components_listed: str | None = Field(default=None, description="Native component list start inventory")
+    start_components_by_file_id: str | None = Field(default=None, description="Scene component local-ID inventory")
+    is_active_at_load: int | None = Field(default=None, description="Scene object active at load")
 
     # Canonical wiki names (populated by the Layer 2 processor)
     display_name: str | None = Field(default=None, description="Canonical display name for wiki")
@@ -71,6 +77,9 @@ class Character(BaseEntity):
     has_dialog: int | None = Field(default=None, description="Has dialog (boolean)")
     is_enabled: int | None = Field(default=None, description="Is enabled (boolean)")
     invulnerable: int | None = Field(default=None, description="Is invulnerable (boolean)")
+    can_be_damaged: int | None = Field(
+        default=None, description="Potential combat eligibility from shared release conditions"
+    )
     can_never_see_invis: int | None = Field(default=None, description="Can never see invisible (boolean)")
     dps_dummy: int | None = Field(default=None, description="Is DPS dummy (boolean)")
     is_wyrm: int | None = Field(default=None, description="Is Wyrm (boolean)")
@@ -99,9 +108,14 @@ class Character(BaseEntity):
     ac_per_player_level: int | None = Field(
         default=None, description="The AC as this many times the player's level, when it depends on it"
     )
-    base_xp_min: float | None = Field(default=None, description="Min XP received when killed (before multipliers)")
-    base_xp_max: float | None = Field(default=None, description="Max XP received when killed (before multipliers)")
-    boss_xp_multiplier: float | None = Field(default=None, description="XP multiplier")
+    base_xp_min: float | None = Field(default=None, description="Exported prefab-level base XP input")
+    base_xp_max: float | None = Field(default=None, description="Exported base plus maximum player-level bonus input")
+    boss_xp_multiplier: float | None = Field(default=None, description="Designer BossXp before startup adjustments")
+    initialized_xp: int | None = Field(default=None, description="XP initialized by Character.Start when fixed")
+    xp_per_player_level: int | None = Field(default=None, description="Initialized XP per player level when exact")
+    effective_xp_multiplier: float | None = Field(
+        default=None, description="Reward multiplier after NPC.Start and zero fallback"
+    )
     base_hp: int | None = Field(default=None, description="Base health points")
     base_ac: int | None = Field(default=None, description="Base armor class")
     base_mana: int | None = Field(default=None, description="Base mana")

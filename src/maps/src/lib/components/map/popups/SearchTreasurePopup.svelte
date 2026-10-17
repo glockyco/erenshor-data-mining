@@ -16,7 +16,7 @@
     {#if character?.wikiPageName}
         <a class="inline-block text-blue-400 hover:underline" href="https://erenshor.wiki.gg/wiki/{encodeURIComponent(character.wikiPageName)}">{name} on the wiki</a>
     {/if}
-    <button type="button" class="w-full rounded bg-zinc-700/50 px-3 py-2 hover:bg-zinc-700" onclick={onFocusAll}>Show all {sites.length} dig site{sites.length !== 1 ? 's' : ''}</button>
+    <button type="button" class="w-full rounded bg-zinc-700/50 px-3 py-2 hover:bg-zinc-700" onclick={() => onFocusAll()}>Show all {sites.length} dig site{sites.length !== 1 ? 's' : ''}</button>
     {#each zones as zone (zone)}
         {@const zoneSites = sites.filter((site) => site.zone === zone)}
         <div class="space-y-1 border-t border-zinc-700 pt-2">

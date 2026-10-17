@@ -195,7 +195,7 @@ public sealed class LootScanner
             if (loot == null)
                 continue;
             var matching = FindMatchingItems(loot);
-            if (matching.Count > 0)
+            if (matching != null)
             {
                 _containers.Add(
                     new LootContainer(
@@ -218,7 +218,7 @@ public sealed class LootScanner
             if (loot == null)
                 continue;
             var matching = FindMatchingItems(loot);
-            if (matching.Count > 0)
+            if (matching != null)
             {
                 _containers.Add(
                     new LootContainer(
@@ -233,9 +233,9 @@ public sealed class LootScanner
         }
     }
 
-    private HashSet<string> FindMatchingItems(LootTable loot)
+    private HashSet<string>? FindMatchingItems(LootTable loot)
     {
-        var result = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+        HashSet<string>? result = null;
         foreach (var item in loot.ActualDrops)
         {
             if (
@@ -244,6 +244,7 @@ public sealed class LootScanner
                 && _neededItems.Contains(item.ItemName)
             )
             {
+                result ??= new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
                 result.Add(item.ItemName);
             }
         }

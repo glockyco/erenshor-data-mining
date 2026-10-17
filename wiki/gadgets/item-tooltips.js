@@ -311,12 +311,14 @@
 			if ( hasQuality && !quality ) {
 				return null;
 			}
+			const stableKey = normalizedStableKey( target.dataset.erenshorKey );
 
 			return {
 				kind: 'item',
 				title: title,
+				stableKey: stableKey,
 				quality: quality,
-				cacheKey: JSON.stringify( [ 'item', title, quality ] )
+				cacheKey: JSON.stringify( [ 'item', title, stableKey, quality ] )
 			};
 		}
 
@@ -367,8 +369,19 @@
 				return extractAbilityTooltip( parsedDocument, spec.stableKey );
 			}
 
-			const cards = Array.from( parsedDocument.querySelectorAll( '.item-tooltip' ) );
-			const presentation = selectPresentation( parsedDocument, cards, spec );
+			const roots = Array.from( parsedDocument.querySelectorAll( '.item-data-root[data-erenshor-key]' ) );
+			let scope = parsedDocument;
+			if ( roots.length ) {
+				const matches = spec.stableKey ? roots.filter( function ( root ) {
+					return root.getAttribute( 'data-erenshor-key' ) === spec.stableKey;
+				} ) : roots;
+				if ( matches.length !== 1 ) {
+					return null;
+				}
+				scope = matches[ 0 ];
+			}
+			const cards = Array.from( scope.querySelectorAll( '.item-tooltip' ) );
+			const presentation = selectPresentation( scope, cards, spec );
 			if ( !presentation ) {
 				return null;
 			}
@@ -416,7 +429,11 @@
 		}
 
 		function selectPresentation( parsedDocument, cards, spec ) {
-			const qualitySet = parsedDocument.querySelector( '.item-tooltip-quality-set' );
+			const qualitySets = parsedDocument.querySelectorAll( '.item-tooltip-quality-set' );
+			if ( qualitySets.length > 1 ) {
+				return null;
+			}
+			const qualitySet = qualitySets[ 0 ];
 			if ( qualitySet ) {
 				const wrappers = Array.from( qualitySet.querySelectorAll( '.item-tooltip-quality' ) );
 				const wrapperQualities = wrappers.map( function ( wrapper ) {

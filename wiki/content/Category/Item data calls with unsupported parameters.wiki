@@ -1,0 +1,2 @@
+Pages whose [[Template:ItemData|ItemData]] call passes a parameter that cannot override game data. Remove copied factual parameters. Keep only the identity and documented editor additions. Report wrong or missing facts on [[Erenshor Wiki talk:Game Data]].
+__HIDDENCAT__

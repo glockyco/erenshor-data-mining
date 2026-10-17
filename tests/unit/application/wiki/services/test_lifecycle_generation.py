@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from io import StringIO
 from pathlib import Path
 from unittest.mock import MagicMock
@@ -14,15 +13,17 @@ from rich.console import Console
 from erenshor.application.wiki.chat_knowledge import ChatKnowledge, KnowledgeEntry
 from erenshor.application.wiki.generators.base import GeneratedPage, PageMetadata
 from erenshor.application.wiki.lifecycle import (
-    ContentLifecycle,
-    LifecyclePage,
     apply_lifecycle_fields,
-    load_content_lifecycle,
     render_split_disambiguation,
-    validate_generated_lifecycle,
     with_chat_knowledge,
 )
 from erenshor.application.wiki.services.generate_service import GeneratedCorpus, WikiGenerateService
+from erenshor.infrastructure.content_lifecycle import (
+    ContentLifecycle,
+    LifecyclePage,
+    load_content_lifecycle,
+    validate_generated_lifecycle,
+)
 
 ROOT = Path(__file__).resolve().parents[5]
 
@@ -163,36 +164,6 @@ def test_planar_march_date_is_readable_on_matching_root() -> None:
     assert _fields(text, "Ability")["historical_url"].startswith("https://")
 
 
-@pytest.mark.parametrize(
-    ("field", "value", "message"),
-    [
-        ("state", "retired", "unknown state"),
-        ("date", "2026-02-30", "malformed date"),
-        ("patch_notes_url", "http://example.org/notes", "https link"),
-        ("date", None, "update requires a date"),
-        ("chat", True, "expected fields"),
-    ],
-)
-def test_invalid_lifecycle_fact_names_its_entry(
-    tmp_path: Path, field: str, value: str | bool | None, message: str
-) -> None:
-    path = tmp_path / "content-lifecycle.json"
-    fact = {
-        "stable_key": "item:ring",
-        "state": "removed",
-        "thing": "item",
-        "update": "Planar March",
-        "date": "2026-07-13",
-        "patch_notes_url": "https://example.org/notes",
-        "source": "Reviewed notes",
-    }
-    fact[field] = value
-    path.write_text(json.dumps({"pages": {"Old Ring": fact}, "renames": {}, "splits": {}}), encoding="utf-8")
-
-    with pytest.raises(ValueError, match=f"pages\\['Old Ring'\\].*{message}"):
-        load_content_lifecycle(path)
-
-
 def test_chat_flag_marks_only_unused_pages_whose_character_chat_names_unprompted() -> None:
     def page(title: str, key: str | None, state: str) -> LifecyclePage:
         return LifecyclePage(title, key, state, "character", None, None, None, "source")  # type: ignore[arg-type]
@@ -221,38 +192,6 @@ def test_chat_flag_marks_only_unused_pages_whose_character_chat_names_unprompted
     flags = {title: fact.chat for title, fact in with_chat_knowledge(lifecycle, knowledge).pages.items()}
 
     assert flags == {"Holy Corpse": True, "Bazxzoth": False, "Reckless": False, "Nameless": False}
-
-
-def test_a_title_cannot_be_both_removed_and_renamed(tmp_path: Path) -> None:
-    path = tmp_path / "content-lifecycle.json"
-    path.write_text(
-        json.dumps(
-            {
-                "pages": {
-                    "Old Ring": {
-                        "stable_key": "item:ring",
-                        "state": "removed",
-                        "thing": "item",
-                        "update": None,
-                        "date": None,
-                        "patch_notes_url": None,
-                        "source": "Reviewed notes",
-                    }
-                },
-                "renames": {
-                    "Old Ring": {
-                        "stable_key": "item:ring",
-                        "current_title": "New Ring",
-                        "source": "Current game data",
-                    }
-                },
-                "splits": {},
-            }
-        ),
-        encoding="utf-8",
-    )
-    with pytest.raises(ValueError, match=r"Old Ring.*both a page and a rename"):
-        load_content_lifecycle(path)
 
 
 def test_reviewed_split_links_both_current_variants() -> None:
@@ -285,70 +224,3 @@ def test_reviewed_split_links_both_current_variants() -> None:
         },
         lifecycle,
     )
-
-
-@pytest.mark.parametrize(
-    ("titles", "keys", "message"),
-    [
-        ([], [], "nonempty list"),
-        (["Fire", "Fire"], ["character:fire", "character:ice"], "contains duplicates"),
-        (["Fire", "Ice"], ["character:fire"], "match current_titles count"),
-    ],
-)
-def test_split_requires_distinct_targets_and_matching_keys(
-    tmp_path: Path, titles: list[str], keys: list[str], message: str
-) -> None:
-    path = tmp_path / "content-lifecycle.json"
-    path.write_text(
-        json.dumps(
-            {
-                "pages": {},
-                "renames": {},
-                "splits": {
-                    "Old Guard": {
-                        "current_titles": titles,
-                        "stable_keys": keys,
-                        "source": "Current game data",
-                    }
-                },
-            }
-        ),
-        encoding="utf-8",
-    )
-    with pytest.raises(ValueError, match=message):
-        load_content_lifecycle(path)
-
-
-@pytest.mark.parametrize("other_mapping", ["pages", "renames"])
-def test_split_title_cannot_also_be_a_page_or_rename(tmp_path: Path, other_mapping: str) -> None:
-    path = tmp_path / "content-lifecycle.json"
-    data: dict[str, dict[str, object]] = {
-        "pages": {},
-        "renames": {},
-        "splits": {
-            "Old Guard": {
-                "current_titles": ["Fire", "Ice"],
-                "stable_keys": ["character:fire", "character:ice"],
-                "source": "Current game data",
-            }
-        },
-    }
-    if other_mapping == "pages":
-        data["pages"]["Old Guard"] = {
-            "stable_key": None,
-            "state": "unused",
-            "thing": "character",
-            "update": None,
-            "date": None,
-            "patch_notes_url": None,
-            "source": "Current game data",
-        }
-    else:
-        data["renames"]["Old Guard"] = {
-            "stable_key": "character:fire",
-            "current_title": "Fire",
-            "source": "Current game data",
-        }
-    path.write_text(json.dumps(data), encoding="utf-8")
-    with pytest.raises(ValueError, match=r"Old Guard.*also a page or rename"):
-        load_content_lifecycle(path)

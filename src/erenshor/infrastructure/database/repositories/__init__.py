@@ -18,7 +18,6 @@ Available repositories:
 - QuestRepository: Quests and objectives
 - FactionRepository: Factions and reputation
 - ZoneRepository: Game zones and areas
-- LootTableRepository: Loot drop tables
 - SpawnPointRepository: Creature spawn points
 
 Usage:
@@ -33,7 +32,6 @@ Usage:
 from .characters import CharacterRepository
 from .factions import FactionRepository
 from .items import ItemRepository
-from .loot_tables import LootTableRepository
 from .quests import QuestRepository
 from .skills import SkillRepository
 from .spawn_points import SpawnPointRepository
@@ -45,7 +43,6 @@ __all__ = [
     "CharacterRepository",
     "FactionRepository",
     "ItemRepository",
-    "LootTableRepository",
     "QuestRepository",
     "SkillRepository",
     "SpawnPointRepository",

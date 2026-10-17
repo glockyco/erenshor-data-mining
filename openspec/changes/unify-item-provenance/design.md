@@ -2,9 +2,9 @@
 
 ## Context and Evidence
 
-This is a design-only change. The clean database was queried read-only. No game, database rebuild, local wiki write, or publication was needed.
+The original inspection queried the clean database read-only. It did not launch the game, rebuild a database, write a local wiki, or publish content. Implementation and runtime evidence are recorded separately from that inspection.
 
-The current acquisition paths differ in observable structure:
+The inspected acquisition paths differed in observable structure:
 
 | Executing path | Evidence | Consequence |
 |---|---|---|
@@ -27,9 +27,15 @@ The WaterListener map-key defect and guide chance/time serialization losses are 
 
 Loot host eligibility is another assigned producer correction. `variants/main/unity/ExportedProject/Assets/Scripts/Assembly-CSharp/LootTable.cs:79-87` returns before any loot rolls if the host is missing, has `DestroyOnDeath`, or is an NPC with `DoNotLeaveCorpse`. The verified affected population is 38 serialized loot rows across four exported hosts. Canonical input completeness must account for these as non-acquirable evidence, not promote every serialized table to player access. Reuse the corrected producer's actual lootable-host predicate for explicit, common-world and special-world roll eligibility. Do not exclude summons as a class. Summoned wolf, warhound and fallen warrior are positive controls with both flags false.
 
+The corrected water producer boundary is `src/erenshor/application/processor/item_mechanics.py:149-209`: raw WaterFishables retain native `(water, type, position, nullable item)` slots, while clean `water_fishables` stores final percent per successful catch with the global replacement applied exactly once. `derive_fishing_bonus_catches` supplies that shared replacement. Preserve this boundary instead of inventing per-water global-source metadata. Native duplicate/null evidence remains in the raw export, and the fresh-export prerequisite must be satisfied before rebuilding a clean candidate or freezing clean-data coverage expectations.
+
+Quest rewards require an executed route, not merely configured fields. `variants/main/unity/ExportedProject/Assets/Scripts/Assembly-CSharp/GameData.cs:640-669` marks completion and applies its shown non-reward side effects without granting configured item, XP or gold. `TradeWindow.cs:365-394` grants those values in the successful trade path and separately marks additional quests complete. Integrate the route/reward correction owned by the active quest-panel work before freezing shared fixtures. Preserve raw `quest_variants` reward fields as producer evidence, but create a quest-item acquisition only for a completion route that actually executes the item grant. Keep route identity, selected variant and branch conditions in the acquisition key/record. A dialogue, zone, read or kill route that only calls `FinishQuest` must not inherit a trade reward, and chained completion must not grant the newly completed quest's configured reward unless that route executes its grant too. `ItemRepository` obtainable-item selectors and `QuestRepository.get_quest_reward_sources` must consume the corrected route-derived outcomes during cutover.
+
 ## Goals and Non-Goals
 
 Every acquisition and use fact has one selector, explicit identity and units, and an accountable path to each output. Surface grouping must not erase factual alternatives. This does not introduce a generic cross-surface renderer, a new gameplay gate evaluator, or a wiki query engine.
+
+Presentation targets ordinary wiki and map visitors. Keep established concise terms such as "Any enemy" and "At the default loot rate." Show actionable conditions such as the needed quest, furnished room, day/night period or eligible player levels briefly. Exact ownership-replacement semantics, independent-roll mechanics, internal source stages, access-state enum names and audit dispositions belong in the contract, tests and developer evidence, not public explanatory paragraphs or unfamiliar labels. Do not add caveats merely to qualify conventional drop chance. Surface grouping can be concise while offline coverage still accounts for every fact.
 
 ## Decisions
 
@@ -57,15 +63,15 @@ The selector covers explicit character loot, common-world substitution, special 
 
 No new probability is inferred. Percent values stay percent. Store basis such as per kill, per catch, per node, per use or listing opportunity. Distinguish exact chance, bounded chance across specified copies, unknown, and not applicable. A guaranteed pool roll does not mean the individual item is guaranteed. Preserve guaranteed-roll count, expected count and count distribution separately. Preserve zero probability as evidence with a non-acquirable disposition instead of promoting it to a source. Unknown quantity is not silently one. Fixed one can be supplied only where the shipped mechanic or input schema establishes it. Conditional formulas remain structured operands, not precomputed unconditional chances.
 
-Player-access evidence is independent from lifecycle. A source used only by a simulated player or seeded in a UI is not automatically obtainable by the player. Preserve unresolved transfer paths as `unconfirmed_player` and proven internal-only use as `internal_only`, without hiding either from the audit. Only verified player paths feed affirmative obtainability and actionable navigation. The page may explain unresolved/internal use with explicit wording. Failure to resolve an optional research question is not permission to fabricate a route or mark an item removed.
+Player-access evidence is independent from lifecycle. A source used only by a simulated player or seeded in a UI is not automatically obtainable by the player. Preserve unresolved transfer paths as `unconfirmed_player` and proven internal-only use as `internal_only` in the contract and audit. Only verified player paths feed affirmative obtainability and actionable navigation. Do not turn those internal states into public jargon or research disclaimers. Failure to resolve an optional research question is not permission to fabricate a route or mark an item removed.
 
 Known non-world evidence must be covered by implementation fixtures and export/code-fact work:
 
 - `item:tmog - hideslot` is Transmog - Hide Slot, identified by `Resources/items/TMOG - HIDESLOT.asset:15-16`. `ReplenishTMOGHide.cs:7-14` replenishes `GameData.Misc.TMOGHIDE` in its item icon to quantity one, and `ItemIcon.cs:816-918` handles the cosmetic-slot exception. Model the unlimited CosmeticPanel token as a UI grant with transfer/replenishment semantics, not as stock.
-- `item:gen - box of portals` is Box of Portals, identified by `Resources/items/GEN - Box of Portals.asset:15-16`. `PlanningTableUI.cs:35,58-95` exposes and updates the Portal icon. The seeded Portal item and normal ItemIcon transfer path require runtime confirmation before being advertised as a verified player source. Preserve the candidate mechanic source as unconfirmed.
+- `item:gen - box of portals` is Box of Portals, identified by `Resources/items/GEN - Box of Portals.asset:15-16`. `PlanningTableUI.cs:35,58-95` exposes and updates the Portal icon. Recorded normal UI transfer produced one inventory copy and left the source empty. Model this verified transfer separately from the cosmetic token's replenishment. Preserve the planning desk's native activation conditions and do not claim an unlimited or per-session supply.
 - `item:aura - arcanism` is Stone of Arcanism, identified by `Resources/items/AURA - Arcanism.asset:15-16`. `SimPlayer.cs:3778-3798,5193-5238` carries simulated equipment and its aura slot. Preserve internal equipment-generation evidence separately from the unconfirmed player-transfer question, and require the implementation evidence record to trace the specific item through generation. Do not assert a player source or a reviewed unobtainable lifecycle state.
 
-The game script paths above are under `variants/main/unity/ExportedProject/Assets/Scripts/Assembly-CSharp/`. Resource paths are under that project's `Assets/`. This design did not run the game. Runtime confirmation belongs to an approved investigation that keeps sound off and shuts the game down normally afterward.
+The game script paths above are under `variants/main/unity/ExportedProject/Assets/Scripts/Assembly-CSharp/`. Resource paths are under that project's `Assets/`. The original inspection was read-only. Approved runtime receipts are recorded in `item-access-evidence.json`. They confirm normal pointer transfer without item injection, sound off and regular saved shutdown.
 
 ### 3. Identity, copies, locations and conditions
 
@@ -74,6 +80,8 @@ Reuse `character_fact_sources` and `vendor_offers` as the encountered-source rul
 Item stable keys remain distinct even when pages match. The map may carry hidden variants to exactly one visible page representative, as it does now, but each row retains the originating item key and acquisition key. Multiple visible variants stay separate. No source is merged merely because display names match.
 
 Apply `gate_conditions` and `target_entries` without changing their Boolean or entry semantics. Reliquary furniture sources and completion interactions retain furniture item, room slot, and room-furnished gate per placement. Do not let one unconditional copy erase a gated copy's identity. Treasure retains chest identity, player eligibility, and every possible site's relation. Common-world swap-only rows become one global source per item with its supported range, while rows also bearing own-table flags remain named sources. Retain special-world pool identity even if two pools have equal chances. Auction `direct`, `replacement`, and `gear_surplus` routes retain separate SimPlayer/player bounds and random-stock semantics. Never give them a fixed price or a listing probability absent from input evidence.
+
+Account lifecycle conditions are separate from current-character quest state. Reliquary Fiend placement requires the native suppressor-to-host binding and the account claim condition. Completion marks `CLAIMRELIQUARY`, persists the account claim and can propagate quest completion to other characters. Do not infer repeatability from a loot pool or replace this account condition with a page-name exemption or a nonrepeatable-quest heuristic. The suppressor binding and planning portal routes require their own verified producer addendum before those route-availability contracts are complete.
 
 ### 4. Lifecycle integration without two authorities
 
@@ -135,6 +143,25 @@ Exact ordering:
 5. The integration owner applies all shared repository/orchestration changes, removes old selectors and obsolete schema, and searches every callsite. No production dual-read fallback remains. Keep only true producer tables.
 6. Run narrow checks once after the slices land, then CI and actual-host checks from the task list. Inspect the coherent final diff and integrate only the complete clean cutover. Offline fact coverage passing does not imply live publication is approved.
 7. Start `convert-item-pages-to-data` against the integrated canonical schema. Its versioned-data, local render, production parse, canary rollback and broad conversion gates stay ordered as written. No parallel legacy acquisition selection is reintroduced during that conversion.
+
+## Main integration verification
+
+The canonical patch and corrected Guide packet were applied once in order. The Guide packet's corrected inventory covers all 87 patch paths. Its separate override-input delta was then applied after an exact preimage check.
+
+The native Main clean build passed on owned APFS database clones after restoring the omitted reviewed zone classifications. SQLite integrity and foreign-key checks passed. With the omitted Guide override input restored, actual Main generation matched the certified embedded resource exactly. The baseline receipt is `artifacts/canonical-integration-20261017/native-smoke.json`. This proves the packet and input integration, not final acceptance after later source repairs.
+
+Independent review found two additional correctness gaps before the final commit:
+
+- The baseline database has 55 positive verified character-drop facts across 14 permanently undamageable copies. The positive control has 18 facts across three initially immune copies whose native releases make them damageable. Kill availability must use the derived capability rather than serialized invulnerability or loot initialization alone.
+- The actual Main ItemData provenance reader renders valid pageless character-copy and quest references as unresolved links. A read-only local Scribunto reproduction records both failures and a working linked-character control in `artifacts/canonical-integration-20261017/native-reference-before.json`.
+
+Both repairs passed the owned native rebuild. All 55 permanently undamageable drop facts retain their native probabilities as non-acquirable evidence. The 18 released-copy facts remain verified. The local Scribunto reader preserves valid pageless names and linked-character controls without unresolved-link categories. The receipts are `artifacts/canonical-integration-20261017/native-repaired-smoke.json` and `artifacts/canonical-integration-20261017/native-reference-after.json`.
+
+Actual Main generation produces the embedded schema-8 Guide resource with 200 quests and all eight excluded quests. The noncombat source correction creates required quest-reward actors without moving reward ownership from the quest. All 799 generated Lua modules pass native validation and page budgets, recorded in `artifacts/canonical-integration-20261017/lua-repaired-smoke.json`.
+
+The complete Main aggregate CI passes. Restored native fixture project inputs compile through the contract suite. The fixture identity catalog preserves its existing entries and adds the 14 native identities required by the quest scenarios. After refreshing dependent local pages, all 41 native smoke expectations pass across 16 item, roster, class and quest pages. The host receipt is `artifacts/canonical-integration-20261017/all-native-fixture-smoke.json`.
+
+Manual Main browser acceptance remains unclaimed because relay navigation timed out. Native Scribunto and Chromium CI results do not stand in for production item parse budgets or publication approval. The certified Guide baseline remains frozen. Changed generated resources come from actual shared-input generation, not manual payload edits.
 
 ## Alternatives
 

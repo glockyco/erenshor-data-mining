@@ -1,0 +1,3 @@
+{{ItemLink|stablekey=item:arm - 19  - ancient guardian sleeve|text=Doubled-space item}}
+
+{{ItemLink|stablekey=item:arm - 19  - ancient guardian sleeve|quality=Improved +5|text=Doubled-space Improved item}}

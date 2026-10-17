@@ -39,7 +39,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import TypedDict
+from typing import NotRequired, TypedDict
 
 from loguru import logger
 
@@ -53,9 +53,11 @@ class MappingOverride(TypedDict):
     is_map_visible: int
     encounter_tier: str | None
     loot_unreachable: bool
+    zone_type: NotRequired[str]
 
 
 ENCOUNTER_TIERS = frozenset({"npc", "chest", "boss", "elite", "enemy"})
+ZONE_TYPE_OVERRIDES = frozenset({"Outdoor", "Dungeon", "Event"})
 
 
 class SpawnMappingOverride(TypedDict):
@@ -109,11 +111,10 @@ def validate_character_name_overrides(
 def load_mapping(
     path: Path,
 ) -> tuple[dict[str, MappingOverride], dict[str, SpawnMappingOverride]]:
-    """Load mapping.json and return (character_overrides, spawn_overrides).
+    """Load mapping.json and return (entity_overrides, spawn_overrides).
 
-    Rules are split by key prefix: keys starting with "character:" are
-    character overrides; keys starting with "spawn:" or "trigger:" are
-    spawn-location overrides. Stance rules must not set image_name, and
+    Keys starting with "spawn:" or "trigger:" are spawn-location overrides.
+    Other keys are entity overrides. Stance rules must not set image_name, and
     the image_name of their override is None. Other entity rules require
     display_name and image_name. Spawn rules only carry is_wiki_generated
     and is_map_visible.
@@ -127,6 +128,9 @@ def load_mapping(
     character that game data classifies wrongly, and requires a ``reason``.
     ``loot_unreachable`` drops the loot rows of a character that the game
     never kills, and also requires a ``reason``.
+    ``zone_type`` retains a reviewed public area classification when the native
+    task flag is insufficient and requires a ``reason``. Raid classification
+    comes from the exported encounter controllers.
     Other metadata fields such as ``mapping_type`` are ignored.
 
     Args:
@@ -208,6 +212,20 @@ def load_mapping(
             if loot_unreachable and (not isinstance(rule.get("reason"), str) or not rule["reason"].strip()):
                 errors.append(f"{stable_key}: 'loot_unreachable' requires a 'reason'")
                 continue
+            zone_type = rule.get("zone_type")
+            if "zone_type" in rule:
+                if (
+                    not stable_key.startswith("zone:")
+                    or not isinstance(zone_type, str)
+                    or zone_type not in ZONE_TYPE_OVERRIDES
+                ):
+                    errors.append(
+                        f"{stable_key}: 'zone_type' must be a reviewed {sorted(ZONE_TYPE_OVERRIDES)} for a zone"
+                    )
+                    continue
+                if not isinstance(rule.get("reason"), str) or not rule["reason"].strip():
+                    errors.append(f"{stable_key}: 'zone_type' requires a 'reason'")
+                    continue
 
             character_result[stable_key] = MappingOverride(
                 display_name=display_name,
@@ -219,6 +237,8 @@ def load_mapping(
                 encounter_tier=encounter_tier,
                 loot_unreachable=loot_unreachable,
             )
+            if zone_type is not None:
+                character_result[stable_key]["zone_type"] = zone_type
 
     if errors:
         summary = "\n  ".join(errors[:10])

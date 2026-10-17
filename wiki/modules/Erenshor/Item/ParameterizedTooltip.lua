@@ -310,8 +310,8 @@ local function invocation(kindName, args, stats, frame)
 	return frame:expandTemplate({ title = templateName, args = templateArguments })
 end
 
-function p.render(frame)
-	local args = templateArgs(frame)
+-- Render-only callers supply their resolved facts without borrowing article args.
+function p.renderArgs(frame, args, extraDetails)
 	local itemKind = kind(args)
 	local variants = Quality.variants(baseStats(args))
 	local out = {
@@ -331,10 +331,17 @@ function p.render(frame)
 				'<div class="item-tooltip-quality-sparkle item-tooltip-quality-sparkle-improved">[[File:Blue_Sparkle.gif|80px]]</div>'
 		end
 		out[#out + 1] = invocation(itemKind, args, stats, frame)
+		if extraDetails ~= nil then
+			out[#out + 1] = extraDetails
+		end
 		out[#out + 1] = "</div>"
 	end
 	out[#out + 1] = "</div>"
 	return table.concat(out, "\n")
+end
+
+function p.render(frame)
+	return p.renderArgs(frame, templateArgs(frame))
 end
 
 return p

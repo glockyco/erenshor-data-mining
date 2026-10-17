@@ -27,7 +27,7 @@ public static class StepSceneResolver
             return step.Location.Scene;
 
         // Try resolving zone_name to scene
-        if (step.ZoneName != null)
+        if (step.TargetType != "item" && step.ZoneName != null)
         {
             var scene = data.GetSceneName(step.ZoneName);
             if (scene != null)
@@ -44,8 +44,14 @@ public static class StepSceneResolver
                 return spawns[0].Scene;
         }
 
-        // For item steps, check source NPC spawns or zone-level sources
-        var sourceKey = FindFirstSourceKey(quest, step, isSourceAvailable, countItem);
+        var sources = ItemSourcePolicy.SourcesFor(quest, step);
+        var source =
+            step.TargetType == "item" && sources != null
+                ? FindFirstLeafSource(sources, isSourceAvailable, countItem)
+                : null;
+        if (source?.AcquisitionKey != null)
+            return source.CanonicalLocation?.Scene;
+        var sourceKey = source?.SourceKey;
         if (sourceKey != null)
         {
             if (PositionedSource.TryParse(sourceKey, out var positioned))
@@ -58,7 +64,7 @@ public static class StepSceneResolver
                 return srcSpawns[0].Scene;
         }
 
-        return null;
+        return step.ZoneName == null ? null : data.GetSceneName(step.ZoneName);
     }
 
     /// <summary>
@@ -78,10 +84,10 @@ public static class StepSceneResolver
         var sources = ItemSourcePolicy.SourcesFor(quest, step);
         return sources == null
             ? null
-            : FindFirstLeafSourceKey(sources, isSourceAvailable, countItem);
+            : FindFirstLeafSource(sources, isSourceAvailable, countItem)?.MakeSourceId();
     }
 
-    private static string? FindFirstLeafSourceKey(
+    private static ItemSource? FindFirstLeafSource(
         List<ItemSource> sources,
         Func<ItemSource, bool>? isSourceAvailable,
         Func<string, int>? countItem
@@ -91,30 +97,39 @@ public static class StepSceneResolver
         {
             if (
                 ItemSourcePolicy.IsRandomSource(src)
-                || !ItemSourcePolicy.NeedsUsedItem(src, countItem)
+                || !ItemSourcePolicy.NeedsUsedItem(src, countItem, sources)
             )
                 continue;
             if (isSourceAvailable != null && !isSourceAvailable(src))
                 continue;
 
             // Container keys describe a reward or used item, not a spawn.
-            if (!ItemSourcePolicy.IsStaticCandidate(src))
+            if (
+                !ItemSourcePolicy.IsStaticCandidate(src)
+                || ItemSourcePolicy.HasPendingChildren(src, countItem)
+            )
             {
                 var childKey =
                     src.Children == null
                         ? null
-                        : FindFirstLeafSourceKey(src.Children, isSourceAvailable, countItem);
+                        : FindFirstLeafSource(src.Children, isSourceAvailable, countItem);
                 if (childKey != null)
                     return childKey;
                 continue;
             }
 
-            if (src.SourceKey != null)
-                return src.SourceKey;
+            if (src.AcquisitionKey != null)
+            {
+                if (src.CanonicalLocation?.Scene != null)
+                    return src;
+                continue;
+            }
+            if (src.SourceKey != null || src.Scene != null)
+                return src;
 
             if (src.Children != null)
             {
-                var childKey = FindFirstLeafSourceKey(src.Children, isSourceAvailable, countItem);
+                var childKey = FindFirstLeafSource(src.Children, isSourceAvailable, countItem);
                 if (childKey != null)
                     return childKey;
             }
@@ -164,18 +179,34 @@ public static class StepSceneResolver
         {
             if (
                 ItemSourcePolicy.IsRandomSource(src)
-                || !ItemSourcePolicy.NeedsUsedItem(src, countItem)
+                || !ItemSourcePolicy.NeedsUsedItem(src, countItem, sources)
             )
                 continue;
             if (isSourceAvailable != null && !isSourceAvailable(src))
                 continue;
 
             // Container source keys are not the places their children come from.
-            if (!ItemSourcePolicy.IsStaticCandidate(src))
+            if (
+                !ItemSourcePolicy.IsStaticCandidate(src)
+                || ItemSourcePolicy.HasPendingChildren(src, countItem)
+            )
             {
                 if (
                     src.Children != null
                     && AnySourceInScene(src.Children, data, scene, isSourceAvailable, countItem)
+                )
+                    return true;
+                continue;
+            }
+
+            if (src.AcquisitionKey != null)
+            {
+                if (
+                    string.Equals(
+                        src.CanonicalLocation?.Scene,
+                        scene,
+                        StringComparison.OrdinalIgnoreCase
+                    )
                 )
                     return true;
                 continue;

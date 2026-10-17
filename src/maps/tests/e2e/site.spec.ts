@@ -1,10 +1,10 @@
 import { expect, test as base } from '@playwright/test';
 
 /**
- * Map tiles, item icons, and character portraits are captured or generated assets
- * that the fixture build does not contain, so a request for one is not a site failure.
+ * Captured map tiles are outside the deterministic fixture.
+ * Item icons and character portraits are generated alongside its database.
  */
-const ASSETS_OUTSIDE_THE_FIXTURE = /^\/(tiles|items|characters)\//;
+const ASSETS_OUTSIDE_THE_FIXTURE = /^\/tiles\//;
 
 /**
  * Every test fails on an uncaught page error, a failed same-origin request, or
@@ -79,6 +79,8 @@ test('spawn popup lists the fixture drops', async ({ page }) => {
 
     await expect(page.getByText('Fixture Drop', { exact: true })).toBeVisible();
     await expect(page.getByText('Fixture Relic', { exact: true })).toHaveCount(0);
+    await expect(page.getByText('Carry 1 Fixture Key', { exact: true })).toBeVisible();
+    await expect(page.getByText(/^Do not already own/)).toHaveCount(0);
 });
 
 test('enemy search does not expose common-world swaps as character drops', async ({ page }) => {
@@ -87,11 +89,17 @@ test('enemy search does not expose common-world swaps as character drops', async
     await expect(page.getByText('Fixture Relic', { exact: true })).toHaveCount(0);
 });
 
-test('shared character portraits use density variants in search and spawn popups', async ({ page }) => {
+test('shared character portraits use density variants in search and spawn popups', async ({ page, request }) => {
     await page.goto('/map?sel=enemy:Fixture%20Enemy');
     const portrait = page.locator('img[src="/characters/fixture_enemy.w96.webp"]');
     await expect(portrait).toHaveCount(1);
     await expect(portrait).toHaveAttribute('srcset', '/characters/fixture_enemy.w96.webp 1x, /characters/fixture_enemy.w192.webp 2x');
+    for (const size of [96, 192]) {
+        const response = await request.get(`/characters/fixture_enemy.w${size}.webp`);
+        expect(response.status()).toBe(200);
+        expect(response.headers()['content-type']).toContain('image/webp');
+    }
+    await expect.poll(() => portrait.evaluate((image) => image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0)).toBe(true);
     await page.goto('/map?sel=marker:spawn:stowaway-enemy');
     await expect(portrait).toHaveCount(1);
 });
@@ -116,49 +124,52 @@ test('vendor popup lists direct and quest-unlocked stock', async ({ page }) => {
 test('an item lists world drops alongside quest, crafting, use and starting sources', async ({ page }) => {
     await page.goto(`/map?sel=${encodeURIComponent('item:item:fixture relic')}`);
 
-    await expect(page.getByText('Any enemy above level 30')).toBeVisible();
-    await expect(page.getByText('0.05% per kill')).toBeVisible();
-    const swapSource = page.getByText('Any enemy with common drops (0.9–8.1% per kill)', { exact: true });
-    await expect(swapSource).toHaveCount(1);
-    await expect(swapSource).toBeVisible();
-    await expect(page.getByRole('button', { name: /Any enemy with common drops/ })).toHaveCount(0);
-    await expect(page.getByText('Reward from', { exact: true })).toBeVisible();
+    await expect(page.getByText('Enemy level above 30', { exact: true })).toBeVisible();
+    await expect(page.getByText('0.05% per kill', { exact: true })).toBeVisible();
+    const swap = page.locator('[data-acquisition-key="common:item:fixture relic"]');
+    await expect(swap).toContainText('0.92% to 8.12% per kill');
+    await expect(swap.getByRole('button')).toHaveCount(0);
+    await expect(page.getByText('Quest reward', { exact: true })).toBeVisible();
     await expect(page.getByText('Crafting recipe', { exact: true })).toBeVisible();
-    await expect(page.getByText('Obtained by using', { exact: true })).toBeVisible();
-    await expect(page.getByText('Starting item of', { exact: true })).toBeVisible();
-    await expect(page.getByText(/^All classes/)).toBeVisible();
-    await expect(page.getByText('in Braxonian Desert', { exact: true })).toBeVisible();
-    await expect(page.getByRole('button', { name: "Turn in to Breena Carpenter · Stowaway's Step" })).toBeVisible();
+    await expect(page.getByText('Use item', { exact: true })).toBeVisible();
+    await expect(page.getByText('Convert item', { exact: true })).toBeVisible();
+    await expect(page.getByText('Starting item', { exact: true })).toHaveCount(2);
+    const room = page.locator('[data-acquisition-key="ui:fixture"]');
+    await expect(room).toContainText('Place Wood Training Set in room:1');
+    await expect(room).toContainText('Quantity 1 to 2');
+    await expect(room.getByRole('button', { name: /Enter from/ })).toBeVisible();
+    await expect(room.getByText('Before claiming your Reliquary', { exact: true })).toBeVisible();
+    await expect(room).not.toContainText('After claiming');
+    await expect(room).not.toContainText('account_state');
+    await expect(room).not.toContainText('reliquary_claimed');
+    await expect(page.locator('[data-acquisition-key="unconfirmed:fixture"], [data-acquisition-key="internal:fixture"], [data-acquisition-key="fishing:bonus"], [data-acquisition-key="impossible:fixture"]')).toHaveCount(0);
     await expect(page.getByText('The map has no data on how to obtain this item.')).toHaveCount(0);
 });
 
-test('Auction House listings link both broker locations and retain an unlocated broker', async ({ page }) => {
+test('Auction House listings retain separate route conditions and persisted locations', async ({ page }) => {
     await page.goto(`/map?sel=${encodeURIComponent('item:item:fixture bag')}`);
-    const auction = page.getByText('May be listed by simulated players', { exact: true }).locator('..');
-    await expect(auction).toContainText('Auction House');
-    await expect(auction.locator('a[href="https://erenshor.wiki.gg/wiki/Auction%20House"]')).toHaveCount(1);
-    await expect(auction.getByText('Stock is random.', { exact: true })).toBeVisible();
-    await expect(auction.getByText('Breena Carpenter')).toBeVisible();
-    await expect(auction.getByText('Fixture Dummy')).toBeVisible();
-    await expect(auction.getByText('Runtime Enemy')).toBeVisible();
-    await expect(auction.getByText('Location unknown', { exact: true })).toHaveCount(1);
-    await expect(auction).not.toContainText('gold');
-    await expect(auction).not.toContainText('%');
-    const locations = auction.getByRole('button', { name: "Stowaway's Step · 1 location", exact: true });
-    await expect(locations).toHaveCount(2);
+    const auctions = page.locator('[data-acquisition-key^="auction:"]');
+    await expect(auctions).toHaveCount(2);
     for (let index = 0; index < 2; index++) {
-        await locations.nth(index).hover();
-        await locations.nth(index).click();
-        await expect(page.locator('canvas').first()).toBeVisible();
+        await expect(auctions.nth(index)).toContainText('May be listed by simulated players. Stock is random.');
+        await expect(auctions.nth(index)).not.toContainText('gold');
+        await expect(auctions.nth(index)).not.toContainText('%');
+        await expect(auctions.nth(index)).toContainText('Breena Carpenter');
+        await expect(auctions.nth(index)).toContainText('Fixture Dummy');
+        await expect(auctions.nth(index)).toContainText('Runtime Enemy');
+        await expect(auctions.nth(index).getByText('Location unknown', { exact: true })).toHaveCount(1);
+        await expect(auctions.nth(index).getByRole('button')).toHaveCount(2);
+        await expect(auctions.nth(index).locator('a[href="https://erenshor.wiki.gg/wiki/Runtime%20Enemy"]')).toHaveCount(1);
     }
     await expect(page.getByText('The map has no data on how to obtain this item.')).toHaveCount(0);
 });
 
 test('dialog givers show their required quest and focus their location', async ({ page }) => {
     await page.goto(`/map?sel=${encodeURIComponent('item:item:fixture key')}`);
-    await expect(page.getByText('Given by', { exact: true })).toBeVisible();
-    await expect(page.getByText(/^after Fixture Quest/)).toBeVisible();
-    const giver = page.getByRole('button', { name: 'Breena Carpenter · 1 location' });
+    const dialog = page.locator('[data-acquisition-key="dialog:1"]');
+    await expect(dialog).toContainText('Talk to');
+    await expect(dialog).toContainText('Complete Fixture Quest');
+    const giver = dialog.getByRole('button').first();
     await expect(giver).toBeVisible();
     await giver.hover();
     await giver.click();
@@ -167,11 +178,10 @@ test('dialog givers show their required quest and focus their location', async (
 
 test('item search shows possible treasure hunts and focuses their sites', async ({ page }) => {
     await page.goto(`/map?sel=${encodeURIComponent('item:item:fixture treasure')}`);
-    await expect(page.getByText('Possible hunt locations, not chests present at every site.')).toBeVisible();
-    const tierLinks = page.locator('a[href="https://erenshor.wiki.gg/wiki/Lost%20Treasure%20(20-30)"]');
-    await expect(tierLinks).toHaveCount(2);
-    await expect(tierLinks.first().locator('..')).toContainText('Lost Treasure (20-30)');
-    const site = page.getByRole('button', { name: /Stowaway's Step · player levels 21–29/ });
+    const chest = page.locator('[data-acquisition-key="drop:character:treasurechest 20-30 1:item:fixture treasure"]');
+    await expect(chest).toContainText('Player level 21 to 29');
+    await expect(chest.locator('a[href="https://erenshor.wiki.gg/wiki/Lost%20Treasure%20(20-30)"]')).toHaveCount(1);
+    const site = chest.getByRole('button', { name: /Stowaway's Step - Possible treasure hunt/ });
     await expect(site).toBeVisible();
     await site.click();
     const all = page.getByRole('button', { name: 'Show all 3 locations', exact: true });
@@ -193,11 +203,35 @@ test('unlocated droppers and vendors retain wiki links but no focus buttons', as
 test('a representative scroll lists vendors of both item variants', async ({ page }) => {
     await page.goto(`/map?sel=${encodeURIComponent('item:item:fixture meditate')}`);
     await expect(page.getByText('Spell Scroll: Meditative Trance', { exact: true })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Breena Carpenter/ })).toBeVisible();
+    await expect(page.locator('[data-origin-item="item:fixture meditate dru"]')).toHaveCount(2);
     const vendorWiki = page.locator('a[href="https://erenshor.wiki.gg/wiki/Runtime%20Enemy"]');
     await expect(vendorWiki).toBeVisible();
     await expect(vendorWiki.locator('..')).toContainText('Runtime Enemy');
-    await expect(page.getByText('10 gold · Location unknown')).toBeVisible();
+    const runtime = page.locator('[data-origin-item="item:fixture meditate dru"]').filter({ hasText: 'Runtime Enemy' });
+    await expect(runtime).toContainText('10 gold');
+    await expect(runtime).toContainText('Location unknown');
+});
+
+test('pure global catches appear once as Any water without masking enhanced local fishing rates', async ({ page }) => {
+    await page.goto(`/map?sel=${encodeURIComponent('item:item:fixture fish')}`);
+    const global = page.locator('[data-presentation="any_water"]');
+    await expect(global).toHaveCount(1);
+    await expect(global).toContainText('Any water');
+    await expect(global).toContainText('1.25% per successful catch');
+    await expect(global.getByRole('button')).toHaveCount(0);
+    await expect(global).not.toContainText('Location unknown');
+    await expect(global).not.toContainText('Fish during the day');
+    await expect(global).not.toContainText('Fish at night');
+    const members: string[] = JSON.parse((await global.getAttribute('data-acquisition-keys'))!);
+    expect(members).toHaveLength(4);
+    expect(new Set(members).size).toBe(4);
+    const day = page.locator('[data-acquisition-key="fishing:1"]');
+    await expect(day).toContainText('7.1875% per successful catch');
+    await expect(day).toContainText('Fish during the day');
+    const night = page.locator('[data-acquisition-key="fishing:overlap-night"]');
+    await expect(night).toContainText('7.583333333333333% per successful catch');
+    await expect(night).toContainText('Fish at night');
+    await expect(page.getByText('Fishing bonus', { exact: true })).toHaveCount(0);
 });
 
 test('the layers query that shipped overlays load hides every spawn layer', async ({ page }) => {
@@ -243,7 +277,11 @@ test('a high-reading-level dig site only offers reachable chests', async ({ page
 
 test('guardian links resolve every treasure site', async ({ page }) => {
     await page.goto('/map?sel=enemy:Ancient%20Horror');
-    await expect(page.getByRole('button', { name: 'Show all 3 dig sites', exact: true })).toBeVisible();
+    await expect(page.locator('canvas').first()).toBeVisible({ timeout: 20_000 });
+    const all = page.getByRole('button', { name: 'Show all 3 dig sites', exact: true });
+    await expect(all).toBeVisible();
+    await all.click();
+    await expect(page.locator('canvas').first()).toBeVisible();
 });
 
 test('the legacy zone popup includes the treasure encounter', async ({ page }) => {
@@ -251,6 +289,20 @@ test('the legacy zone popup includes the treasure encounter', async ({ page }) =
     await expect(page.locator('.leaflet-popup-content')).toContainText('Reading level: 21 or higher');
     await expect(page.locator('.leaflet-popup-content')).toContainText('21–29: Lost Treasure (20-30)');
     await expect(page.locator('.leaflet-popup-content')).toContainText('Ancient Demon: Level 17–36');
+});
+
+test('stored return portals have no serialized Hidden destination in either map interface', async ({ page }) => {
+    await page.goto(`/map?sel=${encodeURIComponent('marker:zone-line:reliquary-return')}`);
+    const destination = page.getByText('Destination', { exact: true }).locator('..');
+    await expect(destination).toContainText('Return to where you teleported from');
+    await expect(destination).not.toContainText('Hidden');
+    await expect(page.getByText('Enemy Levels', { exact: true })).toHaveCount(0);
+    await expect(page.locator('a[href="/Hidden"], a[href="/maps/Hidden"]')).toHaveCount(0);
+    await page.goto('/maps/Reliquary?marker=zone-line:reliquary-return');
+    const popup = page.locator('.leaflet-popup-content');
+    await expect(popup).toContainText('Return to where you teleported from');
+    await expect(popup).not.toContainText('Hidden');
+    await expect(popup.locator('a[href*="Hidden"]')).toHaveCount(0);
 });
 
 test('the clean database is published unchanged', async ({ request }) => {

@@ -12,7 +12,10 @@ public class QuestRequiredItemRecord
     public string QuestVariantResourceName { get; set; } = string.Empty;
 
     [Indexed(Name = "QuestRequiredItems_Primary_IDX", Order = 2, Unique = true)]
+    public int RequiredSlot { get; set; }
+
     [ForeignKey(typeof(ItemRecord), "StableKey")]
+    [Indexed]
     public string ItemStableKey { get; set; } = string.Empty;
 
     public int Quantity { get; set; }

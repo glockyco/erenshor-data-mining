@@ -18,6 +18,7 @@ function item(name: string, stableKey: string): IndexEntry {
                 vendors: 0,
                 miningNodes: 0,
                 fishingSpots: 0,
+                anyWater: 0,
                 itemBags: 0,
                 worldDrops: 0,
                 auctionHouses: 0,

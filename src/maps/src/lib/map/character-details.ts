@@ -18,6 +18,7 @@ export interface CharacterDetails {
     vendorItems: ReadonlyMap<string, VendorItem[]>;
     /** Every map-visible character by display name. */
     charactersByName: ReadonlyMap<string, readonly LiveCandidate[]>;
+    referenceNamesByAcquisition: ReadonlyMap<string, Record<string, string>>;
 }
 
 // Binary order, as SQLite sorts text, so the popups keep their established order.
@@ -31,16 +32,20 @@ export function indexCharacterDetails(
 ): CharacterDetails {
     const drops = new Map<string, CharacterDrop[]>();
     const vendorItems = new Map<string, VendorItem[]>();
+    const referenceNamesByAcquisition = new Map<string, Record<string, string>>();
 
     for (const source of sources) {
-        if (source.kind === 'drop') {
+        if (!source.characterStableKey) continue;
+        referenceNamesByAcquisition.set(source.acquisitionKey, source.referenceNames);
+        if (source.kind === 'character_drop' && !source.provenance.locations.some((location) => location.relation === 'possible_treasure')) {
             let list = drops.get(source.characterStableKey);
             if (!list) drops.set(source.characterStableKey, (list = []));
-            list.push({ itemName: source.displayName, dropProbability: source.dropProbability });
+            list.push({ itemName: source.displayName, dropProbability: source.provenance.probability_max ?? 0,
+                provenance: source.provenance });
         } else if (source.kind === 'vendor') {
             let list = vendorItems.get(source.characterStableKey);
             if (!list) vendorItems.set(source.characterStableKey, (list = []));
-            list.push({ name: source.displayName, price: source.price });
+            list.push({ name: source.displayName, price: source.price ?? 0, provenance: source.provenance });
         }
     }
 
@@ -51,7 +56,7 @@ export function indexCharacterDetails(
         list.sort((a, b) => compareText(a.name, b.name));
     }
 
-    return { drops, vendorItems, charactersByName };
+    return { drops, vendorItems, charactersByName, referenceNamesByAcquisition };
 }
 
 /**

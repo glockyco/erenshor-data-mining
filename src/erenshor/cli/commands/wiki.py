@@ -38,7 +38,7 @@ from rich.panel import Panel
 from erenshor.application.extract.database_comparison import recorded_build_id
 from erenshor.application.wiki.chat_knowledge import load_chat_knowledge
 from erenshor.application.wiki.generators.context import GeneratorContext
-from erenshor.application.wiki.lifecycle import ContentLifecycle, load_content_lifecycle, with_chat_knowledge
+from erenshor.application.wiki.lifecycle import with_chat_knowledge
 from erenshor.application.wiki.semantic_validation import validate_wiki_pages
 from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
 from erenshor.application.wiki.services.fetch_service import WikiFetchService
@@ -112,12 +112,13 @@ from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
 from erenshor.cli.preconditions.checks.inputs import option_path, wiki_credentials
 from erenshor.cli.preconditions.checks.wiki import interface_admin_credentials, wiki_endpoint
+from erenshor.infrastructure.content_lifecycle import ContentLifecycle, load_content_lifecycle
 from erenshor.infrastructure.database.connection import DatabaseConnection
 from erenshor.infrastructure.database.repositories.build_metadata import BuildMetadataRepository
 from erenshor.infrastructure.database.repositories.characters import CharacterRepository
 from erenshor.infrastructure.database.repositories.factions import FactionRepository
+from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
 from erenshor.infrastructure.database.repositories.items import ItemRepository
-from erenshor.infrastructure.database.repositories.loot_tables import LootTableRepository
 from erenshor.infrastructure.database.repositories.quests import QuestRepository
 from erenshor.infrastructure.database.repositories.skills import SkillRepository
 from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
@@ -260,13 +261,13 @@ def _create_wiki_composition(
     zone_positions_path = maps_source_dir / "src" / "lib" / "data" / "zone-positions.json"
     context = GeneratorContext(
         item_repo=ItemRepository(database),
+        item_provenance_repo=ItemProvenanceRepository(database),
         character_repo=CharacterRepository(database),
         spell_repo=SpellRepository(database),
         skill_repo=SkillRepository(database),
         stance_repo=StanceRepository(database),
         faction_repo=FactionRepository(database),
         spawn_repo=SpawnPointRepository(database),
-        loot_repo=LootTableRepository(database),
         quest_repo=QuestRepository(database),
         zone_repo=ZoneRepository(database),
         storage=storage,
@@ -437,6 +438,7 @@ _LuaRepositories = tuple[
     ClassDisplayNameService,
     BuildMetadataRepository,
     TreasureRepository,
+    ItemProvenanceRepository,
 ]
 
 
@@ -459,6 +461,7 @@ def _create_lua_repositories(cli_ctx: CLIContext, *, repositories: _LuaRepositor
         ClassDisplayNameService(db_connection),
         BuildMetadataRepository(db_connection),
         TreasureRepository(db_connection),
+        ItemProvenanceRepository(db_connection),
     )
 
 
@@ -687,6 +690,7 @@ def generate_lua(ctx: typer.Context) -> None:
             class_display,
             build_repo,
             treasure_repo,
+            provenance_repo,
         ) = _create_lua_repositories(cli_ctx)
         result = generate_lua_data_modules(
             item_repo=item_repo,
@@ -700,12 +704,16 @@ def generate_lua(ctx: typer.Context) -> None:
             class_display=class_display,
             build_repo=build_repo,
             treasure_repo=treasure_repo,
+            provenance_repo=provenance_repo,
+            lifecycle=_load_retired_lifecycle(cli_ctx),
             output_root=output_root,
             max_page_bytes=cli_ctx.config.global_.mediawiki.max_page_bytes,
         )
         for path in result.written_paths:
             console.print(f"[green]Wrote:[/green] {path}", soft_wrap=True)
             console.print(f"[green]Validated with:[/green] {result.validation_tools[path]}")
+        for path in result.manifest_paths:
+            console.print(f"[green]Wrote provenance manifest:[/green] {path}", soft_wrap=True)
     except Exception as e:
         console.print(f"[red]Error during wiki Lua generation: {e}[/red]")
         logger.exception("Wiki Lua generation failed")

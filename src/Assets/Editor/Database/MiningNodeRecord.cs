@@ -17,4 +17,9 @@ public class MiningNodeRecord
 
     public string NPCName { get; set; } = string.Empty;
     public float RespawnTime { get; set; }
+
+    // Native pool lengths before Mine inserts the guarantee into empty pools.
+    public int? CommonCount { get; set; }
+    public int? RareCount { get; set; }
+    public int? LegendCount { get; set; }
 }

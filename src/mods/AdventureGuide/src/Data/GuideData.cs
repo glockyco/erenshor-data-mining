@@ -50,6 +50,9 @@ public sealed partial class GuideData
     public IReadOnlyDictionary<string, GateItem> GateItems { get; private set; } =
         new Dictionary<string, GateItem>();
 
+    public EncounterContext Encounters { get; private set; } = null!;
+    public State.EncounterProjection EncounterProjection { get; private set; } = null!;
+
     /// <summary>Display names for furniture sets referenced by room conditions.</summary>
     public IReadOnlyDictionary<string, string> FurnitureSetNames { get; private set; } =
         new Dictionary<string, string>();
@@ -90,7 +93,7 @@ public sealed partial class GuideData
         if (stream == null)
         {
             log.LogError("Failed to load embedded quest-guide.json");
-            return new GuideData();
+            throw new InvalidDataException("Failed to load embedded quest-guide.json");
         }
 
         // Deserialize straight from the resource stream. Reading the ~2 MB
@@ -162,6 +165,10 @@ public sealed partial class GuideData
             }
         }
 
+        data.Encounters = wrapper.Encounters!;
+        data.EncounterProjection = new State.EncounterProjection(data, data.Encounters);
+        data.LoadSourceFacts(wrapper);
+        data.LoadDestinationContexts(wrapper);
         return data;
     }
 
@@ -174,9 +181,9 @@ public sealed partial class GuideData
 
     internal static void ValidateWrapper(GuideWrapper wrapper)
     {
-        if (wrapper.Version != 7)
+        if (wrapper.Version != 8)
             throw new InvalidDataException(
-                $"Unsupported quest guide schema version {wrapper.Version}. Expected 7"
+                $"Unsupported quest guide schema version {wrapper.Version}. Expected 8"
             );
         if (wrapper.Quests == null)
             throw new InvalidDataException("Quest guide has no quests collection");
@@ -224,6 +231,11 @@ public sealed partial class GuideData
         }
 
         ValidateConditions(wrapper);
+        if (wrapper.Encounters == null)
+            throw new InvalidDataException("Quest guide has no encounter payload");
+        wrapper.Encounters.Validate(wrapper.Quests);
+        ValidateSourceFacts(wrapper);
+        ValidateDestinationContexts(wrapper);
 
         if (wrapper.ExcludedQuests != null)
         {
@@ -250,9 +262,22 @@ public sealed partial class GuideData
                         throw new InvalidDataException("Gate atom has no reference");
                     switch (atom.Kind)
                     {
+                        case GateAtomKind.AccountState:
+                            if (
+                                atom.Ref != EncounterStateKeys.ReliquaryClaimed
+                                || atom.Actor != "account"
+                                || atom.Value is not ("true" or "false")
+                                || atom.Phase != "availability"
+                                || string.IsNullOrWhiteSpace(atom.Scope)
+                            )
+                                throw new InvalidDataException(
+                                    "Invalid account-state availability atom"
+                                );
+                            break;
                         case GateAtomKind.ItemHeld:
                         case GateAtomKind.KeyHeld:
                         case GateAtomKind.RoomFurnished:
+                        case GateAtomKind.PlanningSlotItem:
                             if (
                                 wrapper.GateItems == null
                                 || !wrapper.GateItems.TryGetValue(atom.Ref, out var item)
@@ -267,6 +292,22 @@ public sealed partial class GuideData
                             )
                                 throw new InvalidDataException(
                                     $"Gate atom names unknown room {atom.Slot}"
+                                );
+                            if (
+                                atom.Kind == GateAtomKind.PlanningSlotItem
+                                && (
+                                    atom.Slot == null || !FurnishingPolicy.IsPlanningSlot(atom.Slot)
+                                )
+                            )
+                                throw new InvalidDataException(
+                                    $"Gate atom names unknown planning slot {atom.Slot}"
+                                );
+                            if (
+                                atom.Kind == GateAtomKind.PlanningSlotItem
+                                && string.IsNullOrWhiteSpace(atom.Instruction)
+                            )
+                                throw new InvalidDataException(
+                                    $"Planning slot atom has no instruction for {atom.Ref}"
                                 );
                             break;
                         case GateAtomKind.QuestDone:
@@ -323,6 +364,12 @@ public sealed partial class GuideData
                         throw new InvalidDataException(
                             $"Spawn entry line index {entry} is out of range"
                         );
+                    if (
+                        wrapper.ZoneLineDestinationContexts?.ContainsKey(
+                            wrapper.ZoneLines[entry].StableKey
+                        ) == true
+                    )
+                        continue;
                     if (
                         destinationKey == null
                         || !string.Equals(
@@ -596,11 +643,18 @@ public sealed partial class GuideData
                 )
             )
                 throw new InvalidDataException($"{questKey} has invalid source chance");
+            ValidateFishingChances(source, questKey);
             if (source.LevelMax is int max && (source.Level is not int min || max < min))
                 throw new InvalidDataException($"{questKey} has invalid source level range");
             if (
                 source.ChanceMax is double chanceMax
-                && (source.Chance is not double low || chanceMax < low || chanceMax > 100)
+                && (
+                    source.Chance is not double low
+                    || double.IsNaN(chanceMax)
+                    || double.IsInfinity(chanceMax)
+                    || chanceMax < low
+                    || chanceMax > 100
+                )
             )
                 throw new InvalidDataException($"{questKey} has invalid source chance range");
             if (ItemSourcePolicy.IsRandomSource(source) && string.IsNullOrWhiteSpace(source.Name))
@@ -608,12 +662,7 @@ public sealed partial class GuideData
             switch (source.Type)
             {
                 case "world_drop":
-                    if (
-                        source.Chance == null
-                        || source.Level is not > 0
-                        || source.Scene != null
-                        || source.SourceKey != null
-                    )
+                    if (source.Chance == null || source.Scene != null || source.SourceKey != null)
                         throw new InvalidDataException($"{questKey} has invalid world drop");
                     break;
                 case "common_world_item":
@@ -642,7 +691,6 @@ public sealed partial class GuideData
                         || source.LevelMax == null
                         || source.SourceKey?.StartsWith("character:", StringComparison.Ordinal)
                             != true
-                        || source.Scene != null
                         || string.IsNullOrWhiteSpace(source.Instruction)
                     )
                         throw new InvalidDataException($"{questKey} has invalid treasure chest");
@@ -662,17 +710,67 @@ public sealed partial class GuideData
 
             ValidateSources(
                 source.Children,
-                source.Type == "item_use" ? source.Name! : itemName,
+                source.Type is "item_use" or "ingredient" ? source.Name! : itemName,
                 questKey
             );
         }
+    }
+
+    private static void ValidateFishingChances(ItemSource source, string questKey)
+    {
+        if (source.Type != "fishing")
+        {
+            if (
+                source.DayChance != null
+                || source.NightChance != null
+                || source.TimeRestriction != null
+            )
+                throw new InvalidDataException(
+                    $"{questKey} has temporal chances on a non-fishing source"
+                );
+            return;
+        }
+        if (
+            source.DayChance is not double day
+            || source.NightChance is not double night
+            || double.IsNaN(day)
+            || double.IsInfinity(day)
+            || double.IsNaN(night)
+            || double.IsInfinity(night)
+            || day < 0
+            || night < 0
+            || day > 100
+            || night > 100
+            || (day == 0 && night == 0)
+        )
+            throw new InvalidDataException($"{questKey} has invalid fishing phase chances");
+        string? restriction =
+            night == 0 ? "day"
+            : day == 0 ? "night"
+            : null;
+        // Canonical acquisitions keep one identity per phase, with their own final odds.
+        double? expectedChance =
+            source.AcquisitionKey != null
+                ? day > 0
+                    ? day
+                    : night
+                : day == night
+                    ? day
+                    : null;
+        if (
+            source.TimeRestriction != restriction
+            || source.Chance != expectedChance
+            || source.AcquisitionKey == null && source.ChanceMax != null
+            || source.AcquisitionKey != null && day > 0 && night > 0 && day != night
+        )
+            throw new InvalidDataException($"{questKey} has inconsistent fishing chances");
     }
 
     private static bool IsFinite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
 }
 
 /// <summary>Top-level JSON wrapper matching the Python GuideOutput structure.</summary>
-internal sealed class GuideWrapper
+internal sealed partial class GuideWrapper
 {
     [JsonProperty("_version")]
     public int Version { get; set; }
@@ -700,6 +798,9 @@ internal sealed class GuideWrapper
 
     [JsonProperty("_furniture_sets")]
     public Dictionary<string, FurnitureSetInfo>? FurnitureSets { get; set; }
+
+    [JsonProperty("_encounters")]
+    public EncounterContext? Encounters { get; set; }
 
     [JsonProperty("_excluded_quests")]
     public List<string>? ExcludedQuests { get; set; }
@@ -737,6 +838,9 @@ public sealed class FurnitureSetInfo
 /// <summary>A character spawn point with coordinates.</summary>
 public sealed class SpawnPoint
 {
+    [JsonProperty("stable_key")]
+    public string StableKey { get; set; } = "";
+
     [JsonProperty("scene")]
     public string Scene { get; set; } = "";
 
@@ -768,6 +872,9 @@ public sealed class SpawnPoint
 /// <summary>A zone transition point.</summary>
 public sealed class ZoneLineEntry
 {
+    [JsonProperty("stable_key")]
+    public string StableKey { get; set; } = "";
+
     [JsonProperty("scene")]
     public string Scene { get; set; } = "";
 

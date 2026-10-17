@@ -15,22 +15,23 @@ Template structure:
 
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING
 
 from loguru import logger
 
 from erenshor.application.wiki.generators.formatting import format_description, safe_str
 from erenshor.application.wiki.generators.item_type_display import build_item_types
-from erenshor.application.wiki.generators.link_lists import (
-    fold_long_list,
-    format_chance,
-    format_chance_links,
-    format_links,
-    format_visible_links,
-    group_by_page_and_label,
-)
+from erenshor.application.wiki.generators.link_lists import fold_long_list
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
 from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
+from erenshor.domain.value_objects.item_provenance import (
+    PROVENANCE_SCHEMA_VERSION,
+    ItemAcquisition,
+    ProvenanceCondition,
+    fact_to_dict,
+    is_actionable_acquisition,
+)
 from erenshor.domain.value_objects.wiki_filename import picture_file_title
 from erenshor.domain.value_objects.wiki_link import AbilityLink
 from erenshor.shared.game_constants import LONG_NAME_FONT_SIZE, LONG_NAME_THRESHOLD, WIKITEXT_LINE_SEPARATOR
@@ -40,6 +41,7 @@ if TYPE_CHECKING:
     from erenshor.domain.entities.item import Item
     from erenshor.domain.entities.item_stats import ItemStats
     from erenshor.domain.entities.spell import Spell
+    from erenshor.domain.value_objects.source_info import SourceInfo
 
 # Parameter names understood by the legacy Item/* class-restriction rows.  The
 # game renamed Duelist to Windblade; the live templates still spell the
@@ -53,13 +55,9 @@ def item_image_file(item: Item) -> str:
 
 
 class ItemSectionGenerator(SectionGeneratorBase):
-    """Generator for item wiki sections.
+    """Render one item from canonical facts and resolved presentation links.
 
-    Generates template wikitext for a SINGLE item entity. All name/page resolution
-    uses direct entity attribute access and pre-built WikiLink objects from
-    SourceInfo — no resolver.
-
-    Multi-entity page assembly is handled by PageGenerator classes, not here.
+    Multi-entity page assembly is handled by PageGenerator classes.
     """
 
     def __init__(self) -> None:
@@ -377,9 +375,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             ingredient_links = [f"{quantity}x {link!s}" for link, quantity in enriched.sources.recipe_ingredients]
             ingredients = "<br>".join(ingredient_links)
 
-            if enriched.sources.crafting_results:
-                link, _quantity = enriched.sources.crafting_results[0]
-                rewards = str(link)
+            rewards = "<br>".join(f"{quantity}x {link}" for link, quantity in enriched.sources.crafting_results)
 
         mold_context = {
             "icon": item_image_file(item),
@@ -640,8 +636,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             # A flag: Template:Item holds the wording, so one edit changes every page.
             "auctionhousesource": (
                 "yes"
-                if enriched.sources
-                and any(source.source_type == "auction_house" for source in enriched.sources.obtained_from)
+                if enriched.sources and any(source.kind == "auction_house" for source in self._acquisitions(enriched))
                 else ""
             ),
             "othersource": "",
@@ -655,147 +650,379 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "droprates": self._format_drop_rates(enriched),
         }
 
-    def _format_guaranteed_drops(self, enriched: EnrichedItemData) -> str:
-        """Format the guaranteed drop pool from pre-built ItemLink objects."""
-        if not enriched.sources or not enriched.sources.item_drops:
+    @staticmethod
+    def _acquisitions(enriched: EnrichedItemData) -> tuple[ItemAcquisition, ...]:
+        if enriched.sources is None:
+            return ()
+        if enriched.sources.disposition is not None and enriched.sources.disposition.disposition != "current":
+            return ()
+        return tuple(fact for fact in enriched.sources.acquisitions if is_actionable_acquisition(fact))
+
+    @staticmethod
+    def _link(sources: SourceInfo, key: str | None, fallback: str) -> str:
+        link = sources.links.get(key or "")
+        return str(link) if link is not None else fallback
+
+    def _condition(self, atom: ProvenanceCondition, sources: SourceInfo) -> str:
+        if atom.predicate == "account_state":
+            labels: dict[tuple[str | None, str | None], str] = {
+                ("account_state:reliquary_claimed", "false"): "before claiming your Reliquary",
+                ("account_state:reliquary_claimed", "true"): "after claiming your Reliquary",
+            }
+            label = labels.get((atom.reference_stable_key, atom.value))
+            if label is None:
+                raise ValueError("Unsupported canonical account-state display label")
+            return "" if atom.phase == "operation_outcome" else label
+        reference = self._link(sources, atom.reference_stable_key, "the required condition")
+        predicates = {
+            "quest_done": f"after {reference}",
+            "quest_not_done": f"before completing {reference}",
+            "item_held": f"carrying {reference}",
+            "key_held": f"carrying {reference}",
+            "item_not_owned": f"without {reference}",
+            "room_furnished": f"after furnishing room {atom.reference_slot or ''} with {reference}",
+            "encounter_won": f"after defeating {reference}",
+            "zone_use": f"in {reference}",
+            "time_of_day": atom.value or "",
+            "quality": f"{atom.value or ''} quality",
+            "never": "not available",
+        }
+        if atom.predicate in predicates:
+            return predicates[atom.predicate]
+        if atom.predicate == "actor_level":
+            actor = {"enemy": "enemy", "player": "player", "sim": "simulated player"}.get(atom.actor or "", "character")
+            bounds = []
+            if atom.minimum is not None:
+                bounds.append(f"{'at least' if atom.minimum_inclusive else 'above'} {atom.minimum:g}")
+            if atom.maximum is not None:
+                bounds.append(f"{'at most' if atom.maximum_inclusive else 'below'} {atom.maximum:g}")
+            return f"{actor} level " + " and ".join(bounds)
+        if atom.predicate == "formula_operand":
             return ""
-        pool = [
-            link
-            for link, _probability, is_guaranteed in enriched.sources.item_drops
-            if is_guaranteed and link.page_title is not None
-        ]
-        pool.sort(key=lambda link: link.display_name.lower())
-        return format_links(pool)
+        raise ValueError(f"Unsupported canonical item condition: {atom.predicate}")
+
+    def _conditions(self, atoms: tuple[ProvenanceCondition, ...], sources: SourceInfo) -> str:
+        gates: dict[tuple[str, str], dict[int, list[str]]] = {}
+        for atom in atoms:
+            text = self._condition(atom, sources)
+            if text:
+                gates.setdefault((atom.scope, atom.gate_key), {}).setdefault(atom.group_index, []).append(text)
+        parts = []
+        for groups in gates.values():
+            alternatives = [" and ".join(texts) for _index, texts in sorted(groups.items())]
+            parts.append("(" + " or ".join(alternatives) + ")" if len(alternatives) > 1 else alternatives[0])
+        return " and ".join(parts)
+
+    @staticmethod
+    def _chance(fact: ItemAcquisition) -> str:
+        if fact.probability_min is None or fact.probability_kind not in ("exact", "bounded"):
+            return ""
+        chance = f"{fact.probability_min:.3g}%"
+        if fact.probability_max is not None and fact.probability_max != fact.probability_min:
+            chance += f" to {fact.probability_max:.3g}%"
+        basis = {
+            "per_kill": "per kill",
+            "per_use": "per use",
+            "per_node": "per node",
+            "per_successful_catch": "per catch",
+        }.get(fact.probability_basis or "", "")
+        return f"{chance} {basis}".strip()
+
+    def _source_entry(self, fact: ItemAcquisition, sources: SourceInfo) -> str:
+        fallback = {
+            "character_drop": "Enemy drop",
+            "common_world_item": "Any enemy with common drops",
+            "special_world_drop": "Any enemy",
+            "vendor": "Vendor",
+            "dialog": "Dialog reward",
+            "quest_reward": "Quest reward",
+            "item_drop": "Using an item",
+            "spell_created": "Using an item",
+            "item_conversion": "Item conversion",
+            "mining": "Mining",
+            "fishing": "Fishing",
+            "fishing_bonus": "Any water",
+            "item_bag": "Ground pickup",
+            "starting_class": "Starting inventory",
+            "ui_grant": "Interface grant",
+            "internal_equipment": "Simulated-player equipment",
+        }.get(fact.kind)
+        if fallback is None:
+            raise ValueError(f"Unsupported canonical item source: {fact.kind}")
+        if fact.kind == "ui_grant":
+            fallback = {
+                "cosmetic_panel": "Cosmetic panel",
+                "planning_table": "Planning table",
+            }.get(fact.mechanic or "", fallback)
+        entry = self._link(sources, fact.source_stable_key, fallback)
+        details = []
+        if chance := self._chance(fact):
+            details.append(chance)
+        if fact.quantity_min is not None:
+            quantity = f"{fact.quantity_min:g}"
+            if fact.quantity_max is not None and fact.quantity_max != fact.quantity_min:
+                quantity += f" to {fact.quantity_max:g}"
+            if quantity != "1":
+                details.append(f"{quantity} items")
+        if conditions := self._conditions(fact.conditions, sources):
+            details.append(conditions)
+        locations = []
+        for location in fact.locations:
+            place = self._link(sources, location.zone_stable_key, location.scene or "")
+            if condition := self._conditions(location.conditions, sources):
+                place = f"{place} ({condition})" if place else condition
+            if place and place not in locations:
+                locations.append(place)
+        if locations:
+            details.append("in " + " or ".join(locations))
+        elif fact.locations and all(location.relation == "unlocated" for location in fact.locations):
+            details.append("location unknown")
+        return f"{entry} ({', '.join(details)})" if details else entry
+
+    def _format_sources(self, enriched: EnrichedItemData, kinds: tuple[str, ...]) -> str:
+        if enriched.sources is None:
+            return ""
+        return WIKITEXT_LINE_SEPARATOR.join(
+            self._source_entry(fact, enriched.sources)
+            for fact in sorted(self._acquisitions(enriched), key=lambda fact: fact.acquisition_key)
+            if fact.kind in kinds
+        )
+
+    def _format_guaranteed_drops(self, enriched: EnrichedItemData) -> str:
+        """A guaranteed pool roll does not guarantee an individual item."""
+        if enriched.sources is None:
+            return ""
+        return "<br>".join(
+            self._link(enriched.sources, use.target_stable_key, "Item")
+            for use in enriched.sources.uses
+            if use.kind == "item_drop"
+            and (outcome := enriched.sources.outcomes.get(use.outcome_key or "")) is not None
+            and outcome.probability_kind == "exact"
+            and outcome.probability_min == 100
+        )
 
     def _format_drop_rates(self, enriched: EnrichedItemData) -> str:
-        """Format container drop rates from pre-built ItemLink objects."""
-        if not enriched.sources or not enriched.sources.item_drops:
+        if enriched.sources is None:
             return ""
-        rates = [
-            (link, probability)
-            for link, probability, _is_guaranteed in enriched.sources.item_drops
-            if link.page_title is not None
-        ]
-        return format_chance_links(rates, decimals=0)
+        entries = []
+        for use in enriched.sources.uses:
+            if use.kind != "item_drop":
+                continue
+            outcome = enriched.sources.outcomes.get(use.outcome_key or "")
+            if outcome is None:
+                raise ValueError(f"Canonical item-drop use has no outcome: {use.use_key}")
+            entry = self._link(enriched.sources, use.target_stable_key, "Item")
+            chance = self._chance(outcome)
+            entries.append(f"{entry} ({chance})" if chance else entry)
+        return "<br>".join(entries)
 
     def _format_vendor_sources(self, enriched: EnrichedItemData) -> str:
-        """Format vendor sources from pre-built CharacterLink objects."""
-        if not enriched.sources or not enriched.sources.vendors:
-            return ""
-        return format_visible_links(enriched.sources.vendors)
+        return self._format_sources(enriched, ("vendor",))
 
     def _format_drop_sources(self, enriched: EnrichedItemData) -> str:
-        """Format drop sources from pre-built WikiLink objects with probabilities.
-
-        Droppers that share a page and a label form one entry, highest chance
-        first. Common-item swaps and special world drops follow the named
-        droppers as plain text, because they do not name individual characters.
-        """
-        if not enriched.sources:
-            return ""
-        drop_data = [(link, prob) for link, prob in enriched.sources.drops if link.page_title is not None]
-        drop_data.sort(key=lambda x: (-x[1], x[0]))
-        result = [format_chance_links(drop_data, decimals=1)] if drop_data else []
-        for source in enriched.sources.obtained_from:
-            if source.source_type == "common_world_item" and source.probability is not None:
-                chances = [source.probability]
-                if source.probability_max is not None:
-                    chances.append(source.probability_max)
-                result.append(f"Any enemy with common drops ({format_chance(chances, decimals=1)} per kill)")
-        for drop in enriched.sources.world_drops:
-            enemies = (
-                f"Any enemy above level {drop.min_level_exclusive}" if drop.min_level_exclusive > 0 else "Any enemy"
-            )
-            # Three significant digits show every chance as the game rolls it, from 1%
-            # down to 0.002%, such as the 0.625% of a torn treasure map piece.
-            result.append(f"{enemies} ({drop.probability:.3g}% per kill)")
-        return "<br>".join(result)
+        return self._format_sources(enriched, ("character_drop", "common_world_item", "special_world_drop"))
 
     def _format_givers(self, enriched: EnrichedItemData) -> str:
-        """Format the characters whose dialog gives the item, with the quest each one needs first.
-
-        A giver that also gives it without a quest shows no quest.
-        """
-        if not enriched.sources:
-            return ""
-        entries = []
-        for group in group_by_page_and_label(enriched.sources.givers, lambda row: row[0]):
-            quests = [quest for _link, quest in group]
-            entry = str(group[0][0])
-            if None not in quests:
-                quest_groups = group_by_page_and_label(sorted(q for q in quests if q), lambda quest: quest)
-                entry += " (after " + " or ".join(str(same[0]) for same in quest_groups) + ")"
-            entries.append(entry)
-        return WIKITEXT_LINE_SEPARATOR.join(entries)
+        return self._format_sources(enriched, ("dialog",))
 
     def _format_item_uses(self, enriched: EnrichedItemData) -> str:
-        """Format the items whose use yields the item, with its chance or the zone the use needs."""
-        if not enriched.sources:
-            return ""
-        entries = []
-        for link, chance, zone in enriched.sources.item_uses:
-            details = [f"{chance:.1f}%" if chance is not None else "", f"in {zone}" if zone else ""]
-            detail = ", ".join(part for part in details if part)
-            entries.append(f"{link} ({detail})" if detail else str(link))
-        return WIKITEXT_LINE_SEPARATOR.join(entries)
+        return self._format_sources(enriched, ("item_drop", "spell_created", "item_conversion", "ui_grant"))
 
     def _format_mining(self, enriched: EnrichedItemData) -> str:
-        """Format the zones with mining nodes of the item and their chance per node, best zone first."""
-        if not enriched.sources:
-            return ""
-        return format_chance_links(sorted(enriched.sources.mining, key=lambda row: (-row[1], row[0])), decimals=1)
+        return self._format_sources(enriched, ("mining",))
+
+    @staticmethod
+    def _fishing_summary_groups(
+        sources: SourceInfo,
+    ) -> dict[tuple[str, float], tuple[list[ItemAcquisition], list[ItemAcquisition]]]:
+        """Group final replacement-only catches while keeping their native evidence distinct."""
+        if sources.disposition is not None and sources.disposition.disposition != "current":
+            return {}
+        bonuses: dict[tuple[str, float], list[ItemAcquisition]] = {}
+        for fact in sources.acquisitions:
+            if (
+                fact.kind == "fishing_bonus"
+                and fact.probability_stage == "native_pool"
+                and fact.player_access_state == "verified_player"
+                and fact.probability_kind == "exact"
+                and fact.probability_min is not None
+                and fact.probability_min > 0
+                and fact.probability_max in (None, fact.probability_min)
+                and not fact.conditions
+            ):
+                bonuses.setdefault((fact.item_stable_key, fact.probability_min), []).append(fact)
+        groups: dict[tuple[str, float], tuple[list[ItemAcquisition], list[ItemAcquisition]]] = {}
+        for fact in sorted(sources.acquisitions, key=lambda candidate: candidate.acquisition_key):
+            if (
+                fact.kind != "fishing"
+                or fact.probability_stage != "final_acquisition"
+                or fact.player_access_state != "verified_player"
+                or fact.probability_kind != "exact"
+                or fact.probability_min is None
+                or fact.probability_max not in (None, fact.probability_min)
+                or any(atom.predicate != "time_of_day" for atom in fact.conditions)
+                or any(location.conditions for location in fact.locations)
+            ):
+                continue
+            key = (fact.item_stable_key, fact.probability_min)
+            if key in bonuses:
+                groups.setdefault(key, ([], bonuses[key]))[0].append(fact)
+        return groups
+
+    @classmethod
+    def _fishing_group_manifest(cls, sources: SourceInfo) -> list[dict[str, object]]:
+        return [
+            {
+                "item_stable_key": item_key,
+                "chance": chance,
+                "member_acquisition_keys": [fact.acquisition_key for fact in members],
+                "native_pool_acquisition_keys": sorted(fact.acquisition_key for fact in native),
+            }
+            for (item_key, chance), (members, native) in sorted(cls._fishing_summary_groups(sources).items())
+        ]
 
     def _format_fishing(self, enriched: EnrichedItemData) -> str:
-        """Format the zones whose water yields the item, with the day and night chance per catch, best zone first.
-
-        A zone whose day and night chances agree shows one chance. The fishing bonus
-        follows as any water, like the special world drops after the named droppers.
-        """
-        if not enriched.sources:
+        if enriched.sources is None:
             return ""
-        entries = []
-        rows = sorted(enriched.sources.fishing, key=lambda row: (-row[2], row[0]))
-        for group in group_by_page_and_label(rows, lambda row: row[0]):
-            by_period = {
-                period: format_chance([chance for _link, row_period, chance in group if row_period == period], 1)
-                for period in ("day", "night")
-                if any(row_period == period for _link, row_period, _chance in group)
-            }
-            if len(by_period) == 2 and by_period["day"] == by_period["night"]:
-                detail = by_period["day"]
-            else:
-                detail = ", ".join(f"{chance} {period}" for period, chance in by_period.items())
-            entries.append(f"{group[0][0]} ({detail})")
-        entries.extend(f"Any water ({chance:.3g}% per catch)" for chance in enriched.sources.fishing_bonus)
+        groups = self._fishing_summary_groups(enriched.sources)
+        grouped_ids = {fact.acquisition_key for members, _native in groups.values() for fact in members}
+        entries = [
+            self._source_entry(fact, enriched.sources)
+            for fact in sorted(self._acquisitions(enriched), key=lambda candidate: candidate.acquisition_key)
+            if fact.kind in ("fishing", "fishing_bonus") and fact.acquisition_key not in grouped_ids
+        ]
+        entries.extend(f"Any water ({chance:.3g}% per catch)" for _item_key, chance in sorted(groups))
         return WIKITEXT_LINE_SEPARATOR.join(entries)
 
     def _format_item_bags(self, enriched: EnrichedItemData) -> str:
-        """Format the zones where the item lies to be picked up."""
-        if not enriched.sources:
-            return ""
-        return format_links(enriched.sources.item_bags)
+        return self._format_sources(enriched, ("item_bag",))
 
     def _format_starting_classes(self, enriched: EnrichedItemData) -> str:
-        """Format the classes that start with the item, or all classes when every playable class does."""
-        if not enriched.sources or not enriched.sources.starting_classes:
-            return ""
-        if enriched.sources.every_class_starts_with_item:
-            return "[[Classes|All classes]]"
-        return ", ".join(str(link) for link in sorted(enriched.sources.starting_classes))
+        return self._format_sources(enriched, ("starting_class",))
 
     def _format_quest_sources(self, enriched: EnrichedItemData) -> tuple[str, str]:
-        """Format quest reward and requirement sources from pre-built QuestLink objects."""
-        if not enriched.sources:
+        if enriched.sources is None:
             return ("", "")
-        return (
-            format_visible_links(enriched.sources.quest_rewards),
-            format_visible_links(enriched.sources.quest_requirements),
-        )
+        requirements = [
+            self._link(enriched.sources, use.target_stable_key, "Quest")
+            for use in enriched.sources.uses
+            if use.kind == "quest_requirement"
+        ]
+        return (self._format_sources(enriched, ("quest_reward",)), "<br>".join(requirements))
 
     def _format_crafting_sources(self, enriched: EnrichedItemData) -> tuple[str, str]:
-        """Format crafting sources from pre-built ItemLink tuples."""
-        if not enriched.sources:
+        if enriched.sources is None:
             return ("", "")
-        craft_links = [f"{qty}x {link!s}" for link, qty in enriched.sources.craft_recipe]
-        component_links = [str(link) for link in enriched.sources.component_for]
-        return ("<br>".join(craft_links), "<br>".join(component_links))
+        active_recipes = {fact.source_stable_key for fact in self._acquisitions(enriched) if fact.kind == "crafting"}
+        recipes = [
+            " + ".join([str(mold), *(f"{quantity}x {link}" for link, quantity in recipe.materials)])
+            for mold, recipe in enriched.sources.recipes
+            if mold.stable_key in active_recipes
+        ]
+        for fact in self._acquisitions(enriched):
+            if fact.kind == "crafting" and fact.mechanic == "remove_blessing":
+                source = self._link(enriched.sources, fact.source_stable_key, "")
+                recipes.append(f"From removing a blessing with {source}" if source else "From removing a blessing")
+        components = []
+        prefixes = {
+            "crafting_material": "",
+            "spell_created": "Creates ",
+            "item_conversion": "Converts to ",
+            "smithing": "Smithing with ",
+            "quality_offering": "Offer to ",
+        }
+        for use in enriched.sources.uses:
+            if use.kind in prefixes:
+                link = self._link(enriched.sources, use.target_stable_key, "item")
+                components.append(prefixes[use.kind] + link)
+        return ("<br>".join(recipes), "<br>".join(components))
+
+    def provenance_manifest(self, sources: SourceInfo) -> dict[str, object]:
+        """Retain full source identities and typed dimensions outside published articles."""
+        acquisition_fields = {
+            "character_drop": "source",
+            "common_world_item": "source",
+            "special_world_drop": "source",
+            "vendor": "vendorsource",
+            "dialog": "dialogsource",
+            "quest_reward": "questsource",
+            "crafting": "craftsource",
+            "item_drop": "itemusesource",
+            "spell_created": "itemusesource",
+            "mining": "miningsource",
+            "fishing": "fishingsource",
+            "fishing_bonus": "fishingsource",
+            "auction_house": "auctionhousesource",
+            "item_bag": "itembagsource",
+            "starting_class": "startingsource",
+            "ui_grant": "itemusesource",
+            "item_conversion": "itemusesource",
+            "internal_equipment": None,
+        }
+        use_fields = {
+            "crafting_material": "componentfor",
+            "crafting_recipe": "rewards",
+            "quest_requirement": "relatedquest",
+            "item_drop": "droprates",
+            "spell_created": "componentfor",
+            "item_conversion": "componentfor",
+            "smithing": "componentfor",
+            "quality_offering": "componentfor",
+            "zone_restriction": None,
+        }
+        presentation = {}
+        for fact in sources.acquisitions:
+            if fact.kind not in acquisition_fields:
+                raise ValueError(f"Unsupported canonical item source: {fact.kind}")
+            reason = None
+            field = acquisition_fields[fact.kind]
+            if sources.disposition is not None and sources.disposition.disposition != "current":
+                reason = "Reviewed non-current lifecycle content does not advertise acquisition sources."
+            elif fact.player_access_state != "verified_player":
+                reason = "Only verified player sources are advertised."
+            elif fact.probability_stage != "final_acquisition":
+                reason = "Native-pool evidence is not an additional final acquisition."
+            elif (fact.probability_max is not None and fact.probability_max <= 0) or any(
+                atom.predicate == "never" for atom in fact.conditions
+            ):
+                reason = "Unsatisfiable acquisitions are evidence, not player sources."
+            elif field is None:
+                reason = "Internal equipment is audit-only."
+            presentation[fact.acquisition_key] = {"field": field if reason is None else None, "reason": reason}
+        for use in sources.uses:
+            if use.kind not in use_fields:
+                raise ValueError(f"Unsupported canonical item use: {use.kind}")
+            field = use_fields[use.kind]
+            presentation[use.use_key] = {
+                "field": field,
+                "reason": None if field else "The legacy item template has no zone-restriction parameter.",
+            }
+        manifest: dict[str, object] = {
+            "schema_version": PROVENANCE_SCHEMA_VERSION,
+            "disposition": fact_to_dict(sources.disposition) if sources.disposition is not None else None,
+            "acquisitions": [fact_to_dict(fact) for fact in sources.acquisitions],
+            "outcomes": [fact_to_dict(fact) for _key, fact in sorted(sources.outcomes.items())],
+            "uses": [fact_to_dict(fact) for fact in sources.uses],
+            "presentation": presentation,
+            "fishing_groups": self._fishing_group_manifest(sources),
+            "concise_dimensions": (
+                "Legacy parameters show concise source and recipe descriptions. Copy, variant, evidence, "
+                "probability-stage, quantity-distribution and location identities remain in this offline manifest."
+            ),
+        }
+        self.validate_provenance_manifest(sources, manifest)
+        return manifest
+
+    @classmethod
+    def validate_provenance_manifest(cls, sources: SourceInfo, manifest: dict[str, object]) -> None:
+        """Fail offline coverage when any canonical fact or dimension is lost."""
+        expected = {
+            "disposition": fact_to_dict(sources.disposition) if sources.disposition is not None else None,
+            "acquisitions": [fact_to_dict(fact) for fact in sources.acquisitions],
+            "uses": [fact_to_dict(fact) for fact in sources.uses],
+            "outcomes": [fact_to_dict(fact) for _key, fact in sorted(sources.outcomes.items())],
+            "fishing_groups": cls._fishing_group_manifest(sources),
+        }
+        for family, facts in expected.items():
+            if json.dumps(manifest.get(family), sort_keys=True) != json.dumps(facts, sort_keys=True):
+                raise ValueError(f"Legacy wiki provenance coverage differs for {family}")

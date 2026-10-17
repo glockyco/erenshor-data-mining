@@ -1,4 +1,6 @@
 import type { EntityData } from './map/live/types';
+import type { ItemAcquisition, ItemDisposition } from './item-provenance';
+import type { ZoneLineDestinationContext } from './zone-line-destinations';
 
 /** Character tiers in display order, most notable first. */
 export const ENCOUNTER_TIER_ORDER = {
@@ -78,6 +80,7 @@ export type UnlocatedEnemy = {
     wikiPageName: string | null;
     portraitHash: string | null;
     level: number;
+    levelMax: number;
     encounterTier: EnemyTier;
 };
 
@@ -93,8 +96,9 @@ export type SpawnCharacter = {
     wikiPageName: string | null;
     portraitHash: string | null;
     stableKey: string;
-    /** The prefab level, which the game replaces when levelScalesWithPlayer is set. */
+    /** Minimum prefab level among the represented copies. */
     level: number;
+    levelMax: number;
     /** The game sets the level from the player's level, as for training dummies below level 42. */
     levelScalesWithPlayer: boolean;
     spawnChance: number | null;
@@ -102,6 +106,8 @@ export type SpawnCharacter = {
     eventPosition: { x: number; y: number; z: number } | null;
     encounterTier: EncounterTier;
     isInvulnerable: boolean;
+    /** Potential combat eligibility, independent of initial immunity. */
+    canBeDamaged: boolean;
     isVendor: boolean;
     hasDialog: boolean;
     /** The furniture set whose placement in a room of the Reliquary's planning table turns this character on. */
@@ -120,12 +126,12 @@ export function isFurnishingSpawn(
 
 /** The level of spawn characters as players read it: "Level 5", "Level 3–8", or that it scales. */
 export function formatSpawnLevels(
-    characters: Pick<SpawnCharacter, 'level' | 'levelScalesWithPlayer'>[]
+    characters: Pick<SpawnCharacter, 'level' | 'levelMax' | 'levelScalesWithPlayer'>[]
 ): string {
-    const fixed = characters.filter((c) => !c.levelScalesWithPlayer).map((c) => c.level);
+    const fixed = characters.filter((c) => !c.levelScalesWithPlayer);
     if (fixed.length === 0) return "Scales with the player's level";
-    const min = Math.min(...fixed);
-    const max = Math.max(...fixed);
+    const min = Math.min(...fixed.map((c) => c.level));
+    const max = Math.max(...fixed.map((c) => c.levelMax));
     const range = min === max ? `Level ${min}` : `Level ${min}–${max}`;
     return fixed.length < characters.length ? `${range}, or scales with the player's level` : range;
 }
@@ -142,12 +148,14 @@ export type MiningNodeItem = {
     name: string;
     wikiPageName: string | null;
     dropChance: number;
+    provenance: ItemAcquisition;
 };
 
-// Character loot drop info (for popups)
+// Character details retain every acquisition identity, even when item aliases share a label.
 export type CharacterDrop = {
     itemName: string;
     dropProbability: number;
+    provenance: ItemAcquisition;
 };
 
 // Item → acquisition-source rows (preloaded for the map item search)
@@ -158,144 +166,27 @@ export type ItemSourceItemMeta = {
     iconHash: string | null;
 };
 
-export type ItemDropSource = ItemSourceItemMeta & {
-    kind: 'drop';
-    characterStableKey: string;
-    npcName: string;
-    npcWikiPageName: string | null;
-    encounterTier: EncounterTier;
-    dropProbability: number; // 0–100
+export type ItemSourceRow = ItemSourceItemMeta & {
+    kind: string;
+    acquisitionKey: string;
+    originatingItemStableKey: string;
+    provenance: ItemAcquisition;
+    sourceName: string;
+    sourceWikiPageName: string | null;
+    characterStableKey: string | null;
+    price: number | null;
+    referenceNames: Record<string, string>;
+    locationSources: Record<string, { name: string; wikiPageName: string | null }>;
+    fishingBonus: ItemAcquisition | null;
+    originatingDisposition: ItemDisposition;
+    displayDisposition: ItemDisposition;
 };
-
-export type ItemVendorSource = ItemSourceItemMeta & {
-    kind: 'vendor';
-    characterStableKey: string;
-    npcName: string;
-    npcWikiPageName: string | null;
-    price: number; // items.item_value, same figure SpawnPointPopupContent shows
-};
-
-/** Possible treasure-hunt site, not a chest that is always present. */
-export type ItemTreasureSource = ItemSourceItemMeta & {
-    kind: 'treasure';
-    characterStableKey: string;
-    chestName: string;
-    chestWikiPageName: string | null;
-    treasureLocationStableKey: string;
-    playerLevelMin: number;
-    playerLevelMax: number;
-    dropProbability: number;
-};
-
-export type ItemMiningSource = ItemSourceItemMeta & {
-    kind: 'mining';
-    nodeStableKey: string;
-    dropChance: number; // 0–100
-};
-
-export type ItemFishingSource = ItemSourceItemMeta & {
-    kind: 'fishing';
-    waterStableKey: string;
-    period: 'day' | 'night';
-    dropChance: number; // 0–100
-};
-
-export type ItemBagSource = ItemSourceItemMeta & {
-    kind: 'bag';
-    bagStableKey: string;
-};
-
-/**
- * A special world drop: rolled on every loot-table kill in addition to the
- * killed character's own table, so it has no map location.
- */
-export type ItemWorldDropSource = ItemSourceItemMeta & {
-    kind: 'world';
-    pool: string;
-    dropProbability: number; // 0–100, per kill at the default loot rate
-    minLevelExclusive: number; // the killed character's level must exceed this
-};
-
-/** A replacement of a common loot roll, aggregated without individual enemy locations. */
-export type ItemCommonWorldSource = ItemSourceItemMeta & {
-    kind: 'common_world_item';
-    dropProbability: number; // minimum percentage among eligible swap-only rows
-    dropProbabilityMax: number; // maximum percentage among eligible swap-only rows
-};
-
-export type ItemDialogSource = ItemSourceItemMeta & {
-    kind: 'dialog';
-    characterStableKey: string;
-    npcName: string;
-    requiredQuestStableKey: string | null;
-    requiredQuestName: string | null;
-    requiredQuestWikiPageName: string | null;
-};
-
-export type ItemQuestSource = ItemSourceItemMeta & {
-    kind: 'quest';
-    questStableKey: string;
-    questName: string;
-    questWikiPageName: string | null;
-    turnInCharacterStableKey: string | null;
-    turnInCharacterName: string | null;
-};
-
-export type ItemCraftSource = ItemSourceItemMeta & {
-    kind: 'craft';
-    recipeStableKey: string;
-    recipeName: string;
-    recipeWikiPageName: string | null;
-};
-
-export type ItemUseSource = ItemSourceItemMeta & {
-    kind: 'item_use';
-    sourceItemStableKey: string;
-    sourceItemName: string;
-    sourceItemWikiPageName: string | null;
-    dropProbability: number | null;
-    zoneName: string | null;
-};
-
-export type ItemStartingSource = ItemSourceItemMeta & {
-    kind: 'starting';
-    className: string;
-    classDisplayName: string;
-    allClasses: boolean;
-};
-
-export type AuctionHouseBroker = {
-    characterStableKey: string;
-    npcName: string;
-    npcWikiPageName: string | null;
-};
-
-/** Random simulated-player listings, not fixed vendor stock. */
-export type ItemAuctionHouseSource = ItemSourceItemMeta & {
-    kind: 'auction_house';
-    brokers: AuctionHouseBroker[];
-};
-
-export type ItemSourceRow =
-    | ItemDropSource
-    | ItemVendorSource
-    | ItemAuctionHouseSource
-    | ItemTreasureSource
-    | ItemMiningSource
-    | ItemFishingSource
-    | ItemBagSource
-    | ItemWorldDropSource
-    | ItemCommonWorldSource
-    | ItemDialogSource
-    | ItemQuestSource
-    | ItemCraftSource
-    | ItemUseSource
-    | ItemStartingSource;
 
 // Vendor item info (for popups)
 export type VendorItem = {
     name: string;
     price: number;
+    provenance: ItemAcquisition;
 };
 
 export type AchievementTriggerMarker = BaseMarker & {
@@ -328,6 +219,7 @@ export type ItemBagMarker = BaseMarker & {
     itemWikiPageName: string | null;
     respawnTimer: number;
     respawns: boolean;
+    provenance: ItemAcquisition;
 };
 
 export type MiningNodeMarker = BaseMarker & {
@@ -376,8 +268,8 @@ export type WaterMarker = BaseMarker & {
     category: 'water';
     width: number;
     height: number;
-    daytimeItems: { name: string; wikiPageName: string | null; dropChance: number }[];
-    nighttimeItems: { name: string; wikiPageName: string | null; dropChance: number }[];
+    daytimeItems: MiningNodeItem[];
+    nighttimeItems: MiningNodeItem[];
 };
 
 export type WishingWellMarker = BaseMarker & {
@@ -386,9 +278,10 @@ export type WishingWellMarker = BaseMarker & {
 
 export type ZoneLineMarker = BaseMarker & {
     category: 'zone-line';
-    destinationZone: string;
+    destinationZone: string | null;
     destinationZoneName: string;
-    landingPosition: { x: number; y: number; z: number };
+    landingPosition: { x: number; y: number; z: number } | null;
+    destinationContext: ZoneLineDestinationContext | null;
     levelRangeLow: number | null;
     levelRangeHigh: number | null;
     isEnabled: boolean;

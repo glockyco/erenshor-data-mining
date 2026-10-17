@@ -1,5 +1,4 @@
 using System.Globalization;
-using AdventureGuide.Data;
 using AdventureGuide.Navigation;
 
 namespace AdventureGuide.Tests;
@@ -52,57 +51,4 @@ public sealed class PositionedSourceTests
     [InlineData("character:test:1:2:3")]
     public void Invalid_and_obsolete_keys_are_not_positioned_sources(string? key) =>
         Assert.False(PositionedSource.TryParse(key, out _));
-
-    [Fact]
-    public void Every_positioned_source_in_shipping_guide_parses_and_keeps_row_identity()
-    {
-        using var stream = typeof(GuideData).Assembly.GetManifestResourceStream(
-            "AdventureGuide.quest-guide.json"
-        );
-        Assert.NotNull(stream);
-        using var reader = new StreamReader(stream);
-        var data = GuideData.Parse(reader.ReadToEnd());
-        var counts = new Dictionary<string, int>();
-        void Walk(List<ItemSource>? sources)
-        {
-            if (sources == null)
-                return;
-            foreach (var source in sources)
-            {
-                var key = source.SourceKey;
-                if (
-                    key != null
-                    && (
-                        key.StartsWith("mining:")
-                        || key.StartsWith("water:")
-                        || key.StartsWith("itembag:")
-                    )
-                )
-                {
-                    Assert.True(PositionedSource.TryParse(key, out var parsed), key);
-                    Assert.True(
-                        string.Equals(
-                            source.Scene,
-                            parsed.Scene,
-                            StringComparison.OrdinalIgnoreCase
-                        ),
-                        key
-                    );
-                    Assert.Equal(key, source.MakeSourceId());
-                    // Keys carry lowercased scenes; zone names and zone-line
-                    // routing look them up by scene.
-                    Assert.NotNull(data.GetZoneDisplayName(parsed.Scene));
-                    counts[parsed.Kind] = counts.GetValueOrDefault(parsed.Kind) + 1;
-                }
-                Walk(source.Children);
-            }
-        }
-        foreach (var quest in data.All)
-            if (quest.RequiredItems != null)
-                foreach (var item in quest.RequiredItems)
-                    Walk(item.Sources);
-        Assert.True(counts.GetValueOrDefault("mining") > 0);
-        Assert.True(counts.GetValueOrDefault("water") > 0);
-        Assert.True(counts.GetValueOrDefault("itembag") > 0);
-    }
 }

@@ -47,7 +47,33 @@
         <Compile Include="../../src/Data/CharacterStableKey.cs" Link="Data/CharacterStableKey.cs" />
         <Compile Include="../../src/Data/FurnishingPolicy.cs" Link="Data/FurnishingPolicy.cs" />
         <Compile Include="../../src/Data/GateAtom.cs" Link="Data/GateAtom.cs" />
+        <Compile Include="../../src/Data/EncounterContext.cs" Link="Data/EncounterContext.cs" />
+        <Compile Include="../../src/Data/SourceFact.cs" Link="Data/SourceFact.cs" />
+        <Compile Include="../../src/Data/GuideData.Sources.cs" Link="Data/GuideData.Sources.cs" />
+        <Compile
+            Include="../../src/Data/ZoneLineDestinationContext.cs"
+            Link="Data/ZoneLineDestinationContext.cs"
+        />
+        <Compile
+            Include="../../src/State/EncounterProjection.cs"
+            Link="State/EncounterProjection.cs"
+        />
+        <Compile Include="../../src/State/QuestGameState.cs" Link="State/QuestGameState.cs" />
+        <Compile Include="../../src/State/QuestStateTracker.cs" Link="State/QuestStateTracker.cs" />
+        <Compile Include="../../src/State/GameGateFacts.cs" Link="State/GameGateFacts.cs" />
+        <Compile
+            Include="../../src/State/GuideWorkflowState.cs"
+            Link="State/GuideWorkflowState.cs"
+        />
+        <Compile Include="../../src/State/TreasureHunt.cs" Link="State/TreasureHunt.cs" />
+        <Compile Include="../../src/State/NavigationHistory.cs" Link="State/NavigationHistory.cs" />
+        <Compile Include="../../src/State/StepProgress.cs" Link="State/StepProgress.cs" />
         <Compile Include="../../src/State/GateConditions.cs" Link="State/GateConditions.cs" />
+        <Compile Include="../../src/State/SourceConditions.cs" Link="State/SourceConditions.cs" />
+        <Compile
+            Include="../../src/State/ReliquaryFurnishings.cs"
+            Link="State/ReliquaryFurnishings.cs"
+        />
         <Compile Include="../../src/Data/ItemSourcePolicy.cs" Link="Data/ItemSourcePolicy.cs" />
         <Compile Include="../../src/State/TreasureHuntState.cs" Link="State/TreasureHuntState.cs" />
         <Compile Include="../../src/Data/StepSceneResolver.cs" Link="Data/StepSceneResolver.cs" />
@@ -116,6 +142,10 @@
         <Compile
             Include="../../src/Navigation/RequirementResolver.cs"
             Link="Navigation/RequirementResolver.cs"
+        />
+        <Compile
+            Include="../../src/Navigation/SourceNavigationSelection.cs"
+            Link="Navigation/SourceNavigationSelection.cs"
         />
         <Compile
             Include="../../src/Navigation/BillboardUpdatePolicy.cs"

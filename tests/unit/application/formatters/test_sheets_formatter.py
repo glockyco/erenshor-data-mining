@@ -16,6 +16,8 @@ def test_db(tmp_path: Path):
 
     # Create test table
     with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE item_provenance_meta (schema_version INTEGER NOT NULL)"))
+        conn.execute(text("INSERT INTO item_provenance_meta VALUES (1)"))
         conn.execute(
             text(
                 """

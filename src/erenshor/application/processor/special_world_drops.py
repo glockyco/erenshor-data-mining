@@ -7,8 +7,9 @@ return before these rolls. Ordinary drop caps do not limit special rolls.
 The exported pools and flags supply items and enabled rolls. The
 ``loot.world_drop.*`` facts supply rates, strict level gates and the mask
 branch split. Rows describe selection before owned unique items are replaced
-with ``CommonWorldItems``, not unconditional acquisition. In particular, an
-already-owned unique mask is not awarded again.
+with ``CommonWorldItems`` during ``LootTable.InitLootTable``, not unconditional
+acquisition. Ownership is checked in stored inventory and equipment at that
+initialization point. Pickup does not repeat this check.
 
 Probabilities use the default server loot rate without guild or blessing
 bonuses. Other rates scale with server rate plus blessing and top-guild

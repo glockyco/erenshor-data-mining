@@ -161,6 +161,20 @@ public static class Theme
             ImGui.SetWindowPos(new Vector2(x, y));
     }
 
+    // ImGui.TextWrapped is printf-style. Render data such as percentages literally.
+    public static void TextWrapped(string text)
+    {
+        ImGui.PushTextWrapPos(0f);
+        try
+        {
+            ImGui.TextUnformatted(text);
+        }
+        finally
+        {
+            ImGui.PopTextWrapPos();
+        }
+    }
+
     /// <summary>
     /// Resolve quest status color from tracker state. Shared by QuestListPanel
     /// and TrackerWindow to keep color semantics consistent.

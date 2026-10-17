@@ -1,9 +1,12 @@
 from __future__ import annotations
 
-import pytest
-from tests.unit.application.wiki_lua.fakes import make_item
+from pathlib import Path
 
-from erenshor.application.wiki_lua.vendor_stock import build_vendor_stock_rows, item_type
+import pytest
+from tests.unit.application.wiki_lua.fakes import FakeCharacterRepository, FakeItemProvenanceRepository, make_item
+
+from erenshor.application.wiki_lua.vendor_stock import build_vendor_stock_rows, item_type, write_vendor_stock_module
+from erenshor.domain.value_objects.item_provenance import ItemUse
 from erenshor.domain.value_objects.vendor_stock import VendorStockEntry
 
 _SWORD = make_item(stable_key="item:sword", display_name="Sword", item_value=120, required_slot="Primary")
@@ -68,9 +71,9 @@ def test_an_item_that_only_some_unfurnished_copies_sell_fails_naming_vendor_and_
     ("fields", "uses", "molds", "expected"),
     [
         ({}, set(), {"item:thing"}, "Mold"),
-        ({}, {"craft_material"}, set(), "Crafting"),
+        ({}, {"crafting_material"}, set(), "Crafting"),
         ({"fuel_source": 1}, set(), set(), "Crafting"),
-        ({}, {"craft_material", "quest_requirement"}, set(), "Crafting"),
+        ({}, {"crafting_material", "quest_requirement"}, set(), "Crafting"),
         ({}, {"quest_requirement"}, set(), "Quest Item"),
         ({"complete_on_read_stable_key": "quest:a"}, set(), set(), "Quest Item"),
         ({"book_title": "StrangeBeasts"}, set(), set(), "Lore"),
@@ -89,3 +92,26 @@ def test_a_general_item_is_typed_by_what_it_is_for(
 def test_an_item_without_a_wiki_page_fails_naming_vendor_and_item() -> None:
     with pytest.raises(ValueError, match="character:vendor sells item:hidden, which has no wiki page"):
         build_vendor_stock_rows([_entry("item:hidden")], _ITEMS, {}, set())
+
+
+def test_vendor_writer_uses_canonical_material_and_smithing_mechanic_facts(tmp_path: Path) -> None:
+    material = make_item(stable_key="item:material", required_slot="General")
+    mold = make_item(stable_key="item:mold", required_slot="General")
+    provenance = FakeItemProvenanceRepository(
+        [material.stable_key, mold.stable_key],
+        uses=[
+            ItemUse("craft:slot:3", material.stable_key, mold.stable_key, "crafting_material", material_slot=3),
+            ItemUse("smith:fuel", material.stable_key, mold.stable_key, "smithing", mechanic="upgrade_material"),
+        ],
+    )
+    vendors = FakeCharacterRepository([], vendor_stock=[_entry(material.stable_key), _entry(mold.stable_key)])
+    path = write_vendor_stock_module(
+        vendors,
+        [material, mold],
+        provenance,
+        {"character:vendor", material.stable_key, mold.stable_key},
+        tmp_path,
+    )
+    content = path.read_text(encoding="utf-8")
+    assert '["type"] = "Crafting"' in content
+    assert '["type"] = "Mold"' in content

@@ -13,6 +13,8 @@ from dataclasses import dataclass, field
 from enum import IntEnum
 from typing import TYPE_CHECKING
 
+from erenshor.domain.value_objects.item_provenance import ItemAcquisition, ItemUse
+
 from .schema import (
     AtomKind,
     BackgroundSource,
@@ -108,14 +110,18 @@ class CompiledEdge:
     ordinal: int = 0
     quantity: int = 0
     keyword: str | None = None
-    chance: int = 0
+    chance: float | None = None
     note: str | None = None
     amount: int = 0
+    day_chance: float | None = None
+    night_chance: float | None = None
+    time_restriction: str | None = None
+    provenance_key: str | None = None
 
 
 @dataclass(slots=True)
 class SpawnPosition:
-    spawn_id: int
+    spawn_id: int | None
     x: float
     y: float
     z: float
@@ -130,6 +136,13 @@ class SourceSite:
     scene: str | None = None
     positions: list[SpawnPosition] = field(default_factory=list)
     keyword: str | None = None
+    chance: float | None = None
+    day_chance: float | None = None
+    night_chance: float | None = None
+    time_restriction: str | None = None
+    note: str | None = None
+    provenance_key: str | None = None
+    location_key: str | None = None
 
 
 # A condition is a tuple of groups and holds when every atom of one group holds.
@@ -199,11 +212,18 @@ class CompiledData:
 
     quest_specs: list[QuestSpec] = field(default_factory=list)
     item_sources: list[list[SourceSite]] = field(default_factory=list)
-    # Each distinct condition once; subjects refer to them by index.
+    # Subjects refer to each distinct condition by index.
     conditions: list[Condition] = field(default_factory=list)
     subject_conditions: list[SubjectCondition] = field(default_factory=list)
-    # (kind, subject key, spawn point or vendor item) → condition index.
+    # Index by kind, subject key and spawn point or vendor item.
     condition_by_subject: dict[tuple[SubjectKind, str, str | None], int] = field(default_factory=dict)
+    source_facts: dict[str, ItemAcquisition | ItemUse] = field(default_factory=dict)
+    source_uses: dict[str, list[ItemUse]] = field(default_factory=dict)
+    quest_uses: dict[tuple[str, str], list[ItemUse]] = field(default_factory=dict)
+    encounters: dict[str, list[dict[str, object]]] = field(default_factory=dict)
+    zone_line_destination_contexts: dict[str, dict[str, object]] = field(default_factory=dict)
+    acquisitions_by_item: dict[str, list[ItemAcquisition]] = field(default_factory=dict)
+    source_metadata: dict[str, Edge] = field(default_factory=dict)
 
 
 _NODE_TYPE_ORDER = list(NodeType)
@@ -226,6 +246,21 @@ def compile_graph(graph: EntityGraph) -> CompiledData:
     """Compile an :class:`EntityGraph` into :class:`CompiledData`."""
 
     compiled = CompiledData()
+    compiled.source_facts = graph.source_facts
+    compiled.source_uses = graph.source_uses
+    compiled.quest_uses = graph.quest_uses
+    compiled.encounters = graph.encounters
+    compiled.zone_line_destination_contexts = graph.zone_line_destination_contexts
+    for key, fact in graph.source_facts.items():
+        if isinstance(fact, ItemAcquisition) and key not in graph.source_exclusions:
+            compiled.acquisitions_by_item.setdefault(fact.item_stable_key, []).append(fact)
+    compiled.source_metadata = {
+        edge.provenance_key: edge
+        for edge in graph.all_edges()
+        if edge.provenance_key is not None
+        and isinstance(graph.source_facts.get(edge.provenance_key), ItemAcquisition)
+        and edge.type != EdgeType.CRAFTED_FROM
+    }
     _compile_nodes(graph, compiled)
     _compile_edges(graph, compiled)
     _assign_dense_indices(compiled)
@@ -338,9 +373,13 @@ def _compile_edges(graph: EntityGraph, compiled: CompiledData) -> None:
             ordinal=edge.ordinal or 0,
             quantity=edge.quantity or 0,
             keyword=edge.keyword,
-            chance=round((edge.chance or 0.0) * 1000),
+            chance=edge.chance,
+            day_chance=edge.day_chance,
+            night_chance=edge.night_chance,
+            time_restriction=edge.time_restriction,
             note=edge.note,
             amount=edge.amount or 0,
+            provenance_key=edge.provenance_key,
         )
         edge_id = len(compiled.edges)
         compiled.edges.append(compiled_edge)
@@ -479,6 +518,42 @@ def _compile_item_sources(compiled: CompiledData) -> None:
             if edge.edge_type not in source_edge_types:
                 continue
             source_node = compiled.nodes[edge.source_id]
+            if edge.provenance_key is not None:
+                fact = compiled.source_facts.get(edge.provenance_key)
+                if not isinstance(fact, ItemAcquisition):
+                    raise ValueError(f"Source edge has no canonical acquisition: {edge.provenance_key}")
+                for location in fact.locations or (None,):
+                    actual_positions = []
+                    if (
+                        location is not None
+                        and location.x is not None
+                        and location.y is not None
+                        and location.z is not None
+                    ):
+                        actual_positions.append(
+                            SpawnPosition(
+                                compiled.node_key_to_id.get(location.placement_key) if location.placement_key else None,
+                                location.x,
+                                location.y,
+                                location.z,
+                            )
+                        )
+                    sources.append(
+                        SourceSite(
+                            source_id=edge.source_id,
+                            source_type=source_node.node_type,
+                            edge_type=edge.edge_type,
+                            scene=location.scene if location is not None else None,
+                            positions=actual_positions,
+                            keyword=edge.keyword,
+                            chance=edge.chance,
+                            time_restriction=edge.time_restriction,
+                            note=edge.note,
+                            provenance_key=edge.provenance_key,
+                            location_key=location.location_key if location is not None else None,
+                        )
+                    )
+                continue
             positions: list[SpawnPosition] = []
             for source_edge_id in compiled.forward_adjacency[edge.source_id]:
                 source_edge = compiled.edges[source_edge_id]
@@ -511,6 +586,12 @@ def _compile_item_sources(compiled: CompiledData) -> None:
                     scene=source_node.scene,
                     positions=positions,
                     keyword=edge.keyword if edge.edge_type == gives_item else None,
+                    chance=edge.chance,
+                    day_chance=edge.day_chance,
+                    night_chance=edge.night_chance,
+                    time_restriction=edge.time_restriction,
+                    note=edge.note,
+                    provenance_key=edge.provenance_key,
                 )
             )
         compiled.item_sources[item_index] = sources
@@ -549,8 +630,17 @@ def _reduce_groups(groups: Iterable[frozenset[GateAtom]]) -> list[frozenset[Gate
     return [group for group in possible if not any(other < group for other in possible)]
 
 
-def _atom_order(atom: GateAtom) -> tuple[str, str, str]:
-    return (atom.kind.value, atom.ref, atom.slot or "")
+def _atom_order(atom: GateAtom) -> tuple[str, ...]:
+    return (
+        atom.kind.value,
+        atom.ref,
+        atom.slot or "",
+        atom.actor or "",
+        atom.value or "",
+        atom.phase or "",
+        atom.scope or "",
+        atom.instruction or "",
+    )
 
 
 def _compile_conditions(graph: EntityGraph, compiled: CompiledData) -> None:
@@ -636,7 +726,10 @@ def _check_requirement_cycles(compiled: CompiledData) -> None:
         return any(
             all(
                 atom not in banned
-                and (atom.kind not in (AtomKind.ITEM_HELD, AtomKind.KEY_HELD) or obtainable(atom, banned, depth))
+                and (
+                    atom.kind not in (AtomKind.ITEM_HELD, AtomKind.KEY_HELD, AtomKind.PLANNING_SLOT_ITEM)
+                    or obtainable(atom, banned, depth)
+                )
                 for atom in group
             )
             for group in condition

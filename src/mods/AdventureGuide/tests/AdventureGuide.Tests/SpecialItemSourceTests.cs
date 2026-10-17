@@ -95,7 +95,14 @@ public sealed class SpecialItemSourceTests
 
     private static void Validate(ItemSource source)
     {
-        GuideData.ValidateWrapper(new GuideWrapper { Version = 7, Quests = [Quest([source])] });
+        GuideData.ValidateWrapper(
+            new GuideWrapper
+            {
+                Version = 8,
+                Encounters = TestData.EmptyEncounters(),
+                Quests = [Quest([source])],
+            }
+        );
     }
 
     [Fact]
@@ -145,10 +152,10 @@ public sealed class SpecialItemSourceTests
         var placed = CommonWorldItem();
         placed.SourceKey = "character:fake";
         Assert.Throws<InvalidDataException>(() => Validate(placed));
-        Assert.Equal(
-            "Drops from: Any enemy with common drops  ·  0.9-8.1%",
-            SourceListText.Label(CommonWorldItem())
-        );
+        string details = SourceListText.Details(CommonWorldItem());
+        Assert.Contains("0.9%", details);
+        Assert.Contains("8.1%", details);
+        Assert.DoesNotContain("%", SourceListText.Summary(CommonWorldItem()));
         Assert.True(ItemSourcePolicy.IsRandomSource(CommonWorldItem()));
     }
 
@@ -189,36 +196,33 @@ public sealed class SpecialItemSourceTests
         quest.RequiredItems = null;
         quest.Steps![0].Sources = [WorldDrop(null)];
         Assert.Throws<InvalidDataException>(() =>
-            GuideData.ValidateWrapper(new GuideWrapper { Version = 7, Quests = [quest] })
+            GuideData.ValidateWrapper(
+                new GuideWrapper
+                {
+                    Version = 8,
+                    Encounters = TestData.EmptyEncounters(),
+                    Quests = [quest],
+                }
+            )
         );
     }
 
     [Fact]
     public void Random_source_text_uses_percent_not_fraction_and_chest_bracket()
     {
-        Assert.Equal(
-            "Drops from: Any enemy above level 15  ·  0.1%",
-            SourceListText.Label(WorldDrop())
-        );
-        Assert.Equal("Fishing: Any fishing catch  ·  1.25%", SourceListText.Label(FishingBonus()));
-        Assert.Equal("Treasure map chest (dig at Lv 30-35)  ·  57%", SourceListText.Label(Chest()));
-        Assert.Equal("Use: Bag of Offering Stones", SourceListText.Label(UsedItem()));
+        Assert.Contains("0.1%", SourceListText.Details(WorldDrop()));
+        Assert.Contains("1.25%", SourceListText.Details(FishingBonus()));
+        Assert.Contains("30-35", SourceListText.Details(Chest()));
+        Assert.Contains("56.57%", SourceListText.Details(Chest()));
+        Assert.Contains(UsedItem().Name!, SourceListText.Summary(UsedItem()));
     }
 
     [Fact]
-    public void Hidden_bonus_sources_do_not_suggest_a_recommended_level()
+    public void Random_bonus_sources_do_not_suggest_a_recommended_level()
     {
-        Assert.Equal(
-            "3 more sources",
-            SourceListText.MoreSources([WorldDrop(), FishingBonus(), Chest()], 0)
-        );
-        Assert.Equal(
-            "4 more sources (Lv 25)",
-            SourceListText.MoreSources(
-                [WorldDrop(), new ItemSource { Level = 25 }, FishingBonus(), Chest()],
-                0
-            )
-        );
+        Assert.Null(SourceListText.AreaLabel(WorldDrop()));
+        Assert.Null(SourceListText.AreaLabel(FishingBonus()));
+        Assert.Null(SourceListText.AreaLabel(Chest()));
     }
 
     [Fact]
@@ -228,7 +232,8 @@ public sealed class SpecialItemSourceTests
         var data = GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 7,
+                Version = 8,
+                Encounters = TestData.EmptyEncounters(),
                 Quests = [Quest([])],
                 CharacterSpawns = new Dictionary<string, List<SpawnPoint>>
                 {
@@ -311,7 +316,14 @@ public sealed class SpecialItemSourceTests
                 Scene = "Reliquary",
             },
         ]);
-        var data = GuideData.FromWrapper(new GuideWrapper { Version = 7, Quests = [quest] });
+        var data = GuideData.FromWrapper(
+            new GuideWrapper
+            {
+                Version = 8,
+                Encounters = TestData.EmptyEncounters(),
+                Quests = [quest],
+            }
+        );
         Assert.Equal("reliquary", StepSceneResolver.ResolveScene(quest, quest.Steps![0], data));
         Assert.True(StepSceneResolver.HasSourceInScene(quest, quest.Steps[0], data, "Reliquary"));
     }

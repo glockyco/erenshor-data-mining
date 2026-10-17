@@ -12,7 +12,8 @@ public sealed class CrossZoneWaypointTests
         var data = GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 7,
+                Version = 8,
+                Encounters = TestData.EmptyEncounters(),
                 Quests = [],
                 Conditions =
                 [
@@ -49,7 +50,8 @@ public sealed class CrossZoneWaypointTests
         var data = GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 7,
+                Version = 8,
+                Encounters = TestData.EmptyEncounters(),
                 Quests = [],
                 Conditions =
                 [

@@ -10,20 +10,10 @@ import math
 import sqlite3
 from typing import TYPE_CHECKING
 
-from .schema import BackgroundSource, Edge, EdgeType, Node, NodeType, WorkflowCycle, WorkflowTarget
+from .schema import Edge, EdgeType, Node, NodeType, WorkflowCycle, WorkflowTarget
 
 if TYPE_CHECKING:
     from .graph import EntityGraph
-
-# A loot_drops row (alias ld) that only the common world item swap produces.
-SWAP_ONLY_DROP = """(
-    ld.is_common_world_item = 1
-    AND NOT (
-        COALESCE(ld.is_common, 0) OR COALESCE(ld.is_uncommon, 0) OR COALESCE(ld.is_rare, 0)
-        OR COALESCE(ld.is_legendary, 0) OR COALESCE(ld.is_ultra_rare, 0) OR COALESCE(ld.is_guaranteed, 0)
-        OR COALESCE(ld.is_actual, 0)
-    )
-)"""
 
 
 def build_nodes(
@@ -34,7 +24,6 @@ def build_nodes(
     """Add every entity node in the established deterministic order."""
     _add_quest_nodes(conn, graph)
     _add_item_nodes(conn, graph)
-    _add_background_item_sources(conn, graph)
     _add_character_nodes(conn, graph, scene_to_zone)
     _add_zone_nodes(conn, graph)
     _add_zone_line_nodes(conn, graph, scene_to_zone)
@@ -43,7 +32,6 @@ def build_nodes(
     _add_water_nodes(conn, graph, scene_to_zone)
     _add_forge_nodes(conn, graph, scene_to_zone)
     _add_item_bag_nodes(conn, graph, scene_to_zone)
-    _add_recipe_nodes(conn, graph)
     _add_door_nodes(conn, graph, scene_to_zone)
     _add_faction_nodes(conn, graph)
     _add_spell_nodes(conn, graph)
@@ -111,9 +99,8 @@ def _add_quest_nodes(conn: sqlite3.Connection, graph: EntityGraph) -> None:
     # sword/sceptre variants).  Pick the primary variant per quest: the one
     # whose resource_name sorts first alphabetically.
     rows = conn.execute("""
-        SELECT q.stable_key, q.db_name, q.display_name,
+        SELECT q.stable_key, q.db_name, q.display_name, q.step_note,
                qv.quest_desc, qv.xp_on_complete, qv.gold_on_complete,
-               qv.item_on_complete_stable_key,
                qv.assign_new_quest_on_complete_stable_key,
                qv.repeatable, qv.disable_quest, qv.disable_text,
                qv.kill_turn_in_holder, qv.destroy_turn_in_holder,
@@ -135,9 +122,9 @@ def _add_quest_nodes(conn: sqlite3.Connection, graph: EntityGraph) -> None:
                 display_name=r["display_name"],
                 db_name=r["db_name"],
                 description=r["quest_desc"],
+                step_note=r["step_note"],
                 xp_reward=r["xp_on_complete"],
                 gold_reward=r["gold_on_complete"],
-                reward_item_key=r["item_on_complete_stable_key"],
                 repeatable=bool(r["repeatable"]),
                 disabled=bool(r["disable_quest"]),
                 disabled_text=r["disable_text"],
@@ -172,82 +159,6 @@ def _add_item_nodes(conn: sqlite3.Connection, graph: EntityGraph) -> None:
                 description=r["lore"],
             )
         )
-
-
-def _add_background_item_sources(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """Attach non-local loot metadata without creating characters or level factors."""
-    for row in conn.execute("""
-        SELECT item_stable_key, drop_probability, min_level_exclusive
-        FROM special_world_drops ORDER BY item_stable_key, pool
-    """):
-        item = graph.get_node(row["item_stable_key"])
-        if item is None:
-            continue
-        minimum = int(row["min_level_exclusive"])
-        item.background_sources.append(
-            BackgroundSource(
-                type="world_drop",
-                name=f"Any enemy above level {minimum}" if minimum else "Any enemy",
-                chance=float(row["drop_probability"]),
-                level=minimum + 1,
-            )
-        )
-
-    # LootTable swaps one in ten common drops for a common world item. Rows
-    # that only that swap produces form one source per item, not hundreds of
-    # droppers. The range covers the characters the game places.
-    for row in conn.execute(f"""
-        SELECT ld.item_stable_key, MIN(ld.drop_probability) AS chance, MAX(ld.drop_probability) AS chance_max
-        FROM loot_drops ld
-        JOIN character_fact_sources f ON f.member_stable_key = ld.character_stable_key
-        WHERE {SWAP_ONLY_DROP} AND ld.drop_probability > 0
-        GROUP BY ld.item_stable_key
-        ORDER BY ld.item_stable_key
-    """):
-        item = graph.get_node(row["item_stable_key"])
-        if item is not None:
-            item.background_sources.append(
-                BackgroundSource(
-                    type="common_world_item",
-                    name="Any enemy with common drops",
-                    chance=float(row["chance"]),
-                    chance_max=float(row["chance_max"]),
-                )
-            )
-
-    # The clean build derives the fishing bonus from its code fact and checks it.
-    for row in conn.execute(
-        "SELECT item_stable_key, chance_per_catch FROM fishing_bonus_catches ORDER BY item_stable_key"
-    ):
-        item = graph.get_node(row["item_stable_key"])
-        if item is not None:
-            item.background_sources.append(
-                BackgroundSource(type="fishing_bonus", name="Any fishing catch", chance=float(row["chance_per_catch"]))
-            )
-
-    for row in conn.execute(f"""
-        SELECT ld.item_stable_key, ld.character_stable_key, ld.drop_probability,
-               MIN(t.player_level_min) AS player_level_min,
-               MAX(t.player_level_max) AS player_level_max
-        FROM loot_drops ld
-        JOIN treasure_chest_possible_spawns t ON t.chest_character_stable_key = ld.character_stable_key
-        WHERE NOT {SWAP_ONLY_DROP}
-        GROUP BY ld.item_stable_key, ld.character_stable_key, ld.drop_probability
-        ORDER BY ld.item_stable_key, player_level_min, ld.character_stable_key
-    """):
-        item = graph.get_node(row["item_stable_key"])
-        if item is not None:
-            item.background_sources.append(
-                BackgroundSource(
-                    type="treasure_chest",
-                    name="Treasure map chest",
-                    chance=float(row["drop_probability"]),
-                    level=int(row["player_level_min"]),
-                    level_max=int(row["player_level_max"]),
-                    source_key=row["character_stable_key"],
-                    instruction="Read a Treasure Map and dig at the marked spot.",
-                )
-            )
 
 
 def _add_character_nodes(
@@ -507,24 +418,6 @@ def _add_item_bag_nodes(
                 zone_key=zone_key,
                 respawns=bool(r["respawns"]) if r["respawns"] is not None else True,
                 respawn_time=r["respawn_timer"],
-            )
-        )
-
-
-def _add_recipe_nodes(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """Add recipe nodes for template items that are crafting bases."""
-    rows = conn.execute("""
-        SELECT DISTINCT cr.recipe_item_stable_key, i.display_name
-        FROM crafting_recipes cr
-        JOIN items i ON i.stable_key = cr.recipe_item_stable_key
-    """)
-    for r in rows:
-        key = f"recipe:{r['recipe_item_stable_key']}"
-        graph.add_node(
-            Node(
-                key=key,
-                type=NodeType.RECIPE,
-                display_name=f"Recipe: {r['display_name']}",
             )
         )
 
@@ -1035,6 +928,8 @@ def _add_guide_workflow_nodes_and_edges(
             )
 
     if table_exists("character_spawns"):
+        # A trigger item describes spawn eligibility. Only separately exported
+        # interaction-site metadata establishes a bounded guide workflow.
         trigger_rows = conn.execute(
             """SELECT character_stable_key, spawn_point_stable_key, zone_stable_key, scene,
                       event_x, event_y, event_z, trigger_item_stable_key, trigger_mode,
@@ -1042,8 +937,11 @@ def _add_guide_workflow_nodes_and_edges(
                       trigger_bounds_center_z, trigger_bounds_extents_x,
                       trigger_bounds_extents_y, trigger_bounds_extents_z
                FROM character_spawns
-               WHERE trigger_item_stable_key IS NOT NULL OR trigger_mode IS NOT NULL
+               WHERE event_display_name IS NOT NULL
                   OR event_x IS NOT NULL OR event_y IS NOT NULL OR event_z IS NOT NULL
+                  OR trigger_bounds_center_x IS NOT NULL OR trigger_bounds_center_y IS NOT NULL
+                  OR trigger_bounds_center_z IS NOT NULL OR trigger_bounds_extents_x IS NOT NULL
+                  OR trigger_bounds_extents_y IS NOT NULL OR trigger_bounds_extents_z IS NOT NULL
                ORDER BY spawn_point_stable_key, character_stable_key"""
         ).fetchall()
         grouped_rows: dict[str, list[sqlite3.Row]] = {}

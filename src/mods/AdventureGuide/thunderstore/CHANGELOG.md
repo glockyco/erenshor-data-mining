@@ -6,6 +6,14 @@
 - Treat targets behind locked doors as reachable only once you hold the key or have it on your keyring.
 - Reach targets that only one entrance leads to, such as Occuphage through the Stowaway's Step lighthouse.
 - List Bread, Water, Brackfruit Juice, Luminstone, Citrine Stone, and Star Stone as one source from any enemy with common drops instead of hundreds of enemies.
+- Reduce memory use while navigating and updating quest markers.
+- Show compact source choices with fishing hours, local chances and combat preparation.
+- Keep a chosen source while following its prerequisites.
+- Show the dialogue keyword when an NPC hands over an item.
+- Check stored portal stones and runes, and show where to place them on the planning table.
+- Follow crafting recipes to missing ingredients without losing the original quest.
+- Skip the Reliquary claiming fight on accounts that already claimed it.
+- Follow the current character's saved return destination from the Reliquary.
 
 ## v2026.1008.0
 

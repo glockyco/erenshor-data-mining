@@ -1,25 +1,30 @@
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
+from typing import TYPE_CHECKING, cast
 
 from tests.unit.application.wiki_lua.fakes import (
-    FakeCharacterRepository,
     FakeItemRepository,
-    FakeQuestRepository,
-    FakeZoneRepository,
     make_item,
 )
 
 from erenshor.application.wiki_lua.items import (
-    build_item_sources_by_item,
     build_items_data,
     generate_items_modules,
     write_items_modules,
 )
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
-from erenshor.domain.value_objects.source_info import ObtainedFromInfo, SourceInfo, UsedInInfo
+from erenshor.domain.value_objects.item_provenance import ItemUse
 from erenshor.domain.value_objects.wiki_link import ItemLink
+
+if TYPE_CHECKING:
+    from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
+
+
+def _provenance_repo(uses: tuple[ItemUse, ...] = ()) -> ItemProvenanceRepository:
+    return cast("ItemProvenanceRepository", SimpleNamespace(get_uses=lambda _key: list(uses)))
 
 
 def test_builds_item_index_and_sharded_records_with_tooltip_source_fields() -> None:
@@ -295,25 +300,21 @@ def test_builds_tooltip_source_fields_and_recipe_links() -> None:
     ]
 
 
-def test_builds_only_item_owned_provenance_fields_from_source_info() -> None:
+def test_legacy_item_record_does_not_publish_retired_provenance_fields() -> None:
     item = make_item()
-    data = build_items_data(
-        items=[item],
-        stats_by_item={},
-        classes_by_item={},
-        sources_by_item={
-            item.stable_key: SourceInfo(
-                obtained_from=[ObtainedFromInfo(source_type="drop", source_key="character:a_croc")],
-                used_in=[UsedInInfo(use_type="craft_material", target_key="item:copper_armor_mold")],
-            )
-        },
-    )
-
+    data = build_items_data(items=[item], stats_by_item={}, classes_by_item={})
     shard = data["index"]["byKey"][item.stable_key]
     item_data = data["shards"][shard][item.stable_key]
-    assert item_data["obtainedFrom"] == [{"type": "drop", "sourceKey": "character:a_croc"}]
-    assert item_data["usedIn"] == [{"type": "craft_material", "targetKey": "item:copper_armor_mold"}]
-    for removed in ("vendorSource", "source", "questSource", "relatedQuest", "componentFor", "containerDrops"):
+    for removed in (
+        "obtainedFrom",
+        "usedIn",
+        "vendorSource",
+        "source",
+        "questSource",
+        "relatedQuest",
+        "componentFor",
+        "containerDrops",
+    ):
         assert removed not in item_data
 
 
@@ -336,202 +337,20 @@ def test_lists_the_zones_where_using_an_item_has_another_outcome() -> None:
     assert "zoneRestrictions" not in records[plain.stable_key]
 
 
-def test_formats_obtained_from_with_stable_keys_and_nil_omission() -> None:
-    item = make_item()
-    data = build_items_data(
-        items=[item],
-        stats_by_item={},
-        classes_by_item={},
-        sources_by_item={
-            item.stable_key: SourceInfo(
-                obtained_from=[
-                    ObtainedFromInfo(
-                        source_type="starting",
-                        source_key="class:arcanist",
-                    ),
-                    ObtainedFromInfo(
-                        source_type="drop",
-                        source_key="character:treasurechest 0-10 1",
-                        probability=84.4,
-                        is_guaranteed=True,
-                    ),
-                    ObtainedFromInfo(
-                        source_type="fishing",
-                        source_key="water:brake:287.10:7.50:247.80",
-                        probability=19.0,
-                        condition="night",
-                    ),
-                    ObtainedFromInfo(
-                        source_type="fishing",
-                        source_key="water:brake:287.10:7.50:247.80",
-                        probability=5.9375,
-                        condition="day",
-                    ),
-                    ObtainedFromInfo(
-                        source_type="item_use",
-                        source_key="item:gen - bag of offering stones",
-                    ),
-                ]
-            )
-        },
-    )
-
-    shard = data["index"]["byKey"][item.stable_key]
-    assert data["shards"][shard][item.stable_key]["obtainedFrom"] == [
-        {
-            "type": "drop",
-            "sourceKey": "character:treasurechest 0-10 1",
-            "probability": 84.4,
-            "guaranteed": True,
-        },
-        {
-            "type": "fishing",
-            "sourceKey": "water:brake:287.10:7.50:247.80",
-            "probability": 5.9375,
-            "condition": "day",
-        },
-        {
-            "type": "fishing",
-            "sourceKey": "water:brake:287.10:7.50:247.80",
-            "probability": 19.0,
-            "condition": "night",
-        },
-        {
-            "type": "item_use",
-            "sourceKey": "item:gen - bag of offering stones",
-        },
-        {"type": "starting", "sourceKey": "class:arcanist"},
-    ]
-
-
-def test_auction_house_source_is_keyless_and_has_no_price_or_probability() -> None:
-    listed = make_item()
-    unlisted = make_item(stable_key="item:unlisted")
-    source = ObtainedFromInfo(source_type="auction_house", source_key=None)
-    sources = build_item_sources_by_item(
-        [listed, unlisted],
-        FakeItemRepository(
-            items=[listed, unlisted],
-            stats={},
-            classes={},
-            mechanic_sources={listed.stable_key: [source]},
-        ),
-        FakeCharacterRepository([]),
-        FakeQuestRepository([]),
-        FakeZoneRepository([], {}),
-    )
-    assert sources[listed.stable_key].obtained_from == [source]
-    assert sources[unlisted.stable_key].obtained_from == []
-    data = build_items_data(
-        items=[listed, unlisted],
-        stats_by_item={},
-        classes_by_item={},
-        sources_by_item=sources,
-    )
-    records = {key: data["shards"][shard][key] for key, shard in data["index"]["byKey"].items()}
-    assert records[listed.stable_key]["obtainedFrom"] == [{"type": "auction_house"}]
-    assert "obtainedFrom" not in records[unlisted.stable_key]
-
-
-def test_common_world_item_source_serializes_probability_range_without_a_character_key() -> None:
-    item = make_item()
-    data = build_items_data(
-        items=[item],
-        stats_by_item={},
-        classes_by_item={},
-        sources_by_item={
-            item.stable_key: SourceInfo(
-                obtained_from=[
-                    ObtainedFromInfo(
-                        source_type="common_world_item",
-                        source_key=None,
-                        probability=0.123,
-                        probability_max=0.987,
-                    )
-                ]
-            )
-        },
-    )
-
-    shard = data["index"]["byKey"][item.stable_key]
-    assert data["shards"][shard][item.stable_key]["obtainedFrom"] == [
-        {"type": "common_world_item", "probability": 0.123, "probabilityMax": 0.987}
-    ]
-
-
-def test_formats_used_in_with_all_use_types_and_nil_omission() -> None:
-    item = make_item()
-    data = build_items_data(
-        items=[item],
-        stats_by_item={},
-        classes_by_item={},
-        sources_by_item={
-            item.stable_key: SourceInfo(
-                used_in=[
-                    UsedInInfo(
-                        use_type="quest_requirement",
-                        target_key="quest:an ore for the forge",
-                        quantity=1,
-                    ),
-                    UsedInInfo(
-                        use_type="upgrade_material",
-                        target_key="item:template - an otherwordly mold",
-                    ),
-                    UsedInInfo(
-                        use_type="craft_material",
-                        target_key="item:template - copper armor mold",
-                        quantity=2,
-                        slot=1,
-                    ),
-                    UsedInInfo(
-                        use_type="blessing_removal_material",
-                        target_key="item:template - inert diamond",
-                    ),
-                ]
-            )
-        },
-    )
-
-    shard = data["index"]["byKey"][item.stable_key]
-    assert data["shards"][shard][item.stable_key]["usedIn"] == [
-        {
-            "type": "blessing_removal_material",
-            "targetKey": "item:template - inert diamond",
-        },
-        {
-            "type": "craft_material",
-            "targetKey": "item:template - copper armor mold",
-            "quantity": 2,
-            "slot": 1,
-        },
-        {
-            "type": "quest_requirement",
-            "targetKey": "quest:an ore for the forge",
-            "quantity": 1,
-        },
-        {
-            "type": "upgrade_material",
-            "targetKey": "item:template - an otherwordly mold",
-        },
-    ]
-
-
-def test_generates_items_modules_with_provenance_data() -> None:
+def test_legacy_item_modules_use_canonical_zone_restrictions_without_source_schema_changes() -> None:
     item = make_item()
     repo = FakeItemRepository(items=[item], stats={}, classes={})
-
-    modules = generate_items_modules(
-        repo,
-        sources_by_item={
-            item.stable_key: SourceInfo(
-                obtained_from=[ObtainedFromInfo(source_type="vendor", source_key="character:ember_vendor")],
-            )
-        },
+    use = ItemUse(
+        "use:zone",
+        item.stable_key,
+        "zone:reliquary",
+        "zone_restriction",
+        mechanic="consumed",
     )
-
-    assert '["obtainedFrom"] = {' in modules["Items/Weapons.lua"]
-    assert '"vendorSource"' not in modules["Items/Weapons.lua"]
-    assert '"containerDrops"' not in modules["Items/Weapons.lua"]
+    modules = generate_items_modules(repo, _provenance_repo((use,)))
+    assert '["zoneRestrictions"] = {' in modules["Items/Weapons.lua"]
+    assert '"zone:reliquary"' in modules["Items/Weapons.lua"]
+    assert '"obtainedFrom"' not in modules["Items/Weapons.lua"]
 
 
 def test_item_index_does_not_include_page_or_name_fallbacks() -> None:
@@ -551,7 +370,7 @@ def test_generates_items_modules_from_repository_data() -> None:
     item = make_item()
     repo = FakeItemRepository(items=[item], stats={}, classes={item.stable_key: ["Knight"]})
 
-    modules = generate_items_modules(repo, class_display_names={"Knight": "Knight"})
+    modules = generate_items_modules(repo, _provenance_repo(), class_display_names={"Knight": "Knight"})
 
     assert modules["Items.lua"].startswith("return {\n")
     assert '["item:sword_of_flames"] = "Weapons"' in modules["Items.lua"]
@@ -564,7 +383,7 @@ def test_writes_items_modules_to_data_module_paths(tmp_path: Path) -> None:
     item = make_item()
     repo = FakeItemRepository(items=[item], stats={}, classes={})
 
-    output_paths = write_items_modules(repo, tmp_path)
+    output_paths = write_items_modules(repo, tmp_path, _provenance_repo())
 
     assert output_paths == [
         tmp_path / "Erenshor" / "Data" / "Items.lua",

@@ -9,6 +9,7 @@
 
     // Format level range for display
     const formattedLevelRange = $derived(() => {
+        if (marker.destinationContext !== null) return null;
         const range = marker.destinationEnemyInfo.levelRange;
         if (!range) return null;
         return `${range.min} - ${range.max}`;

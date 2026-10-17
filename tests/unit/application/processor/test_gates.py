@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from erenshor.application.processor.gates import process_gates
+from erenshor.application.processor.gates import Entry, _entry_rows, process_gates
 from erenshor.application.processor.writer import Writer
 
 if TYPE_CHECKING:
@@ -53,21 +53,25 @@ def writer(tmp_path: Path) -> Writer:
         " VALUES ('character:vendor', 'character:vendor', 1)"
     )
     conn.executemany(
-        "INSERT INTO character_vendor_quest_unlocks VALUES ('character:vendor', ?)",
-        [("quest:stock",), ("quest:stock2",)],
-    )
-    conn.executemany(
         "INSERT INTO quest_variants (resource_name, quest_stable_key, unlock_item_for_vendor_stable_key)"
         " VALUES (?, ?, 'item:wares')",
         [("stock", "quest:stock"), ("stock2", "quest:stock2")],
     )
-    conn.execute(
-        "INSERT INTO zones (stable_key, scene_name, zone_name, display_name, image_name)"
-        " VALUES ('zone:tomb', 'Tomb', 'Tomb', 'Tomb', 'Tomb')"
+    conn.executemany(
+        "INSERT INTO character_vendor_quest_unlocks"
+        " (character_stable_key,quest_slot,quest_stable_key,quest_variant_resource_name)"
+        " VALUES ('character:vendor', ?, ?, ?)",
+        [(1, "quest:stock", "stock"), (2, "quest:stock2", "stock2")],
     )
     conn.execute(
-        "INSERT INTO zone_lines (stable_key, scene, is_enabled, destination_zone_stable_key)"
-        " VALUES ('zoneline:island:tomb:808.08:14.08:592.64', 'Island', 1, 'zone:tomb')"
+        "INSERT INTO zones (stable_key, scene_name, zone_name, display_name, image_name, zone_type)"
+        " VALUES ('zone:tomb', 'Tomb', 'Tomb', 'Tomb', 'Tomb', 'Dungeon')"
+    )
+    conn.execute(
+        "INSERT INTO zone_lines"
+        " (stable_key,scene,is_enabled,destination_zone_stable_key,"
+        " component_is_enabled,collider_is_trigger,has_enabled_trigger)"
+        " VALUES ('zoneline:island:tomb:808.08:14.08:592.64','Island',1,'zone:tomb',1,1,1)"
     )
     conn.executemany(
         "INSERT INTO doors (stable_key, scene, x, y, z, key_item_stable_key) VALUES (?, ?, ?, ?, ?, ?)",
@@ -83,15 +87,27 @@ def writer(tmp_path: Path) -> Writer:
 @pytest.fixture
 def raw() -> sqlite3.Connection:
     conn = sqlite3.connect(":memory:")
-    conn.execute("CREATE TABLE ZoneLineQuestUnlocks (ZoneLineStableKey TEXT, UnlockGroup INTEGER, QuestDBName TEXT)")
-    conn.execute("CREATE TABLE CharacterQuestUnlocks (CharacterStableKey TEXT, UnlockGroup INTEGER, QuestDBName TEXT)")
-    conn.executemany(
-        "INSERT INTO ZoneLineQuestUnlocks VALUES ('zoneline:island:tomb:808.08:14.08:592.64', ?, ?)",
-        [(4, "MEET"), (9, "RITUAL")],
+    conn.execute(
+        "CREATE TABLE QuestActivationEffects (TargetKind TEXT, TargetStableKey TEXT, Effect TEXT,"
+        " ListenerKey TEXT, GroupIndex INTEGER, AtomKind TEXT, AtomStableKey TEXT)"
+    )
+    conn.executescript(
+        """
+        CREATE TABLE ScriptedActivators (SourceKey TEXT, RuleId TEXT, SourceScene TEXT, ComponentIsEnabled INTEGER);
+        CREATE TABLE ScriptedActivatorReferences (ReferenceId TEXT, SourceKey TEXT, Field TEXT);
+        CREATE TABLE ScriptedActivatorTargets (
+            ReferenceId TEXT, ResolutionMode TEXT, Kind TEXT, Key TEXT
+        );
+        """
     )
     conn.executemany(
-        "INSERT INTO CharacterQuestUnlocks VALUES ('character:lucian', 2, ?)",
-        [("MEET",), ("RITUAL",)],
+        "INSERT INTO QuestActivationEffects VALUES (?, ?, 'enable', ?, ?, 'quest_done', ?)",
+        [
+            ("zone_line", "zoneline:island:tomb:808.08:14.08:592.64", "listener:meet", 0, "quest:meet"),
+            ("zone_line", "zoneline:island:tomb:808.08:14.08:592.64", "listener:ritual", 0, "quest:ritual"),
+            ("character", "character:lucian", "listener:two", 0, "quest:meet"),
+            ("character", "character:lucian", "listener:two", 0, "quest:ritual"),
+        ],
     )
     return conn
 
@@ -179,9 +195,12 @@ def test_a_guard_the_build_lacks_fails(tmp_path: Path, writer: Writer, raw: sqli
 
 
 def test_a_listener_quest_the_build_lacks_fails(tmp_path: Path, writer: Writer, raw: sqlite3.Connection) -> None:
-    raw.execute("INSERT INTO CharacterQuestUnlocks VALUES ('character:lucian', 5, 'GONE')")
+    raw.execute(
+        "INSERT INTO QuestActivationEffects VALUES"
+        " ('character', 'character:lucian', 'enable', 'listener:missing', 0, 'quest_done', 'quest:gone')"
+    )
 
-    with pytest.raises(ValueError, match="'GONE'"):
+    with pytest.raises(ValueError, match="'quest:gone'"):
         process_gates(raw, writer, _barriers(tmp_path, _COMPLETE))
 
 
@@ -219,3 +238,56 @@ reason = "Wrong scene."
 
     with pytest.raises(ValueError, match="leads to Tomb, not to Salted"):
         process_gates(raw, writer, _barriers(tmp_path, body))
+
+
+def test_item_and_quest_activators_are_alternatives_on_the_placement(
+    tmp_path: Path, writer: Writer, raw: sqlite3.Connection
+) -> None:
+    raw.executemany(
+        "INSERT INTO QuestActivationEffects VALUES ('spawn_point', ?, 'enable', ?, 0, ?, ?)",
+        [
+            (_GHOST_SPAWN, "listener:quest", "quest_done", "quest:meet"),
+            (_GHOST_SPAWN, "listener:item", "item_held", _KEY),
+        ],
+    )
+    process_gates(raw, writer, _barriers(tmp_path, _COMPLETE))
+
+    assert _gates(writer)[("spawn_point", _GHOST_SPAWN, None, "activation")] == [
+        [("item_held", _KEY, None)],
+        [("quest_done", "quest:meet", None)],
+    ]
+    assert ("character", _GHOST, None, "activation") not in _gates(writer)
+
+
+def test_disable_after_enable_is_an_independent_negative_gate(
+    tmp_path: Path, writer: Writer, raw: sqlite3.Connection
+) -> None:
+    raw.execute(
+        "INSERT INTO QuestActivationEffects VALUES"
+        " ('character', 'character:lucian', 'disable', 'listener:two', 0, 'quest_done', 'quest:meet')"
+    )
+    raw.execute(
+        "INSERT INTO QuestActivationEffects VALUES"
+        " ('character', 'character:lucian', 'disable', 'listener:two', 0, 'quest_done', 'quest:ritual')"
+    )
+    process_gates(raw, writer, _barriers(tmp_path, _COMPLETE))
+    gates = _gates(writer)
+
+    assert gates[("character", "character:lucian", None, "activation")] == [
+        [("quest_done", "quest:meet", None), ("quest_done", "quest:ritual", None)]
+    ]
+    assert gates[("character", "character:lucian", None, "removal:listener:two:0")] == [
+        [("quest_not_done", "quest:meet", None)],
+        [("quest_not_done", "quest:ritual", None)],
+    ]
+
+
+def test_stored_return_cannot_be_a_fixed_target_entry(writer: Writer) -> None:
+    line = "zoneline:island:tomb:808.08:14.08:592.64"
+    writer.conn.execute(
+        "INSERT INTO zone_line_destination_contexts VALUES (?, 'stored_return', "
+        "'saved:zone', 'saved:landing', 'source')",
+        (line,),
+    )
+    with pytest.raises(ValueError, match="stored return destination"):
+        _entry_rows(writer.conn, [Entry(_GHOST_SPAWN, (line,), "The ledge has one entrance.")])

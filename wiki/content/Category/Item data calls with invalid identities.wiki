@@ -1,0 +1,2 @@
+Pages whose [[Template:ItemData|ItemData]] call or source note does not identify one current item. Correct the stable key without replacing another item's identity. Use the Erenshor link picker to find the key, or report a missing identity on [[Erenshor Wiki talk:Game Data]].
+__HIDDENCAT__

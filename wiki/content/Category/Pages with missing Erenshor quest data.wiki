@@ -1,0 +1,4 @@
+__HIDDENCAT__
+This hidden maintenance category collects pages where <code><nowiki>{{Quest data}}</nowiki></code> cannot resolve one quest or finds no quest variant data.
+
+Pass the intended quest's <code>stablekey</code> when several quests share a page. Report missing game data at [[Erenshor Wiki:Game Data]].

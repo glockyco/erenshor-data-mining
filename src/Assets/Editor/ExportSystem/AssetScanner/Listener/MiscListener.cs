@@ -2,28 +2,20 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using SQLite;
 using UnityEngine;
 
 /// <summary>
-/// Extracts item drop data from the Misc component's item lists.
-/// Currently handles FossilGame (Braxonian Fossil drops).
-///
-/// Note: This listener stores stable keys during OnAssetFound and
-/// processes them in OnScanFinished, because the Items table doesn't exist
-/// until ItemListener.OnScanFinished has run.
+/// Captures the native fossil pool and aggregates its outcomes for every click-item source.
+/// Only stable keys survive scene unload. Items and Spells must finish before this listener.
 /// </summary>
 public class MiscListener : IAssetScanListener<Misc>
 {
+    // code-fact: item.fossil_pool_grant
+    private const string FossilPoolKey = "Misc.FossilGame";
     private readonly SQLiteConnection _db;
-    private readonly List<ItemDropRecord> _records = new();
-
-    // Spell stable key that triggers fossil drops
-    private const string BreakFossilSpellKey = "spell:none - break fossil";
-
-    // Store stable keys immediately (Unity objects can become null after scene changes)
-    private readonly List<string> _fossilGameStableKeys = new();
+    private readonly List<ItemDropPoolSlotRecord> _slots = new();
+    private ItemDropPoolRecord? _pool;
 
     public MiscListener(SQLiteConnection db)
     {
@@ -32,140 +24,110 @@ public class MiscListener : IAssetScanListener<Misc>
 
     public void OnAssetFound(Misc asset)
     {
-        Debug.Log($"[{GetType().Name}] Found Misc component");
-
-        // Store the stable keys immediately - Unity objects may become invalid later
-        if (asset.FossilGame != null && asset.FossilGame.Count > 0)
-        {
-            foreach (var item in asset.FossilGame)
-            {
-                if (item != null)
-                {
-                    _fossilGameStableKeys.Add(StableKeyGenerator.ForItem(item));
-                }
-            }
-            Debug.Log(
-                $"[{GetType().Name}] Stored {_fossilGameStableKeys.Count} FossilGame stable keys for later processing"
+        if (_pool != null)
+            throw new InvalidOperationException(
+                "Expected exactly one Misc component for Misc.FossilGame"
             );
-        }
-        else
+        if (asset.FossilGame == null || asset.FossilGame.Count == 0)
+            throw new InvalidOperationException(
+                "Misc.FossilGame is null or empty and cannot supply a native pool roll"
+            );
+
+        _pool = new ItemDropPoolRecord
         {
-            Debug.LogWarning($"[{GetType().Name}] FossilGame list is null or empty");
+            PoolStableKey = FossilPoolKey,
+            SourceComponentKey =
+                ActivationTargetResolver.ObjectKey(asset.gameObject) + ":script:Misc:0",
+            SlotCount = asset.FossilGame.Count,
+        };
+        for (int position = 0; position < asset.FossilGame.Count; position++)
+        {
+            var item = asset.FossilGame[position];
+            _slots.Add(
+                new ItemDropPoolSlotRecord
+                {
+                    PoolStableKey = FossilPoolKey,
+                    Position = position,
+                    ItemStableKey = item != null ? StableKeyGenerator.ForItem(item) : null,
+                }
+            );
         }
     }
 
     public void OnScanFinished()
     {
-        // Process stored fossil game stable keys now that Items table exists
-        ProcessFossilGame();
+        var pool =
+            _pool
+            ?? throw new InvalidOperationException(
+                "Expected exactly one Misc component for Misc.FossilGame, found none"
+            );
+        // SpellName is the native SpellVessel switch discriminator, not an entity-name join.
+        var sources = _db.Query<ItemStableKeyResult>(
+            @"SELECT i.StableKey
+              FROM Items i
+              JOIN Spells s ON s.StableKey = i.ItemEffectOnClickStableKey
+              WHERE s.SpellName = ?
+              ORDER BY i.StableKey",
+            "Break Fossil"
+        );
+        if (sources.Count == 0)
+            throw new InvalidOperationException(
+                "No exported item clicks a spell with SpellName 'Break Fossil'"
+            );
 
+        var counts = new Dictionary<string, int>();
+        foreach (var slot in _slots)
+        {
+            if (slot.ItemStableKey == null)
+                continue;
+            if (!counts.ContainsKey(slot.ItemStableKey))
+            {
+                // A referenced item missing from the export is not an empty native slot.
+                _db.Get<ItemRecord>(slot.ItemStableKey);
+                counts[slot.ItemStableKey] = 0;
+            }
+            counts[slot.ItemStableKey]++;
+        }
+
+        var records = new List<ItemDropRecord>();
+        foreach (var source in sources)
+        {
+            foreach (var outcome in counts)
+            {
+                records.Add(
+                    new ItemDropRecord
+                    {
+                        PoolStableKey = pool.PoolStableKey,
+                        SourceItemStableKey = source.StableKey,
+                        DroppedItemStableKey = outcome.Key,
+                        DropProbability = (double)outcome.Value / pool.SlotCount * 100.0,
+                        IsGuaranteed = true, // The native operation performs one pool roll.
+                    }
+                );
+            }
+        }
+
+        _db.CreateTable<ItemDropPoolRecord>();
+        _db.CreateTable<ItemDropPoolSlotRecord>();
         _db.CreateTable<ItemDropRecord>();
         _db.RunInTransaction(() =>
         {
             _db.DeleteAll<ItemDropRecord>();
-            _db.InsertAll(_records);
+            _db.DeleteAll<ItemDropPoolSlotRecord>();
+            _db.DeleteAll<ItemDropPoolRecord>();
+            _db.Insert(pool);
+            _db.InsertAll(_slots);
+            _db.InsertAll(records);
         });
 
-        Debug.Log($"[{GetType().Name}] Wrote {_records.Count} item drop records");
-        _records.Clear();
-        _fossilGameStableKeys.Clear();
-    }
-
-    /// <summary>
-    /// Process the stored FossilGame stable keys to extract Braxonian Fossil drop data.
-    /// Items appear multiple times in the list to weight their drop probability.
-    /// </summary>
-    private void ProcessFossilGame()
-    {
-        if (_fossilGameStableKeys.Count == 0)
-        {
-            Debug.LogWarning($"[{GetType().Name}] No FossilGame items to process");
-            return;
-        }
-
-        // Find the source item (the one that triggers Break Fossil spell)
-        var sourceItemStableKey = FindSourceItemForSpell(BreakFossilSpellKey);
-        if (string.IsNullOrEmpty(sourceItemStableKey))
-        {
-            Debug.LogError(
-                $"[{GetType().Name}] Could not find source item for spell '{BreakFossilSpellKey}'"
-            );
-            return;
-        }
-
-        Debug.Log($"[{GetType().Name}] Found source item: {sourceItemStableKey}");
-
-        // Count occurrences of each item in the list
-        var itemCounts = new Dictionary<string, int>();
-        int totalCount = 0;
-
-        foreach (var stableKey in _fossilGameStableKeys)
-        {
-            if (!itemCounts.ContainsKey(stableKey))
-            {
-                itemCounts[stableKey] = 0;
-            }
-            itemCounts[stableKey]++;
-            totalCount++;
-        }
-
-        if (totalCount == 0)
-        {
-            Debug.LogWarning($"[{GetType().Name}] FossilGame list has no valid items");
-            return;
-        }
-
         Debug.Log(
-            $"[{GetType().Name}] FossilGame has {totalCount} total entries, {itemCounts.Count} unique items"
+            $"[{GetType().Name}] Wrote {_slots.Count} native pool slots and {records.Count} item drop outcomes for {sources.Count} source items"
         );
-
-        // Create records with calculated probabilities
-        foreach (var kvp in itemCounts)
-        {
-            var dropProbability = Math.Round((double)kvp.Value / totalCount * 100.0, 2);
-
-            _records.Add(
-                new ItemDropRecord
-                {
-                    SourceItemStableKey = sourceItemStableKey,
-                    DroppedItemStableKey = kvp.Key,
-                    DropProbability = dropProbability,
-                    IsGuaranteed = true, // One item from this pool always drops
-                }
-            );
-
-            Debug.Log(
-                $"[{GetType().Name}] {kvp.Key}: {kvp.Value}/{totalCount} = {dropProbability}%"
-            );
-        }
+        _slots.Clear();
+        _pool = null;
     }
 
-    /// <summary>
-    /// Find the item that has the given spell as its click effect.
-    /// </summary>
-    private string? FindSourceItemForSpell(string spellStableKey)
-    {
-        var query =
-            @"
-            SELECT StableKey
-            FROM Items
-            WHERE ItemEffectOnClickStableKey = ?
-            LIMIT 1
-        ";
-
-        try
-        {
-            var result = _db.Query<ItemStableKeyResult>(query, spellStableKey);
-            return result.FirstOrDefault()?.StableKey;
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"[{GetType().Name}] Failed to query source item: {ex.Message}");
-            return null;
-        }
-    }
-
-    private class ItemStableKeyResult
+    private sealed class ItemStableKeyResult
     {
         public string StableKey { get; set; } = string.Empty;
     }

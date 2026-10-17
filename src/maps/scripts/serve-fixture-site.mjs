@@ -5,7 +5,7 @@
  *
  * Usage: node scripts/serve-fixture-site.mjs <port>
  */
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, readdir, rm, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -40,6 +40,14 @@ process.once('SIGINT', stop);
 
 try {
     process.env.ERENSHOR_MAPS_DATABASE_PATH = await createMapDatabaseFixture(temporaryDirectory);
+    const assetsDirectory = path.join(temporaryDirectory, 'assets');
+    for (const entry of await readdir(path.join(mapsDirectory, 'static'), { withFileTypes: true })) {
+        if (entry.name === 'items' || entry.name === 'characters') continue;
+        await symlink(path.join(mapsDirectory, 'static', entry.name), path.join(assetsDirectory, entry.name),
+            entry.isDirectory() ? 'dir' : 'file');
+    }
+    process.env.ERENSHOR_MAPS_ASSETS_DIR = assetsDirectory;
+    process.env.ERENSHOR_MAPS_PROVENANCE_MANIFEST_PATH = path.join(temporaryDirectory, 'item-provenance-map.json');
     process.env.ERENSHOR_MAPS_BUILD_DIR = path.join(temporaryDirectory, 'build');
     process.env.ERENSHOR_MAPS_SVELTE_OUT_DIR = path.relative(mapsDirectory, svelteDirectory);
     process.chdir(mapsDirectory);

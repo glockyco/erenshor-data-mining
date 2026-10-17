@@ -1,6 +1,6 @@
 # Tasks
 
-These tasks describe future implementation. This design-only assignment performs none of them.
+The Main source cutover passes aggregate CI and owned native build checks. Tasks remain unchecked until their complete acceptance and verification gates pass. Live publication requires separate approval.
 
 ## 0. chore(provenance): Prepare an isolated apply boundary
 
@@ -15,8 +15,10 @@ These tasks describe future implementation. This design-only assignment performs
 - [ ] 1.2 Add input-to-contract anti-join expectations with positive controls for every populated family. Replace the nonempty-row criterion in `tests/data/test_item_source_rows.py` with acquisition/use identity and dimension accounting.
 - [ ] 1.3 Add mutation cases that remove a kind, probability, quantity, condition, location, origin key or lifecycle disposition and require a coverage failure. Include the already-prefixed quest-key case from `repositories/quests.py`.
 - [ ] 1.4 Add UI/non-world source fixtures for Transmog - Hide Slot, Box of Portals and Stone of Arcanism. Export or add code facts for the established UI/internal mechanics. Resolve Box of Portals runtime transfer only through an approved investigation and preserve unknown transfer states where evidence remains incomplete.
-- [ ] 1.5 Integrate the assigned WaterListener invalid-map-key and guide chance/time fixes before freezing fixtures. Keep native and final per-catch probability stages distinct so the global fishing replacement is not counted twice.
+- [ ] 1.5 Integrate the assigned WaterListener invalid-map-key and guide chance/time fixes before freezing fixtures. Obtain a fresh export with native positional nullable WaterFishables. Keep clean per-water final successful-catch probabilities and the separate global bonus mechanism distinct so replacement is not counted twice.
 - [ ] 1.6 Integrate the assigned lootable-host correction before source completeness fixtures freeze. Cover missing hosts, destroy-on-death and no-corpse early returns as non-acquirable evidence, including the reported 38 rows across four hosts. Keep eligible summoned wolf, warhound and fallen warrior as positive controls. Never blanket-exclude summons.
+- [ ] 1.7 Add presentation acceptance cases for concise established visitor wording and brief actionable conditions. Keep ownership replacement, independent-roll mechanics, internal enum labels and research uncertainty in data/tests/developer evidence rather than public disclaimers.
+- [ ] 1.8 Integrate the quest-panel owner's executed reward-route correction before freezing provenance fixtures. Cover trade grants, FinishQuest-only dialogue/zone/read/kill completion, alternate variants and chained completion without inherited grants. Preserve configured reward fields as producer evidence, and migrate ItemRepository/QuestRepository reward and obtainability selectors to actual route outcomes.
 
 ## 2. refactor(provenance): Cut every maintained reader over together
 

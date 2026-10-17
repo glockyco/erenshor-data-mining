@@ -367,6 +367,11 @@ class WikiStorage:
         """Return the file that holds the generated content of a page."""
         return self._generated_dir / f"{self._encode_page_title_for_filename(page_title)}.txt"
 
+    def save_item_provenance_manifest(self, manifest: dict[str, object]) -> None:
+        """Save exact canonical coverage for the articles in the latest generation run."""
+        path = self._wiki_dir / "item-article-provenance.json"
+        path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
     def list_generated_titles(self) -> tuple[str, ...]:
         """Return all generated article titles in deterministic order."""
         metadata = self._load_metadata()

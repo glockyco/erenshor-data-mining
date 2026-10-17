@@ -66,9 +66,11 @@ public sealed class EntityRegistry
     // Exported keys parsed once: a placed character's object, scene and
     // placement, or not placed. Keys come from the guide and prefab names, so
     // the set stays bounded across scenes.
-    private readonly Dictionary<string, (bool Placed, PlacedCharacterKey Key)> _keyShapes = new(
-        System.StringComparer.Ordinal
-    );
+    // Numeric variant normalization creates a substring, so retain that identity too.
+    private readonly Dictionary<
+        string,
+        (bool Placed, PlacedCharacterKey Key, string Normalized)
+    > _keyShapes = new(System.StringComparer.Ordinal);
 
     // Instance IDs of NPCs a SpawnPoint spawned in the current scene. Encounter
     // scripts instantiate their characters directly, so workflows use this to
@@ -222,10 +224,9 @@ public sealed class EntityRegistry
         if (stableKey == null)
             return null;
         // A placed character's key names one placement, not a kind of NPC.
-        if (TryGetPlacedKey(stableKey, out var placedKey))
+        if (TryGetPlacedKey(stableKey, out var placedKey, out var key))
             return FindPlaced(placedKey);
 
-        var key = CharacterStableKey.Normalize(stableKey);
         if (!_byKey.TryGetValue(key, out var list))
             return null;
 
@@ -263,9 +264,8 @@ public sealed class EntityRegistry
     {
         if (stableKey == null)
             return 0;
-        if (TryGetPlacedKey(stableKey, out var placedKey))
+        if (TryGetPlacedKey(stableKey, out var placedKey, out var key))
             return FindPlaced(placedKey) != null ? 1 : 0;
-        var key = CharacterStableKey.Normalize(stableKey);
         if (!_byKey.TryGetValue(key, out var list))
             return 0;
 
@@ -288,16 +288,28 @@ public sealed class EntityRegistry
     /// Whether a key names a scene placement, parsed once per key: lookups
     /// run every frame while navigating.
     /// </summary>
-    private bool TryGetPlacedKey(string stableKey, out PlacedCharacterKey placedKey)
+    private bool TryGetPlacedKey(
+        string stableKey,
+        out PlacedCharacterKey placedKey,
+        out string normalizedKey
+    )
     {
         if (!_keyShapes.TryGetValue(stableKey, out var shape))
         {
-            bool placed = CharacterStableKey.TryParsePlaced(stableKey, out var parsed);
-            shape = (placed, parsed);
+            string normalized = CharacterStableKey.Normalize(stableKey);
+            bool placed = CharacterStableKey.TryParsePlaced(normalized, out var parsed);
+            shape = (placed, parsed, normalized);
             _keyShapes[stableKey] = shape;
         }
         placedKey = shape.Key;
+        normalizedKey = shape.Normalized;
         return shape.Placed;
+    }
+
+    internal string RuntimeIdentity(string stableKey)
+    {
+        TryGetPlacedKey(stableKey, out _, out string normalized);
+        return normalized;
     }
 
     /// <summary>

@@ -2,12 +2,14 @@ import { describe, expect, it } from 'vitest';
 import type {
     LayerVisibility,
     WorldEnemy,
+    WorldZoneLine,
     ZoneConfig,
     ZoneWorldPosition
 } from '$lib/types/world-map';
 import { DEFAULT_LAYER_VISIBILITY } from '$lib/types/world-map';
 import type { EntityData } from '$lib/map/live/types';
 import { levelsOverlap } from '$lib/map-markers';
+import { STORED_RETURN_LABEL } from '$lib/zone-line-destinations';
 import { adjustMarkerPosition } from '$lib/map/debug/position-service';
 import { transformEntityToWorld } from '$lib/map/coordinate-transform';
 import {
@@ -273,6 +275,30 @@ describe('createLayers visibility filtering', () => {
         expect(list).not.toContain('zone-line-connections');
         expect(list).not.toContain('zone-line-destinations');
         expect(list).not.toContain('zone-lines');
+    });
+
+    it('keeps a stored-return source icon without drawing a fixed connection or landing marker', () => {
+        const fixed: WorldZoneLine = {
+            stableKey: 'line:fixed', category: 'zone-line', position: { x: 5, y: 6 }, popup: '',
+            destinationZone: 'Test', destinationZoneName: 'Test Zone', landingPosition: { x: 30, y: 0, z: 40 },
+            destinationContext: null, levelRangeLow: 1, levelRangeHigh: 20, isEnabled: true,
+            zone: 'Test', zoneName: 'Test Zone', worldPosition: [50, 60], destinationWorldPosition: [30, 40],
+            destinationEnemyInfo: { levelRange: null, bosses: [], elites: [], chests: [] }
+        };
+        const stored: WorldZoneLine = {
+            ...fixed, stableKey: 'line:stored', destinationZone: 'Hidden', destinationZoneName: STORED_RETURN_LABEL,
+            destinationWorldPosition: [999, 999], isEnabled: false,
+            destinationContext: { zone_line_stable_key: 'line:stored', kind: 'stored_return',
+                destination_state_key: 'character_state:reliquary_return_zone',
+                landing_state_key: 'character_state:reliquary_return_landing',
+                source_key: 'controller:actual-return' }
+        };
+        const params = baseParams();
+        params.data.markers.zoneLines = [fixed, stored];
+        const layers = createLayers(params);
+        expect(byId(layers, 'zone-line-connections').props.data).toEqual([fixed]);
+        expect(byId(layers, 'zone-line-destinations').props.data).toEqual([fixed]);
+        expect(byId(layers, 'zone-lines').props.data).toEqual([fixed, stored]);
     });
 });
 

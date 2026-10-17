@@ -3,6 +3,25 @@ Lua Foundation Smoke	text:PASS Erenshor Args testcases
 Lua Foundation Smoke	text:PASS Erenshor Format testcases
 Lua Build Smoke	text:PASS Erenshor Build testcases
 Lua Item Smoke	text:PASS Erenshor Item/ParameterizedTooltip testcases
+Lua ItemData Smoke	text:PASS Erenshor ItemData testcases
+ItemData Historical Fixture	text:Historical Content
+ItemData Historical Fixture	text:This item can no longer be obtained.
+ItemData Historical Fixture	category:Unobtainable_Content
+ItemData Key Fixture	elem:.pi-title=Ancient Guardian Sleeve
+ItemData Key Hover Fixture	elem:[data-erenshor-key="item:arm - 19  - ancient guardian sleeve"]=Doubled-space item
+ItemData Key Hover Fixture	elem:[data-erenshor-quality="Improved +5"]=Doubled-space Improved item
+ItemData Multi Fixture	text:COMMON identity fixture
+ItemData Multi Fixture	text:RARE identity fixture
+ItemData Kinds Fixture	elem:.pi-data-value=Weapon
+ItemData Kinds Fixture	category:Charms
+ItemData Kinds Fixture	category:Auras
+ItemData Kinds Fixture	category:Spell_Scrolls
+ItemData Kinds Fixture	category:Skill_Books
+ItemData Kinds Fixture	category:Consumables
+ItemData Kinds Fixture	category:Molds
+ItemData Hover Fixture	elem:[data-erenshor-key="item:shared-page-common"]=Common identity
+ItemData Hover Fixture	elem:[data-erenshor-key="item:shared-page-rare"]=Rare identity
+ItemData Hover Fixture	elem:[data-erenshor-quality="Improved +5"]=Improved item
 Ember Longsword	elem:.item-tooltip-tier-0=Ember Longsword
 Ember Longsword	elem:a.new[title*="Weapons"]
 Ember Longsword	elem:.item-tooltip-tier-2
@@ -258,7 +277,7 @@ Image Render Caption	elem:div.pi-item.pi-data.pi-item-spacing.pi-border-color[da
 Image Render Caption	elem:div.pi-data-value.pi-font=Ruff and ready
 Image Render Caption	!elem:.pi-data-label.pi-secondary-font=Ruff
 Image Render Caption	!category*:Needs_
-# Icon textures are bare game artwork; the wiki draws their frames.
+# Icon textures are bare game artwork. The wiki draws their frames.
 Lua Foundation Smoke	text:PASS Erenshor Icon testcases
 Ember Longsword	elem:.erenshor-icon.erenshor-icon--item
 Ember Longsword	elem:.erenshor-icon.erenshor-icon--ability

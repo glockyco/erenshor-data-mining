@@ -3,236 +3,209 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using UnityEditor;
-using UnityEngine;
 
 public enum DynamicSpawnClassification
 {
     Unknown = 0,
     Allowed,
     Denied,
+    Activation,
 }
 
 public struct CatalogEntry
 {
     public DynamicSpawnClassification Classification { get; set; }
-    public string? PositionField { get; set; } // comma-separated for multi-position spawns; listener splits
-    public string? PositionStrategy { get; set; } // named resolver for non-Cartesian placement semantics
+    public string? PositionField { get; set; }
+    public string? PositionStrategy { get; set; }
     public bool IncludeHostPosition { get; set; }
     public string? TriggerItemField { get; set; }
     public string? TriggerMode { get; set; }
     public string? EventDisplayName { get; set; }
     public bool IncludeHostBounds { get; set; }
     public string? Reason { get; set; }
+    public string? Rule { get; set; }
+}
+
+public sealed class ActivationCatalogEntry
+{
+    public string Script { get; set; } = "";
+    public string Rule { get; set; } = "";
+    public IReadOnlyList<string> Fields { get; set; } = Array.Empty<string>();
 }
 
 public class DynamicSpawnCatalog
 {
     private readonly Dictionary<(string script, string field), CatalogEntry> _entries = new();
     private readonly HashSet<string> _knownScripts = new();
+    private readonly List<ActivationCatalogEntry> _activations = new();
 
     public IReadOnlyDictionary<(string script, string field), CatalogEntry> Entries => _entries;
     public IReadOnlyCollection<string> KnownScripts => _knownScripts;
+    public IReadOnlyList<ActivationCatalogEntry> Activations => _activations;
 
     public static DynamicSpawnCatalog Load(string path)
     {
-        var catalog = new DynamicSpawnCatalog();
         if (!File.Exists(path))
-        {
-            Debug.LogError($"[DynamicSpawnCatalog] Catalog file not found: {path}");
-            return catalog;
-        }
+            throw new FileNotFoundException("Dynamic spawn catalog is required", path);
 
-        string? currentSection = null;
-        string? currentScript = null;
-        List<string>? currentFields = null;
-        string? currentPositionField = null;
-        string? currentPositionStrategy = null;
-        bool currentIncludeHostPosition = false;
-        string? currentTriggerItemField = null;
-        string? currentTriggerMode = null;
-        string? currentEventDisplayName = null;
-        bool currentIncludeHostBounds = false;
-        string? currentReason = null;
+        var catalog = new DynamicSpawnCatalog();
+        string? section = null;
+        var attributes = new Dictionary<string, string>();
+        bool hasVersion = false;
         foreach (var rawLine in File.ReadAllLines(path))
         {
             var line = rawLine.Trim();
-            if (line.StartsWith('#') || line.Length == 0)
+            if (line.Length == 0 || line.StartsWith("#", StringComparison.Ordinal))
                 continue;
-
-            if (line == "[[allowed]]" || line == "[[denied]]")
+            if (line.StartsWith("[[", StringComparison.Ordinal))
             {
-                if (currentScript != null && currentFields != null)
-                    catalog.AddSection(
-                        currentSection!,
-                        currentScript,
-                        currentFields,
-                        currentPositionField,
-                        currentPositionStrategy,
-                        currentIncludeHostPosition,
-                        currentTriggerItemField,
-                        currentTriggerMode,
-                        currentEventDisplayName,
-                        currentIncludeHostBounds,
-                        currentReason
-                    );
-                currentSection = line == "[[allowed]]" ? "allowed" : "denied";
-                currentScript = null;
-                currentFields = null;
-                currentPositionField = null;
-                currentPositionStrategy = null;
-                currentIncludeHostPosition = false;
-                currentTriggerItemField = null;
-                currentTriggerMode = null;
-                currentEventDisplayName = null;
-                currentIncludeHostBounds = false;
-                currentReason = null;
+                if (section != null)
+                    catalog.AddSection(section, attributes);
+                section = line switch
+                {
+                    "[[allowed]]" => "allowed",
+                    "[[denied]]" => "denied",
+                    "[[activation]]" => "activation",
+                    _ => throw new InvalidDataException($"Unknown catalog section: {line}"),
+                };
+                attributes = new Dictionary<string, string>();
+                continue;
             }
-            else if (line.StartsWith("script = "))
+            int equals = line.IndexOf('=');
+            if (equals < 1)
+                throw new InvalidDataException($"Invalid catalog line: {line}");
+            var name = line.Substring(0, equals).Trim();
+            var value = line.Substring(equals + 1).Trim();
+            if (section == null)
             {
-                currentScript = ParseStringValue(line);
+                if (name != "schema_version" || value != "1" || hasVersion)
+                    throw new InvalidDataException($"Unknown catalog header: {line}");
+                hasVersion = true;
             }
-            else if (line.StartsWith("fields = "))
-            {
-                currentFields = ParseStringArrayValue(line);
-            }
-            else if (line.StartsWith("position_field = "))
-            {
-                currentPositionField = ParseStringValue(line);
-            }
-            else if (line.StartsWith("position_strategy = "))
-            {
-                currentPositionStrategy = ParseStringValue(line);
-            }
-            else if (line.StartsWith("include_host_position = "))
-            {
-                currentIncludeHostPosition = ParseBoolValue(line);
-            }
-            else if (line.StartsWith("trigger_item_field = "))
-            {
-                currentTriggerItemField = ParseStringValue(line);
-            }
-            else if (line.StartsWith("trigger_mode = "))
-            {
-                currentTriggerMode = ParseStringValue(line);
-            }
-            else if (line.StartsWith("event_display_name = "))
-            {
-                currentEventDisplayName = ParseStringValue(line);
-            }
-            else if (line.StartsWith("include_host_bounds = "))
-            {
-                currentIncludeHostBounds = ParseBoolValue(line);
-            }
-            else if (line.StartsWith("reason = "))
-            {
-                currentReason = ParseStringValue(line);
-            }
+            else if (!attributes.TryAdd(name, value))
+                throw new InvalidDataException($"Duplicate catalog attribute: {name}");
         }
-        if (currentScript != null && currentFields != null)
-            catalog.AddSection(
-                currentSection!,
-                currentScript,
-                currentFields,
-                currentPositionField,
-                currentPositionStrategy,
-                currentIncludeHostPosition,
-                currentTriggerItemField,
-                currentTriggerMode,
-                currentEventDisplayName,
-                currentIncludeHostBounds,
-                currentReason
-            );
+        if (section != null)
+            catalog.AddSection(section, attributes);
+        if (!hasVersion)
+            throw new InvalidDataException("Catalog schema_version is required");
         return catalog;
     }
 
-    private void AddSection(
-        string section,
-        string script,
-        List<string> fields,
-        string? positionField,
-        string? positionStrategy,
-        bool includeHostPosition,
-        string? triggerItemField,
-        string? triggerMode,
-        string? eventDisplayName,
-        bool includeHostBounds,
-        string? reason
-    )
+    private void AddSection(string section, Dictionary<string, string> attributes)
     {
-        var classification =
-            section == "allowed"
-                ? DynamicSpawnClassification.Allowed
-                : DynamicSpawnClassification.Denied;
+        foreach (var name in attributes.Keys)
+        {
+            bool valid = name == "script" || name == "fields";
+            valid |= section == "activation" && name == "rule";
+            valid |= section == "denied" && name == "reason";
+            valid |=
+                section == "allowed"
+                && name
+                    is "position_field"
+                        or "position_strategy"
+                        or "include_host_position"
+                        or "trigger_item_field"
+                        or "trigger_mode"
+                        or "event_display_name"
+                        or "include_host_bounds"
+                        or "reason";
+            if (!valid)
+                throw new InvalidDataException($"Unknown [[{section}]] catalog attribute: {name}");
+        }
+        string Required(string name) =>
+            attributes.TryGetValue(name, out var value)
+                ? value
+                : throw new InvalidDataException($"[[{section}]] requires {name}");
+        string? OptionalString(string name) =>
+            attributes.TryGetValue(name, out var value) ? ParseString(value) : null;
+        bool OptionalBool(string name)
+        {
+            if (!attributes.TryGetValue(name, out var value))
+                return false;
+            return value switch
+            {
+                "true" => true,
+                "false" => false,
+                _ => throw new InvalidDataException($"Invalid catalog boolean: {name} = {value}"),
+            };
+        }
+
+        var script = ParseString(Required("script"));
+        var fields = ParseFields(Required("fields"));
+        var rule = section == "activation" ? ParseString(Required("rule")) : null;
+        var classification = section switch
+        {
+            "allowed" => DynamicSpawnClassification.Allowed,
+            "denied" => DynamicSpawnClassification.Denied,
+            _ => DynamicSpawnClassification.Activation,
+        };
+        if (fields.Count == 0 && section != "activation")
+            throw new InvalidDataException($"Empty [[{section}]] fields for {script}");
+        if (section == "activation")
+        {
+            foreach (var activation in _activations)
+                if (activation.Script == script)
+                    throw new InvalidDataException($"Duplicate activation script: {script}");
+            _activations.Add(
+                new ActivationCatalogEntry
+                {
+                    Script = script,
+                    Rule = rule!,
+                    Fields = fields,
+                }
+            );
+        }
         _knownScripts.Add(script);
         foreach (var field in fields)
         {
-            var key = (script, field);
-            if (_entries.ContainsKey(key))
-            {
-                throw new InvalidOperationException(
-                    $"Duplicate catalog entry: {script}.{field} appears in multiple [[allowed]]/[[denied]] sections. "
-                        + "Each (script, field) pair must be classified exactly once."
-                );
-            }
-            _entries[key] = new CatalogEntry
+            var entry = new CatalogEntry
             {
                 Classification = classification,
-                PositionField = positionField,
-                PositionStrategy = positionStrategy,
-                IncludeHostPosition = includeHostPosition,
-                TriggerItemField = triggerItemField,
-                TriggerMode = triggerMode,
-                EventDisplayName = eventDisplayName,
-                IncludeHostBounds = includeHostBounds,
-                Reason = reason,
+                PositionField = OptionalString("position_field"),
+                PositionStrategy = OptionalString("position_strategy"),
+                IncludeHostPosition = OptionalBool("include_host_position"),
+                TriggerItemField = OptionalString("trigger_item_field"),
+                TriggerMode = OptionalString("trigger_mode"),
+                EventDisplayName = OptionalString("event_display_name"),
+                IncludeHostBounds = OptionalBool("include_host_bounds"),
+                Reason = OptionalString("reason"),
+                Rule = rule,
             };
+            if (!_entries.TryAdd((script, field), entry))
+                throw new InvalidOperationException($"Duplicate catalog entry: {script}.{field}");
         }
     }
 
-    public CatalogEntry Classify(string scriptType, string fieldName)
-    {
-        return _entries.TryGetValue((scriptType, fieldName), out var entry) ? entry : default;
-    }
+    public CatalogEntry Classify(string scriptType, string fieldName) =>
+        _entries.TryGetValue((scriptType, fieldName), out var entry) ? entry : default;
 
     public bool IsScriptKnown(string scriptType) => _knownScripts.Contains(scriptType);
 
-    private static string ParseStringValue(string line)
+    private static string ParseString(string value)
     {
-        // script = "Chessboard"  →  Chessboard
-        var eq = line.IndexOf('=');
-        if (eq < 0)
-            return string.Empty;
-        var val = line.Substring(eq + 1).Trim();
-        if (val.StartsWith('"') && val.EndsWith('"'))
-            val = val.Substring(1, val.Length - 2);
-        return val;
+        if (value.Length < 2 || value[0] != '"' || value[value.Length - 1] != '"')
+            throw new InvalidDataException($"Expected quoted catalog string: {value}");
+        var result = value.Substring(1, value.Length - 2);
+        if (result.Length == 0 || result.Contains("\""))
+            throw new InvalidDataException($"Invalid catalog string: {value}");
+        return result;
     }
 
-    private static bool ParseBoolValue(string line)
+    private static List<string> ParseFields(string value)
     {
-        var eq = line.IndexOf('=');
-        return eq >= 0
-            && line.Substring(eq + 1).Trim().Equals("true", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static List<string> ParseStringArrayValue(string line)
-    {
-        var eq = line.IndexOf('=');
-        if (eq < 0)
-            return new List<string>();
-        var val = line.Substring(eq + 1).Trim();
-        // Strip outer brackets
-        if (val.StartsWith('[') && val.EndsWith(']'))
-            val = val.Substring(1, val.Length - 2);
+        if (value.Length < 2 || value[0] != '[' || value[value.Length - 1] != ']')
+            throw new InvalidDataException($"Expected catalog fields array: {value}");
+        var body = value.Substring(1, value.Length - 2).Trim();
         var result = new List<string>();
-        foreach (var part in val.Split(','))
+        if (body.Length == 0)
+            return result;
+        foreach (var part in body.Split(','))
         {
-            var s = part.Trim();
-            if (s.StartsWith('"') && s.EndsWith('"'))
-                s = s.Substring(1, s.Length - 2);
-            if (s.Length > 0)
-                result.Add(s);
+            var field = ParseString(part.Trim());
+            if (result.Contains(field))
+                throw new InvalidDataException($"Duplicate catalog field: {field}");
+            result.Add(field);
         }
         return result;
     }

@@ -666,6 +666,11 @@ def test_graph_builder_synthetic_workflows_and_compile() -> None:
                 ),
             ],
         )
+        conn.execute(
+            "INSERT INTO character_spawns"
+            " (character_stable_key,spawn_point_stable_key,scene,trigger_item_stable_key,trigger_mode)"
+            " VALUES ('character:offering','trigger:offering','Arena','item:offering','proximity_auto_consume')"
+        )
         chars = [f"char:enemy-{i}" for i in range(3, 9)] + [
             "char:enemy-a",
             "char:enemy-b",
@@ -678,11 +683,17 @@ def test_graph_builder_synthetic_workflows_and_compile() -> None:
             *[item_node(f"item:coin{i}") for i in range(1, 9)],
             item_node("item:gen - malaroth feed"),
             item_node("item:gen - malaroth feed bad"),
+            item_node("item:offering"),
+            _char("character:offering"),
             *[_char(key) for key in chars],
             quest_node("quest:vithtokenmob1"),
+            edges=[Edge("character:offering", "item:offering", EdgeType.DROPS_ITEM)],
         )
         _add_guide_workflow_nodes_and_edges(conn, graph, {"Arena": "zone:arena", "Malaroth": "zone:malaroth"})
         graph.build_indexes()
+        assert not graph.has_node("guide-quest:trigger:trigger:offering")
+        assert graph.get_node("character:offering").type == NodeType.CHARACTER
+        assert graph.out_edges("character:offering", EdgeType.DROPS_ITEM)[0].target == "item:offering"
 
         guide_quests = [node for node in graph.nodes_of_type(NodeType.QUEST) if node.guide_only]
         assert len(guide_quests) == 10
@@ -896,18 +907,15 @@ def test_graph_builder_rejects_workflow_identity_collisions(collision: Node, mes
         conn.close()
 
 
-def test_build_graph_closes_connection_when_node_build_fails(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_build_graph_closes_connection_when_node_build_fails(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
     from erenshor.application.guide import graph_builder
+    from erenshor.application.processor.writer import Writer
 
-    class TrackingConnection:
-        row_factory: object = None
-        closed = False
-
-        def close(self) -> None:
-            self.closed = True
-
-    connection = TrackingConnection()
-    monkeypatch.setattr(graph_builder.sqlite3, "connect", lambda _: connection)
+    path = tmp_path / "clean.sqlite"
+    writer = Writer(path)
+    writer.create_schema()
+    connection = writer.conn
+    monkeypatch.setattr(graph_builder.sqlite3, "connect", lambda *args, **kwargs: connection)
     monkeypatch.setattr(graph_builder, "_build_scene_to_zone", lambda _: {})
 
     def fail_node_build(*_: object) -> None:
@@ -916,9 +924,10 @@ def test_build_graph_closes_connection_when_node_build_fails(monkeypatch: pytest
     monkeypatch.setattr(graph_builder, "build_nodes", fail_node_build)
 
     with pytest.raises(RuntimeError, match="synthetic node failure"):
-        graph_builder.build_graph("unused.db")
+        graph_builder.build_graph(path)
 
-    assert connection.closed
+    with pytest.raises(sqlite3.ProgrammingError, match="closed database"):
+        connection.execute("SELECT 1")
 
 
 def _level_db(characters: str, spawns: str, stop_quests: str = "") -> sqlite3.Connection:
@@ -941,7 +950,26 @@ def _level_db(characters: str, spawns: str, stop_quests: str = "") -> sqlite3.Co
         {f"INSERT INTO spawn_point_stop_quests VALUES {stop_quests};" if stop_quests else ""}
         """
     )
+    conn.execute("ALTER TABLE characters ADD COLUMN can_be_damaged INTEGER NOT NULL DEFAULT 1")
     return conn
+
+
+def test_zone_levels_use_damageability_without_excluding_releasable_immunity() -> None:
+    from erenshor.application.guide.graph_validation import _build_char_levels, _build_zone_medians
+
+    conn = _level_db(
+        "('character:immune', 99, 0, 1, 'enemy', 'quest:unreachable'), ('character:released', 25, 0, 1, 'enemy', NULL)",
+        "('character:immune', 'spawn:i1', 'zone:test'),"
+        " ('character:immune', 'spawn:i2', 'zone:test'),"
+        " ('character:released', 'spawn:r', 'zone:test')",
+    )
+    try:
+        conn.execute("ALTER TABLE characters ADD COLUMN invulnerable INTEGER NOT NULL DEFAULT 1")
+        conn.execute("UPDATE characters SET can_be_damaged = 0 WHERE stable_key = 'character:immune'")
+        assert _build_zone_medians(conn) == {"zone:test": 25}
+        assert _build_char_levels(conn) == {"character:released": 25}
+    finally:
+        conn.close()
 
 
 def test_chests_take_their_zone_level_and_stay_out_of_the_zone_median() -> None:
@@ -1021,96 +1049,6 @@ def test_characters_get_the_level_of_reaching_them_beside_their_own_level() -> N
     assert graph.get_node("character:giver").place_level == 4
     assert graph.get_node("character:statue").level == 99
     assert graph.get_node("character:boss").level == 20
-
-
-def _special_source_db() -> sqlite3.Connection:
-    conn = sqlite3.connect(":memory:")
-    conn.row_factory = sqlite3.Row
-    conn.executescript("""
-        CREATE TABLE special_world_drops (
-            item_stable_key TEXT, pool TEXT, drop_probability REAL, min_level_exclusive INTEGER
-        );
-        CREATE TABLE fishing_bonus_catches (item_stable_key TEXT, chance_per_catch REAL);
-        INSERT INTO fishing_bonus_catches VALUES
-            ('item:map1', 1.25), ('item:map2', 1.25), ('item:map3', 1.25), ('item:map4', 1.25);
-        INSERT INTO special_world_drops VALUES
-            ('item:map1', 'Maps', 0.625, 0), ('item:map2', 'Maps', 0.625, 0),
-            ('item:map3', 'Maps', 0.625, 0), ('item:map4', 'Maps', 0.625, 0),
-            ('item:shard', 'PlanarShard', 0.1, 15);
-        CREATE TABLE loot_drops (
-            item_stable_key TEXT, character_stable_key TEXT, drop_probability REAL,
-            is_common_world_item INTEGER, is_common INTEGER, is_uncommon INTEGER, is_rare INTEGER,
-            is_legendary INTEGER, is_ultra_rare INTEGER, is_guaranteed INTEGER, is_actual INTEGER
-        );
-        INSERT INTO loot_drops VALUES
-            ('item:shard', 'character:lowchest', 20.5, 0, 0, 0, 1, 0, 0, 0, 0),
-            ('item:shard', 'character:highchest', 56.57, 0, 0, 0, 1, 0, 0, 0, 0),
-            ('item:bread', 'character:wolf', 1.0, 1, 0, 0, 0, 0, 0, 0, 0),
-            ('item:bread', 'character:bear', 4.0, 1, 0, 0, 0, 0, 0, 0, 0),
-            ('item:bread', 'character:unplaced', 9.0, 1, 0, 0, 0, 0, 0, 0, 0),
-            ('item:bread', 'character:lowchest', 3.0, 1, 0, 0, 0, 0, 0, 0, 0),
-            ('item:bread', 'character:baker', 30.0, 1, 1, 0, 0, 0, 0, 0, 0);
-        CREATE TABLE character_fact_sources (member_stable_key TEXT);
-        INSERT INTO character_fact_sources VALUES
-            ('character:wolf'), ('character:bear'), ('character:lowchest'), ('character:highchest');
-        CREATE TABLE treasure_chest_possible_spawns (
-            chest_character_stable_key TEXT, player_level_min INTEGER, player_level_max INTEGER
-        );
-        INSERT INTO treasure_chest_possible_spawns VALUES
-            ('character:lowchest', 1, 9), ('character:lowchest', 1, 9),
-            ('character:highchest', 31, 35), ('character:highchest', 30, 35);
-    """)
-    return conn
-
-
-def test_background_sources_use_exported_chances_and_merge_chest_level_brackets() -> None:
-    from erenshor.application.guide.node_builder import _add_background_item_sources
-
-    items = [item_node(f"item:map{i}") for i in range(1, 5)]
-    shard = item_node("item:shard")
-    bread = item_node("item:bread")
-    graph = build_graph(*items, shard, bread)
-    conn = _special_source_db()
-    try:
-        _add_background_item_sources(conn, graph)
-    finally:
-        conn.close()
-    for item in items:
-        assert item.background_sources == [
-            BackgroundSource("world_drop", "Any enemy", 0.625, level=1),
-            BackgroundSource("fishing_bonus", "Any fishing catch", 1.25),
-        ]
-    assert shard.background_sources == [
-        BackgroundSource("world_drop", "Any enemy above level 15", 0.1, level=16),
-        BackgroundSource(
-            "treasure_chest",
-            "Treasure map chest",
-            20.5,
-            level=1,
-            level_max=9,
-            source_key="character:lowchest",
-            instruction="Read a Treasure Map and dig at the marked spot.",
-        ),
-        BackgroundSource(
-            "treasure_chest",
-            "Treasure map chest",
-            56.57,
-            level=30,
-            level_max=35,
-            source_key="character:highchest",
-            instruction="Read a Treasure Map and dig at the marked spot.",
-        ),
-    ]
-    # Swap-only rows give one range over placed characters and no chest source.
-    # The baker's row has its own common flag and stays a dropper.
-    assert bread.background_sources == [
-        BackgroundSource("common_world_item", "Any enemy with common drops", 1.0, chance_max=4.0),
-    ]
-    assert not list(graph.nodes_of_type(NodeType.CHARACTER))
-    compiled = compile_graph(graph)
-    compiled_shard = compiled.nodes[compiled.node_key_to_id[shard.key]]
-    assert compiled_shard.background_sources == shard.background_sources
-    assert compiled.item_sources[compiled.node_item_index[compiled_shard.node_id]] == []
 
 
 def test_item_use_obtainability_propagates_used_item_level_and_ignores_background_sources() -> None:

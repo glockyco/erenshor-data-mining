@@ -16,6 +16,10 @@ public class ZoneLineRecord
     public float Z { get; set; }
 
     public bool IsEnabled { get; set; }
+    public bool ObjectIsActive { get; set; }
+    public bool ComponentIsEnabled { get; set; }
+    public bool ColliderIsTrigger { get; set; }
+    public bool HasEnabledTrigger { get; set; }
     public string DisplayText { get; set; } = string.Empty;
 
     [ForeignKey(typeof(ZoneRecord), "StableKey")]

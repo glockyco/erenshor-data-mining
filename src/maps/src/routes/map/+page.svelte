@@ -157,6 +157,7 @@
             water: data.markers.water,
             itemBags: data.markers.itemBags,
             itemSources: data.itemSources,
+            zoneLines: data.markers.zoneLines,
             allItems: data.allItems
         })
     );

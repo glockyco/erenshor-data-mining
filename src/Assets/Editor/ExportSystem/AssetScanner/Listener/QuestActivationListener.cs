@@ -1,262 +1,181 @@
 #nullable enable
 
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using SQLite;
 using UnityEngine;
 
 /// <summary>
-/// Scans quest-gated activation components to discover which quests must be
-/// completed to activate zone lines and characters.
-///
-/// Three activation mechanisms exist in the game:
-///   QuestSpawnListener:     Quest OR ActiveQuest → enables targets, self-destructs.
-///   MultiQuestListener:     Quest AND Quest2 → enables targets, self-destructs.
-///   DynamicContentManager:  Persistent checker. ActivateWorldItems entries each
-///                           have a single RefQuest and a list of affected GameObjects.
-///
-/// Multiple sources targeting the same zone line or character create additional
-/// OR groups — any single group being fully satisfied unlocks it.
-///
-/// Target resolution rules:
-///   - Zoneline:   emit ZoneLineQuestUnlockRecord. Zone lines with activeSelf=false
-///     on their own GO (and not the direct target) are skipped — enabling a parent
-///     GO does not propagate to children whose own activeSelf is false.
-///   - Character:  emit CharacterQuestUnlockRecord directly.
-///   - SpawnPoint: the spawnable Character lives on prefabs in CommonSpawns/RareSpawns,
-///     not in the scene hierarchy, so GetComponentsInChildren<Character> misses it.
-///     Walk those spawn lists instead to emit CharacterQuestUnlockRecords.
-///     This handles patterns where a disabled SpawnPoint GO (e.g. BassleSpawn) is
-///     enabled by an external QuestSpawnListener rather than the SpawnPoint's own
-///     SpawnUponQuestComplete field.
+/// Exports both directions of the three quest listeners, including held-item
+/// alternatives. Scene subjects keep their own keys, so activating one spawn
+/// point does not gate every placement of its possible characters.
 /// </summary>
-public class QuestActivationListener : IAssetScanListener<GameObject>
+public sealed class QuestActivationListener : IAssetScanListener<GameObject>
 {
     private readonly SQLiteConnection _db;
-    private readonly ZoneLineStableKeyResolver _zoneLineKeyResolver;
-    private readonly CharacterStableKeyResolver _characterKeyResolver;
-    private readonly List<ZoneLineQuestUnlockRecord> _zoneLineRecords = new();
-    private readonly List<CharacterQuestUnlockRecord> _characterRecords = new();
+    private readonly ActivationTargetResolver _targets;
+    private readonly Dictionary<string, QuestActivationEffectRecord> _records = new();
 
-    // Dedup: prevent duplicate records when the same (target, group, quest) is
-    // encountered multiple times (e.g. nested hierarchies or shared targets).
-    private readonly HashSet<(string, int, string)> _seenZoneLineUnlocks = new();
-    private readonly HashSet<(string, int, string)> _seenCharacterUnlocks = new();
-
-    private int _nextGroupId;
-
-    public QuestActivationListener(
-        SQLiteConnection db,
-        ZoneLineStableKeyResolver zoneLineKeyResolver,
-        CharacterStableKeyResolver characterKeyResolver
-    )
+    public QuestActivationListener(SQLiteConnection db, ActivationTargetResolver targets)
     {
         _db = db;
-        _zoneLineKeyResolver = zoneLineKeyResolver;
-        _characterKeyResolver = characterKeyResolver;
+        _targets = targets;
     }
 
     public void OnScanFinished()
     {
-        _db.CreateTable<ZoneLineQuestUnlockRecord>();
-        _db.CreateTable<CharacterQuestUnlockRecord>();
-
+        _db.CreateTable<QuestActivationEffectRecord>();
         _db.RunInTransaction(() =>
         {
-            _db.DeleteAll<ZoneLineQuestUnlockRecord>();
-            _db.DeleteAll<CharacterQuestUnlockRecord>();
-
-            _db.InsertAll(_zoneLineRecords);
-            _db.InsertAll(_characterRecords);
+            _db.DeleteAll<QuestActivationEffectRecord>();
+            _db.InsertAll(_records.Values);
         });
-
-        Debug.Log(
-            $"[{GetType().Name}] Exported {_zoneLineRecords.Count} zone line unlock records, "
-                + $"{_characterRecords.Count} character unlock records"
-        );
-
-        _zoneLineRecords.Clear();
-        _characterRecords.Clear();
-        _seenZoneLineUnlocks.Clear();
-        _seenCharacterUnlocks.Clear();
+        Debug.Log($"[{GetType().Name}] Exported {_records.Count} quest activation effect atoms");
+        _records.Clear();
     }
 
     public void OnAssetFound(GameObject go)
     {
-        // Skip non-scene objects (prefabs without a scene)
-        if (go.scene.name == null)
+        if (!go.scene.IsValid() || string.IsNullOrEmpty(go.scene.name))
             return;
 
-        foreach (var listener in go.GetComponents<QuestSpawnListener>())
+        // code-fact: guide.gates.quest_activation
+        var singles = go.GetComponents<QuestSpawnListener>();
+        for (int index = 0; index < singles.Length; index++)
         {
-            ProcessQuestSpawnListener(listener);
+            var listener = singles[index];
+            var groups = new List<(string kind, string key)[]>();
+            if (listener.Quest != null)
+                groups.Add(new[] { ("quest_done", StableKeyGenerator.ForQuest(listener.Quest)) });
+            // Despite its name, ActiveQuest is also checked with IsQuestDone.
+            if (listener.ActiveQuest != null)
+                groups.Add(
+                    new[] { ("quest_done", StableKeyGenerator.ForQuest(listener.ActiveQuest)) }
+                );
+            if (
+                listener.item != null
+                && !string.Equals(listener.item.name, "Empty", StringComparison.OrdinalIgnoreCase)
+            )
+                groups.Add(new[] { ("item_held", StableKeyGenerator.ForItem(listener.item)) });
+            WriteEffects(listener, index, listener.EnableOnQuestComplete, true, groups);
+            WriteEffects(listener, index, listener.DestroyOnQuestComplete, false, groups);
         }
 
-        foreach (var listener in go.GetComponents<MultiQuestListener>())
+        var multis = go.GetComponents<MultiQuestListener>();
+        for (int index = 0; index < multis.Length; index++)
         {
-            ProcessMultiQuestListener(listener);
+            var listener = multis[index];
+            if (listener.Quest == null || listener.Quest2 == null)
+                throw new InvalidOperationException(
+                    $"{ActivationTargetResolver.ObjectKey(go)} has a multi-quest listener without both quests"
+                );
+            var groups = new List<(string kind, string key)[]>
+            {
+                new[]
+                {
+                    ("quest_done", StableKeyGenerator.ForQuest(listener.Quest)),
+                    ("quest_done", StableKeyGenerator.ForQuest(listener.Quest2)),
+                },
+            };
+            WriteEffects(listener, index, listener.EnableOnQuestComplete, true, groups);
+            WriteEffects(listener, index, listener.DestroyOnQuestComplete, false, groups);
         }
 
-        foreach (var manager in go.GetComponents<DynamicContentManager>())
+        var managers = go.GetComponents<DynamicContentManager>();
+        for (int index = 0; index < managers.Length; index++)
         {
-            ProcessDynamicContentManager(manager);
-        }
-    }
-
-    private void ProcessQuestSpawnListener(QuestSpawnListener listener)
-    {
-        if (listener.EnableOnQuestComplete == null || listener.EnableOnQuestComplete.Count == 0)
-            return;
-
-        // Quest and ActiveQuest are OR conditions — each gets its own unlock group.
-        // Item-based unlocks are skipped (can't be reliably checked from quest state).
-
-        if (listener.Quest != null && !string.IsNullOrEmpty(listener.Quest.DBName))
-        {
-            var groupId = _nextGroupId++;
-            var quests = new[] { listener.Quest.DBName };
-            ProcessTargets(listener.EnableOnQuestComplete, groupId, quests);
-        }
-
-        if (listener.ActiveQuest != null && !string.IsNullOrEmpty(listener.ActiveQuest.DBName))
-        {
-            var groupId = _nextGroupId++;
-            var quests = new[] { listener.ActiveQuest.DBName };
-            ProcessTargets(listener.EnableOnQuestComplete, groupId, quests);
-        }
-    }
-
-    private void ProcessMultiQuestListener(MultiQuestListener listener)
-    {
-        if (listener.EnableOnQuestComplete == null || listener.EnableOnQuestComplete.Count == 0)
-            return;
-
-        // Quest AND Quest2 — both in a single unlock group.
-        if (listener.Quest == null || string.IsNullOrEmpty(listener.Quest.DBName))
-            return;
-        if (listener.Quest2 == null || string.IsNullOrEmpty(listener.Quest2.DBName))
-            return;
-
-        var groupId = _nextGroupId++;
-        var quests = new[] { listener.Quest.DBName, listener.Quest2.DBName };
-        ProcessTargets(listener.EnableOnQuestComplete, groupId, quests);
-    }
-
-    private void ProcessDynamicContentManager(DynamicContentManager manager)
-    {
-        if (manager.ActivateWorldItems == null)
-            return;
-
-        // Each ActivateWorldItems entry has a single quest and a list of targets.
-        // Each entry is its own unlock group (single quest, so group size is 1).
-        foreach (var entry in manager.ActivateWorldItems)
-        {
-            if (entry.RefQuest == null || string.IsNullOrEmpty(entry.RefQuest.DBName))
-                continue;
-            if (entry.AffectedByQuest == null || entry.AffectedByQuest.Count == 0)
-                continue;
-
-            var groupId = _nextGroupId++;
-            var quests = new[] { entry.RefQuest.DBName };
-            ProcessTargets(entry.AffectedByQuest, groupId, quests);
+            var manager = managers[index];
+            WriteDynamicEffects(manager, index, manager.ActivateWorldItems, true);
+            WriteDynamicEffects(manager, index, manager.DisableWorldItems, false);
         }
     }
 
-    private void ProcessTargets(List<GameObject> targets, int groupId, string[] questDBNames)
+    private void WriteDynamicEffects(
+        DynamicContentManager manager,
+        int componentIndex,
+        List<DynamicContent>? entries,
+        bool enabling
+    )
     {
-        foreach (var target in targets)
+        if (entries == null)
+            return;
+        for (int index = 0; index < entries.Count; index++)
+        {
+            var entry = entries[index];
+            if (entry.RefQuest == null)
+                throw new InvalidOperationException(
+                    $"{ActivationTargetResolver.ObjectKey(manager.gameObject)} has a dynamic-content entry without a quest"
+                );
+            var groups = new List<(string kind, string key)[]>
+            {
+                new[] { ("quest_done", StableKeyGenerator.ForQuest(entry.RefQuest)) },
+            };
+            WriteEffects(manager, componentIndex, entry.AffectedByQuest, enabling, groups, index);
+        }
+    }
+
+    private void WriteEffects(
+        MonoBehaviour listener,
+        int componentIndex,
+        List<GameObject>? objects,
+        bool enabling,
+        List<(string kind, string key)[]> groups,
+        int groupOffset = 0
+    )
+    {
+        if (objects == null)
+            return;
+        string script = listener.GetType().Name;
+        string listenerKey =
+            ActivationTargetResolver.ObjectKey(listener.gameObject)
+            + ":script:"
+            + script
+            + ":"
+            + componentIndex;
+        string effect = enabling ? "enable" : "disable";
+        foreach (var target in objects)
         {
             if (target == null)
                 continue;
-
-            // Zone lines: emit a record only when the zone line will actually become
-            // accessible by enabling the target. A zone line with activeSelf=false
-            // on its own GO will NOT be activated when its parent is enabled (Unity
-            // propagates activation only to children that already have activeSelf=true).
-            // Exception: if the zone line IS the direct target, it will be activated.
-            foreach (
-                var zoneLine in target.GetComponentsInChildren<Zoneline>(includeInactive: true)
-            )
+            string objectKey = ActivationTargetResolver.ObjectKey(target);
+            foreach (var subject in _targets.Resolve(target, enabling))
             {
-                if (!zoneLine.gameObject.activeSelf && zoneLine.gameObject != target)
-                    continue;
-
-                var stableKey = _zoneLineKeyResolver.GetStableKey(zoneLine);
-                foreach (var questDBName in questDBNames)
+                for (int groupIndex = 0; groupIndex < groups.Count; groupIndex++)
                 {
-                    if (_seenZoneLineUnlocks.Add((stableKey, groupId, questDBName)))
+                    foreach (var atom in groups[groupIndex])
                     {
-                        _zoneLineRecords.Add(
-                            new ZoneLineQuestUnlockRecord
+                        int group = groupOffset + groupIndex;
+                        string recordKey = string.Join(
+                            "|",
+                            new[]
                             {
-                                ZoneLineStableKey = stableKey,
-                                UnlockGroup = groupId,
-                                QuestDBName = questDBName,
+                                listenerKey,
+                                objectKey,
+                                effect,
+                                subject.Kind,
+                                subject.Key,
+                                group.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                                atom.kind,
+                                atom.key,
                             }
                         );
-                    }
-                }
-            }
-
-            // Characters: emit records for Character components found in the hierarchy.
-            foreach (
-                var character in target.GetComponentsInChildren<Character>(includeInactive: true)
-            )
-            {
-                var stableKey = _characterKeyResolver.GetStableKey(character);
-                foreach (var questDBName in questDBNames)
-                {
-                    if (_seenCharacterUnlocks.Add((stableKey, groupId, questDBName)))
-                    {
-                        _characterRecords.Add(
-                            new CharacterQuestUnlockRecord
-                            {
-                                CharacterStableKey = stableKey,
-                                UnlockGroup = groupId,
-                                QuestDBName = questDBName,
-                            }
-                        );
-                    }
-                }
-            }
-
-            // SpawnPoints: the Character lives on prefabs in CommonSpawns/RareSpawns,
-            // not in the scene hierarchy, so GetComponentsInChildren<Character> cannot
-            // find it. Walk the spawn lists to emit CharacterQuestUnlockRecords.
-            // Apply the same activeSelf guard as zone lines: a SpawnPoint that is
-            // inactive inside the target hierarchy (not the direct target) would not
-            // be activated by enabling the parent.
-            foreach (
-                var spawnPoint in target.GetComponentsInChildren<SpawnPoint>(includeInactive: true)
-            )
-            {
-                if (!spawnPoint.gameObject.activeSelf && spawnPoint.gameObject != target)
-                    continue;
-
-                var allSpawns = (spawnPoint.CommonSpawns ?? new List<GameObject>()).Concat(
-                    spawnPoint.RareSpawns ?? new List<GameObject>()
-                );
-                foreach (var spawnGO in allSpawns)
-                {
-                    if (spawnGO == null)
-                        continue;
-                    var character = spawnGO.GetComponent<Character>();
-                    if (character == null)
-                        continue;
-                    var stableKey = _characterKeyResolver.GetStableKey(character);
-                    foreach (var questDBName in questDBNames)
-                    {
-                        if (_seenCharacterUnlocks.Add((stableKey, groupId, questDBName)))
+                        _records[recordKey] = new QuestActivationEffectRecord
                         {
-                            _characterRecords.Add(
-                                new CharacterQuestUnlockRecord
-                                {
-                                    CharacterStableKey = stableKey,
-                                    UnlockGroup = groupId,
-                                    QuestDBName = questDBName,
-                                }
-                            );
-                        }
+                            RecordKey = recordKey,
+                            ListenerKey = listenerKey,
+                            Script = script,
+                            Scene = subject.Scene,
+                            ListenerIsEnabled = listener.isActiveAndEnabled,
+                            TargetObjectKey = objectKey,
+                            TargetObjectName = target.name,
+                            TargetKind = subject.Kind,
+                            TargetStableKey = subject.Key,
+                            TargetIsEnabled = subject.IsEnabled,
+                            Effect = effect,
+                            GroupIndex = group,
+                            AtomKind = atom.kind,
+                            AtomStableKey = atom.key,
+                        };
                     }
                 }
             }

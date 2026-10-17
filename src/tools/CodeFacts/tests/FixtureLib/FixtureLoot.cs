@@ -12,6 +12,26 @@ namespace FixtureLib
         private static readonly Random Rng = new Random();
         private static float Roll => (float)Rng.NextDouble();
 
+        public void IteratePool()
+        {
+            foreach (var item in PoolA)
+            {
+                Drops.Add(item);
+            }
+        }
+
+        public void IteratePoolTwice()
+        {
+            foreach (var item in PoolA)
+            {
+                Drops.Add(item);
+            }
+            foreach (var item in PoolA)
+            {
+                Drops.Remove(item);
+            }
+        }
+
         public void Init()
         {
             float rate = 2f;
@@ -136,6 +156,54 @@ namespace FixtureLib
             else
             {
                 SingletonB = "stored";
+            }
+        }
+
+        public void ShiverGate(bool active)
+        {
+            if (!active && Drops.Contains("SHIVER-GLASSES"))
+            {
+                SingletonB = "visible";
+            }
+        }
+
+        public void ShiverGateChangedLiteral(bool active)
+        {
+            if (!active && Drops.Contains("SHIVER-TORCH"))
+            {
+                SingletonB = "visible";
+            }
+        }
+
+        public void ShiverGateChangedActivation(bool active)
+        {
+            if (!active && Drops.Contains("SHIVER-GLASSES"))
+            {
+                SingletonB = "hidden";
+            }
+        }
+
+        public void ShiverReset()
+        {
+            if (Drops.Contains("SHIVER-TORCH"))
+            {
+                Level = 2;
+            }
+            if (Drops.Contains("SHIVER-FLAMELIT"))
+            {
+                Level = 3;
+            }
+        }
+
+        public void ShiverResetChangedBranching()
+        {
+            if (Drops.Contains("SHIVER-TORCH"))
+            {
+                Level = 2;
+            }
+            else if (Drops.Contains("SHIVER-FLAMELIT"))
+            {
+                Level = 3;
             }
         }
     }

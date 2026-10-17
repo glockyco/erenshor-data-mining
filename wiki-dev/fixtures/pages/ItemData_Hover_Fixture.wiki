@@ -1,0 +1,9 @@
+<span class="erenshor-link erenshor-link--item" data-erenshor-page="ItemData Multi Fixture" data-erenshor-key="item:shared-page-common">[[ItemData Multi Fixture|Common identity]]</span>
+
+<span class="erenshor-link erenshor-link--item" data-erenshor-page="ItemData Multi Fixture" data-erenshor-key="item:shared-page-rare">[[ItemData Multi Fixture|Rare identity]]</span>
+
+<span class="erenshor-link erenshor-link--item" data-erenshor-page="ItemData Multi Fixture">[[ItemData Multi Fixture|Unkeyed shared page]]</span>
+
+<span class="erenshor-link erenshor-link--item" data-erenshor-page="ItemData Multi Fixture" data-erenshor-key="item:not-here">[[ItemData Multi Fixture|Wrong identity]]</span>
+
+<span class="erenshor-link erenshor-link--item" data-erenshor-page="ItemData Kinds Fixture" data-erenshor-key="item:ember_longsword" data-erenshor-quality="Improved +5">[[ItemData Kinds Fixture|Improved item]]</span>

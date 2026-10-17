@@ -95,6 +95,8 @@ public sealed class TrackerWindow
 
     public bool Visible => _visible;
 
+    internal bool NavigationGuidanceVisible { get; private set; }
+
     public void Toggle() => _visible = !_visible;
 
     public void Show() => _visible = true;
@@ -194,6 +196,7 @@ public sealed class TrackerWindow
     /// </summary>
     public void Draw(bool inGameplay)
     {
+        NavigationGuidanceVisible = false;
         if (!TrackerVisibilityPolicy.ShouldDraw(_visible, inGameplay, _tracker.Enabled))
             return;
 
@@ -499,8 +502,23 @@ public sealed class TrackerWindow
         // Prerequisite line if blocked
         DrawPrerequisite(row);
 
-        if (_nav.OriginQuest?.RuntimeKey == quest.RuntimeKey && NavigationDisplay.HasGuidance(_nav))
-            NavigationDisplay.DrawRequirements(_nav, _state.CurrentZone);
+        if (
+            _nav.OriginQuest?.RuntimeKey == quest.RuntimeKey
+            && !(_guide.Visible && _state.SelectedQuestKey == quest.RuntimeKey)
+            && NavigationDisplay.HasGuidance(_nav)
+        )
+        {
+            ImGui.BeginGroup();
+            try
+            {
+                NavigationDisplay.DrawRequirements(_nav, _state.CurrentZone);
+            }
+            finally
+            {
+                ImGui.EndGroup();
+            }
+            NavigationGuidanceVisible |= ImGui.IsItemVisible();
+        }
 
         ImGui.Spacing();
 
@@ -578,7 +596,7 @@ public sealed class TrackerWindow
     {
         ImGui.Indent();
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-        ImGui.TextWrapped(row.StepText);
+        Theme.TextWrapped(row.StepText);
         ImGui.PopStyleColor();
         ImGui.Unindent();
     }

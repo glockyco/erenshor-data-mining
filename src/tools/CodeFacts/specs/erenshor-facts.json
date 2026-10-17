@@ -31,6 +31,17 @@
       }
     },
     {
+      "id": "loot.owned_unique_replacement",
+      "mode": "assert",
+      "type": "LootTable",
+      "method": "InitLootTable",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (ActualDrops [l] != null && ActualDrops [l].Unique && GameData.PlayerInv.HasItem (ActualDrops [l], _remove: false)) { ActualDrops [l] = GameData.GM.CommonWorldItems [Random.Range (0, GameData.GM.CommonWorldItems.Count)]; special = false; }"
+      }
+    },
+    {
       "id": "loot.common_drop_tiers",
       "mode": "assert",
       "type": "LootTable",
@@ -379,7 +390,7 @@
       "args": {
         "statement": "Components [0].MyItem = Template.MyItem.TemplateRewards [0];"
       },
-      "note": "The forge always awards the first reward of a template, and the fuel sets only its quality. The processor keeps only reward slot 1 as a crafting result."
+      "note": "The forge awards only the first template reward. Later native slots remain non-acquirable evidence in canonical provenance."
     },
     {
       "id": "smithing.empty_slot_resets_quantity",
@@ -422,7 +433,9 @@
       "type": "ItemDatabase",
       "method": "Start",
       "matcher": "statement_shape",
-      "args": {"statement": "ItemDB = Resources.LoadAll (\"Items\", typeof(Item)).Cast<Item> ().ToArray ();"}
+      "args": {
+        "statement": "ItemDB = Resources.LoadAll (\"Items\", typeof(Item)).Cast<Item> ().ToArray ();"
+      }
     },
     {
       "id": "auction.direct_draw",
@@ -442,8 +455,13 @@
       "type": "SimPlayer",
       "method": "CheckGearProgress",
       "matcher": "int_expression",
-      "args": {"left": "empty.ItemLevel", "operator": ">"},
-      "keys": ["value"]
+      "args": {
+        "left": "empty.ItemLevel",
+        "operator": ">"
+      },
+      "keys": [
+        "value"
+      ]
     },
     {
       "id": "auction.direct_level_above",
@@ -451,8 +469,14 @@
       "type": "SimPlayer",
       "method": "CheckGearProgress",
       "matcher": "int_expression",
-      "args": {"left": "MyStats.Level", "operator": "+", "within_draw": "empty"},
-      "keys": ["value"]
+      "args": {
+        "left": "MyStats.Level",
+        "operator": "+",
+        "within_draw": "empty"
+      },
+      "keys": [
+        "value"
+      ]
     },
     {
       "id": "auction.direct_level_below",
@@ -460,8 +484,14 @@
       "type": "SimPlayer",
       "method": "CheckGearProgress",
       "matcher": "int_expression",
-      "args": {"left": "MyStats.Level", "operator": "-", "within_draw": "empty"},
-      "keys": ["value"]
+      "args": {
+        "left": "MyStats.Level",
+        "operator": "-",
+        "within_draw": "empty"
+      },
+      "keys": [
+        "value"
+      ]
     },
     {
       "id": "auction.sim_level_cap",
@@ -469,8 +499,13 @@
       "type": "Stats",
       "method": "CalcSimStats",
       "matcher": "int_expression",
-      "args": {"left": "Level", "operator": ">"},
-      "keys": ["value"]
+      "args": {
+        "left": "Level",
+        "operator": ">"
+      },
+      "keys": [
+        "value"
+      ]
     },
     {
       "id": "auction.sim_level_clamp",
@@ -478,7 +513,10 @@
       "type": "Stats",
       "method": "CalcSimStats",
       "matcher": "node_shape",
-      "args": {"kind": "IfElseStatement", "shape": "if (Level > 35) { Level = 35; }"}
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (Level > 35) { Level = 35; }"
+      }
     },
     {
       "id": "auction.player_level_cap",
@@ -486,8 +524,14 @@
       "type": "Stats",
       "method": "DoLevelUp",
       "matcher": "int_expression",
-      "args": {"left": "Level", "operator": "<", "top_level": "true"},
-      "keys": ["value"]
+      "args": {
+        "left": "Level",
+        "operator": "<",
+        "top_level": "true"
+      },
+      "keys": [
+        "value"
+      ]
     },
     {
       "id": "auction.display_item",
@@ -528,7 +572,10 @@
       "type": "SimPlayer",
       "method": "CheckGearProgress",
       "matcher": "node_shape",
-      "args": {"kind": "IfElseStatement", "shape": "if (MySimTracking.Rival) { num4 = 6; num5 = ((MyStats.Level >= 35) ? 45 : 37); }"}
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (MySimTracking.Rival) { num4 = 6; num5 = ((MyStats.Level >= 35) ? 45 : 37); }"
+      }
     },
     {
       "id": "auction.gear_base_upper",
@@ -536,7 +583,10 @@
       "type": "SimPlayer",
       "method": "CheckGearProgress",
       "matcher": "node_shape",
-      "args": {"kind": "VariableInitializer", "shape": "num4 = 1"}
+      "args": {
+        "kind": "VariableInitializer",
+        "shape": "num4 = 1"
+      }
     },
     {
       "id": "auction.gear_normal_upper",
@@ -544,7 +594,10 @@
       "type": "SimPlayer",
       "method": "CheckGearProgress",
       "matcher": "node_shape",
-      "args": {"kind": "IfElseStatement", "shape": "if (MyStats != null && MyStats.Level > 10) { num4 = 2; }"}
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (MyStats != null && MyStats.Level > 10) { num4 = 2; }"
+      }
     },
     {
       "id": "auction.gear_base_lower",
@@ -552,7 +605,10 @@
       "type": "SimPlayer",
       "method": "CheckGearProgress",
       "matcher": "node_shape",
-      "args": {"kind": "VariableInitializer", "shape": "num6 = -1"}
+      "args": {
+        "kind": "VariableInitializer",
+        "shape": "num6 = -1"
+      }
     },
     {
       "id": "auction.gear_initial_lower",
@@ -560,7 +616,10 @@
       "type": "SimPlayer",
       "method": "CheckGearProgress",
       "matcher": "node_shape",
-      "args": {"kind": "IfElseStatement", "shape": "if (flag) { num6 = -2; num3 = 25000; num2 = 20; }"}
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (flag) { num6 = -2; num3 = 25000; num2 = 20; }"
+      }
     },
     {
       "id": "auction.gear_lower_window",
@@ -568,7 +627,10 @@
       "type": "SimPlayer",
       "method": "CheckGearProgress",
       "matcher": "node_shape",
-      "args": {"kind": "IfElseStatement", "shape": "if (UnityEngine.Random.Range (0, 100) > 97) { num6 = -3; }"}
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (UnityEngine.Random.Range (0, 100) > 97) { num6 = -3; }"
+      }
     },
     {
       "id": "auction.gear_class_gate",
@@ -576,7 +638,10 @@
       "type": "SimPlayer",
       "method": "CheckGearProgress",
       "matcher": "node_shape",
-      "args": {"kind": "BinaryOperatorExpression", "shape": "item.Classes.Contains (MyStats.CharacterClass) && !flag4"}
+      "args": {
+        "kind": "BinaryOperatorExpression",
+        "shape": "item.Classes.Contains (MyStats.CharacterClass) && !flag4"
+      }
     },
     {
       "id": "auction.gear_incompatible_storage",
@@ -596,7 +661,10 @@
       "type": "SimPlayer",
       "method": "CheckGearProgress",
       "matcher": "node_shape",
-      "args": {"kind": "IfElseStatement", "shape": "if ((item.WeaponDmg > 0 && item.ThisWeaponType != Item.WeaponType.TwoHandMelee && item.ThisWeaponType != Item.WeaponType.TwoHandStaff) || ((item.ThisWeaponType == Item.WeaponType.TwoHandMelee || item.ThisWeaponType == Item.WeaponType.TwoHandStaff) && item.ItemLevel - simInvSlot4.MyItem.ItemLevel > 3)) { if (item3.MyItem.ItemLevel < item.ItemLevel && (float)item3.MyItem.ItemLevel < num7 && !CheckRelic (item)) { simInvSlot5 = item3; num7 = item3.MyItem.ItemLevel; } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; } } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; }"}
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if ((item.WeaponDmg > 0 && item.ThisWeaponType != Item.WeaponType.TwoHandMelee && item.ThisWeaponType != Item.WeaponType.TwoHandStaff) || ((item.ThisWeaponType == Item.WeaponType.TwoHandMelee || item.ThisWeaponType == Item.WeaponType.TwoHandStaff) && item.ItemLevel - simInvSlot4.MyItem.ItemLevel > 3)) { if (item3.MyItem.ItemLevel < item.ItemLevel && (float)item3.MyItem.ItemLevel < num7 && !CheckRelic (item)) { simInvSlot5 = item3; num7 = item3.MyItem.ItemLevel; } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; } } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; }"
+      }
     },
     {
       "id": "auction.gear_secondary_storage",
@@ -604,7 +672,10 @@
       "type": "SimPlayer",
       "method": "CheckGearProgress",
       "matcher": "node_shape",
-      "args": {"kind": "IfElseStatement", "shape": "if (item.Shield && simInvSlot3.MyItem.ThisWeaponType != Item.WeaponType.TwoHandMelee && simInvSlot3.MyItem.ThisWeaponType != Item.WeaponType.TwoHandStaff) { if (item3.MyItem.ItemLevel < item.ItemLevel && (float)item3.MyItem.ItemLevel < num7 && !CheckRelic (item)) { simInvSlot5 = item3; num7 = item3.MyItem.ItemLevel; } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; } } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; }"}
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (item.Shield && simInvSlot3.MyItem.ThisWeaponType != Item.WeaponType.TwoHandMelee && simInvSlot3.MyItem.ThisWeaponType != Item.WeaponType.TwoHandStaff) { if (item3.MyItem.ItemLevel < item.ItemLevel && (float)item3.MyItem.ItemLevel < num7 && !CheckRelic (item)) { simInvSlot5 = item3; num7 = item3.MyItem.ItemLevel; } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; } } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; }"
+      }
     },
     {
       "id": "auction.admission",
@@ -612,7 +683,10 @@
       "type": "AuctionHouse",
       "method": "UpdateAH",
       "matcher": "node_shape",
-      "args": {"kind": "IfElseStatement", "shape": "if (itemByID == null || itemByID.ItemLevel >= 40) { continue; }"}
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (itemByID == null || itemByID.ItemLevel >= 40) { continue; }"
+      }
     },
     {
       "id": "auction.gear_duelist_effect",
@@ -620,7 +694,10 @@
       "type": "SimPlayer",
       "method": "CheckGearProgress",
       "matcher": "node_shape",
-      "args": {"kind": "IfElseStatement", "shape": "if (item != null && item.WornEffect != null && item.WornEffect.Id == \"45807425\" && MyStats.CharacterClass == GameData.ClassDB.Duelist) { flag4 = true; }"}
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (item != null && item.WornEffect != null && item.WornEffect.Id == \"45807425\" && MyStats.CharacterClass == GameData.ClassDB.Duelist) { flag4 = true; }"
+      }
     },
     {
       "id": "auction.gear_paladin_effect",
@@ -628,7 +705,10 @@
       "type": "SimPlayer",
       "method": "CheckGearProgress",
       "matcher": "node_shape",
-      "args": {"kind": "IfElseStatement", "shape": "if (item != null && item.WornEffect != null && (item.WornEffect.Id == \"18068040\" || item.WornEffect.Id == \"16613100\") && MyStats.CharacterClass == GameData.ClassDB.Paladin) { flag4 = true; }"}
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (item != null && item.WornEffect != null && (item.WornEffect.Id == \"18068040\" || item.WornEffect.Id == \"16613100\") && MyStats.CharacterClass == GameData.ClassDB.Paladin) { flag4 = true; }"
+      }
     },
     {
       "id": "auction.stored_items_transfer",
@@ -636,7 +716,10 @@
       "type": "SimPlayer",
       "method": "OnInventoryLoaded",
       "matcher": "node_shape",
-      "args": {"kind": "IfElseStatement", "shape": "if (GameData.SimMngr.Sims [myIndex].MyAHData != null && StoredItems.Count > 0) { List<string> list = new List<string> (); foreach (Item storedItem in StoredItems) { if (storedItem.ItemValue > 0) { list.Add (storedItem.Id); } } if (list.Count > 0) { AuctionHouse.UpdateAH (list, MyNPC.NPCName, Greed); } StoredItems.Clear (); }"}
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (GameData.SimMngr.Sims [myIndex].MyAHData != null && StoredItems.Count > 0) { List<string> list = new List<string> (); foreach (Item storedItem in StoredItems) { if (storedItem.ItemValue > 0) { list.Add (storedItem.Id); } } if (list.Count > 0) { AuctionHouse.UpdateAH (list, MyNPC.NPCName, Greed); } StoredItems.Clear (); }"
+      }
     },
     {
       "id": "auction.broker_names",
@@ -644,8 +727,12 @@
       "type": "NPCDialogManager",
       "method": "Start",
       "matcher": "string_constants",
-      "args": {"guard_assignment": "isAuctionHouse"},
-      "keys": ["strings"]
+      "args": {
+        "guard_assignment": "isAuctionHouse"
+      },
+      "keys": [
+        "strings"
+      ]
     },
     {
       "id": "auction.broker_gate",
@@ -653,7 +740,10 @@
       "type": "NPCDialogManager",
       "method": "Start",
       "matcher": "node_shape",
-      "args": {"kind": "IfElseStatement", "shape": "if (transform.name == \"Thella Steepleton\" || transform.name == \"Goldie Retalio\" || transform.name == \"Summoned: Pocket Auctions\") { isAuctionHouse = true; }"}
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (transform.name == \"Thella Steepleton\" || transform.name == \"Goldie Retalio\" || transform.name == \"Summoned: Pocket Auctions\") { isAuctionHouse = true; }"
+      }
     },
     {
       "id": "auction.updateah_gates",
@@ -1708,6 +1798,1527 @@
         "shape": "if (isPlayer && FernallanLensObj != null && !FernallanLensObj.activeSelf && HasCosmetic (WatchersLens)) { FernallanLensObj.SetActive (value: true); }"
       },
       "note": "A cosmetic slot that holds WatchersLens shows the lens, and ZoneAnnounce.Update then lets Sivakayan spectres appear. Exported by CosmeticItemListener."
+    },
+    {
+      "id": "sim.authored_gender",
+      "mode": "assert",
+      "type": "SimPlayerMngr",
+      "method": "LoadActualSims",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (actualSim.GetComponent<Inventory> ().isMale) { simPlayerTracking.Gender = \"Male\"; } else { simPlayerTracking.Gender = \"Female\"; }"
+      }
+    },
+    {
+      "id": "sim.authored_skin_color",
+      "mode": "assert",
+      "type": "SimPlayerMngr",
+      "method": "LoadActualSims",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "AssignmentExpression",
+        "shape": "simPlayerTracking.SkinColor = component.SkinColor"
+      }
+    },
+    {
+      "id": "sim.authored_rival_flag",
+      "mode": "assert",
+      "type": "SimPlayerMngr",
+      "method": "LoadActualSims",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (component.Rival) { simPlayerTracking.Rival = true; }"
+      }
+    },
+    {
+      "id": "sim.authored_hair",
+      "mode": "assert",
+      "type": "SimPlayerMngr",
+      "method": "LoadActualSims",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (!string.IsNullOrEmpty (component.HairName)) { simPlayerTracking.HairIndex = component.HairName; }"
+      }
+    },
+    {
+      "id": "sim.save_level_selects_zone",
+      "mode": "assert",
+      "type": "SimPlayerMngr",
+      "method": "LoadActualSims",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "InvocationExpression",
+        "shape": "ZoneAtlas.FindSuitableSpawnZone (simPlayerSaveData.MyLevel)"
+      }
+    },
+    {
+      "id": "sim.authored_hair_color",
+      "mode": "assert",
+      "type": "SimPlayerMngr",
+      "method": "LoadActualSims",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "AssignmentExpression",
+        "shape": "simPlayerTracking.HairColor = component.HairColor"
+      }
+    },
+    {
+      "id": "sim.authored_gm_flag",
+      "mode": "assert",
+      "type": "SimPlayerMngr",
+      "method": "LoadActualSims",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (component.IsGMCharacter) { simPlayerTracking.IsGMCharacter = true; }"
+      }
+    },
+    {
+      "id": "sim.authored_class",
+      "mode": "assert",
+      "type": "SimPlayerMngr",
+      "method": "LoadActualSims",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "AssignmentExpression",
+        "shape": "simPlayerTracking.ClassName = component2.CharacterClass.ClassName"
+      }
+    },
+    {
+      "id": "sim.new_save_uses_seed",
+      "mode": "assert",
+      "type": "SimPlayerDataManager",
+      "method": "CheckLoadData",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "ObjectCreateExpression",
+        "shape": "new SimPlayerSaveData (_name, _level, _inv, _skill) { Year = DateTime.Now.Year - 1, Day = DateTime.Now.Day, Hour = 1, Min = 1, FriendedBy = -1 }"
+      }
+    },
+    {
+      "id": "sim.authored_seed_load",
+      "mode": "assert",
+      "type": "SimPlayerMngr",
+      "method": "LoadActualSims",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "InvocationExpression",
+        "shape": "SimPlayerDataManager.CheckLoadData (actualSim.GetComponent<NPC> ().NPCName, actualSim.GetComponent<Inventory> ().EquippedItems, actualSim.GetComponent<Stats> ().Level, actualSim.GetComponent<SimPlayer> ().SkillLevel)"
+      }
+    },
+    {
+      "id": "sim.existing_save_precedes_seed",
+      "mode": "assert",
+      "type": "SimPlayerDataManager",
+      "method": "CheckLoadData",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "ReturnStatement",
+        "shape": "return simPlayerSaveData;"
+      }
+    },
+    {
+      "id": "sim.authored_reference_list",
+      "mode": "assert",
+      "type": "SimPlayerMngr",
+      "method": "LoadActualSims",
+      "matcher": "foreach_source",
+      "args": {
+        "source": "ActualSims"
+      }
+    },
+    {
+      "id": "spectres.recent_zones",
+      "mode": "assert",
+      "type": "GameData",
+      "method": "AddSivakayanSpawn",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ SivakayanSpawnedZones.Add (_scene); if (SivakayanSpawnedZones.Count > 5) { SivakayanSpawnedZones.RemoveAt (0); } }"
+      },
+      "note": "Only the five most recent successful spawn scenes are retained. This is not a permanent once-per-zone restriction."
+    },
+    {
+      "id": "spectres.cosmetic_slots",
+      "mode": "assert",
+      "type": "Inventory",
+      "method": "HasCosmetic",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ bool result = false; if (CosmeticSlots == null || CosmeticSlots.Count <= 0) { return false; } foreach (ItemIcon cosmeticSlot in CosmeticSlots) { if (cosmeticSlot.MyItem == _item) { result = true; } } return result; }"
+      },
+      "note": "The lens must be in a cosmetic slot. Merely owning it in inventory is insufficient."
+    },
+    {
+      "id": "spectres.entry_attempt",
+      "mode": "assert",
+      "type": "ZoneAnnounce",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (SivakSpectreDly > 0f) { SivakSpectreDly -= 60f * Time.deltaTime; if (SivakSpectreDly < 0f && GameData.PlayerInv.HasCosmetic (GameData.PlayerInv.WatchersLens) && SceneManager.GetActiveScene ().name != \"Azure\" && SceneManager.GetActiveScene ().name != \"Stowaway\" && SceneManager.GetActiveScene ().name != \"Tutorial\" && SceneManager.GetActiveScene ().name != \"SummerEvent\" && SceneManager.GetActiveScene ().name != \"ShiveringStep\" && SceneManager.GetActiveScene ().name != \"ShiveringTomb\" && SceneManager.GetActiveScene ().name != \"ShiveringTomb2\" && !GameData.SivakayanSpawnedZones.Contains (SceneManager.GetActiveScene ().name)) { SpawnSivakayanSpecter (); } }"
+      },
+      "note": "At most one timer-crossing attempt per ZoneAnnounce entry, only with the lens in a cosmetic slot and outside the excluded and recently successful scenes. Landing exactly on zero makes no attempt. This is not an every-tick chance."
+    },
+    {
+      "id": "spectres.roll",
+      "mode": "assert",
+      "type": "ZoneAnnounce",
+      "method": "SpawnSivakayanSpecter",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (Random.Range (0, 10) < 9) { return; }"
+      }
+    },
+    {
+      "id": "spectres.entry_delay_start",
+      "mode": "assert",
+      "type": "ZoneAnnounce",
+      "method": "Start",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "SivakSpectreDly = 10f;"
+      }
+    },
+    {
+      "id": "spectres.single_entry_call",
+      "mode": "assert",
+      "type": "ZoneAnnounce",
+      "method": "Update",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "SpawnSivakayanSpecter ();",
+        "count": "1"
+      },
+      "note": "No second per-tick call can bypass the entry timer branch."
+    },
+    {
+      "id": "spectres.spawn_selection",
+      "mode": "assert",
+      "type": "ZoneAnnounce",
+      "method": "SpawnSivakayanSpecter",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (SpawnPointManager.SpawnPointsInScene.Count > 0) { SpawnPoint spawnPoint = SpawnPointManager.SpawnPointsInScene [Random.Range (0, SpawnPointManager.SpawnPointsInScene.Count)]; GameObject gameObject = Object.Instantiate (GameData.Misc.SivakayanSpectres [Random.Range (0, GameData.Misc.SivakayanSpectres.Count)], spawnPoint.transform.position, spawnPoint.transform.rotation); List<Transform> list = new List<Transform> (); foreach (SpawnPoint item in SpawnPointManager.SpawnPointsInScene) { if (item != null && item.transform != null) { list.Add (item.transform); } } gameObject.GetComponent<NPC> ().InitNewNPC (list); Debug.Log (\"Spectre spawned in \" + SceneManager.GetActiveScene ().name); GameData.AddSivakayanSpawn (SceneManager.GetActiveScene ().name); } else { Debug.Log (\"No valid spawn found for spectre - other criteria achieved.\"); }"
+      },
+      "note": "A successful roll needs an existing registered SpawnPoint. Every list slot has equal weight, including duplicate prefabs. History changes only after instantiation."
+    },
+    {
+      "id": "spectres.spawn_point_registration",
+      "mode": "assert",
+      "type": "SpawnPoint",
+      "method": "Start",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "SpawnPointManager.SpawnPointsInScene.Add (this);"
+      }
+    },
+    {
+      "id": "sim.aura_equipment_added",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "LoadItemIcons",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "MyEquipment.Add (AuraSlot);"
+      }
+    },
+    {
+      "id": "smithing.planar_fuel",
+      "mode": "assert",
+      "type": "Smithing",
+      "method": "Combine",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BinaryOperatorExpression",
+        "shape": "FuelSource.MyItem.Id != \"46289586\""
+      }
+    },
+    {
+      "id": "ui.planning_reference",
+      "mode": "assert",
+      "type": "PlanningTableUI",
+      "method": "Awake",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "GameData.PlanningUI = this;"
+      }
+    },
+    {
+      "id": "sim.aura_equipment_slot",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "LoadItemIcons",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "AuraSlot = new SimInvSlot (Item.SlotType.Aura);"
+      }
+    },
+    {
+      "id": "ui.item_icon_inventory_transfer",
+      "mode": "assert",
+      "type": "ItemIcon",
+      "method": "InteractItemSlot",
+      "matcher": "branch_shape",
+      "args": {
+        "condition": "SwapWith.MyItem == GameData.PlayerInv.Empty",
+        "branch": "true",
+        "shape": "{ GameData.PlayerAud.PlayOneShot (GameData.GM.GetComponent<Misc> ().MoveItem, GameData.PlayerAud.volume * GameData.UIVolume * GameData.MasterVol); SwapWith.MyItem = MyItem; SwapWith.Quantity = Quantity; MyItem = GameData.PlayerInv.Empty; Quantity = 1; if (QuantityBox != null) { QuantityBox.SetActive (value: false); } GameData.ItemOnCursor = null; GameData.MouseSlot.MouseHomeSlot = null; GameData.MouseSlot.dragging = false; GameData.HighlightedItem = SwapWith; if (GameData.PlayerInv.CosmeticSlots.Contains (SwapWith)) { GameData.PlayerInv.SetHalloweenMask (); } }"
+      },
+      "note": "An accepted drop onto an empty slot transfers the item and its quantity, then empties the cursor. This is a conditional transfer, not an unconditional inventory grant."
+    },
+    {
+      "id": "ui.item_icon_pickup",
+      "mode": "assert",
+      "type": "ItemIcon",
+      "method": "InteractItemSlot",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "GameData.MouseSlot.MyItem = MyItem;",
+        "count": "4"
+      }
+    },
+    {
+      "id": "ui.item_icon_pickup_quantity",
+      "mode": "assert",
+      "type": "ItemIcon",
+      "method": "InteractItemSlot",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "GameData.MouseSlot.Quantity = Quantity;",
+        "count": "2"
+      }
+    },
+    {
+      "id": "ui.planning_access_item",
+      "mode": "assert",
+      "type": "QuestSpawnListener",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (this.item != null && this.item != GameData.PlayerInv.Empty && GameData.PlayerInv.HasItem (this.item, _remove: false)) { foreach (GameObject item5 in EnableOnQuestComplete) { item5.SetActive (value: true); } foreach (GameObject item6 in DestroyOnQuestComplete) { item6.SetActive (value: false); } Object.Destroy (gameObject); }"
+      },
+      "note": "Possession is an alternative that enables the same targets without consuming the item."
+    },
+    {
+      "id": "sim.generated_equipment_nonweapon_gate",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "branch_shape",
+      "args": {
+        "condition": "item3.ThisSlotType != Item.SlotType.Primary && item3.ThisSlotType != Item.SlotType.Secondary",
+        "branch": "true",
+        "shape": "{ if (GetClassModItemLvl (item3.MyItem) < GetClassModItemLvl (item) && GetClassModItemLvl (item3.MyItem) < num7 && !CheckRelic (item)) { if (item3 == simInvSlot && !flag2) { simInvSlot5 = item3; num7 = GetClassModItemLvl (item3.MyItem); flag2 = true; } else if (item3 == simInvSlot2 && !flag3) { simInvSlot5 = item3; num7 = GetClassModItemLvl (item3.MyItem); flag3 = true; } else { simInvSlot5 = item3; num7 = GetClassModItemLvl (item3.MyItem); } } continue; }"
+      }
+    },
+    {
+      "id": "sim.generated_equipment_slot_gate",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BinaryOperatorExpression",
+        "shape": "item3.ThisSlotType != item.RequiredSlot && ((item3.ThisSlotType != Item.SlotType.Primary && item3.ThisSlotType != Item.SlotType.Secondary) || item.RequiredSlot != Item.SlotType.PrimaryOrSecondary)"
+      }
+    },
+    {
+      "id": "ui.hide_slot_replenishment",
+      "mode": "assert",
+      "type": "ReplenishTMOGHide",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (MyIcon.MyItem != GameData.Misc.TMOGHIDE) { MyIcon.MyItem = GameData.Misc.TMOGHIDE; MyIcon.UpdateSlotImage (); MyIcon.Quantity = 1; } }"
+      },
+      "note": "The active component restores the native Misc.TMOGHIDE reference with quantity one. UiItemSourceListener captures the icon and Misc references separately."
+    },
+    {
+      "id": "ui.item_icon_pointer_access",
+      "mode": "assert",
+      "type": "ItemIcon",
+      "method": "OnPointerUp",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (DisplayOnly || (GameData.HighlightedItem != this && GameData.ItemOnCursor != this)) { return; }"
+      }
+    },
+    {
+      "id": "ui.planning_access_alternative_quest",
+      "mode": "assert",
+      "type": "QuestSpawnListener",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (ActiveQuest != null && GameData.IsQuestDone (ActiveQuest.DBName)) { foreach (GameObject item3 in EnableOnQuestComplete) { item3.SetActive (value: true); } foreach (GameObject item4 in DestroyOnQuestComplete) { item4.SetActive (value: false); } Object.Destroy (gameObject); }"
+      },
+      "note": "ActiveQuest is another completed-quest alternative, not a quest-active predicate."
+    },
+    {
+      "id": "ui.planning_portal_not_reset",
+      "mode": "assert",
+      "type": "PlanningTableUI",
+      "method": "InitToEmpty",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ L1.MyItem = GameData.PlayerInv.Empty; L2.MyItem = GameData.PlayerInv.Empty; L3.MyItem = GameData.PlayerInv.Empty; L4.MyItem = GameData.PlayerInv.Empty; R1.MyItem = GameData.PlayerInv.Empty; R2.MyItem = GameData.PlayerInv.Empty; R3.MyItem = GameData.PlayerInv.Empty; R4.MyItem = GameData.PlayerInv.Empty; Rune1.MyItem = GameData.PlayerInv.Empty; Rune2.MyItem = GameData.PlayerInv.Empty; Rune3.MyItem = GameData.PlayerInv.Empty; Rune4.MyItem = GameData.PlayerInv.Empty; Rune5.MyItem = GameData.PlayerInv.Empty; Rune6.MyItem = GameData.PlayerInv.Empty; StatueBL.MyItem = GameData.PlayerInv.Empty; StatueBR.MyItem = GameData.PlayerInv.Empty; StatueFL.MyItem = GameData.PlayerInv.Empty; StatueFR.MyItem = GameData.PlayerInv.Empty; PlanarSol.MyItem = GameData.PlayerInv.Empty; PlanarFern.MyItem = GameData.PlayerInv.Empty; PlanarVith.MyItem = GameData.PlayerInv.Empty; PlanarBrax.MyItem = GameData.PlayerInv.Empty; }"
+      },
+      "note": "The initial reset excludes Portal. UiItemSourceListener captures only its serialized contents and does not assign replenishment."
+    },
+    {
+      "id": "ui.planning_access_quest",
+      "mode": "assert",
+      "type": "QuestSpawnListener",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (Quest != null && GameData.IsQuestDone (Quest.DBName)) { foreach (GameObject item in EnableOnQuestComplete) { item.SetActive (value: true); } foreach (GameObject item2 in DestroyOnQuestComplete) { item2.SetActive (value: false); } Object.Destroy (gameObject); }"
+      }
+    },
+    {
+      "id": "ui.misc_reference",
+      "mode": "assert",
+      "type": "Misc",
+      "method": "Awake",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "GameData.Misc = this;"
+      }
+    },
+    {
+      "id": "sim.generated_equipment_assignment",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "simInvSlot5.MyItem = item;"
+      }
+    },
+    {
+      "id": "ui.planning_desk_open",
+      "mode": "assert",
+      "type": "PlayerControl",
+      "method": "LeftClick",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (hitInfo.transform.tag == \"PlanningDesk\" && !flag && Vector3.Distance (transform.position, hitInfo.transform.position) < 5f) { GameData.GM.OpenPlanningWindow (); }"
+      },
+      "note": "The planning window opens through a nearby tagged desk. UiItemSourceListener exports its placements separately from the UI's LoadScene location."
+    },
+    {
+      "id": "chessboard.faceless_choices",
+      "mode": "assert",
+      "type": "Chessboard",
+      "method": "CheckForGamepiece",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "SwitchStatement",
+        "shape": "switch (Random.Range (0, 6)) { case 0: SpawnPiece (FacelessArc); break; case 1: SpawnPiece (FacelessDru); break; case 2: SpawnPiece (FacelessDuel); break; case 3: SpawnPiece (FacelessPal); break; case 4: SpawnPiece (FacelessStorm); break; case 5: SpawnPiece (FacelessReaver); break; }"
+      },
+      "note": "The Faceless chooses one of six NPC fields. The view labels this as random without claiming observed equal spawn weights."
+    },
+    {
+      "id": "chessboard.first_carried_piece",
+      "mode": "assert",
+      "type": "Chessboard",
+      "method": "CheckForGamepiece",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (GameData.PlayerInv.HasItem (GameData.ItemDB.GetItemByID (Peon.Id), _remove: true)) { UpdateSocialLog.LogAdd (new ChatLogLine (\"An item from your inventory springs to life and falls onto the game board!\", ChatLogLine.LogType.BattleMechanicText, \"grey\")); UpdateSocialLog.LogAdd (new ChatLogLine (\"You've lost an item: \" + Peon.ItemName, ChatLogLine.LogType.SystemMessages, \"green\")); SpawnPiece (PeonNPC); } else if (GameData.PlayerInv.HasItem (GameData.ItemDB.GetItemByID (Ember.Id), _remove: true)) { UpdateSocialLog.LogAdd (new ChatLogLine (\"An item from your inventory springs to life and falls onto the game board!\", ChatLogLine.LogType.BattleMechanicText, \"grey\")); UpdateSocialLog.LogAdd (new ChatLogLine (\"You've lost an item: \" + Ember.ItemName, ChatLogLine.LogType.SystemMessages, \"green\")); SpawnPiece (EmberNPC); } else if (GameData.PlayerInv.HasItem (GameData.ItemDB.GetItemByID (Blaze.Id), _remove: true)) { UpdateSocialLog.LogAdd (new ChatLogLine (\"An item from your inventory springs to life and falls onto the game board!\", ChatLogLine.LogType.BattleMechanicText, \"grey\")); UpdateSocialLog.LogAdd (new ChatLogLine (\"You've lost an item: \" + Blaze.ItemName, ChatLogLine.LogType.SystemMessages, \"green\")); SpawnPiece (BlazeNPC); } else if (GameData.PlayerInv.HasItem (GameData.ItemDB.GetItemByID (Monarch.Id), _remove: true)) { UpdateSocialLog.LogAdd (new ChatLogLine (\"An item from your inventory springs to life and falls onto the game board!\", ChatLogLine.LogType.BattleMechanicText, \"grey\")); UpdateSocialLog.LogAdd (new ChatLogLine (\"You've lost an item: \" + Monarch.ItemName, ChatLogLine.LogType.SystemMessages, \"green\")); SpawnPiece (MonarchNPC); } else if (GameData.PlayerInv.HasItem (GameData.ItemDB.GetItemByID (Kingsman.Id), _remove: true)) { UpdateSocialLog.LogAdd (new ChatLogLine (\"An item from your inventory springs to life and falls onto the game board!\", ChatLogLine.LogType.BattleMechanicText, \"grey\")); UpdateSocialLog.LogAdd (new ChatLogLine (\"You've lost an item: \" + Kingsman.ItemName, ChatLogLine.LogType.SystemMessages, \"green\")); SpawnPiece (KingsmanNPC); } else if (GameData.PlayerInv.HasItem (GameData.ItemDB.GetItemByID (Candlekeeper.Id), _remove: true)) { UpdateSocialLog.LogAdd (new ChatLogLine (\"An item from your inventory springs to life and falls onto the game board...\", ChatLogLine.LogType.BattleMechanicText, \"grey\")); UpdateSocialLog.LogAdd (new ChatLogLine (\"The game piece dematerializes, leaving behind a mold to rebuild itself.\", ChatLogLine.LogType.SystemMessages, \"green\")); GameData.PlayerInv.AddItemToInv (ReplaceStatue); SpawnPiece (CandlekeeperNPC); } else if (GameData.PlayerInv.HasItem (GameData.ItemDB.GetItemByID (Faceless.Id), _remove: true)) { UpdateSocialLog.LogAdd (new ChatLogLine (\"An item from your inventory springs to life and falls onto the game board...\", ChatLogLine.LogType.BattleMechanicText, \"grey\")); UpdateSocialLog.LogAdd (new ChatLogLine (\"You've lost an item: \" + Faceless.ItemName, ChatLogLine.LogType.SystemMessages, \"green\")); switch (Random.Range (0, 6)) { case 0: SpawnPiece (FacelessArc); break; case 1: SpawnPiece (FacelessDru); break; case 2: SpawnPiece (FacelessDuel); break; case 3: SpawnPiece (FacelessPal); break; case 4: SpawnPiece (FacelessStorm); break; case 5: SpawnPiece (FacelessReaver); break; } } else { UpdateSocialLog.LogAdd (new ChatLogLine (\"A sensation of longing exists in this place.\", ChatLogLine.LogType.ZoneEmotes, \"grey\")); } }"
+      },
+      "note": "The first carried piece is consumed in Peon, Ember, Blaze, Monarch, Kingsman, Candlekeeper, Faceless order. Pins every item/NPC pairing and Candlekeeper's mold return for the dynamic catalog."
+    },
+    {
+      "id": "combat.release.engagement_gate",
+      "mode": "assert",
+      "type": "NPC",
+      "method": "ManageAggro",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (NeverAggro) { return; }"
+      }
+    },
+    {
+      "id": "combat.release.spawn_selection",
+      "mode": "assert",
+      "type": "SpawnPoint",
+      "method": "SpawnNPC",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (RareSpawns.Count > 0) { if (UnityEngine.Random.Range (0, 100) < RareNPCChance) { NextSpawn = RareSpawns [UnityEngine.Random.Range (0, RareSpawns.Count)]; } else { NextSpawn = CommonSpawns [UnityEngine.Random.Range (0, CommonSpawns.Count)]; } } else if (CommonSpawns.Count > 0) { NextSpawn = CommonSpawns [UnityEngine.Random.Range (0, CommonSpawns.Count)]; }"
+      }
+    },
+    {
+      "id": "combat.release.trade_component",
+      "mode": "assert",
+      "type": "TradeWindow",
+      "method": "CompleteTrade",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "VariableDeclarationStatement",
+        "shape": "QuestManager component = parent.GetComponent<QuestManager> ();"
+      }
+    },
+    {
+      "id": "combat.release.trade_required_items",
+      "mode": "assert",
+      "type": "Quest",
+      "method": "GetRequiredItems",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ List<Item> list = new List<Item> (); foreach (Item requiredItem in RequiredItems) { list.Add (requiredItem); } return list; }"
+      }
+    },
+    {
+      "id": "combat.release.trade_available",
+      "mode": "assert",
+      "type": "Quest",
+      "method": "QuestAvailable",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (!repeatable && GameData.CompletedQuests.Contains (DBName)) { return false; } return true; }"
+      }
+    },
+    {
+      "id": "combat.release.health_phase_host",
+      "mode": "assert",
+      "type": "NPCPhaseShiftManager",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ MyStats = GetComponent<Stats> (); MyNPC = GetComponent<NPC> (); MyAnim = GetComponent<Animator> (); }"
+      }
+    },
+    {
+      "id": "combat.release.spawn_health_start",
+      "mode": "assert",
+      "type": "FernallaFightEvent",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (thisSpawnPoint == null) { thisSpawnPoint = GetComponent<SpawnPoint> (); } }"
+      }
+    },
+    {
+      "id": "combat.release.combat_ward_host",
+      "mode": "assert",
+      "type": "PhantomFightEvent",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ WardCooldown = Random.Range (120, 240); myself = GetComponent<Character> (); MyNPC = GetComponent<NPC> (); }"
+      }
+    },
+    {
+      "id": "combat.release.empty_ward_initial",
+      "mode": "assert",
+      "type": "SprinklesEvent",
+      "field": "LivingWards",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "VariableInitializer",
+        "shape": "LivingWards = new List<Character> ()"
+      }
+    },
+    {
+      "id": "combat.release.protector_host",
+      "mode": "assert",
+      "type": "NPCInvuln",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ myself = GetComponent<Character> (); }"
+      }
+    },
+    {
+      "id": "combat.release.protector_update",
+      "mode": "assert",
+      "type": "NPCInvuln",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (Protector != null && Protector.activeSelf) { myself.Invulnerable = true; } else { myself.Invulnerable = false; } }"
+      }
+    },
+    {
+      "id": "combat.release.spawn_protector",
+      "mode": "assert",
+      "type": "SpawnPoint",
+      "method": "SpawnNPC",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (Protector != null && nPC.GetComponent<NPCInvuln> () != null) { nPC.GetComponent<NPCInvuln> ().Protector = Protector; }"
+      }
+    },
+    {
+      "id": "combat.release.weather_order",
+      "mode": "assert",
+      "type": "ActivateInWeather",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (GameData.Atmos.isRaining && !Rain) { foreach (GameObject item in ActiveNoRain) { item.SetActive (value: false); } foreach (GameObject item2 in ActiveInRain) { item2.SetActive (value: true); } Rain = true; } if (GameData.Atmos.isRaining || !Rain) { return; } foreach (GameObject item3 in ActiveNoRain) { item3.SetActive (value: true); } foreach (GameObject item4 in ActiveInRain) { item4.SetActive (value: false); } Rain = false; }"
+      }
+    },
+    {
+      "id": "combat.release.health_phase_update",
+      "mode": "assert",
+      "type": "NPCPhaseShiftManager",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (MyStats.CurrentHP < ShiftAtLife && index < Phases.Count) { DoShift (); } if (PhaseShiftTime > 0f) { PhaseShiftTime -= 60f * Time.deltaTime; if (PhaseShiftTime <= 0f) { MyAnim.SetTrigger (\"PhaseShiftEnd\"); MyStats.Myself.Invulnerable = false; } } }"
+      }
+    },
+    {
+      "id": "combat.release.health_phase_start",
+      "mode": "assert",
+      "type": "NPCPhaseShiftManager",
+      "method": "DoShift",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (index < Phases.Count) { PhaseShiftTime = Phases [index].DelayBeforeCombat; MyNPC.TickTime = PhaseShiftTime; MyStats.Myself.Invulnerable = true; MyAnim.SetTrigger (\"PhaseShift\"); UpdateSocialLog.LogAdd (new ChatLogLine (Phases [index].ShoutLine, ChatLogLine.LogType.BattleMechanicText, \"#FF9000\")); if (Phases [index].RefillLife) { MyStats.CurrentHP = MyStats.CurrentMaxHP; } if (Phases [index].AttackDamageMod > 0f) { MyNPC.DamageMult = Phases [index].AttackDamageMod; } if (Phases [index].AttackSpeed != 0f) { MyStats.BaseMHAtkDelay = Phases [index].AttackSpeed; } if (Phases [index].TeachSpells.Count > 0) { foreach (Spell teachSpell in Phases [index].TeachSpells) { MyNPC.MyAttackSpells.Add (teachSpell); } } } index++; }"
+      }
+    },
+    {
+      "id": "combat.release.spawn_health_binding",
+      "mode": "assert",
+      "type": "FernallaFightEvent",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (!init) { MyNPC = thisSpawnPoint.SpawnedNPC; MyAnim = thisSpawnPoint.SpawnedNPC.GetComponent<Animator> (); MyChar = thisSpawnPoint.SpawnedNPC.GetComponent<Character> (); thisSpawnPoint.canSpawn = false; if (MyChar != null) { init = true; } else if (!loggedError) { loggedError = true; Debug.Log (\"Failed to initialize script - MyChar = null\"); UpdateSocialLog.LogAdd (new ChatLogLine (\"Fernalla script did not initialize properly, please message dev on Discord\", ChatLogLine.LogType.SystemMessages, \"yellow\")); } }"
+      }
+    },
+    {
+      "id": "combat.release.spawn_health_gate",
+      "mode": "assert",
+      "type": "FernallaFightEvent",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (MyChar.Alive && (double)MyChar.MyStats.CurrentHP < (double)MyChar.MyStats.CurrentMaxHP * 0.1) { PhaseHandler (); }"
+      }
+    },
+    {
+      "id": "combat.release.spawn_health_timer",
+      "mode": "assert",
+      "type": "FernallaFightEvent",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (eventDelay > 0f) { eventDelay -= 60f * Time.deltaTime; if (eventDelay <= 0f) { MyChar.Invulnerable = false; MyChar.MyStats.Rooted = false; if (fightLevel != 3) { MyAnim.SetTrigger (\"PhaseShiftEnd\"); } } return; }"
+      }
+    },
+    {
+      "id": "combat.release.spawn_health_phase",
+      "mode": "assert",
+      "type": "FernallaFightEvent",
+      "method": "PhaseHandler",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "eventDelay = 200f;",
+        "count": "2"
+      }
+    },
+    {
+      "id": "combat.release.combat_ward_gate",
+      "mode": "assert",
+      "type": "PhantomFightEvent",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (!(MyNPC.CurrentAggroTarget != null) || !myself.Alive) { return; } if (WardsUp) { ListenToWards (); } if (WardCooldown > 0f) { WardCooldown -= 60f * Time.deltaTime; if (WardCooldown < 0f) { DoWardSpawn (); } } }"
+      }
+    },
+    {
+      "id": "combat.release.combat_ward_spawn",
+      "mode": "assert",
+      "type": "PhantomFightEvent",
+      "method": "DoWardSpawn",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ Character character = null; foreach (Transform wardSpawnPoint in WardSpawnPoints) { character = Object.Instantiate (WardsToSpawn, wardSpawnPoint.position, wardSpawnPoint.rotation).GetComponent<Character> (); character.Invulnerable = true; LivingWards.Add (character); myself.Invulnerable = true; WardsUp = true; } UpdateSocialLog.LogAdd (new ChatLogLine (\"The Phantom's Ward calls mysterious lights into existence\", ChatLogLine.LogType.BattleMechanicText, \"lightblue\")); LivingWards [Random.Range (0, LivingWards.Count)].Invulnerable = false; }"
+      }
+    },
+    {
+      "id": "combat.release.combat_ward_death",
+      "mode": "assert",
+      "type": "PhantomFightEvent",
+      "method": "ListenToWards",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ foreach (Character livingWard in LivingWards) { if (livingWard.Alive) { continue; } myself.Invulnerable = false; for (int num = LivingWards.Count - 1; num >= 0; num--) { if (LivingWards [num] != null) { Object.Destroy (LivingWards [num].gameObject); } } WardCooldown = Random.Range (600, 760); LivingWards.Clear (); WardsUp = false; break; } }"
+      }
+    },
+    {
+      "id": "combat.release.empty_ward_binding",
+      "mode": "assert",
+      "type": "SprinklesEvent",
+      "method": "SprinklesCheckIn",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (!(SprinklesSpawn != null)) { return; } Sprinkles = SprinklesSpawn?.SpawnedNPC?.GetChar (); if (!(Sprinkles != null)) { return; } CheckedIn = true; SprinklesAnim = Sprinkles.GetComponent<Animator> (); SprinklesNPC = Sprinkles.GetComponent<NPC> (); SprinklesStats = Sprinkles.GetComponent<Stats> (); AEEvent[] components = Sprinkles.GetComponents<AEEvent> (); foreach (AEEvent aEEvent in components) { if (aEEvent.isLifetap) { SprinklesLifetapEvent = aEEvent; } else { SprinklesOffensiveEvent = aEEvent; } } }"
+      }
+    },
+    {
+      "id": "combat.release.empty_ward_gate",
+      "mode": "assert",
+      "type": "SprinklesEvent",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (Sprinkles != null && SprinklesNPC != null && SprinklesNPC.CurrentAggroTarget != null && Sprinkles.Alive) { if (!engagedRaid) { engagedRaid = true; } CleanList (); if (LivingWards.Count <= 0) { if (SprinklesLifetapEvent.enabled) { SprinklesLifetapEvent.enabled = false; } if (!SprinklesOffensiveEvent.enabled) { SprinklesOffensiveEvent.enabled = true; } Sprinkles.Invulnerable = false; SpawnDelay = 300f; DoWardSpawn (); return; } Sprinkles.Invulnerable = true; if (SpawnDelay > 0f) { SpawnDelay -= 60f * Time.deltaTime; Transform transform = SprinklesAddPosition2; if (Random.Range (0, 10) > 5) { transform = SprinklesAddPosition1; } if (SpawnDelay <= 0f) { Object.Instantiate (Trickster, transform.transform.position, transform.transform.rotation); } } } else if (engagedRaid && !Sprinkles.Alive) { SprinklesAnim = null; SprinklesNPC = null; engagedRaid = false; wave = 1; wardUpTime = 0f; listCleanup = 30f; LivingWards.Clear (); SprinklesStats = null; SprinklesLifetapEvent = null; SprinklesOffensiveEvent = null; }"
+      }
+    },
+    {
+      "id": "combat.release.trade_holder",
+      "mode": "assert",
+      "type": "TradeWindow",
+      "method": "CompleteTrade",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "VariableDeclarationStatement",
+        "shape": "List<Quest> list3 = ((component != null) ? component.NPCQuests : new List<Quest> ());"
+      }
+    },
+    {
+      "id": "combat.release.trade_items",
+      "mode": "assert",
+      "type": "TradeWindow",
+      "method": "CompleteTrade",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "ForeachStatement",
+        "shape": "foreach (Quest item in list3) { List<Item> list4 = new List<Item> (item.GetRequiredItems ()); int count = list4.Count; int num = 0; List<TradeEntry> list5 = CopyTradeEntries (list2); foreach (Item item2 in list4) { for (int j = 0; j < list5.Count; j++) { TradeEntry tradeEntry = list5 [j]; if (tradeEntry.Item == item2 && tradeEntry.HasQuestCount ()) { tradeEntry.ConsumeOneForQuest (); num++; break; } } } if (num == count) { if (item.QuestAvailable ()) { if (!flag) { GameData.PlayerAud.PlayOneShot (GameData.Misc.QuestComplete, GameData.PlayerAud.volume * GameData.SFXVol * GameData.MasterVol); flag = true; } if (!GameData.Misc.LocalChatLog.activeSelf && GameData.UsePrivateWindow) { GameData.Misc.EnableLocalChatLog (); if (GameData.LocalLog.DialogHeader.text != parent.name) { GameData.LocalLog.StartLocalDialog (parent.name, parent.transform.position); } } if (item.GoldOnComplete != 0) { UpdateSocialLog.LogAdd (new ChatLogLine (\"Received a quest reward: \" + item.GoldOnComplete + \" gold!\", ChatLogLine.LogType.SystemMessages, \"green\")); UpdateSocialLog.LocalLogAdd (\"Received a quest reward: \" + item.GoldOnComplete + \" gold!\", \"green\"); GameData.PlayerInv.Gold += item.GoldOnComplete; } if (item.ItemOnComplete != null) { bool flag6 = GameData.PlayerInv.AddItemToInv (item.ItemOnComplete); UpdateSocialLog.LogAdd (new ChatLogLine (\"Received a quest reward: \" + item.ItemOnComplete.ItemName + \"!\", ChatLogLine.LogType.SystemMessages, \"green\")); UpdateSocialLog.LocalLogAdd (\"Received a quest reward: \" + item.ItemOnComplete.ItemName + \"!\", \"green\"); if (!flag6) { GameData.PlayerInv.ForceItemToInv (item.ItemOnComplete); } } GameData.AddExperience (item.XPonComplete, useMod: false); UpdateSocialLog.LogAdd (new ChatLogLine (parent.name + \" says: \" + item.DialogOnSuccess)); UpdateSocialLog.LocalLogAdd (parent.name + \" says: \" + item.DialogOnSuccess); if (!string.IsNullOrEmpty (item.DBName)) { GameData.FinishQuest (item.DBName); } if (item.CompleteOtherQuests.Count > 0) { foreach (Quest completeOtherQuest in item.CompleteOtherQuests) { if (GameData.HasQuest.Contains (completeOtherQuest.DBName)) { GameData.FinishQuest (completeOtherQuest.DBName); } } } if (item.KillTurnInHolder) { parent.GetComponent<Stats> ().CurrentHP = -1; } if (item.DropInvulnOnHolder) { parent.GetComponent<Character> ().Invulnerable = false; } list2 = list5; if (item.OncePerSpawnInstance) { OncePerInstance = true; ReturnRemainingTradeItems (list2); ClearTradeSlots (); CloseWindow (null); return; } if (!item.repeatable) { flag4 = true; } flag5 = true; flag3 = true; break; } UpdateSocialLog.LogAdd (new ChatLogLine (parent.name + \" says: \" + item.DisableText)); UpdateSocialLog.LocalLogAdd (parent.name + \" says: \" + item.DisableText); flag2 = true; } else if (num > 0 && !string.IsNullOrEmpty (item.DialogOnPartialSuccess)) { text = item.DialogOnPartialSuccess; if (item.AssignThisQuestOnPartialComplete) { GameData.AssignQuest (item.DBName); } } }"
+      }
+    },
+    {
+      "id": "combat.release.trade_flag",
+      "mode": "assert",
+      "type": "TradeWindow",
+      "method": "CompleteTrade",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (item.DropInvulnOnHolder) { parent.GetComponent<Character> ().Invulnerable = false; }"
+      }
+    },
+    {
+      "id": "guide.gates.door_key",
+      "mode": "assert",
+      "type": "Door",
+      "method": "OpenOrShut",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (RequiredKey == null) { swinging = true; if (Vector3.Distance (transform.position, GameData.PlayerControl.transform.position) < 15f) { GameData.PlayerAud.PlayOneShot (GameData.Misc.DoorOpen, 0.15f * GameData.SFXVol * GameData.MasterVol); } if (GetComponent<MeshCollider> () != null) { GetComponent<MeshCollider> ().enabled = false; } } else if (GameData.CheckKeyring (RequiredKey.Id)) { UpdateSocialLog.LogAdd (new ChatLogLine (\"Used \" + RequiredKey.ItemName + \", the door opens!\", ChatLogLine.LogType.SystemMessages, \"lightblue\")); swinging = true; if (Vector3.Distance (transform.position, GameData.PlayerControl.transform.position) < 15f) { GameData.PlayerAud.PlayOneShot (GameData.Misc.DoorOpen, 0.15f * GameData.SFXVol * GameData.MasterVol); } if (GetComponent<MeshCollider> () != null) { GetComponent<MeshCollider> ().enabled = false; } } else if (GameData.PlayerInv.HasItem (RequiredKey, RequiredKey.Disposable)) { UpdateSocialLog.LogAdd (new ChatLogLine (\"Used \" + RequiredKey.ItemName + \", the door opens!\", ChatLogLine.LogType.SystemMessages, \"lightblue\")); swinging = true; if (Vector3.Distance (transform.position, GameData.PlayerControl.transform.position) < 15f) { GameData.PlayerAud.PlayOneShot (GameData.Misc.DoorOpen, 0.15f * GameData.SFXVol * GameData.MasterVol); } if (GetComponent<MeshCollider> () != null) { GetComponent<MeshCollider> ().enabled = false; } if (!GameData.Keyring.Contains (RequiredKey.Id)) { GameData.Keyring.Add (RequiredKey.Id); UpdateSocialLog.LogAdd (new ChatLogLine (RequiredKey.ItemName + \" added to Keyring!\", ChatLogLine.LogType.SystemMessages, \"lightblue\")); GameData.PlayerInv.RemoveItemFromInv (RequiredKey); } } else { UpdateSocialLog.LogAdd (new ChatLogLine (RequiredKey.ItemName + \" required!\", ChatLogLine.LogType.SystemMessages, \"lightblue\")); } }"
+      }
+    },
+    {
+      "id": "guide.gates.quest_activation",
+      "mode": "assert",
+      "type": "QuestSpawnListener",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (Quest != null && GameData.IsQuestDone (Quest.DBName)) { foreach (GameObject item in EnableOnQuestComplete) { item.SetActive (value: true); } foreach (GameObject item2 in DestroyOnQuestComplete) { item2.SetActive (value: false); } Object.Destroy (gameObject); } if (ActiveQuest != null && GameData.IsQuestDone (ActiveQuest.DBName)) { foreach (GameObject item3 in EnableOnQuestComplete) { item3.SetActive (value: true); } foreach (GameObject item4 in DestroyOnQuestComplete) { item4.SetActive (value: false); } Object.Destroy (gameObject); } if (itemCheck <= 0f) { if (this.item != null && this.item != GameData.PlayerInv.Empty && GameData.PlayerInv.HasItem (this.item, _remove: false)) { foreach (GameObject item5 in EnableOnQuestComplete) { item5.SetActive (value: true); } foreach (GameObject item6 in DestroyOnQuestComplete) { item6.SetActive (value: false); } Object.Destroy (gameObject); } itemCheck = 180f; } else { itemCheck -= 60f * Time.deltaTime; } }"
+      }
+    },
+    {
+      "id": "guide.gates.shiver_start",
+      "mode": "assert",
+      "type": "ShiverEvent",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ foreach (GameObject spawnTrigger in SpawnTriggers) { spawnTrigger.SetActive (value: false); } InitAll (); }"
+      }
+    },
+    {
+      "id": "guide.gates.shiver_update",
+      "mode": "assert",
+      "type": "ShiverEvent",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (Phase == 0) { if (GameData.CompletedQuests.Contains (\"SHIVER-WATCHMAN\") && GameData.CompletedQuests.Contains (\"SHIVER-GATEKEEPER\") && GameData.CompletedQuests.Contains (\"SHIVER-HARBINGER\") && GameData.CompletedQuests.Contains (\"SHIVER-CURATOR\")) { if (PhaseDel <= 0f) { Phase = 1; FirstKio.SetActive (value: false); Kio.SetActive (value: true); GameData.FinishQuest (\"SHIVER-MEETALL\"); if (!GameData.CompletedQuests.Contains (\"SHIVER-TORCH\")) { UpdateSocialLog.LogAdd (new ChatLogLine (\"Kio the Lightkeeper Shouts: Ah, it's starting soon! Come and get your lamps!\", ChatLogLine.LogType.ZoneEmotes, \"#FF9000\")); GameData.AssignQuest (\"SHIVER-TORCH\"); } PhaseDel = 5f; } else { PhaseDel -= 60f * Time.deltaTime; } if (GameData.PlayerControl.Surfaced && RenderSettings.ambientLight != OrigLight) { RenderSettings.ambientLight = OrigLight; } } else if (!IntroDone) { if (IntroDel > 0f) { IntroDel -= 60f * Time.deltaTime; } else if (IntroDel <= 0f) { if (introStage == 3) { UpdateSocialLog.LogAdd (new ChatLogLine (\"The Gatekeeper Shouts: In this light, none can.\", ChatLogLine.LogType.ZoneEmotes, \"#FF9000\")); IntroDel = 200f; IntroDone = true; GameData.AssignQuest (\"SHIVER-MEETALL\"); } else if (introStage == 2) { UpdateSocialLog.LogAdd (new ChatLogLine (\"The Harbinger Shouts: He cannot harm this place.\", ChatLogLine.LogType.ZoneEmotes, \"#FF9000\")); IntroDel = 110f; } else if (introStage == 1) { UpdateSocialLog.LogAdd (new ChatLogLine (\"The Curator Shouts: He musn't meddle...\", ChatLogLine.LogType.ZoneEmotes, \"#FF9000\")); IntroDel = 135f; } else if (introStage == 0) { UpdateSocialLog.LogAdd (new ChatLogLine (\"The Bridgekeeper Shouts: Do we sense a new guest? I do hope to meet him!\", ChatLogLine.LogType.ZoneEmotes, \"#FF9000\")); IntroDel = 100f; } introStage++; } } } if (Phase == 1 && GameData.CompletedQuests.Contains (\"SHIVER-TORCH\")) { Phase = 2; GoDark = 600f; } if (Phase == 2) { if (!GameData.CompletedQuests.Contains (\"SHIVER-FLAMELIT\")) { if (GoDark > 0f) { GoDark -= 60f * Time.deltaTime; if (GoDark <= 0f) { foreach (GameObject item in WelcomeCrew) { item.SetActive (value: false); } Light.SetActive (value: false); RenderSettings.ambientLight = LightsOut; Hider.SetActive (value: true); foreach (GameObject spawnTrigger in SpawnTriggers) { spawnTrigger.SetActive (value: true); } if (!GameData.CompletedQuests.Contains (\"SHIVER-HIDER\")) { UpdateSocialLog.LogAdd (new ChatLogLine (\"Kio the Lightkeeper Shouts: Time for Hide and Seek! Heh heh heh...\", ChatLogLine.LogType.ZoneEmotes, \"#FF9000\")); UpdateSocialLog.LogAdd (new ChatLogLine (\"Kio the Lightkeeper Shouts: The Hider is waiting! Find him.\", ChatLogLine.LogType.ZoneEmotes, \"#FF9000\")); GameData.FinishQuest (\"SHIVER-MEETALL\"); GameData.PlayerAud.PlayOneShot (GoDarkSFX, GameData.SFXVol * GameData.MasterVol); GameData.AssignQuest (\"SHIVER-HIDER\"); } } } if (GameData.PlayerControl.Surfaced && RenderSettings.ambientLight != LightsOut && Hider.activeSelf) { Light.SetActive (value: false); RenderSettings.ambientLight = LightsOut; } } else { Phase = 3; } } if (Phase == 3) { Light.SetActive (value: false); RenderSettings.ambientLight = Warming; WarmFlame.SetActive (value: true); if (!GameData.CompletedQuests.Contains (\"SHIVER-LIGHTHOUSECHANGE\")) { UpdateSocialLog.LogAdd (new ChatLogLine (\"Kio the Lightkeeper Shouts: The air has changed... the island stirs! What have you done? It musn't grow brighter! Meddle no more!\", ChatLogLine.LogType.ZoneEmotes, \"#FF9000\")); UpdateSocialLog.LogAdd (new ChatLogLine (\"Kio the Lightkeeper Shouts: Something awoke among the Seaside ruins... one should find it, before one is found by it!\", ChatLogLine.LogType.ZoneEmotes, \"#FF9000\")); } foreach (GameObject spawnTrigger2 in SpawnTriggers) { spawnTrigger2.SetActive (value: true); } Phase = 4; } if (Phase == 4) { if (GameData.CompletedQuests.Contains (\"SHIVER-LIGHTHOUSECHANGE\")) { if (Kio.activeSelf) { RedCone.SetActive (value: false); BlueCone.SetActive (value: true); Phase = 5; Kio.SetActive (value: false); UpdateSocialLog.LogAdd (new ChatLogLine (\"Kio the Lightkeeper Shouts: Oh you... I'm afraid you're not going to like me... IN... THIS... LIGHT...\", ChatLogLine.LogType.ZoneEmotes, \"#FF9000\")); } if (GameData.PlayerControl.Surfaced && RenderSettings.ambientLight != NewLight) { Light.SetActive (value: false); RenderSettings.ambientLight = NewLight; } } else if (GameData.PlayerControl.Surfaced && RenderSettings.ambientLight != Warming) { Light.SetActive (value: false); RenderSettings.ambientLight = Warming; } } if (Phase == 5 && GameData.PlayerControl.Surfaced && RenderSettings.ambientLight != NewLight) { Light.SetActive (value: false); RenderSettings.ambientLight = NewLight; } if (!Phantom.activeSelf && GameData.CompletedQuests.Contains (\"SHIVER-GLASSES\")) { Phantom.SetActive (value: true); } }"
+      }
+    },
+    {
+      "id": "guide.gates.shiver_init",
+      "mode": "assert",
+      "type": "ShiverEvent",
+      "method": "InitAll",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (GameData.PlayerControl.Surfaced && RenderSettings.ambientLight != OrigLight) { RenderSettings.ambientLight = OrigLight; } if (GameData.CompletedQuests.Contains (\"SHIVER-WATCHMAN\") && GameData.CompletedQuests.Contains (\"SHIVER-GATEKEEPER\") && GameData.CompletedQuests.Contains (\"SHIVER-HARBINGER\") && GameData.CompletedQuests.Contains (\"SHIVER-CURATOR\")) { foreach (GameObject item in WelcomeCrew) { item.SetActive (value: false); } FirstKio.SetActive (value: false); Kio.SetActive (value: true); Phase = 1; if (!GameData.CompletedQuests.Contains (\"SHIVER-MEETALL\")) { GameData.CompletedQuests.Add (\"SHIVER-MEETALL\"); } } if (GameData.CompletedQuests.Contains (\"SHIVER-TORCH\")) { Phase = 2; if (GameData.PlayerControl.Surfaced && RenderSettings.ambientLight != LightsOut) { Light.SetActive (value: false); RenderSettings.ambientLight = LightsOut; } foreach (GameObject spawnTrigger in SpawnTriggers) { spawnTrigger.SetActive (value: true); } } if (GameData.CompletedQuests.Contains (\"SHIVER-FLAMELIT\")) { Phase = 3; Light.SetActive (value: false); RenderSettings.ambientLight = Warming; WarmFlame.SetActive (value: true); foreach (GameObject spawnTrigger2 in SpawnTriggers) { spawnTrigger2.SetActive (value: true); } } if (GameData.CompletedQuests.Contains (\"SHIVER-LIGHTHOUSECHANGE\")) { RenderSettings.ambientLight = NewLight; Light.SetActive (value: false); RedCone.SetActive (value: false); BlueCone.SetActive (value: true); Phase = 5; Kio.SetActive (value: false); UpdateSocialLog.LogAdd (new ChatLogLine (\"Kio the Lightkeeper Shouts: Oh you... I'm afraid you're not going to like me... IN... THIS... LIGHT...\", ChatLogLine.LogType.ZoneEmotes, \"#FF9000\")); } PhaseDel = 35f; }"
+      }
+    },
+    {
+      "id": "guide.gates.angel",
+      "mode": "assert",
+      "type": "ShiveringAngel",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (!GameData.IsQuestDone (\"STANDANGEL\") || !(transform.eulerAngles.x < endX)) { return; } transform.Rotate (new Vector3 (1f, 0f, 0f), -10f * Time.deltaTime); if (Vector3.Distance (transform.position, GameData.PlayerControl.transform.position) < 50f) { GameData.CamControl.ShakeScreen (1f, 1f); if (!aud) { GameData.PlayerAud.PlayOneShot (Rumble, GameData.SFXVol * GameData.MasterVol); aud = true; } } }"
+      }
+    },
+    {
+      "id": "guide.gates.phantom_wards",
+      "mode": "assert",
+      "type": "ShiveringPhantomWardListener",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (MyChar.Invulnerable && (ward1 == null || !ward1.Alive) && (ward2 == null || !ward2.Alive)) { MyChar.Invulnerable = false; UpdateSocialLog.LogAdd (new ChatLogLine (\"A shift can be felt in the tomb, the wards have fallen.\", ChatLogLine.LogType.BattleMechanicText, \"yellow\")); } }"
+      }
+    },
+    {
+      "id": "guide.gates.phantom_host",
+      "mode": "assert",
+      "type": "ShiveringPhantomWardListener",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ MyChar = GetComponent<Character> (); }"
+      }
+    },
+    {
+      "id": "guide.gates.reliquary_wards",
+      "mode": "assert",
+      "type": "ReliquaryFiend",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (!MyChar.Alive && !done) { GameData.FinishQuest (\"CLAIMRELIQUARY\"); GameData.AccountClaimedReliquary = true; GameData.GM.SaveReliq (); } protect = 0; foreach (SpawnPoint myEssentialSpawn in MyEssentialSpawns) { if (myEssentialSpawn != null && myEssentialSpawn.MyNPCAlive) { protect++; } } if (protect <= 0) { MyChar.Invulnerable = false; } else { MyChar.Invulnerable = true; } if (!(MyNPC.CurrentAggroTarget != null)) { return; } if (!init) { foreach (SpawnPoint myEssentialSpawn2 in MyEssentialSpawns) { myEssentialSpawn2.canSpawn = true; } init = true; } if (ShoutCD > 0f) { ShoutCD -= 60f * Time.deltaTime; if (ShoutCD <= 0f) { UpdateSocialLog.LogAdd (new ChatLogLine (MyNPC.NPCName.ToUpper () + \" SHOUTS: \" + Shouts [Random.Range (0, Shouts.Count)].ToUpper (), ChatLogLine.LogType.BattleMechanicText, \"#FF9000\")); ShoutCD = Random.Range (120, 360); } } }"
+      }
+    },
+    {
+      "id": "guide.gates.reliquary_sources",
+      "mode": "assert",
+      "type": "ReliquaryFiend",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ MyChar = GetComponent<Character> (); MyNPC = GetComponent<NPC> (); MyEssentialSpawns = MyNPC.GetSpawnPoint ().EssentailSpawnPoints; }"
+      }
+    },
+    {
+      "id": "guide.gates.fernalla_reset",
+      "mode": "assert",
+      "type": "FernallaFight",
+      "method": "CheckIn",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (FernSpawnPoint.MyNPCAlive) { RestoredFernalla.SetActive (value: false); Defeated = false; Fern = FernSpawnPoint.SpawnedNPC.GetChar (); FernNPC = FernSpawnPoint.SpawnedNPC; FernStats = FernSpawnPoint.SpawnedNPC.GetComponent<Stats> (); FernShape = FernSpawnPoint.SpawnedNPC.GetComponent<ShapeshiftMngr> (); FernAE = FernSpawnPoint.SpawnedNPC.GetComponent<AEEvent> (); Pref = FernSpawnPoint.SpawnedNPC.GetComponent<ParticleRef> (); FernAE.TriggerOnly = true; if (Fern != null) { checkedIn = true; } } }"
+      }
+    },
+    {
+      "id": "guide.gates.soluna_reset",
+      "mode": "assert",
+      "type": "SolunaFight",
+      "method": "CheckIn",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (SolunaSpawn.SpawnedNPC != null && SolunaSpawn.SpawnedNPC.GetChar () != null && SolunaSpawn.SpawnedNPC.GetChar ().Alive) { SolunaNPC = SolunaSpawn.SpawnedNPC; SolunaChar = SolunaNPC.GetChar (); SolunaStats = SolunaChar.MyStats; SolunaAE = SolunaNPC.GetComponent<AEEvent> (); ConstellationWaves = 600f; eventInit = true; RestoredSoluna.SetActive (value: false); } }"
+      }
+    },
+    {
+      "id": "guide.gates.brax_reset",
+      "mode": "assert",
+      "type": "BraxFightEvent",
+      "method": "CheckIn",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (!(BraxSpawn.SpawnedNPC == null) && BraxSpawn.SpawnedNPC.GetComponent<Character> ().Alive) { Dead = false; phase = 0; GodBraxRestored.SetActive (value: false); Brax = BraxSpawn.SpawnedNPC.GetComponent<Character> (); BraxNPC = BraxSpawn.SpawnedNPC; BraxStats = BraxSpawn.SpawnedNPC.GetComponent<Stats> (); BraxAE = BraxSpawn.SpawnedNPC.GetComponent<AEEvent> (); AELvl = 1; BraxAE.tickDmg = baseAEDmg; BraxAE.ResistMod = baseAEMod; if (Brax != null) { CheckedIn = true; } } }"
+      }
+    },
+    {
+      "id": "guide.gates.brax_reveal",
+      "mode": "assert",
+      "type": "BraxFightEvent",
+      "method": "ResetEvent",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (ECrystal1 != null) { ECrystal1.SpawnOnDeath = null; ECrystal1.MyStats.CurrentHP = 0; } if (ECrystal2 != null) { ECrystal2.SpawnOnDeath = null; ECrystal2.MyStats.CurrentHP = 0; } if (ECrystal3 != null) { ECrystal3.SpawnOnDeath = null; ECrystal3.MyStats.CurrentHP = 0; } if (ECrystal4 != null) { ECrystal4.SpawnOnDeath = null; ECrystal4.MyStats.CurrentHP = 0; } GodBraxRestored.SetActive (value: true); phase = 0; Dead = true; Engaged = false; CheckedIn = false; Brax = null; BraxStats = null; BraxNPC = null; BraxAE = null; ECrystal1 = null; ECrystal2 = null; ECrystal3 = null; ECrystal4 = null; SpawnedCrystals = false; livingCrystalCount = 4; AELvl = 1; beginFinalPhase = false; stopFinalSpawn = false; if (Spawned.Count > 0) { UpdateSocialLog.LogAdd (new ChatLogLine (\"Without Brax, the constructs fall to pieces.\", ChatLogLine.LogType.BattleMechanicText, \"red\")); } foreach (Character item in Spawned) { if (item != null && item.MyStats != null && item.Alive) { item.MyStats.CurrentHP = 0; } } Spawned.Clear (); }"
+      }
+    },
+    {
+      "id": "guide.gates.vitheo_reveal",
+      "mode": "assert",
+      "type": "VithArena",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (FightInProg == -1) { return; } Character character = null; foreach (Character item in Spawned) { if (!item.Alive) { character = item; } } if (character != null && Spawned.Contains (character)) { Spawned.Remove (character); } if (Spawned.Count <= 0) { if (FightInProg == 7) { RestoredVitheo.SetActive (value: true); } Object.Instantiate (AwardChests [FightInProg], ChestSpawnPos.position, ChestSpawnPos.rotation); FightInProg = -1; UpdateSocialLog.LogAdd (new ChatLogLine (\"Vitheo shouts: TAKE YOUR REWARD, GLADIATOR.\", ChatLogLine.LogType.ZoneEmotes, \"#FF9000\")); Gate1.SetActive (value: false); Gate2.SetActive (value: false); MusicMngr.ForceNoBossEngaged (); Spawned = new List<Character> (); } }"
+      }
+    },
+    {
+      "id": "guide.gates.shout_essential_block",
+      "mode": "assert",
+      "type": "NPCShoutListener",
+      "method": "CheckShout",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (ParseShout (_shout) && GetComponent<Character> ().Alive && (CheckEssentialsAlive () == 0 || !UseEssentialSpawnsToBlockThisInstance)) { Del = 90f; } }"
+      }
+    },
+    {
+      "id": "guide.gates.shout_essentials",
+      "mode": "assert",
+      "type": "NPCShoutListener",
+      "method": "CheckEssentialsAlive",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (MySpawn.EssentailSpawnPoints.Count == 0) { return 0; } if (MySpawn.EssentailSpawnPoints.Count > 0) { foreach (SpawnPoint essentailSpawnPoint in MySpawn.EssentailSpawnPoints) { if (essentailSpawnPoint.MyNPCAlive) { return 1; } } } return 0; }"
+      }
+    },
+    {
+      "id": "guide.gates.shout_completion",
+      "mode": "assert",
+      "type": "NPCShoutListener",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (!(Del > 0f)) { return; } Del -= 60f * Time.deltaTime; if (Del <= 0f) { UpdateSocialLog.LogAdd (new ChatLogLine (GetComponent<NPC> ().NPCName + \" shouts: \" + Responses [Random.Range (0, Responses.Count)], ChatLogLine.LogType.Shout, \"#FF9000\")); if (TriggerQuest != null) { GameData.FinishQuest (TriggerQuest.DBName); } } }"
+      }
+    },
+    {
+      "id": "guide.gates.npc_alive",
+      "mode": "assert",
+      "type": "NPCAliveListener",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (SpawnPoint.MyNPCAlive) { foreach (GameObject item in DespawnIfAlive) { if (item != null && item.activeSelf) { item.SetActive (value: false); } } foreach (GameObject item2 in SpawnIfAlive) { if (item2 != null && !item2.activeSelf) { item2.SetActive (value: true); } } } if (SpawnPoint.MyNPCAlive) { return; } foreach (GameObject item3 in DespawnIfAlive) { if (item3 != null && !item3.activeSelf) { item3.SetActive (value: true); } } foreach (GameObject item4 in SpawnIfAlive) { if (item4 != null && item4.activeSelf) { item4.SetActive (value: false); } } }"
+      }
+    },
+    {
+      "id": "guide.gates.memory_enter",
+      "mode": "assert",
+      "type": "MemorySphere",
+      "method": "OnTriggerEnter",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (other.transform.name == \"Player\" && GameData.PlayerInv.HasItem (RequiredInInventory, _remove: false) && !Memory.activeSelf) { Smoke.Play (); Memory.SetActive (value: true); GameData.PlayerAud.PlayOneShot (SFX, GameData.SFXVol * GameData.MasterVol); UpdateSocialLog.LogAdd (new ChatLogLine (Lore, ChatLogLine.LogType.Say, \"grey\")); } }"
+      }
+    },
+    {
+      "id": "guide.gates.memory_exit",
+      "mode": "assert",
+      "type": "MemorySphere",
+      "method": "OnTriggerExit",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (other.transform.name == \"Player\" && Memory.activeSelf) { Smoke.Play (); Memory.SetActive (value: false); GameData.PlayerAud.PlayOneShot (SFX, GameData.SFXVol * GameData.MasterVol); } }"
+      }
+    },
+    {
+      "id": "guide.gates.siv_gaze",
+      "mode": "assert",
+      "type": "SivTorchLight",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (GazeOnPlayer) { Eye1.SetActive (value: true); Eye2.SetActive (value: true); PlayerIn += 60f * Time.deltaTime; if (PlayerIn > 800f) { BreakWall.SetActive (value: false); GameData.FinishQuest (\"JAWSSEEN\"); } } else if (PlayerIn > 0f) { PlayerIn -= 180f * Time.deltaTime; } if (!GazeOnPlayer && Eye1.activeSelf) { Eye1.SetActive (value: false); Eye2.SetActive (value: false); } if (GameData.CompletedQuests.Contains (\"JAWSSEEN\") && BreakWall.activeSelf) { BreakWall.SetActive (value: false); } }"
+      }
+    },
+    {
+      "id": "guide.gates.siv_enter",
+      "mode": "assert",
+      "type": "SivTorchLight",
+      "method": "OnTriggerEnter",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (other.GetComponent<SivTorch> () != null) { other.GetComponent<SivTorch> ().IgniteFlame (); } if (other.transform.name == \"Player\") { GazeOnPlayer = true; } }"
+      }
+    },
+    {
+      "id": "guide.gates.siv_exit",
+      "mode": "assert",
+      "type": "SivTorchLight",
+      "method": "OnTriggerExit",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (other.GetComponent<SivTorch> () != null) { other.GetComponent<SivTorch> ().DouseFlame (); } if (other.transform.name == \"Player\") { GazeOnPlayer = false; } }"
+      }
+    },
+    {
+      "id": "guide.gates.fernalla_reveal",
+      "mode": "assert",
+      "type": "FernallaFight",
+      "method": "Update",
+      "matcher": "branch_shape",
+      "args": {
+        "condition": "checkedIn && !Defeated && FernStats.CurrentHP <= 0",
+        "shape": "{\n\tRestoredFernalla.SetActive (value: true);\n\tDefeated = true;\n\tcheckedIn = false;\n\tEngaged = false;\n\tphase = 0f;\n\twolfPen = 1f;\n\tbearPen = 1f;\n\tspiderPen = 1f;\n\tFernAE.TriggerOnly = true;\n\tFern = null;\n\tFernAE = null;\n\tFernNPC = null;\n\tFernStats = null;\n\tPref = null;\n\tFernShape = null;\n\tspawnTimer = 300f;\n}",
+        "branch": "true"
+      }
+    },
+    {
+      "id": "guide.gates.soluna_reveal",
+      "mode": "assert",
+      "type": "SolunaFight",
+      "method": "Update",
+      "matcher": "branch_shape",
+      "args": {
+        "condition": "SolunaChar.Alive",
+        "shape": "if (eventInit && eventBegun) {\n\tRestoredSoluna.SetActive (value: true);\n\teventInit = false;\n\teventBegun = false;\n\tSolunaNPC = null;\n\tSolunaChar = null;\n\tSolunaStats = null;\n\tSolunaAE = null;\n\tfirstCorruptor = false;\n\tsecondCorrupter = false;\n\tthirdCorrupter = false;\n\tConstellationWaves = 600f;\n\talertPhase1 = false;\n\talertPhase2 = false;\n\talertPhase3 = false;\n\talertPhase4 = false;\n\talertPhase5 = false;\n}",
+        "branch": "false"
+      }
+    },
+    {
+      "id": "guide.gates.brax_death",
+      "mode": "assert",
+      "type": "BraxFightEvent",
+      "method": "Update",
+      "matcher": "branch_shape",
+      "args": {
+        "condition": "!Brax.Alive",
+        "shape": "{\n\tResetEvent ();\n\treturn;\n}",
+        "branch": "true"
+      }
+    },
+    {
+      "id": "item.fossil_pool_grant",
+      "mode": "extract",
+      "type": "SpellVessel",
+      "method": "DoMiscSpells",
+      "matcher": "switch_item_grant",
+      "args": {
+        "case": "Break Fossil",
+        "pool": "GameData.Misc.FossilGame"
+      },
+      "keys": [
+        "spell_name",
+        "pool",
+        "quantity",
+        "rolls"
+      ]
+    },
+    {
+      "id": "item.offering_stone_grant",
+      "mode": "extract",
+      "type": "SpellVessel",
+      "method": "DoMiscSpells",
+      "matcher": "switch_item_grant",
+      "args": {
+        "case": "Offering Stone"
+      },
+      "keys": [
+        "spell_name",
+        "created_item_id",
+        "quantity"
+      ]
+    },
+    {
+      "id": "loot.start_initialization_sequence",
+      "mode": "assert",
+      "type": "LootTable",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "MethodDeclaration",
+        "shape": "private void Start () { hostChar = GetComponent<Character> (); InitLootTable (); InitVisiblePieces (); seed = Random.Range (0, 100); }"
+      }
+    },
+    {
+      "id": "loot.character_component_binding",
+      "mode": "assert",
+      "type": "Character",
+      "method": "Start",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "MyLootTable = GetComponent<LootTable> ();"
+      }
+    },
+    {
+      "id": "loot.corpse_component_binding",
+      "mode": "assert",
+      "type": "Character",
+      "method": "DoDeath",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "VariableDeclarationStatement",
+        "shape": "LootTable component = GetComponent<LootTable> ();"
+      }
+    },
+    {
+      "id": "item_bag.unique_initialization",
+      "mode": "assert",
+      "type": "ItemBag",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "MethodDeclaration",
+        "shape": "private void Start () { if (Contents != null && Contents.Unique && GameData.PlayerInv.HasItem (Contents, _remove: false)) { Object.Destroy (gameObject); } }"
+      }
+    },
+    {
+      "id": "item_bag.single_pickup",
+      "mode": "assert",
+      "type": "ItemBag",
+      "method": "PickUp",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "MethodDeclaration",
+        "shape": "public void PickUp () { if (GameData.PlayerInv.mouseSlot.MyItem == null || GameData.PlayerInv.mouseSlot.MyItem == GameData.PlayerInv.Empty) { GameData.PlayerInv.ForceOpenInv (); GameData.PlayerInv.mouseSlot.MyItem = Contents; GameData.PlayerInv.mouseSlot.Quantity = 1; GameData.MouseSlot.dragging = true; GameData.MouseSlot.UpdateSlotImage (); GameData.MouseSlot.ClearSwapWith (); GameData.ItemOnCursor = GameData.PlayerInv.mouseSlot; GameData.MouseSlot.transform.SetAsLastSibling (); Object.Destroy (gameObject); } }"
+      }
+    },
+    {
+      "id": "inventory.default_single_add",
+      "mode": "assert",
+      "type": "Inventory",
+      "method": "AddItemToInv",
+      "parameters": [
+        "Item"
+      ],
+      "matcher": "node_shape",
+      "args": {
+        "kind": "MethodDeclaration",
+        "shape": "public bool AddItemToInv (Item _item) { bool flag = false; if (_item.Stackable) { for (int i = 0; i < StoredSlots.Count; i++) { if (StoredSlots [i].MyItem == _item) { StoredSlots [i].Quantity++; if (InvWindow.activeSelf) { UpdatePlayerInventory (); } flag = true; return true; } } } if (!flag) { for (int j = 0; j < StoredSlots.Count; j++) { if (StoredSlots [j].MyItem == GameData.PlayerInv.Empty && !StoredSlots [j].TrashSlot) { StoredSlots [j].MyItem = _item; if (InvWindow.activeSelf) { UpdatePlayerInventory (); } flag = true; return true; } } } return false; }"
+      }
+    },
+    {
+      "id": "inventory.default_single_force",
+      "mode": "assert",
+      "type": "Inventory",
+      "method": "ForceItemToInv",
+      "parameters": [
+        "Item"
+      ],
+      "matcher": "node_shape",
+      "args": {
+        "kind": "MethodDeclaration",
+        "ignore_social_logs": "true",
+        "shape": "public void ForceItemToInv (Item _item) { for (int i = 0; i < StoredSlots.Count; i++) { if (StoredSlots [i].TrashSlot) { StoredSlots [i].MyItem = _item; StoredSlots [i].Quantity = 1; if (InvWindow.activeSelf) { UpdatePlayerInventory (); } } } }"
+      }
+    },
+    {
+      "id": "smithing.template_flag",
+      "mode": "assert",
+      "type": "Smithing",
+      "method": "Combine",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "ignore_social_logs": "true",
+        "shape": "if (!Template.MyItem.Template) { return; }"
+      }
+    },
+    {
+      "id": "smithing.fuel_flag",
+      "mode": "assert",
+      "type": "Smithing",
+      "method": "Combine",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "count": "3",
+        "ignore_social_logs": "true",
+        "shape": "if (!FuelSource.MyItem.FuelSource) { return; }"
+      }
+    },
+    {
+      "id": "smithing.single_template_amount",
+      "mode": "assert",
+      "type": "Smithing",
+      "method": "Combine",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "ignore_social_logs": "true",
+        "shape": "if (Template.Quantity > 1) { return; }"
+      }
+    },
+    {
+      "id": "smithing.single_fuel_amount",
+      "mode": "assert",
+      "type": "Smithing",
+      "method": "Combine",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "count": "2",
+        "ignore_social_logs": "true",
+        "shape": "if (FuelSource.Quantity > 1) { return; }"
+      }
+    },
+    {
+      "id": "smithing.fuel_quality",
+      "mode": "assert",
+      "type": "Smithing",
+      "method": "DoSuccess",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (Components [0].MyItem.RequiredSlot != Item.SlotType.General && Components [0].MyItem.RequiredSlot != Item.SlotType.Aura && Components [0].MyItem.RequiredSlot != Item.SlotType.Charm) { Components [0].Quantity = (int)(FuelSource.MyItem.FuelLevel + 1); }"
+      }
+    },
+    {
+      "id": "smithing.planar_input_quality",
+      "mode": "assert",
+      "type": "Smithing",
+      "method": "Combine",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "ignore_social_logs": "true",
+        "shape": "if (component.MyItem != GameData.PlayerInv.Empty && component.Quantity != 2) { return; }"
+      }
+    },
+    {
+      "id": "smithing.planar_single_input",
+      "mode": "assert",
+      "type": "Smithing",
+      "method": "Combine",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "ignore_social_logs": "true",
+        "shape": "if (!(itemIcon == null)) { return; }"
+      }
+    },
+    {
+      "id": "smithing.planar_output_quality",
+      "mode": "assert",
+      "type": "Smithing",
+      "method": "SpecialCombine",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "Components [0].Quantity = 3;"
+      }
+    },
+    {
+      "id": "smithing.blessing_input_quality",
+      "mode": "assert",
+      "type": "Smithing",
+      "method": "Combine",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (itemIcon == null && component2.Quantity > 1 && component2.Quantity < 4) { itemIcon = component2; continue; }"
+      }
+    },
+    {
+      "id": "smithing.blessing_single_input",
+      "mode": "assert",
+      "type": "Smithing",
+      "method": "Combine",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "ignore_social_logs": "true",
+        "shape": "if (itemIcon != null && component2.MyItem != GameData.PlayerInv.Empty) { return; }"
+      }
+    },
+    {
+      "id": "smithing.blessing_outputs",
+      "mode": "assert",
+      "type": "Smithing",
+      "method": "SpecialDecombine",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "ignore_social_logs": "true",
+        "shape": "{ GameData.PlayerAud.PlayOneShot (GameData.Misc.PlayerDieSound, 0.2f * GameData.SFXVol * GameData.MasterVol); if (Success != null) { Success.Play (); } Components [0].MyItem = _icon.MyItem; Components [0].Quantity = 1; Components [0].UpdateSlotImage (); Components [1].MyItem = GameData.GM.PlanarShard; Components [1].Quantity = 1; Components [1].UpdateSlotImage (); foreach (ItemIcon component in Components) { if (component != Components [0] && component != Components [1]) { component.MyItem = GameData.PlayerInv.Empty; component.UpdateSlotImage (); } } FuelSource.MyItem = GameData.PlayerInv.Empty; FuelSource.UpdateSlotImage (); Template.MyItem = GameData.PlayerInv.Empty; Template.UpdateSlotImage (); }"
+      }
+    },
+    {
+      "id": "smithing.ascension_input_quality",
+      "mode": "assert",
+      "type": "Smithing",
+      "method": "Combine",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BinaryOperatorExpression",
+        "shape": "!(component3.MyItem != null) || (component3.Quantity != 1 && component3.Quantity <= 10) || component3.Quantity >= 15"
+      }
+    },
+    {
+      "id": "smithing.ascension_two_inputs",
+      "mode": "assert",
+      "type": "Smithing",
+      "method": "Combine",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "ignore_social_logs": "true",
+        "shape": "if (itemIcon2 == null || itemIcon3 == null) { return; }"
+      }
+    },
+    {
+      "id": "smithing.ascension_equal_inputs",
+      "mode": "assert",
+      "type": "Smithing",
+      "method": "Combine",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BinaryOperatorExpression",
+        "shape": "itemIcon2.MyItem == itemIcon3.MyItem && itemIcon2.Quantity == itemIcon3.Quantity"
+      }
+    },
+    {
+      "id": "smithing.ascension_output_quality",
+      "mode": "assert",
+      "type": "Smithing",
+      "method": "Combine",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (itemIcon2.Quantity >= 11) { quantity = itemIcon2.Quantity + 1; }"
+      }
+    },
+    {
+      "id": "character.xp_player_level_bonus",
+      "mode": "assert",
+      "type": "Character",
+      "method": "DoDeath",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (MyStats.Level >= GameData.PlayerStats.Level) { num = MyStats.Level - GameData.PlayerStats.Level; if (GameData.PlayerStats.Level > 10) { num++; } if (num > 5) { num = 5; } num *= MyStats.Level; }"
+      }
+    },
+    {
+      "id": "character.xp_zero_multiplier",
+      "mode": "assert",
+      "type": "Character",
+      "method": "DoDeath",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (BossXp == 0f) { BossXp = 1f; }"
+      }
+    },
+    {
+      "id": "npc.start_xp_multiplier",
+      "mode": "assert",
+      "type": "NPC",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (MyStats.Level >= 40 && Myself.BossXp < 2f) { GetComponent<Character> ().BossXp = 2f; }"
+      }
+    },
+    {
+      "id": "guide.gates.reliquary_claim_awake",
+      "mode": "assert",
+      "type": "ReliqDisableFiendSpawn",
+      "method": "Awake",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (GameData.IsQuestDone (\"CLAIMRELIQUARY\")) { GameData.AccountClaimedReliquary = true; } if (GameData.AccountClaimedReliquary) { GetComponent<SpawnPoint> ().canSpawn = false; GameData.FinishQuest (\"CLAIMRELIQUARY\"); } }"
+      }
+    },
+    {
+      "id": "guide.gates.reliquary_claim_saved",
+      "mode": "assert",
+      "type": "GameManager",
+      "method": "SaveReliq",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (GameData.AccountClaimedReliquary) { reliquarySave.ReliqClaimed = 1; } else { reliquarySave.ReliqClaimed = 0; }"
+      }
+    },
+    {
+      "id": "guide.gates.reliquary_claim_loaded",
+      "mode": "assert",
+      "type": "GameManager",
+      "method": "LoadReliquary",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ ReliquarySave reliquarySave = new ReliquarySave (); string text = \"ReliquaryData\"; string path = Path.Combine (Application.persistentDataPath, text); string path2 = Path.Combine (Path.Combine (Application.persistentDataPath, \"ESSaveData\"), text); string path3 = Path.Combine (Application.persistentDataPath, \"backups\", text + \".bak\"); if (!File.Exists (path2)) { if (File.Exists (path)) { reliquarySave = JsonUtility.FromJson<ReliquarySave> (File.ReadAllText (path)); } else { if (!File.Exists (path3)) { return; } reliquarySave = JsonUtility.FromJson<ReliquarySave> (File.ReadAllText (path3)); } } else { string json = File.ReadAllText (path2); try { reliquarySave = JsonUtility.FromJson<ReliquarySave> (json); } catch { if (File.Exists (path3)) { try { reliquarySave = JsonUtility.FromJson<ReliquarySave> (File.ReadAllText (path3)); } catch { reliquarySave = new ReliquarySave (); } } else { reliquarySave = new ReliquarySave (); } } } GameData.PlanningUI.InitToEmpty (); GameData.PlanningUI.L1.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.L1); GameData.PlanningUI.L2.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.L2); GameData.PlanningUI.L3.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.L3); GameData.PlanningUI.L4.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.L4); GameData.PlanningUI.R1.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.R1); GameData.PlanningUI.R2.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.R2); GameData.PlanningUI.R3.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.R3); GameData.PlanningUI.R4.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.R4); GameData.PlanningUI.Rune1.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.Rune1); GameData.PlanningUI.Rune2.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.Rune2); GameData.PlanningUI.Rune3.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.Rune3); GameData.PlanningUI.Rune4.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.Rune4); GameData.PlanningUI.Rune5.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.Rune5); GameData.PlanningUI.Rune6.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.Rune6); GameData.PlanningUI.StatueBL.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.StatueBL); GameData.PlanningUI.StatueBR.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.StatueBR); GameData.PlanningUI.StatueFL.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.StatueFL); GameData.PlanningUI.StatueFR.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.StatueFR); GameData.PlanningUI.PlanarFern.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.FernStone); GameData.PlanningUI.PlanarBrax.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.BraxStone); GameData.PlanningUI.PlanarVith.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.VithStone); GameData.PlanningUI.PlanarSol.MyItem = GameData.ItemDB.GetItemByID (reliquarySave.SolStone); if (reliquarySave.ReliqClaimed == 1) { GameData.AccountClaimedReliquary = true; } }"
+      }
+    },
+    {
+      "id": "guide.gates.fernalla_portal_phases",
+      "mode": "assert",
+      "type": "FernallaPortalBoss",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (MyStats.CurrentHP < 25000 && !Spawn1) { Spawn1 = true; Ward1.SetActive (value: true); } if (MyStats.CurrentHP < 5000 && !Spawn2) { Spawn2 = true; Ward2.SetActive (value: true); Ward3.SetActive (value: true); } }"
+      }
+    },
+    {
+      "id": "guide.gates.bellwain_start",
+      "mode": "assert",
+      "type": "AngelScript",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (GameData.CompletedQuests.Contains (\"BELLWAIN\")) { TheBellwains.SetActive (value: true); } }"
+      }
+    },
+    {
+      "id": "guide.gates.bellwain_reveal",
+      "mode": "assert",
+      "type": "AngelScript",
+      "method": "Step3",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ TheBellwains.SetActive (value: true); Step = 4; GameData.FinishQuest (\"BELLWAIN\"); SetAchievement.Unlock (\"BELLWAIN\"); }"
+      }
+    },
+    {
+      "id": "guide.gates.planning_portal_positions",
+      "mode": "assert",
+      "type": "PlanningTable",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ Rune1 = Soluna.transform.position; Rune2 = Windwashed.transform.position; Rune3 = Ripper.transform.position; Rune4 = Braxonian.transform.position; Rune5 = Silkengrass.transform.position; Rune6 = Hidden.transform.position; MyTransform = GetComponent<Transform> (); CaptureRoomLayouts (); GameData.PlanningUI.LiveTable = this; StartCoroutine (ExecuteBuild ()); }"
+      }
+    },
+    {
+      "id": "guide.gates.planning_portal_place",
+      "mode": "assert",
+      "type": "PlanningTable",
+      "method": "OpenClosePortals",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (item == GameData.PlayerInv.Empty) { return; } GameObject gameObject = null; gameObject = GetPortalObj (item.Id); if (gameObject != null) { gameObject.SetActive (value: true); gameObject.transform.position = _pos; if (_pos == Rune1 || _pos == Rune2 || _pos == Rune3) { gameObject.transform.eulerAngles = new Vector3 (0f, 90f, 0f); } else { gameObject.transform.eulerAngles = new Vector3 (0f, -90f, 0f); } } }"
+      }
+    },
+    {
+      "id": "guide.gates.planning_portal_items",
+      "mode": "assert",
+      "type": "PlanningTable",
+      "method": "GetPortalObj",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (_itemID == GameData.PlayerInv.Empty.Id) { return null; } return _itemID switch { \"2096280\" => Braxonian, \"2810120\" => Ripper, \"71979710\" => Silkengrass, \"5388624\" => Soluna, \"36740470\" => Hidden, \"5016816\" => Windwashed, _ => null, }; }"
+      }
+    },
+    {
+      "id": "guide.gates.planning_raid_portals",
+      "mode": "assert",
+      "type": "PlanningTable",
+      "method": "DoRaidPortals",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ FernPort.SetActive (value: false); BraxPort.SetActive (value: false); VithPort.SetActive (value: false); SolPort.SetActive (value: false); if (GameData.PlanningUI.PlanarFern.MyItem.Id == \"134379\") { FernPort.SetActive (value: true); } if (GameData.PlanningUI.PlanarBrax.MyItem.Id == \"12094245\") { BraxPort.SetActive (value: true); } if (GameData.PlanningUI.PlanarVith.MyItem.Id == \"96186750\") { VithPort.SetActive (value: true); } if (GameData.PlanningUI.PlanarSol.MyItem.Id == \"25900083\") { SolPort.SetActive (value: true); } }"
+      }
+    },
+    {
+      "id": "guide.gates.reliquary_return_portal",
+      "mode": "assert",
+      "type": "ReliqPortalListener",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (!ReliqPort.activeSelf && !string.IsNullOrEmpty (GameData.ReliqDest)) { ReliqPort.SetActive (value: true); ReliqZL.DestinationZone = GameData.ReliqDest; ReliqZL.LandingPosition = GameData.ReliqLanding; string zoneDisplayNameFromZoneFileName = GameData.GM.GetZoneDisplayNameFromZoneFileName (GameData.ReliqDest); zoneDisplayNameFromZoneFileName = GetCommonTerms.GetZoneTerm (zoneDisplayNameFromZoneFileName); Txt.text = zoneDisplayNameFromZoneFileName; if (GameData.SunInReliqZone == 1) { ReliqZL.UseSunInNewZone = true; } else { ReliqZL.UseSunInNewZone = false; } } }"
+      }
+    },
+    {
+      "id": "guide.state.reliquary_load_before_play",
+      "mode": "assert",
+      "type": "CharSelectManager",
+      "method": "Play",
+      "matcher": "statement_order",
+      "args": {
+        "before": "GameData.GM.LoadReliquary ();",
+        "after": "GameData.InCharSelect = false;"
+      }
+    },
+    {
+      "id": "guide.state.reliquary_load_before_play_alternate",
+      "mode": "assert",
+      "type": "CharSelectManager",
+      "method": "PlayAlternate",
+      "matcher": "statement_order",
+      "args": {
+        "before": "GameData.GM.LoadReliquary ();",
+        "after": "GameData.InCharSelect = false;"
+      }
+    },
+    {
+      "id": "simplayer.host_character_binding",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "Awake",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (Myself == null) { Myself = GetComponent<Character> (); }"
+      }
     }
   ]
 }

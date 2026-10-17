@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { WorldMiningNode } from '$lib/types/world-map';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
+    import AcquisitionDetails from './AcquisitionDetails.svelte';
 
     interface Props {
         marker: WorldMiningNode;
@@ -15,10 +16,6 @@
         return `after ~${minutes} minutes or when re-entering the zone`;
     }
 
-    // Format drop chance (0-100 range from database)
-    function formatDropChance(chance: number): string {
-        return `${chance.toFixed(1)}%`;
-    }
 </script>
 
 <div class="space-y-3">
@@ -31,10 +28,10 @@
                     <div class="flex items-center justify-between gap-2 text-sm">
                         <span class="text-zinc-300 truncate min-w-0">{item.name}</span>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span class="text-zinc-500">{formatDropChance(item.dropChance)}</span>
                             <WikiLink pageName={item.wikiPageName} />
                         </div>
                     </div>
+                    <AcquisitionDetails fact={item.provenance} coordinateKey={marker.stableKey} />
                 {/each}
             </div>
         </div>

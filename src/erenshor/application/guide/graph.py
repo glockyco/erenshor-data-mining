@@ -17,6 +17,8 @@ from dataclasses import astuple, replace
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from erenshor.domain.value_objects.item_provenance import ItemAcquisition, ItemUse
+
     from .schema import Edge, EdgeType, Gate, Node, NodeType, SubjectKind
 
 
@@ -34,7 +36,22 @@ class EntityGraph:
         graph.out_edges("quest:anglerring", EdgeType.REQUIRES_ITEM)
     """
 
-    __slots__ = ("_edges", "_entries", "_gates", "_gates_by_subject", "_in", "_nodes", "_out", "_quest_db_names")
+    __slots__ = (
+        "_edges",
+        "_entries",
+        "_gates",
+        "_gates_by_subject",
+        "_in",
+        "_nodes",
+        "_out",
+        "_quest_db_names",
+        "encounters",
+        "quest_uses",
+        "source_exclusions",
+        "source_facts",
+        "source_uses",
+        "zone_line_destination_contexts",
+    )
 
     def __init__(self) -> None:
         self._nodes: dict[str, Node] = {}
@@ -47,6 +64,20 @@ class EntityGraph:
         self._quest_db_names: dict[str, str] = {}
         # Targets that only some zone lines into their scene reach, by target key.
         self._entries: dict[str, list[str]] = defaultdict(list)
+        self.source_facts: dict[str, ItemAcquisition | ItemUse] = {}
+        self.source_exclusions: dict[str, str] = {}
+        self.source_uses: dict[str, list[ItemUse]] = {}
+        self.quest_uses: dict[tuple[str, str], list[ItemUse]] = {}
+        self.encounters: dict[str, list[dict[str, object]]] = {
+            family: []
+            for family in (
+                "encounter_placements",
+                "encounter_conditions",
+                "encounter_completions",
+                "encounter_event_conditions",
+            )
+        }
+        self.zone_line_destination_contexts: dict[str, dict[str, object]] = {}
 
     # -- Mutation (build phase) --
 

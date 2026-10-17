@@ -4,14 +4,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from erenshor.application.wiki.lifecycle import (
-    ContentLifecycle,
-    LifecyclePage,
-    LifecycleRename,
-    LifecycleSplit,
-    render_split_disambiguation,
-)
+from erenshor.application.wiki.lifecycle import render_split_disambiguation
 from erenshor.application.wiki_deploy.retired_pages import audit_retired_pages
+from erenshor.infrastructure.content_lifecycle import ContentLifecycle, LifecyclePage, LifecycleRename, LifecycleSplit
 from erenshor.infrastructure.wiki.client import MediaWikiPageRevision, MediaWikiPageSnapshot, MediaWikiTitleStatus
 
 

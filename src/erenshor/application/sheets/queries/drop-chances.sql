@@ -1,93 +1,31 @@
--- Drop chances from characters, items (fossils, etc.), and independent
--- special selections from eligible loot tables before owned unique replacement.
-WITH
-    -- Item drops from consumables (e.g., Braxonian Fossil)
-    consumable_drops AS (
-        SELECT
-            'Item' AS source_type,
-            src.display_name AS source,
-            dropped.display_name AS dropped_item,
-            ROUND(id.drop_probability, 2) AS drop_chance,
-            NULL AS expected_per_drop,
-            NULL AS drop_count_distribution,
-            id.is_guaranteed,
-            0 AS is_unique,
-            0 AS is_visible,
-            src.resource_name AS source_prefab_resource,
-            dropped.resource_name AS item_resource_name
-        FROM item_drops id
-        JOIN items src ON id.source_item_stable_key = src.stable_key
-        JOIN items dropped ON id.dropped_item_stable_key = dropped.stable_key
-    ),
-    -- Character drops
-    character_drops AS (
-        SELECT
-            CASE
-                WHEN ld.is_common_world_item = 1 AND NOT (
-                    COALESCE(ld.is_common, 0) OR COALESCE(ld.is_uncommon, 0)
-                    OR COALESCE(ld.is_rare, 0) OR COALESCE(ld.is_legendary, 0)
-                    OR COALESCE(ld.is_ultra_rare, 0) OR COALESCE(ld.is_guaranteed, 0)
-                    OR COALESCE(ld.is_actual, 0)
-                ) THEN 'Common world item'
-                ELSE 'Character'
-            END AS source_type,
-            c.display_name AS source,
-            i.display_name AS dropped_item,
-            ROUND(ld.drop_probability, 2) AS drop_chance,
-            ROUND(ld.expected_per_kill, 4) AS expected_per_drop,
-            ld.drop_count_distribution,
-            ld.is_guaranteed,
-            ld.is_unique,
-            ld.is_visible,
-            c.object_name AS source_prefab_resource,
-            i.resource_name AS item_resource_name
-        FROM characters c
-        LEFT JOIN loot_drops ld ON c.stable_key = ld.character_stable_key
-        INNER JOIN items i ON ld.item_stable_key = i.stable_key
-    ),
-    -- Special selections per eligible kill before owned unique replacement,
-    -- at the default loot rate without bonuses. Four decimals retain small chances.
-    world_drops AS (
-        SELECT
-            'World Drop' AS source_type,
-            CASE
-                WHEN swd.min_level_exclusive > 0
-                    THEN 'Any enemy above level ' || swd.min_level_exclusive
-                ELSE 'Any enemy'
-            END AS source,
-            i.display_name AS dropped_item,
-            ROUND(swd.drop_probability, 4) AS drop_chance,
-            NULL AS expected_per_drop,
-            NULL AS drop_count_distribution,
-            0 AS is_guaranteed,
-            0 AS is_unique,
-            0 AS is_visible,
-            NULL AS source_prefab_resource,
-            i.resource_name AS item_resource_name
-        FROM special_world_drops swd
-        JOIN items i ON swd.item_stable_key = i.stable_key
-    ),
-    combined AS (
-        SELECT * FROM consumable_drops
-        UNION ALL
-        SELECT * FROM character_drops
-        UNION ALL
-        SELECT * FROM world_drops
-    )
+-- Rates stay numeric. Bounds, guarantees and contributing outcomes remain separate facts.
 SELECT
-    source_type AS 'Source Type',
-    source AS 'Source',
-    dropped_item AS 'Dropped Item',
-    drop_chance AS 'Drop Chance (%)',
-    expected_per_drop AS 'Expected Per Drop',
-    drop_count_distribution AS 'Drop Count Distribution',
-    is_guaranteed AS 'Is Guaranteed',
-    is_unique AS 'Is Unique',
-    is_visible AS 'Is Visible',
-    source_prefab_resource AS 'Source Prefab/Resource',
-    item_resource_name AS 'Item Resource Name'
-FROM combined
+    CASE a.kind
+        WHEN 'character_drop' THEN 'Character'
+        WHEN 'common_world_item' THEN 'Common world item'
+        WHEN 'special_world_drop' THEN 'World Drop'
+        WHEN 'item_drop' THEN 'Item'
+    END AS 'Source Type',
+    CASE a.kind
+        WHEN 'common_world_item' THEN 'Common world item'
+        WHEN 'special_world_drop' THEN 'World Drop'
+        ELSE COALESCE(c.display_name, src.display_name, a.source_stable_key)
+    END AS 'Source',
+    i.display_name AS 'Dropped Item',
+    CASE WHEN a.probability_kind = 'exact' THEN a.probability_min END AS 'Drop Chance (%)',
+    a.expected_quantity AS 'Expected Per Drop',
+    a.count_distribution AS 'Drop Count Distribution',
+    a.guarantee_scope AS 'Guarantee Scope',
+    COALESCE(c.object_name, src.resource_name) AS 'Source Prefab/Resource',
+    i.resource_name AS 'Item Resource Name',
+    a.*
+FROM item_acquisitions a
+LEFT JOIN items i ON i.stable_key = a.item_stable_key
+LEFT JOIN characters c ON c.stable_key = a.source_copy_stable_key AND a.kind = 'character_drop'
+LEFT JOIN items src ON src.stable_key = a.source_stable_key AND a.kind = 'item_drop'
+WHERE a.kind IN ('character_drop', 'common_world_item', 'special_world_drop', 'item_drop')
+    AND a.player_access_state = 'verified_player'
+    AND a.probability_stage = 'final_acquisition'
 ORDER BY
-    CASE source_type WHEN 'Item' THEN 0 WHEN 'Character' THEN 1 WHEN 'Common world item' THEN 1 ELSE 2 END,
-    source,
-    drop_chance DESC;
+    CASE a.kind WHEN 'item_drop' THEN 0 WHEN 'character_drop' THEN 1 WHEN 'common_world_item' THEN 1 ELSE 2 END,
+    "Source", a.probability_min DESC, a.acquisition_key;

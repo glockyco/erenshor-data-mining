@@ -226,7 +226,7 @@ local function spanAttributes(kind, args, page, quality, stableKey)
 	if kind == "item" and not isBlank(quality) then
 		table.insert(attributes, 'data-erenshor-quality="' .. Format.escape(quality) .. '"')
 	end
-	return table.concat(attributes, " ")
+	return Format.preserveIdentityAttributes(table.concat(attributes, " "))
 end
 
 local function wrap(kind, args, body, page, quality, stableKey)

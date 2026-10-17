@@ -13,7 +13,6 @@ from typing import TYPE_CHECKING, Any
 
 from erenshor.application.extract.database_comparison import recorded_build_id
 from erenshor.application.publish.models import SurfaceUncertainError, WikiSelection
-from erenshor.application.wiki.lifecycle import load_content_lifecycle
 from erenshor.application.wiki.semantic_validation import validate_wiki_pages
 from erenshor.application.wiki.services.generate_service import WikiGenerateService
 from erenshor.application.wiki.services.storage import WikiStorage
@@ -55,6 +54,7 @@ from erenshor.application.wiki_deploy.pages import (
 from erenshor.application.wiki_lua.generation import generate_lua_data_modules
 from erenshor.application.wiki_lua.link_catalog import build_links_data
 from erenshor.cli.mediawiki import create_readonly_mediawiki_client
+from erenshor.infrastructure.content_lifecycle import load_content_lifecycle
 from erenshor.infrastructure.database.repositories.build_metadata import BuildMetadataRepository
 from erenshor.infrastructure.database.repositories.treasure import TreasureRepository
 from erenshor.infrastructure.wiki.content import normalize_saved_text
@@ -155,6 +155,8 @@ def _generate_lua(ctx: CLIContext, storage: WikiStorage, output: Path) -> dict[s
             class_display=context.class_display,
             build_repo=BuildMetadataRepository(composition.database),
             treasure_repo=TreasureRepository(composition.database),
+            provenance_repo=context.item_provenance_repo,
+            lifecycle=load_content_lifecycle(ctx.repo_root / "content-lifecycle.json"),
             output_root=output,
             max_page_bytes=ctx.config.global_.mediawiki.max_page_bytes,
         )

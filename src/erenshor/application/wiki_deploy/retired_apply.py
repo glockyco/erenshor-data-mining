@@ -19,8 +19,8 @@ from erenshor.infrastructure.wiki.template_parser import TemplateParser
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from erenshor.application.wiki.lifecycle import ContentLifecycle, LifecyclePage
     from erenshor.application.wiki_deploy.retired_pages import RetiredPageReport
+    from erenshor.infrastructure.content_lifecycle import ContentLifecycle, LifecyclePage
     from erenshor.infrastructure.wiki import MediaWikiPageRevision
 
 RetiredAction = Literal["notice", "redirect", "disambiguation"]

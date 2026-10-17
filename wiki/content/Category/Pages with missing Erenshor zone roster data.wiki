@@ -1,0 +1,4 @@
+__HIDDENCAT__
+Pages where the zone roster cannot resolve a zone or find its generated data.
+
+Pass the intended zone's <code>stablekey</code> when several zones share a page. Report missing game data at [[Erenshor Wiki:Game Data]].

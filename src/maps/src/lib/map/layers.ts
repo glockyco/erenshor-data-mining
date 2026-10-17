@@ -405,10 +405,9 @@ export function createLayers(params: CreateLayersParams): unknown[] {
     });
 
     // Zone line connections and destinations
-    const zoneLinesWithDest = data.markers.zoneLines.filter(
-        (d: { destinationWorldPosition: [number, number] | null }) =>
-            d.destinationWorldPosition !== null
-    );
+    const zoneLinesWithDest = data.markers.zoneLines.filter((marker) =>
+        marker.destinationContext === null && marker.destinationZone !== null &&
+        marker.landingPosition !== null && marker.destinationWorldPosition !== null);
     const zoneLineConnectionsLayer = new LineLayer({
         id: 'zone-line-connections',
         data: zoneLinesWithDest,

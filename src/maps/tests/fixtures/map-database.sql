@@ -66,6 +66,7 @@ CREATE TABLE characters (
     is_vendor INTEGER NOT NULL,
     has_dialog INTEGER NOT NULL,
     invulnerable INTEGER NOT NULL,
+    can_be_damaged INTEGER NOT NULL DEFAULT 0 CHECK (can_be_damaged IN (0, 1)),
     encounter_tier TEXT NOT NULL,
     is_friendly INTEGER NOT NULL
 );
@@ -247,15 +248,31 @@ CREATE TABLE wishing_wells (
 
 CREATE TABLE zone_lines (
     stable_key TEXT PRIMARY KEY,
-    scene TEXT NOT NULL,
-    x REAL NOT NULL,
-    y REAL NOT NULL,
-    z REAL NOT NULL,
+    scene TEXT,
+    x REAL,
+    y REAL,
+    z REAL,
+    object_is_active INTEGER NOT NULL DEFAULT 1,
+    component_is_enabled INTEGER NOT NULL DEFAULT 1,
+    collider_is_trigger INTEGER NOT NULL DEFAULT 1,
+    has_enabled_trigger INTEGER NOT NULL DEFAULT 1,
     is_enabled INTEGER NOT NULL,
-    landing_position_x REAL NOT NULL,
-    landing_position_y REAL NOT NULL,
-    landing_position_z REAL NOT NULL,
-    destination_zone_stable_key TEXT NOT NULL REFERENCES zones(stable_key)
+    landing_position_x REAL,
+    landing_position_y REAL,
+    landing_position_z REAL,
+    destination_zone_stable_key TEXT REFERENCES zones(stable_key)
+);
+
+CREATE VIEW zone_lines_with_zoning_capability AS
+    SELECT * FROM zone_lines
+    WHERE component_is_enabled = 1 AND collider_is_trigger = 1 AND has_enabled_trigger = 1;
+
+CREATE TABLE zone_line_destination_contexts (
+    zone_line_stable_key TEXT PRIMARY KEY NOT NULL REFERENCES zone_lines(stable_key),
+    kind TEXT NOT NULL CHECK (kind = 'stored_return'),
+    destination_state_key TEXT NOT NULL,
+    landing_state_key TEXT NOT NULL,
+    source_key TEXT NOT NULL
 );
 
 CREATE TABLE zone_atlas_entries (
@@ -268,6 +285,8 @@ CREATE TABLE loot_drops (
     character_stable_key TEXT NOT NULL REFERENCES characters(stable_key),
     item_stable_key TEXT NOT NULL REFERENCES items(stable_key),
     drop_probability REAL NOT NULL,
+    -- Component capability is independent of placement and initial immunity.
+    source_component_is_enabled INTEGER NOT NULL CHECK (source_component_is_enabled IN (0, 1)),
     is_common_world_item INTEGER DEFAULT 0,
     is_common INTEGER DEFAULT 0,
     is_uncommon INTEGER DEFAULT 0,
@@ -474,37 +493,37 @@ INSERT INTO zone_lines (
 INSERT INTO zone_atlas_entries (zone_name, level_range_low, level_range_high) VALUES
     ('StowawayPortal', 5, 8);
 
-INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability) VALUES
-    ('character:fixture enemy', 'item:fixture drop', 25);
+INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability, source_component_is_enabled) VALUES
+    ('character:fixture enemy', 'item:fixture drop', 25, 1);
 
 -- Twelve drops in total for one character, so a reinstated `LIMIT 10` fails
 -- instead of quietly hiding the tail. Two share a probability to pin the
 -- name tiebreaker that keeps rendering order stable.
-INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability) VALUES
-    ('character:fixture enemy', 'item:hoard 01', 90),
-    ('character:fixture enemy', 'item:hoard 02', 80),
-    ('character:fixture enemy', 'item:hoard 03', 70),
-    ('character:fixture enemy', 'item:hoard 04', 60),
-    ('character:fixture enemy', 'item:hoard 05', 50),
-    ('character:fixture enemy', 'item:hoard 06', 40),
-    ('character:fixture enemy', 'item:hoard 07', 30),
-    ('character:fixture enemy', 'item:hoard 08', 20),
-    ('character:fixture enemy', 'item:hoard 09', 15),
-    ('character:fixture enemy', 'item:hoard 10', 10),
-    ('character:fixture enemy', 'item:hoard 11', 25);
+INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability, source_component_is_enabled) VALUES
+    ('character:fixture enemy', 'item:hoard 01', 90, 1),
+    ('character:fixture enemy', 'item:hoard 02', 80, 1),
+    ('character:fixture enemy', 'item:hoard 03', 70, 1),
+    ('character:fixture enemy', 'item:hoard 04', 60, 1),
+    ('character:fixture enemy', 'item:hoard 05', 50, 1),
+    ('character:fixture enemy', 'item:hoard 06', 40, 1),
+    ('character:fixture enemy', 'item:hoard 07', 30, 1),
+    ('character:fixture enemy', 'item:hoard 08', 20, 1),
+    ('character:fixture enemy', 'item:hoard 09', 15, 1),
+    ('character:fixture enemy', 'item:hoard 10', 10, 1),
+    ('character:fixture enemy', 'item:hoard 11', 25, 1);
 
 -- The twin overlaps on one item at a different chance and adds one of its own,
 -- which is what forces a combined view to show a range instead of a number.
 -- Both are map-invisible so this cannot disturb the item-source fixtures.
-INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability) VALUES
-    ('character:fixture enemy twin', 'item:hoard 01', 45),
-    ('character:fixture enemy twin', 'item:hoard 12', 12);
+INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability, source_component_is_enabled) VALUES
+    ('character:fixture enemy twin', 'item:hoard 01', 45, 1),
+    ('character:fixture enemy twin', 'item:hoard 12', 12, 1);
 -- The backup copy drops the fixture key, which no copy in the game does. The
 -- guard's placed copy drops ore, and its unplaced prefab a key.
-INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability) VALUES
-    ('character:fixture enemy backup', 'item:fixture key', 50),
-    ('character:fixture guard', 'item:fixture key', 50),
-    ('character:fixture guard placed', 'item:fixture ore', 10);
+INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability, source_component_is_enabled) VALUES
+    ('character:fixture enemy backup', 'item:fixture key', 50, 1),
+    ('character:fixture guard', 'item:fixture key', 50, 1),
+    ('character:fixture guard placed', 'item:fixture ore', 10, 1);
 -- Breena sells one item always and one after a quest.
 INSERT INTO vendor_offers (vendor_stable_key, copy_stable_key, item_stable_key, quest_stable_key) VALUES
     ('character-group:breena', 'character:breena carpenter', 'item:fixture key', NULL),
@@ -518,15 +537,15 @@ INSERT INTO special_world_drops (item_stable_key, pool, drop_probability, min_le
 -- changing the searchable catalog. Backups and zero chances cannot widen ranges.
 INSERT INTO loot_drops (
     character_stable_key, item_stable_key, drop_probability,
-    is_common_world_item, is_actual, is_rare
+    is_common_world_item, is_actual, is_rare, source_component_is_enabled
 ) VALUES
-    ('character:fixture enemy', 'item:fixture relic', 0.92, 1, 0, 0),
-    ('character:fixture enemy twin', 'item:fixture relic', 8.12, 1, 0, 0),
-    ('character:runtime enemy', 'item:fixture relic', 0, 1, 0, 0),
-    ('character:fixture enemy backup', 'item:fixture relic', 99, 1, 0, 0),
-    ('character:fixture guard', 'item:fixture relic', 0.01, 1, 0, 0),
-    ('character:fixture enemy twin', 'item:fixture drop', 1.04, 1, 0, 0),
-    ('character:runtime enemy', 'item:fixture drop', 1.049, 1, 0, 0);
+    ('character:fixture enemy', 'item:fixture relic', 0.92, 1, 0, 0, 1),
+    ('character:fixture enemy twin', 'item:fixture relic', 8.12, 1, 0, 0, 1),
+    ('character:runtime enemy', 'item:fixture relic', 0, 1, 0, 0, 1),
+    ('character:fixture enemy backup', 'item:fixture relic', 99, 1, 0, 0, 1),
+    ('character:fixture guard', 'item:fixture relic', 0.01, 1, 0, 0, 1),
+    ('character:fixture enemy twin', 'item:fixture drop', 1.04, 1, 0, 0, 1),
+    ('character:runtime enemy', 'item:fixture drop', 1.049, 1, 0, 0, 1);
 -- A combined own-table/replacement row remains a named drop, but does not
 -- contribute its larger chance to the replacement-only range.
 UPDATE loot_drops SET is_common_world_item = 1, is_actual = 0, is_rare = 1
@@ -624,10 +643,10 @@ INSERT INTO items VALUES
     ('item:fixture runtime', 'Fixture Runtime Reward', 'Fixture Reward', NULL, 10, 1),
     ('item:fixture meditate', 'Spell Scroll: Meditative Trance', 'Spell Scroll: Meditative Trance', NULL, 10, 1),
     ('item:fixture meditate dru', 'Spell Scroll: Meditative Trance (2)', 'Spell Scroll: Meditative Trance', NULL, 10, 0);
-INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability) VALUES
-    ('character:treasurechest 20-30 1', 'item:fixture treasure', 25),
-    ('character:treasurechest 30-35', 'item:fixture treasure', 10),
-    ('character:runtime enemy', 'item:fixture runtime', 50);
+INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability, source_component_is_enabled) VALUES
+    ('character:treasurechest 20-30 1', 'item:fixture treasure', 25, 1),
+    ('character:treasurechest 30-35', 'item:fixture treasure', 10, 1),
+    ('character:runtime enemy', 'item:fixture runtime', 50, 1);
 INSERT INTO vendor_offers VALUES
     ('character-group:runtime-enemy', 'character:runtime enemy', 'item:fixture runtime', NULL),
     ('character-group:breena', 'character:breena carpenter', 'item:fixture meditate', NULL),
@@ -645,3 +664,18 @@ INSERT INTO auction_house_brokers VALUES
     ('character:breena carpenter'),
     ('character:fixture dummy'),
     ('character:runtime enemy');
+UPDATE characters SET can_be_damaged = CASE WHEN invulnerable = 0 THEN 1 ELSE 0 END;
+UPDATE characters SET invulnerable = 1, can_be_damaged = 0 WHERE stable_key = 'character:fixture guard';
+UPDATE characters SET can_be_damaged = 1 WHERE stable_key = 'character:fixture guard placed';
+INSERT INTO zone_lines (stable_key, scene, x, y, z, object_is_active, component_is_enabled,
+    collider_is_trigger, has_enabled_trigger, is_enabled, landing_position_x, landing_position_y,
+    landing_position_z, destination_zone_stable_key) VALUES
+    ('zone-line:reliquary-return', 'Reliquary', 400, 0, 500, 0, 1, 1, 1, 0, 123, 45, 678, 'zone:hidden'),
+    ('zone-line:disabled-component', 'Stowaway', 400, 0, 500, 1, 0, 1, 1, 0, 0, 0, 0, 'zone:hidden'),
+    ('zone-line:non-trigger', 'Stowaway', 400, 0, 500, 1, 1, 0, 1, 0, 0, 0, 0, 'zone:hidden'),
+    ('zone-line:no-enabled-trigger', 'Stowaway', 400, 0, 500, 1, 1, 1, 0, 0, 0, 0, 0, 'zone:hidden'),
+    ('zone-line:unlocated-prefab', NULL, NULL, NULL, NULL, 0, 1, 1, 1, 0, 0, 0, 0, 'zone:hidden');
+INSERT INTO zone_line_destination_contexts VALUES
+    ('zone-line:reliquary-return', 'stored_return', 'character_state:reliquary_return_zone',
+    'character_state:reliquary_return_landing', 'activator:reliquary_return_controller');
+INSERT INTO zone_atlas_entries VALUES ('Hidden', 90, 99);

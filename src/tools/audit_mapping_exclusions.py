@@ -36,7 +36,7 @@ from pathlib import Path
 from typing import TypedDict
 
 from erenshor.application.wiki.chat_knowledge import ChatKnowledge, load_chat_knowledge, normalize_chat_name
-from erenshor.application.wiki.lifecycle import ContentLifecycle, load_content_lifecycle
+from erenshor.infrastructure.content_lifecycle import ContentLifecycle, load_content_lifecycle
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 

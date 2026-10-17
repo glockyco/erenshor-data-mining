@@ -325,7 +325,11 @@ public sealed class WorldMarkerSystem
 
         foreach (var acq in quest.Acquisition)
         {
-            if (acq.SourceType != "character" || acq.SourceStableKey == null)
+            if (
+                acq.SourceType != "character"
+                || acq.SourceStableKey == null
+                || !HasSpawnInScene(acq.SourceStableKey, scene)
+            )
                 continue;
 
             var questType = MarkerDecision.GetQuestGiverType(repeatable);
@@ -345,14 +349,19 @@ public sealed class WorldMarkerSystem
         if (quest.Completion == null)
             return;
 
-        bool hasAllItems = HasAllRequiredItems(quest);
+        bool? hasAllItems = null;
 
         foreach (var comp in quest.Completion)
         {
-            if (comp.SourceType != "character" || comp.SourceStableKey == null)
+            if (
+                comp.SourceType != "character"
+                || comp.SourceStableKey == null
+                || !HasSpawnInScene(comp.SourceStableKey, scene)
+            )
                 continue;
 
-            MarkerType questType = MarkerDecision.GetTurnInType(hasAllItems, repeatable);
+            hasAllItems ??= HasAllRequiredItems(quest);
+            MarkerType questType = MarkerDecision.GetTurnInType(hasAllItems.Value, repeatable);
 
             string subText = MarkerTextFormatter.FormatTurnInText(quest, comp);
             string displayName = comp.SourceName ?? quest.DisplayName;
@@ -413,7 +422,11 @@ public sealed class WorldMarkerSystem
             );
         }
 
-        if (step.TargetKey != null && step.TargetType == "character")
+        if (
+            step.TargetKey != null
+            && step.TargetType == "character"
+            && HasSpawnInScene(step.TargetKey, scene)
+        )
         {
             EmitPerSpawnMarkers(
                 step.TargetKey,
@@ -430,9 +443,9 @@ public sealed class WorldMarkerSystem
             if (have < quantity)
             {
                 string name = step.TargetName ?? step.Description;
-                string progress = $"{have}/{quantity} {name}";
+                string? progress = null;
                 foreach (var source in step.Sources)
-                    EmitItemSourceMarker(source, name, scene, progress);
+                    EmitItemSourceMarker(source, name, scene, have, quantity, ref progress);
             }
         }
     }
@@ -448,12 +461,12 @@ public sealed class WorldMarkerSystem
             if (have >= ri.Quantity)
                 continue;
 
-            string progress = $"{have}/{ri.Quantity} {ri.ItemName}";
+            string? progress = null;
 
             if (ri.Sources == null)
                 continue;
             foreach (var src in ri.Sources)
-                EmitItemSourceMarker(src, ri.ItemName, scene, progress);
+                EmitItemSourceMarker(src, ri.ItemName, scene, have, ri.Quantity, ref progress);
         }
     }
 
@@ -461,7 +474,9 @@ public sealed class WorldMarkerSystem
         ItemSource source,
         string itemName,
         string scene,
-        string progress
+        int have,
+        int quantity,
+        ref string? progress
     )
     {
         if (!_state.Gates.IsSourceAvailable(source))
@@ -472,17 +487,39 @@ public sealed class WorldMarkerSystem
         )
             return;
 
-        if (ItemSourcePolicy.IsStaticCandidate(source) && source.SourceKey != null)
+        if (
+            ItemSourcePolicy.IsStaticCandidate(source)
+            && source.SourceKey != null
+            && (
+                source.Scene == null
+                || string.Equals(source.Scene, scene, System.StringComparison.OrdinalIgnoreCase)
+            )
+        )
         {
             if (PositionedSource.TryParse(source.SourceKey, out var positioned))
-                EmitPositionedSourceMarker(
-                    source.SourceKey,
-                    positioned,
-                    source.Name ?? itemName,
-                    scene,
-                    progress
-                );
-            else
+            {
+                if (
+                    !positioned.IsZoneWide
+                    && string.Equals(
+                        positioned.Scene,
+                        scene,
+                        System.StringComparison.OrdinalIgnoreCase
+                    )
+                )
+                {
+                    progress ??= $"{have}/{quantity} {itemName}";
+                    EmitPositionedSourceMarker(
+                        source.SourceKey,
+                        positioned,
+                        source.Name ?? itemName,
+                        scene,
+                        progress
+                    );
+                }
+            }
+            else if (HasSpawnInScene(source.SourceKey, scene))
+            {
+                progress ??= $"{have}/{quantity} {itemName}";
                 EmitPerSpawnMarkers(
                     source.SourceKey,
                     scene,
@@ -490,12 +527,13 @@ public sealed class WorldMarkerSystem
                     MarkerType.Objective,
                     progress
                 );
+            }
         }
 
         if (source.Children == null)
             return;
         foreach (var child in source.Children)
-            EmitItemSourceMarker(child, itemName, scene, progress);
+            EmitItemSourceMarker(child, itemName, scene, have, quantity, ref progress);
     }
 
     /// <summary>
@@ -592,6 +630,16 @@ public sealed class WorldMarkerSystem
     }
 
     // ── Per-spawn-point marker emission ──────────────────────────
+
+    private bool HasSpawnInScene(string stableKey, string scene)
+    {
+        if (!_data.CharacterSpawns.TryGetValue(stableKey, out var spawns))
+            return false;
+        foreach (var spawn in spawns)
+            if (string.Equals(spawn.Scene, scene, System.StringComparison.OrdinalIgnoreCase))
+                return true;
+        return false;
+    }
 
     /// <summary>
     /// Iterate all static spawns for a character in the given scene. For each

@@ -13,6 +13,8 @@ from collections import defaultdict
 from dataclasses import asdict
 from typing import TYPE_CHECKING, Any, cast
 
+from erenshor.domain.value_objects.item_provenance import ItemAcquisition, ItemUse, is_actionable_acquisition
+
 from .compiler import CompiledData, Condition, QuestSpec, edge_type_byte, node_type_byte
 from .schema import AtomKind, Edge, EdgeType, GateAtom, Node, NodeType, SubjectKind
 
@@ -64,7 +66,7 @@ def build_mod_guide(
     zone_lines = _ordered_zone_lines(nodes)
     line_index = {line.key: index for index, line in enumerate(zone_lines)}
     result: dict[str, Any] = {
-        "_version": 7,
+        "_version": 8,
         "_zone_lookup": _zone_lookup(nodes),
         "_conditions": [_condition_payload(graph, condition) for condition in compiled.conditions],
         "_gate_items": _gate_items(graph, nodes, compiled, compiled_nodes, reward_by_item),
@@ -97,6 +99,23 @@ def build_mod_guide(
             for quest in quests
         ],
     }
+    _normalize_source_tables(result, compiled)
+    quest_keys = {
+        atom.reference_stable_key
+        for key in (*result["_source_facts"], *result["_item_uses"])
+        for fact in (compiled.source_facts[key],)
+        for atom in (*fact.conditions, *(atom for location in fact.locations for atom in location.conditions))
+        if atom.predicate in {"quest_done", "quest_not_done"} and atom.reference_stable_key is not None
+    }
+    quest_keys.update(
+        str(row["state_key"])
+        for family in ("encounter_conditions", "encounter_completions", "encounter_event_conditions")
+        for row in compiled.encounters.get(family, [])
+        if row["state_scope"] == "character"
+    )
+    result["_quest_state_keys"] = {key: graph.quest_db_name(key) for key in sorted(quest_keys) if key is not None}
+    result["_encounters"] = compiled.encounters
+    result["_zone_line_destination_contexts"] = compiled.zone_line_destination_contexts
     return cast("dict[str, Any]", _sanitize(result))
 
 
@@ -193,7 +212,7 @@ def _compiled_edges(compiled: CompiledData, nodes: dict[int, Any]) -> list[Any]:
             if site.source_id not in nodes:
                 raise ValueError(f"dangling compiled source id: {site.source_id}")
             for position in site.positions:
-                if position.spawn_id not in nodes:
+                if position.spawn_id is not None and position.spawn_id not in nodes:
                     raise ValueError(f"dangling compiled spawn id: {position.spawn_id}")
     return compiled.edges
 
@@ -261,6 +280,7 @@ def _character_spawns(
             y = _required_coordinate(spawn, "y", spawn.y)
             z = _required_coordinate(spawn, "z", spawn.z)
             value: dict[str, Any] = {
+                "stable_key": spawn.key,
                 "scene": spawn.scene,
                 "x": x,
                 "y": y,
@@ -311,13 +331,16 @@ def _ordered_zone_lines(nodes: dict[str, Node]) -> list[Node]:
 
 
 def _zone_line(line: Node, compiled: CompiledData) -> dict[str, Any]:
-    value: dict[str, Any] = {"scene": line.scene, "x": line.x, "y": line.y, "z": line.z}
+    value: dict[str, Any] = {"stable_key": line.key, "scene": line.scene, "x": line.x, "y": line.y, "z": line.z}
     _put_if(value, "destination_zone_key", line.destination_zone_key)
     _put_if(value, "destination_display", line.destination_display)
     _put_if(value, "landing_x", line.landing_x)
     _put_if(value, "landing_y", line.landing_y)
     _put_if(value, "landing_z", line.landing_z)
     _put_if(value, "condition", compiled.condition_by_subject.get((SubjectKind.ZONE_LINE, line.key, None)))
+    if line.key in compiled.zone_line_destination_contexts:
+        for field in ("destination_zone_key", "destination_display", "landing_x", "landing_y", "landing_z"):
+            value.pop(field, None)
     return value
 
 
@@ -334,6 +357,20 @@ def _atom_payload(graph: EntityGraph, atom: GateAtom) -> dict[str, str]:
         value = {"kind": atom.kind.value, "ref": atom.ref}
     if atom.slot is not None:
         value["slot"] = atom.slot
+    if atom.kind == AtomKind.PLANNING_SLOT_ITEM:
+        if not atom.instruction or not atom.instruction.strip():
+            raise ValueError(f"Planning-slot atom has no instruction: {atom.ref}.{atom.slot}")
+        value["instruction"] = atom.instruction
+    if atom.kind == AtomKind.ACCOUNT_STATE:
+        if (
+            atom.ref != "account_state:reliquary_claimed"
+            or atom.actor != "account"
+            or atom.value not in {"true", "false"}
+            or atom.phase != "availability"
+            or not atom.scope
+        ):
+            raise ValueError(f"Invalid account availability atom: {atom}")
+        value.update(actor=atom.actor, value=atom.value, phase=atom.phase, scope=atom.scope)
     return value
 
 
@@ -356,7 +393,24 @@ def _gate_items(
             for condition in compiled.conditions
             for group in condition
             for atom in group
-            if atom.kind in (AtomKind.ITEM_HELD, AtomKind.KEY_HELD, AtomKind.ROOM_FURNISHED)
+            if atom.kind
+            in (
+                AtomKind.ITEM_HELD,
+                AtomKind.KEY_HELD,
+                AtomKind.ROOM_FURNISHED,
+                AtomKind.PLANNING_SLOT_ITEM,
+            )
+        }
+    )
+    keys = sorted(
+        set(keys)
+        | {
+            atom.reference_stable_key
+            for fact in _selected_facts(compiled)
+            for atom in (*fact.conditions, *(atom for location in fact.locations for atom in location.conditions))
+            if atom.phase == "availability"
+            and atom.predicate in {"item_held", "key_held", "room_furnished"}
+            and atom.reference_stable_key is not None
         }
     )
     zone_by_scene = {
@@ -749,42 +803,49 @@ def _required_items(
     compiled_nodes: dict[int, Any],
     reward_by_item: dict[int, list[Any]],
 ) -> list[dict[str, Any]]:
-    candidates: dict[str, Edge] = {}
-    candidate_rank: dict[str, tuple[int, int, str]] = {}
-    edge_groups = (
-        (0, EdgeType.REQUIRES_ITEM),
-        (1, EdgeType.STEP_READ),
-        (2, EdgeType.COMPLETED_BY),
-    )
-    for rank, edge_type in edge_groups:
+    result: list[dict[str, Any]] = []
+    canonical_items: set[str] = set()
+    for (quest_key, item_key), uses in sorted(compiled.quest_uses.items()):
+        if quest_key != quest.key:
+            continue
+        canonical_items.add(item_key)
+        for use in sorted(uses, key=lambda use: use.use_key):
+            canonical_item = nodes[item_key]
+            quantity = use.quantity_min
+            if quantity is None or not math.isfinite(quantity) or quantity < 0 or int(quantity) != quantity:
+                raise ValueError(f"Quest requirement has no integer quantity: {use.use_key}")
+            value: dict[str, Any] = {
+                "item_name": canonical_item.display_name,
+                "item_stable_key": item_key,
+                "use_key": use.use_key,
+                "quantity": int(quantity),
+            }
+            _put_if(value, "or_group", use.variant_key)
+            quality = _requested_quality(use)
+            _put_if(value, "output_quality", quality)
+            sources = _canonical_item_sources(compiled, item_key, nodes, quest.key, frozenset(), quality)
+            if sources:
+                value["sources"] = sources
+            result.append(value)
+    for edge_type in (EdgeType.REQUIRES_ITEM, EdgeType.STEP_READ, EdgeType.COMPLETED_BY):
         for edge in graph.out_edges(quest.key, edge_type):
             item = nodes.get(edge.target)
-            if item is None or item.type != NodeType.ITEM:
+            if item is None or item.type != NodeType.ITEM or item.key in canonical_items:
                 continue
-            ordinal = edge.ordinal if edge.ordinal is not None else 2**31
-            sort_key = (rank, ordinal, edge.target)
-            if item.key not in candidate_rank or sort_key < candidate_rank[item.key]:
-                candidates[item.key] = edge
-                candidate_rank[item.key] = sort_key
-
-    result: list[tuple[str, dict[str, Any]]] = []
-    for item_key in sorted(candidates):
-        edge = candidates[item_key]
-        item = nodes[item_key]
-        value: dict[str, Any] = {
-            "item_name": item.display_name,
-            "item_stable_key": item.key,
-            "quantity": edge.quantity if edge.type == EdgeType.REQUIRES_ITEM and edge.quantity is not None else 1,
-        }
-        _put_if(value, "or_group", edge.group)
-        item_id = _compiled_id(compiled, item.key)
-        if item_id not in compiled_nodes:
-            raise ValueError(f"dangling compiled node id for key: {item.key!r}")
-        sources = _item_sources_with_rewards(compiled, item_id, compiled_nodes, reward_by_item, quest.key, graph, nodes)
-        if sources:
-            value["sources"] = sources
-        result.append((item.key, value))
-    return [value for _, value in result]
+            canonical_items.add(item.key)
+            value = {
+                "item_name": item.display_name,
+                "item_stable_key": item.key,
+                "quantity": edge.quantity if edge.quantity is not None else 1,
+            }
+            _put_if(value, "or_group", edge.group)
+            sources = _item_sources_with_rewards(
+                compiled, _compiled_id(compiled, item.key), compiled_nodes, reward_by_item, quest.key, graph, nodes
+            )
+            if sources:
+                value["sources"] = sources
+            result.append(value)
+    return sorted(result, key=lambda row: (row["item_stable_key"], row.get("or_group", ""), row.get("use_key", "")))
 
 
 def _with_source_conditions(sources: list[dict[str, Any]], item: Node, compiled: CompiledData) -> list[dict[str, Any]]:
@@ -801,64 +862,6 @@ def _with_source_conditions(sources: list[dict[str, Any]], item: Node, compiled:
         elif source.get("type") == "pickup" and isinstance(source_key, str):
             _put_if(value, "condition", compiled.condition_by_subject.get((SubjectKind.ITEM_BAG, source_key, None)))
         result.append(value)
-    return result
-
-
-def _item_sources(
-    compiled: CompiledData, item_id: int, compiled_nodes: dict[int, Any], nodes: dict[str, Node]
-) -> list[dict[str, Any]]:
-    if item_id < 0 or item_id >= len(compiled.node_item_index):
-        raise ValueError(f"dangling compiled item id: {item_id}")
-    item_index = compiled.node_item_index[item_id]
-    if item_index < 0:
-        return []
-    if item_index >= len(compiled.item_sources):
-        raise ValueError(f"dangling compiled item index: {item_index}")
-    result: list[dict[str, Any]] = []
-    type_map = {
-        EdgeType.DROPS_ITEM: "drop",
-        EdgeType.SELLS_ITEM: "vendor",
-        EdgeType.GIVES_ITEM: "dialog_give",
-        EdgeType.CONTAINS: "pickup",
-        EdgeType.PRODUCES: "crafting",
-    }
-    yield_type_map = {
-        node_type_byte(NodeType.WATER): "fishing",
-        node_type_byte(NodeType.ITEM_BAG): "pickup",
-        node_type_byte(NodeType.MINING_NODE): "mining",
-    }
-    edge_types = {edge_type_byte(edge_type): edge_type for edge_type in EdgeType}
-    for site in compiled.item_sources[item_index]:
-        source = compiled_nodes[site.source_id]
-        edge_type = edge_types.get(site.edge_type)
-        if edge_type == EdgeType.YIELDS_ITEM:
-            source_type = yield_type_map.get(source.node_type)
-            if source_type is None:
-                raise ValueError(f"unsupported yielding source node: {source.key!r}")
-        elif edge_type in type_map:
-            source_type = type_map[edge_type]
-        else:
-            continue
-        value: dict[str, Any] = {"type": source_type, "name": source.display_name}
-        _put_if(value, "zone", source.zone_display)
-        _put_if(value, "scene", site.scene)
-        level = source.level
-        if source_type in _INTERACTION_SOURCE_TYPES and source.key in nodes:
-            level = _interaction_level(nodes[source.key])
-        _put_if(value, "level", level if level is not None and level > 0 else None)
-        if edge_type != EdgeType.PRODUCES:
-            value["source_key"] = source.key
-        else:
-            value["recipe_key"] = source.key
-        if edge_type == EdgeType.DROPS_ITEM:
-            value["spawn_count"] = len(site.positions)
-        if source_type == "pickup":
-            _put_if(value, "instruction", source.description)
-        result.append(value)
-    result.extend(
-        {key: value for key, value in asdict(source).items() if value is not None}
-        for source in compiled_nodes[item_id].background_sources
-    )
     return result
 
 
@@ -883,34 +886,45 @@ def _item_sources_with_rewards(
     nodes: dict[str, Node],
     visiting: frozenset[int] = frozenset(),
 ) -> list[dict[str, Any]]:
-    sources = _item_sources(compiled, item_id, compiled_nodes, nodes)
-    item = nodes[compiled_nodes[item_id].key]
-    sources = _with_source_conditions(sources, item, compiled)
+    sources = _canonical_item_sources(compiled, compiled_nodes[item_id].key, nodes, exclude_quest_key, frozenset())
+    for authored in _authored_item_sources(compiled, item_id, compiled_nodes, nodes):
+        matches = [
+            source
+            for source in sources
+            if source.get("type") == authored.get("type") and source.get("source_key") == authored.get("source_key")
+        ]
+        if matches:
+            for source in matches:
+                if authored.get("instruction"):
+                    source["instruction"] = authored["instruction"]
+        else:
+            sources.append(authored)
     for reward in reward_by_item.get(item_id, []):
-        source_node = compiled_nodes[reward.source_id]
-        if source_node.key == exclude_quest_key:
+        if reward.provenance_key is not None:
             continue
-        source = {"type": "quest_reward", "name": source_node.display_name, "quest_key": source_node.key}
-        _put_if(source, "level", source_node.level if source_node.level > 0 else None)
-        sources.append(source)
+        rewarding = compiled_nodes[reward.source_id]
+        if rewarding.key != exclude_quest_key:
+            sources.append({"type": "quest_reward", "name": rewarding.display_name, "quest_key": rewarding.key})
     visiting = visiting | {item_id}
     for edge_id in compiled.reverse_adjacency[item_id]:
         edge = compiled.edges[edge_id]
-        if edge.edge_type != edge_type_byte(EdgeType.CREATES_ITEM) or edge.source_id in visiting:
+        if edge.provenance_key is not None or edge.edge_type != edge_type_byte(EdgeType.CREATES_ITEM):
+            continue
+        if edge.source_id in visiting:
             continue
         used = compiled_nodes[edge.source_id]
-        children = _item_sources_with_rewards(
-            compiled, edge.source_id, compiled_nodes, reward_by_item, exclude_quest_key, graph, nodes, visiting
-        )
         value = {
             "type": "item_use",
             "name": used.display_name,
             "source_key": used.key,
             "instruction": f"Use {used.display_name}.",
-            "children": children,
+            "children": _item_sources_with_rewards(
+                compiled, edge.source_id, compiled_nodes, reward_by_item, exclude_quest_key, graph, nodes, visiting
+            ),
         }
         _put_if(value, "level", used.obtainability_level)
         sources.append(value)
+    sources = _with_source_conditions(sources, nodes[compiled_nodes[item_id].key], compiled)
     _sort_sources(sources)
     return sources
 
@@ -932,7 +946,7 @@ def _sort_sources(sources: list[dict[str, Any]]) -> None:
     ]
     reach = min(other_levels) + _GUARANTEED_LEVEL_MARGIN if other_levels else None
 
-    def key(source: dict[str, Any]) -> tuple[bool, bool, bool, int, str, str, str]:
+    def key(source: dict[str, Any]) -> tuple[bool, bool, bool, int, str, str, str, float, float, float, str, str]:
         level = source.get("level")
         preferred = (
             source.get("type") in _GUARANTEED_SOURCE_TYPES and level is not None and (reach is None or level <= reach)
@@ -945,6 +959,11 @@ def _sort_sources(sources: list[dict[str, Any]]) -> None:
             source.get("type", ""),
             source.get("name", ""),
             source.get("source_key", ""),
+            source.get("chance", -1),
+            source.get("day_chance", -1),
+            source.get("night_chance", -1),
+            source.get("time_restriction", ""),
+            source.get("keyword", ""),
         )
 
     sources.sort(key=key)
@@ -1043,6 +1062,7 @@ def _steps(
         _put_if(step, "level_estimate", level_for(target, action))
         entries.append((edge.ordinal if edge.ordinal is not None else -1000000, sequence, step))
         sequence += 1
+    acquisition_step_count = sequence
     for item in required_items:
         action = "obtain" if quest.guide_only else "collect"
         verb = "Obtain" if quest.guide_only else "Collect"
@@ -1116,7 +1136,11 @@ def _steps(
             sequence += 1
     entries.sort(key=lambda entry: (entry[0], entry[1]))
     result: list[dict[str, Any]] = []
-    for order, (_, _, step_payload) in enumerate(entries, 1):
+    step_note = quest.step_note
+    for order, (_, sequence_index, step_payload) in enumerate(entries, 1):
+        if step_note and sequence_index >= acquisition_step_count:
+            step_payload["description"] = f"{step_payload['description']} {step_note}"
+            step_note = None
         step_payload["order"] = order
         ordered_step = {"order": step_payload.pop("order"), **step_payload}
         result.append(ordered_step)
@@ -1197,11 +1221,17 @@ def _step_value(
 
 def _rewards(quest: Node, graph: EntityGraph, nodes: dict[str, Node]) -> dict[str, Any]:
     value: dict[str, Any] = {"xp": quest.xp_reward or 0, "gold": quest.gold_reward or 0}
-    if quest.reward_item_key:
-        item = nodes.get(quest.reward_item_key)
-        if item:
-            value["item_name"] = item.display_name
-            value["item_stable_key"] = item.key
+    rewards = sorted(
+        {edge.target for edge in graph.out_edges(quest.key, EdgeType.REWARDS_ITEM) if edge.target in nodes}
+    )
+    if not rewards and not graph.source_facts and quest.reward_item_key in nodes:
+        rewards = [quest.reward_item_key]
+    if len(rewards) == 1:
+        reward_item = nodes[rewards[0]]
+        value["item_name"] = reward_item.display_name
+        value["item_stable_key"] = reward_item.key
+    elif rewards:
+        value["items"] = [{"item_stable_key": key, "item_name": nodes[key].display_name} for key in rewards]
     # What completing the quest opens: the groups of the gates that need it.
     done = GateAtom(AtomKind.QUEST_DONE, quest.key)
     opened = [(gate, group) for gate in graph.all_gates() for group in gate.groups if done in group]
@@ -1391,3 +1421,290 @@ def _sanitize(value: Any) -> Any:
     if isinstance(value, list):
         return [_sanitize(item) for item in value]
     return value
+
+
+def _requested_quality(use: ItemUse) -> str | None:
+    values = {
+        atom.value
+        for atom in use.conditions
+        if atom.predicate == "quality" and atom.phase in {"availability", "operation_input"} and atom.value is not None
+    }
+    if len(values) > 1:
+        raise ValueError(f"Ambiguous requested quality: {use.use_key}")
+    return next(iter(values), None)
+
+
+def _canonical_item_sources(
+    compiled: CompiledData,
+    item_key: str,
+    nodes: dict[str, Node],
+    exclude_quest_key: str,
+    visiting: frozenset[str],
+    requested_quality: str | None = None,
+) -> list[dict[str, Any]]:
+    """Expand source choices by path, retaining exact native acquisition and use identities."""
+    if item_key in visiting:
+        return []
+    visiting = visiting | {item_key}
+    result: list[dict[str, Any]] = []
+    types = {
+        "character_drop": "drop",
+        "vendor": "vendor",
+        "dialog": "dialog_give",
+        "crafting": "crafting",
+        "quest_reward": "quest_reward",
+        "mining": "mining",
+        "fishing": "fishing",
+        "item_bag": "pickup",
+        "item_drop": "item_use",
+        "spell_created": "item_use",
+        "item_conversion": "item_use",
+        "common_world_item": "common_world_item",
+        "special_world_drop": "world_drop",
+        "fishing_bonus": "fishing_bonus",
+        "starting_class": "starting_class",
+        "auction_house": "auction_house",
+        "ui_grant": "ui_grant",
+    }
+    names = {
+        "common_world_item": "Any enemy with common drops",
+        "special_world_drop": "Any enemy",
+        "fishing_bonus": "Any fishing catch",
+        "starting_class": "Starting equipment",
+        "auction_house": "Auction house",
+        "ui_grant": "Native interface",
+    }
+    for fact in sorted(compiled.acquisitions_by_item.get(item_key, ()), key=lambda fact: fact.acquisition_key):
+        if not is_actionable_acquisition(fact):
+            continue
+        if fact.kind not in types:
+            raise ValueError(f"unsupported canonical acquisition kind: {fact.kind}")
+        if fact.kind == "quest_reward" and fact.source_stable_key == exclude_quest_key:
+            continue
+        qualities = {
+            atom.value
+            for atom in fact.conditions
+            if atom.predicate == "quality" and atom.phase == "operation_outcome" and atom.value is not None
+        }
+        if requested_quality is not None and qualities and requested_quality not in qualities:
+            continue
+        if len(qualities) > 1:
+            raise ValueError(f"Ambiguous produced quality: {fact.acquisition_key}")
+        source_key = fact.source_copy_stable_key or fact.source_stable_key
+        metadata = compiled.source_metadata.get(fact.acquisition_key)
+        source = nodes.get(source_key) if source_key is not None else None
+        if source is None and metadata is not None:
+            source = nodes.get(metadata.source)
+        name = source.display_name if source is not None else names.get(fact.kind, nodes[item_key].display_name)
+        locations = fact.locations or (None,)
+        for location in locations:
+            value: dict[str, Any] = {
+                "type": types[fact.kind],
+                "name": name,
+                "acquisition_key": fact.acquisition_key,
+                "item_stable_key": item_key,
+            }
+            _put_if(value, "source_key", source_key)
+            _put_if(value, "quantity", fact.quantity_min)
+            _put_if(value, "output_quality", next(iter(qualities), None))
+            _put_if(value, "chance", fact.probability_min)
+            _put_if(value, "chance_max", fact.probability_max)
+            if fact.kind == "special_world_drop":
+                minimum = next(
+                    (
+                        math.ceil(atom.minimum) if atom.minimum_inclusive else math.floor(atom.minimum) + 1
+                        for atom in fact.conditions
+                        if atom.predicate == "actor_level" and atom.actor == "enemy" and atom.minimum is not None
+                    ),
+                    None,
+                )
+                _put_if(value, "level", minimum)
+            if fact.kind == "quest_reward":
+                value["quest_key"] = fact.source_stable_key
+            if fact.kind == "crafting" and fact.mechanic != "remove_blessing":
+                value["recipe_key"] = f"recipe:{fact.source_stable_key}"
+            if source is not None:
+                level = _interaction_level(source) if value["type"] in _INTERACTION_SOURCE_TYPES else source.level
+                _put_if(value, "level", level if level is not None and level > 0 else None)
+            if metadata is not None:
+                _put_if(value, "keyword", metadata.keyword)
+                _put_if(value, "instruction", metadata.note)
+            if fact.kind == "vendor":
+                value["instruction"] = f"Buy {nodes[item_key].display_name}."
+            if fact.kind in {"item_drop", "spell_created", "item_conversion"}:
+                value["instruction"] = f"Use {name}."
+            if fact.kind == "crafting" and fact.mechanic == "remove_blessing":
+                value["type"] = "item_use"
+                value["instruction"] = f"Use {name} with eligible equipment and forge fuel to remove its blessing."
+                value["operation_use_keys"] = [
+                    use.use_key for use in compiled.source_uses.get(fact.acquisition_key, ())
+                ]
+            period = next((atom.value for atom in fact.conditions if atom.predicate == "time_of_day"), None)
+            _put_if(value, "time_restriction", period)
+            if fact.kind == "fishing" and period in {"day", "night"}:
+                value[f"{period}_chance"] = fact.probability_min
+                value["night_chance" if period == "day" else "day_chance"] = 0
+            if location is not None:
+                value["location_key"] = location.location_key
+                _put_if(value, "scene", location.scene)
+                zone = nodes.get(location.zone_stable_key) if location.zone_stable_key is not None else None
+                _put_if(value, "zone", zone.display_name if zone is not None else None)
+                for axis in ("x", "y", "z"):
+                    _put_if(value, axis, getattr(location, axis))
+                if location.entry_zone_line_keys:
+                    value["entry_zone_line_keys"] = list(location.entry_zone_line_keys)
+                if location.relation == "possible_treasure":
+                    value.update(
+                        type="treasure_chest",
+                        name="Treasure map chest",
+                        instruction="Read a Treasure Map and dig at the marked spot.",
+                    )
+                    _put_if(value, "level", location.player_level_min)
+                    _put_if(value, "level_max", location.player_level_max)
+            children = []
+            for use in sorted(compiled.source_uses.get(fact.acquisition_key, ()), key=lambda use: use.use_key):
+                # Equipment and fuel choices are alternatives, not an AND list.
+                # Their full phaseful records remain referenced as preparation.
+                if fact.mechanic == "remove_blessing" and use.mechanic != "blessing_removal_material":
+                    continue
+                ingredient = nodes.get(use.item_stable_key)
+                if ingredient is None:
+                    raise ValueError(f"Canonical operation input missing: {use.use_key}")
+                child: dict[str, Any] = {
+                    "type": "ingredient",
+                    "name": ingredient.display_name,
+                    "item_stable_key": ingredient.key,
+                    "use_key": use.use_key,
+                    "quantity": use.quantity_min if use.quantity_min is not None else 1,
+                    "children": _canonical_item_sources(
+                        compiled, ingredient.key, nodes, exclude_quest_key, visiting, _requested_quality(use)
+                    ),
+                }
+                child_id = compiled.node_key_to_id[ingredient.key]
+                authored = _authored_item_sources(
+                    compiled, child_id, {node.node_id: node for node in compiled.nodes}, nodes
+                )
+                child["children"].extend(_with_source_conditions(authored, ingredient, compiled))
+                _sort_sources(child["children"])
+                _put_if(child, "output_quality", _requested_quality(use))
+                children.append(child)
+            if children:
+                value["children"] = children
+            result.append(value)
+    _sort_sources(result)
+    return result
+
+
+def _normalize_source_tables(result: dict[str, Any], compiled: CompiledData) -> None:
+    """Emit each referenced typed record once, keeping evidence strictly offline."""
+    acquisition_keys: set[str] = set()
+    use_keys: set[str] = set()
+
+    def visit(value: Any) -> None:
+        if isinstance(value, dict):
+            if "acquisition_key" in value:
+                acquisition_keys.add(value["acquisition_key"])
+            if "use_key" in value:
+                use_keys.add(value["use_key"])
+            use_keys.update(value.get("operation_use_keys", ()))
+            for member in value.values():
+                visit(member)
+        elif isinstance(value, list):
+            for member in value:
+                visit(member)
+
+    visit(result)
+    # An input's outcome is a real canonical reference even when a quality filter hid its source choice.
+    for key in sorted(use_keys):
+        use = compiled.source_facts.get(key)
+        if not isinstance(use, ItemUse):
+            raise ValueError(f"Missing canonical use: {key}")
+        if use.outcome_key is not None:
+            acquisition_keys.add(use.outcome_key)
+    facts = {}
+    for key in sorted(acquisition_keys):
+        fact = compiled.source_facts.get(key)
+        if not isinstance(fact, ItemAcquisition):
+            raise ValueError(f"Missing canonical acquisition: {key}")
+        facts[key] = {name: value for name, value in asdict(fact).items() if name != "evidence"}
+    uses = {
+        key: {name: value for name, value in asdict(compiled.source_facts[key]).items() if name != "evidence"}
+        for key in sorted(use_keys)
+    }
+    result["_source_facts"] = facts
+    result["_item_uses"] = uses
+
+
+def _authored_item_sources(
+    compiled: CompiledData, item_id: int, compiled_nodes: dict[int, Any], nodes: dict[str, Node]
+) -> list[dict[str, Any]]:
+    if item_id < 0 or item_id >= len(compiled.node_item_index):
+        raise ValueError(f"dangling compiled item id: {item_id}")
+    item_index = compiled.node_item_index[item_id]
+    if item_index < 0:
+        return []
+    if item_index >= len(compiled.item_sources):
+        raise ValueError(f"dangling compiled item index: {item_index}")
+    result: list[dict[str, Any]] = []
+    type_map = {
+        EdgeType.DROPS_ITEM: "drop",
+        EdgeType.SELLS_ITEM: "vendor",
+        EdgeType.GIVES_ITEM: "dialog_give",
+        EdgeType.CONTAINS: "pickup",
+        EdgeType.PRODUCES: "crafting",
+    }
+    yield_type_map = {
+        node_type_byte(NodeType.WATER): "fishing",
+        node_type_byte(NodeType.ITEM_BAG): "pickup",
+        node_type_byte(NodeType.MINING_NODE): "mining",
+    }
+    edge_types = {edge_type_byte(edge_type): edge_type for edge_type in EdgeType}
+    for site in compiled.item_sources[item_index]:
+        if site.provenance_key is not None:
+            continue
+        source = compiled_nodes[site.source_id]
+        edge_type = edge_types.get(site.edge_type)
+        if edge_type == EdgeType.YIELDS_ITEM:
+            source_type = yield_type_map.get(source.node_type)
+            if source_type is None:
+                raise ValueError(f"unsupported yielding source node: {source.key!r}")
+        elif edge_type in type_map:
+            source_type = type_map[edge_type]
+        else:
+            continue
+        value: dict[str, Any] = {"type": source_type, "name": source.display_name}
+        _put_if(value, "zone", source.zone_display)
+        _put_if(value, "scene", site.scene)
+        level = source.level
+        if source_type in _INTERACTION_SOURCE_TYPES and source.key in nodes:
+            level = _interaction_level(nodes[source.key])
+        _put_if(value, "level", level if level is not None and level > 0 else None)
+        if edge_type != EdgeType.PRODUCES:
+            value["source_key"] = source.key
+        else:
+            value["recipe_key"] = source.key
+        _put_if(value, "chance", site.chance)
+        _put_if(value, "day_chance", site.day_chance)
+        _put_if(value, "night_chance", site.night_chance)
+        _put_if(value, "time_restriction", site.time_restriction)
+        _put_if(value, "keyword", site.keyword)
+        if edge_type == EdgeType.DROPS_ITEM:
+            _put_if(value, "instruction", site.note)
+            value["spawn_count"] = len(site.positions)
+        if source_type == "pickup":
+            _put_if(value, "instruction", source.description)
+        result.append(value)
+    result.extend(
+        {key: value for key, value in asdict(source).items() if value is not None and key != "provenance_key"}
+        for source in compiled_nodes[item_id].background_sources
+    )
+    return result
+
+
+def _selected_facts(compiled: CompiledData) -> Iterable[ItemAcquisition | ItemUse]:
+    for facts in compiled.acquisitions_by_item.values():
+        yield from facts
+    for uses in compiled.source_uses.values():
+        yield from uses
+    for uses in compiled.quest_uses.values():
+        yield from uses

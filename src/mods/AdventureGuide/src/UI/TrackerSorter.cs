@@ -389,10 +389,21 @@ internal static class TrackerSorter
             }
 
             if (src.SourceKey != null)
-                best = SourceDistance.Best(
-                    best,
-                    NearestSpawnDistance(data, state.Gates, src.SourceKey, currentScene, playerPos)
+            {
+                var distance = NearestSpawnDistance(
+                    data,
+                    state.Gates,
+                    src.SourceKey,
+                    currentScene,
+                    playerPos
                 );
+                if (distance.Label != null && src.Type == "fishing")
+                    distance = new SourceDistance(
+                        float.MaxValue,
+                        SourceListText.FishingStatus(src, GameData.Time.hour)
+                    );
+                best = SourceDistance.Best(best, distance);
+            }
             if (src.Children != null)
                 best = SourceDistance.Best(
                     best,

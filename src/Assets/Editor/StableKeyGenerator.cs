@@ -146,6 +146,14 @@ public static class StableKeyGenerator
         return $"zone:{Normalize(scene)}";
     }
 
+    /// <summary>Authored identity follows the referenced prefab, not its location or name.</summary>
+    public static string ForAuthoredSim(string prefabGuid, long localId)
+    {
+        if (string.IsNullOrEmpty(prefabGuid))
+            throw new ArgumentException("Prefab GUID cannot be empty", nameof(prefabGuid));
+        return $"authored_sim:{prefabGuid}:{localId}";
+    }
+
     /// <summary>
     /// Generate stable key for a character.
     /// Prefabs: "character:object_name"
@@ -413,6 +421,23 @@ public static class StableKeyGenerator
             );
 
         return $"arenaround:{Normalize(scene)}:{Normalize(objectName)}:{roundIndex}";
+    }
+
+    /// <summary>Identify one serialized UI component without using its item's name.</summary>
+    public static string ForUiComponent(
+        string scene,
+        string hierarchyPath,
+        string componentType,
+        int componentIndex = 0
+    )
+    {
+        if (string.IsNullOrEmpty(scene))
+            throw new ArgumentException("Scene cannot be null or empty", nameof(scene));
+        if (string.IsNullOrEmpty(hierarchyPath))
+            throw new ArgumentException("Hierarchy path cannot be empty", nameof(hierarchyPath));
+        if (string.IsNullOrEmpty(componentType))
+            throw new ArgumentException("Component type cannot be empty", nameof(componentType));
+        return $"ui:{Normalize(scene)}:{Normalize(hierarchyPath)}:{Normalize(componentType)}:{componentIndex}";
     }
 
     // ========================================================================

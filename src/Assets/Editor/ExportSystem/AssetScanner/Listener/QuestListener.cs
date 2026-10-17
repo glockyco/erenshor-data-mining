@@ -138,28 +138,18 @@ public class QuestListener : IAssetScanListener<Quest>
         if (quest.RequiredItems == null || quest.RequiredItems.Count == 0)
             return records;
 
-        // Count occurrences of each item (duplicates represent quantity)
-        var itemCounts = new Dictionary<string, int>();
-        foreach (var item in quest.RequiredItems)
+        for (var index = 0; index < quest.RequiredItems.Count; index++)
         {
-            if (item != null && !string.IsNullOrEmpty(item.name))
-            {
-                var itemStableKey = StableKeyGenerator.ForItem(item);
-                if (itemCounts.ContainsKey(itemStableKey))
-                    itemCounts[itemStableKey]++;
-                else
-                    itemCounts[itemStableKey] = 1;
-            }
-        }
-
-        foreach (var kvp in itemCounts)
-        {
+            var item = quest.RequiredItems[index];
+            if (item == null || string.IsNullOrEmpty(item.name))
+                continue;
             records.Add(
                 new QuestRequiredItemRecord
                 {
                     QuestVariantResourceName = quest.name,
-                    ItemStableKey = kvp.Key,
-                    Quantity = kvp.Value,
+                    RequiredSlot = index + 1,
+                    ItemStableKey = StableKeyGenerator.ForItem(item),
+                    Quantity = 1,
                 }
             );
         }

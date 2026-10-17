@@ -155,7 +155,7 @@
     // Get zone line tooltip content
     function getZoneLineContent(m: WorldZoneLine): TooltipContent {
         return {
-            name: `→ ${m.destinationZoneName}`,
+            name: m.destinationContext ? m.destinationZoneName : `→ ${m.destinationZoneName}`,
             detail: 'Zone Connection',
             warning: !m.isEnabled ? '(Initially) Disabled' : undefined
         };

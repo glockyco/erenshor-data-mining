@@ -91,6 +91,7 @@ A TileLayer without `extent` can hide tiles below its `minZoom`.
 A fly-to that interpolates only `zoom` snaps because the orthographic controller uses `zoomX` and `zoomY`.
 Keep both orthographic axes in initial, restored and instant camera updates,
 because later transitions use those raw values as their starting state.
+Wrap DOM focus callbacks so browser events cannot become camera padding.
 The overlay has crashed with deck.gl 9.4.0 and luma.gl 9.4.2 on Direct3D 11.
 
 ## Add or debug a zone
@@ -107,18 +108,37 @@ The overlay has crashed with deck.gl 9.4.0 and luma.gl 9.4.2 on Direct3D 11.
 
 ## Debug missing markers
 
-Item search lists common-world-item replacements as one world source per item,
-without enemy markers. Its chance range comes only from positive replacement-only
-rows joined to `character_fact_sources`. Named droppers and character popup loot
-omit those rows but retain rows that also have an own-table loot flag.
+Item acquisition and popup loot come only from the persisted provenance contract.
+Regenerate the clean database when its schema version is missing or unsupported.
+Inspect the acquisition, typed condition, location and evidence records together.
+The map keeps native-pool chances separate from final acquisition probabilities.
+Common world drops use the chance range stored in canonical acquisition facts.
+They do not create named droppers or enemy markers.
+Map builds write offline provenance coverage outside the published site.
+Use its origin IDs and reviewed lifecycle records when diagnosing omitted sources.
+Historical ownership selection and static operands stay out of current prerequisite
+copy because they are not current player-state tests. Their full conditions and
+presentation reasons remain in the offline coverage artifact.
+One-time claim conditions use account state rather than a quest proxy because the
+claim is shared across characters.
+Saved-return portals are conditional destinations, not fixed zone links, because
+their saved origin belongs to the character. Keep serialized defaults in offline
+coverage rather than using them to guess a return marker or connection.
+Portal markers use the shared zoning-capability projection. Initial inactivity
+does not itself mean a portal lacks zoning capability.
+Pure global fishing replacements share one Any water source without markers.
+Higher local catch rates retain their water and time restrictions.
+The grouped source keeps every originating acquisition for offline coverage.
 
-Treasure-hunt item drops use the possible treasure sites, not enemy markers.
-Their popup shows each chest tier's eligible player levels and labels the sites
-as possible hunts. Explicit droppers and vendors remain listed and linked to
-their wiki page when no marker locates them; no coordinates are inferred.
-For functionally identical item variants sharing a wiki page, keep one map-visible
-representative in `mapping.json`. Item search carries the hidden variants' sources
-to that sole representative; pages with multiple visible variants keep separate results.
+Treasure-hunt drops use possible treasure sites and their eligible player levels.
+Every source remains listed when no marker locates it. Coordinates are never
+inferred from the source character. Conditional room rewards require the stated
+furnishing. Only reviewed current items with verified final acquisitions and
+satisfiable conditions appear as public sources.
+For functionally identical variants sharing a wiki page, keep one map-visible
+representative in `mapping.json`. Hidden variants then share that result while
+retaining their originating item, copy, variant and acquisition identities.
+Pages with multiple visible variants keep separate results.
 
 1. Inspect `map_character_spawns` and `characters` in the clean database.
    `getSpawnPointMarkers` in `src/maps/src/lib/database.base.ts` requires
@@ -132,8 +152,9 @@ to that sole representative; pages with multiple visible variants keep separate 
    and `window.__mapDebug.levelFilter` in a dev session.
    This hook is not available in production.
 4. If a marker exists but is hidden, check layer visibility and level overlap.
-   If the slider range is wrong, inspect `hasVulnerable` in `src/maps/src/lib/map-world-data.server.ts`.
-   All-invulnerable markers get clamped to the vulnerable level maximum for filtering.
+   Inspect actual-copy combat eligibility before deduplication or level aggregation.
+   Initial immunity and the representative's level cannot replace that result, because
+   a proven scripted or quest release can make an initially immune enemy fightable.
 5. Check `src/maps/src/routes/maps/[mapName]/+page.server.ts` for a zone-page marker.
    Do not debug the world-map deck.gl layer for a zone-page issue.
 

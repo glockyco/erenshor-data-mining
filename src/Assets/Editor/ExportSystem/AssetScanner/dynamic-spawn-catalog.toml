@@ -1,17 +1,63 @@
 # Dynamic Spawn Source Catalog
 # Classifies serialized Character/GameObject fields on event-script MonoBehaviours.
 # Update this file when the export's dynamic-spawn-errors.json reports unknown
-# candidates. Each (script, field) pair must be classified as allowed or denied.
+# candidates. Classify each pair as allowed, denied, or activation.
 # See: skill://auditing-spawn-coverage
 
 schema_version = 1
 
 # --- Category A: direct event-script spawns (emit to character_spawns) ---
 
+# code-fact: chessboard.first_carried_piece
+# code-fact: chessboard.faceless_choices
 [[allowed]]
 script = "Chessboard"
-fields = ["PeonNPC", "EmberNPC", "BlazeNPC", "MonarchNPC", "KingsmanNPC", "CandlekeeperNPC", "FacelessDuel", "FacelessArc", "FacelessPal", "FacelessDru", "FacelessStorm", "FacelessReaver"]
+fields = ["PeonNPC"]
 position_field = "SpawnLoc"
+trigger_item_field = "Peon"
+trigger_mode = "proximity_auto_consume"
+
+[[allowed]]
+script = "Chessboard"
+fields = ["EmberNPC"]
+position_field = "SpawnLoc"
+trigger_item_field = "Ember"
+trigger_mode = "proximity_auto_consume"
+
+[[allowed]]
+script = "Chessboard"
+fields = ["BlazeNPC"]
+position_field = "SpawnLoc"
+trigger_item_field = "Blaze"
+trigger_mode = "proximity_auto_consume"
+
+[[allowed]]
+script = "Chessboard"
+fields = ["MonarchNPC"]
+position_field = "SpawnLoc"
+trigger_item_field = "Monarch"
+trigger_mode = "proximity_auto_consume"
+
+[[allowed]]
+script = "Chessboard"
+fields = ["KingsmanNPC"]
+position_field = "SpawnLoc"
+trigger_item_field = "Kingsman"
+trigger_mode = "proximity_auto_consume"
+
+[[allowed]]
+script = "Chessboard"
+fields = ["CandlekeeperNPC"]
+position_field = "SpawnLoc"
+trigger_item_field = "Candlekeeper"
+trigger_mode = "proximity_auto_consume"
+
+[[allowed]]
+script = "Chessboard"
+fields = ["FacelessDuel", "FacelessArc", "FacelessPal", "FacelessDru", "FacelessStorm", "FacelessReaver"]
+position_field = "SpawnLoc"
+trigger_item_field = "Faceless"
+trigger_mode = "proximity_auto_consume"
 
 [[allowed]]
 script = "Constellation"
@@ -24,11 +70,6 @@ fields = ["FinalFernalla", "FawnToSpawn", "Phase2Ward", "Phase2Assault"]
 [[allowed]]
 script = "FernallaPortalEvent"
 fields = ["Arcanist", "Knight", "Hound"]
-
-[[denied]]
-script = "FernallaPortalBoss"
-fields = ["Ward1", "Ward2", "Ward3"]
-reason = "Visual effect toggles (SetActive), not Instantiate spawns."
 
 [[allowed]]
 script = "MizukiEvent"
@@ -148,12 +189,12 @@ script = "StowawayPortal"
 fields = ["Keeper", "Skeletons", "KeeperSpawn"]
 reason = "Keeper is placed via SpawnPoint; Skeletons is a runtime-populated List<Character> accumulator (Add at runtime, not serialized prefabs); KeeperSpawn is a position marker."
 
-# --- Denied: Category C deferred (zone-wide random spawners) ---
+# --- Captured separately: zone-wide random spawners, not fixed placements ---
 
 [[denied]]
 script = "Misc"
 fields = ["SivakayanSpectres"]
-reason = "category-c-pending: zone-wide random spawner; see GitHub issue #282."
+reason = "ZoneWideSpawnListener captures weighted candidates and zone-wide eligibility without fixed placements."
 
 # --- Denied: non-Character GameObject fields ---
 
@@ -185,8 +226,8 @@ reason = "Arena reward chest, instantiated at ChestSpawnPos; prefab has Characte
 
 [[denied]]
 script = "VithArena"
-fields = ["SpawnLoc1", "SpawnLoc2", "SpawnLoc3", "ChestSpawnPos", "RestoredVitheo"]
-reason = "Position markers and restored-NPC toggle; SpawnLoc1/2/3 are consumed by the vith_arena_fight position strategy, ChestSpawnPos by AwardChests."
+fields = ["SpawnLoc1", "SpawnLoc2", "SpawnLoc3", "ChestSpawnPos"]
+reason = "Position markers consumed by the fight position strategy and AwardChests."
 
 [[denied]]
 script = "WaveEvent"
@@ -319,13 +360,8 @@ reason = "SpawnLegions uses CorruptorSpawn for single corruptors, the first coun
 
 [[denied]]
 script = "BraxFightEvent"
-fields = ["GodBraxRestored", "IceGolem", "LavaGolem"]
-reason = "GodBraxRestored is a SetActive toggle; IceGolem/LavaGolem are assigned to SpawnOnDeath at runtime, not Instantiate."
-
-[[denied]]
-script = "FernallaFight"
-fields = ["RestoredFernalla"]
-reason = "Visual SetActive toggle, not an Instantiate spawn."
+fields = ["IceGolem", "LavaGolem"]
+reason = "Assigned to SpawnOnDeath at runtime, not Instantiate."
 
 [[denied]]
 script = "CastSpell"
@@ -363,11 +399,6 @@ fields = ["Chest"]
 reason = "Declared but never instantiated in the script; dead field."
 
 [[denied]]
-script = "MemorySphere"
-fields = ["Memory"]
-reason = "Visual SetActive toggle, not an Instantiate spawn."
-
-[[denied]]
 script = "MiningNode"
 fields = ["MyChar"]
 reason = "Host character reference, not a dynamic spawn."
@@ -383,11 +414,6 @@ fields = ["TrickShotTarg"]
 reason = "Singleton-accessed prefab (GameData.Misc.TrickShotTarg) instantiated by NPC.cs and PlayerCombat.cs at a random NavMesh point during combat. No serialized field on the consuming scripts — the listener cannot emit rows. Combat-triggered spawn at a runtime-determined position. Handle via mapping rules: not wiki-visible (no loot/content), not map-visible."
 
 [[denied]]
-script = "MorphTrigger"
-fields = ["Enable"]
-reason = "List of GameObjects enabled via SetActive, not Instantiate spawns."
-
-[[denied]]
 script = "MultiQuestListener"
 fields = ["EnableOnQuestComplete"]
 reason = "List of GameObjects enabled via SetActive on quest completion, not Instantiate spawns."
@@ -401,8 +427,8 @@ fields = ["Spawn"]
 
 [[denied]]
 script = "PietyTrigger"
-fields = ["Guardians", "Piety"]
-reason = "Guardians is a target list; Piety is a host character reference. Not spawn sources."
+fields = ["Piety"]
+reason = "Unused character reference, not consulted by the guardian quest gate."
 
 [[denied]]
 script = "PlayerControl"
@@ -412,7 +438,7 @@ reason = "Player character reference, not a dynamic spawn."
 [[denied]]
 script = "QuestSpawnListener"
 fields = ["DestroyOnQuestComplete", "EnableOnQuestComplete"]
-reason = "Lists of GameObjects toggled via SetActive/Destroy, not Instantiate spawns."
+reason = "Enable and disable effects are exported by QuestActivationListener, not dynamic spawn sources."
 
 [[denied]]
 script = "ShapeshiftMngr"
@@ -420,24 +446,9 @@ fields = ["MyChar"]
 reason = "Host character reference, not a dynamic spawn."
 
 [[denied]]
-script = "ShiverEvent"
-fields = ["FirstKio", "Hider", "Kio", "WelcomeCrew"]
-reason = "SetActive toggles and enable lists, not Instantiate spawns."
-
-[[denied]]
-script = "ShiveringPhantomWardListener"
-fields = ["ward1", "ward2"]
-reason = "Runtime ward trackers checked for Alive status, not spawn sources."
-
-[[denied]]
 script = "SimPlayerMngr"
 fields = ["ActualSims", "BlankSPTemplate"]
-reason = "SimPlayer template list and blank template; not world spawns."
-
-[[denied]]
-script = "SolunaFight"
-fields = ["RestoredSoluna"]
-reason = "Visual SetActive toggle, not an Instantiate spawn."
+reason = "ActualSims is exported separately as authored prefab defaults. BlankSPTemplate creates generated sims. Neither establishes fixed world spawns."
 
 [[denied]]
 script = "SpellEffectDB"
@@ -455,9 +466,14 @@ fields = ["Myself"]
 reason = "Host character reference (GetComponent<Character>), not a dynamic spawn."
 
 [[denied]]
+script = "SimPlayer"
+fields = ["Myself"]
+reason = "Serialized host character cache resolved with GetComponent<Character>, not a dynamic spawn."
+
+[[denied]]
 script = "VitheoFight"
 fields = ["RestoredVitheo"]
-reason = "Visual SetActive toggle, not an Instantiate spawn."
+reason = "Unused field. The restored Vitheo reveal is VithArena.RestoredVitheo."
 
 [[denied]]
 script = "WardLeakListener"
@@ -468,3 +484,105 @@ reason = "Host character reference, not a dynamic spawn."
 script = "NPCSpawnEnvDmg"
 fields = ["DmgToSpawn"]
 reason = "Damage-area object assigned to DmgObj, not a Character spawn."
+
+# Scripted gates retain target and prerequisite references without inventing spawns.
+
+[[activation]]
+script = "ShiverEvent"
+fields = ["FirstKio", "Kio", "WelcomeCrew", "Hider", "SpawnTriggers", "Phantom", "WarmFlame"]
+rule = "shiver_event"
+
+[[activation]]
+script = "MemorySphere"
+fields = ["Memory", "RequiredInInventory"]
+rule = "memory_sphere"
+
+[[activation]]
+script = "SivTorchLight"
+fields = ["BreakWall"]
+rule = "siv_torch_gaze"
+
+[[activation]]
+script = "ShiveringAngel"
+fields = []
+rule = "shivering_angel"
+
+[[activation]]
+script = "ShiveringPhantomWardListener"
+fields = ["ward1", "ward2"]
+rule = "shivering_phantom_wards"
+
+[[activation]]
+script = "FernallaFight"
+fields = ["RestoredFernalla", "FernSpawnPoint"]
+rule = "restored_fernalla"
+
+[[activation]]
+script = "SolunaFight"
+fields = ["RestoredSoluna", "SolunaSpawn"]
+rule = "restored_soluna"
+
+[[activation]]
+script = "BraxFightEvent"
+fields = ["GodBraxRestored", "BraxSpawn"]
+rule = "restored_brax"
+
+[[activation]]
+script = "VithArena"
+fields = ["RestoredVitheo"]
+rule = "restored_vitheo"
+
+[[activation]]
+script = "NPCAliveListener"
+fields = ["SpawnPoint", "DespawnIfAlive", "SpawnIfAlive"]
+rule = "npc_alive"
+
+[[activation]]
+script = "MorphTrigger"
+fields = ["Enable", "Disable"]
+rule = "morph_trigger"
+
+[[activation]]
+script = "PietyTrigger"
+fields = ["RequiredQuest", "Guardians"]
+rule = "piety_guardians"
+
+[[activation]]
+script = "NPCShoutListener"
+fields = ["TriggerQuest", "UseEssentialSpawnsToBlockThisInstance"]
+rule = "npc_shout_essentials"
+
+[[activation]]
+script = "ReliquaryFiend"
+fields = []
+rule = "reliquary_wards"
+
+[[activation]]
+script = "ReliqDisableFiendSpawn"
+fields = []
+rule = "reliquary_account_claim"
+
+[[activation]]
+script = "FernallaPortalBoss"
+fields = ["Ward1", "Ward2", "Ward3"]
+rule = "fernalla_portal_wards"
+
+[[activation]]
+script = "AngelScript"
+fields = ["TheBellwains"]
+rule = "bellwain_reveal"
+
+[[activation]]
+script = "PlanningTable"
+fields = ["Soluna", "Hidden", "Ripper", "Silkengrass", "Braxonian", "Windwashed", "BraxPort", "FernPort", "VithPort", "SolPort"]
+rule = "planning_portals"
+
+[[denied]]
+script = "PlanningTable"
+fields = ["L1", "L2", "L3", "L4", "R1", "R2", "R3", "R4", "StatueFR", "StatueFL", "StatueBR", "StatueBL"]
+reason = "Room and statue hierarchies are exported by PlanningTableListener with their furnishing controls, not dynamic spawns."
+
+[[activation]]
+script = "ReliqPortalListener"
+fields = ["ReliqZL", "ReliqPort"]
+rule = "reliquary_return_portal"

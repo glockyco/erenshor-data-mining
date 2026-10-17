@@ -8,11 +8,12 @@ public class ItemBagListener : IAssetScanListener<ItemBag>
 {
     private readonly SQLiteConnection _db;
     private readonly List<ItemBagRecord> _itemBagRecords = new();
-    private readonly DuplicateKeyTracker _keyTracker = new("ItemBagListener");
+    private readonly ActivationTargetResolver _activationTargets;
 
-    public ItemBagListener(SQLiteConnection db)
+    public ItemBagListener(SQLiteConnection db, ActivationTargetResolver activationTargets)
     {
         _db = db;
+        _activationTargets = activationTargets;
     }
 
     public void OnScanStarted()
@@ -36,6 +37,9 @@ public class ItemBagListener : IAssetScanListener<ItemBag>
 
     public void OnAssetFound(ItemBag asset)
     {
+        if (!asset.gameObject.scene.IsValid())
+            return;
+
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
         var scene = asset.gameObject.scene.name;
@@ -43,8 +47,7 @@ public class ItemBagListener : IAssetScanListener<ItemBag>
         var y = asset.transform.position.y;
         var z = asset.transform.position.z;
 
-        var baseStableKey = StableKeyGenerator.ForItemBag(scene, x, y, z);
-        var stableKey = _keyTracker.GetUniqueKey(baseStableKey, asset.gameObject.name);
+        var stableKey = _activationTargets.GetStableKey(asset);
 
         var itemBag = new ItemBagRecord
         {

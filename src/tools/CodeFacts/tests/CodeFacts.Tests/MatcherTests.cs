@@ -11,6 +11,263 @@ namespace CodeFacts.Tests;
 
 public sealed class MatcherTests
 {
+    private const string DamageFixture = "FixtureLib.FixtureDamageRelease";
+
+    private const string EntryFixture = "FixtureLib.FixtureEntryState";
+
+    [Theory]
+    [InlineData("Play")]
+    [InlineData("PlayAlternate")]
+    public void StatementOrder_binds_each_compiled_entry_path(string method)
+    {
+        Assert.Empty(Matchers.StatementOrder(Method(method, EntryFixture), EntryOrderFact(method)));
+        var result = RunFacts(EntryOrderFact(method));
+        Assert.Empty(result.Errors);
+        Assert.True(Assert.Single(result.Facts).AssertOk);
+    }
+
+    [Theory]
+    [InlineData("Reversed")]
+    [InlineData("MissingLoad")]
+    [InlineData("MissingEntry")]
+    [InlineData("DuplicateLoad")]
+    [InlineData("DuplicateEntry")]
+    [InlineData("ConditionalLoad")]
+    [InlineData("ConditionalEntry")]
+    [InlineData("NestedDuplicateLoad")]
+    [InlineData("NestedDuplicateEntry")]
+    [InlineData("LambdaDuplicateLoad")]
+    public void StatementOrder_rejects_changed_entry_behavior(string method)
+    {
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.StatementOrder(Method(method, EntryFixture), EntryOrderFact(method))
+        );
+        var result = RunFacts(EntryOrderFact(method));
+        Assert.Empty(result.Facts);
+        Assert.Single(result.Errors);
+    }
+
+    [Fact]
+    public void StatementOrder_requires_a_method_body()
+    {
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.StatementOrder(new MethodDeclaration(), EntryOrderFact("Play"))
+        );
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.StatementOrder(new FieldDeclaration(), EntryOrderFact("Play"))
+        );
+    }
+
+    [Fact]
+    public void StatementOrder_normalizes_whitespace_without_changing_statement_identity()
+    {
+        var fact = EntryOrderFact("Play");
+        Assert.Empty(
+            Matchers.StatementOrder(
+                Method("Play", EntryFixture),
+                fact with
+                {
+                    Args = new()
+                    {
+                        ["before"] = "  GameData.GM.LoadReliquary  ();\n",
+                        ["after"] = "GameData.InCharSelect   =\n false;",
+                    },
+                }
+            )
+        );
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.StatementOrder(
+                Method("Play", EntryFixture),
+                fact with
+                {
+                    Args = new(fact.Args) { ["before"] = fact.Args["after"] },
+                }
+            )
+        );
+    }
+
+    private static FactSpec EntryOrderFact(string method) =>
+        Fact(
+            "fixture.entry." + method,
+            "assert",
+            method,
+            "statement_order",
+            new()
+            {
+                ["before"] = "GameData.GM.LoadReliquary ();",
+                ["after"] = "GameData.InCharSelect = false;",
+            },
+            null,
+            EntryFixture
+        );
+
+    [Fact]
+    public void ForeachSource_pins_membership_without_pinning_the_loop_body()
+    {
+        var method = Method("IteratePool");
+        var fact = Fact(
+            "fixture.authored",
+            "assert",
+            "M",
+            "foreach_source",
+            new() { ["source"] = "PoolA" },
+            []
+        );
+        Assert.Empty(Matchers.ForeachSource(method, fact));
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.ForeachSource(method, fact with { Args = new() { ["source"] = "NamePool" } })
+        );
+        var duplicate = Method("IteratePoolTwice");
+        Assert.Throws<InvalidDataException>(() => Matchers.ForeachSource(duplicate, fact));
+    }
+
+    [Theory]
+    [InlineData("ProtectorReleaseChangedActivity")]
+    [InlineData("ProtectorReleaseChangedNull")]
+    public void NodeShape_pins_protector_null_and_self_activity(string changedMethod)
+    {
+        var fact = Fact(
+            "fixture.protector_release",
+            "assert",
+            "ProtectorRelease",
+            "node_shape",
+            new()
+            {
+                ["kind"] = "BlockStatement",
+                ["shape"] =
+                    "{ if (Protector != null && Protector.ActiveSelf) { Invulnerable = true; } else { Invulnerable = false; } }",
+            },
+            null,
+            DamageFixture
+        );
+
+        Assert.Empty(Matchers.NodeShape(Method("ProtectorRelease", DamageFixture), fact));
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.NodeShape(Method(changedMethod, DamageFixture), fact)
+        );
+    }
+
+    [Fact]
+    public void NodeShape_pins_weather_last_write_order()
+    {
+        var fact = Fact(
+            "fixture.weather_release",
+            "assert",
+            "WeatherRelease",
+            "node_shape",
+            new()
+            {
+                ["kind"] = "BlockStatement",
+                ["shape"] =
+                    "{ foreach (FixtureDamageRelease dryTarget in DryTargets) { dryTarget.ActiveSelf = false; } foreach (FixtureDamageRelease wetTarget in WetTargets) { wetTarget.ActiveSelf = true; } }",
+            },
+            null,
+            DamageFixture
+        );
+
+        Assert.Empty(Matchers.NodeShape(Method("WeatherRelease", DamageFixture), fact));
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.NodeShape(Method("WeatherReleaseChangedOrder", DamageFixture), fact)
+        );
+    }
+
+    [Fact]
+    public void NodeShape_pins_actual_trade_holder_not_dialog_quest_collection()
+    {
+        var fact = Fact(
+            "fixture.trade_release",
+            "assert",
+            "TradeRelease",
+            "node_shape",
+            new()
+            {
+                ["kind"] = "BlockStatement",
+                ["shape"] =
+                    "{ foreach (FixtureDamageRelease quest in Holder.Quests) { if (quest.DropInvulnOnHolder) { Holder.Invulnerable = false; } } }",
+            },
+            null,
+            DamageFixture
+        );
+
+        Assert.Empty(Matchers.NodeShape(Method("TradeRelease", DamageFixture), fact));
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.NodeShape(Method("TradeReleaseChangedHolder", DamageFixture), fact)
+        );
+    }
+
+    [Fact]
+    public void NodeShape_pins_health_loss_before_phase_release_timer()
+    {
+        var fact = Fact(
+            "fixture.health_phase_release",
+            "assert",
+            "HealthPhaseRelease",
+            "node_shape",
+            new()
+            {
+                ["kind"] = "BlockStatement",
+                ["shape"] =
+                    "{ if (CurrentHP < ShiftAtLife) { PhaseDelay = 200f; } if (PhaseDelay > 0f) { PhaseDelay--; if (PhaseDelay <= 0f) { Invulnerable = false; } } }",
+            },
+            null,
+            DamageFixture
+        );
+
+        Assert.Empty(Matchers.NodeShape(Method("HealthPhaseRelease", DamageFixture), fact));
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.NodeShape(Method("HealthPhaseReleaseChangedBootstrap", DamageFixture), fact)
+        );
+    }
+
+    [Fact]
+    public void NodeShape_pins_gate_literal_and_activation_together()
+    {
+        var fact = Fact(
+            "fixture.shiver_gate",
+            "assert",
+            "ShiverGate",
+            "node_shape",
+            new()
+            {
+                ["kind"] = "IfElseStatement",
+                ["shape"] =
+                    "if (!active && Drops.Contains (\"SHIVER-GLASSES\")) { SingletonB = \"visible\"; }",
+            },
+            null
+        );
+
+        Assert.Empty(Matchers.NodeShape(Method("ShiverGate"), fact));
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.NodeShape(Method("ShiverGateChangedLiteral"), fact)
+        );
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.NodeShape(Method("ShiverGateChangedActivation"), fact)
+        );
+    }
+
+    [Fact]
+    public void NodeShape_pins_independent_reset_branches_and_their_order()
+    {
+        var fact = Fact(
+            "fixture.shiver_reset",
+            "assert",
+            "ShiverReset",
+            "node_shape",
+            new()
+            {
+                ["kind"] = "BlockStatement",
+                ["shape"] =
+                    "{ if (Drops.Contains (\"SHIVER-TORCH\")) { Level = 2; } if (Drops.Contains (\"SHIVER-FLAMELIT\")) { Level = 3; } }",
+            },
+            null
+        );
+
+        Assert.Empty(Matchers.NodeShape(Method("ShiverReset"), fact));
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.NodeShape(Method("ShiverResetChangedBranching"), fact)
+        );
+    }
+
     [Fact]
     public void GuardedMemberRoll_binds_fixture_pool_and_singleton_values()
     {
@@ -546,16 +803,291 @@ public sealed class MatcherTests
         }
     }
 
+    [Fact]
+    public void SwitchItemGrant_extracts_native_pool_and_selected_variable()
+    {
+        var result = Matchers.SwitchItemGrant(ParseBody(FossilGrant), GrantFact());
+        Assert.Equal("Break Fossil", result["spell_name"]);
+        Assert.Equal("GameData.Misc.FossilGame", result["pool"]);
+        Assert.Equal("1", result["quantity"]);
+        Assert.Equal("1", result["rolls"]);
+        Assert.False(result.ContainsKey("created_item_id"));
+    }
+
+    [Fact]
+    public void SwitchItemGrant_extracts_direct_item_id()
+    {
+        var method = ParseBody(
+            """
+            switch (operation) {
+                case "Offering Stone":
+                    if (!GameData.PlayerInv.AddItemToInv(GameData.ItemDB.GetItemByID("340104"))) {
+                        GameData.PlayerInv.ForceItemToInv(GameData.ItemDB.GetItemByID("340104"));
+                    }
+                    break;
+            }
+            """
+        );
+        var result = Matchers.SwitchItemGrant(method, GrantFact("Offering Stone", false));
+        Assert.Equal("Offering Stone", result["spell_name"]);
+        Assert.Equal("340104", result["created_item_id"]);
+        Assert.Equal("1", result["quantity"]);
+        Assert.False(result.ContainsKey("pool"));
+    }
+
+    [Fact]
+    public void SwitchItemGrant_is_dispatched_against_the_compiled_fixture()
+    {
+        var result = RunFacts(
+            new
+            {
+                id = "fixture.fossil_grant",
+                mode = "extract",
+                type = "FixtureLib.FixtureItemOperations",
+                method = "Grants",
+                matcher = "switch_item_grant",
+                args = new Dictionary<string, string>
+                {
+                    ["case"] = "Break Fossil",
+                    ["pool"] = "GameData.Misc.FossilGame",
+                },
+                keys = new[] { "spell_name", "pool", "quantity", "rolls" },
+            }
+        );
+        Assert.Empty(result.Errors);
+        Assert.Single(result.Facts);
+    }
+
+    [Theory]
+    [InlineData(
+        "Random.Range(0, GameData.Misc.FossilGame.Count)",
+        "Random.Range(1, GameData.Misc.FossilGame.Count)"
+    )]
+    [InlineData(
+        "Random.Range(0, GameData.Misc.FossilGame.Count)",
+        "Random.Range(0, GameData.Misc.FossilGame.Count - 1)"
+    )]
+    [InlineData(
+        "Random.Range(0, GameData.Misc.FossilGame.Count)",
+        "OtherRandom.Range(0, GameData.Misc.FossilGame.Count)"
+    )]
+    [InlineData("Item selectedFossil", "OtherItem selectedFossil")]
+    [InlineData("AddItemToInv(selectedFossil)", "AddItemToInv(selectedFossil, 2)")]
+    [InlineData("ForceItemToInv(selectedFossil)", "ForceItemToInv(otherItem)")]
+    [InlineData("ForceItemToInv(selectedFossil)", "ForceItemToInv(selectedFossil, 2)")]
+    [InlineData("!GameData.PlayerInv.AddItemToInv", "GameData.PlayerInv.AddItemToInv")]
+    [InlineData(
+        "if (!GameData.PlayerInv.AddItemToInv(selectedFossil))",
+        "if (eligible && !GameData.PlayerInv.AddItemToInv(selectedFossil))"
+    )]
+    [InlineData("GameData.PlayerInv.ForceItemToInv", "otherInventory.ForceItemToInv")]
+    [InlineData("case \"Break Fossil\":", "case \"Break Fossil\": case \"Other\":")]
+    [InlineData("break;", "GameData.PlayerInv.AddItemToInv(selectedFossil); break;")]
+    [InlineData("break;", "else { GameData.PlayerInv.ForceItemToInv(selectedFossil); } break;")]
+    [InlineData(
+        "break;",
+        "while (eligible) { GameData.PlayerInv.AddItemToInv(selectedFossil); } break;"
+    )]
+    [InlineData("break;", "if (eligible) { UpdateSocialLog.LogAdd(\"different gate\"); } break;")]
+    [InlineData(
+        "UpdateSocialLog.LogAdd(\"public text\");",
+        "UpdateSocialLog.LogAdd(GameData.PlayerInv.AddItemToInv(selectedFossil));"
+    )]
+    public void SwitchItemGrant_rejects_changed_gameplay(string original, string replacement)
+    {
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.SwitchItemGrant(
+                ParseBody(FossilGrant.Replace(original, replacement)),
+                GrantFact()
+            )
+        );
+    }
+
+    [Fact]
+    public void SwitchItemGrant_rejects_missing_or_ambiguous_case()
+    {
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.SwitchItemGrant(
+                ParseBody(FossilGrant.Replace("Break Fossil", "Other")),
+                GrantFact()
+            )
+        );
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.SwitchItemGrant(ParseBody(FossilGrant + FossilGrant), GrantFact())
+        );
+    }
+
+    [Fact]
+    public void SwitchItemGrant_ignores_chat_text_but_not_item_identity()
+    {
+        var changed = FossilGrant
+            .Replace("public text", "new wording")
+            .Replace("selectedFossil", "nativeSelection");
+        Assert.Equal("1", Matchers.SwitchItemGrant(ParseBody(changed), GrantFact())["quantity"]);
+    }
+
+    [Theory]
+    [InlineData("GameData.ItemDB.GetItemByID(\"340104\")", "GameData.ItemDB.GetItemByID(itemId)")]
+    [InlineData("GameData.ItemDB.GetItemByID(\"340104\")", "otherDatabase.GetItemByID(\"340104\")")]
+    [InlineData(
+        "ForceItemToInv(GameData.ItemDB.GetItemByID(\"340104\"))",
+        "ForceItemToInv(GameData.ItemDB.GetItemByID(\"other\"))"
+    )]
+    public void SwitchItemGrant_rejects_nonliteral_or_mismatched_direct_grants(
+        string original,
+        string replacement
+    )
+    {
+        const string direct = """
+            switch (operation) {
+                case "Offering Stone":
+                    if (!GameData.PlayerInv.AddItemToInv(GameData.ItemDB.GetItemByID("340104"))) {
+                        GameData.PlayerInv.ForceItemToInv(GameData.ItemDB.GetItemByID("340104"));
+                    }
+                    break;
+            }
+            """;
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.SwitchItemGrant(
+                ParseBody(direct.Replace(original, replacement)),
+                GrantFact("Offering Stone", false)
+            )
+        );
+    }
+
+    [Theory]
+    [InlineData("2", true)]
+    [InlineData("1", false)]
+    [InlineData("3", false)]
+    public void NodeShape_honors_explicit_occurrence_count(string count, bool accepted)
+    {
+        var fact = Fact(
+            "fixture.count",
+            "assert",
+            "Recalculate",
+            "node_shape",
+            new()
+            {
+                ["kind"] = "ExpressionStatement",
+                ["shape"] = "Level++;",
+                ["count"] = count,
+            },
+            null
+        );
+        if (accepted)
+            Assert.Empty(Matchers.NodeShape(Method("Recalculate"), fact));
+        else
+            Assert.Throws<InvalidDataException>(() =>
+                Matchers.NodeShape(Method("Recalculate"), fact)
+            );
+    }
+
+    [Fact]
+    public void NodeShape_still_requires_one_occurrence_by_default()
+    {
+        var fact = Fact(
+            "fixture.count",
+            "assert",
+            "Recalculate",
+            "node_shape",
+            new() { ["kind"] = "ExpressionStatement", ["shape"] = "Level++;" },
+            null
+        );
+        Assert.Throws<InvalidDataException>(() => Matchers.NodeShape(Method("Recalculate"), fact));
+    }
+
+    [Fact]
+    public void NodeShape_can_ignore_only_social_log_statements_without_mutating_the_scope()
+    {
+        var fact = SocialLogFact();
+        foreach (string message in new[] { "original warning", "different warning" })
+        {
+            var method = ParseBody($"UpdateSocialLog.LogAdd(\"{message}\"); Quantity = 1;");
+            string original = method.ToString();
+            Assert.Empty(Matchers.NodeShape(method, fact));
+            Assert.Equal(original, method.ToString());
+            Assert.Throws<InvalidDataException>(() =>
+                Matchers.NodeShape(
+                    method,
+                    fact with
+                    {
+                        Args = new(fact.Args) { ["ignore_social_logs"] = "false" },
+                    }
+                )
+            );
+        }
+    }
+
+    [Theory]
+    [InlineData("UpdateSocialLog.LogAdd(\"warning\"); Quantity = 2;")]
+    [InlineData("if (eligible) { UpdateSocialLog.LogAdd(\"warning\"); Quantity = 1; }")]
+    [InlineData("UpdateSocialLog.LogAdd(GameData.PlayerInv.AddItemToInv(item)); Quantity = 1;")]
+    [InlineData("UpdateSocialLog.LogAdd(GameData.PlayerInv.ForceItemToInv(item)); Quantity = 1;")]
+    [InlineData(
+        "UpdateSocialLog.LogAdd(GameData.PlayerInv.OtherInventoryMethod(item)); Quantity = 1;"
+    )]
+    [InlineData("UpdateSocialLog.LogAdd(Quantity = 2); Quantity = 1;")]
+    [InlineData("UpdateSocialLog.LogAdd(++Quantity); Quantity = 1;")]
+    [InlineData("UpdateSocialLog.LogAdd(Quantity++); Quantity = 1;")]
+    [InlineData("UpdateSocialLog.LogAdd(--Quantity); Quantity = 1;")]
+    [InlineData("UpdateSocialLog.LogAdd(Quantity--); Quantity = 1;")]
+    [InlineData("OtherLog.LogAdd(\"warning\"); Quantity = 1;")]
+    public void NodeShape_does_not_discard_inventory_or_control_effects(string body)
+    {
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.NodeShape(ParseBody(body), SocialLogFact())
+        );
+    }
+
+    private static FactSpec SocialLogFact() =>
+        Fact(
+            "fixture.logs",
+            "assert",
+            "Execute",
+            "node_shape",
+            new()
+            {
+                ["kind"] = "MethodDeclaration",
+                ["shape"] = "private void Execute () { Quantity = 1; }",
+                ["ignore_social_logs"] = "true",
+            },
+            null
+        );
+
+    private static MethodDeclaration ParseBody(string body) => NativeAstFixture.FromBody(body);
+
+    private static FactSpec GrantFact(string spell = "Break Fossil", bool pool = true)
+    {
+        var args = new Dictionary<string, string> { ["case"] = spell };
+        if (pool)
+            args["pool"] = "GameData.Misc.FossilGame";
+        return Fact("fixture.grant", "extract", "Execute", "switch_item_grant", args, null);
+    }
+
+    private const string FossilGrant = """
+        switch (operation) {
+            case "Break Fossil": {
+                Item selectedFossil = GameData.Misc.FossilGame[Random.Range(0, GameData.Misc.FossilGame.Count)];
+                UpdateSocialLog.LogAdd("public text");
+                if (!GameData.PlayerInv.AddItemToInv(selectedFossil)) {
+                    GameData.PlayerInv.ForceItemToInv(selectedFossil);
+                }
+                break;
+            }
+        }
+        """;
+
     private static FactSpec Fact(
         string id,
         string mode,
         string method,
         string matcher,
         Dictionary<string, string> args,
-        List<string>? keys
-    ) => new(id, mode, "FixtureLib.FixtureLoot", method, matcher, args, keys, null);
+        List<string>? keys,
+        string typeName = "FixtureLib.FixtureLoot"
+    ) => new(id, mode, typeName, method, matcher, args, keys, null);
 
-    private static MethodDeclaration Method(string name)
+    private static MethodDeclaration Method(string name, string typeName = "FixtureLib.FixtureLoot")
     {
         var assemblyPath = typeof(FixtureLoot).Assembly.Location;
         var resolver = new UniversalAssemblyResolver(
@@ -564,7 +1096,7 @@ public sealed class MatcherTests
             targetFramework: null
         );
         var decompiler = new CSharpDecompiler(assemblyPath, resolver, new DecompilerSettings());
-        var tree = decompiler.DecompileType(new FullTypeName("FixtureLib.FixtureLoot"));
+        var tree = decompiler.DecompileType(new FullTypeName(typeName));
         return Assert.Single(
             tree.Descendants.OfType<MethodDeclaration>(),
             method => method.Name == name

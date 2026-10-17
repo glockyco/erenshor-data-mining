@@ -4,6 +4,8 @@
     import type { CharacterDetails } from '$lib/map/character-details';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
     import CharacterPortrait from '$lib/components/map/CharacterPortrait.svelte';
+    import AcquisitionDetails from './AcquisitionDetails.svelte';
+    import { conditionsSatisfiable } from '$lib/item-provenance';
 
     interface Props {
         marker: WorldEnemy | WorldNpc;
@@ -21,10 +23,6 @@
         return `after ~${minutes} minutes`;
     }
 
-    // Format drop chance (0-100 range from database)
-    function formatDropChance(probability: number): string {
-        return `${probability.toFixed(1)}%`;
-    }
 
     // Format spawn chance (0-100 range from database)
     function formatSpawnChance(chance: number | null): string {
@@ -96,7 +94,8 @@
     <!-- Characters -->
     <div class="space-y-3">
         {#each sortedCharacters as char (char.stableKey)}
-            {@const drops = characterDetails.drops.get(char.stableKey) ?? []}
+            {@const drops = (characterDetails.drops.get(char.stableKey) ?? []).filter((drop) =>
+                drop.provenance.locations.some((location) => location.coordinate_stable_key === marker.stableKey && conditionsSatisfiable([...drop.provenance.conditions, ...location.conditions])))}
             <div class="rounded bg-zinc-800 p-3">
                 {#if char.portraitHash}
                     <div class="mb-2">
@@ -134,7 +133,8 @@
 
                 <!-- Vendor Items -->
                 {#if char.isVendor}
-                    {@const items = characterDetails.vendorItems.get(char.stableKey) ?? []}
+                    {@const items = (characterDetails.vendorItems.get(char.stableKey) ?? []).filter((item) =>
+                        item.provenance.locations.some((location) => location.coordinate_stable_key === marker.stableKey && conditionsSatisfiable([...item.provenance.conditions, ...location.conditions])))}
                     {#if items.length > 0}
                         <div class="mt-2 border-t border-zinc-700 pt-2">
                             <div class="text-xs text-zinc-500 uppercase tracking-wide mb-1">
@@ -150,6 +150,8 @@
                                             {formatPrice(item.price)} gold
                                         </span>
                                     </div>
+                                    <AcquisitionDetails fact={item.provenance} coordinateKey={marker.stableKey}
+                                        names={characterDetails.referenceNamesByAcquisition.get(item.provenance.acquisition_key)} />
                                 {/each}
                             </div>
                         </div>
@@ -166,10 +168,9 @@
                             {#each drops as drop, i (i)}
                                 <div class="flex justify-between text-xs">
                                     <span class="text-zinc-300">{drop.itemName}</span>
-                                    <span class="text-zinc-500"
-                                        >{formatDropChance(drop.dropProbability)}</span
-                                    >
                                 </div>
+                                <AcquisitionDetails fact={drop.provenance} coordinateKey={marker.stableKey}
+                                    names={characterDetails.referenceNamesByAcquisition.get(drop.provenance.acquisition_key)} />
                             {/each}
                         </div>
                     </div>

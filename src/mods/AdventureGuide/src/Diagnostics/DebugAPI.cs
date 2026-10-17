@@ -87,7 +87,9 @@ public static class DebugAPI
                         entryIndex = i;
                         break;
                     }
-            sb.AppendLine($"EntryLine: {entryIndex} {entry.Scene}|{entry.DestinationZoneKey}");
+            sb.AppendLine(
+                $"EntryLine: {entryIndex} {entry.Scene}|{Nav.ResolveDestination(entry)?.ZoneKey ?? "(unavailable)"}"
+            );
             sb.AppendLine($"  Position: ({entry.X}, {entry.Y}, {entry.Z})");
             sb.AppendLine($"  Condition: {entry.Condition?.ToString() ?? "(none)"}");
         }
@@ -211,24 +213,21 @@ public static class DebugAPI
                 : null;
             foreach (var line in Data.ZoneLines)
             {
+                var resolved = Nav?.ResolveDestination(line);
+                var display = Nav?.GetZoneLineDestinationDisplay(line);
                 if (
                     !string.Equals(line.Scene, scene, StringComparison.OrdinalIgnoreCase)
                     || !(
                         string.Equals(
-                            line.DestinationZoneKey,
+                            resolved?.ZoneKey,
                             destinationKey ?? destination,
                             StringComparison.OrdinalIgnoreCase
-                        )
-                        || string.Equals(
-                            line.DestinationDisplay,
-                            destination,
-                            StringComparison.OrdinalIgnoreCase
-                        )
+                        ) || string.Equals(display, destination, StringComparison.OrdinalIgnoreCase)
                     )
                 )
                     continue;
                 lines.AppendLine(
-                    $"Zone line: {line.Scene}|{line.DestinationZoneKey} ({line.DestinationDisplay})"
+                    $"Zone line: {line.Scene}|{resolved?.ZoneKey ?? "(unavailable)"} ({display ?? "Saved return unavailable"})"
                 );
                 lines.AppendLine(
                     FormattableString.Invariant(
@@ -290,9 +289,12 @@ public static class DebugAPI
                         $"      Inventory: {gates.Facts.ItemCount(atom.Ref)}, keyring={onKeyring}"
                     );
                 }
-                else if (atom.Kind == GateAtomKind.RoomFurnished && atom.Slot != null)
+                else if (
+                    atom.Kind is GateAtomKind.RoomFurnished or GateAtomKind.PlanningSlotItem
+                    && atom.Slot != null
+                )
                     lines.AppendLine(
-                        $"      Room {atom.Slot}: {gates.Facts.FurnitureIn(atom.Slot) ?? "(empty)"}"
+                        $"      Stored slot {atom.Slot}: {gates.Facts.StoredItemIn(atom.Slot) ?? "(empty)"}"
                     );
             }
         }

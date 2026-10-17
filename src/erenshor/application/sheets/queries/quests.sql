@@ -16,9 +16,22 @@ SELECT
     -- Rewards
     qv.xp_on_complete,
     qv.gold_on_complete,
-    reward_item.display_name AS reward_item,
+    (SELECT GROUP_CONCAT(i.display_name, ', ' ORDER BY a.acquisition_key)
+     FROM item_acquisitions a
+     LEFT JOIN items i ON i.stable_key = a.item_stable_key
+     WHERE a.kind = 'quest_reward' AND a.source_stable_key = q.stable_key
+         AND a.variant_key = qv.resource_name
+         AND a.player_access_state = 'verified_player'
+         AND a.probability_stage = 'final_acquisition') AS reward_item,
     next_quest_variant.quest_name AS next_quest,
-    unlock_item.display_name AS unlock_item_for_vendor,
+    (SELECT GROUP_CONCAT(DISTINCT i.display_name)
+     FROM item_acquisitions a
+     JOIN item_acquisition_conditions c ON c.owner_key = a.acquisition_key
+     LEFT JOIN items i ON i.stable_key = a.item_stable_key
+     WHERE a.kind = 'vendor' AND a.player_access_state = 'verified_player'
+         AND a.probability_stage = 'final_acquisition'
+         AND c.gate_key = 'stock_unlock' AND c.predicate = 'quest_done'
+         AND c.reference_stable_key = q.stable_key) AS unlock_item_for_vendor,
 
     -- NPC Relationships (aggregated)
     (SELECT GROUP_CONCAT(DISTINCT c.display_name)
@@ -54,10 +67,11 @@ SELECT
     ) AS item_turnin_npcs,
 
     -- Required Items (aggregated)
-    (SELECT GROUP_CONCAT(DISTINCT CASE WHEN qri.quantity > 1 THEN qri.quantity || 'x ' || i.display_name ELSE i.display_name END)
-     FROM quest_required_items qri
-     JOIN items i ON i.stable_key = qri.item_stable_key
-     WHERE qri.quest_variant_resource_name = qv.resource_name
+    (SELECT GROUP_CONCAT(i.display_name, ', ' ORDER BY u.material_slot, u.use_key)
+     FROM item_uses u
+     LEFT JOIN items i ON i.stable_key = u.item_stable_key
+     WHERE u.kind = 'quest_requirement' AND u.target_stable_key = q.stable_key
+         AND u.variant_key = qv.resource_name
     ) AS required_items,
 
     -- Faction Impacts (aggregated with modifier)
@@ -101,7 +115,5 @@ SELECT
 
 FROM quests q
 LEFT JOIN quest_variants qv ON qv.quest_stable_key = q.stable_key
-LEFT JOIN items reward_item ON reward_item.stable_key = qv.item_on_complete_stable_key
-LEFT JOIN items unlock_item ON unlock_item.stable_key = qv.unlock_item_for_vendor_stable_key
 LEFT JOIN quest_variants next_quest_variant ON next_quest_variant.quest_stable_key = qv.assign_new_quest_on_complete_stable_key
 ORDER BY qv.quest_db_index;

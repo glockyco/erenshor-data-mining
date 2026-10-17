@@ -121,13 +121,11 @@ def spawn_attack(
 
 
 def start_order(listed: str | None, by_file_id: str | None, active_at_load: bool | None) -> tuple[str, ...]:
-    """The order in which Unity runs ``Start`` on a character's NPC, Stats, and TestDummy.
+    """The native start order of Character, NPC, Stats and TestDummy.
 
-    An instantiated prefab starts its components in component list order. A
-    scene character starts them in local file ID order when it is active at
-    load, and in the reverse order when a script activates it later. In-game
-    checks of design D16 of the change adopt-data-backed-wiki established
-    these three cases, which are engine behavior rather than game code.
+    An instantiated prefab uses component list order. Active scene objects use
+    local file ID order. A later activation reverses that scene order. Existing
+    NPC/Stats/TestDummy host evidence does not itself verify Character's order.
     """
     if by_file_id is None:
         return tuple(listed.split(",")) if listed else ()
@@ -162,34 +160,43 @@ def training_dummy_level(prefab_level: int) -> int | None:
 
 @dataclass(frozen=True, slots=True)
 class StartLevels:
-    """The level that ``NPC.Start`` and ``Stats.Start`` see, and the level after every Start."""
+    """Startup level inputs and the level of the latest unbuffed stat calculation."""
 
     npc: int
     stats: int
     final: int
+    calculated: int
 
 
-def start_levels(order: tuple[str, ...], prefab_level: int, player_level: int | None) -> StartLevels:
-    """The levels of a character that starts in this order, for a player of this level.
-
-    A Start that runs before ``TestDummy.Start`` sees the prefab level, and
-    one that runs after it sees the level that ``TestDummy.Start`` gives.
-    The random level variance of ``NPC.Start`` is left out, as for every
-    effective stat. ``player_level`` is needed only for a training dummy
-    that takes the player's level.
-    """
-    if "TestDummy" not in order:
-        return StartLevels(prefab_level, prefab_level, prefab_level)
-    final = training_dummy_level(prefab_level)
-    if final is None:
-        if player_level is None:
-            raise ValueError(f"a training dummy of level {prefab_level} takes the player's level, which is not given")
-        final = player_level
-    return StartLevels(
-        npc=final if starts_before(order, "TestDummy", "NPC") else prefab_level,
-        stats=final if starts_before(order, "TestDummy", "Stats") else prefab_level,
-        final=final,
-    )
+def start_levels(
+    order: tuple[str, ...],
+    prefab_level: int,
+    player_level: int | None,
+    *,
+    npc_level: int | None = None,
+) -> StartLevels:
+    """Replay level writers for nominal initialization or a supported variance outcome."""
+    current = prefab_level
+    npc = stats = calculated = prefab_level
+    for component in order:
+        if component == "TestDummy":
+            dummy_level = training_dummy_level(prefab_level)
+            if dummy_level is None:
+                if player_level is None:
+                    raise ValueError(
+                        f"a training dummy of level {prefab_level} takes the player's level, which is not given"
+                    )
+                dummy_level = player_level
+            current = dummy_level
+            calculated = current
+        elif component == "NPC":
+            if npc_level is not None:
+                current = npc_level
+            npc = current
+        elif component == "Stats":
+            stats = current
+            calculated = current
+    return StartLevels(npc=npc, stats=stats, final=current, calculated=calculated)
 
 
 def resist_level(level_before: int, level_after: int, *, stats_starts_first: bool) -> int:

@@ -26,6 +26,20 @@ public readonly struct PlacementRoute
 /// </summary>
 public sealed class ZoneGraph
 {
+    public readonly struct Destination
+    {
+        public string ZoneKey { get; }
+        public string Scene { get; }
+        public UnityEngine.Vector3? Landing { get; }
+
+        public Destination(string zoneKey, string scene, UnityEngine.Vector3? landing)
+        {
+            ZoneKey = zoneKey;
+            Scene = scene;
+            Landing = landing;
+        }
+    }
+
     /// <summary>Result of a route query.</summary>
     public sealed class Route
     {
@@ -160,6 +174,40 @@ public sealed class ZoneGraph
         Rebuild();
     }
 
+    /// <summary>Resolve a physical line without substituting serialized data for missing saved state.</summary>
+    public Destination? ResolveDestination(ZoneLineEntry line)
+    {
+        if (_data.ZoneLineDestinationContexts.TryGetValue(line.StableKey, out var context))
+        {
+            var scene = _gates.Facts.ReadCharacterZoneState(context.DestinationStateKey);
+            var landing = _gates.Facts.ReadCharacterPositionState(context.LandingStateKey);
+            if (
+                string.IsNullOrWhiteSpace(scene)
+                || !_data.ZoneLookup.TryGetValue(scene!, out var zone)
+                || string.IsNullOrWhiteSpace(zone.StableKey)
+                || !landing.HasValue
+                || !IsFinite(landing.Value.x)
+                || !IsFinite(landing.Value.y)
+                || !IsFinite(landing.Value.z)
+            )
+                return null;
+            return new Destination(zone.StableKey, _zoneKeyToScene[zone.StableKey], landing);
+        }
+        if (!_zoneKeyToScene.TryGetValue(line.DestinationZoneKey, out var destinationScene))
+            return null;
+        UnityEngine.Vector3? staticLanding =
+            line.LandingX.HasValue && line.LandingY.HasValue && line.LandingZ.HasValue
+                ? new UnityEngine.Vector3(
+                    line.LandingX.Value,
+                    line.LandingY.Value,
+                    line.LandingZ.Value
+                )
+                : null;
+        return new Destination(line.DestinationZoneKey, destinationScene, staticLanding);
+    }
+
+    private static bool IsFinite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
+
     /// <summary>
     /// Rebuild the adjacency graph from current zone line data and gate facts.
     /// Call when guide state changes.
@@ -175,13 +223,14 @@ public sealed class ZoneGraph
         for (int line = 0; line < zoneLines.Count; line++)
         {
             var zl = zoneLines[line];
-            if (string.IsNullOrEmpty(zl.DestinationZoneKey))
+            var destination = ResolveDestination(zl);
+            if (!destination.HasValue)
                 continue;
             if (!_gates.CanBecomeAvailable(zl.Condition))
                 continue;
 
-            if (!_zoneKeyToScene.TryGetValue(zl.DestinationZoneKey, out var destScene))
-                continue;
+            var destScene = destination.Value.Scene;
+            var destZoneKey = destination.Value.ZoneKey;
 
             bool accessible = IsZoneLineAccessible(zl);
 
@@ -201,14 +250,14 @@ public sealed class ZoneGraph
                 {
                     // Keep the most permissive: if any zone line to this dest is accessible, the edge is accessible
                     if (accessible && !edges[i].accessible)
-                        edges[i] = (destScene, zl.DestinationZoneKey, true);
+                        edges[i] = (destScene, destZoneKey, true);
                     found = true;
                     break;
                 }
             }
 
             if (!found)
-                edges.Add((destScene, zl.DestinationZoneKey, accessible));
+                edges.Add((destScene, destZoneKey, accessible));
         }
     }
 
@@ -269,6 +318,16 @@ public sealed class ZoneGraph
         foreach (int index in spawn.Entries)
         {
             var entry = _data.ZoneLines[index];
+            var destination = ResolveDestination(entry);
+            if (
+                !destination.HasValue
+                || !string.Equals(
+                    destination.Value.Scene,
+                    spawn.Scene,
+                    StringComparison.OrdinalIgnoreCase
+                )
+            )
+                continue;
             if (!_gates.CanBecomeAvailable(entry.Condition))
                 continue;
             bool sameScene = string.Equals(scene, entry.Scene, StringComparison.OrdinalIgnoreCase);
@@ -294,12 +353,19 @@ public sealed class ZoneGraph
     internal IEnumerable<ZoneLineEntry> LinesForHop(string fromScene, string toScene)
     {
         foreach (var line in _data.ZoneLines)
+        {
+            var destination = ResolveDestination(line);
             if (
                 string.Equals(line.Scene, fromScene, StringComparison.OrdinalIgnoreCase)
-                && _zoneKeyToScene.TryGetValue(line.DestinationZoneKey, out var destination)
-                && string.Equals(destination, toScene, StringComparison.OrdinalIgnoreCase)
+                && destination.HasValue
+                && string.Equals(
+                    destination.Value.Scene,
+                    toScene,
+                    StringComparison.OrdinalIgnoreCase
+                )
             )
                 yield return line;
+        }
     }
 
     private List<string>? BFS(string start, string goal, bool accessibleOnly)

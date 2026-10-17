@@ -12,19 +12,24 @@ public class SpawnPointTriggerListener : IAssetScanListener<SpawnPointTrigger>
     private readonly CharacterStableKeyResolver _characterKeyResolver;
     private readonly List<SpawnPointTriggerRecord> _triggerRecords = new();
     private readonly List<SpawnPointTriggerCharacterRecord> _characterRecords = new();
-    private readonly DuplicateKeyTracker _keyTracker = new("SpawnPointTriggerListener");
+    private readonly ActivationTargetResolver _activationTargets;
 
     public SpawnPointTriggerListener(
         SQLiteConnection db,
-        CharacterStableKeyResolver characterKeyResolver
+        CharacterStableKeyResolver characterKeyResolver,
+        ActivationTargetResolver activationTargets
     )
     {
         _db = db;
         _characterKeyResolver = characterKeyResolver;
+        _activationTargets = activationTargets;
     }
 
     public void OnAssetFound(SpawnPointTrigger asset)
     {
+        if (!asset.gameObject.scene.IsValid())
+            return;
+
         if (asset.SpawnSpots == null || asset.SpawnSpots.Count == 0)
         {
             Debug.LogWarning(
@@ -41,24 +46,16 @@ public class SpawnPointTriggerListener : IAssetScanListener<SpawnPointTrigger>
 
         var scene = asset.gameObject.scene.name;
         var isEnabledByDefault = !IsDisabledAtRuntimeStart(asset);
-        foreach (var spawnSpot in asset.SpawnSpots)
+        for (int index = 0; index < asset.SpawnSpots.Count; index++)
         {
+            var spawnSpot = asset.SpawnSpots[index];
             if (spawnSpot == null)
             {
                 continue;
             }
 
             var position = spawnSpot.transform.position;
-            var baseKey = StableKeyGenerator.ForSpawnPointTrigger(
-                scene,
-                position.x,
-                position.y,
-                position.z
-            );
-            var stableKey = _keyTracker.GetUniqueKey(
-                baseKey,
-                $"{asset.gameObject.name}/{spawnSpot.name}"
-            );
+            var stableKey = _activationTargets.GetTriggerSpawnKey(asset, index);
 
             _triggerRecords.Add(
                 new SpawnPointTriggerRecord

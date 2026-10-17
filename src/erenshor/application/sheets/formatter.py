@@ -10,6 +10,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import event, text
+from sqlalchemy.exc import SQLAlchemyError
+
+from erenshor.domain.value_objects.item_provenance import PROVENANCE_SCHEMA_VERSION
+from erenshor.infrastructure.database.repository import RepositoryError
 
 if TYPE_CHECKING:
     from sqlalchemy.engine import Engine
@@ -95,6 +99,7 @@ class SheetsFormatter:
         if not query_sql:
             raise ValueError(f"Query file '{sheet_name}.sql' is empty")
 
+        self._require_provenance_schema()
         return self._execute_and_format(query_sql)
 
     def format_all_sheets(self) -> dict[str, list[list[Any]]]:
@@ -107,6 +112,15 @@ class SheetsFormatter:
         for sheet_name in self.get_sheet_names():
             results[sheet_name] = self.format_sheet(sheet_name)
         return results
+
+    def _require_provenance_schema(self) -> None:
+        try:
+            with self.engine.connect() as connection:
+                rows = connection.execute(text("SELECT schema_version FROM item_provenance_meta")).all()
+        except SQLAlchemyError as error:
+            raise RepositoryError("Unsupported item provenance schema: metadata unavailable") from error
+        if len(rows) != 1 or rows[0][0] != PROVENANCE_SCHEMA_VERSION:
+            raise RepositoryError(f"Unsupported item provenance schema: expected {PROVENANCE_SCHEMA_VERSION}")
 
     def _execute_and_format(self, query: str) -> list[list[Any]]:
         """Execute SQL query and format results as rows.

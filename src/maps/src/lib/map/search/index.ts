@@ -12,6 +12,7 @@ import type {
     WorldWater,
     WorldItemBag,
     WorldTreasureLoc,
+    WorldZoneLine,
     ZoneWorldPosition
 } from '$lib/types/world-map';
 import { compareEncounterTier } from '$lib/map-markers';
@@ -96,6 +97,7 @@ export function itemResultSummaryParts(result: ItemSearchResult): string[] {
     push(c.droppers, 'dropper');
     push(c.miningNodes, 'mining node');
     push(c.fishingSpots, 'fishing spot');
+    if (c.anyWater) parts.push('Any water');
     push(c.itemUses, 'item use');
     push(c.worldDrops, 'world drop');
     if (c.auctionHouses) parts.push('Auction House');
@@ -143,6 +145,7 @@ export function buildSearchIndex(input: {
     itemBags: WorldItemBag[];
     itemSources: ItemSourceRow[];
     allItems: ItemSourceItemMeta[];
+    zoneLines?: WorldZoneLine[];
 }): SearchIndex {
     const enemyProvider = new EnemySearchProvider(
         input.enemiesEnemy,
@@ -167,7 +170,8 @@ export function buildSearchIndex(input: {
         input.water,
         input.itemBags,
         input.allItems,
-        input.treasureLocs
+        input.treasureLocs,
+        input.zoneLines
     );
 
     const providers: SearchProvider[] = [itemProvider, enemyProvider, npcProvider, zoneProvider];

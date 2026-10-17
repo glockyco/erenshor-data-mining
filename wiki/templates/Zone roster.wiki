@@ -1,0 +1,5 @@
+<includeonly>{{#invoke:Erenshor/ZoneRoster|roster}}</includeonly><noinclude>
+Shows the zone's characters by encounter tier, with level ranges and exported spawn conditions. Spawn chances describe eligible spawn rolls, not zone-wide encounter probabilities. Scripted encounters imply no fixed spawn position.
+
+Place <code>{{Zone roster}}</code> on a zone page. Use <code>{{Zone roster|stablekey=zone:abyssal}}</code> to select a zone explicitly. Editor-written sub-area notes stay outside the view.
+</noinclude>

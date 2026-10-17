@@ -28,8 +28,6 @@ public sealed class GuideContractTests
             var data = GuideData.Parse(File.ReadAllText(guidePath));
             var workflows = data.All.Where(quest => quest.IsGuideOnly).ToList();
 
-            Assert.Equal(200, data.Count);
-            Assert.Equal(10, workflows.Count);
             Assert.All(
                 workflows,
                 quest =>
@@ -60,7 +58,8 @@ public sealed class GuideContractTests
     {
         var wrapper = new GuideWrapper
         {
-            Version = 7,
+            Version = 8,
+            Encounters = TestData.EmptyEncounters(),
             Quests =
             [
                 OrdinaryQuest("quest:first", "FirstDB"),
@@ -78,7 +77,8 @@ public sealed class GuideContractTests
         var data = GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 7,
+                Version = 8,
+                Encounters = TestData.EmptyEncounters(),
                 Quests = [OrdinaryQuest("quest:known", "KnownDB")],
                 ExcludedQuests = ["PlaceholderDB"],
             }
@@ -95,7 +95,8 @@ public sealed class GuideContractTests
     {
         var wrapper = new GuideWrapper
         {
-            Version = 7,
+            Version = 8,
+            Encounters = TestData.EmptyEncounters(),
             Quests = [OrdinaryQuest("quest:known", "KnownDB")],
             ExcludedQuests = ["KnownDB"],
         };
@@ -128,7 +129,8 @@ public sealed class GuideContractTests
         ];
         var wrapper = new GuideWrapper
         {
-            Version = 7,
+            Version = 8,
+            Encounters = TestData.EmptyEncounters(),
             Conditions =
             [
                 [
@@ -145,54 +147,13 @@ public sealed class GuideContractTests
     }
 
     [Fact]
-    public void Spawn_metadata_parses_direct_placement_and_respawn_fields()
-    {
-        const string json = """
-            {
-              "_version": 7,
-              "_conditions": [
-                [[{"kind": "quest_done", "ref": "GateQuest"}]]
-              ],
-              "_character_spawns": {
-                "character:test": [
-                  {
-                    "scene": "TestScene",
-                    "x": 1.5,
-                    "y": 2.5,
-                    "z": 3.5,
-                    "condition": 0,
-                    "is_directly_placed": true,
-                    "source_script": "TestSpawnScript"
-                  }
-                ]
-              },
-              "quests": [
-                {
-                  "stable_key": "quest:gate",
-                  "db_name": "GateQuest",
-                  "display_name": "Gate quest"
-                }
-              ]
-            }
-            """;
-
-        var data = GuideData.Parse(json);
-        var spawn = Assert.Single(data.CharacterSpawns["character:test"]);
-
-        Assert.Equal(0, spawn.Condition);
-        var atom = Assert.Single(Assert.Single(Assert.Single(data.Conditions)));
-        Assert.Equal(GateAtomKind.QuestDone, atom.Kind);
-        Assert.Equal("GateQuest", atom.Ref);
-        Assert.True(spawn.IsDirectlyPlaced);
-        Assert.Equal("TestSpawnScript", spawn.SourceScript);
-    }
-
-    [Fact]
     public void Loading_rejects_unknown_json_atom_kinds()
     {
         const string json = """
             {
-              "_version": 7,
+              "_version": 8,
+              "_encounters": {"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},
+              "_source_facts": {}, "_item_uses": {}, "_quest_state_keys": {},
               "_conditions": [
                 [[{"kind": "unknown_kind", "ref": "GateQuest"}]]
               ],

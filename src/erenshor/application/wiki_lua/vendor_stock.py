@@ -12,8 +12,8 @@ from erenshor.application.wiki_lua.views import DataView, ViewField, view_module
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.item import Item
-    from erenshor.domain.value_objects.source_info import SourceInfo
     from erenshor.domain.value_objects.vendor_stock import VendorStockEntry
+    from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
 
 VENDOR_STOCK = DataView(
     module="VendorStock",
@@ -80,7 +80,7 @@ def item_type(item: Item, uses: Collection[str], molds: Collection[str]) -> str:
         return kind
     if item.stable_key in molds:
         return "Mold"
-    if "craft_material" in uses or item.fuel_source:
+    if "crafting_material" in uses or item.fuel_source:
         return "Crafting"
     if "quest_requirement" in uses or item.complete_on_read_stable_key or item.assign_quest_on_read_stable_key:
         return "Quest Item"
@@ -145,17 +145,19 @@ def build_vendor_stock_rows(
 def write_vendor_stock_module(
     repo: VendorStockRepository,
     items: Iterable[Item],
-    sources_by_item: Mapping[str, SourceInfo],
+    provenance_repo: ItemProvenanceRepository,
     known_keys: Collection[str],
     output_root: Path,
 ) -> Path:
     """Write ``Data/VendorStock.lua`` below an output root."""
-    uses_by_item = {key: {use.use_type for use in sources.used_in} for key, sources in sources_by_item.items()}
+    uses = tuple(provenance_repo.iter_uses())
+    uses_by_item: defaultdict[str, set[str]] = defaultdict(set)
+    for use in uses:
+        uses_by_item[use.item_stable_key].add(use.kind)
     molds = {
-        use.target_key
-        for sources in sources_by_item.values()
-        for use in sources.used_in
-        if use.use_type == "upgrade_material"
+        use.target_stable_key
+        for use in uses
+        if use.kind == "smithing" and use.mechanic == "upgrade_material" and use.target_stable_key is not None
     }
     items_by_key = {item.stable_key: item for item in items}
     rows = build_vendor_stock_rows(repo.get_vendor_stock(), items_by_key, uses_by_item, molds)

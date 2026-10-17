@@ -53,10 +53,11 @@ Server loot-rate, blessing and top-guild bonuses apply to the other special chec
 
 #### Scenario: An already-owned unique mask
 
-- **WHEN** a mask is unique and the player already owns it
+- **WHEN** a mask is unique and the player owns it in stored inventory or equipment when `LootTable.InitLootTable` initializes the source
 - **THEN** its published row still describes the pre-replacement selection chance
 - **AND** the selected mask is replaced by a draw from `CommonWorldItems`, retaining duplicate and empty slots
 - **AND** the selection chance SHALL NOT be labelled an unconditional chance of receiving that mask
+- **AND** pickup SHALL NOT be modelled as another ownership check
 
 #### Scenario: Independent successes
 

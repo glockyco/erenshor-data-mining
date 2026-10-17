@@ -101,7 +101,10 @@ CREATE TABLE mining_nodes (
     y               REAL,
     z               REAL,
     npc_name        TEXT,
-    respawn_time    REAL
+    respawn_time    REAL,
+    common_count    INTEGER,
+    rare_count      INTEGER,
+    legend_count    INTEGER
 );
 
 CREATE TABLE mining_node_items (
@@ -144,6 +147,10 @@ CREATE TABLE zone_lines (
     x                           REAL,
     y                           REAL,
     z                           REAL,
+    object_is_active            INTEGER,
+    component_is_enabled        INTEGER,
+    collider_is_trigger         INTEGER,
+    has_enabled_trigger         INTEGER,
     is_enabled                  INTEGER,
     display_text                TEXT,
     destination_zone_stable_key TEXT,
@@ -152,6 +159,28 @@ CREATE TABLE zone_lines (
     landing_position_z          REAL,
     remove_party                INTEGER
 );
+
+CREATE TABLE zone_line_destination_contexts (
+    zone_line_stable_key TEXT PRIMARY KEY NOT NULL REFERENCES zone_lines(stable_key),
+    kind TEXT NOT NULL CHECK (kind IN ('stored_return')),
+    destination_state_key TEXT NOT NULL,
+    landing_state_key TEXT NOT NULL,
+    source_key TEXT NOT NULL
+);
+
+CREATE TABLE planning_portal_slots (
+    zone_line_stable_key TEXT NOT NULL REFERENCES zone_lines(stable_key),
+    slot TEXT NOT NULL,
+    slot_kind TEXT NOT NULL CHECK (slot_kind IN ('dedicated', 'rune')),
+    PRIMARY KEY (zone_line_stable_key, slot)
+);
+
+-- Zoning needs both the trigger callback and the enabled FixedUpdate transition.
+CREATE VIEW zone_lines_with_zoning_capability AS
+    SELECT * FROM zone_lines
+    WHERE component_is_enabled = 1
+      AND collider_is_trigger = 1
+      AND has_enabled_trigger = 1;
 
 -- One row per atom of a gate. A subject is available when every gate on it
 -- holds, and a gate holds when every atom of one of its groups holds. An atom
@@ -168,7 +197,7 @@ CREATE TABLE gate_conditions (
     group_index             INTEGER NOT NULL,
     atom_kind               TEXT NOT NULL CHECK (atom_kind IN (
                                 'quest_done', 'quest_not_done', 'item_held', 'key_held', 'room_furnished',
-                                'encounter_won', 'never'
+                                'planning_slot_item', 'encounter_won', 'never'
                             )),
     atom_stable_key         TEXT NOT NULL,
     atom_slot               TEXT,
@@ -333,6 +362,8 @@ CREATE TABLE zones (
     is_wiki_generated                         INTEGER NOT NULL DEFAULT 1,
     is_map_visible                            INTEGER NOT NULL DEFAULT 1,
     is_dungeon                                INTEGER,
+    zone_type                                 TEXT NOT NULL
+                                              CHECK (zone_type IN ('Outdoor', 'Dungeon', 'Raid', 'Event')),
     raid_capable                              INTEGER,
     use_zone_as_temp_bind                     TEXT,
     achievement                               TEXT,
@@ -558,9 +589,10 @@ CREATE TABLE crafting_rewards (
 CREATE TABLE item_drops (
     source_item_stable_key  TEXT NOT NULL,
     dropped_item_stable_key TEXT NOT NULL,
+    pool_stable_key         TEXT NOT NULL,
     drop_probability        REAL,
     is_guaranteed           INTEGER,
-    PRIMARY KEY (source_item_stable_key, dropped_item_stable_key)
+    PRIMARY KEY (source_item_stable_key, dropped_item_stable_key, pool_stable_key)
 );
 
 -- Successful random listing routes, not the final draw after retry exhaustion.
@@ -671,6 +703,8 @@ CREATE TABLE spell_created_items (
     source_item_stable_key   TEXT NOT NULL,
     spell_stable_key         TEXT NOT NULL,
     created_item_stable_key  TEXT NOT NULL,
+    grant_fact_id           TEXT NOT NULL,
+    quantity                INTEGER NOT NULL CHECK (quantity > 0),
     PRIMARY KEY (source_item_stable_key, created_item_stable_key)
 );
 
@@ -877,6 +911,7 @@ CREATE TABLE quests (
     display_name    TEXT NOT NULL,
     wiki_page_name  TEXT,
     image_name      TEXT NOT NULL,
+    step_note       TEXT,
     is_wiki_generated INTEGER NOT NULL DEFAULT 1,
     is_map_visible  INTEGER NOT NULL DEFAULT 1
 );
@@ -908,9 +943,10 @@ CREATE TABLE quest_variants (
 
 CREATE TABLE quest_required_items (
     quest_variant_resource_name TEXT NOT NULL,
+    required_slot               INTEGER NOT NULL,
     item_stable_key             TEXT NOT NULL,
     quantity                    INTEGER NOT NULL DEFAULT 1,
-    PRIMARY KEY (quest_variant_resource_name, item_stable_key)
+    PRIMARY KEY (quest_variant_resource_name, required_slot)
 );
 
 CREATE TABLE quest_faction_affects (
@@ -953,6 +989,81 @@ CREATE TABLE quest_acquisition_sources (
 CREATE INDEX quest_acquisition_sources_quest_idx
     ON quest_acquisition_sources (quest_stable_key);
 
+-- Prefab defaults of explicitly referenced authored sims. No world-NPC semantics.
+CREATE TABLE authored_sims (
+    stable_key                  TEXT PRIMARY KEY NOT NULL,
+    prefab_guid                 TEXT NOT NULL,
+    prefab_local_id             INTEGER NOT NULL,
+    prefab_path                 TEXT NOT NULL,
+    object_name                 TEXT NOT NULL,
+    raw_character_stable_key    TEXT NOT NULL,
+    npc_name                    TEXT NOT NULL,
+    seed_class_name             TEXT NOT NULL REFERENCES classes (class_name),
+    seed_level                  INTEGER NOT NULL,
+    seed_skill_level            REAL NOT NULL,
+    seed_is_male                INTEGER NOT NULL,
+    seed_hair_name              TEXT NOT NULL,
+    seed_hair_color             INTEGER NOT NULL,
+    seed_skin_color             INTEGER NOT NULL,
+    is_gm_character             INTEGER NOT NULL,
+    rival                       INTEGER NOT NULL,
+    UNIQUE (prefab_guid, prefab_local_id)
+);
+
+CREATE TABLE authored_sim_references (
+    source_component_key        TEXT NOT NULL,
+    reference_index             INTEGER NOT NULL,
+    source_scene                TEXT NOT NULL,
+    source_scene_path           TEXT NOT NULL,
+    authored_sim_stable_key     TEXT NOT NULL REFERENCES authored_sims (stable_key),
+    PRIMARY KEY (source_component_key, reference_index)
+);
+
+CREATE TABLE authored_sim_equipment (
+    authored_sim_stable_key     TEXT NOT NULL REFERENCES authored_sims (stable_key),
+    position                    INTEGER NOT NULL,
+    item_stable_key             TEXT REFERENCES items (stable_key),
+    PRIMARY KEY (authored_sim_stable_key, position)
+);
+
+-- Zone-wide eligibility is not a fixed placement. Runtime cosmetic equipment,
+-- the recent successful-spawn scene history, and registered SpawnPoints remain
+-- prerequisites, not exported player-state facts.
+CREATE TABLE zone_wide_spawn_rules (
+    rule_id                         TEXT PRIMARY KEY NOT NULL,
+    source_script                   TEXT NOT NULL,
+    candidate_script                TEXT NOT NULL,
+    candidate_field                 TEXT NOT NULL,
+    required_cosmetic_item_stable_key TEXT NOT NULL REFERENCES items (stable_key),
+    attempt_probability             REAL NOT NULL CHECK (attempt_probability BETWEEN 0 AND 1),
+    entry_delay_ticks               REAL NOT NULL CHECK (entry_delay_ticks > 0),
+    entry_delay_ticks_per_second    REAL NOT NULL CHECK (entry_delay_ticks_per_second > 0),
+    attempt_trigger                 TEXT NOT NULL CHECK (attempt_trigger = 'entry_timer_crosses_below_zero'),
+    max_attempts_per_entry           INTEGER NOT NULL CHECK (max_attempts_per_entry = 1),
+    recent_successful_zone_limit     INTEGER NOT NULL CHECK (recent_successful_zone_limit > 0),
+    requires_registered_spawn_point  INTEGER NOT NULL CHECK (requires_registered_spawn_point = 1)
+);
+
+CREATE TABLE zone_wide_spawn_candidates (
+    rule_id                TEXT NOT NULL REFERENCES zone_wide_spawn_rules (rule_id),
+    character_stable_key   TEXT NOT NULL REFERENCES characters (stable_key),
+    weight                 INTEGER NOT NULL CHECK (weight > 0),
+    total_weight           INTEGER NOT NULL CHECK (total_weight >= weight),
+    PRIMARY KEY (rule_id, character_stable_key)
+);
+
+-- A scene with authored SpawnPoints can qualify when at least one registers at
+-- runtime. The enabled count describes the asset, not the player's live scene.
+CREATE TABLE zone_wide_spawn_zones (
+    rule_id                    TEXT NOT NULL REFERENCES zone_wide_spawn_rules (rule_id),
+    zone_stable_key            TEXT NOT NULL REFERENCES zones (stable_key),
+    authored_spawn_point_count INTEGER NOT NULL CHECK (authored_spawn_point_count > 0),
+    enabled_spawn_point_count  INTEGER NOT NULL CHECK (
+                                   enabled_spawn_point_count BETWEEN 0 AND authored_spawn_point_count
+                               ),
+    PRIMARY KEY (rule_id, zone_stable_key)
+);
+
 -- -------------------------------------------------------------------------
 -- Characters
 -- -------------------------------------------------------------------------
@@ -990,6 +1101,7 @@ CREATE TABLE characters (
     has_modify_faction          INTEGER,
     is_enabled                  INTEGER,
     invulnerable                INTEGER,
+    can_be_damaged              INTEGER NOT NULL DEFAULT 0 CHECK (can_be_damaged IN (0, 1)),
     can_never_see_invis         INTEGER,
     dps_dummy                   INTEGER,
     is_wyrm                     INTEGER,
@@ -1018,6 +1130,12 @@ CREATE TABLE characters (
     base_xp_min                 REAL,
     base_xp_max                 REAL,
     boss_xp_multiplier          REAL,
+    initialized_xp              INTEGER,
+    xp_per_player_level         INTEGER,
+    effective_xp_multiplier     REAL,
+    start_components_listed     TEXT,
+    start_components_by_file_id TEXT,
+    is_active_at_load           INTEGER,
     base_hp                     INTEGER,
     base_ac                     INTEGER,
     base_mana                   INTEGER,
@@ -1158,6 +1276,50 @@ CREATE TABLE character_spawns (
     PRIMARY KEY (character_stable_key, spawn_point_stable_key, is_directly_placed)
 );
 
+CREATE TABLE encounter_placements (
+    encounter_key TEXT NOT NULL,
+    root_spawn_stable_key TEXT NOT NULL,
+    member_spawn_stable_key TEXT NOT NULL,
+    role TEXT NOT NULL CHECK (role IN ('root', 'support')),
+    context_kind TEXT NOT NULL CHECK (context_kind IN ('account_claim')),
+    post_completion_role TEXT NOT NULL CHECK (post_completion_role IN ('player_home')),
+    PRIMARY KEY (encounter_key, member_spawn_stable_key)
+);
+CREATE TABLE encounter_conditions (
+    encounter_key TEXT NOT NULL,
+    state_scope TEXT NOT NULL CHECK (state_scope IN ('account', 'character')),
+    state_key TEXT NOT NULL,
+    required_value TEXT NOT NULL,
+    PRIMARY KEY (encounter_key, state_scope, state_key)
+);
+CREATE TABLE encounter_completions (
+    encounter_key TEXT NOT NULL,
+    event_kind TEXT NOT NULL,
+    state_scope TEXT NOT NULL CHECK (state_scope IN ('account', 'character')),
+    state_key TEXT NOT NULL,
+    result_value TEXT NOT NULL,
+    PRIMARY KEY (encounter_key, event_kind, state_scope, state_key)
+);
+CREATE TABLE encounter_event_conditions (
+    encounter_key TEXT NOT NULL,
+    event_kind TEXT NOT NULL,
+    state_scope TEXT NOT NULL CHECK (state_scope IN ('account', 'character')),
+    state_key TEXT NOT NULL,
+    required_value TEXT NOT NULL,
+    PRIMARY KEY (encounter_key, event_kind, state_scope, state_key)
+);
+
+CREATE TABLE character_damage_releases (
+    character_stable_key TEXT NOT NULL REFERENCES characters(stable_key),
+    mechanism TEXT NOT NULL,
+    source_stable_key TEXT NOT NULL,
+    condition_kind TEXT NOT NULL,
+    condition_stable_key TEXT NOT NULL DEFAULT '',
+    can_release INTEGER NOT NULL CHECK (can_release IN (0, 1)),
+    controller_enabled INTEGER NOT NULL CHECK (controller_enabled IN (0, 1)),
+    PRIMARY KEY (character_stable_key, mechanism, source_stable_key, condition_kind, condition_stable_key)
+);
+
 CREATE TABLE character_chained_spawns (
     parent_stable_key  TEXT NOT NULL,
     child_stable_key   TEXT NOT NULL,
@@ -1275,6 +1437,8 @@ CREATE TABLE ae_event_mutations (
 CREATE TABLE loot_drops (
     character_stable_key    TEXT NOT NULL,
     item_stable_key         TEXT NOT NULL,
+    loot_table_stable_key   TEXT NOT NULL,
+    source_component_is_enabled INTEGER NOT NULL CHECK (source_component_is_enabled IN (0, 1)),
     drop_probability        REAL,
     expected_per_kill       REAL,
     drop_count_distribution TEXT,
@@ -1326,6 +1490,7 @@ CREATE TABLE character_dialogs (
     keywords                    TEXT,
     give_item_stable_key        TEXT,
     assign_quest_stable_key     TEXT,
+    assign_quest_variant_resource_name TEXT REFERENCES quest_variants(resource_name),
     complete_quest_stable_key   TEXT,
     repeating_quest_dialog      TEXT,
     kill_self_on_say            INTEGER,
@@ -1378,8 +1543,9 @@ CREATE TABLE character_taunt_spells (
 
 CREATE TABLE character_vendor_items (
     character_stable_key    TEXT NOT NULL,
+    item_slot              INTEGER NOT NULL,
     item_stable_key         TEXT NOT NULL,
-    PRIMARY KEY (character_stable_key, item_stable_key)
+    PRIMARY KEY (character_stable_key, item_slot)
 );
 
 CREATE TABLE character_aggressive_factions (
@@ -1411,13 +1577,17 @@ CREATE TABLE character_death_shouts (
 CREATE TABLE character_vendor_quest_unlocks (
     character_stable_key    TEXT NOT NULL,
     quest_stable_key        TEXT NOT NULL,
-    PRIMARY KEY (character_stable_key, quest_stable_key)
+    quest_slot             INTEGER NOT NULL,
+    quest_variant_resource_name TEXT NOT NULL REFERENCES quest_variants(resource_name),
+    PRIMARY KEY (character_stable_key, quest_slot)
 );
 
 CREATE TABLE character_quest_manager_quests (
     character_stable_key    TEXT NOT NULL,
     quest_stable_key        TEXT NOT NULL,
-    PRIMARY KEY (character_stable_key, quest_stable_key)
+    quest_slot             INTEGER NOT NULL,
+    quest_variant_resource_name TEXT NOT NULL REFERENCES quest_variants(resource_name),
+    PRIMARY KEY (character_stable_key, quest_slot)
 );
 
 -- -------------------------------------------------------------------------
@@ -1458,7 +1628,7 @@ CREATE TABLE knowledge_entry_characters (
 CREATE VIEW coordinates AS
     SELECT stable_key, scene, x, y, z, 'Character'   AS category FROM characters WHERE scene IS NOT NULL
     UNION ALL
-    SELECT stable_key, scene, x, y, z, 'SpawnPoint'  AS category FROM character_spawns
+    SELECT spawn_point_stable_key AS stable_key, scene, x, y, z, 'SpawnPoint' AS category FROM character_spawns
         WHERE scene IS NOT NULL AND spawn_point_stable_key IS NOT NULL
     UNION ALL
     SELECT stable_key, scene, x, y, z, 'Door'        AS category FROM doors
@@ -1511,7 +1681,7 @@ CREATE VIEW map_character_spawns AS
 -- -------------------------------------------------------------------------
 
 -- Characters that a player can meet: placed or spawned, summoned by a spell,
--- or a possible treasure chest.
+-- a possible treasure chest, or a zone-wide candidate with a potential scene.
 CREATE VIEW characters_in_game AS
     SELECT c.stable_key
     FROM characters c
@@ -1519,13 +1689,17 @@ CREATE VIEW characters_in_game AS
        OR EXISTS (SELECT 1 FROM spells sp WHERE sp.pet_to_summon_stable_key = c.stable_key)
        OR EXISTS (
             SELECT 1 FROM treasure_chest_possible_spawns t WHERE t.chest_character_stable_key = c.stable_key
+       )
+       OR EXISTS (
+            SELECT 1 FROM zone_wide_spawn_candidates candidate
+            JOIN zone_wide_spawn_zones zone ON zone.rule_id = candidate.rule_id
+            WHERE candidate.character_stable_key = c.stable_key
        );
 
 -- The copies whose facts a dedup group shows: its copies in the game, or,
 -- when the export places none of them, its copies that the mapping generates.
--- The second case covers characters that only a script spawns at a position
--- the export cannot resolve, such as the Sivakayan spectres, whose facts are
--- real. The mapping excludes the copies that a review found unused, such as
+-- The second case keeps facts from unresolved scripted sources without claiming
+-- a placement. The mapping excludes copies that a review found unused, such as
 -- the Shopkeeper Treven prefab, which would otherwise sell Samuel Thatcher's
 -- old stock.
 CREATE VIEW character_fact_sources AS
@@ -1545,15 +1719,209 @@ CREATE VIEW character_fact_sources AS
 -- stock, and is NULL for an item that is always in stock.
 CREATE VIEW vendor_offers AS
     SELECT s.group_key AS vendor_stable_key, s.member_stable_key AS copy_stable_key,
-           cvi.item_stable_key AS item_stable_key, NULL AS quest_stable_key
+           cvi.item_stable_key AS item_stable_key, NULL AS quest_stable_key,
+           'base' AS offer_kind, cvi.item_slot AS offer_slot, NULL AS quest_variant_key
     FROM character_fact_sources s
     JOIN character_vendor_items cvi ON cvi.character_stable_key = s.member_stable_key
-    UNION
-    SELECT s.group_key, s.member_stable_key, qv.unlock_item_for_vendor_stable_key, cvqu.quest_stable_key
+    UNION ALL
+    SELECT s.group_key, s.member_stable_key, qv.unlock_item_for_vendor_stable_key, cvqu.quest_stable_key,
+           'quest_unlock', cvqu.quest_slot, cvqu.quest_variant_resource_name
     FROM character_fact_sources s
     JOIN character_vendor_quest_unlocks cvqu ON cvqu.character_stable_key = s.member_stable_key
-    JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
+    JOIN quest_variants qv ON qv.resource_name = cvqu.quest_variant_resource_name
     WHERE qv.unlock_item_for_vendor_stable_key IS NOT NULL;
+
+CREATE TABLE ui_item_sources (
+    stable_key TEXT PRIMARY KEY NOT NULL,
+    component_type TEXT NOT NULL,
+    scene TEXT NOT NULL,
+    hierarchy_path TEXT NOT NULL,
+    slot TEXT NOT NULL,
+    icon_hierarchy_path TEXT NOT NULL,
+    serialized_item_stable_key TEXT REFERENCES items(stable_key),
+    serialized_quantity INTEGER NOT NULL,
+    replenish_item_stable_key TEXT REFERENCES items(stable_key),
+    replenish_source_key TEXT,
+    display_only INTEGER NOT NULL,
+    vendor_slot INTEGER NOT NULL,
+    loot_slot INTEGER NOT NULL,
+    bank_slot INTEGER NOT NULL,
+    mouse_slot INTEGER NOT NULL,
+    player_owned INTEGER NOT NULL,
+    not_in_inventory INTEGER NOT NULL,
+    slot_type TEXT NOT NULL
+);
+CREATE TABLE ui_item_access_targets (
+    stable_key TEXT PRIMARY KEY NOT NULL,
+    scene TEXT NOT NULL,
+    hierarchy_path TEXT NOT NULL,
+    tag TEXT NOT NULL,
+    active_self INTEGER NOT NULL,
+    active_in_hierarchy INTEGER NOT NULL,
+    x REAL NOT NULL,
+    y REAL NOT NULL,
+    z REAL NOT NULL
+);
+CREATE TABLE ui_item_access_activations (
+    stable_key TEXT PRIMARY KEY NOT NULL,
+    target_stable_key TEXT NOT NULL REFERENCES ui_item_access_targets(stable_key),
+    activator_stable_key TEXT NOT NULL,
+    scene TEXT NOT NULL,
+    hierarchy_path TEXT NOT NULL,
+    quest_stable_key TEXT REFERENCES quests(stable_key),
+    alternative_quest_stable_key TEXT REFERENCES quests(stable_key),
+    item_stable_key TEXT REFERENCES items(stable_key)
+);
+
+CREATE TABLE item_access_observations (
+    component_type TEXT NOT NULL,
+    slot TEXT NOT NULL,
+    assembly_sha256 TEXT NOT NULL,
+    player_access_state TEXT NOT NULL,
+    transfer TEXT NOT NULL,
+    replenishment TEXT NOT NULL,
+    receipt TEXT NOT NULL,
+    PRIMARY KEY (component_type, slot, assembly_sha256)
+);
+
+CREATE TABLE item_provenance_meta (
+    schema_version INTEGER NOT NULL,
+    game_build_id TEXT NOT NULL,
+    input_digests TEXT NOT NULL
+);
+CREATE TABLE item_acquisitions (
+    acquisition_key TEXT PRIMARY KEY NOT NULL,
+    item_stable_key TEXT NOT NULL REFERENCES items(stable_key),
+    kind TEXT NOT NULL,
+    source_stable_key TEXT,
+    source_group_key TEXT,
+    source_copy_stable_key TEXT,
+    variant_key TEXT,
+    mechanic TEXT,
+    player_access_state TEXT NOT NULL CHECK (player_access_state IN
+        ('verified_player', 'unconfirmed_player', 'internal_only', 'non_acquirable')),
+    probability_kind TEXT NOT NULL CHECK (probability_kind IN
+        ('exact', 'bounded', 'unknown', 'not_applicable')),
+    probability_min REAL,
+    probability_max REAL,
+    probability_basis TEXT,
+    probability_stage TEXT NOT NULL CHECK (probability_stage IN ('native_pool', 'final_acquisition')),
+    quantity_min REAL,
+    quantity_max REAL,
+    quantity_kind TEXT NOT NULL,
+    expected_quantity REAL,
+    count_distribution TEXT,
+    guarantee_scope TEXT,
+    guaranteed_roll_count INTEGER
+);
+CREATE INDEX item_acquisitions_item_idx ON item_acquisitions(item_stable_key);
+CREATE INDEX item_acquisitions_source_idx ON item_acquisitions(source_stable_key);
+CREATE INDEX item_acquisitions_copy_idx ON item_acquisitions(source_copy_stable_key);
+CREATE TABLE item_uses (
+    use_key TEXT PRIMARY KEY NOT NULL,
+    item_stable_key TEXT NOT NULL REFERENCES items(stable_key),
+    target_stable_key TEXT,
+    kind TEXT NOT NULL,
+    variant_key TEXT,
+    material_slot INTEGER,
+    quantity_min REAL,
+    quantity_max REAL,
+    quantity_kind TEXT NOT NULL,
+    mechanic TEXT,
+    outcome_key TEXT
+);
+CREATE INDEX item_uses_item_idx ON item_uses(item_stable_key);
+CREATE INDEX item_uses_target_idx ON item_uses(target_stable_key);
+CREATE TABLE item_acquisition_conditions (
+    owner_key TEXT NOT NULL REFERENCES item_acquisitions(acquisition_key),
+    gate_key TEXT NOT NULL,
+    group_index INTEGER NOT NULL,
+    atom_index INTEGER NOT NULL,
+    predicate TEXT NOT NULL,
+    reference_stable_key TEXT,
+    reference_slot TEXT,
+    actor TEXT,
+    value TEXT,
+    minimum REAL,
+    maximum REAL,
+    minimum_inclusive INTEGER NOT NULL,
+    maximum_inclusive INTEGER NOT NULL,
+    scope TEXT NOT NULL,
+    phase TEXT NOT NULL DEFAULT 'availability' CHECK (
+        phase IN ('availability', 'source_initialization', 'operation_input', 'operation_outcome', 'mechanic_parameter')
+    ),
+    PRIMARY KEY (owner_key, gate_key, group_index, atom_index, scope, phase)
+);
+CREATE TABLE item_use_conditions (
+    owner_key TEXT NOT NULL REFERENCES item_uses(use_key),
+    gate_key TEXT NOT NULL,
+    group_index INTEGER NOT NULL,
+    atom_index INTEGER NOT NULL,
+    predicate TEXT NOT NULL,
+    reference_stable_key TEXT,
+    reference_slot TEXT,
+    actor TEXT,
+    value TEXT,
+    minimum REAL,
+    maximum REAL,
+    minimum_inclusive INTEGER NOT NULL,
+    maximum_inclusive INTEGER NOT NULL,
+    scope TEXT NOT NULL,
+    phase TEXT NOT NULL DEFAULT 'availability' CHECK (
+        phase IN ('availability', 'source_initialization', 'operation_input', 'operation_outcome', 'mechanic_parameter')
+    ),
+    PRIMARY KEY (owner_key, gate_key, group_index, atom_index, scope, phase)
+);
+CREATE TABLE item_acquisition_locations (
+    owner_key TEXT NOT NULL REFERENCES item_acquisitions(acquisition_key),
+    location_key TEXT NOT NULL,
+    relation TEXT NOT NULL,
+    scene TEXT,
+    zone_stable_key TEXT,
+    placement_key TEXT,
+    coordinate_stable_key TEXT,
+    x REAL, y REAL, z REAL,
+    gate_scope TEXT,
+    player_level_min INTEGER,
+    player_level_max INTEGER,
+    conditions TEXT NOT NULL,
+    entry_zone_line_keys TEXT NOT NULL,
+    source_copy_stable_key TEXT,
+    PRIMARY KEY (owner_key, location_key)
+);
+CREATE TABLE item_use_locations (
+    owner_key TEXT NOT NULL REFERENCES item_uses(use_key),
+    location_key TEXT NOT NULL,
+    relation TEXT NOT NULL,
+    scene TEXT,
+    zone_stable_key TEXT,
+    placement_key TEXT,
+    coordinate_stable_key TEXT,
+    x REAL, y REAL, z REAL,
+    gate_scope TEXT,
+    player_level_min INTEGER,
+    player_level_max INTEGER,
+    conditions TEXT NOT NULL,
+    entry_zone_line_keys TEXT NOT NULL,
+    source_copy_stable_key TEXT,
+    PRIMARY KEY (owner_key, location_key)
+);
+CREATE TABLE item_provenance_evidence (
+    owner_key TEXT NOT NULL,
+    input_relation TEXT NOT NULL,
+    input_primary_key TEXT NOT NULL,
+    PRIMARY KEY (owner_key, input_relation, input_primary_key)
+);
+CREATE INDEX item_provenance_evidence_input_idx
+    ON item_provenance_evidence(input_relation, input_primary_key);
+CREATE TABLE item_dispositions (
+    item_stable_key TEXT PRIMARY KEY NOT NULL,
+    disposition TEXT NOT NULL CHECK (disposition IN ('current', 'removed', 'unobtainable', 'unused')),
+    reason TEXT,
+    evidence TEXT,
+    current_pages TEXT NOT NULL,
+    former_pages TEXT NOT NULL
+);
 """
 
 
@@ -1656,6 +2024,12 @@ class Writer:
     def insert_zone_lines(self, rows: list[dict[str, object]]) -> int:
         return self._insert("zone_lines", rows)
 
+    def insert_zone_line_destination_contexts(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("zone_line_destination_contexts", rows)
+
+    def insert_planning_portal_slots(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("planning_portal_slots", rows)
+
     def insert_gate_conditions(self, rows: list[dict[str, object]]) -> int:
         return self._insert("gate_conditions", rows)
 
@@ -1683,6 +2057,15 @@ class Writer:
     def insert_classes(self, rows: list[dict[str, object]]) -> int:
         return self._insert("classes", rows)
 
+    def insert_authored_sims(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("authored_sims", rows)
+
+    def insert_authored_sim_references(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("authored_sim_references", rows)
+
+    def insert_authored_sim_equipment(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("authored_sim_equipment", rows)
+
     def insert_class_starting_items(self, rows: list[dict[str, object]]) -> int:
         return self._insert("class_starting_items", rows)
 
@@ -1691,6 +2074,15 @@ class Writer:
 
     def insert_treasure_hunting(self, rows: list[dict[str, object]]) -> int:
         return self._insert("treasure_hunting", rows)
+
+    def insert_zone_wide_spawn_rules(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("zone_wide_spawn_rules", rows)
+
+    def insert_zone_wide_spawn_candidates(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("zone_wide_spawn_candidates", rows)
+
+    def insert_zone_wide_spawn_zones(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("zone_wide_spawn_zones", rows)
 
     def insert_treasure_chest_possible_spawns(self, rows: list[dict[str, object]]) -> int:
         return self._insert("treasure_chest_possible_spawns", rows)
@@ -1820,6 +2212,21 @@ class Writer:
 
     def insert_characters(self, rows: list[dict[str, object]]) -> int:
         return self._insert("characters", rows)
+
+    def insert_character_damage_releases(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("character_damage_releases", rows)
+
+    def insert_encounter_placements(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("encounter_placements", rows)
+
+    def insert_encounter_conditions(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("encounter_conditions", rows)
+
+    def insert_encounter_completions(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("encounter_completions", rows)
+
+    def insert_encounter_event_conditions(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("encounter_event_conditions", rows)
 
     def insert_character_deduplications(self, rows: list[dict[str, object]]) -> int:
         return self._insert("character_deduplications", rows)

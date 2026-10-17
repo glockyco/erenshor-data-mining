@@ -1,4 +1,8 @@
 import type { Database, SqlJsStatic } from 'sql.js/dist/sql-wasm.js';
+import { readItemAcquisitions, readItemDispositions, readItemUses, readProvenanceMetadata, probabilityText, conditionLines, quantityText, isActionableAcquisition, conditionsSatisfiable } from './item-provenance';
+import type { ItemAcquisition, ItemDisposition, ItemProvenanceSnapshot } from './item-provenance';
+import { readZoneLineDestinationContexts, readZoneLineDestinationSnapshot, STORED_RETURN_LABEL } from './zone-line-destinations';
+import type { ZoneLineDestinationContext } from './zone-line-destinations';
 
 import {
     isFurnishingSpawn,
@@ -28,6 +32,7 @@ import type {
     ZoneLineMarker
 } from './map-markers';
 import type { LiveCandidate } from './map/character-details';
+import type { ZoneEnemyInfo } from './types/world-map';
 
 function formatCoordinates(x: number, y: number, z: number): string {
     return `(X: ${x.toFixed(2)}, Y: ${y.toFixed(2)}, Z: ${z.toFixed(2)})`;
@@ -80,9 +85,67 @@ function buildMovementData(
     };
 }
 
+function acquisitionPopupHtml(fact: ItemAcquisition, coordinateKey: string): string {
+    return [probabilityText(fact), quantityText(fact), ...conditionLines(fact.conditions),
+        ...fact.locations.filter((location) => location.coordinate_stable_key === coordinateKey &&
+            conditionsSatisfiable([...fact.conditions, ...location.conditions])).flatMap((location) => conditionLines(location.conditions))]
+        .filter(Boolean).join('<br>');
+}
+
+interface MapItemProvenance {
+    database: Database;
+    acquisitions: ItemAcquisition[];
+    actionableByKey: Map<string, ItemAcquisition>;
+    dispositions: ItemDisposition[];
+    dispositionByKey: Map<string, ItemDisposition>;
+}
+
 export class RepositoryBase {
     protected SQL: SqlJsStatic | null = null;
     protected db: Database | null = null;
+    private provenanceCache: MapItemProvenance | null = null;
+    private zoneLineContextCache: { database: Database; records: Map<string, ZoneLineDestinationContext> } | null = null;
+
+    private getProvenance(): MapItemProvenance {
+        if (!this.db) throw new Error('DB not initialized');
+        if (this.provenanceCache?.database !== this.db) {
+            const acquisitions = readItemAcquisitions(this.db);
+            const dispositions = readItemDispositions(this.db);
+            const dispositionByKey = new Map(dispositions.map((record) => [record.item_stable_key, record]));
+            this.provenanceCache = { database: this.db, acquisitions, dispositions, dispositionByKey,
+                actionableByKey: new Map(acquisitions.filter((fact) => dispositionByKey.get(fact.item_stable_key)?.disposition === 'current' &&
+                    isActionableAcquisition(fact)).map((fact) => [fact.acquisition_key, fact])) };
+        }
+        return this.provenanceCache;
+    }
+
+    private getZoneLineContexts(): Map<string, ZoneLineDestinationContext> {
+        if (!this.db) throw new Error('DB not initialized');
+        if (this.zoneLineContextCache?.database !== this.db) {
+            this.zoneLineContextCache = { database: this.db, records: readZoneLineDestinationContexts(this.db) };
+        }
+        return this.zoneLineContextCache.records;
+    }
+
+    /** Read complete offline coverage inputs without adding audit records to page props. */
+    async getItemProvenanceSnapshot(): Promise<ItemProvenanceSnapshot> {
+        if (!this.db) throw new Error('DB not initialized');
+        const provenance = this.getProvenance();
+        const items: ItemProvenanceSnapshot['items'] = [];
+        const statement = this.db.prepare('SELECT stable_key, is_map_visible, wiki_page_name FROM items ORDER BY stable_key');
+        try {
+            while (statement.step()) {
+                const row = statement.getAsObject();
+                items.push({ stable_key: row.stable_key as string, is_map_visible: row.is_map_visible === 1,
+                    wiki_page_name: row.wiki_page_name as string | null });
+            }
+        } finally {
+            statement.free();
+        }
+        return { metadata: readProvenanceMetadata(this.db), acquisitions: provenance.acquisitions,
+            dispositions: provenance.dispositions, uses: readItemUses(this.db), items,
+            zone_line_destinations: readZoneLineDestinationSnapshot(this.db, this.getZoneLineContexts()) };
+    }
 
     async getAchievementTriggerMarkers(mapName: string): Promise<AchievementTriggerMarker[]> {
         if (!this.db) throw new Error('DB not initialized');
@@ -254,6 +317,7 @@ export class RepositoryBase {
 
     async getItemBagMarkers(mapName: string): Promise<ItemBagMarker[]> {
         if (!this.db) throw new Error('DB not initialized');
+        const facts = this.getProvenance().actionableByKey;
 
         const stmt = this.db.prepare(
             `
@@ -263,11 +327,14 @@ export class RepositoryBase {
                 ib.y AS PositionY,
                 ib.z AS PositionZ,
                 i.display_name AS ItemName,
+                a.acquisition_key AS AcquisitionKey,
                 i.wiki_page_name AS ItemWikiPageName,
                 ib.respawns AS Respawns,
                 ib.respawn_timer AS RespawnTimer
             FROM item_bags ib
-            JOIN items i ON i.stable_key = ib.item_stable_key
+            JOIN item_acquisitions a ON a.source_stable_key = ib.stable_key AND a.kind = 'item_bag'
+                AND a.player_access_state IN ('verified_player', 'unconfirmed_player')
+            JOIN items i ON i.stable_key = a.item_stable_key
             WHERE ib.scene = ?
         `,
             [mapName]
@@ -277,6 +344,9 @@ export class RepositoryBase {
 
         while (stmt.step()) {
             const row = stmt.getAsObject();
+            const fact = facts.get(row.AcquisitionKey as string);
+            if (!fact || !fact.locations.some((location) => location.coordinate_stable_key === row.StableKey &&
+                conditionsSatisfiable([...fact.conditions, ...location.conditions]))) continue;
             const itemName = row.ItemName as string;
             const respawnTimer = row.RespawnTimer as number;
             const itemWikiPageName = row.ItemWikiPageName as string | null;
@@ -290,7 +360,7 @@ export class RepositoryBase {
                     ? `<br><br>Respawns after ca. ${this.convertToMinutesAndSeconds(respawnTimer)} or when re-entering the zone.`
                     : '<br><br>Respawns when re-entering the zone.';
 
-            const popupText = `${positionText}${itemText}${respawnText}`;
+            const popupText = `${positionText}${itemText}<br>${acquisitionPopupHtml(fact, row.StableKey as string)}${respawnText}`;
 
             markers.push({
                 stableKey: row.StableKey as string,
@@ -299,6 +369,7 @@ export class RepositoryBase {
                 itemWikiPageName,
                 respawnTimer,
                 respawns,
+                provenance: fact,
                 position: {
                     x: row.PositionX as number,
                     y: row.PositionZ as number
@@ -312,6 +383,7 @@ export class RepositoryBase {
 
     async getMiningNodeMarkers(mapName: string): Promise<MiningNodeMarker[]> {
         if (!this.db) throw new Error('DB not initialized');
+        const facts = this.getProvenance().actionableByKey;
 
         const stmt = this.db.prepare(
             `
@@ -323,10 +395,12 @@ export class RepositoryBase {
                 m.respawn_time AS RespawnTime,
                 i.display_name AS ItemName,
                 i.wiki_page_name AS ItemWikiPageName,
-                mi.drop_chance AS DropChance
+                a.probability_max AS DropChance,
+                a.acquisition_key AS AcquisitionKey
             FROM mining_nodes m
-            JOIN mining_node_items mi ON mi.mining_node_stable_key = m.stable_key
-            JOIN items i ON i.stable_key = mi.item_stable_key
+            JOIN item_acquisitions a ON a.source_stable_key = m.stable_key AND a.kind = 'mining'
+                AND a.player_access_state IN ('verified_player', 'unconfirmed_player')
+            JOIN items i ON i.stable_key = a.item_stable_key
             WHERE m.scene = ?
         `,
             [mapName]
@@ -346,6 +420,9 @@ export class RepositoryBase {
 
         while (stmt.step()) {
             const row = stmt.getAsObject();
+            const fact = facts.get(row.AcquisitionKey as string);
+            if (!fact || !fact.locations.some((location) => location.coordinate_stable_key === row.StableKey &&
+                conditionsSatisfiable([...fact.conditions, ...location.conditions]))) continue;
             const stableKey = row.StableKey as string;
             if (!nodeMap.has(stableKey)) {
                 nodeMap.set(stableKey, {
@@ -366,7 +443,8 @@ export class RepositoryBase {
             nodeMap.get(stableKey)!.items.push({
                 name: row.ItemName as string,
                 wikiPageName: row.ItemWikiPageName as string | null,
-                dropChance: row.DropChance as number
+                dropChance: (row.DropChance as number | null) ?? 0,
+                provenance: fact
             });
         }
         stmt.free();
@@ -379,7 +457,7 @@ export class RepositoryBase {
             const itemLines = sortedItems
                 .map(
                     (item) =>
-                        `${formatWikiLink(item.name, item.wikiPageName)} (${Number(item.dropChance).toFixed(1)}%)`
+                        `${formatWikiLink(item.name, item.wikiPageName)}<br>${acquisitionPopupHtml(item.provenance, stableKey)}`
                 )
                 .join('<br>');
 
@@ -456,22 +534,32 @@ export class RepositoryBase {
                 FROM character_deduplications d
                 WHERE d.is_map_visible = 1
                 GROUP BY d.group_key
+            ), combat_groups AS (
+                SELECT member.group_key, MIN(combat_copy.level) AS Level, MAX(combat_copy.level) AS LevelMax
+                FROM character_deduplications member
+                JOIN characters combat_copy ON combat_copy.stable_key = member.member_stable_key
+                    AND combat_copy.can_be_damaged = 1 AND combat_copy.encounter_tier != 'npc'
+                WHERE member.is_map_visible = 1 GROUP BY member.group_key
             )
             SELECT
                 rep.stable_key AS StableKey,
                 rep.display_name AS Name,
                 rep.wiki_page_name AS WikiPageName,
                 rep.image_hash AS PortraitHash,
-                rep.level AS Level,
+                combat_groups.Level AS Level,
+                combat_groups.LevelMax AS LevelMax,
                 rep.encounter_tier AS EncounterTier
             FROM rep_groups rg
             JOIN characters rep ON rep.stable_key = rg.rep_stable_key
+            JOIN combat_groups ON combat_groups.group_key = rg.group_key
             WHERE rep.encounter_tier != 'npc'
               AND NOT EXISTS (
                   SELECT 1
                   FROM character_deduplications d
                   JOIN map_character_spawns cs
                     ON cs.character_stable_key = d.member_stable_key
+                  JOIN characters placed_copy ON placed_copy.stable_key = d.member_stable_key
+                    AND placed_copy.can_be_damaged = 1 AND placed_copy.encounter_tier != 'npc'
                   WHERE d.group_key = rg.group_key
                     AND d.is_map_visible = 1
                     AND (cs.spawn_chance > 0 OR cs.source_script IS NOT NULL)
@@ -505,6 +593,7 @@ export class RepositoryBase {
                 wikiPageName: row.WikiPageName as string | null,
                 portraitHash: (row.PortraitHash as string | null) ?? null,
                 level: row.Level as number,
+                levelMax: row.LevelMax as number,
                 encounterTier: row.EncounterTier as EnemyTier
             });
         }
@@ -541,11 +630,13 @@ export class RepositoryBase {
                 rep.wiki_page_name              AS WikiPageName,
                 rep.image_hash                  AS PortraitHash,
                 rep.stable_key                  AS CharacterStableKey,
-                rep.level                       AS Level,
-                rep.level_scales_with_player    AS LevelScalesWithPlayer,
+                MIN(combat_copy.level)          AS Level,
+                MAX(combat_copy.level)          AS LevelMax,
+                MAX(combat_copy.level_scales_with_player) AS LevelScalesWithPlayer,
                 rep.is_vendor                   AS IsVendor,
                 rep.has_dialog                  AS HasDialog,
-                rep.invulnerable                AS Invulnerable,
+                MIN(combat_copy.invulnerable)   AS Invulnerable,
+                MAX(combat_copy.can_be_damaged) AS CanBeDamaged,
                 sum(cs.spawn_chance)            AS SpawnChance,
                 MAX(cs.source_script)             AS SourceScript,
                 MAX(cs.event_x)                   AS EventX,
@@ -557,11 +648,14 @@ export class RepositoryBase {
             FROM rep_groups rg
             JOIN characters rep ON rep.stable_key = rg.rep_stable_key
             JOIN character_deduplications d ON d.group_key = rg.group_key AND d.is_map_visible = 1
+            JOIN characters combat_copy ON combat_copy.stable_key = d.member_stable_key
             JOIN map_character_spawns cs ON cs.character_stable_key = d.member_stable_key
             LEFT JOIN items fi ON fi.stable_key = cs.furniture_item_stable_key
             WHERE cs.scene = ?
               AND (cs.spawn_chance > 0 OR cs.source_script IS NOT NULL)
               AND cs.spawn_point_stable_key IS NOT NULL
+              AND (rep.encounter_tier = 'npc' OR
+                  (combat_copy.can_be_damaged = 1 AND combat_copy.encounter_tier != 'npc'))
             GROUP BY cs.spawn_point_stable_key, rep.stable_key
         `,
             [mapName]
@@ -614,6 +708,7 @@ export class RepositoryBase {
                 portraitHash: (row.PortraitHash as string | null) ?? null,
                 stableKey: row.CharacterStableKey as string,
                 level: (row.Level as number) ?? 1,
+                levelMax: row.LevelMax as number,
                 levelScalesWithPlayer: !!row.LevelScalesWithPlayer,
                 spawnChance: (row.SpawnChance as number | null) ?? null,
                 sourceScript: (row.SourceScript as string | null) ?? null,
@@ -627,6 +722,7 @@ export class RepositoryBase {
                         : null,
                 encounterTier: row.EncounterTier as EncounterTier,
                 isInvulnerable: !!row.Invulnerable,
+                canBeDamaged: row.CanBeDamaged === 1,
                 isVendor: !!row.IsVendor,
                 hasDialog: !!row.HasDialog,
                 furniture:
@@ -909,6 +1005,7 @@ export class RepositoryBase {
 
     async getWaterMarkers(mapName: string): Promise<WaterMarker[]> {
         if (!this.db) throw new Error('DB not initialized');
+        const facts = this.getProvenance().actionableByKey;
 
         const stmt = this.db.prepare(
             `
@@ -919,13 +1016,15 @@ export class RepositoryBase {
                 w.z AS PositionZ,
                 w.width AS Width,
                 w.depth AS Depth,
-                wf.type AS Type,
+                a.variant_key AS Type,
                 i.display_name AS ItemName,
                 i.wiki_page_name AS ItemWikiPageName,
-                wf.drop_chance AS DropChance
+                a.probability_max AS DropChance,
+                a.acquisition_key AS AcquisitionKey
             FROM waters w
-            JOIN water_fishables wf ON wf.water_stable_key = w.stable_key
-            JOIN items i ON i.stable_key = wf.item_stable_key
+            JOIN item_acquisitions a ON a.source_stable_key = w.stable_key AND a.kind IN ('fishing', 'fishing_bonus')
+                AND a.player_access_state IN ('verified_player', 'unconfirmed_player')
+            JOIN items i ON i.stable_key = a.item_stable_key
             WHERE w.scene = ?
         `,
             [mapName]
@@ -940,13 +1039,16 @@ export class RepositoryBase {
                 coordinates: { x: number; y: number; z: number };
                 width: number;
                 height: number;
-                daytimeItems: { name: string; wikiPageName: string | null; dropChance: number }[];
-                nighttimeItems: { name: string; wikiPageName: string | null; dropChance: number }[];
+                daytimeItems: MiningNodeItem[];
+                nighttimeItems: MiningNodeItem[];
             }
         >();
 
         while (stmt.step()) {
             const row = stmt.getAsObject();
+            const sourceFact = facts.get(row.AcquisitionKey as string);
+            if (!sourceFact || !sourceFact.locations.some((location) => location.coordinate_stable_key === row.StableKey &&
+                conditionsSatisfiable([...sourceFact.conditions, ...location.conditions]))) continue;
             const stableKey = row.StableKey as string;
             if (!waterMap.has(stableKey)) {
                 waterMap.set(stableKey, {
@@ -970,14 +1072,13 @@ export class RepositoryBase {
             const itemInfo = {
                 name: row.ItemName as string,
                 wikiPageName: row.ItemWikiPageName as string | null,
-                dropChance: row.DropChance as number
+                dropChance: (row.DropChance as number | null) ?? 0,
+                provenance: sourceFact
             };
 
-            if (row.Type === 'DayFishable') {
-                waterMap.get(stableKey)!.daytimeItems.push(itemInfo);
-            } else if (row.Type === 'NightFishable') {
-                waterMap.get(stableKey)!.nighttimeItems.push(itemInfo);
-            }
+            const period = sourceFact.conditions.find((condition) => condition.predicate === 'time_of_day')?.value;
+            if (period !== 'night') waterMap.get(stableKey)!.daytimeItems.push(itemInfo);
+            if (period !== 'day') waterMap.get(stableKey)!.nighttimeItems.push(itemInfo);
         }
         stmt.free();
 
@@ -1005,14 +1106,14 @@ export class RepositoryBase {
             const daytimeItemLines = sortedDaytimeItems
                 .map(
                     (item) =>
-                        `${formatWikiLink(item.name, item.wikiPageName)} (${Number(item.dropChance).toFixed(1)}%)`
+                        `${formatWikiLink(item.name, item.wikiPageName)}<br>${acquisitionPopupHtml(item.provenance, stableKey)}`
                 )
                 .join('<br>');
 
             const nighttimeItemLines = sortedNighttimeItems
                 .map(
                     (item) =>
-                        `${formatWikiLink(item.name, item.wikiPageName)} (${Number(item.dropChance).toFixed(1)}%)`
+                        `${formatWikiLink(item.name, item.wikiPageName)}<br>${acquisitionPopupHtml(item.provenance, stableKey)}`
                 )
                 .join('<br>');
 
@@ -1076,80 +1177,53 @@ export class RepositoryBase {
 
     async getZoneLineMarkers(mapName: string): Promise<ZoneLineMarker[]> {
         if (!this.db) throw new Error('DB not initialized');
-
-        const stmt = this.db.prepare(
-            `
-            SELECT
-                zl.stable_key AS StableKey,
-                zl.x AS PositionX,
-                zl.y AS PositionY,
-                zl.z AS PositionZ,
-                zl.is_enabled AS IsEnabled,
-                zl.landing_position_x AS LandingPositionX,
-                zl.landing_position_y AS LandingPositionY,
-                zl.landing_position_z AS LandingPositionZ,
-                z.scene_name AS DestinationZone,
-                z.display_name AS ZoneName,
-                z.is_map_visible AS IsMapVisible,
-                zae.level_range_low AS LevelRangeLow,
-                zae.level_range_high AS LevelRangeHigh
-            FROM zone_lines zl
-            JOIN zones z ON z.stable_key = zl.destination_zone_stable_key
-            LEFT JOIN zone_atlas_entries zae ON zae.zone_name = z.scene_name
-            WHERE zl.scene = ?
-        `,
-            [mapName]
-        );
-
+        const contexts = this.getZoneLineContexts();
+        const statement = this.db.prepare(`
+            SELECT zl.stable_key AS StableKey, zl.x AS PositionX, zl.y AS PositionY, zl.z AS PositionZ,
+                zl.is_enabled AS IsEnabled, zl.landing_position_x AS LandingPositionX,
+                zl.landing_position_y AS LandingPositionY, zl.landing_position_z AS LandingPositionZ,
+                destination.scene_name AS DestinationZone, destination.display_name AS ZoneName,
+                destination.is_map_visible AS IsMapVisible,
+                atlas.level_range_low AS LevelRangeLow, atlas.level_range_high AS LevelRangeHigh
+            FROM zone_lines_with_zoning_capability zl
+            LEFT JOIN zones destination ON destination.stable_key = zl.destination_zone_stable_key
+            LEFT JOIN zone_atlas_entries atlas ON atlas.zone_name = destination.scene_name
+            WHERE zl.scene = ? AND zl.x IS NOT NULL AND zl.y IS NOT NULL AND zl.z IS NOT NULL
+            ORDER BY zl.stable_key
+        `, [mapName]);
         const markers: ZoneLineMarker[] = [];
-
-        while (stmt.step()) {
-            const row = stmt.getAsObject();
-            const disabledText = row.IsEnabled
-                ? ''
-                : '<br><br>This zone connection is (initially) disabled.';
-            const levelRange =
-                row.LevelRangeLow && row.LevelRangeHigh
-                    ? ` (Level: ${row.LevelRangeLow}-${row.LevelRangeHigh})`
-                    : '';
-
-            const isMapVisible = !!row.IsMapVisible;
-
-            // Remove links for ShiveringTomb zones and show consistent name
-            const destinationZone = row.DestinationZone as string;
-            let zoneLink: string;
-            if (!isMapVisible) {
-                zoneLink = row.ZoneName as string;
-            } else if (
-                destinationZone === 'ShiveringTomb' ||
-                destinationZone === 'ShiveringTomb2'
-            ) {
-                zoneLink = 'Shivering Tomb';
-            } else {
-                zoneLink = `<a href='/${destinationZone}'>${row.ZoneName}</a>`;
+        try {
+            while (statement.step()) {
+                const row = statement.getAsObject();
+                if (![row.PositionX, row.PositionY, row.PositionZ].every((value) => typeof value === 'number' && Number.isFinite(value))) continue;
+                const context = contexts.get(row.StableKey as string) ?? null;
+                const destinationZone = context ? null : row.DestinationZone as string | null;
+                const destinationName = context ? STORED_RETURN_LABEL :
+                    (row.ZoneName as string | null) ?? destinationZone ?? 'Destination unknown';
+                const landingPosition = !context && [row.LandingPositionX, row.LandingPositionY, row.LandingPositionZ]
+                    .every((value) => typeof value === 'number' && Number.isFinite(value))
+                    ? { x: row.LandingPositionX as number, y: row.LandingPositionY as number, z: row.LandingPositionZ as number }
+                    : null;
+                const low = context ? null : row.LevelRangeLow as number | null;
+                const high = context ? null : row.LevelRangeHigh as number | null;
+                const levelRange = low !== null && high !== null ? ` (Level: ${low}-${high})` : '';
+                const disabledText = row.IsEnabled ? '' : '<br><br>This zone connection is (initially) disabled.';
+                let zoneLink = destinationName;
+                if (!context && destinationZone && row.IsMapVisible) {
+                    zoneLink = destinationZone === 'ShiveringTomb' || destinationZone === 'ShiveringTomb2'
+                        ? 'Shivering Tomb' : `<a href='/${destinationZone}'>${destinationName}</a>`;
+                }
+                markers.push({
+                    stableKey: row.StableKey as string, category: 'zone-line',
+                    position: { x: row.PositionX as number, y: row.PositionZ as number },
+                    popup: `Zone Connection @ ${formatCoordinates(row.PositionX as number, row.PositionY as number, row.PositionZ as number)}<br><br>${zoneLink}${levelRange}${disabledText}`,
+                    destinationZone, destinationZoneName: destinationName, landingPosition, destinationContext: context,
+                    levelRangeLow: low, levelRangeHigh: high, isEnabled: row.IsEnabled === 1
+                });
             }
-
-            markers.push({
-                stableKey: row.StableKey as string,
-                category: 'zone-line',
-                position: {
-                    x: row.PositionX as number,
-                    y: row.PositionZ as number
-                },
-                popup: `Zone Connection @ ${formatCoordinates(row.PositionX as number, row.PositionY as number, row.PositionZ as number)}<br><br>${zoneLink}${levelRange}${disabledText}`,
-                destinationZone: row.DestinationZone as string,
-                destinationZoneName: row.ZoneName as string,
-                landingPosition: {
-                    x: row.LandingPositionX as number,
-                    y: row.LandingPositionY as number,
-                    z: row.LandingPositionZ as number
-                },
-                levelRangeLow: row.LevelRangeLow as number | null,
-                levelRangeHigh: row.LevelRangeHigh as number | null,
-                isEnabled: !!row.IsEnabled
-            });
+        } finally {
+            statement.free();
         }
-        stmt.free();
         return markers;
     }
 
@@ -1213,6 +1287,7 @@ export class RepositoryBase {
      */
     async getAllItems(): Promise<ItemSourceItemMeta[]> {
         if (!this.db) throw new Error('DB not initialized');
+        this.getProvenance();
 
         const stmt = this.db.prepare(`
             SELECT
@@ -1240,466 +1315,119 @@ export class RepositoryBase {
         return items;
     }
 
-    /**
-     * Preload acquisition sources for visible map items, including hidden variants
-     * sharing a wiki page with exactly one visible representative.
-     * A drop or stock row names the group's map-visible representative, which keys its markers and
-     * live candidates, and holds what the group's copies of `character_fact_sources` drop and what
-     * `vendor_offers` says they sell, so a copy that players never meet, such as an unplaced backup
-     * prefab, adds no source, even when it is the representative.
-     */
+    /** Canonical facts keep their original identities when a hidden item aliases one visible item. */
     async getItemSources(): Promise<ItemSourceRow[]> {
         if (!this.db) throw new Error('DB not initialized');
-
+        const provenance = this.getProvenance();
+        const facts = provenance.acquisitions;
+        const fishingBonuses = new Map<string, ItemAcquisition[]>();
+        for (const fact of facts) {
+            if (fact.kind !== 'fishing_bonus' || fact.probability_stage !== 'native_pool' ||
+                fact.mechanic !== 'fishing_global_replacement' || fact.probability_kind !== 'exact') continue;
+            const bonuses = fishingBonuses.get(fact.item_stable_key) ?? [];
+            bonuses.push(fact);
+            fishingBonuses.set(fact.item_stable_key, bonuses);
+        }
+        const metadata = new Map<string, ItemSourceItemMeta & { visible: boolean; price: number }>();
+        const names: Record<string, string> = {};
+        const pages: Record<string, string | null> = {};
+        const itemStmt = this.db.prepare('SELECT * FROM items ORDER BY stable_key');
+        while (itemStmt.step()) {
+            const item = itemStmt.getAsObject();
+            const key = item.stable_key as string;
+            names[key] = item.display_name as string;
+            pages[key] = item.wiki_page_name as string | null;
+            metadata.set(key, { itemStableKey: key, displayName: names[key], wikiPageName: pages[key],
+                iconHash: item.image_hash as string | null, visible: item.is_map_visible === 1,
+                price: item.item_value as number });
+        }
+        itemStmt.free();
+        const representatives = new Map<string, string>();
+        const characters = this.db.prepare(`
+            SELECT c.stable_key, c.display_name AS npc_name, c.wiki_page_name, d.group_key, d.is_map_visible
+            FROM characters c LEFT JOIN character_deduplications d ON d.member_stable_key = c.stable_key
+            ORDER BY c.stable_key
+        `);
+        while (characters.step()) {
+            const row = characters.getAsObject();
+            const key = row.stable_key as string;
+            names[key] = row.npc_name as string;
+            pages[key] = row.wiki_page_name as string | null;
+            if (row.is_map_visible === 1 && !representatives.has(row.group_key as string)) {
+                representatives.set(row.group_key as string, key);
+                names[row.group_key as string] = names[key];
+                pages[row.group_key as string] = pages[key];
+            }
+        }
+        characters.free();
+        for (const [table, name] of [['quests', 'display_name'], ['zones', 'display_name']] as const) {
+            const statement = this.db.prepare(`SELECT stable_key, ${name} AS name${table === 'quests' ? ', wiki_page_name' : ''} FROM ${table}`);
+            while (statement.step()) {
+                const row = statement.getAsObject();
+                names[row.stable_key as string] = row.name as string;
+                if (table === 'quests') pages[row.stable_key as string] = row.wiki_page_name as string | null;
+            }
+            statement.free();
+        }
+        const classes = this.db.prepare('SELECT class_name, COALESCE(display_name, class_name) AS name FROM classes');
+        while (classes.step()) {
+            const row = classes.getAsObject();
+            names[`class:${(row.class_name as string).toLowerCase()}`] = row.name as string;
+        }
+        classes.free();
+        const visibleByPage = new Map<string, ItemSourceItemMeta[]>();
+        for (const item of metadata.values()) {
+            if (!item.visible || !item.wikiPageName?.trim()) continue;
+            const group = visibleByPage.get(item.wikiPageName) ?? [];
+            group.push(item);
+            visibleByPage.set(item.wikiPageName, group);
+        }
         const rows: ItemSourceRow[] = [];
-        const mapItems = `
-            SELECT source.stable_key AS source_stable_key, rep.*
-            FROM items source
-            JOIN items rep ON rep.stable_key = source.stable_key
-                OR (source.is_map_visible = 0 AND source.wiki_page_name = rep.wiki_page_name
-                    AND NOT EXISTS (
-                        SELECT 1 FROM items other
-                        WHERE other.wiki_page_name = rep.wiki_page_name
-                            AND other.is_map_visible = 1 AND other.stable_key != rep.stable_key
-                    ))
-            WHERE rep.is_map_visible = 1
-        `;
-
-        {
-            const stmt = this.db.prepare(`
-                SELECT
-                    i.stable_key        AS itemStableKey,
-                    i.display_name      AS displayName,
-                    i.wiki_page_name    AS wikiPageName,
-                    i.image_hash        AS iconHash,
-                    c.stable_key        AS characterStableKey,
-                    c.npc_name          AS npcName,
-                    c.wiki_page_name    AS npcWikiPageName,
-                    c.encounter_tier    AS encounterTier,
-                    MAX(gd.drop_probability) AS dropProbability
-                FROM (
-                    SELECT s.group_key, ld.item_stable_key, MAX(ld.drop_probability) AS drop_probability
-                    FROM loot_drops ld
-                    JOIN character_fact_sources s ON s.member_stable_key = ld.character_stable_key
-                    WHERE NOT (COALESCE(ld.is_common_world_item, 0) = 1
-                        AND NOT (COALESCE(ld.is_common, 0) OR COALESCE(ld.is_uncommon, 0)
-                            OR COALESCE(ld.is_rare, 0) OR COALESCE(ld.is_legendary, 0)
-                            OR COALESCE(ld.is_ultra_rare, 0) OR COALESCE(ld.is_guaranteed, 0)
-                            OR COALESCE(ld.is_actual, 0)))
-                      AND NOT EXISTS (
-                          SELECT 1 FROM treasure_chest_possible_spawns ts
-                          WHERE ts.chest_character_stable_key = ld.character_stable_key
-                      )
-                    GROUP BY s.group_key, ld.item_stable_key
-                ) gd
-                JOIN (
-                    SELECT group_key, MIN(member_stable_key) AS rep_stable_key
-                    FROM character_deduplications
-                    WHERE is_map_visible = 1
-                    GROUP BY group_key
-                ) rg ON rg.group_key = gd.group_key
-                JOIN (${mapItems}) i ON i.source_stable_key = gd.item_stable_key
-                JOIN characters c ON c.stable_key = rg.rep_stable_key
-                WHERE i.is_map_visible = 1
-                GROUP BY i.stable_key, c.stable_key
-                ORDER BY i.display_name, dropProbability DESC
-            `);
-
-            while (stmt.step()) {
-                const row = stmt.getAsObject();
-                rows.push({
-                    kind: 'drop',
-                    itemStableKey: row.itemStableKey as string,
-                    displayName: row.displayName as string,
-                    wikiPageName: (row.wikiPageName as string) ?? null,
-                    iconHash: (row.iconHash as string) ?? null,
-                    characterStableKey: row.characterStableKey as string,
-                    npcName: (row.npcName as string) ?? '',
-                    npcWikiPageName: (row.npcWikiPageName as string) ?? null,
-                    encounterTier: row.encounterTier as EncounterTier,
-                    dropProbability: row.dropProbability as number
-                });
-            }
-            stmt.free();
+        for (const fact of facts) {
+            if (!provenance.actionableByKey.has(fact.acquisition_key)) continue;
+            const original = metadata.get(fact.item_stable_key);
+            if (!original) throw new Error(`Missing canonical acquisition item: ${fact.item_stable_key}`);
+            const aliases = original.wikiPageName ? visibleByPage.get(original.wikiPageName) : undefined;
+            const item = original.visible ? original : aliases?.length === 1 ? aliases[0] : null;
+            if (!item) continue;
+            const originatingDisposition = provenance.dispositionByKey.get(fact.item_stable_key)!;
+            const displayDisposition = provenance.dispositionByKey.get(item.itemStableKey)!;
+            if (displayDisposition.disposition !== 'current') continue;
+            const characterKey = representatives.get(fact.source_group_key ?? fact.source_stable_key ?? '') ??
+                (fact.source_copy_stable_key && names[fact.source_copy_stable_key] ? fact.source_copy_stable_key : null);
+            const sourceKey = fact.source_stable_key;
+            rows.push({
+                itemStableKey: item.itemStableKey, displayName: item.displayName, wikiPageName: item.wikiPageName,
+                iconHash: item.iconHash, kind: fact.kind, acquisitionKey: fact.acquisition_key,
+                originatingItemStableKey: fact.item_stable_key, provenance: fact,
+                originatingDisposition, displayDisposition,
+                fishingBonus: fact.kind === 'fishing' && fact.probability_kind === 'exact'
+                    ? fishingBonuses.get(fact.item_stable_key)?.find((bonus) => bonus.probability_min === fact.probability_min &&
+                        bonus.probability_max === fact.probability_max) ?? null : null,
+                sourceName: fact.kind === 'common_world_item' ? 'Any enemy with common drops' :
+                    fact.kind === 'special_world_drop' ? 'Any enemy' :
+                    fact.kind === 'auction_house' ? 'Auction House' :
+                    fact.kind === 'ui_grant' && fact.mechanic === 'cosmetic_panel' ? 'Cosmetic panel' :
+                    fact.kind === 'ui_grant' && fact.mechanic === 'planning_table' ? 'Planning table' :
+                    fact.kind === 'mining' ? 'Mining node' : fact.kind === 'fishing' ? 'Fishable water' :
+                    fact.kind === 'item_bag' ? 'Ground item' :
+                    sourceKey ? (names[sourceKey] ?? (characterKey ? names[characterKey] : null) ?? sourceKey.replace(/^[^:]+:/, '').replaceAll('_', ' ')) : fact.kind.replaceAll('_', ' '),
+                sourceWikiPageName: fact.kind === 'auction_house' ? 'Auction House' :
+                    sourceKey ? (pages[sourceKey] ?? (characterKey ? pages[characterKey] : null) ?? null) : null,
+                characterStableKey: characterKey, price: fact.kind === 'vendor' ? original.price : null,
+                locationSources: Object.fromEntries(fact.locations.flatMap((location) => {
+                    const copy = location.source_copy_stable_key;
+                    return copy && names[copy] ? [[copy, { name: names[copy], wikiPageName: pages[copy] ?? null }]] : [];
+                })),
+                referenceNames: Object.fromEntries([...new Set([
+                    ...fact.conditions.flatMap((condition) => condition.reference_stable_key ? [condition.reference_stable_key] : []),
+                    ...fact.locations.flatMap((location) => [
+                        ...(location.zone_stable_key ? [location.zone_stable_key] : []),
+                        ...location.conditions.flatMap((condition) => condition.reference_stable_key ? [condition.reference_stable_key] : [])
+                    ])
+                ])].filter((key) => names[key]).map((key) => [key, names[key]]))
+            });
         }
-
-        {
-            const stmt = this.db.prepare(`
-                SELECT DISTINCT
-                    i.stable_key        AS itemStableKey,
-                    i.display_name      AS displayName,
-                    i.wiki_page_name    AS wikiPageName,
-                    i.image_hash        AS iconHash,
-                    c.stable_key        AS characterStableKey,
-                    c.npc_name          AS npcName,
-                    c.wiki_page_name    AS npcWikiPageName,
-                    i.item_value        AS price
-                FROM (SELECT DISTINCT vendor_stable_key, item_stable_key FROM vendor_offers) vo
-                JOIN (
-                    SELECT group_key, MIN(member_stable_key) AS rep_stable_key
-                    FROM character_deduplications
-                    WHERE is_map_visible = 1
-                    GROUP BY group_key
-                ) rg ON rg.group_key = vo.vendor_stable_key
-                JOIN (${mapItems}) i ON i.source_stable_key = vo.item_stable_key
-                JOIN characters c ON c.stable_key = rg.rep_stable_key
-                WHERE i.is_map_visible = 1
-                ORDER BY displayName, itemStableKey, characterStableKey
-            `);
-
-            while (stmt.step()) {
-                const row = stmt.getAsObject();
-                rows.push({
-                    kind: 'vendor',
-                    itemStableKey: row.itemStableKey as string,
-                    displayName: row.displayName as string,
-                    wikiPageName: (row.wikiPageName as string) ?? null,
-                    iconHash: (row.iconHash as string) ?? null,
-                    characterStableKey: row.characterStableKey as string,
-                    npcName: (row.npcName as string) ?? '',
-                    npcWikiPageName: (row.npcWikiPageName as string) ?? null,
-                    price: (row.price as number) ?? 0
-                });
-            }
-            stmt.free();
-        }
-
-        {
-            const stmt = this.db.prepare(`
-                SELECT i.stable_key AS itemStableKey, i.display_name AS displayName,
-                    i.wiki_page_name AS wikiPageName, i.image_hash AS iconHash,
-                    c.stable_key AS characterStableKey, c.display_name AS chestName,
-                    c.wiki_page_name AS chestWikiPageName,
-                    ts.treasure_location_stable_key AS treasureLocationStableKey,
-                    ts.player_level_min AS playerLevelMin, ts.player_level_max AS playerLevelMax,
-                    ld.drop_probability AS dropProbability
-                FROM loot_drops ld
-                JOIN treasure_chest_possible_spawns ts ON ts.chest_character_stable_key = ld.character_stable_key
-                JOIN characters c ON c.stable_key = ld.character_stable_key
-                JOIN (${mapItems}) i ON i.source_stable_key = ld.item_stable_key
-                ORDER BY i.display_name, c.stable_key, ts.treasure_location_stable_key
-            `);
-            while (stmt.step()) {
-                rows.push({ ...stmt.getAsObject(), kind: 'treasure' } as ItemSourceRow);
-            }
-            stmt.free();
-        }
-
-        {
-            const stmt = this.db.prepare(`
-                SELECT
-                    i.stable_key             AS itemStableKey,
-                    i.display_name           AS displayName,
-                    i.wiki_page_name        AS wikiPageName,
-                    i.image_hash            AS iconHash,
-                    mi.mining_node_stable_key AS nodeStableKey,
-                    mi.drop_chance           AS dropChance
-                FROM mining_node_items mi
-                JOIN (${mapItems}) i ON i.source_stable_key = mi.item_stable_key
-                WHERE i.is_map_visible = 1
-                ORDER BY i.display_name
-            `);
-
-            while (stmt.step()) {
-                const row = stmt.getAsObject();
-                rows.push({
-                    kind: 'mining',
-                    itemStableKey: row.itemStableKey as string,
-                    displayName: row.displayName as string,
-                    wikiPageName: (row.wikiPageName as string) ?? null,
-                    iconHash: (row.iconHash as string) ?? null,
-                    nodeStableKey: row.nodeStableKey as string,
-                    dropChance: (row.dropChance as number) ?? 0
-                });
-            }
-            stmt.free();
-        }
-
-        {
-            const stmt = this.db.prepare(`
-                SELECT
-                    i.stable_key        AS itemStableKey,
-                    i.display_name      AS displayName,
-                    i.wiki_page_name    AS wikiPageName,
-                    i.image_hash        AS iconHash,
-                    wf.water_stable_key AS waterStableKey,
-                    wf.type             AS fishType,
-                    wf.drop_chance      AS dropChance
-                FROM water_fishables wf
-                JOIN (${mapItems}) i ON i.source_stable_key = wf.item_stable_key
-                WHERE i.is_map_visible = 1
-                ORDER BY i.display_name
-            `);
-
-            while (stmt.step()) {
-                const row = stmt.getAsObject();
-                rows.push({
-                    kind: 'fishing',
-                    itemStableKey: row.itemStableKey as string,
-                    displayName: row.displayName as string,
-                    wikiPageName: (row.wikiPageName as string) ?? null,
-                    iconHash: (row.iconHash as string) ?? null,
-                    waterStableKey: row.waterStableKey as string,
-                    period: row.fishType === 'NightFishable' ? 'night' : 'day',
-                    dropChance: (row.dropChance as number) ?? 0
-                });
-            }
-            stmt.free();
-        }
-
-        {
-            const stmt = this.db.prepare(`
-                SELECT
-                    i.stable_key        AS itemStableKey,
-                    i.display_name      AS displayName,
-                    i.wiki_page_name    AS wikiPageName,
-                    i.image_hash        AS iconHash,
-                    ib.stable_key       AS bagStableKey
-                FROM item_bags ib
-                JOIN (${mapItems}) i ON i.source_stable_key = ib.item_stable_key
-                WHERE i.is_map_visible = 1
-                ORDER BY i.display_name
-            `);
-
-            while (stmt.step()) {
-                const row = stmt.getAsObject();
-                rows.push({
-                    kind: 'bag',
-                    itemStableKey: row.itemStableKey as string,
-                    displayName: row.displayName as string,
-                    wikiPageName: (row.wikiPageName as string) ?? null,
-                    iconHash: (row.iconHash as string) ?? null,
-                    bagStableKey: row.bagStableKey as string
-                });
-            }
-            stmt.free();
-        }
-
-        {
-            const stmt = this.db.prepare(`
-                SELECT
-                    i.stable_key            AS itemStableKey,
-                    i.display_name          AS displayName,
-                    i.wiki_page_name        AS wikiPageName,
-                    i.image_hash            AS iconHash,
-                    swd.pool                AS pool,
-                    swd.drop_probability    AS dropProbability,
-                    swd.min_level_exclusive AS minLevelExclusive
-                FROM special_world_drops swd
-                JOIN (${mapItems}) i ON i.source_stable_key = swd.item_stable_key
-                WHERE i.is_map_visible = 1
-                ORDER BY i.display_name, swd.pool
-            `);
-
-            while (stmt.step()) {
-                const row = stmt.getAsObject();
-                rows.push({
-                    kind: 'world',
-                    itemStableKey: row.itemStableKey as string,
-                    displayName: row.displayName as string,
-                    wikiPageName: (row.wikiPageName as string) ?? null,
-                    iconHash: (row.iconHash as string) ?? null,
-                    pool: row.pool as string,
-                    dropProbability: row.dropProbability as number,
-                    minLevelExclusive: row.minLevelExclusive as number
-                });
-            }
-            stmt.free();
-        }
-
-        // Common-world replacements have no individual enemy source. Only
-        // positive swap-only rows from copies players meet define the range.
-        {
-            const stmt = this.db.prepare(`
-                SELECT i.stable_key AS itemStableKey, i.display_name AS displayName,
-                    i.wiki_page_name AS wikiPageName, i.image_hash AS iconHash,
-                    MIN(ld.drop_probability) AS dropProbability,
-                    MAX(ld.drop_probability) AS dropProbabilityMax
-                FROM loot_drops ld
-                JOIN character_fact_sources s ON s.member_stable_key = ld.character_stable_key
-                JOIN (${mapItems}) i ON i.source_stable_key = ld.item_stable_key
-                WHERE i.is_map_visible = 1 AND COALESCE(ld.is_common_world_item, 0) = 1
-                    AND NOT (COALESCE(ld.is_common, 0) OR COALESCE(ld.is_uncommon, 0)
-                        OR COALESCE(ld.is_rare, 0) OR COALESCE(ld.is_legendary, 0)
-                        OR COALESCE(ld.is_ultra_rare, 0) OR COALESCE(ld.is_guaranteed, 0)
-                        OR COALESCE(ld.is_actual, 0))
-                    AND ld.drop_probability > 0
-                GROUP BY i.stable_key
-                ORDER BY i.display_name
-            `);
-            while (stmt.step()) {
-                const row = stmt.getAsObject();
-                rows.push({
-                    kind: 'common_world_item',
-                    itemStableKey: row.itemStableKey as string,
-                    displayName: row.displayName as string,
-                    wikiPageName: (row.wikiPageName as string) ?? null,
-                    iconHash: (row.iconHash as string) ?? null,
-                    dropProbability: row.dropProbability as number,
-                    dropProbabilityMax: row.dropProbabilityMax as number
-                });
-            }
-            stmt.free();
-        }
-
-        // Character facts come only from copies players meet; marker keys are
-        // the same map-visible representatives used for drops and vendors.
-        const representatives = `
-            SELECT group_key, MIN(member_stable_key) AS characterStableKey
-            FROM character_deduplications WHERE is_map_visible = 1 GROUP BY group_key
-        `;
-        const additionalSources = [
-            {
-                kind: 'dialog',
-                sql: `
-                    SELECT DISTINCT cd.give_item_stable_key AS item_key,
-                        r.characterStableKey, c.npc_name AS npcName,
-                        cd.required_quest_stable_key AS requiredQuestStableKey,
-                        COALESCE(q.display_name, cd.required_quest_stable_key) AS requiredQuestName,
-                        q.wiki_page_name AS requiredQuestWikiPageName
-                    FROM character_dialogs cd
-                    JOIN character_fact_sources s ON s.member_stable_key = cd.character_stable_key
-                    JOIN (${representatives}) r ON r.group_key = s.group_key
-                    JOIN characters c ON c.stable_key = r.characterStableKey
-                    LEFT JOIN quests q ON q.stable_key = cd.required_quest_stable_key
-                    WHERE cd.give_item_stable_key IS NOT NULL
-                `
-            },
-            {
-                kind: 'quest',
-                sql: `
-                    SELECT DISTINCT qv.item_on_complete_stable_key AS item_key,
-                        q.stable_key AS questStableKey, q.display_name AS questName,
-                        q.wiki_page_name AS questWikiPageName,
-                        t.characterStableKey AS turnInCharacterStableKey,
-                        c.npc_name AS turnInCharacterName
-                    FROM quest_variants qv
-                    JOIN quests q ON q.stable_key = qv.quest_stable_key
-                    LEFT JOIN (
-                        SELECT DISTINCT cd.complete_quest_stable_key AS quest_key, r.characterStableKey
-                        FROM character_dialogs cd
-                        JOIN character_fact_sources s ON s.member_stable_key = cd.character_stable_key
-                        JOIN (${representatives}) r ON r.group_key = s.group_key
-                        WHERE cd.complete_quest_stable_key IS NOT NULL
-                    ) t ON t.quest_key = q.stable_key
-                    LEFT JOIN characters c ON c.stable_key = t.characterStableKey
-                    WHERE qv.item_on_complete_stable_key IS NOT NULL
-                `
-            },
-            {
-                kind: 'craft',
-                sql: `
-                    SELECT DISTINCT cr.reward_item_stable_key AS item_key,
-                        i.stable_key AS recipeStableKey, i.display_name AS recipeName,
-                        i.wiki_page_name AS recipeWikiPageName
-                    FROM crafting_rewards cr JOIN items i ON i.stable_key = cr.recipe_item_stable_key
-                `
-            },
-            {
-                kind: 'item_use',
-                sql: `
-                    SELECT s.item_key, i.stable_key AS sourceItemStableKey,
-                        i.display_name AS sourceItemName, i.wiki_page_name AS sourceItemWikiPageName,
-                        MAX(s.probability) AS dropProbability,
-                        COALESCE(z.display_name, s.zone_key) AS zoneName
-                    FROM (
-                        SELECT dropped_item_stable_key AS item_key, source_item_stable_key AS source_key,
-                            drop_probability AS probability, NULL AS zone_key FROM item_drops
-                        UNION ALL
-                        SELECT created_item_stable_key, source_item_stable_key, NULL, NULL FROM spell_created_items
-                        UNION ALL
-                        SELECT output_item_stable_key, input_item_stable_key, NULL, zone_stable_key FROM item_conversions
-                    ) s
-                    JOIN items i ON i.stable_key = s.source_key
-                    LEFT JOIN zones z ON z.stable_key = s.zone_key
-                    GROUP BY s.item_key, s.source_key, s.zone_key
-                `
-            },
-            {
-                kind: 'starting',
-                sql: `
-                    SELECT DISTINCT csi.item_stable_key AS item_key, c.class_name AS className,
-                        COALESCE(c.display_name, c.class_name) AS classDisplayName,
-                        (SELECT COUNT(DISTINCT cs.class_name) FROM class_starting_items cs
-                         JOIN classes pc ON pc.class_name = cs.class_name
-                         WHERE cs.item_stable_key = csi.item_stable_key AND pc.class_name != 'Default')
-                        = (SELECT COUNT(*) FROM classes WHERE class_name != 'Default') AS allClasses
-                    FROM class_starting_items csi JOIN classes c ON c.class_name = csi.class_name
-                    WHERE c.class_name != 'Default'
-                `
-            }
-        ] as const;
-        for (const { kind, sql } of additionalSources) {
-            const stmt = this.db.prepare(`
-                SELECT i.stable_key AS itemStableKey, i.display_name AS displayName,
-                    i.wiki_page_name AS wikiPageName, i.image_hash AS iconHash, s.*
-                FROM (${sql}) s JOIN (${mapItems}) i ON i.source_stable_key = s.item_key
-                WHERE i.is_map_visible = 1
-                ORDER BY i.display_name, i.stable_key
-            `);
-            while (stmt.step()) {
-                const row = stmt.getAsObject();
-                delete row.item_key;
-                rows.push({
-                    ...row,
-                    kind,
-                    ...(kind === 'starting' ? { allClasses: row.allClasses === 1 } : {})
-                } as ItemSourceRow);
-            }
-            stmt.free();
-        }
-
-        {
-            const brokerStmt = this.db.prepare(`
-                SELECT DISTINCT COALESCE(rep.stable_key, c.stable_key) AS characterStableKey,
-                    COALESCE(rep.npc_name, c.npc_name) AS npcName,
-                    COALESCE(rep.wiki_page_name, c.wiki_page_name) AS npcWikiPageName
-                FROM auction_house_brokers ahb
-                JOIN characters c ON c.stable_key = ahb.character_stable_key
-                LEFT JOIN character_deduplications member ON member.member_stable_key = c.stable_key
-                LEFT JOIN (
-                    SELECT group_key, MIN(member_stable_key) AS stable_key
-                    FROM character_deduplications
-                    WHERE is_map_visible = 1
-                    GROUP BY group_key
-                ) visible ON visible.group_key = member.group_key
-                LEFT JOIN characters rep ON rep.stable_key = visible.stable_key
-                ORDER BY npcName, characterStableKey
-            `);
-            const brokers: Extract<ItemSourceRow, { kind: 'auction_house' }>['brokers'] = [];
-            while (brokerStmt.step()) {
-                const broker = brokerStmt.getAsObject();
-                brokers.push({
-                    characterStableKey: broker.characterStableKey as string,
-                    npcName: broker.npcName as string,
-                    npcWikiPageName: (broker.npcWikiPageName as string) ?? null
-                });
-            }
-            brokerStmt.free();
-            const stmt = this.db.prepare(`
-                SELECT DISTINCT i.stable_key AS itemStableKey, i.display_name AS displayName,
-                    i.wiki_page_name AS wikiPageName, i.image_hash AS iconHash
-                FROM (${mapItems}) i
-                WHERE EXISTS (
-                    SELECT 1 FROM auction_house_items ahi
-                    WHERE ahi.item_stable_key = i.source_stable_key
-                )
-                ORDER BY displayName, itemStableKey
-            `);
-            while (stmt.step()) {
-                const item = stmt.getAsObject();
-                rows.push({
-                    kind: 'auction_house',
-                    itemStableKey: item.itemStableKey as string,
-                    displayName: item.displayName as string,
-                    wikiPageName: (item.wikiPageName as string) ?? null,
-                    iconHash: (item.iconHash as string) ?? null,
-                    brokers
-                });
-            }
-            stmt.free();
-        }
-
         return rows;
     }
 
@@ -1753,168 +1481,49 @@ export class RepositoryBase {
         return byName;
     }
 
-    async getZoneEnemyInfo(zoneName: string): Promise<{
-        levelRange: { min: number; max: number } | null;
-        bosses: { name: string; wikiPageName: string | null; level: number }[];
-        elites: { name: string; wikiPageName: string | null; level: number }[];
-        chests: { name: string; wikiPageName: string | null; level: number }[];
-    }> {
+    async getZoneEnemyInfo(zoneName: string): Promise<ZoneEnemyInfo> {
         if (!this.db) throw new Error('DB not initialized');
-
-        // Query level range from both directly placed and spawn point enemies
-        const levelStmt = this.db.prepare(
-            `
-            WITH rep_groups AS (
-                SELECT d.group_key, MIN(d.member_stable_key) AS rep_stable_key
-                FROM character_deduplications d
-                WHERE d.is_map_visible = 1
-                GROUP BY d.group_key
-            ),
-            zone_groups AS (
-                SELECT DISTINCT d.group_key
-                FROM character_deduplications d
-                JOIN map_character_spawns cs ON cs.character_stable_key = d.member_stable_key
-                WHERE cs.scene = ? AND d.is_map_visible = 1
-            ),
-            zone_reps AS (
-                SELECT rg.rep_stable_key
-                FROM rep_groups rg
-                JOIN zone_groups zg ON zg.group_key = rg.group_key
+        const statement = this.db.prepare(`
+            WITH representatives AS (
+                SELECT group_key, MIN(member_stable_key) AS representative_key
+                FROM character_deduplications WHERE is_map_visible = 1 GROUP BY group_key
             )
-            SELECT MIN(c.level) as MinLevel, MAX(c.level) as MaxLevel
-            FROM characters c
-            WHERE c.stable_key IN (SELECT rep_stable_key FROM zone_reps)
-              AND c.encounter_tier IN ('boss', 'elite', 'enemy')
-            `,
-            [zoneName]
-        );
-
-        let levelRange: { min: number; max: number } | null = null;
-        if (levelStmt.step()) {
-            const row = levelStmt.getAsObject();
-            const minLevel = row.MinLevel as number | null;
-            const maxLevel = row.MaxLevel as number | null;
-            if (minLevel !== null && maxLevel !== null) {
-                levelRange = { min: minLevel, max: maxLevel };
+            SELECT representative.display_name AS Name, representative.wiki_page_name AS WikiPageName,
+                representative.encounter_tier AS EncounterTier,
+                MIN(combat_copy.level) AS Level, MAX(combat_copy.level) AS LevelMax
+            FROM representatives
+            JOIN characters representative ON representative.stable_key = representatives.representative_key
+            JOIN character_deduplications member
+                ON member.group_key = representatives.group_key AND member.is_map_visible = 1
+            JOIN characters combat_copy
+                ON combat_copy.stable_key = member.member_stable_key AND combat_copy.can_be_damaged = 1
+            JOIN map_character_spawns placement ON placement.character_stable_key = combat_copy.stable_key
+            WHERE placement.scene = ?
+                AND combat_copy.encounter_tier IN ('boss', 'elite', 'enemy', 'chest')
+                AND representative.encounter_tier IN ('boss', 'elite', 'enemy', 'chest')
+            GROUP BY representative.stable_key
+            ORDER BY Level, representative.display_name, representative.stable_key
+        `, [zoneName]);
+        const info: ZoneEnemyInfo = { levelRange: null, bosses: [], elites: [], chests: [] };
+        try {
+            while (statement.step()) {
+                const row = statement.getAsObject();
+                const level = row.Level as number;
+                const levelMax = row.LevelMax as number;
+                if (row.EncounterTier !== 'chest') {
+                    info.levelRange = info.levelRange
+                        ? { min: Math.min(info.levelRange.min, level), max: Math.max(info.levelRange.max, levelMax) }
+                        : { min: level, max: levelMax };
+                }
+                const character = { name: row.Name as string, wikiPageName: row.WikiPageName as string | null, level, levelMax };
+                if (row.EncounterTier === 'boss') info.bosses.push(character);
+                else if (row.EncounterTier === 'elite') info.elites.push(character);
+                else if (row.EncounterTier === 'chest') info.chests.push(character);
             }
+        } finally {
+            statement.free();
         }
-        levelStmt.free();
-
-        // Query bosses
-        const bossStmt = this.db.prepare(
-            `
-            WITH rep_groups AS (
-                SELECT d.group_key, MIN(d.member_stable_key) AS rep_stable_key
-                FROM character_deduplications d
-                WHERE d.is_map_visible = 1
-                GROUP BY d.group_key
-            ),
-            zone_groups AS (
-                SELECT DISTINCT d.group_key
-                FROM character_deduplications d
-                JOIN map_character_spawns cs ON cs.character_stable_key = d.member_stable_key
-                WHERE cs.scene = ? AND d.is_map_visible = 1
-            ),
-            zone_reps AS (
-                SELECT rg.rep_stable_key
-                FROM rep_groups rg
-                JOIN zone_groups zg ON zg.group_key = rg.group_key
-            )
-            SELECT c.display_name AS NPCName, c.wiki_page_name AS WikiPageName, c.level AS Level
-            FROM characters c
-            WHERE c.stable_key IN (SELECT rep_stable_key FROM zone_reps)
-              AND c.encounter_tier = 'boss'
-            ORDER BY c.level, c.display_name
-            `,
-            [zoneName]
-        );
-
-        const bosses: { name: string; wikiPageName: string | null; level: number }[] = [];
-        while (bossStmt.step()) {
-            const row = bossStmt.getAsObject();
-            bosses.push({
-                name: row.NPCName as string,
-                wikiPageName: row.WikiPageName as string | null,
-                level: row.Level as number
-            });
-        }
-        bossStmt.free();
-
-        // Query elites
-        const eliteStmt = this.db.prepare(
-            `
-            WITH rep_groups AS (
-                SELECT d.group_key, MIN(d.member_stable_key) AS rep_stable_key
-                FROM character_deduplications d
-                WHERE d.is_map_visible = 1
-                GROUP BY d.group_key
-            ),
-            zone_groups AS (
-                SELECT DISTINCT d.group_key
-                FROM character_deduplications d
-                JOIN map_character_spawns cs ON cs.character_stable_key = d.member_stable_key
-                WHERE cs.scene = ? AND d.is_map_visible = 1
-            ),
-            zone_reps AS (
-                SELECT rg.rep_stable_key
-                FROM rep_groups rg
-                JOIN zone_groups zg ON zg.group_key = rg.group_key
-            )
-            SELECT c.display_name AS NPCName, c.wiki_page_name AS WikiPageName, c.level AS Level
-            FROM characters c
-            WHERE c.stable_key IN (SELECT rep_stable_key FROM zone_reps)
-              AND c.encounter_tier = 'elite'
-            ORDER BY c.level, c.display_name
-            `,
-            [zoneName]
-        );
-
-        const elites: { name: string; wikiPageName: string | null; level: number }[] = [];
-        while (eliteStmt.step()) {
-            const row = eliteStmt.getAsObject();
-            elites.push({
-                name: row.NPCName as string,
-                wikiPageName: row.WikiPageName as string | null,
-                level: row.Level as number
-            });
-        }
-        eliteStmt.free();
-
-        const chestStmt = this.db.prepare(
-            `
-            WITH rep_groups AS (
-                SELECT d.group_key, MIN(d.member_stable_key) AS rep_stable_key
-                FROM character_deduplications d
-                WHERE d.is_map_visible = 1
-                GROUP BY d.group_key
-            ),
-            zone_groups AS (
-                SELECT DISTINCT d.group_key
-                FROM character_deduplications d
-                JOIN map_character_spawns cs ON cs.character_stable_key = d.member_stable_key
-                WHERE cs.scene = ? AND d.is_map_visible = 1
-            )
-            SELECT c.display_name AS NPCName, c.wiki_page_name AS WikiPageName, c.level AS Level
-            FROM characters c
-            JOIN rep_groups rg ON rg.rep_stable_key = c.stable_key
-            JOIN zone_groups zg ON zg.group_key = rg.group_key
-            WHERE c.encounter_tier = 'chest'
-            ORDER BY c.level, c.display_name
-            `,
-            [zoneName]
-        );
-        const chests: { name: string; wikiPageName: string | null; level: number }[] = [];
-        while (chestStmt.step()) {
-            const row = chestStmt.getAsObject();
-            chests.push({
-                name: row.NPCName as string,
-                wikiPageName: row.WikiPageName as string | null,
-                level: row.Level as number
-            });
-        }
-        chestStmt.free();
-
-        return { levelRange, bosses, elites, chests };
+        return info;
     }
 
     getWorldStats(): { zones: number; classes: number; items: number; quests: number } {

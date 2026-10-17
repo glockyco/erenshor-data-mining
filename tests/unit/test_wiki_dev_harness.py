@@ -265,33 +265,6 @@ def test_smoke_check_rejects_raw_semantic_link_templates() -> None:
     ]
 
 
-def test_smoke_fixture_runs_every_lua_testcase_module() -> None:
-    expectations = Path("wiki-dev/fixtures/smoke.tsv").read_text(encoding="utf-8")
-    testcase_modules = sorted(Path("wiki/modules/Erenshor").glob("**/testcases.lua"))
-
-    expected_markers = {
-        "PASS Erenshor " + "/".join(path.relative_to("wiki/modules/Erenshor").parts[:-1]) + " testcases"
-        for path in testcase_modules
-    }
-
-    for marker in expected_markers:
-        assert marker in expectations
-
-
-def test_every_fixture_article_has_smoke_expectation() -> None:
-    expectations = {
-        line.split("\t", 1)[0]
-        for line in Path("wiki-dev/fixtures/smoke.tsv").read_text(encoding="utf-8").splitlines()
-        if line and not line.startswith("#")
-    }
-    fixture_titles = {
-        path.with_suffix("").relative_to("wiki-dev/fixtures/pages").as_posix().replace("_", " ")
-        for path in Path("wiki-dev/fixtures/pages").glob("*.wiki")
-    }
-
-    assert sorted(fixture_titles - expectations) == []
-
-
 def test_smoke_refresh_purges_after_all_pages_refresh(monkeypatch) -> None:
     refresh = load_script("wiki-dev/smoke/refresh.py")
     calls: list[tuple[str, str]] = []

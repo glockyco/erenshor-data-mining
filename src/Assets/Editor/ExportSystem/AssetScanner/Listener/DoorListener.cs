@@ -6,11 +6,12 @@ public class DoorListener : IAssetScanListener<Door>
 {
     private readonly SQLiteConnection _db;
     private readonly List<DoorRecord> _records = new();
-    private readonly DuplicateKeyTracker _keyTracker = new("DoorListener");
+    private readonly ActivationTargetResolver _activationTargets;
 
-    public DoorListener(SQLiteConnection db)
+    public DoorListener(SQLiteConnection db, ActivationTargetResolver activationTargets)
     {
         _db = db;
+        _activationTargets = activationTargets;
     }
 
     public void OnScanStarted()
@@ -50,8 +51,7 @@ public class DoorListener : IAssetScanListener<Door>
         var y = position.y;
         var z = position.z;
 
-        var baseStableKey = StableKeyGenerator.ForDoor(scene, x, y, z);
-        var stableKey = _keyTracker.GetUniqueKey(baseStableKey, door.gameObject.name);
+        var stableKey = _activationTargets.GetStableKey(door);
 
         return new DoorRecord
         {

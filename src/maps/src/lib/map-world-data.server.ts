@@ -224,16 +224,15 @@ export async function buildMapWorldData(
                     worldPatrolWaypoints
                 } as WorldNpc);
             } else {
-                // The level filter reads each character's own level. A hostile
-                // character whose level follows the player has none, and needs
-                // a filter range of its own, as the dig sites have.
-                const scaling = marker.characters.find((c) => c.levelScalesWithPlayer);
+                const combatCharacters = marker.characters.filter((character) =>
+                    character.canBeDamaged && character.encounterTier !== 'npc');
+                if (!combatCharacters.length) continue;
+                const scaling = combatCharacters.find((character) => character.levelScalesWithPlayer);
                 if (scaling) {
                     throw new Error(
                         `${scaling.stableKey}: hostile spawn whose level follows the player has no level filter range`
                     );
                 }
-                const levels = marker.characters.map((c) => c.level);
                 const enemyMarker = {
                     ...marker,
                     zone: zoneKey,
@@ -241,8 +240,8 @@ export async function buildMapWorldData(
                     worldPosition: worldPos,
                     eventWorldPositions,
                     worldPatrolWaypoints,
-                    levelMin: Math.min(...levels),
-                    levelMax: Math.max(...levels)
+                    levelMin: Math.min(...combatCharacters.map((character) => character.level)),
+                    levelMax: Math.max(...combatCharacters.map((character) => character.levelMax))
                 } as WorldEnemy;
                 if (enemyMarker.encounterTier === 'boss') {
                     enemiesBoss.push(enemyMarker);
@@ -271,20 +270,22 @@ export async function buildMapWorldData(
             // Landing position uses game coords (X=horizontal, Y=height, Z=depth)
             // For 2D map we use X and Z (ignoring Y height)
             let destinationWorldPos: [number, number] | null = null;
-            const destZoneConfig = zoneConfigs[marker.destinationZone];
-            const destZonePos = zonePositions.find((z) => z.key === marker.destinationZone);
-            if (destZoneConfig && destZonePos) {
+            const destinationZone = marker.destinationZone;
+            const landingPosition = marker.landingPosition;
+            const destZoneConfig = destinationZone ? zoneConfigs[destinationZone] : undefined;
+            const destZonePos = destinationZone ? zonePositions.find((zone) => zone.key === destinationZone) : undefined;
+            if (marker.destinationContext === null && destinationZone && landingPosition && destZoneConfig && destZonePos) {
                 destinationWorldPos = transformToWorldOrThrow(
-                    marker.landingPosition.x,
-                    marker.landingPosition.z,
-                    marker.destinationZone,
+                    landingPosition.x,
+                    landingPosition.z,
+                    destinationZone,
                     zoneConfigs,
                     zonePositions
                 );
             }
 
             // Get destination zone enemy info
-            const destEnemyInfo = zoneEnemyInfoMap.get(marker.destinationZone) ?? {
+            const destEnemyInfo = (marker.destinationContext === null && destinationZone ? zoneEnemyInfoMap.get(destinationZone) : null) ?? {
                 levelRange: null,
                 bosses: [],
                 elites: [],
@@ -519,14 +520,11 @@ export async function buildMapWorldData(
         }
     }
 
-    // Compute level filter bounds for hostile and chest spawn markers.
-    // Ignore invulnerable characters so placeholder levels do not distort the slider.
+    // Only actual copies with proven combat eligibility contribute filter bounds.
     let enemyLevelMin = Infinity;
     let enemyLevelMax = -Infinity;
     for (const enemies of [enemiesEnemy, enemiesElite, enemiesBoss, enemiesChest]) {
         for (const enemy of enemies) {
-            const hasVulnerable = enemy.characters.some((c) => !c.isInvulnerable);
-            if (!hasVulnerable) continue;
             enemyLevelMin = Math.min(enemyLevelMin, enemy.levelMin);
             enemyLevelMax = Math.max(enemyLevelMax, enemy.levelMax);
         }
@@ -535,22 +533,10 @@ export async function buildMapWorldData(
         enemyLevelMin = Math.min(enemyLevelMin, site.levelMin);
         enemyLevelMax = Math.max(enemyLevelMax, site.levelMax);
     }
-    // Fallback if no vulnerable encounters are found
+    // Keep a usable filter when no eligible encounters are located.
     if (!isFinite(enemyLevelMin)) enemyLevelMin = 1;
     if (!isFinite(enemyLevelMax)) enemyLevelMax = 100;
 
-    // Clamp invulnerable characters' levels to enemyLevelMax for filtering
-    // purposes, so they always pass the DataFilterExtension regardless of
-    // slider position. levelMin/levelMax on WorldEnemy are filter-only;
-    // character.level is the source of truth for display.
-    for (const enemies of [enemiesEnemy, enemiesElite, enemiesBoss, enemiesChest]) {
-        for (const enemy of enemies) {
-            const allInvulnerable = enemy.characters.every((c) => c.isInvulnerable);
-            if (!allInvulnerable) continue;
-            enemy.levelMin = Math.min(enemy.levelMin, enemyLevelMax);
-            enemy.levelMax = Math.min(enemy.levelMax, enemyLevelMax);
-        }
-    }
 
     // Sort disabled markers first so enabled ones render on top (deck.gl draws in array order)
     const enabledLast = (a: { isEnabled: boolean }, b: { isEnabled: boolean }) =>

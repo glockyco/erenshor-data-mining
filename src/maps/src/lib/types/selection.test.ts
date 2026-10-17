@@ -67,6 +67,7 @@ describe('serializeSelection', () => {
                     wikiPageName: 'Runtime Enemy',
                     portraitHash: null,
                     level: 12,
+                    levelMax: 12,
                     encounterTier: 'elite'
                 }
             ],

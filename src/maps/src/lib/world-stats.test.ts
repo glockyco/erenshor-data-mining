@@ -21,9 +21,9 @@ describe('getWorldStats', () => {
 			zones: Object.keys(MAPS).length,
 			// The fixture's Default template class is not a playable class.
 			classes: 2,
-			// Twelve wiki-backed variant rows plus twelve loot-table fillers.
+            // Fourteen fixture item rows plus twelve loot-table fillers.
 			// Stats count every item, not just the visible search representatives.
-			items: 24,
+            items: 26,
 			quests: 2
 		});
 	});

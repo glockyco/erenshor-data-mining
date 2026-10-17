@@ -48,6 +48,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
     private bool _gameUIVisible = true;
     private bool _inGameplay;
     private bool _discoveryDone;
+    private bool _refreshingSceneState;
     private bool _wasEditUIMode;
     private bool _wantsMouseCapture;
     private bool _wantsTextInput;
@@ -125,6 +126,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             _state.WorkflowCycleReset += OnWorkflowCycleReset;
             _state.FurnishingsChanged += OnFurnishingsChanged;
             _state.KeyringChanged += OnKeyringChanged;
+            _state.PrimitiveStateChanged += OnPrimitiveStateChanged;
             _state.TreasureHuntChanged += OnTreasureHuntChanged;
             _arrow = new ArrowRenderer(_nav) { Enabled = _config.ShowArrow.Value };
             _config.ShowArrow.SettingChanged += OnShowArrowChanged;
@@ -147,7 +149,12 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             _tracker = new TrackerWindow(_data, _state, _nav, _trackerState, _window, _config);
             Action guideDraw = _window.Draw;
             Action trackerDraw = () => _tracker!.Draw(_inGameplay);
-            Action arrowDraw = _arrow!.Draw;
+            Action arrowDraw = () =>
+            {
+                _arrow!.Draw();
+                if (!_window!.Visible && !_tracker!.NavigationGuidanceVisible)
+                    NavigationDisplay.DrawOverlay(_nav!);
+            };
             _imgui.OnLayout = () =>
             {
                 _imgui.DrawIsolated(guideDraw);
@@ -319,6 +326,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             _state.WorkflowCycleReset -= OnWorkflowCycleReset;
             _state.FurnishingsChanged -= OnFurnishingsChanged;
             _state.KeyringChanged -= OnKeyringChanged;
+            _state.PrimitiveStateChanged -= OnPrimitiveStateChanged;
             _state.TreasureHuntChanged -= OnTreasureHuntChanged;
         }
 
@@ -381,8 +389,16 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         _timers?.Clear();
         _miningTracker?.Rescan();
         _lootScanner?.OnSceneLoaded();
-        _state?.OnSceneChanged(scene.name);
-        LoadCharacterState(scene.name);
+        _refreshingSceneState = true;
+        try
+        {
+            _state?.OnSceneChanged(scene.name);
+            LoadCharacterState(scene.name);
+        }
+        finally
+        {
+            _refreshingSceneState = false;
+        }
         _nav?.OnGameStateChanged(scene.name);
     }
 
@@ -457,6 +473,13 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
     private void OnFurnishingsChanged() => _nav?.OnFurnishingsChanged(_state?.CurrentZone ?? "");
 
     private void OnKeyringChanged() => _nav?.OnGameStateChanged(_state?.CurrentZone ?? "");
+
+    private void OnPrimitiveStateChanged()
+    {
+        // Scene loading already rebuilds navigation after character state is loaded.
+        if (!_refreshingSceneState)
+            _nav?.OnGameStateChanged(_state?.CurrentZone ?? "");
+    }
 
     private void OnTreasureHuntChanged(TreasureHuntChange change) =>
         _nav?.OnTreasureHuntChanged(change);

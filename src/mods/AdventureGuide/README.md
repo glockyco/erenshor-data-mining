@@ -88,15 +88,29 @@ resources/
    quest-relevant NPCs.
 
 Gate availability is shared by quest sources, spawns, and zone routes. The guide
-uses live quest, inventory, keyring, and room furniture state to evaluate access.
+uses live quest, inventory, keyring, account, and stored furnishing state to evaluate access.
 Locked sources and zone lines show the missing requirements, with quest links
 where available.
 Cross-zone navigation follows an entrance that reaches the selected placement,
 even when another entrance into the same zone is closer.
-Changing zones or choosing an entrance keeps manual source choices that remain
-available.
+Changing zones keeps the chosen source while the guide follows its requirements.
 Quest and inventory changes preserve the current waypoint when its target and
 available entrances have not changed.
+Reliquary raid portals require their stone in the dedicated planning-table slot.
+Other planning-table portals accept their rune in any rune slot. Holding an item
+or completing its quest does not open either kind of route.
+Claimed accounts are not sent through the Reliquary fight again. Return routing
+follows the current character's saved destination, not the portal's serialized default.
+Objectives preview one source before navigation. The objective's NAV button
+chooses among available sources, including another deposit when one is mined.
+Use "Choose a source" to follow a specific alternative or its ingredient and
+quest sources. Crafted sources retain their recipe while navigation follows
+missing materials. Repeated material slots require their combined quantity.
+The guide shows the actual next action during navigation.
+Open "Why this route?" for the requirement chain. The source picker compares
+phase-specific odds, with full details on hover. Fishing timing remains visible
+outside its catch window. Guidance appears in the guide, tracker or HUD without
+repeating it across those surfaces.
 
 ## Data Pipeline
 
@@ -104,6 +118,15 @@ available entrances have not changed.
 builds the entity graph with the TOML overrides in
 `quest_guides/graph_overrides.toml` (or `--overrides`), and writes
 `quest_guides/quest-guide.json`, which the csproj embeds.
+
+Generate the guide only from a complete canonical item-provenance clean build.
+The provenance repository rejects missing or incompatible data, so generation
+cannot fall back to independent raw-source selection.
+
+Keep reviewed player-facing preparation wording in the override file's
+`source_notes`, not in availability gates. Generation checks that the underlying
+release mechanism and referenced items still exist, so wording cannot silently
+outlive the mechanic it explains.
 
 ## Configuration
 

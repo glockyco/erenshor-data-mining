@@ -19,6 +19,7 @@ def _make_zone(scene_name: str, wiki_page_name: str) -> Zone:
         scene_name=scene_name,
         zone_name=wiki_page_name,
         is_dungeon=0,
+        zone_type="Outdoor",
         raid_capable=False,
         use_zone_as_temp_bind="",
         display_name=wiki_page_name,

@@ -16,6 +16,26 @@ function p.escape(value)
 	return text
 end
 
+-- MediaWiki collapses raw attribute whitespace. Encode serialized identity attributes, not raw values.
+-- additionalAttributes is an optional set of exact attribute names whose values also carry identities.
+function p.preserveIdentityAttributes(html, additionalAttributes)
+	local output = tostring(html):gsub('(data%-erenshor%-[%w%-]+)="([^"]*)"', function(name, key)
+		if not name:match("key$") and not (additionalAttributes and additionalAttributes[name]) then
+			return name .. '="' .. key .. '"'
+		end
+		local encoded = key:gsub("%s+", function(spaces)
+			if spaces == " " then
+				return spaces
+			end
+			return spaces:gsub(".", function(character)
+				return "&#" .. string.byte(character) .. ";"
+			end)
+		end)
+		return name .. '="' .. encoded .. '"'
+	end)
+	return output
+end
+
 function p.pageLink(page, label)
 	if isBlank(page) then
 		return ""

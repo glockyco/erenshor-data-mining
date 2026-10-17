@@ -47,8 +47,11 @@ EXPECTED_KEYS = {
     "planningtable",
     "itemmodelparts",
     "cosmeticitems",
+    "uiitemsources",
     "itemdrops",
+    "nativeitembindings",
     "specialworlddrops",
+    "zonewidespawns",
     "miningnodes",
     "spawnpoints",
     "treasurehunting",
@@ -57,6 +60,8 @@ EXPECTED_KEYS = {
     "zoneannounces",
     "zonelines",
     "characters",
+    "authoredsims",
+    "characterdamagereleases",
 }
 
 
@@ -74,9 +79,15 @@ def test_dependencies_encode_items_and_characters_ordering() -> None:
     entries = read_listener_inventory(REGISTRY)
     by_key = {entry.key: entry for entry in entries}
     assert by_key["items"].dependencies == ("spells",)
+    assert by_key["itemdrops"].dependencies == ("items", "spells")
+    assert by_key["nativeitembindings"].dependencies == ("items",)
     assert by_key["characters"].dependencies == ("spawnpoints",)
+    assert by_key["loottables"].dependencies == ("characters", "items", "miningnodes")
     assert [entry.key for entry in entries].index("spells") < [entry.key for entry in entries].index("items")
+    assert [entry.key for entry in entries].index("items") < [entry.key for entry in entries].index("itemdrops")
     assert [entry.key for entry in entries].index("spawnpoints") < [entry.key for entry in entries].index("characters")
+    assert [entry.key for entry in entries].index("characters") < [entry.key for entry in entries].index("loottables")
+    assert [entry.key for entry in entries].index("miningnodes") < [entry.key for entry in entries].index("loottables")
 
 
 def test_spawn_registration_preserves_multi_listener_order_and_return_value() -> None:

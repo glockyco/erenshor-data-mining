@@ -2,7 +2,7 @@
 and every assert-mode spec must be referenced by at least one consumer.
 
 A consumer is the code that re-implements a game rule: the Python pipeline,
-the wiki's Lua modules, or the C# export under `src/Assets/Editor`."""
+the wiki's Lua modules, or the C# export and its declarative spawn catalog."""
 
 import json
 import re
@@ -11,15 +11,20 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SPECS = REPO_ROOT / "src" / "tools" / "CodeFacts" / "specs" / "erenshor-facts.json"
 REF = re.compile(r"(?:#|--|//)\s*code-fact:\s*([a-z0-9_.]+)")
-SCAN_ROOTS = {"src/erenshor": ".py", "wiki/modules": ".lua", "src/Assets/Editor": ".cs"}
+SCAN_ROOTS = {
+    "src/erenshor": (".py",),
+    "wiki/modules": (".lua",),
+    "src/Assets/Editor": (".cs", ".toml"),
+}
 
 
 def _references() -> dict[str, list[str]]:
     refs: dict[str, list[str]] = {}
-    for root, suffix in SCAN_ROOTS.items():
-        for path in (REPO_ROOT / root).rglob(f"*{suffix}"):
-            for m in REF.finditer(path.read_text(errors="ignore")):
-                refs.setdefault(m.group(1), []).append(str(path.relative_to(REPO_ROOT)))
+    for root, suffixes in SCAN_ROOTS.items():
+        for suffix in suffixes:
+            for path in (REPO_ROOT / root).rglob(f"*{suffix}"):
+                for m in REF.finditer(path.read_text(errors="ignore")):
+                    refs.setdefault(m.group(1), []).append(str(path.relative_to(REPO_ROOT)))
     return refs
 
 
@@ -33,3 +38,10 @@ def test_all_references_resolve_and_asserts_are_consumed() -> None:
         f"assert specs with no consumer reference: {unconsumed_asserts} "
         "(tag the re-implementing code with a code-fact comment)"
     )
+
+
+def test_declarative_spawn_catalog_counts_as_the_native_rule_consumer() -> None:
+    references = _references()
+    catalog = "src/Assets/Editor/ExportSystem/AssetScanner/dynamic-spawn-catalog.toml"
+    for fact in ("chessboard.faceless_choices", "chessboard.first_carried_piece"):
+        assert catalog in references[fact]

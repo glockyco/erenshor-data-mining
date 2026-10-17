@@ -19,9 +19,9 @@ if TYPE_CHECKING:
 
     from erenshor.application.wiki.generators.base import GeneratedPage
     from erenshor.application.wiki.generators.context import GeneratorContext
-    from erenshor.application.wiki.lifecycle import ContentLifecycle
     from erenshor.application.wiki.semantic_validation import WikiPageExpectation
     from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
+    from erenshor.infrastructure.content_lifecycle import ContentLifecycle
 
 from erenshor.application.wiki.generators.field_preservation import (
     ROOT_COMPANIONS,
@@ -31,12 +31,15 @@ from erenshor.application.wiki.generators.field_preservation import (
 from erenshor.application.wiki.generators.overview_table import replace_generated_table
 from erenshor.application.wiki.generators.page_normalizer import PageNormalizer
 from erenshor.application.wiki.generators.pages.armor_overview import ArmorOverviewPageGenerator
+from erenshor.application.wiki.generators.pages.entities import EntityPageGenerator
 from erenshor.application.wiki.generators.pages.weapons_overview import WeaponsOverviewPageGenerator
 from erenshor.application.wiki.generators.registry import get_generators_by_name
-from erenshor.application.wiki.lifecycle import apply_lifecycle_fields, validate_generated_lifecycle
+from erenshor.application.wiki.lifecycle import apply_lifecycle_fields
 from erenshor.application.wiki.semantic_validation import page_expectation
 from erenshor.application.wiki.services.page import OperationResult
 from erenshor.application.wiki_deploy.link_audit import LinkTargets
+from erenshor.domain.value_objects.item_provenance import PROVENANCE_SCHEMA_VERSION
+from erenshor.infrastructure.content_lifecycle import validate_generated_lifecycle
 
 # Pages whose generated text is one table among the text of editors.
 _OVERVIEW_TITLES = frozenset({ArmorOverviewPageGenerator.PAGE_TITLE, WeaponsOverviewPageGenerator.PAGE_TITLE})
@@ -104,7 +107,7 @@ class WikiGenerateService:
         Args:
             dry_run: If True, generate content but don't save to storage.
             limit: Maximum number of pages to generate (for testing).
-            page_titles: Exact titles to assemble and render. None selects all titles. An empty list selects none.
+            page_titles: If specified, only generate these specific page titles. If None, generate all pages.
             generator_names: Optional list of generator names to use. If None, use all registered generators.
             validate: Optional callback that checks the pages of the run. It
                 runs when every page succeeded, and an exception fails the run.
@@ -121,25 +124,27 @@ class WikiGenerateService:
         generators = get_generators_by_name(self._context, generator_names)
         logger.debug(f"Using {len(generators)} generators")
 
-        selected_titles = frozenset(page_titles) if page_titles is not None else None
         generated_pages: list[GeneratedPage] = []
+        item_manifests: dict[str, object] = {}
         for generator in generators:
             logger.debug(f"Running generator: {generator.__class__.__name__}")
-            pages = list(generator.generate_pages(page_titles=selected_titles))
+            pages = list(generator.generate_pages())
             logger.debug(f"  Generated {len(pages)} pages")
             generated_pages.extend(pages)
+            if isinstance(generator, EntityPageGenerator):
+                item_manifests.update(generator.item_provenance_manifest)
 
         logger.info(f"Total pages generated: {len(generated_pages)}")
-        if self._lifecycle is not None and page_titles is None and not limit and not generator_names:
+        if self._lifecycle is not None and not page_titles and not limit and not generator_names:
             validate_generated_lifecycle({page.title: page.stable_keys for page in generated_pages}, self._lifecycle)
 
-        # Remove stale storage entries on full unfiltered generation
-        if not dry_run and page_titles is None and not limit and not generator_names:
+        # A dry run must not remove files from a previous generation.
+        if not dry_run and not page_titles and not limit and not generator_names:
             removed = self._storage.remove_stale_pages({page.title for page in generated_pages})
             if removed:
                 logger.info(f"Cleaned up {removed} stale pages")
 
-        if page_titles is not None:
+        if page_titles:
             page_titles_set = set(page_titles)
             filtered = [page for page in generated_pages if page.title in page_titles_set]
             logger.info(
@@ -151,7 +156,20 @@ class WikiGenerateService:
             generated_pages = generated_pages[:limit]
             logger.info(f"Limited to {len(generated_pages)} pages")
 
-        return self._process_generated_pages(generated_pages, dry_run, validate)
+        result = self._process_generated_pages(generated_pages, dry_run, validate)
+        if (
+            not dry_run
+            and result.failed == 0
+            and any(isinstance(generator, EntityPageGenerator) for generator in generators)
+        ):
+            generated_keys = {key for page in generated_pages for key in page.stable_keys}
+            self._storage.save_item_provenance_manifest(
+                {
+                    "schema_version": PROVENANCE_SCHEMA_VERSION,
+                    "items": {key: value for key, value in item_manifests.items() if key in generated_keys},
+                }
+            )
+        return result
 
     def _process_generated_pages(
         self,

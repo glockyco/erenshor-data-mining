@@ -28,6 +28,7 @@ from typing import TYPE_CHECKING, cast
 from loguru import logger
 
 from .auction import derive_is_auctionable, validate_auction_gates
+from .characters import _load_raid_bosses
 from .cosmetics import load_cosmetic_effects
 from .item_mechanics import process_water_fishables
 
@@ -268,6 +269,19 @@ def process_zones(
 
     rows = _apply_mapping(rows, "StableKey", "ZoneName", mapping)
     logger.info(f"Zones: {len(rows)} after mapping")
+    raid_scenes = _load_raid_bosses(raw).scenes
+    for row in rows:
+        if row["SceneName"] in raid_scenes:
+            row["ZoneType"] = "Raid"
+            continue
+        override = mapping.get(str(row["StableKey"]))
+        zone_type = override.get("zone_type") if override else None
+        if zone_type is None:
+            raise ValueError(
+                f"{row['StableKey']}: public zone_type needs a reviewed mapping with a reason. "
+                "The native scene flag controls SimPlayer tasks, not public area classification."
+            )
+        row["ZoneType"] = zone_type
 
     rows = _rename_cols(rows)
     writer.insert_zones(rows)
@@ -375,14 +389,11 @@ def process_items(
     )
     writer.insert_crafting_recipes(recipe_rows)
 
-    # CraftingRewards. Slot 1 is TemplateRewards[0], the only reward that the
-    # forge awards (Smithing.DoSuccess), so a later slot is no crafting result.
-    # The forge gives one item: Combine empties the component slots first, and
-    # an emptied slot resets its quantity to 1. The fuel sets only the quality
-    # of equipment.
+    # Retain every native reward slot as evidence. Canonical provenance marks
+    # later slots non-acquirable because Smithing.DoSuccess uses only slot 1.
     # code-fact: smithing.awards_first_template_reward
     # code-fact: smithing.empty_slot_resets_quantity
-    reward_rows = _rows(raw, "SELECT * FROM CraftingRewards WHERE RewardSlot = 1")
+    reward_rows = _rows(raw, "SELECT * FROM CraftingRewards")
     reward_rows = _filter_junction(reward_rows, "RecipeItemStableKey", valid)
     reward_rows = _rename_cols(
         reward_rows,
@@ -643,6 +654,7 @@ def process_quests(
         req_rows,
         {
             "QuestVariantResourceName": "quest_variant_resource_name",
+            "RequiredSlot": "required_slot",
             "ItemStableKey": "item_stable_key",
             "Quantity": "quantity",
         },
@@ -726,61 +738,37 @@ def process_quests(
 # ---------------------------------------------------------------------------
 
 
-# Known SpellVessel cases where using an item (via ItemEffectOnClick spell)
-# creates another item. Keyed by spell name because SpellVessel.cs dispatches
-# on spell name. Values are item IDs passed to GameData.ItemDB.GetItemByID.
-#
-# Source: SpellVessel.cs switch statement
-_SPELL_CREATED_ITEM_IDS: dict[str, str] = {
-    "Offering Stone": "340104",
-}
-
-
 def _process_spell_created_items(raw: sqlite3.Connection, writer: Writer) -> None:
-    """Build spell_created_items from ItemEffectOnClick + known spell mappings.
-
-    Joins Items.ItemEffectOnClickStableKey with the Spells table to find
-    which item triggers which spell, then uses the hardcoded spell-to-item
-    mapping from SpellVessel.cs to determine what item is created.
-    """
-    # Build spell name → created item stable key from known ID mappings
-    item_id_to_sk: dict[str, str] = {}
-    for row in raw.execute("SELECT Id, StableKey FROM Items WHERE Id IS NOT NULL"):
-        item_id_to_sk[str(row["Id"])] = row["StableKey"]
-
-    spell_name_to_created_sk: dict[str, str] = {}
-    for spell_name, item_id in _SPELL_CREATED_ITEM_IDS.items():
-        sk = item_id_to_sk.get(item_id)
-        if sk:
-            spell_name_to_created_sk[spell_name] = sk
-        else:
-            logger.warning(
-                "Spell-created item ID %s (spell %s) not found in Items",
-                item_id,
-                spell_name,
-            )
-
-    # Build spell stable key → (spell name, created item stable key)
-    spell_sk_to_created: dict[str, str] = {}
-    for row in raw.execute("SELECT StableKey, SpellName FROM Spells"):
-        if row["SpellName"] in spell_name_to_created_sk:
-            spell_sk_to_created[row["StableKey"]] = spell_name_to_created_sk[row["SpellName"]]
-
-    # Find items whose ItemEffectOnClick spell creates another item
-    rows: list[dict[str, object]] = []
-    for row in raw.execute(
-        "SELECT StableKey, ItemEffectOnClickStableKey FROM Items "
-        "WHERE ItemEffectOnClickStableKey IS NOT NULL AND ItemEffectOnClickStableKey != ''"
-    ):
-        created_sk = spell_sk_to_created.get(str(row["ItemEffectOnClickStableKey"]))
-        if created_sk:
-            rows.append(
-                {
-                    "source_item_stable_key": row["StableKey"],
-                    "spell_stable_key": row["ItemEffectOnClickStableKey"],
-                    "created_item_stable_key": created_sk,
-                }
-            )
-
+    """Resolve executed single-item spell grants from extracted shipped operands."""
+    # code-fact: item.offering_stone_grant
+    grant_fact_id = "item.offering_stone_grant"
+    values = {
+        str(row[0]): str(row[1])
+        for row in writer.conn.execute("SELECT key,value FROM code_facts WHERE fact_id=?", (grant_fact_id,))
+    }
+    required = {"spell_name", "created_item_id", "quantity"}
+    if set(values) != required:
+        raise ValueError(f"Missing or unsupported spell item grant operands: {grant_fact_id}")
+    quantity = int(values["quantity"])
+    if quantity <= 0:
+        raise ValueError(f"Nonpositive spell item grant quantity: {grant_fact_id}")
+    created = raw.execute("SELECT StableKey FROM Items WHERE Id=?", (values["created_item_id"],)).fetchall()
+    if len(created) != 1:
+        raise ValueError(f"Spell item grant must resolve one native item: {values['created_item_id']}")
+    rows: list[dict[str, object]] = [
+        {
+            "source_item_stable_key": row["StableKey"],
+            "spell_stable_key": row["ItemEffectOnClickStableKey"],
+            "created_item_stable_key": created[0]["StableKey"],
+            "grant_fact_id": grant_fact_id,
+            "quantity": quantity,
+        }
+        for row in raw.execute(
+            "SELECT i.StableKey,i.ItemEffectOnClickStableKey FROM Items i"
+            " JOIN Spells s ON s.StableKey=i.ItemEffectOnClickStableKey"
+            " WHERE s.SpellName=?",
+            (values["spell_name"],),
+        )
+    ]
     n = writer.insert_spell_created_items(rows)
     logger.debug(f"  spell_created_items: {n} rows")

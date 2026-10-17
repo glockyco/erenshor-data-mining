@@ -1,0 +1,8 @@
+{{ItemData|stablekey=item:ember_longsword|type=Editorial classification|questsource=An editor's reward note.|relatedquest=An editor's quest association.|othersource={{ItemData/SourceNote|item=item:ember_longsword|kind=vendor|source=character:captain_rowan|text=Review this source note.}}}}
+{{ItemData|stablekey=item:lucky_charm}}
+{{ItemData|stablekey=item:ember_aura}}
+{{ItemData|stablekey=item:scroll_of_ember}}
+{{ItemData|stablekey=item:sword_mastery_manual}}
+{{ItemData|stablekey=item:healing_draught}}
+{{ItemData|stablekey=item:copper_armor_mold}}
+{{ItemData|stablekey=item:magical_bag}}

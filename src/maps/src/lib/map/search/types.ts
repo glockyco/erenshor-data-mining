@@ -41,6 +41,7 @@ export type ItemSourceCounts = {
     auctionHouses: number;
     miningNodes: number;
     fishingSpots: number;
+    anyWater: number;
     itemBags: number;
     /** Special world drop rolls, which have no map location */
     worldDrops: number;

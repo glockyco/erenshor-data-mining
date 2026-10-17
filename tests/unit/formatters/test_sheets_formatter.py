@@ -6,7 +6,7 @@ import pytest
 
 
 def test_query_files_exist():
-    """Test that all 23 query files exist."""
+    """Test that the supported query files exist."""
     queries_dir = Path("src/erenshor/application/sheets/queries")
 
     expected_queries = [
@@ -21,6 +21,12 @@ def test_query_files_exist():
         "fishing",
         "guild-topics",
         "item-bags",
+        "item-acquisitions",
+        "item-uses",
+        "item-conditions",
+        "item-locations",
+        "item-evidence",
+        "item-dispositions",
         "items",
         "mining-nodes",
         "quests",
@@ -46,7 +52,7 @@ def test_query_files_not_empty():
 
     # Get all .sql files
     sql_files = list(queries_dir.glob("*.sql"))
-    assert len(sql_files) == 23, f"Expected 23 query files, found {len(sql_files)}"
+    assert len(sql_files) == 29, f"Expected 29 query files, found {len(sql_files)}"
 
     for sql_file in sql_files:
         content = sql_file.read_text(encoding="utf-8").strip()
@@ -67,8 +73,7 @@ def test_sheets_formatter_get_sheet_names():
     formatter = SheetsFormatter(engine, queries_dir, map_base_url="https://example.com")
     sheet_names = formatter.get_sheet_names()
 
-    # Should have 23 sheets
-    assert len(sheet_names) == 23
+    assert len(sheet_names) == 29
 
     # Should be sorted alphabetically
     assert sheet_names[0] == "achievement-triggers"

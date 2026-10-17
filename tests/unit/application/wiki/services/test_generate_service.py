@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 from io import StringIO
 from pathlib import Path
+from types import SimpleNamespace
 from typing import cast
 from unittest.mock import MagicMock
 
@@ -11,8 +13,10 @@ import pytest
 from rich.console import Console
 
 from erenshor.application.wiki.generators.base import GeneratedPage, PageMetadata
+from erenshor.application.wiki.generators.pages.entities import EntityPageGenerator
 from erenshor.application.wiki.services.generate_service import GeneratedCorpus, WikiGenerateService
 from erenshor.application.wiki.services.storage import WikiStorage
+from erenshor.domain.value_objects.item_provenance import PROVENANCE_SCHEMA_VERSION
 
 
 def _service() -> tuple[WikiGenerateService, MagicMock, MagicMock]:
@@ -150,60 +154,58 @@ def test_generation_records_the_live_roots_that_match_no_generated_entity(tmp_pa
     assert metadata.kept_roots == ["Character: Braxonian Chest"]
 
 
-def test_exact_selection_reaches_generators_before_rendering(monkeypatch: pytest.MonkeyPatch) -> None:
-    service, storage, _ = _service()
-    service._context = MagicMock()
-    generator = MagicMock()
-    generator.generate_pages.return_value = [_page("Selected", "content")]
+@pytest.mark.parametrize("dry_run", [False, True])
+def test_article_coverage_manifest_matches_only_the_selected_run(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, dry_run: bool
+) -> None:
+    storage = WikiStorage(tmp_path)
+    context = SimpleNamespace(storage=storage)
+    generator = EntityPageGenerator.__new__(EntityPageGenerator)
+    generator.item_provenance_manifest = {
+        "key:A": {"acquisitions": [{"acquisition_key": "reward:A"}], "uses": []},
+        "key:B": {"acquisitions": [{"acquisition_key": "reward:B"}], "uses": []},
+    }
     monkeypatch.setattr(
-        "erenshor.application.wiki.services.generate_service.get_generators_by_name", lambda *_: [generator]
+        generator, "generate_pages", lambda: [_page("A", "{{Item|title=A}}"), _page("B", "{{Item|title=B}}")]
     )
-
-    result = service.generate_all(page_titles=["Selected"], dry_run=True)
-
-    assert result.succeeded == 1
-    generator.generate_pages.assert_called_once_with(page_titles=frozenset({"Selected"}))
-    storage.remove_stale_pages.assert_not_called()
-
-
-def test_empty_exact_selection_is_not_a_full_generation(monkeypatch: pytest.MonkeyPatch) -> None:
-    service, storage, _ = _service()
-    service._context = MagicMock()
-    generator = MagicMock()
-    generator.generate_pages.return_value = []
     monkeypatch.setattr(
-        "erenshor.application.wiki.services.generate_service.get_generators_by_name", lambda *_: [generator]
+        "erenshor.application.wiki.services.generate_service.get_generators_by_name",
+        lambda _context, _names: [generator],
     )
+    service = WikiGenerateService(context=context, link_catalog=(), console=Console(file=StringIO()))
 
-    result = service.generate_all(page_titles=[])
+    result = service.generate_all(page_titles=["A"], dry_run=dry_run)
 
-    assert result.total == 0
-    generator.generate_pages.assert_called_once_with(page_titles=frozenset())
-    storage.remove_stale_pages.assert_not_called()
+    assert result.failed == 0
+    manifest_path = tmp_path / "item-article-provenance.json"
+    if dry_run:
+        assert not manifest_path.exists()
+    else:
+        assert json.loads(manifest_path.read_text(encoding="utf-8")) == {
+            "schema_version": PROVENANCE_SCHEMA_VERSION,
+            "items": {"key:A": generator.item_provenance_manifest["key:A"]},
+        }
 
 
-def test_selected_generation_does_not_hide_a_generator_failure(monkeypatch: pytest.MonkeyPatch) -> None:
-    service, _, _ = _service()
-    service._context = MagicMock()
-    generator = MagicMock()
-    generator.generate_pages.side_effect = RuntimeError("Generator failed")
+def test_failed_article_run_does_not_replace_the_previous_coverage_manifest(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    storage = WikiStorage(tmp_path)
+    storage.save_item_provenance_manifest({"previous": True})
+    manifest_path = tmp_path / "item-article-provenance.json"
+    before = manifest_path.read_bytes()
+    context = SimpleNamespace(storage=storage)
+    generator = EntityPageGenerator.__new__(EntityPageGenerator)
+    generator.item_provenance_manifest = {"key:A": {"acquisitions": [], "uses": []}}
+    monkeypatch.setattr(generator, "generate_pages", lambda: [_page("A", "{{Item|title=A}}")])
     monkeypatch.setattr(
-        "erenshor.application.wiki.services.generate_service.get_generators_by_name", lambda *_: [generator]
+        "erenshor.application.wiki.services.generate_service.get_generators_by_name",
+        lambda _context, _names: [generator],
     )
+    service = WikiGenerateService(context=context, link_catalog=(), console=Console(file=StringIO()))
+    monkeypatch.setattr(service._page_normalizer, "normalize", MagicMock(side_effect=ValueError("bad article")))
 
-    with pytest.raises(RuntimeError, match="Generator failed"):
-        service.generate_all(page_titles=["Selected"])
+    result = service.generate_all()
 
-
-def test_full_generation_dry_run_keeps_existing_storage(monkeypatch: pytest.MonkeyPatch) -> None:
-    service, storage, _ = _service()
-    service._context = MagicMock()
-    generator = MagicMock()
-    generator.generate_pages.return_value = [_page("Selected", "content")]
-    monkeypatch.setattr(
-        "erenshor.application.wiki.services.generate_service.get_generators_by_name", lambda *_: [generator]
-    )
-
-    service.generate_all(dry_run=True)
-
-    storage.remove_stale_pages.assert_not_called()
+    assert result.failed == 1
+    assert manifest_path.read_bytes() == before

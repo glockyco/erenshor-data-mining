@@ -1,4 +1,4 @@
-"""The clean database lists only the reward that the forge awards."""
+"""Recipe inputs retain every declared slot for canonical execution selection."""
 
 import sqlite3
 
@@ -6,7 +6,7 @@ from erenshor.application.processor.entities import process_items
 from erenshor.application.processor.writer import Writer
 
 
-def test_a_template_with_two_rewards_crafts_only_the_first(tmp_path):
+def test_recipe_input_retains_unexecuted_reward_slots(tmp_path):
     raw = sqlite3.connect(":memory:")
     raw.execute("CREATE TABLE code_facts (fact_id TEXT NOT NULL, key TEXT NOT NULL, value TEXT)")
     raw.executemany(
@@ -50,7 +50,10 @@ def test_a_template_with_two_rewards_crafts_only_the_first(tmp_path):
     rows = writer.conn.execute(
         "SELECT recipe_item_stable_key, reward_slot, reward_item_stable_key FROM crafting_rewards"
     ).fetchall()
-    assert [tuple(row) for row in rows] == [("item:template - ring", 1, "item:ring")]
+    assert [tuple(row) for row in rows] == [
+        ("item:template - ring", 1, "item:ring"),
+        ("item:template - ring", 2, "item:ring 1"),
+    ]
 
     raw.close()
     writer.conn.close()
