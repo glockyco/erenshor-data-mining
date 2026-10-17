@@ -1,16 +1,5 @@
-"""
-Erenshor Data Mining Package.
+"""Erenshor game-data extraction, processing and publication."""
 
-This package extracts, processes, and deploys game data from Erenshor
-to various destinations including MediaWiki and Google Sheets.
+from importlib.metadata import version as _package_version
 
-The package is organized into layers:
-- application: Application services, formatters, and business logic
-- cli: Command-line interface implementation
-- domain: Domain models and entities
-- infrastructure: External integrations (database, wiki, storage)
-- outputs: Output-specific modules for wiki and sheets
-- registry: Entity registries and migration tools
-"""
-
-__version__ = "0.1.0"
+__version__ = _package_version("erenshor")
