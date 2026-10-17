@@ -4,12 +4,24 @@ using UnityEngine;
 namespace AdventureGuide.Core;
 
 /// <summary>
-/// Samples configured shortcut edges from the loader-neutral keyboard and maps
-/// them to one frame of actions. Disabled or text-suppressed shortcuts are not
-/// queried, matching the runtime's previous short-circuit behavior.
+/// Samples configured shortcut edges and coordinates Escape consumption across
+/// the runtime and native menu updates, regardless of their execution order.
 /// </summary>
-internal static class ShortcutCoordinator
+internal sealed class ShortcutCoordinator
 {
+    private int _escapeConsumedFrame = -1;
+
+    internal bool ConsumeEscape(int frame, bool escapePressed, bool guideVisible)
+    {
+        if (_escapeConsumedFrame == frame)
+            return true;
+        if (!escapePressed || !guideVisible)
+            return false;
+
+        _escapeConsumedFrame = frame;
+        return true;
+    }
+
     internal static ShortcutAction Sample(
         IKeyboardInput keyboard,
         KeyCode guideKey,

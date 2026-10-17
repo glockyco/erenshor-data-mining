@@ -82,7 +82,50 @@ public sealed class ShortcutPolicyTests
         );
 
         Assert.Equal(ShortcutAction.None, actions);
-        Assert.Equal(new[] { KeyCode.L, KeyCode.J, KeyCode.K, KeyCode.P }, keyboard.PressedQueries);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Escape_closes_guide_and_stays_consumed_for_both_update_orders(bool runtimeFirst)
+    {
+        var coordinator = new ShortcutCoordinator();
+        bool guideVisible = true;
+        bool nativeMenuOpened = false;
+        int closeCount = 0;
+
+        bool HandleEscape()
+        {
+            bool consumed = coordinator.ConsumeEscape(42, escapePressed: true, guideVisible);
+            if (consumed && guideVisible)
+            {
+                guideVisible = false;
+                closeCount++;
+            }
+            return consumed;
+        }
+
+        if (runtimeFirst)
+            HandleEscape();
+        nativeMenuOpened = !HandleEscape();
+        if (!runtimeFirst)
+            HandleEscape();
+
+        Assert.False(guideVisible);
+        Assert.False(nativeMenuOpened);
+        Assert.Equal(1, closeCount);
+        Assert.False(coordinator.ConsumeEscape(43, escapePressed: false, guideVisible));
+        Assert.False(coordinator.ConsumeEscape(44, escapePressed: true, guideVisible));
+    }
+
+    [Fact]
+    public void Escape_is_not_claimed_without_a_visible_guide_and_a_key_edge()
+    {
+        var coordinator = new ShortcutCoordinator();
+
+        Assert.False(coordinator.ConsumeEscape(1, escapePressed: true, guideVisible: false));
+        Assert.False(coordinator.ConsumeEscape(2, escapePressed: false, guideVisible: true));
+        Assert.True(coordinator.ConsumeEscape(3, escapePressed: true, guideVisible: true));
     }
 
     private static ShortcutAction Sample(

@@ -24,6 +24,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
     private readonly IGuideConfigBackend _backend;
     private readonly string _iniPath;
     private readonly IKeyboardInput _keyboard;
+    private readonly ShortcutCoordinator _shortcuts = new();
     private readonly RuntimeLifecycleCoordinator _lifecycle;
     private readonly RuntimeResourceOwnership _resources;
 
@@ -199,6 +200,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             QuestMarkerPatch.SetSuppression(_config.ShowWorldMarkers.Value);
             PointerOverUIPatch.WantsMouse = () => _wantsMouseCapture;
             PlayerTypingPatch.WantsTextInput = () => _gameUIVisible && _wantsTextInput;
+            GuideEscapePatch.ConsumeEscape = ConsumeGuideEscape;
             QuestLogPatch.ReplaceQuestLog = _config.ReplaceQuestLog;
             CharacterCreatePatch.Config = _config;
             CharacterDeletePatch.Config = _config;
@@ -499,6 +501,8 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
     {
         if (_config == null || _window == null)
             return;
+        if (ConsumeGuideEscape())
+            return;
 
         var actions = ShortcutCoordinator.Sample(
             _keyboard,
@@ -520,6 +524,27 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             _tracker?.Toggle();
         if ((actions & ShortcutAction.ToggleGroundPath) != 0)
             _config.ShowGroundPath.Value = !_config.ShowGroundPath.Value;
+    }
+
+    private bool ConsumeGuideEscape()
+    {
+        if (!_inGameplay || _window == null)
+            return false;
+        if (
+            !_shortcuts.ConsumeEscape(
+                Time.frameCount,
+                KeyboardShortcuts.WasPressed(KeyCode.Escape, _keyboard),
+                _gameUIVisible && _window.Visible
+            )
+        )
+            return false;
+
+        _window.Hide();
+        if (_wasTextInputActive && !ChatInputActive())
+            GameData.PlayerTyping = false;
+        _wasTextInputActive = false;
+        ClearImGuiCaptureState();
+        return true;
     }
 
     private static bool ChatInputActive() =>
@@ -573,6 +598,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         PlayerTypingPatch.WantsTextInput = null;
         CharacterCreatePatch.Config = null;
         CharacterDeletePatch.Config = null;
+        GuideEscapePatch.ConsumeEscape = null;
     }
 
     private static void ClearDebugApi()
