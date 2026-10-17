@@ -445,7 +445,15 @@ public sealed class WorldMarkerSystem
                 string name = step.TargetName ?? step.Description;
                 string? progress = null;
                 foreach (var source in step.Sources)
-                    EmitItemSourceMarker(source, name, scene, have, quantity, ref progress);
+                    EmitItemSourceMarker(
+                        source,
+                        name,
+                        scene,
+                        have,
+                        quantity,
+                        step.Sources,
+                        ref progress
+                    );
             }
         }
     }
@@ -463,7 +471,15 @@ public sealed class WorldMarkerSystem
             if (ri.Sources == null)
                 continue;
             foreach (var src in ri.Sources)
-                EmitItemSourceMarker(src, ri.ItemName, scene, have, ri.Quantity, ref progress);
+                EmitItemSourceMarker(
+                    src,
+                    ri.ItemName,
+                    scene,
+                    have,
+                    ri.Quantity,
+                    ri.Sources,
+                    ref progress
+                );
         }
     }
 
@@ -473,6 +489,7 @@ public sealed class WorldMarkerSystem
         string scene,
         int have,
         int quantity,
+        List<ItemSource> siblings,
         ref string? progress
     )
     {
@@ -480,7 +497,7 @@ public sealed class WorldMarkerSystem
             return;
         if (
             ItemSourcePolicy.IsRandomSource(source)
-            || !ItemSourcePolicy.NeedsUsedItem(source, _state.CountItemDelegate)
+            || !ItemSourcePolicy.NeedsUsedItem(source, _state.CountItemDelegate, siblings)
         )
             return;
 
@@ -530,7 +547,15 @@ public sealed class WorldMarkerSystem
         if (source.Children == null)
             return;
         foreach (var child in source.Children)
-            EmitItemSourceMarker(child, itemName, scene, have, quantity, ref progress);
+            EmitItemSourceMarker(
+                child,
+                itemName,
+                scene,
+                have,
+                quantity,
+                source.Children,
+                ref progress
+            );
     }
 
     /// <summary>

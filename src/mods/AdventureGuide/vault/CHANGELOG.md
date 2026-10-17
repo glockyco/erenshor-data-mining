@@ -26,6 +26,7 @@
 - Show repeated recipe ingredients with their total quantity.
 - Avoid repeating item-use instructions beside their chances.
 - Resume the recipe after gathering a chosen ingredient.
+- Keep recipe ingredient markers and tracker order accurate until the full amount is gathered.
 
 ## v2026.1008.0
 

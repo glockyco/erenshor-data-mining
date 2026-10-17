@@ -156,7 +156,9 @@ A checked task proves its named behavior and checks, not newer shared-data integ
   - All 743 consumer cases pass and both native loaders build without warnings or errors. The actual Lunaris Resolving Fluid recipe shows one quantity-eight shard row plus its separate recipe input. Native quantity one retains ingredient NAV and quantity eight removes it. Native inventory controls were restored. The actual Treasure Map picker shows its item-use action and chance once.
 - [x] 10.7 Resume the parent recipe when an explicitly chosen ingredient is complete. Preserve the original quest, the chosen recipe and other pending ingredients. Verify the live quantity-eight dead end and its correction separately from rendering.
   - All 744 consumer cases pass and both native loaders build without warnings or errors. At the same actual native quantity-eight boundary, Lunaris retains ArenaToken step 1, promotes the chosen input to its exact Resolving Fluid parent and continues with a navigable requirement instead of the prior dead end. The native task inventory control was restored.
-- [ ] 10.8 Preserve cumulative recipe input thresholds in world-marker recursion. The remaining marker caller omits sibling context and can stop marking a repeated ingredient after only its first slot is covered.
+- [x] 10.8 Preserve cumulative recipe input thresholds in world-marker recursion and tracker ordering. Pass each original sibling list to the shared input policy.
+  - Both native loaders build without warnings or errors. Actual BepInEx consumer traversal reproduces Main stopping the eight-shard ingredient branch at quantity one. The corrected marker and tracker consumers retain the pending branch at one and stop it at eight. Native inventory controls and probe patches were restored.
+  - This observes actual consumer traversal in Stowaway with the original recipe and slot-level sources. There are no matching scene markers at that location. It is not raid marker placement or geometric access proof.
 
 ## 8. Close-out
 

@@ -370,7 +370,7 @@ internal static class TrackerSorter
         {
             if (
                 ItemSourcePolicy.IsRandomSource(src)
-                || !ItemSourcePolicy.NeedsUsedItem(src, state.CountItemDelegate)
+                || !ItemSourcePolicy.NeedsUsedItem(src, state.CountItemDelegate, sources)
             )
                 continue;
             if (!state.Gates.IsSourceAvailable(src))
