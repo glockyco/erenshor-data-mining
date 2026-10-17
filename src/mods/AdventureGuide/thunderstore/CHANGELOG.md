@@ -22,6 +22,7 @@
 - Keep source actions, locations, levels and chances compact.
 - Group repeated sources without hiding their access requirements.
 - Fix Guide loading on Lunaris.
+- Clarify which mold a crafting source uses.
 
 ## v2026.1008.0
 

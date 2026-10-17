@@ -21,7 +21,7 @@ internal static class SourceListText
             "fishing" => itemName == null ? "Fish" : $"Fish for {itemName}",
             "mining" => itemName == null ? "Mine" : $"Mine {itemName}",
             "pickup" => source.Name == null ? "Find in the world" : $"Find {source.Name}",
-            "crafting" => $"Craft {source.Name}",
+            "crafting" => $"Craft using {source.Name}",
             "quest_reward" => $"Quest reward: {source.Name}",
             "ingredient" => $"Ingredient: {source.Name}"
                 + (source.NodeCount is int qty ? $" x{qty}" : ""),
