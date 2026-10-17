@@ -17,6 +17,9 @@
 - Close the guide with Escape without opening the game menu.
 - Count repeated quest items together and keep alternative turn-ins separate.
 - Keep item-read quest guidance working with alternative turn-ins.
+- Keep navigation guidance in the tracker while browsing other quests.
+- Keep the original quest visible while following its prerequisites.
+- Keep source actions, locations, levels and chances compact.
 
 ## v2026.1008.0
 

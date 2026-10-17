@@ -152,10 +152,9 @@ public sealed class SpecialItemSourceTests
         var placed = CommonWorldItem();
         placed.SourceKey = "character:fake";
         Assert.Throws<InvalidDataException>(() => Validate(placed));
-        string details = SourceListText.Details(CommonWorldItem());
-        Assert.Contains("0.9%", details);
-        Assert.Contains("8.1%", details);
-        Assert.DoesNotContain("%", SourceListText.Summary(CommonWorldItem()));
+        string? odds = SourceListText.OptionOdds(CommonWorldItem());
+        Assert.Contains("0.9%", odds);
+        Assert.Contains("8.1%", odds);
         Assert.True(ItemSourcePolicy.IsRandomSource(CommonWorldItem()));
     }
 
@@ -210,11 +209,10 @@ public sealed class SpecialItemSourceTests
     [Fact]
     public void Random_source_text_uses_percent_not_fraction_and_chest_bracket()
     {
-        Assert.Contains("0.1%", SourceListText.Details(WorldDrop()));
-        Assert.Contains("1.25%", SourceListText.Details(FishingBonus()));
-        Assert.Contains("30-35", SourceListText.Details(Chest()));
-        Assert.Contains("56.57%", SourceListText.Details(Chest()));
-        Assert.Contains(UsedItem().Name!, SourceListText.Summary(UsedItem()));
+        Assert.Contains("0.1%", SourceListText.OptionOdds(WorldDrop()));
+        Assert.Contains("1.25%", SourceListText.OptionOdds(FishingBonus()));
+        Assert.Contains("30-35", SourceListText.OptionOdds(Chest()));
+        Assert.Contains("56.57%", SourceListText.OptionOdds(Chest()));
     }
 
     [Fact]

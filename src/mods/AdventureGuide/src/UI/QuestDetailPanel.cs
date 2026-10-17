@@ -423,27 +423,29 @@ public sealed class QuestDetailPanel
         ImGui.Indent();
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
 
-        if (
-            !NavigationDisplay.IsOrigin(_nav, quest, step)
-            && display.PreviewSource is ItemSource preview
-        )
-        {
-            var sourceDisplay = display.Sources[(preview, 0)];
-            Theme.TextWrapped(sourceDisplay.Label);
-            DrawSourceTooltip(sourceDisplay);
-            if (preview.Type == "drop" && preview.Instruction is string preparation)
-                Theme.TextWrapped(preparation);
-            if (SourceListText.Timing(preview, GameData.Time.hour) is string timing)
-                Theme.TextWrapped(timing);
-        }
-
         ImGui.PushID(step.Order);
-        if (ImGui.TreeNode("Choose a source"))
+        if (visibleSources.Count == 1)
+        {
+            var source = visibleSources[0];
+            bool alreadyShown =
+                NavigationDisplay.IsOrigin(_nav, quest, step)
+                && ReferenceEquals(_nav.SelectedItemSource, source)
+                && source.Children is not { Count: > 0 }
+                && source.Type != "quest_reward";
+            if (!alreadyShown)
+                DrawSource(source, quest, step, visited);
+        }
+        else if (ImGui.TreeNode("Choose a source"))
         {
             foreach (var source in visibleSources)
                 DrawSource(source, quest, step, visited);
             ImGui.TreePop();
         }
+        else if (
+            !NavigationDisplay.IsOrigin(_nav, quest, step)
+            && display.PreviewSource is ItemSource preview
+        )
+            DrawSourceText(display.Sources[(preview, 0)]);
         ImGui.PopID();
 
         ImGui.PopStyleColor();
@@ -525,41 +527,32 @@ public sealed class QuestDetailPanel
         bool allowNavigation = true
     )
     {
-        var display = _questDisplay[quest].Steps[step].Sources[(src, depth)];
+        var stepDisplay = _questDisplay[quest].Steps[step];
+        var display = stepDisplay.Sources[(src, depth)];
         bool isOrigin = NavigationDisplay.IsOrigin(_nav, quest, step);
         bool chosen = isOrigin && ReferenceEquals(_nav.ChosenItemSource, src);
         bool selected = isOrigin && ReferenceEquals(_nav.SelectedItemSource, src);
         ImGui.PushID(display.RowId);
-        if (allowNavigation && display.Navigable && IsNavigationEnabled)
+        if (
+            allowNavigation
+            && (depth > 0 || stepDisplay.VisibleSources.Count > 1)
+            && display.Navigable
+            && IsNavigationEnabled
+        )
         {
             bool activeChoice = chosen || (_nav.ChosenItemSource == null && selected);
-            if (ImGui.RadioButton("##choose-source", activeChoice) && !activeChoice)
+            if (activeChoice)
+                ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
+            if (ImGui.SmallButton("[NAV]") && !activeChoice)
                 _nav.NavigateToSource(src, step, quest, _state.CurrentZone);
-            if (ImGui.IsItemHovered())
-            {
-                ImGui.BeginTooltip();
-                ImGui.TextUnformatted("Navigate using this source.");
-                ImGui.EndTooltip();
-            }
-            ImGui.SameLine();
+            if (activeChoice)
+                ImGui.PopStyleColor();
+            ImGui.SameLine(0, 4f * _config.ResolvedUiScale);
         }
+        ImGui.BeginGroup();
+        DrawSourceText(display);
 
-        if (!display.Available)
-            ImGui.PushStyleColor(ImGuiCol.Text, Theme.SourceDimmed);
-        Theme.TextWrapped(display.Label);
-        DrawSourceTooltip(display);
-        if (!display.Available)
-            ImGui.PopStyleColor();
-        if (src.Type == "drop" && src.Instruction is string preparation)
-            Theme.TextWrapped(preparation);
-        if (display.Odds is string odds)
-            Theme.TextWrapped(odds);
-
-        if (display.Requirements is { Count: > 0 } && ImGui.TreeNode("Requirements"))
-        {
-            DrawGateRequirements(display.Requirements);
-            ImGui.TreePop();
-        }
+        DrawGateRequirements(display.Requirements, isOrigin ? _nav.ImmediateRequirement : null);
 
         bool questTree = false;
         if (src.Type == "quest_reward" && src.QuestKey != null)
@@ -594,16 +587,30 @@ public sealed class QuestDetailPanel
                 );
             ImGui.TreePop();
         }
+        ImGui.EndGroup();
         ImGui.PopID();
     }
 
-    private static void DrawSourceTooltip(SourceDisplayCache display)
+    private static void DrawSourceText(SourceDisplayCache display)
     {
-        if (!ImGui.IsItemHovered())
-            return;
-        ImGui.BeginTooltip();
-        Theme.TextWrapped(display.Details);
-        ImGui.EndTooltip();
+        float fontSize = ImGui.GetFontSize();
+        if (display.FontSize != fontSize)
+        {
+            display.FontSize = fontSize;
+            display.InlineWidth = ImGui.CalcTextSize(display.InlineLabel).X;
+        }
+        bool inline = display.InlineWidth <= ImGui.GetContentRegionAvail().X;
+        if (!display.Available)
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.SourceDimmed);
+        Theme.TextWrapped(inline ? display.InlineLabel : display.Label);
+        if (!inline && display.Location is string location)
+            Theme.TextWrapped(location);
+        if (!display.Available)
+            ImGui.PopStyleColor();
+        if (display.Odds is string odds)
+            Theme.TextWrapped(odds);
+        if (display.Instruction is string preparation)
+            Theme.TextWrapped(preparation);
     }
 
     /// <summary>
@@ -852,8 +859,12 @@ public sealed class QuestDetailPanel
     {
         public int RowId;
         public string Label = "";
-        public string Details = "";
+        public string? Instruction;
         public string? Odds;
+        public string? Location;
+        public string InlineLabel = "";
+        public float InlineWidth;
+        public float FontSize;
         public bool Navigable;
         public bool Available;
         public string? QuestTreeLabel;
@@ -885,16 +896,19 @@ public sealed class QuestDetailPanel
         return requirements;
     }
 
-    private void DrawGateRequirements(List<GateRequirement>? requirements)
+    private void DrawGateRequirements(
+        List<GateRequirement>? requirements,
+        string? alreadyShown = null
+    )
     {
         if (requirements == null || requirements.Count == 0)
-            return;
-        if (!ImGui.TreeNode("Requirements"))
             return;
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
         for (int i = 0; i < requirements.Count; i++)
         {
             var requirement = requirements[i];
+            if (string.Equals(requirement.Text, alreadyShown, StringComparison.Ordinal))
+                continue;
             if (requirement.Quest is QuestEntry quest)
             {
                 ImGui.PushID(i);
@@ -906,7 +920,6 @@ public sealed class QuestDetailPanel
                 Theme.TextWrapped(requirement.Text);
         }
         ImGui.PopStyleColor();
-        ImGui.TreePop();
     }
 
     /// <summary>
@@ -1254,17 +1267,32 @@ public sealed class QuestDetailPanel
     {
         if (stepDisplay.Sources.ContainsKey((src, depth)))
             return;
-        string label = SourceListText.Summary(src);
+        string label = SourceListText.Action(src);
 
         var display = new SourceDisplayCache
         {
             RowId = stepDisplay.Sources.Count,
             Label = label,
-            Details = SourceListText.Details(src),
-            Odds = SourceListText.OptionOdds(src),
+            Location = SourceListText.Location(src),
+            Odds = src.Type == "fishing" ? SourceListText.OptionOdds(src) : null,
             Navigable = CanChooseSource(src),
             Available = IsSourceAvailable(src),
         };
+        display.InlineLabel =
+            display.Location == null
+                ? label
+                : label + (src.Type is "fishing" or "mining" ? " in " : " · ") + display.Location;
+        if (
+            src.Type != "vendor"
+            && src.Instruction is string instruction
+            && !string.Equals(instruction, label, StringComparison.Ordinal)
+            && !(
+                instruction.Length == label.Length + 1
+                && instruction[instruction.Length - 1] == '.'
+                && instruction.StartsWith(label, StringComparison.Ordinal)
+            )
+        )
+            display.Instruction = instruction;
         display.Requirements = CacheGateRequirements(_state.Gates.Explain(src.Condition));
         if (src.SourceKey != null)
             display.Requirements.AddRange(

@@ -42,9 +42,13 @@ public sealed class NavigationController
             if (value == null)
                 return;
             for (int i = value.Chain.Count - 1; i >= 0; i--)
-                if (value.Chain[i].Atom is { Kind: not GateAtomKind.EncounterWon })
+                if (value.Chain[i].Atom is { Kind: not GateAtomKind.EncounterWon } atom)
                 {
-                    ImmediateRequirement = value.Chain[i].Label;
+                    ImmediateRequirement =
+                        atom.Kind is GateAtomKind.KeyHeld or GateAtomKind.ItemHeld
+                        && _data.GateItems.TryGetValue(atom.Ref, out var item)
+                            ? $"Needs {item.Name}"
+                            : value.Chain[i].Label;
                     break;
                 }
         }
@@ -74,7 +78,8 @@ public sealed class NavigationController
     public ItemSource? SelectedItemSource { get; private set; }
     public ItemSource? ChosenItemSource => _sourceSelection.Source;
     public string? SelectedSourceSummary { get; private set; }
-    public string? SelectedSourceDetails { get; private set; }
+    public string? SelectedSourceLocation { get; private set; }
+    public string? SelectedSourceOdds { get; private set; }
     public string? SelectedSourceTiming =>
         SelectedItemSource == null
             ? null
@@ -85,8 +90,17 @@ public sealed class NavigationController
         if (ReferenceEquals(source, SelectedItemSource))
             return;
         SelectedItemSource = source;
-        SelectedSourceSummary = source == null ? null : UI.SourceListText.Summary(source);
-        SelectedSourceDetails = source == null ? null : UI.SourceListText.Details(source);
+        SelectedSourceSummary =
+            source == null
+                ? null
+                : "Next: "
+                    + UI.SourceListText.Action(
+                        source,
+                        Requirements?.Step is { TargetType: "item" } step ? step.TargetName : null
+                    );
+        SelectedSourceLocation = source == null ? null : UI.SourceListText.Location(source);
+        SelectedSourceOdds =
+            source?.Type == "fishing" ? UI.SourceListText.OptionOdds(source) : null;
     }
 
     public string CurrentScene => _state.CurrentZone;

@@ -106,11 +106,10 @@ chooses among available sources, including another deposit when one is mined.
 Use "Choose a source" to follow a specific alternative or its ingredient and
 quest sources. Crafted sources retain their recipe while navigation follows
 missing materials. Repeated material slots require their combined quantity.
-The guide shows the actual next action during navigation.
-Open "Why this route?" for the requirement chain. The source picker compares
-phase-specific odds, with full details on hover. Fishing timing remains visible
-outside its catch window. Guidance appears in the guide, tracker or HUD without
-repeating it across those surfaces.
+Browsing quests does not change tracking or navigation. The tracker retains the
+current next action, and the quest panel shows it when that quest is selected.
+The source picker keeps chances with their actions and shows fishing rates with
+their catch restrictions, including outside the catch window.
 
 ## Data Pipeline
 

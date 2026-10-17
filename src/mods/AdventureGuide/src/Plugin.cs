@@ -150,12 +150,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             _tracker = new TrackerWindow(_data, _state, _nav, _trackerState, _window, _config);
             Action guideDraw = _window.Draw;
             Action trackerDraw = () => _tracker!.Draw(_inGameplay);
-            Action arrowDraw = () =>
-            {
-                _arrow!.Draw();
-                if (!_window!.Visible && !_tracker!.NavigationGuidanceVisible)
-                    NavigationDisplay.DrawOverlay(_nav!);
-            };
+            Action arrowDraw = _arrow.Draw;
             _imgui.OnLayout = () =>
             {
                 _imgui.DrawIsolated(guideDraw);

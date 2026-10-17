@@ -34,16 +34,13 @@ public sealed class SourceListTextTests
                 ? "\"day_chance\":0.000000002,\"night_chance\":20"
                 : "\"chance\":0.000000002";
         var source = ParseSource($$"""{"type":"{{type}}","name":"Rare source",{{chances}}}""");
-        string details = SourceListText.Details(source);
-        Assert.Contains("<0.01%", details);
-        Assert.DoesNotContain(": 0%", details);
+        string? odds = SourceListText.OptionOdds(source);
+        Assert.Contains("<0.01%", odds);
         Assert.Equal(type == "fishing" ? (double?)null : 0.000000002, source.Chance);
         if (type == "fishing")
         {
             Assert.Equal(0.000000002, source.DayChance);
-            Assert.Contains("Day", details);
-            Assert.Contains("night", details);
-            Assert.Contains("20%", details);
+            Assert.Contains("20%", odds);
             Assert.Null(source.Chance);
         }
     }

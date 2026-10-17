@@ -1,13 +1,10 @@
-extern alias vectors;
-
 using AdventureGuide.Data;
 using AdventureGuide.UI;
 using ImGuiNET;
-using Vector2 = vectors::System.Numerics.Vector2;
 
 namespace AdventureGuide.Navigation;
 
-/// <summary>Shared navigation overlay metrics and requirement rendering.</summary>
+/// <summary>Navigation guidance shared by the quest panel and tracker.</summary>
 internal static class NavigationDisplay
 {
     internal const float GroundOffset = 0.50f;
@@ -36,78 +33,36 @@ internal static class NavigationDisplay
 
         ImGui.PushID("navigation-requirements");
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+        if (nav.ImmediateRequirement is string blocker)
+            Theme.TextWrapped(blocker);
+        ImGui.PopStyleColor();
         if (nav.NextActionLabel is string nextAction)
             Theme.TextWrapped(nextAction);
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+        if (nav.SelectedSourceLocation is string location)
+            Theme.TextWrapped(location);
+        if (nav.SelectedSourceOdds is string odds)
+            Theme.TextWrapped(odds);
         if (nav.SelectedItemSource is { Type: "drop", Instruction: not null } preparedSource)
             Theme.TextWrapped(preparedSource.Instruction);
         if (nav.SelectedSourceTiming is string timing)
             Theme.TextWrapped(timing);
-        if (nav.ImmediateRequirement is string blocker)
-            Theme.TextWrapped(blocker);
         if (!string.IsNullOrEmpty(requirements?.Message))
             Theme.TextWrapped(requirements!.Message!);
         ImGui.PopStyleColor();
 
-        if (ImGui.TreeNode("Why this route?"))
+        for (int i = 0; requirements != null && i < requirements.Chain.Count; i++)
         {
-            if (nav.SelectedSourceDetails is string details)
-                Theme.TextWrapped(details);
-            for (int i = 0; requirements != null && i < requirements.Chain.Count; i++)
-            {
-                var link = requirements.Chain[i];
-                if (link.Atom is { Kind: GateAtomKind.EncounterWon } atom)
-                {
-                    ImGui.PushID(i);
-                    if (ImGui.SmallButton("[NAV]"))
-                        nav.NavigateToRequirementCharacter(atom.Ref, link.Label, currentScene);
-                    ImGui.PopID();
-                    ImGui.SameLine();
-                }
-                Theme.TextWrapped(link.Label);
-                for (int j = 0; j < link.Alternatives.Count; j++)
-                {
-                    ImGui.TextUnformatted("Alternative");
-                    ImGui.SameLine();
-                    Theme.TextWrapped(link.Alternatives[j]);
-                }
-            }
-            ImGui.TreePop();
+            var link = requirements.Chain[i];
+            if (link.Atom is not { Kind: GateAtomKind.EncounterWon } atom)
+                continue;
+            ImGui.PushID(i);
+            if (ImGui.SmallButton("[NAV]"))
+                nav.NavigateToRequirementCharacter(atom.Ref, link.Label, currentScene);
+            ImGui.PopID();
+            ImGui.SameLine();
+            Theme.TextWrapped(link.Label);
         }
         ImGui.PopID();
-    }
-
-    internal static void DrawOverlay(NavigationController nav)
-    {
-        if (!HasGuidance(nav))
-            return;
-
-        var display = Theme.DisplaySize();
-        ImGui.SetNextWindowPos(
-            new Vector2(display.X * 0.5f, 40f),
-            ImGuiCond.Always,
-            new Vector2(0.5f, 0f)
-        );
-        ImGui.SetNextWindowSize(new Vector2(Math.Min(520f, display.X * 0.8f), 0f));
-        using var style = Theme.WindowStyleScope(1f);
-        try
-        {
-            if (
-                ImGui.Begin(
-                    "Navigation requirements###navigation-requirements-overlay",
-                    ImGuiWindowFlags.NoTitleBar
-                        | ImGuiWindowFlags.NoMove
-                        | ImGuiWindowFlags.NoResize
-                        | ImGuiWindowFlags.NoSavedSettings
-                        | ImGuiWindowFlags.AlwaysAutoResize
-                        | ImGuiWindowFlags.NoFocusOnAppearing
-                        | ImGuiWindowFlags.NoNav
-                )
-            )
-                DrawRequirements(nav, nav.CurrentScene);
-        }
-        finally
-        {
-            ImGui.End();
-        }
     }
 }

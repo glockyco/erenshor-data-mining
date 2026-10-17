@@ -67,6 +67,8 @@ public sealed class TrackerWindow
     private int _lastStateVersion = -1;
     private float _lastProximitySort;
     private TrackerSortMode _lastSortMode;
+    private string? _lastNavigationQuestKey;
+    private int _lastNavigationStepOrder;
 
     // Per-quest cached step index for detecting step advances
     private readonly Dictionary<string, int> _cachedStepIndex = new(
@@ -94,8 +96,6 @@ public sealed class TrackerWindow
     private Vector2 _contentMax;
 
     public bool Visible => _visible;
-
-    internal bool NavigationGuidanceVisible { get; private set; }
 
     public void Toggle() => _visible = !_visible;
 
@@ -196,7 +196,6 @@ public sealed class TrackerWindow
     /// </summary>
     public void Draw(bool inGameplay)
     {
-        NavigationGuidanceVisible = false;
         if (!TrackerVisibilityPolicy.ShouldDraw(_visible, inGameplay, _tracker.Enabled))
             return;
 
@@ -429,10 +428,11 @@ public sealed class TrackerWindow
     {
         var anim = GetOrDefaultAnim(questKey);
         float now = UnityEngine.Time.realtimeSinceStartup;
-        bool isFadingOut = _fadingOut.TryGetValue(questKey, out float fadeStart);
+        bool navigationOrigin = questKey == _lastNavigationQuestKey;
+        float fadeStart = 0f;
+        bool isFadingOut = !navigationOrigin && _fadingOut.TryGetValue(questKey, out fadeStart);
 
-        // Entry is neither tracked nor fading out — stale sorted list entry
-        if (!isFadingOut && !_tracker.IsTracked(questKey))
+        if (!navigationOrigin && !isFadingOut && !_tracker.IsTracked(questKey))
             return;
         // Compute entry alpha for fade-in or fade-out
         float entryAlpha = 1f;
@@ -489,7 +489,7 @@ public sealed class TrackerWindow
         // Right-click context menu
         if (ImGui.BeginPopupContextItem(row.ContextId))
         {
-            if (ImGui.Selectable("Untrack"))
+            if (_tracker.IsTracked(quest.RuntimeKey) && ImGui.Selectable("Untrack"))
                 _tracker.Untrack(quest.RuntimeKey);
             if (ImGui.Selectable("Open in Guide"))
             {
@@ -508,16 +508,9 @@ public sealed class TrackerWindow
             && NavigationDisplay.HasGuidance(_nav)
         )
         {
-            ImGui.BeginGroup();
-            try
-            {
-                NavigationDisplay.DrawRequirements(_nav, _state.CurrentZone);
-            }
-            finally
-            {
-                ImGui.EndGroup();
-            }
-            NavigationGuidanceVisible |= ImGui.IsItemVisible();
+            ImGui.Indent();
+            NavigationDisplay.DrawRequirements(_nav, _state.CurrentZone);
+            ImGui.Unindent();
         }
 
         ImGui.Spacing();
@@ -755,15 +748,22 @@ public sealed class TrackerWindow
         bool trackerDirty = _tracker.IsDirty;
         bool stateDirty = _state.Version != _lastStateVersion;
         bool sortModeChanged = _tracker.SortMode != _lastSortMode;
+        string? navigationQuest = _nav.OriginQuest?.RuntimeKey;
+        int navigationStep = _nav.OriginStep?.Order ?? 0;
+        bool navigationChanged =
+            navigationQuest != _lastNavigationQuestKey
+            || navigationStep != _lastNavigationStepOrder;
 
         // Distances are displayed in all sort modes, so refresh
         // periodically to keep them current as the player moves.
         bool distancesStale = UnityEngine.Time.realtimeSinceStartup - _lastProximitySort > 2f;
 
-        if (trackerDirty || stateDirty || sortModeChanged || distancesStale)
+        if (trackerDirty || stateDirty || sortModeChanged || distancesStale || navigationChanged)
         {
             if (stateDirty)
                 _lastStateVersion = _state.Version;
+            _lastNavigationQuestKey = navigationQuest;
+            _lastNavigationStepOrder = navigationStep;
             RebuildSortedList();
         }
     }
@@ -772,6 +772,8 @@ public sealed class TrackerWindow
     {
         _sorted.Clear();
         _sorted.AddRange(_tracker.TrackedQuests);
+        if (_lastNavigationQuestKey != null && !_sorted.Contains(_lastNavigationQuestKey))
+            _sorted.Add(_lastNavigationQuestKey);
 
         // Append fading-out entries at their last position so they
         // fade in place rather than jumping to the bottom
@@ -864,8 +866,9 @@ public sealed class TrackerWindow
     {
         if (quest.Steps == null || quest.Steps.Count == 0)
             return (null, null, quest);
-        int idx = StepProgress.GetCurrentStepIndex(quest, _state, _data);
-        var raw = idx >= 0 && idx < quest.Steps.Count ? quest.Steps[idx] : null;
+        var originStep = _nav.OriginQuest?.RuntimeKey == quest.RuntimeKey ? _nav.OriginStep : null;
+        int idx = originStep == null ? StepProgress.GetCurrentStepIndex(quest, _state, _data) : -1;
+        var raw = originStep ?? (idx >= 0 && idx < quest.Steps.Count ? quest.Steps[idx] : null);
         if (raw == null)
             return (null, null, quest);
         var (resolved, resolvedQuest) = StepProgress.ResolveActiveStep(raw, quest, _state, _data);
