@@ -190,7 +190,6 @@ def generated_content_sha256(generated_pages: Mapping[str, str]) -> str:
 class _CatalogIndex:
     entries_by_key: Mapping[str, LinkCatalogEntry]
     entries_by_page: Mapping[str, tuple[LinkCatalogEntry, ...]]
-    entries_by_name: Mapping[str, tuple[LinkCatalogEntry, ...]]
 
 
 def _nonblank(value: object, field: str) -> str:
@@ -238,14 +237,15 @@ def _title_key(value: str) -> str:
     return re.sub(r"\s+", " ", value.replace("_", " ").strip()).casefold()
 
 
-def _name_key(value: str) -> str:
-    return re.sub(r"\s+", " ", value.strip()).casefold()
+def _catalog_page_key(value: str) -> str:
+    """Match Scribunto's first-letter page lookup without matching entity names."""
+    title = re.sub(r"\s+", " ", value.replace("_", " ").strip()).lstrip(":").split("#", 1)[0].strip()
+    return title[:1].upper() + title[1:]
 
 
 def _build_catalog_index(entries: Sequence[LinkCatalogEntry | Mapping[str, object]]) -> _CatalogIndex:
     by_key: dict[str, LinkCatalogEntry] = {}
     by_page: dict[str, list[LinkCatalogEntry]] = defaultdict(list)
-    by_name: dict[str, list[LinkCatalogEntry]] = defaultdict(list)
     for raw_entry in entries:
         entry = _catalog_entry(raw_entry)
         if entry.kind not in _PREFIXES:
@@ -257,15 +257,11 @@ def _build_catalog_index(entries: Sequence[LinkCatalogEntry | Mapping[str, objec
         if entry.key in by_key:
             raise ValueError(f"Duplicate link catalog key: {entry.key}")
         by_key[entry.key] = entry
-        by_page[_title_key(entry.page)].append(entry)
-        by_name[_name_key(entry.name)].append(entry)
+        by_page[_catalog_page_key(entry.page)].append(entry)
     return _CatalogIndex(
         entries_by_key=MappingProxyType(dict(sorted(by_key.items()))),
         entries_by_page=MappingProxyType(
             {key: tuple(sorted(value, key=_entry_key)) for key, value in sorted(by_page.items())}
-        ),
-        entries_by_name=MappingProxyType(
-            {key: tuple(sorted(value, key=_entry_key)) for key, value in sorted(by_name.items())}
         ),
     )
 
@@ -288,25 +284,17 @@ def catalog_sha256(entries: Sequence[LinkCatalogEntry | Mapping[str, object]]) -
 
 
 def _parameter_values(template: Any) -> tuple[dict[str, str], list[str]]:
-    named: dict[str, str] = {}
-    positional: list[str] = []
-    for parameter in template.params:
-        name = str(parameter.name).strip()
-        value = str(parameter.value).strip()
-        if getattr(parameter, "showkey", False):
-            named[name.casefold()] = value
-        else:
-            positional.append(value)
-    return named, positional
+    values = {str(parameter.name).strip(): str(parameter.value).strip() for parameter in template.params}
+    # Scribunto treats blank and dash values as absent and parameter names as case-sensitive.
+    named = {name: value for name, value in values.items() if value not in ("", "-")}
+    return named, [named["1"]] if "1" in named else []
 
 
 def _target_from_values(kind: str, named: Mapping[str, str], positional: Sequence[str]) -> str | None:
     """Return the page a link names, with the parameter order of Module:Erenshor/Link."""
-    value = named.get("link")
-    if value is None:
-        value = named.get("page")
+    value = named.get("link") or named.get("page")
     if value is None and kind == "item":
-        value = named.get("item", named.get("name"))
+        value = named.get("item") or named.get("name")
     if value is None and positional:
         value = positional[0]
     if value is None and kind == "quest":
@@ -322,17 +310,15 @@ def _target_from_values(kind: str, named: Mapping[str, str], positional: Sequenc
 
 
 def _stable_key_from_values(named: Mapping[str, str]) -> str | None:
-    for parameter in ("stablekey", "stable_key", "key", "id"):
+    for parameter in ("stablekey", "stableKey", "key"):
         value = named.get(parameter)
         if value is not None:
-            return value.strip() or None
+            return value
     return None
 
 
 def _manual_candidates(index: _CatalogIndex, kind: str, target: str) -> tuple[LinkCatalogEntry, ...]:
-    candidates = [*index.entries_by_page.get(_title_key(target), ()), *index.entries_by_name.get(_name_key(target), ())]
-    unique = {entry.key: entry for entry in candidates if entry.kind == kind}
-    return tuple(sorted(unique.values(), key=_entry_key))
+    return tuple(entry for entry in index.entries_by_page.get(_catalog_page_key(target), ()) if entry.kind == kind)
 
 
 def _render_alike(kind: str, candidates: Sequence[LinkCatalogEntry]) -> bool:
@@ -343,7 +329,7 @@ def _render_alike(kind: str, candidates: Sequence[LinkCatalogEntry]) -> bool:
     return (
         len(candidates) > 1
         and kind != "ability"
-        and len({(_title_key(entry.page), entry.image) for entry in candidates}) == 1
+        and len({(_catalog_page_key(entry.page), entry.image) for entry in candidates}) == 1
     )
 
 
@@ -356,11 +342,10 @@ def _semantic_kind(template_name: str) -> str | None:
 class LinkTargets:
     """Resolve one link to the page that it links, through the link catalog.
 
-    A semantic link template with ``stablekey=`` links the catalog page of that
-    key. A manual semantic link links the page of its catalog matches when they
-    share one page, and its supplied target otherwise. A wikilink links its
-    title. Targets are title keys, so equal targets mean the same page and
-    section.
+    A supplied page always wins over the catalog page, including keyed links
+    with editor overrides and unresolved keys with a fallback. A key supplies
+    the page only when the call has no target. Targets are title keys, so equal
+    targets mean the same page and section.
     """
 
     def __init__(self, catalog_entries: Sequence[LinkCatalogEntry | Mapping[str, object]]) -> None:
@@ -380,8 +365,8 @@ class LinkTargets:
     def node_target(self, node: Node) -> str | None:
         """Return the title key that one parsed node links, or None when it is not a link.
 
-        A stable key that the catalog does not hold has no known page, so its
-        template is not a link.
+        A stable key absent from the catalog can still render its supplied
+        fallback page.
         """
         if isinstance(node, Wikilink):
             title = str(node.title).strip().lstrip(":").strip()
@@ -396,14 +381,13 @@ class LinkTargets:
             return None
         named, positional = _parameter_values(template)
         stable_key = _stable_key_from_values(named)
+        supplied_target = _target_from_values(kind, named, positional)
+        if supplied_target is not None:
+            return _title_key(supplied_target)
         if stable_key is not None:
             entry = self._index.entries_by_key.get(stable_key)
             return _title_key(entry.page) if entry is not None and entry.kind == kind else None
-        supplied_target = _target_from_values(kind, named, positional)
-        if supplied_target is None:
-            return None
-        pages = {_title_key(entry.page) for entry in _manual_candidates(self._index, kind, supplied_target)}
-        return pages.pop() if len(pages) == 1 else _title_key(supplied_target)
+        return None
 
 
 def _occurrence_from_template(
@@ -447,7 +431,8 @@ def _occurrence_from_template(
             entry.page,
             origin,
         )
-        if supplied_target is not None and _title_key(supplied_target) != _title_key(entry.page):
+        named_target = named.get("link") or named.get("page")
+        if named_target is not None and _catalog_page_key(named_target) != _catalog_page_key(entry.page):
             return occurrence, LinkAuditFinding(
                 "stable_key_target_mismatch",
                 "error",

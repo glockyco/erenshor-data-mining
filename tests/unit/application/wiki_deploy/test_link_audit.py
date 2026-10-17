@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from erenshor.application.wiki_deploy.link_audit import (
+    LinkTargets,
     audit_links,
     catalog_sha256,
     generated_content_sha256,
@@ -194,7 +195,7 @@ def test_redirect_is_an_existing_keyed_target_but_stale_manual_target_warns() ->
     assert codes == ["stale_manual_redirect"]
 
 
-def test_unique_manual_name_checks_the_rendered_catalog_page() -> None:
+def test_manual_entity_name_is_not_a_page_alias() -> None:
     catalog = (entry("item:a", "Display name", "Canonical page"),)
     statuses = {
         "Display name": MediaWikiTitleStatus("Display name", "Display name", None, False),
@@ -207,11 +208,11 @@ def test_unique_manual_name_checks_the_rendered_catalog_page() -> None:
         title_statuses=statuses,
     )
 
-    assert report.findings == ()
-    assert report.occurrences[0].canonical_target == "Canonical page"
+    assert [finding.code for finding in report.findings] == ["manual_red_link"]
+    assert report.occurrences[0].canonical_target == "Display name"
 
 
-def test_duplicate_manual_names_and_pages_are_ambiguous_without_rewriting() -> None:
+def test_names_on_other_pages_do_not_make_a_shared_page_ambiguous() -> None:
     catalog = (
         entry("item:first", "Shared", "Shared"),
         entry("item:second", "Shared", "Other"),
@@ -220,10 +221,27 @@ def test_duplicate_manual_names_and_pages_are_ambiguous_without_rewriting() -> N
     source = "Before {{ItemLink|Shared}} after"
     occurrences = parse_link_occurrences("Source", source, catalog)
     assert occurrences[0].stable_key is None
-    assert occurrences[0].canonical_target is None
+    assert occurrences[0].canonical_target == "Shared"
     report = audit_links(generated_pages={"Source": source}, catalog_entries=catalog, planned_titles=set())
-    assert [finding.code for finding in report.findings] == ["ambiguous_manual_semantic_link"]
+    assert report.findings == ()
     assert source == "Before {{ItemLink|Shared}} after"
+
+
+def test_positional_fallback_is_not_a_named_key_target_mismatch() -> None:
+    catalog = (entry("item:a", "A", "A"),)
+    report = audit_links(
+        generated_pages={"Source": "{{ItemLink|stablekey=item:a|Legacy target}}"},
+        catalog_entries=catalog,
+        planned_titles={"A"},
+    )
+    assert report.findings == ()
+
+
+def test_link_targets_keep_editor_targets_even_when_keys_are_present() -> None:
+    targets = LinkTargets((entry("item:a", "A", "A"),))
+    assert targets.target("{{ItemLink|stablekey=item:a|page=Editor target}}") == "editor target"
+    assert targets.target("{{ItemLink|stablekey=item:missing|Editor fallback}}") == "editor fallback"
+    assert targets.target("{{ItemLink|stablekey=item:a}}") == "a"
 
 
 def test_generated_content_hash_and_report_order_are_deterministic() -> None:

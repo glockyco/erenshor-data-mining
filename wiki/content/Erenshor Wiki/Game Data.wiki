@@ -120,7 +120,7 @@ Do not delete these pages.
 Links to items, characters, abilities, quests, zones, factions, and classes use link templates. A link template shows the name with an icon. When you move the pointer over the link, a card shows the in-game tooltip.
 
 * To link a page by its name, write for example <code><nowiki>{{ItemLink|Ember Longsword}}</nowiki></code>.
-* When several things share one page, give the link a <code>stablekey</code>, for example <code><nowiki>{{QuestLink|stablekey=quest:whereswyland}}</nowiki></code>.
+* Things that share a page and an icon need no key. Give the link a <code>stablekey</code> when their icons differ, or when several abilities share the page, because ability tooltips need an exact identity.
 * In the source editor, the '''Erenshor link''' button in the ''Insert'' group finds the correct template and key for you.
 
 The tooltip templates show the in-game tooltip on a page: [[Template:ItemTooltip|ItemTooltip]], [[Template:SpellTooltip|SpellTooltip]], [[Template:SkillTooltip|SkillTooltip]], and [[Template:StanceTooltip|StanceTooltip]].
@@ -162,7 +162,7 @@ These hidden categories collect pages that need a fix.
 |-
 | [[:Category:Pages with script errors]] || {{PAGESINCATEGORY:Pages with script errors}} || A template or module failed on the page. Report it.
 |-
-| [[:Category:Pages with ambiguous Erenshor links]] || {{PAGESINCATEGORY:Pages with ambiguous Erenshor links}} || A link names a page that several things share. Give the link a <code>stablekey</code>. The '''Erenshor link''' button finds it.
+| [[:Category:Pages with ambiguous Erenshor links]] || {{PAGESINCATEGORY:Pages with ambiguous Erenshor links}} || A link names a page shared by several abilities or by things with different icons. Give the link the correct <code>stablekey</code>. The '''Erenshor link''' button finds it.
 |-
 | [[:Category:Pages with unresolved Erenshor links]] || {{PAGESINCATEGORY:Pages with unresolved Erenshor links}} || A link has a <code>stablekey</code> that matches nothing in the game data, often because a game update renamed the thing. Choose the correct key with the '''Erenshor link''' button, or remove the key.
 |-

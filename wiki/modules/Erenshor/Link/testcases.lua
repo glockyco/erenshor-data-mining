@@ -23,7 +23,45 @@ local function assertNotContains(actual, unexpected, label)
 	end
 end
 
+-- Expose observations, not expected results, to the Python host parity tests.
+function p.probe(frame)
+	local args = {}
+	for key, value in pairs(frame.args) do
+		args[key] = value
+	end
+	local result = Link.resolve(args.kind, args)
+	result.record = nil
+	result.rendered = Link.render(args)
+	return "<pre>" .. mw.text.nowiki(mw.text.jsonEncode(result)) .. "</pre>"
+end
+
+function p.catalog()
+	local records = {}
+	for _, record in pairs(mw.loadData("Module:Erenshor/Data/Links").byKey) do
+		table.insert(records, record)
+	end
+	table.sort(records, function(left, right)
+		return left.key < right.key
+	end)
+	return "<pre>" .. mw.text.nowiki(mw.text.jsonEncode(records)) .. "</pre>"
+end
+
 function p.run()
+	assertEqual(
+		Link.resolve("item", { [1] = "Priel Note (1)" }).state,
+		"manual",
+		"an entity name is not a page alias"
+	)
+	assertEqual(
+		Link.resolve("item", { [1] = "Abyssal Plate" }).resolvedKey,
+		"item:chest - 38 - abyssal plate",
+		"a name on another page does not make this page ambiguous"
+	)
+	assertEqual(
+		Link.resolve("item", { [1] = "Different Image Fixture" }).state,
+		"ambiguous",
+		"entities on one page with different images still need an identity"
+	)
 	local item = Link.render({
 		kind = "item",
 		page = "Abyssal Plate",

@@ -159,6 +159,8 @@ local function explicitPageFor(args)
 	return Args.resolve(args, "link", nil) or Args.resolve(args, "page", nil)
 end
 
+-- A supplied target is a page title, not an entity name. Matching names here
+-- could attach an unrelated identity without changing the navigable target.
 local function pageMatches(kind, page)
 	if isBlank(page) then
 		return {}

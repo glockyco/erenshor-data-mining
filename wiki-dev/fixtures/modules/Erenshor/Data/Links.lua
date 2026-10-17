@@ -1,5 +1,38 @@
 return {
 	["byKey"] = {
+		["quest:shared-line-a"] = {
+			["key"] = "quest:shared-line-a",
+			["kind"] = "quest",
+			["name"] = "Quest Line Fixture A",
+			["page"] = "Quest Line Fixture",
+		},
+		["quest:shared-line-b"] = {
+			["key"] = "quest:shared-line-b",
+			["kind"] = "quest",
+			["name"] = "Quest Line Fixture B",
+			["page"] = "Quest Line Fixture",
+		},
+		["item:name-collision"] = {
+			["key"] = "item:name-collision",
+			["kind"] = "item",
+			["name"] = "Abyssal Plate",
+			["page"] = "Name Collision Fixture",
+			["image"] = "Different icon.png",
+		},
+		["item:different-image-a"] = {
+			["key"] = "item:different-image-a",
+			["kind"] = "item",
+			["name"] = "Different Image Fixture A",
+			["page"] = "Different Image Fixture",
+			["image"] = "First icon.png",
+		},
+		["item:different-image-b"] = {
+			["key"] = "item:different-image-b",
+			["kind"] = "item",
+			["name"] = "Different Image Fixture B",
+			["page"] = "Different Image Fixture",
+			["image"] = "Second icon.png",
+		},
 		["character:a_grizzly_bear"] = {
 			["image"] = "A Grizzly Bear render.png",
 			["key"] = "character:a_grizzly_bear",
@@ -433,6 +466,9 @@ return {
 		},
 	},
 	["byPage"] = {
+		["Quest Line Fixture"] = { "quest:shared-line-a", "quest:shared-line-b" },
+		["Name Collision Fixture"] = { "item:name-collision" },
+		["Different Image Fixture"] = { "item:different-image-a", "item:different-image-b" },
 		["A Cat for a Deer"] = {
 			"quest:catfordeer",
 		},
@@ -592,8 +628,41 @@ return {
 			"class:duelist",
 		},
 	},
-	["catalogSha256"] = "65b88832fa893b00f77d41183a0ae494bbcddb338f0036cf664d3d734295a54f",
+	["catalogSha256"] = "8b861507ccc99739a50f9817959308fe8873925d484c45f47057384275d94f54",
 	["entries"] = {
+		{
+			["key"] = "quest:shared-line-a",
+			["kind"] = "quest",
+			["name"] = "Quest Line Fixture A",
+			["page"] = "Quest Line Fixture",
+		},
+		{
+			["key"] = "quest:shared-line-b",
+			["kind"] = "quest",
+			["name"] = "Quest Line Fixture B",
+			["page"] = "Quest Line Fixture",
+		},
+		{
+			["key"] = "item:name-collision",
+			["kind"] = "item",
+			["name"] = "Abyssal Plate",
+			["page"] = "Name Collision Fixture",
+			["image"] = "Different icon.png",
+		},
+		{
+			["key"] = "item:different-image-a",
+			["kind"] = "item",
+			["name"] = "Different Image Fixture A",
+			["page"] = "Different Image Fixture",
+			["image"] = "First icon.png",
+		},
+		{
+			["key"] = "item:different-image-b",
+			["kind"] = "item",
+			["name"] = "Different Image Fixture B",
+			["page"] = "Different Image Fixture",
+			["image"] = "Second icon.png",
+		},
 		{
 			["image"] = nil,
 			["key"] = "quest:catfordeer",
