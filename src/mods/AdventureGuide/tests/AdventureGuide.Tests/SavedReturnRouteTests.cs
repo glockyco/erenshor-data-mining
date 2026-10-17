@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace AdventureGuide.Tests;
 
+[Collection("Game state")]
 public sealed class SavedReturnRouteTests
 {
     private const string ReturnLine = "zoneline:home:return";
