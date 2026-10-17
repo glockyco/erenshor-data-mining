@@ -149,10 +149,7 @@ def test_semantic_link_hosts_agree(
     span = _SemanticSpan(rendered["text"]).attributes
     assert span.get("data-erenshor-page") == observed.get("page")
     assert span.get("data-erenshor-key") == observed.get("resolvedKey", observed.get("requestedKey"))
-    assert (
-        LinkTargets(catalog).target(source)
-        == re.sub(r"\s+", " ", observed["page"].replace("_", " ").strip()).casefold()
-    )
+    assert LinkTargets(catalog).target(source) == observed["targetIdentity"].replace("_", " ")
     template = mwparserfromhell.parse(source).filter_templates()[0]
     if template.has("text"):
         assert observed["text"] == str(template.get("text").value)

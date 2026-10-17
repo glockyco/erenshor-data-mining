@@ -32,6 +32,8 @@ function p.probe(frame)
 	local result = Link.resolve(args.kind, args)
 	result.record = nil
 	result.rendered = Link.render(args)
+	local target = result.page and mw.title.new(result.page)
+	result.targetIdentity = target and target.fullText or nil
 	return "<pre>" .. mw.text.nowiki(mw.text.jsonEncode(result)) .. "</pre>"
 end
 

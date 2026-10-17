@@ -233,8 +233,9 @@ def _catalog_entry(value: LinkCatalogEntry | Mapping[str, object]) -> LinkCatalo
 
 
 def _title_key(value: str) -> str:
-    """Normalize enough MediaWiki title syntax for local catalog indexes."""
-    return re.sub(r"\s+", " ", value.replace("_", " ").strip()).casefold()
+    """Keep meaningful page and fragment case while normalizing the initial title letter."""
+    title = re.sub(r"\s+", " ", value.replace("_", " ").strip())
+    return title[:1].upper() + title[1:]
 
 
 def _catalog_page_key(value: str) -> str:

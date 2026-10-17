@@ -160,6 +160,21 @@ class TestLinkListMerge:
 
         assert _merge("type", old, "[[Consumables|Consumable]]") == old
 
+    @pytest.mark.parametrize(
+        ("old", "new"),
+        [
+            ("[[A Quest|Editor entry]]", "[[A quest|Generated entry]]"),
+            ("[[Quest#FirstStep|Editor entry]]", "[[Quest#firststep|Generated entry]]"),
+        ],
+    )
+    def test_distinct_title_and_fragment_case_preserves_editor_entries(self, old: str, new: str) -> None:
+        assert _merge("relatedquest", old, new) == f"{old}<br>{new}"
+
+    def test_first_letter_and_underscore_variants_still_replace_the_same_page(self) -> None:
+        assert _merge("relatedquest", "[[a_Quest|Editor entry]]", "[[A Quest|Generated entry]]") == (
+            "[[A Quest|Generated entry]]"
+        )
+
     def test_merge_rule_requires_link_targets(self) -> None:
         with pytest.raises(HandlerNotFoundError, match="link targets"):
             FieldPreservationHandler().apply_preservation("Item", {"type": "A"}, {"type": "B"})

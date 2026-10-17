@@ -239,9 +239,21 @@ def test_positional_fallback_is_not_a_named_key_target_mismatch() -> None:
 
 def test_link_targets_keep_editor_targets_even_when_keys_are_present() -> None:
     targets = LinkTargets((entry("item:a", "A", "A"),))
-    assert targets.target("{{ItemLink|stablekey=item:a|page=Editor target}}") == "editor target"
-    assert targets.target("{{ItemLink|stablekey=item:missing|Editor fallback}}") == "editor fallback"
-    assert targets.target("{{ItemLink|stablekey=item:a}}") == "a"
+    assert targets.target("{{ItemLink|stablekey=item:a|page=Editor target}}") == "Editor target"
+    assert targets.target("{{ItemLink|stablekey=item:missing|Editor fallback}}") == "Editor fallback"
+    assert targets.target("{{ItemLink|stablekey=item:a}}") == "A"
+
+
+def test_wrong_case_planned_page_does_not_satisfy_a_generated_target() -> None:
+    report = audit_links(
+        generated_pages={"Source": "{{ItemLink|stablekey=item:a}}"},
+        catalog_entries=(entry("item:a", "A", "A Quest"),),
+        planned_titles={"A quest"},
+        title_statuses={"A Quest": MediaWikiTitleStatus("A Quest", "A Quest", None, False)},
+        remote_checked=True,
+    )
+
+    assert "missing_generated_target_article" in {finding.code for finding in report.findings}
 
 
 def test_generated_content_hash_and_report_order_are_deterministic() -> None:
