@@ -152,6 +152,9 @@ A checked task proves its named behavior and checks, not newer shared-data integ
 - [x] 10.4 Load Guide through the native Lunaris scanner without weakening JSON contracts or bundling loader-provided libraries.
   - Checkpoint 09dd7e08e uses JsonRequired instead of enum-valued metadata. All 722 host cases pass, including missing/null rejection. Both native builds report zero warnings/errors. Fresh native loading shows JsonRequired on the loaded type and no root Newtonsoft.Json.dll. The user explicitly enabled the mod through Lunaris's UI.
 - [ ] 10.5 Verify the final crafting label and remaining reasonably feasible nested-source, timing, account/return and narrow/wide UI states. Preserve sound0 and actual responsive input.
+- [x] 10.6 Show equivalent native recipe slots as one cumulative ingredient row without replacing their original choices or use records. Keep distinct recipes, items, variants, qualities, conditions and source contexts separate. Remove item-use instruction repetition independently of probability formatting.
+  - All 743 consumer cases pass and both native loaders build without warnings or errors. The actual Lunaris Resolving Fluid recipe shows one quantity-eight shard row plus its separate recipe input. Native quantity one retains ingredient NAV and quantity eight removes it. Native inventory controls were restored. The actual Treasure Map picker shows its item-use action and chance once.
+- [ ] 10.7 Resume the parent recipe when an explicitly chosen ingredient is complete. Preserve the original quest, the chosen recipe and other pending ingredients. Verify the live quantity-eight dead end and its correction separately from rendering.
 
 ## 8. Close-out
 

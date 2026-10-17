@@ -23,6 +23,8 @@
 - Group repeated sources without hiding their access requirements.
 - Fix Guide loading on Lunaris.
 - Clarify which mold a crafting source uses.
+- Show repeated recipe ingredients with their total quantity.
+- Avoid repeating item-use instructions beside their chances.
 
 ## v2026.1008.0
 

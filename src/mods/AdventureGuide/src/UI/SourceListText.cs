@@ -6,9 +6,35 @@ namespace AdventureGuide.UI;
 /// <summary>Source text is formatted when presentation caches change, not during drawing.</summary>
 internal static class SourceListText
 {
-    public static string Action(ItemSource source, string? itemName = null)
+    public static string Action(
+        ItemSource source,
+        string? itemName = null,
+        double? inputQuantity = null
+    )
     {
-        string action = source.Type switch
+        string action = ActionText(source, itemName, inputQuantity);
+        return source.Type != "fishing" && OptionOdds(source) is string odds
+            ? $"{action} ({odds})"
+            : action;
+    }
+
+    public static bool RepeatsAction(ItemSource source, string instruction)
+    {
+        string action = ActionText(source);
+        return string.Equals(instruction, action, StringComparison.Ordinal)
+            || (
+                instruction.Length == action.Length + 1
+                && instruction[instruction.Length - 1] == '.'
+                && instruction.StartsWith(action, StringComparison.Ordinal)
+            );
+    }
+
+    private static string ActionText(
+        ItemSource source,
+        string? itemName = null,
+        double? inputQuantity = null
+    ) =>
+        source.Type switch
         {
             "drop" => $"Defeat {source.Name}",
             "world_drop" or "common_world_item" => source.Name ?? "World drops",
@@ -24,14 +50,14 @@ internal static class SourceListText
             "crafting" => $"Craft using {source.Name}",
             "quest_reward" => $"Quest reward: {source.Name}",
             "ingredient" => $"Ingredient: {source.Name}"
-                + (source.NodeCount is int qty ? $" x{qty}" : ""),
+                + (
+                    (inputQuantity ?? source.Quantity ?? source.NodeCount) is double qty && qty > 1
+                        ? $" x{qty.ToString("0.##", CultureInfo.InvariantCulture)}"
+                        : ""
+                ),
             "item_use" => $"Use {source.Name}",
             _ => source.Name ?? source.Type,
         };
-        return source.Type != "fishing" && OptionOdds(source) is string odds
-            ? $"{action} ({odds})"
-            : action;
-    }
 
     public static string? Location(ItemSource source)
     {

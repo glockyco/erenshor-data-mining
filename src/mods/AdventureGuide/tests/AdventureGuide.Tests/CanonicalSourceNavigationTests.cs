@@ -642,4 +642,43 @@ public sealed class CanonicalSourceNavigationTests
         Assert.Equal("item:ore", result.Step.TargetKey);
         Assert.Equal(4, result.Step.Quantity);
     }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(3)]
+    [InlineData(4)]
+    [InlineData(7)]
+    public void Collapsed_material_NAV_keeps_the_total_native_requirement(int have)
+    {
+        var recipe = new ItemSource
+        {
+            Type = "crafting",
+            AcquisitionKey = "acquisition:recipe",
+            ItemStableKey = "item:crafted key",
+        };
+        var quest = Quest(recipe);
+        var wrapper = Wrapper(quest);
+        AddFact(wrapper, recipe, "crafting");
+        var material = Located("ore", "A");
+        AddFact(wrapper, material);
+        recipe.Children = [];
+        for (int slot = 1; slot <= 8; slot++)
+        {
+            var input = Ingredient(wrapper, "item:ore", 1, material, slot.ToString());
+            wrapper.ItemUses[input.UseKey!].TargetStableKey = "recipe:key";
+            recipe.Children.Add(input);
+        }
+        var facts = new GateTestFacts();
+        facts.Inventory["item:ore"] = have;
+        var (_, resolver, _) = Build(wrapper, facts);
+        var row = Assert.Single(ItemSourcePolicy.PresentationSources(recipe.Children));
+        var selection = new SourceNavigationSelection();
+        Assert.True(selection.Select(row, quest.Steps![0], quest));
+        var result = selection.Resolve(resolver, quest, quest.Steps[0], "Home");
+        Assert.True(result.CanNavigate, result.Message);
+        Assert.Equal("item:ore", result.Step.TargetKey);
+        Assert.Equal(8, result.Step.Quantity);
+        Assert.Equal("item:crafted key", quest.Steps[0].TargetKey);
+    }
 }

@@ -71,6 +71,89 @@ internal static class ItemSourcePolicy
         return required;
     }
 
+    public static IReadOnlyList<SourceChoice> PresentationSources(List<ItemSource> sources)
+    {
+        var choices = SourceChoice.ForSources(sources);
+        bool hasInputs = false;
+        foreach (var source in sources)
+            if (source.Type == "ingredient" && source.CanonicalUse?.Kind == "crafting_material")
+            {
+                hasInputs = true;
+                break;
+            }
+        if (!hasInputs)
+            return choices;
+        var rows = new List<SourceChoice>(choices.Count);
+        foreach (var choice in choices)
+        {
+            int matching = -1;
+            for (int i = 0; i < rows.Count; i++)
+                if (SameMaterialInput(rows[i].Primary, choice.Primary))
+                {
+                    matching = i;
+                    break;
+                }
+            // The last slot carries the cumulative threshold. Keep the original
+            // choices and native use records intact for requirement resolution.
+            if (matching >= 0)
+                rows[matching] = choice;
+            else
+                rows.Add(choice);
+        }
+        return rows;
+    }
+
+    private static bool SameMaterialInput(ItemSource a, ItemSource b)
+    {
+        var x = a.CanonicalUse;
+        var y = b.CanonicalUse;
+        if (
+            a.Type != "ingredient"
+            || b.Type != "ingredient"
+            || a.ItemStableKey == null
+            || a.ItemStableKey != b.ItemStableKey
+            || a.OutputQuality != b.OutputQuality
+            || a.Condition != b.Condition
+            || x == null
+            || y == null
+            || x.Kind != "crafting_material"
+            || y.Kind != x.Kind
+            || x.TargetStableKey == null
+            || x.TargetStableKey != y.TargetStableKey
+            || x.VariantKey != y.VariantKey
+            || x.Conditions.Count != 0
+            || y.Conditions.Count != 0
+            || x.Locations.Count != 0
+            || y.Locations.Count != 0
+        )
+            return false;
+        return SameInputSources(a.Children, b.Children);
+    }
+
+    private static bool SameInputSources(List<ItemSource>? a, List<ItemSource>? b)
+    {
+        if (ReferenceEquals(a, b))
+            return true;
+        if ((a?.Count ?? 0) != (b?.Count ?? 0))
+            return false;
+        if (a == null || b == null)
+            return true;
+        for (int i = 0; i < a.Count; i++)
+        {
+            var left = a[i];
+            var right = b[i];
+            if (
+                left.MakeSourceId() != right.MakeSourceId()
+                || left.Condition != right.Condition
+                || left.Quantity != right.Quantity
+                || left.OutputQuality != right.OutputQuality
+                || !SameInputSources(left.Children, right.Children)
+            )
+                return false;
+        }
+        return true;
+    }
+
     public static bool HasPendingChildren(ItemSource source, Func<string, int>? countItem)
     {
         if (source.Children == null)
