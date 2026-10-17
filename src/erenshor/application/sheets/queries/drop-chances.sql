@@ -1,5 +1,5 @@
--- Drop chances from characters, items (fossils, etc.), and the special world
--- drops that every loot-table kill rolls
+-- Drop chances from characters, items (fossils, etc.), and independent
+-- special selections from eligible loot tables before owned unique replacement.
 WITH
     -- Item drops from consumables (e.g., Braxonian Fossil)
     consumable_drops AS (
@@ -45,8 +45,8 @@ WITH
         LEFT JOIN loot_drops ld ON c.stable_key = ld.character_stable_key
         INNER JOIN items i ON ld.item_stable_key = i.stable_key
     ),
-    -- Special world drops: rolled on every loot-table kill, per kill at the
-    -- default loot rate. Four decimals keep the smallest chances non-zero.
+    -- Special selections per eligible kill before owned unique replacement,
+    -- at the default loot rate without bonuses. Four decimals retain small chances.
     world_drops AS (
         SELECT
             'World Drop' AS source_type,

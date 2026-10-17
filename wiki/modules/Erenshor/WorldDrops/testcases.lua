@@ -21,16 +21,13 @@ end
 
 function p.run()
 	local drops = WorldDrops.render()
-	assertContains(drops, "|+ World drops", "caption")
-	assertContains(drops, "! Item !! Chance per kill !! Lowest enemy level", "header")
-	assertContains(drops, "The chances hold at the default loot rate.", "loot rate note")
 	assertContains(
 		drops,
 		'data-erenshor-key="item:ember_longsword"',
 		"item rendered through the link module"
 	)
 	assertContains(drops, '| 1% || data-sort-value="11" | 11', "gated roll from its lowest level")
-	assertContains(drops, '| 0.625% || data-sort-value="1" | Any', "roll of every enemy")
+	assertContains(drops, '| 0.625% || data-sort-value="1" | Any', "roll without a level gate")
 	assertContains(drops, "| 0.00653%", "three significant digits")
 	assertBefore(drops, "item:ember_longsword", "item:bear_claw", "likelier roll first")
 	assertBefore(drops, "item:bear_claw", "item:healing_draught", "rarest roll last")

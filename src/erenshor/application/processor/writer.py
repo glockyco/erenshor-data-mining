@@ -586,10 +586,11 @@ CREATE TABLE common_world_items (
     item_stable_key        TEXT REFERENCES items (stable_key)
 );
 
--- Items that every loot-table kill can roll in addition to the killed
--- character's table. drop_probability is the chance per kill in percent at
--- the default loot rate. The killed character's level must exceed
--- min_level_exclusive.
+-- Independent special selections from eligible loot tables. Missing hosts,
+-- DestroyOnDeath and DoNotLeaveCorpse prevent these rolls. drop_probability
+-- is the selection chance per eligible kill in percent at the default loot
+-- rate without bonuses, before owned unique-item replacement. The killed
+-- character's level must strictly exceed min_level_exclusive.
 CREATE TABLE special_world_drops (
     item_stable_key         TEXT NOT NULL,
     pool                    TEXT NOT NULL,

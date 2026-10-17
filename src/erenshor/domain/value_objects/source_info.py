@@ -40,11 +40,11 @@ class UsedInInfo:
 
 @dataclass(frozen=True)
 class WorldDropInfo:
-    """A special world drop roll that yields an item on any loot-table kill."""
+    """An eligible host's special selection before owned unique-item replacement."""
 
-    # Chance per kill in percent at the default loot rate.
+    # Selection chance per eligible kill in percent at the default loot rate without bonuses.
     probability: float
-    # The killed character's level must exceed this. 0 means any level.
+    # The eligible host's level must exceed this. 0 means no additional level gate.
     min_level_exclusive: int
 
     @property
@@ -110,7 +110,7 @@ class SourceInfo:
     # (dropped_item_link, drop_probability, is_guaranteed).
     item_drops: list[tuple[ItemLink, float, bool]] = field(default_factory=list)
 
-    # Special world drops that any loot-table kill can roll.
+    # Eligible loot-table selections before owned unique-item replacement.
     world_drops: list[WorldDropInfo] = field(default_factory=list)
 
     # Unified item-owned obtainability rows with stable source identity.

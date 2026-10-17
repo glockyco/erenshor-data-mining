@@ -12,6 +12,8 @@ from erenshor.application.processor.special_world_drops import (
     process_common_world_items,
 )
 from erenshor.application.processor.writer import Writer
+from erenshor.application.wiki_lua.world_drops import build_world_drop_rows
+from erenshor.domain.value_objects.source_info import WorldDropInfo
 
 _SINGLE_POOLS = (
     "Sivak",
@@ -88,6 +90,60 @@ def test_mask_roll_splits_98_to_2() -> None:
 
     assert rows["item:mask a"]["drop_probability"] == pytest.approx(1.0 * 0.98 / 2)
     assert rows["item:moloraimask"]["drop_probability"] == pytest.approx(1.0 * 0.02)
+
+
+@pytest.mark.parametrize(
+    ("pool", "fact_id", "gate", "successes"),
+    [
+        ("Sivak", "sivak", 10, 100),
+        ("XPPot", "xp_pot", 12, 20),
+        ("PlanarShard", "planar_shard", 15, 10),
+        ("InertDiamond", "inert_diamond", 20, 80),
+        ("CrystallizedBalance", "crystallized_balance", 30, 5),
+        ("Planar", "planar", 30, 5),
+    ],
+)
+def test_default_roll_outcomes_at_strict_level_boundaries(pool: str, fact_id: str, gate: int, successes: int) -> None:
+    pools = _pools()
+    facts = _facts()
+    facts[f"loot.world_drop.{fact_id}"] = {"rate": str(successes / 10000), "min_level": str(gate)}
+    rows = derive_special_world_drops(pools, {"DropMasks": True, "DemoBuild": False}, facts, _valid(pools))
+    item_key = pools[pool][0]
+    assert item_key is not None
+    drop = _by_item(rows)[item_key]
+    view = build_world_drop_rows(
+        [
+            (
+                item_key,
+                WorldDropInfo(
+                    probability=float(drop["drop_probability"]),
+                    min_level_exclusive=int(drop["min_level_exclusive"]),
+                ),
+            )
+        ]
+    )[item_key][0]
+
+    for level in (0, 1, 10, 11, 12, 13, 15, 16, 20, 21, 30, 31, 42):
+        # Enumerate equal-mass representative draws independently of the derivation.
+        awarded = sum(level > gate and draw < successes for draw in range(10000))
+        displayed = view["chance"] if level >= view["minLevel"] else 0
+        assert displayed == pytest.approx(100 * awarded / 10000)
+
+
+def test_two_independent_rolls_can_both_select_the_same_item() -> None:
+    pools = _pools()
+    pools["WorldDropMolds"] = ["item:shared"]
+    pools["Maps"] = ["item:shared"]
+    facts = _facts()
+    facts["loot.world_drop.world_drop_molds"]["rate"] = "0.005"
+    facts["loot.world_drop.maps"]["rate"] = "0.025"
+    rows = derive_special_world_drops(pools, {"DropMasks": True, "DemoBuild": False}, facts, _valid(pools))
+    shared = [row for row in rows if row["item_stable_key"] == "item:shared"]
+
+    assert sorted((row["pool"], row["drop_probability"]) for row in shared) == [
+        ("Maps", 2.5),
+        ("WorldDropMolds", 0.5),
+    ]
 
 
 @pytest.mark.parametrize(

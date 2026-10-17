@@ -1,7 +1,7 @@
 # special-world-drops Specification
 
 ## Purpose
-Defines how the pipeline records the special world drops that every loot-table kill rolls in addition to its own table, and how item-facing outputs present them.
+Defines how the pipeline records independent special selections from eligible loot tables and how item-facing outputs distinguish those selections from receiving an item after unique-item replacement.
 
 ## Requirements
 
@@ -19,9 +19,15 @@ The pipeline SHALL take the items of each special world drop roll from the expor
 - **WHEN** a new build adds an item to the world drop mold pool
 - **THEN** the next clean build lists that item as a world drop without a code change
 
-### Requirement: One row per item and roll with a per-kill chance
+### Requirement: One row per item and roll with a default selection chance
 
-The clean database SHALL hold one special world drop row for each item and roll. Each row SHALL state the chance per kill at the default loot rate and without bonuses, and the level that the killed character must exceed. For a roll that picks from a pool, the chance of an item SHALL be the roll chance times the item's share of the pool entries. For the mask roll, ordinary masks SHALL share 98% of the roll and the Molorai Mask SHALL receive 2%.
+The clean database SHALL hold one special world drop row for each item and roll. Each row SHALL state the selection chance per eligible kill at the default loot rate and without bonuses, before owned unique-item replacement, and the level that the killed character must strictly exceed. For a roll that picks from a pool, the chance of an item SHALL be the roll chance times the item's share of the pool entries. The mask branch split SHALL come from its code fact.
+
+The rows SHALL NOT imply that every loot-table host is eligible. A missing host, `DestroyOnDeath`, or an NPC's `DoNotLeaveCorpse` prevents all special rolls. Ordinary noncommon-drop caps do not limit special rolls.
+
+Special rolls SHALL be treated as independent checks, not as a categorical pool. Ordinary masks and the Molorai Mask are mutually exclusive branches of one mask check. Adding independent roll probabilities SHALL NOT be used to calculate the probability of at least one special drop.
+
+Server loot-rate, blessing and top-guild bonuses apply to the other special checks, but not to the mask check. Published default probabilities SHALL NOT be presented as bonus-adjusted probabilities.
 
 #### Scenario: A single-item roll
 
@@ -39,6 +45,24 @@ The clean database SHALL hold one special world drop row for each item and roll.
 - **THEN** each ordinary mask has a chance of 0.1% times 98% divided by 15
 - **AND** the Molorai Mask has a chance of 0.1% times 2%
 
+#### Scenario: A strict level boundary
+
+- **WHEN** a killed character's level equals a roll's exclusive level gate
+- **THEN** that roll cannot select its item
+- **AND** the next higher level satisfies that level gate
+
+#### Scenario: An already-owned unique mask
+
+- **WHEN** a mask is unique and the player already owns it
+- **THEN** its published row still describes the pre-replacement selection chance
+- **AND** the selected mask is replaced by a draw from `CommonWorldItems`, retaining duplicate and empty slots
+- **AND** the selection chance SHALL NOT be labelled an unconditional chance of receiving that mask
+
+#### Scenario: Independent successes
+
+- **WHEN** two eligible special checks both succeed
+- **THEN** both selections are retained regardless of the ordinary noncommon-drop cap
+
 ### Requirement: Disabled rolls produce no rows
 
 A roll that a game flag disables in the shipping build SHALL produce no rows.
@@ -55,12 +79,12 @@ A roll that a game flag disables in the shipping build SHALL produce no rows.
 
 ### Requirement: Item outputs show world drops as a source
 
-The wiki item page, the drop-chances sheet, the Lua/Cargo item data, and the map item search SHALL show each special world drop row of an item as a world drop source with its chance and level gate. They SHALL NOT attribute the drop to a specific character.
+The wiki item page, the drop-chances sheet, the wiki's Lua item data, and the map item search SHALL show each special world drop row of an item as a world drop source with its default selection chance and level gate. They SHALL NOT attribute the drop to a specific character. Visitor-facing text SHALL use concise conventional drop-chance labels. The world-drop view SHALL use a concise default-rate note without technical eligibility or ownership-replacement disclaimers. Developer documentation SHALL retain the exact host, bonus, independence and unique-item replacement semantics.
 
 #### Scenario: Crystallized Balance on the wiki
 
 - **WHEN** the wiki pages are generated
-- **THEN** the Crystallized Balance page lists a world drop from any enemy above level 30 at 0.05% per kill
+- **THEN** the Crystallized Balance page lists a world drop from eligible enemies above level 30 with a default selection chance of 0.05% per kill
 - **AND** it still lists the Braxonian Fossil source
 
 #### Scenario: Crystallized Balance in the map search

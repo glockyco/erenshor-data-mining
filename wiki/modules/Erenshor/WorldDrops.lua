@@ -6,8 +6,7 @@ local Link = require("Module:Erenshor/Link")
 
 local p = {}
 
-local NOTE = "Every kill of an enemy with a loot table makes these rolls. "
-	.. "The chances hold at the default loot rate."
+local NOTE = "At the default loot rate."
 
 -- Three significant digits show every chance as the game rolls it, from 1%
 -- down to 0.002%, such as the 0.625% of a torn treasure map piece.
@@ -46,7 +45,7 @@ local function dropTable(rolls)
 	local out = {
 		'{| class="wikitable sortable"',
 		"|+ World drops",
-		"! Item !! Chance per kill !! Lowest enemy level",
+		"! Item !! Drop chance !! Lowest enemy level",
 	}
 	for _, roll in ipairs(rolls) do
 		table.insert(out, "|-")

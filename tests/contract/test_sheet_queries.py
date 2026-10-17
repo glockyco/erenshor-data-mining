@@ -75,3 +75,39 @@ def test_drop_sheet_names_swap_only_rows_without_merging_enemy_sources(tmp_path:
         }
     finally:
         writer.conn.close()
+
+
+def test_world_drop_sheet_preserves_default_pre_replacement_rolls_and_level_gate(tmp_path: Path) -> None:
+    writer = Writer(tmp_path / "clean.sqlite")
+    writer.create_schema()
+    try:
+        writer.conn.executemany(
+            "INSERT INTO items (stable_key, display_name, image_name) VALUES (?, ?, ?)",
+            [("item:mask", "Unique mask", "Mask"), ("item:balance", "Balance", "Balance")],
+        )
+        writer.conn.executemany(
+            "INSERT INTO special_world_drops VALUES (?, ?, ?, ?)",
+            [
+                ("item:mask", "Masks", 0.0065333333, 0),
+                ("item:balance", "CrystallizedBalance", 0.05, 30),
+            ],
+        )
+
+        rows = writer.conn.execute((QUERIES_DIR / "drop-chances.sql").read_text(encoding="utf-8")).fetchall()
+
+        assert {(row[0], row[1], row[2], row[3]) for row in rows} == {
+            (
+                "World Drop",
+                "Any enemy",
+                "Unique mask",
+                0.0065,
+            ),
+            (
+                "World Drop",
+                "Any enemy above level 30",
+                "Balance",
+                0.05,
+            ),
+        }
+    finally:
+        writer.conn.close()

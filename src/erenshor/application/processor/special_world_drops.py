@@ -1,11 +1,19 @@
-"""Special world drops: the item rolls that every loot-table kill makes.
+"""Special world-drop selections from eligible loot tables.
 
-``LootTable.InitLootTable`` rolls each special drop independently after the
-killed character's own table. The exported pools (``SpecialWorldDropItems``)
-name the items, the exported flags (``SpecialWorldDropFlags``) enable or
-disable rolls, and the ``loot.world_drop.*`` code facts give each roll's
-chance and level gate. This module combines them into one clean row per item
-and roll, with the chance per kill at the default loot rate and no bonuses.
+``LootTable.InitLootTable`` makes independent special rolls after the host's
+ordinary table. Missing hosts, ``DestroyOnDeath`` and ``DoNotLeaveCorpse``
+return before these rolls. Ordinary drop caps do not limit special rolls.
+
+The exported pools and flags supply items and enabled rolls. The
+``loot.world_drop.*`` facts supply rates, strict level gates and the mask
+branch split. Rows describe selection before owned unique items are replaced
+with ``CommonWorldItems``, not unconditional acquisition. In particular, an
+already-owned unique mask is not awarded again.
+
+Probabilities use the default server loot rate without guild or blessing
+bonuses. Other rates scale with server rate plus blessing and top-guild
+bonuses. Masks ignore all three. Rolls can succeed together, so adding their
+probabilities gives an expected count, not the chance of any special drop.
 """
 
 from __future__ import annotations
@@ -28,6 +36,8 @@ class _Roll:
     required_flag: str | None = None
 
 
+# Rows are conditional on the host passing the game's early-return guard.
+# code-fact: loot.host_eligibility
 # Every exported pool and the code fact that holds its chance and level gate.
 # code-fact: loot.world_drop.masks_gate
 # code-fact: loot.world_drop.empty2_gate
@@ -68,11 +78,12 @@ def derive_special_world_drops(
     facts: dict[str, dict[str, str]],
     valid_item_keys: set[str],
 ) -> list[dict[str, object]]:
-    """Derive one row per item and roll.
+    """Derive default-rate, pre-replacement selections, one row per item and roll.
 
     ``pools`` maps a pool name to its entries in list order, with None for an
     empty entry. An empty entry still counts toward the pool size, because
-    the game can pick it.
+    the game can pick it. Rows retain the strict lower level boundary.
+    Host eligibility and the player's unique-item ownership are not inputs.
     """
     unknown = set(pools) - set(_ROLLS)
     if unknown:

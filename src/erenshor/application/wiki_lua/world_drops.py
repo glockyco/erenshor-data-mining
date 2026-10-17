@@ -1,4 +1,4 @@
-"""Generate the world drops view: what any kill of a character with a loot table can roll."""
+"""Generate default-rate special-roll selections before unique-item replacement."""
 
 from __future__ import annotations
 
@@ -16,16 +16,25 @@ if TYPE_CHECKING:
 WORLD_DROPS = DataView(
     module="WorldDrops",
     description=(
-        "The items that a special world drop roll yields, which every kill of a character with a loot table "
-        "makes, one row for each roll, most likely first."
+        "Independent special-roll selections from eligible loot tables, one row per item and roll, most likely first. "
+        "Missing hosts and enemies destroyed on death or configured not to leave a corpse make no rolls. "
+        "Chances are before owned unique items are replaced with common world items. "
+        "An already-owned unique mask is not awarded again. "
+        "Rolls can succeed together, so their chances must not be added to find the chance of any drop. "
+        "Server loot-rate, top-guild and blessing bonuses affect other rolls, but not masks."
     ),
     entity="item",
     fields=(
-        ViewField("chance", "number", "The chance per kill in percent, at the default loot rate."),
+        ViewField(
+            "chance",
+            "number",
+            "Selection chance per eligible kill in percent, at the default loot rate without bonuses, "
+            "before owned unique-item replacement.",
+        ),
         ViewField(
             "minLevel",
             "integer",
-            "The lowest level of an enemy whose kill makes the roll. 1 when every enemy makes it.",
+            "The lowest eligible enemy level for the roll. 1 means no additional level gate.",
         ),
     ),
 )
@@ -40,8 +49,8 @@ class WorldDropRepository(Protocol):
 def build_world_drop_rows(drops: Iterable[tuple[str, WorldDropInfo]]) -> dict[str, list[dict[str, object]]]:
     """Return each item's rolls, most likely first.
 
-    A roll yields its item from an enemy above its level gate, so the lowest
-    enemy level is one above the gate.
+    A roll selects its item from an eligible enemy strictly above its level
+    gate. Ownership replacement happens later and is not represented here.
     """
     rolls: defaultdict[str, list[tuple[float, int]]] = defaultdict(list)
     for item_key, drop in drops:

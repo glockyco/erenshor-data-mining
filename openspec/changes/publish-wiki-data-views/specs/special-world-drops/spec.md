@@ -2,12 +2,12 @@
 
 ### Requirement: Item outputs show world drops as a source
 
-The wiki item page, the drop-chances sheet, the wiki's Lua item data, and the map item search SHALL show each special world drop row of an item as a world drop source with its chance and level gate. They SHALL NOT attribute the drop to a specific character.
+The wiki item page, the drop-chances sheet, the wiki's Lua item data, and the map item search SHALL show each special world drop row of an item as a world drop source with its default selection chance and level gate. They SHALL NOT attribute the drop to a specific character. Visitor-facing text SHALL use concise conventional drop-chance labels. The world-drop view SHALL use a concise default-rate note without technical eligibility or ownership-replacement disclaimers. Developer documentation SHALL retain the exact host, bonus, independence and unique-item replacement semantics.
 
 #### Scenario: Crystallized Balance on the wiki
 
 - **WHEN** the wiki pages are generated
-- **THEN** the Crystallized Balance page lists a world drop from any enemy above level 30 at 0.05% per kill
+- **THEN** the Crystallized Balance page lists a world drop from eligible enemies above level 30 with a default selection chance of 0.05% per kill
 - **AND** it still lists the Braxonian Fossil source
 
 #### Scenario: Crystallized Balance in the map search
