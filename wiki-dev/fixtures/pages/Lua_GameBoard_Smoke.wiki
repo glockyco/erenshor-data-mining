@@ -1,0 +1,1 @@
+{{#invoke:Erenshor/GameBoard/testcases|run}}

@@ -1,0 +1,5 @@
+<includeonly>{{#invoke:Erenshor/GameBoard|board}}</includeonly><noinclude>Lists the bosses summoned by the Braxonian Game Board with their effective level ranges, summoning pieces and dedicated drops. Chances are per kill at the default loot rate. Global drops and common-world substitutions are not repeated as boss-specific loot.
+
+Usage: <code><nowiki>{{Game board}}</nowiki></code>. It takes no parameters. The rows come from [[Module:Erenshor/Data/GameBoard]] through [[Module:Erenshor/GameBoard]]. The source copy of each drop is the copy the board summons, not every character sharing its article.
+
+Report missing or incorrect game data at [[Erenshor Wiki:Game Data]].</noinclude>

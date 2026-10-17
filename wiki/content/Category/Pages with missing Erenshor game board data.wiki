@@ -1,0 +1,4 @@
+__HIDDENCAT__
+Pages where [[Template:Game board]] cannot find any generated board boss data.
+
+Report missing game data at [[Erenshor Wiki:Game Data]].

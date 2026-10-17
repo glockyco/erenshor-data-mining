@@ -100,9 +100,9 @@ The note below the Global Drops tables, which says that six common items can rep
 
 ### D11. The Braxonian Game Board
 
-The Braxonian Game Board page lists each boss that the board summons with its level, drops, and summoning piece, by hand. `Chessboard.CheckForGamepiece` consumes the first piece that the player carries, in its field order, and spawns that field's NPC. The Faceless spawns one of six Sivakaya bosses at random, and the Candlekeeper piece, A Strange Figurine, leaves `Mold: A Strange Figurine`, which `item_conversions` already holds. The board's spawns reach `character_spawns` through the dynamic spawn catalog, but no row names the piece, so the export records each spawn's piece as its trigger item, from the pairing of the board's item and NPC fields.
+`Chessboard.CheckForGamepiece` consumes the first carried piece in its field order and spawns that field's NPC. The Faceless chooses one of six Sivakaya bosses. A Strange Figurine summons Candlekeeper and leaves its mold. The dynamic spawn catalog records each piece in `TriggerItemStableKey`, and shipped-code facts check the piece priority and Faceless choices. The view uses those exact spawn-copy bindings rather than maintaining a second boss list.
 
-`GameBoard` holds, by boss, the piece, the level, and the drops with their chance per kill. `{{Game board}}` lists the bosses by level with links to their pages and pieces. The view replaces the boss table and keeps the page's text. `Template:Game board` and `Module:Erenshor/GameBoard` were free on 2026-10-12.
+`GameBoard` holds the summoning piece, effective level interval and dedicated drops for each spawned copy. Drop facts join on the spawned copy, not its group or article, because copies sharing a name can have different loot. The public character identity is used only for the article link. `{{Game board}}` lists the bosses by level with links to their pages and pieces. Replace the manual boss table only after the approved comparison in D5, preserving the surrounding article text.
 
 ### Failure handling, grouping, and rollback
 

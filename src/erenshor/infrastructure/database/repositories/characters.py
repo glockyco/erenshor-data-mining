@@ -275,6 +275,31 @@ class CharacterRepository(BaseRepository[Character]):
             result.append(row)
         return result
 
+    def get_game_board_spawns(self) -> list[dict[str, object]]:
+        """Read board bindings with exact copy ownership and a separate public link identity."""
+        rows = self._execute_raw(
+            """
+            WITH reps AS (
+                SELECT group_key, MIN(member_stable_key) AS stable_key
+                FROM character_deduplications
+                WHERE is_wiki_generated = 1 GROUP BY group_key
+            )
+            SELECT cs.character_stable_key AS copy, r.stable_key AS character,
+                   cs.trigger_item_stable_key AS piece, c.level,
+                   COALESCE(cs.level_mod, 0) AS levelMod,
+                   COALESCE(c.group_encounter, 0) AS "group",
+                   COALESCE(c.level_scales_with_player, 0) AS scales
+            FROM character_spawns cs
+            JOIN characters c ON c.stable_key = cs.character_stable_key
+            LEFT JOIN character_deduplications d ON d.member_stable_key = c.stable_key
+            LEFT JOIN reps r ON r.group_key = d.group_key
+            WHERE cs.source_script = 'Chessboard'
+            ORDER BY c.stable_key, cs.trigger_item_stable_key, cs.spawn_point_stable_key
+            """,
+            (),
+        )
+        return [dict(row) for row in rows]
+
     def get_zone_roster_spawns(self) -> list[dict[str, object]]:
         """Return wiki-visible spawn copies with their conditions and canonical character keys."""
         query = """

@@ -18,6 +18,7 @@ from erenshor.application.wiki_lua.characters import (
 from erenshor.application.wiki_lua.characters import build_character_records, write_characters_modules
 from erenshor.application.wiki_lua.class_abilities import ClassAbilityRepository, write_class_abilities_module
 from erenshor.application.wiki_lua.entity_lifecycle import write_entity_lifecycle_module
+from erenshor.application.wiki_lua.game_board import GameBoardRepository, write_game_board_module
 from erenshor.application.wiki_lua.items import write_items_modules
 from erenshor.application.wiki_lua.items_v2 import CompleteItemDataRepository, write_items_v2_modules
 from erenshor.application.wiki_lua.link_catalog import (
@@ -81,6 +82,7 @@ class WikiCharacterRepository(
     CharacterModuleDataRepository,
     VendorStockRepository,
     ZoneRosterRepository,
+    GameBoardRepository,
     Protocol,
 ):
     """Character metadata and exact copy relationships needed by generated wiki data."""
@@ -162,6 +164,7 @@ TOP_LEVEL_DATA_MODULES: tuple[str, ...] = (
     "ZoneRosters.lua",
     "ClassAbilities.lua",
     "Quests.lua",
+    "GameBoard.lua",
 )
 
 
@@ -391,6 +394,13 @@ def generate_lua_data_modules(
             write_zone_rosters_module(character_repo, known_keys, staging_root, quest_catalog=character_catalog),
             write_class_abilities_module(spell_repo, provenance_repo, known_keys, staging_root),
             write_quests_module(quest_repo, known_keys, staging_root, native_catalog=character_catalog),
+            write_game_board_module(
+                character_repo,
+                provenance_repo,
+                known_keys,
+                staging_root,
+                reference_catalog=character_catalog,
+            ),
         ]
         validation_tools: dict[Path, str] = {}
         for path in staged_paths:

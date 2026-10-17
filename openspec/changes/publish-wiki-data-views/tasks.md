@@ -1,3 +1,7 @@
+## Publication permission
+
+Do not upload any new Lua module to the live wiki without explicit user permission for the reviewed deployment plan. Local Scribunto verification does not authorize publication.
+
 ## 1. Foundation (one commit each)
 
 - [x] 1.1 `feat(wiki): declare view data fields and check them at generation`: in `src/erenshor/application/wiki_lua/`, add the field declarations of design D2, the writer that renders them as the module's opening comment, and the checks for unresolved keys, markup, line breaks, and types. Add a test for each failure and one for the header. Verify: the tests pass, and each failure names the module, the row, and the field.
@@ -79,8 +83,9 @@
 
 ## 8. Braxonian Game Board
 
-- [ ] 8.1 `feat(export): record the piece that summons each board boss`: `Chessboard.CheckForGamepiece` consumes the first piece that the player carries, in the field order Peon, Ember, Blaze, Monarch, Kingsman, Candlekeeper, Faceless, and spawns that field's NPC; The Faceless spawns one of six NPCs at random, and the Candlekeeper piece leaves its mold. The board's dynamic spawns reach `character_spawns`, but their `TriggerItemStableKey` is empty, so no data links a boss to its piece. Record each board spawn's piece as its trigger item, from the pairing of the `Chessboard` item fields with its NPC fields in `dynamic-spawn-catalog.toml`, and pin the pairing and the Faceless choice as code facts. Verify: the clean database gives each of the 12 board bosses its piece, the six Sivakaya bosses The Faceless.
-- [ ] 8.2 `feat(wiki): render the Game Board from generated data`: build `Module:Erenshor/Data/GameBoard` by boss: the piece, the level, and the drops with their chance per kill, and add `Module:Erenshor/GameBoard` and `Template:Game board` with testcases and smoke rows. Verify: in the local stack, the view lists 12 bosses, Candlekeeper at level 35 with A Strange Figurine, and Bowmistress of Sivakaya with The Faceless.
+- [x] 8.1 `feat(export): record the piece that summons each board boss`: preserve each board spawn's piece in `TriggerItemStableKey` through the dynamic spawn catalog. Shipped-code facts check first-carried-piece priority and the six Faceless choices. Verified in the owned clean database: all 12 board spawns carry their trigger item, with seven distinct pieces. Both chessboard code facts return `ok=true`.
+- [x] 8.2 `feat(wiki): render the Game Board from generated data`: build `Module:Erenshor/Data/GameBoard` by boss: the piece, the level, and the drops with their chance per kill, and add `Module:Erenshor/GameBoard` and `Template:Game board` with testcases and smoke rows. Verify: in the local stack, the view lists 12 bosses, Candlekeeper at level 35 with A Strange Figurine, and Bowmistress of Sivakaya with The Faceless.
+  - Local verification uses the owned database and native Lua 5.1. The generated table contains 12 bosses and 88 dedicated drops. Twelve native host assertions pass. Browser review confirms all 12 rows and 32 loaded icons from 27 hash-verified game assets. Summoned Reaver retains its nine drops without borrowing Ring of the Deceiver or Resonating Brace.
 - [ ] 8.3 Deploy after approval, render `{{Game board}}` on the Braxonian Game Board page, compare it with the boss table, and replace the table as design D5 describes. Verify: the table renders from the view, and the rollback manifest lists the edit.
   - Compared on 2026-10-12 against build 24405256: the table gives Candlekeeper level 34 (35 in the game), lists Ring of the Deceiver and Resonating Brace for the Reaver of Sivakaya that the board summons, the `bkp` copy, which drops neither, and lacks Bowmistress of Sivakaya, whom The Faceless summons. Every other row matches its boss's level, drops, and piece.
 

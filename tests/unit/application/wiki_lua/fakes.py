@@ -238,6 +238,9 @@ class FakeCharacterRepository:
     def get_zone_roster_spawns(self) -> list[dict[str, object]]:
         return []
 
+    def get_game_board_spawns(self) -> list[dict[str, object]]:
+        return []
+
 
 class FakeSpellRepository:
     def __init__(self, spells: list[Spell], classes: dict[str, list[str]] | None = None) -> None:

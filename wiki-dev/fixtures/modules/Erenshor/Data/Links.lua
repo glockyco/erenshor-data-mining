@@ -24,6 +24,14 @@ return {
 			["page"] = "Alyssia Fearnon",
 			["subtype"] = "NPC",
 		},
+		["character:arcanist of sivakaya"] = {
+			["image"] = "Grand Arcanist of Sivakaya render.png",
+			["key"] = "character:arcanist of sivakaya",
+			["kind"] = "character",
+			["name"] = "Grand Arcanist of Sivakaya",
+			["page"] = "Grand Arcanist of Sivakaya",
+			["subtype"] = "Boss",
+		},
 		["character:azure guard lieutenant"] = {
 			["image"] = "Lieutenant Ulrik render.png",
 			["key"] = "character:azure guard lieutenant",
@@ -31,6 +39,30 @@ return {
 			["name"] = "Lieutenant Ulrik",
 			["page"] = "Lieutenant Ulrik",
 			["subtype"] = "NPC",
+		},
+		["character:blazefiend"] = {
+			["image"] = "Blazefiend render.png",
+			["key"] = "character:blazefiend",
+			["kind"] = "character",
+			["name"] = "Blazefiend",
+			["page"] = "Blazefiend",
+			["subtype"] = "Boss",
+		},
+		["character:bowmistress of sivakaya"] = {
+			["image"] = "Bowmistress of Sivakaya render.png",
+			["key"] = "character:bowmistress of sivakaya",
+			["kind"] = "character",
+			["name"] = "Bowmistress of Sivakaya",
+			["page"] = "Bowmistress of Sivakaya",
+			["subtype"] = "Boss",
+		},
+		["character:candlekeeper"] = {
+			["image"] = "Candlekeeper render.png",
+			["key"] = "character:candlekeeper",
+			["kind"] = "character",
+			["name"] = "Candlekeeper",
+			["page"] = "Candlekeeper",
+			["subtype"] = "Boss",
 		},
 		["character:captain_rowan"] = {
 			["image"] = "Captain Rowan render.png",
@@ -56,6 +88,30 @@ return {
 			["page"] = "Dire Wolf",
 			["subtype"] = "Enemy",
 		},
+		["character:druid of sivakaya"] = {
+			["image"] = "High Priestess of Sivakaya render.png",
+			["key"] = "character:druid of sivakaya",
+			["kind"] = "character",
+			["name"] = "High Priestess of Sivakaya",
+			["page"] = "High Priestess of Sivakaya",
+			["subtype"] = "Boss",
+		},
+		["character:duelist of sivakaya"] = {
+			["image"] = "Assassin of Sivakaya render.png",
+			["key"] = "character:duelist of sivakaya",
+			["kind"] = "character",
+			["name"] = "Assassin of Sivakaya",
+			["page"] = "Assassin of Sivakaya",
+			["subtype"] = "Boss",
+		},
+		["character:ember acolyte"] = {
+			["image"] = "Ember Acolyte render.png",
+			["key"] = "character:ember acolyte",
+			["kind"] = "character",
+			["name"] = "Ember Acolyte",
+			["page"] = "Ember Acolyte",
+			["subtype"] = "Boss",
+		},
 		["character:guard captain azure"] = {
 			["image"] = "Captain Kilkay render.png",
 			["key"] = "character:guard captain azure",
@@ -63,6 +119,30 @@ return {
 			["name"] = "Captain Kilkay",
 			["page"] = "Captain Kilkay",
 			["subtype"] = "NPC",
+		},
+		["character:kingsman"] = {
+			["image"] = "Kingsman render.png",
+			["key"] = "character:kingsman",
+			["kind"] = "character",
+			["name"] = "Kingsman",
+			["page"] = "Kingsman",
+			["subtype"] = "Boss",
+		},
+		["character:monarch of the flame"] = {
+			["image"] = "Monarch of the Flame render.png",
+			["key"] = "character:monarch of the flame",
+			["kind"] = "character",
+			["name"] = "Monarch of the Flame",
+			["page"] = "Monarch of the Flame",
+			["subtype"] = "Boss",
+		},
+		["character:peon"] = {
+			["image"] = "Peon render.png",
+			["key"] = "character:peon",
+			["kind"] = "character",
+			["name"] = "Peon",
+			["page"] = "Peon",
+			["subtype"] = "Boss",
 		},
 		["character:rare_cave_spider"] = {
 			["image"] = "Rare Cave Spider render.png",
@@ -72,6 +152,14 @@ return {
 			["page"] = "Rare Cave Spider",
 			["subtype"] = "Rare",
 		},
+		["character:reaver of sivakaya bkp"] = {
+			["image"] = "Reaver of Sivakaya render.png",
+			["key"] = "character:reaver of sivakaya bkp",
+			["kind"] = "character",
+			["name"] = "Reaver of Sivakaya",
+			["page"] = "Reaver of Sivakaya",
+			["subtype"] = "Boss",
+		},
 		["character:subterranean magmite"] = {
 			["image"] = "A Subterranean Magmite render.png",
 			["key"] = "character:subterranean magmite",
@@ -79,6 +167,14 @@ return {
 			["name"] = "A Subterranean Magmite",
 			["page"] = "A Subterranean Magmite",
 			["subtype"] = "Enemy",
+		},
+		["character:warrior of sivakaya"] = {
+			["image"] = "High Paladin of Sivakaya render.png",
+			["key"] = "character:warrior of sivakaya",
+			["kind"] = "character",
+			["name"] = "High Paladin of Sivakaya",
+			["page"] = "High Paladin of Sivakaya",
+			["subtype"] = "Boss",
 		},
 		["class:druid"] = {
 			["key"] = "class:druid",
@@ -141,6 +237,38 @@ return {
 			["page"] = "ItemData Key Fixture",
 			["subtype"] = "armor",
 		},
+		["item:arm - 19 - flaming vambraces"] = {
+			["image"] = "Flaming Vambraces icon.png",
+			["key"] = "item:arm - 19 - flaming vambraces",
+			["kind"] = "item",
+			["name"] = "Flaming Vambraces",
+			["page"] = "Flaming Vambraces",
+			["subtype"] = "armor",
+		},
+		["item:arm - 37 - armband of generals"] = {
+			["image"] = "Armband of Generals icon.png",
+			["key"] = "item:arm - 37 - armband of generals",
+			["kind"] = "item",
+			["name"] = "Armband of Generals",
+			["page"] = "Armband of Generals",
+			["subtype"] = "armor",
+		},
+		["item:aura - brax 4"] = {
+			["image"] = "Flame of the Redemption icon.png",
+			["key"] = "item:aura - brax 4",
+			["kind"] = "item",
+			["name"] = "Flame of the Redemption",
+			["page"] = "Flame of the Redemption",
+			["subtype"] = "aura",
+		},
+		["item:back - 37 - sivakayan wings"] = {
+			["image"] = "Sivakayan Wings icon.png",
+			["key"] = "item:back - 37 - sivakayan wings",
+			["kind"] = "item",
+			["name"] = "Sivakayan Wings",
+			["page"] = "Sivakayan Wings",
+			["subtype"] = "armor",
+		},
 		["item:bear_claw"] = {
 			["image"] = "Bear Claw icon.png",
 			["key"] = "item:bear_claw",
@@ -165,12 +293,28 @@ return {
 			["page"] = "Bear Pelt",
 			["subtype"] = "general",
 		},
+		["item:belt - 20 - prismatic warcord"] = {
+			["image"] = "Prismatic Warcord icon.png",
+			["key"] = "item:belt - 20 - prismatic warcord",
+			["kind"] = "item",
+			["name"] = "Prismatic Warcord",
+			["page"] = "Prismatic Warcord",
+			["subtype"] = "armor",
+		},
 		["item:belt - 5 - bonestudded belt"] = {
 			["image"] = "Bonestudded Belt icon.png",
 			["key"] = "item:belt - 5 - bonestudded belt",
 			["kind"] = "item",
 			["name"] = "Bonestudded Belt",
 			["page"] = "Bonestudded Belt",
+			["subtype"] = "armor",
+		},
+		["item:chest - 25 - sivakayan plate"] = {
+			["image"] = "Sivakayan Plate icon.png",
+			["key"] = "item:chest - 25 - sivakayan plate",
+			["kind"] = "item",
+			["name"] = "Sivakayan Plate",
+			["page"] = "Sivakayan Plate",
 			["subtype"] = "armor",
 		},
 		["item:chest - 38 - abyssal plate"] = {
@@ -226,12 +370,28 @@ return {
 			["page"] = "Stone Training Set",
 			["subtype"] = "general",
 		},
+		["item:gen - candlekeeper note"] = {
+			["image"] = "Custodian of the Flame icon.png",
+			["key"] = "item:gen - candlekeeper note",
+			["kind"] = "item",
+			["name"] = "Custodian of the Flame",
+			["page"] = "Custodian of the Flame",
+			["subtype"] = "general",
+		},
 		["item:gen - ealdred's journal"] = {
 			["image"] = "Ealdred's Journal icon.png",
 			["key"] = "item:gen - ealdred's journal",
 			["kind"] = "item",
 			["name"] = "Ealdred's Journal",
 			["page"] = "Ealdred's Journal",
+			["subtype"] = "general",
+		},
+		["item:gen - nighthollow flame"] = {
+			["image"] = "Black Flame icon.png",
+			["key"] = "item:gen - nighthollow flame",
+			["kind"] = "item",
+			["name"] = "Black Flame",
+			["page"] = "Black Flame",
 			["subtype"] = "general",
 		},
 		["item:gen - nightmare crystal"] = {
@@ -274,6 +434,14 @@ return {
 			["page"] = "Healing Draught",
 			["subtype"] = "consumable",
 		},
+		["item:leg - 24 - sivakayan legplate"] = {
+			["image"] = "Sivakayan Legplate icon.png",
+			["key"] = "item:leg - 24 - sivakayan legplate",
+			["kind"] = "item",
+			["name"] = "Sivakayan Legplate",
+			["page"] = "Sivakayan Legplate",
+			["subtype"] = "armor",
+		},
 		["item:lucky_charm"] = {
 			["image"] = "Lucky Charm icon.png",
 			["key"] = "item:lucky_charm",
@@ -313,6 +481,70 @@ return {
 			["page"] = "Planar Stone",
 			["subtype"] = "general",
 		},
+		["item:quest - game piece blazefiend"] = {
+			["image"] = "Blaze Fiend icon.png",
+			["key"] = "item:quest - game piece blazefiend",
+			["kind"] = "item",
+			["name"] = "Blaze Fiend",
+			["page"] = "Blaze Fiend (Game Piece)",
+			["subtype"] = "general",
+		},
+		["item:quest - game piece ember"] = {
+			["image"] = "Ember Acolyte (Game Piece) icon.png",
+			["key"] = "item:quest - game piece ember",
+			["kind"] = "item",
+			["name"] = "Ember Acolyte",
+			["page"] = "Ember Acolyte (Game Piece)",
+			["subtype"] = "general",
+		},
+		["item:quest - game piece kingsman"] = {
+			["image"] = "Kingsman (Game Piece) icon.png",
+			["key"] = "item:quest - game piece kingsman",
+			["kind"] = "item",
+			["name"] = "Kingsman",
+			["page"] = "Kingsman (Game Piece)",
+			["subtype"] = "general",
+		},
+		["item:quest - game piece monarch of flame"] = {
+			["image"] = "Monarch of Flame icon.png",
+			["key"] = "item:quest - game piece monarch of flame",
+			["kind"] = "item",
+			["name"] = "Monarch of Flame",
+			["page"] = "Monarch of Flame (Game Piece)",
+			["subtype"] = "general",
+		},
+		["item:quest - game piece peon"] = {
+			["image"] = "Peon (Game Piece) icon.png",
+			["key"] = "item:quest - game piece peon",
+			["kind"] = "item",
+			["name"] = "Peon",
+			["page"] = "Peon (Game Piece)",
+			["subtype"] = "general",
+		},
+		["item:quest - game piece the candlekeeper"] = {
+			["image"] = "A Strange Figurine icon.png",
+			["key"] = "item:quest - game piece the candlekeeper",
+			["kind"] = "item",
+			["name"] = "A Strange Figurine",
+			["page"] = "A Strange Figurine",
+			["subtype"] = "general",
+		},
+		["item:quest - game piece the faceless sivakayan"] = {
+			["image"] = "The Faceless icon.png",
+			["key"] = "item:quest - game piece the faceless sivakayan",
+			["kind"] = "item",
+			["name"] = "The Faceless",
+			["page"] = "The Faceless",
+			["subtype"] = "general",
+		},
+		["item:ring - 39 - ring of the pious"] = {
+			["image"] = "Ring of the Pious icon.png",
+			["key"] = "item:ring - 39 - ring of the pious",
+			["kind"] = "item",
+			["name"] = "Ring of the Pious",
+			["page"] = "Ring of the Pious",
+			["subtype"] = "armor",
+		},
 		["item:scroll_of_ember"] = {
 			["image"] = "Scroll of Ember icon.png",
 			["key"] = "item:scroll_of_ember",
@@ -320,6 +552,14 @@ return {
 			["name"] = "Scroll of Ember",
 			["page"] = "Scroll of Ember",
 			["subtype"] = "spellscroll",
+		},
+		["item:secondary - 24 - sivakayan shield"] = {
+			["image"] = "Sivakayan Shield icon.png",
+			["key"] = "item:secondary - 24 - sivakayan shield",
+			["kind"] = "item",
+			["name"] = "Sivakayan Shield",
+			["page"] = "Sivakayan Shield",
+			["subtype"] = "weapon",
 		},
 		["item:shared-page-common"] = {
 			["key"] = "item:shared-page-common",
@@ -334,6 +574,54 @@ return {
 			["name"] = "Shared Item Fixture",
 			["page"] = "Shared Item Fixture",
 			["subtype"] = "general",
+		},
+		["item:skillbook - crippling blow"] = {
+			["image"] = "Skill Book Crippling Blow icon.png",
+			["key"] = "item:skillbook - crippling blow",
+			["kind"] = "item",
+			["name"] = "Skill Book: Crippling Blow",
+			["page"] = "Skill Book: Crippling Blow",
+			["subtype"] = "skillbook",
+		},
+		["item:skillbook - lingering inferno"] = {
+			["image"] = "Skill Book Lingering Inferno icon.png",
+			["key"] = "item:skillbook - lingering inferno",
+			["kind"] = "item",
+			["name"] = "Skill Book: Lingering Inferno",
+			["page"] = "Skill Book: Lingering Inferno",
+			["subtype"] = "skillbook",
+		},
+		["item:skillbook - reap and renew"] = {
+			["image"] = "Skill Book Reap and Renew icon.png",
+			["key"] = "item:skillbook - reap and renew",
+			["kind"] = "item",
+			["name"] = "Skill Book: Reap and Renew",
+			["page"] = "Skill Book: Reap and Renew",
+			["subtype"] = "skillbook",
+		},
+		["item:skillbook - soluna's touch"] = {
+			["image"] = "Skill Book Soluna's Touch icon.png",
+			["key"] = "item:skillbook - soluna's touch",
+			["kind"] = "item",
+			["name"] = "Skill Book: Soluna's Touch",
+			["page"] = "Skill Book: Soluna's Touch",
+			["subtype"] = "skillbook",
+		},
+		["item:skillbook - trick shot"] = {
+			["image"] = "Skill Book Trick Shot icon.png",
+			["key"] = "item:skillbook - trick shot",
+			["kind"] = "item",
+			["name"] = "Skill Book: Trick Shot",
+			["page"] = "Skill Book: Trick Shot",
+			["subtype"] = "skillbook",
+		},
+		["item:skillbook - void slice"] = {
+			["image"] = "Skill Book Void Slice icon.png",
+			["key"] = "item:skillbook - void slice",
+			["kind"] = "item",
+			["name"] = "Skill Book: Void Slice",
+			["page"] = "Skill Book: Void Slice",
+			["subtype"] = "skillbook",
 		},
 		["item:sword_mastery_manual"] = {
 			["image"] = "Sword Mastery Manual icon.png",
@@ -350,6 +638,30 @@ return {
 			["name"] = "Inert Diamond",
 			["page"] = "Inert Diamond",
 			["subtype"] = "general",
+		},
+		["item:weap - 39 - reaver's steel"] = {
+			["image"] = "Reaver's Steel icon.png",
+			["key"] = "item:weap - 39 - reaver's steel",
+			["kind"] = "item",
+			["name"] = "Reaver's Steel",
+			["page"] = "Reaver's Steel",
+			["subtype"] = "weapon",
+		},
+		["item:wrist - 21 - sivakayan bracer"] = {
+			["image"] = "Sivakayan Bracer icon.png",
+			["key"] = "item:wrist - 21 - sivakayan bracer",
+			["kind"] = "item",
+			["name"] = "Sivakayan Bracer",
+			["page"] = "Sivakayan Bracer",
+			["subtype"] = "armor",
+		},
+		["item:wrist - 30 - blessed braxonian bracelet"] = {
+			["image"] = "Blessed Braxonian Bracelet icon.png",
+			["key"] = "item:wrist - 30 - blessed braxonian bracelet",
+			["kind"] = "item",
+			["name"] = "Blessed Braxonian Bracelet",
+			["page"] = "Blessed Braxonian Bracelet",
+			["subtype"] = "armor",
 		},
 		["quest:a hermit's request"] = {
 			["key"] = "quest:a hermit's request",
@@ -585,6 +897,9 @@ return {
 		["A Skeleton Eye for Alyssia Fearnon"] = {
 			"quest:a skeleton eye for alyssa fearnon",
 		},
+		["A Strange Figurine"] = {
+			"item:quest - game piece the candlekeeper",
+		},
 		["A Subterranean Magmite"] = {
 			"character:subterranean magmite",
 		},
@@ -600,6 +915,12 @@ return {
 		["Ancient Presence"] = {
 			"spell:ancient_presence",
 		},
+		["Armband of Generals"] = {
+			"item:arm - 37 - armband of generals",
+		},
+		["Assassin of Sivakaya"] = {
+			"character:duelist of sivakaya",
+		},
 		["Backstab"] = {
 			"skill:backstab",
 		},
@@ -612,14 +933,32 @@ return {
 		["Bear Pelt"] = {
 			"item:bear_pelt",
 		},
+		["Black Flame"] = {
+			"item:gen - nighthollow flame",
+		},
 		["Blacksalt Strand"] = {
 			"zone:saltedstrand",
+		},
+		["Blaze Fiend (Game Piece)"] = {
+			"item:quest - game piece blazefiend",
+		},
+		["Blazefiend"] = {
+			"character:blazefiend",
+		},
+		["Blessed Braxonian Bracelet"] = {
+			"item:wrist - 30 - blessed braxonian bracelet",
 		},
 		["Bonestudded Belt"] = {
 			"item:belt - 5 - bonestudded belt",
 		},
+		["Bowmistress of Sivakaya"] = {
+			"character:bowmistress of sivakaya",
+		},
 		["Bronze Ore"] = {
 			"item:ore - bronze ore",
+		},
+		["Candlekeeper"] = {
+			"character:candlekeeper",
 		},
 		["Captain Kilkay"] = {
 			"character:guard captain azure",
@@ -629,6 +968,9 @@ return {
 		},
 		["Copper Armor Mold"] = {
 			"item:copper_armor_mold",
+		},
+		["Custodian of the Flame"] = {
+			"item:gen - candlekeeper note",
 		},
 		["Defensive"] = {
 			"stance:defensive",
@@ -653,6 +995,12 @@ return {
 		["Ember"] = {
 			"spell:ember",
 		},
+		["Ember Acolyte"] = {
+			"character:ember acolyte",
+		},
+		["Ember Acolyte (Game Piece)"] = {
+			"item:quest - game piece ember",
+		},
 		["Ember Aura"] = {
 			"item:ember_aura",
 		},
@@ -669,14 +1017,35 @@ return {
 			"spell:flame_bolt",
 			"spell:flame_bolt_greater",
 		},
+		["Flame of the Redemption"] = {
+			"item:aura - brax 4",
+		},
+		["Flaming Vambraces"] = {
+			"item:arm - 19 - flaming vambraces",
+		},
+		["Grand Arcanist of Sivakaya"] = {
+			"character:arcanist of sivakaya",
+		},
 		["Healing Draught"] = {
 			"item:healing_draught",
+		},
+		["High Paladin of Sivakaya"] = {
+			"character:warrior of sivakaya",
+		},
+		["High Priestess of Sivakaya"] = {
+			"character:druid of sivakaya",
 		},
 		["Inert Diamond"] = {
 			"item:template - inert diamond",
 		},
 		["ItemData Key Fixture"] = {
 			"item:arm - 19  - ancient guardian sleeve",
+		},
+		["Kingsman"] = {
+			"character:kingsman",
+		},
+		["Kingsman (Game Piece)"] = {
+			"item:quest - game piece kingsman",
 		},
 		["Lava Coat"] = {
 			"spell:none - lava coat",
@@ -696,6 +1065,12 @@ return {
 		["Minor Lightning"] = {
 			"spell:minor_lightning",
 		},
+		["Monarch of Flame (Game Piece)"] = {
+			"item:quest - game piece monarch of flame",
+		},
+		["Monarch of the Flame"] = {
+			"character:monarch of the flame",
+		},
 		["Name Collision Fixture"] = {
 			"item:name-collision",
 		},
@@ -708,6 +1083,12 @@ return {
 		["Paladin"] = {
 			"class:paladin",
 		},
+		["Peon"] = {
+			"character:peon",
+		},
+		["Peon (Game Piece)"] = {
+			"item:quest - game piece peon",
+		},
 		["Planar Stone"] = {
 			"item:ore - planar stone",
 		},
@@ -717,6 +1098,9 @@ return {
 		["Priel Note"] = {
 			"item:gen - priel note",
 			"item:gen - priel note 1",
+		},
+		["Prismatic Warcord"] = {
+			"item:belt - 20 - prismatic warcord",
 		},
 		["Quest Line Fixture"] = {
 			"quest:shared-line-a",
@@ -728,8 +1112,17 @@ return {
 		["Reaver"] = {
 			"class:reaver",
 		},
+		["Reaver of Sivakaya"] = {
+			"character:reaver of sivakaya bkp",
+		},
+		["Reaver's Steel"] = {
+			"item:weap - 39 - reaver's steel",
+		},
 		["Reckless"] = {
 			"stance:reckless",
+		},
+		["Ring of the Pious"] = {
+			"item:ring - 39 - ring of the pious",
 		},
 		["Scroll of Ember"] = {
 			"item:scroll_of_ember",
@@ -741,14 +1134,47 @@ return {
 			"item:shared-page-common",
 			"item:shared-page-rare",
 		},
+		["Sivakayan Bracer"] = {
+			"item:wrist - 21 - sivakayan bracer",
+		},
 		["Sivakayan Intel for Kilkay"] = {
 			"quest:inteltokilkay",
 		},
 		["Sivakayan Intel for Ripper"] = {
 			"quest:inteltoripper",
 		},
+		["Sivakayan Legplate"] = {
+			"item:leg - 24 - sivakayan legplate",
+		},
+		["Sivakayan Plate"] = {
+			"item:chest - 25 - sivakayan plate",
+		},
+		["Sivakayan Shield"] = {
+			"item:secondary - 24 - sivakayan shield",
+		},
+		["Sivakayan Wings"] = {
+			"item:back - 37 - sivakayan wings",
+		},
 		["Skeleton Eye"] = {
 			"item:gen - skeleton eye",
+		},
+		["Skill Book: Crippling Blow"] = {
+			"item:skillbook - crippling blow",
+		},
+		["Skill Book: Lingering Inferno"] = {
+			"item:skillbook - lingering inferno",
+		},
+		["Skill Book: Reap and Renew"] = {
+			"item:skillbook - reap and renew",
+		},
+		["Skill Book: Soluna's Touch"] = {
+			"item:skillbook - soluna's touch",
+		},
+		["Skill Book: Trick Shot"] = {
+			"item:skillbook - trick shot",
+		},
+		["Skill Book: Void Slice"] = {
+			"item:skillbook - void slice",
 		},
 		["Stance: Aggressive"] = {
 			"skill:stance - aggressive",
@@ -775,6 +1201,9 @@ return {
 		["The Elderstone Mines"] = {
 			"zone:ElderstoneMines",
 		},
+		["The Faceless"] = {
+			"item:quest - game piece the faceless sivakayan",
+		},
 		["The Followers of Evil"] = {
 			"faction:evil",
 		},
@@ -788,7 +1217,7 @@ return {
 			"class:duelist",
 		},
 	},
-	["catalogSha256"] = "d85c79d8d773f4ed59547f2f9ae309f05d08c813c087872b9c89d15fed0c5c75",
+	["catalogSha256"] = "4d9f5fea1f6eb77dd6108e7d423b6ff6e956e0258c59d8eef28d2b9f729167ed",
 	["entries"] = {
 		{
 			["key"] = "quest:catfordeer",
@@ -821,6 +1250,14 @@ return {
 			["kind"] = "quest",
 			["name"] = "A Skeleton Eye for Alyssia Fearnon",
 			["page"] = "A Skeleton Eye for Alyssia Fearnon",
+		},
+		{
+			["image"] = "A Strange Figurine icon.png",
+			["key"] = "item:quest - game piece the candlekeeper",
+			["kind"] = "item",
+			["name"] = "A Strange Figurine",
+			["page"] = "A Strange Figurine",
+			["subtype"] = "general",
 		},
 		{
 			["image"] = "A Subterranean Magmite render.png",
@@ -885,6 +1322,22 @@ return {
 			["subtype"] = "spell",
 		},
 		{
+			["image"] = "Armband of Generals icon.png",
+			["key"] = "item:arm - 37 - armband of generals",
+			["kind"] = "item",
+			["name"] = "Armband of Generals",
+			["page"] = "Armband of Generals",
+			["subtype"] = "armor",
+		},
+		{
+			["image"] = "Assassin of Sivakaya render.png",
+			["key"] = "character:duelist of sivakaya",
+			["kind"] = "character",
+			["name"] = "Assassin of Sivakaya",
+			["page"] = "Assassin of Sivakaya",
+			["subtype"] = "Boss",
+		},
+		{
 			["image"] = "Backstab icon.png",
 			["key"] = "skill:backstab",
 			["kind"] = "ability",
@@ -917,11 +1370,43 @@ return {
 			["subtype"] = "general",
 		},
 		{
+			["image"] = "Black Flame icon.png",
+			["key"] = "item:gen - nighthollow flame",
+			["kind"] = "item",
+			["name"] = "Black Flame",
+			["page"] = "Black Flame",
+			["subtype"] = "general",
+		},
+		{
 			["key"] = "zone:saltedstrand",
 			["kind"] = "zone",
 			["name"] = "Blacksalt Strand",
 			["page"] = "Blacksalt Strand",
 			["subtype"] = "Zone",
+		},
+		{
+			["image"] = "Blaze Fiend icon.png",
+			["key"] = "item:quest - game piece blazefiend",
+			["kind"] = "item",
+			["name"] = "Blaze Fiend",
+			["page"] = "Blaze Fiend (Game Piece)",
+			["subtype"] = "general",
+		},
+		{
+			["image"] = "Blazefiend render.png",
+			["key"] = "character:blazefiend",
+			["kind"] = "character",
+			["name"] = "Blazefiend",
+			["page"] = "Blazefiend",
+			["subtype"] = "Boss",
+		},
+		{
+			["image"] = "Blessed Braxonian Bracelet icon.png",
+			["key"] = "item:wrist - 30 - blessed braxonian bracelet",
+			["kind"] = "item",
+			["name"] = "Blessed Braxonian Bracelet",
+			["page"] = "Blessed Braxonian Bracelet",
+			["subtype"] = "armor",
 		},
 		{
 			["image"] = "Bonestudded Belt icon.png",
@@ -932,12 +1417,28 @@ return {
 			["subtype"] = "armor",
 		},
 		{
+			["image"] = "Bowmistress of Sivakaya render.png",
+			["key"] = "character:bowmistress of sivakaya",
+			["kind"] = "character",
+			["name"] = "Bowmistress of Sivakaya",
+			["page"] = "Bowmistress of Sivakaya",
+			["subtype"] = "Boss",
+		},
+		{
 			["image"] = "Bronze Ore icon.png",
 			["key"] = "item:ore - bronze ore",
 			["kind"] = "item",
 			["name"] = "Bronze Ore",
 			["page"] = "Bronze Ore",
 			["subtype"] = "general",
+		},
+		{
+			["image"] = "Candlekeeper render.png",
+			["key"] = "character:candlekeeper",
+			["kind"] = "character",
+			["name"] = "Candlekeeper",
+			["page"] = "Candlekeeper",
+			["subtype"] = "Boss",
 		},
 		{
 			["image"] = "Captain Kilkay render.png",
@@ -962,6 +1463,14 @@ return {
 			["name"] = "Copper Armor Mold",
 			["page"] = "Copper Armor Mold",
 			["subtype"] = "mold",
+		},
+		{
+			["image"] = "Custodian of the Flame icon.png",
+			["key"] = "item:gen - candlekeeper note",
+			["kind"] = "item",
+			["name"] = "Custodian of the Flame",
+			["page"] = "Custodian of the Flame",
+			["subtype"] = "general",
 		},
 		{
 			["image"] = "Stance Defensive icon.png",
@@ -1032,6 +1541,22 @@ return {
 			["subtype"] = "spell",
 		},
 		{
+			["image"] = "Ember Acolyte render.png",
+			["key"] = "character:ember acolyte",
+			["kind"] = "character",
+			["name"] = "Ember Acolyte",
+			["page"] = "Ember Acolyte",
+			["subtype"] = "Boss",
+		},
+		{
+			["image"] = "Ember Acolyte (Game Piece) icon.png",
+			["key"] = "item:quest - game piece ember",
+			["kind"] = "item",
+			["name"] = "Ember Acolyte",
+			["page"] = "Ember Acolyte (Game Piece)",
+			["subtype"] = "general",
+		},
+		{
 			["image"] = "Ember Aura icon.png",
 			["key"] = "item:ember_aura",
 			["kind"] = "item",
@@ -1078,6 +1603,30 @@ return {
 			["subtype"] = "spell",
 		},
 		{
+			["image"] = "Flame of the Redemption icon.png",
+			["key"] = "item:aura - brax 4",
+			["kind"] = "item",
+			["name"] = "Flame of the Redemption",
+			["page"] = "Flame of the Redemption",
+			["subtype"] = "aura",
+		},
+		{
+			["image"] = "Flaming Vambraces icon.png",
+			["key"] = "item:arm - 19 - flaming vambraces",
+			["kind"] = "item",
+			["name"] = "Flaming Vambraces",
+			["page"] = "Flaming Vambraces",
+			["subtype"] = "armor",
+		},
+		{
+			["image"] = "Grand Arcanist of Sivakaya render.png",
+			["key"] = "character:arcanist of sivakaya",
+			["kind"] = "character",
+			["name"] = "Grand Arcanist of Sivakaya",
+			["page"] = "Grand Arcanist of Sivakaya",
+			["subtype"] = "Boss",
+		},
+		{
 			["image"] = "Healing Draught icon.png",
 			["key"] = "item:healing_draught",
 			["kind"] = "item",
@@ -1086,11 +1635,43 @@ return {
 			["subtype"] = "consumable",
 		},
 		{
+			["image"] = "High Paladin of Sivakaya render.png",
+			["key"] = "character:warrior of sivakaya",
+			["kind"] = "character",
+			["name"] = "High Paladin of Sivakaya",
+			["page"] = "High Paladin of Sivakaya",
+			["subtype"] = "Boss",
+		},
+		{
+			["image"] = "High Priestess of Sivakaya render.png",
+			["key"] = "character:druid of sivakaya",
+			["kind"] = "character",
+			["name"] = "High Priestess of Sivakaya",
+			["page"] = "High Priestess of Sivakaya",
+			["subtype"] = "Boss",
+		},
+		{
 			["image"] = "Inert Diamond icon.png",
 			["key"] = "item:template - inert diamond",
 			["kind"] = "item",
 			["name"] = "Inert Diamond",
 			["page"] = "Inert Diamond",
+			["subtype"] = "general",
+		},
+		{
+			["image"] = "Kingsman render.png",
+			["key"] = "character:kingsman",
+			["kind"] = "character",
+			["name"] = "Kingsman",
+			["page"] = "Kingsman",
+			["subtype"] = "Boss",
+		},
+		{
+			["image"] = "Kingsman (Game Piece) icon.png",
+			["key"] = "item:quest - game piece kingsman",
+			["kind"] = "item",
+			["name"] = "Kingsman",
+			["page"] = "Kingsman (Game Piece)",
 			["subtype"] = "general",
 		},
 		{
@@ -1142,6 +1723,22 @@ return {
 			["subtype"] = "spell",
 		},
 		{
+			["image"] = "Monarch of Flame icon.png",
+			["key"] = "item:quest - game piece monarch of flame",
+			["kind"] = "item",
+			["name"] = "Monarch of Flame",
+			["page"] = "Monarch of Flame (Game Piece)",
+			["subtype"] = "general",
+		},
+		{
+			["image"] = "Monarch of the Flame render.png",
+			["key"] = "character:monarch of the flame",
+			["kind"] = "character",
+			["name"] = "Monarch of the Flame",
+			["page"] = "Monarch of the Flame",
+			["subtype"] = "Boss",
+		},
+		{
 			["image"] = "Nightmare Crystal icon.png",
 			["key"] = "item:gen - nightmare crystal",
 			["kind"] = "item",
@@ -1162,6 +1759,22 @@ return {
 			["kind"] = "class",
 			["name"] = "Paladin",
 			["page"] = "Paladin",
+		},
+		{
+			["image"] = "Peon render.png",
+			["key"] = "character:peon",
+			["kind"] = "character",
+			["name"] = "Peon",
+			["page"] = "Peon",
+			["subtype"] = "Boss",
+		},
+		{
+			["image"] = "Peon (Game Piece) icon.png",
+			["key"] = "item:quest - game piece peon",
+			["kind"] = "item",
+			["name"] = "Peon",
+			["page"] = "Peon (Game Piece)",
+			["subtype"] = "general",
 		},
 		{
 			["image"] = "Planar Stone icon.png",
@@ -1195,6 +1808,14 @@ return {
 			["subtype"] = "general",
 		},
 		{
+			["image"] = "Prismatic Warcord icon.png",
+			["key"] = "item:belt - 20 - prismatic warcord",
+			["kind"] = "item",
+			["name"] = "Prismatic Warcord",
+			["page"] = "Prismatic Warcord",
+			["subtype"] = "armor",
+		},
+		{
 			["key"] = "quest:shared-line-a",
 			["kind"] = "quest",
 			["name"] = "Quest Line Fixture A",
@@ -1221,12 +1842,36 @@ return {
 			["page"] = "Reaver",
 		},
 		{
+			["image"] = "Reaver of Sivakaya render.png",
+			["key"] = "character:reaver of sivakaya bkp",
+			["kind"] = "character",
+			["name"] = "Reaver of Sivakaya",
+			["page"] = "Reaver of Sivakaya",
+			["subtype"] = "Boss",
+		},
+		{
+			["image"] = "Reaver's Steel icon.png",
+			["key"] = "item:weap - 39 - reaver's steel",
+			["kind"] = "item",
+			["name"] = "Reaver's Steel",
+			["page"] = "Reaver's Steel",
+			["subtype"] = "weapon",
+		},
+		{
 			["image"] = "Stance Reckless icon.png",
 			["key"] = "stance:reckless",
 			["kind"] = "ability",
 			["name"] = "Reckless",
 			["page"] = "Reckless",
 			["subtype"] = "stance",
+		},
+		{
+			["image"] = "Ring of the Pious icon.png",
+			["key"] = "item:ring - 39 - ring of the pious",
+			["kind"] = "item",
+			["name"] = "Ring of the Pious",
+			["page"] = "Ring of the Pious",
+			["subtype"] = "armor",
 		},
 		{
 			["image"] = "Scroll of Ember icon.png",
@@ -1257,6 +1902,14 @@ return {
 			["subtype"] = "general",
 		},
 		{
+			["image"] = "Sivakayan Bracer icon.png",
+			["key"] = "item:wrist - 21 - sivakayan bracer",
+			["kind"] = "item",
+			["name"] = "Sivakayan Bracer",
+			["page"] = "Sivakayan Bracer",
+			["subtype"] = "armor",
+		},
+		{
 			["key"] = "quest:inteltokilkay",
 			["kind"] = "quest",
 			["name"] = "Sivakayan Intel for Kilkay (1)",
@@ -1269,12 +1922,92 @@ return {
 			["page"] = "Sivakayan Intel for Ripper",
 		},
 		{
+			["image"] = "Sivakayan Legplate icon.png",
+			["key"] = "item:leg - 24 - sivakayan legplate",
+			["kind"] = "item",
+			["name"] = "Sivakayan Legplate",
+			["page"] = "Sivakayan Legplate",
+			["subtype"] = "armor",
+		},
+		{
+			["image"] = "Sivakayan Plate icon.png",
+			["key"] = "item:chest - 25 - sivakayan plate",
+			["kind"] = "item",
+			["name"] = "Sivakayan Plate",
+			["page"] = "Sivakayan Plate",
+			["subtype"] = "armor",
+		},
+		{
+			["image"] = "Sivakayan Shield icon.png",
+			["key"] = "item:secondary - 24 - sivakayan shield",
+			["kind"] = "item",
+			["name"] = "Sivakayan Shield",
+			["page"] = "Sivakayan Shield",
+			["subtype"] = "weapon",
+		},
+		{
+			["image"] = "Sivakayan Wings icon.png",
+			["key"] = "item:back - 37 - sivakayan wings",
+			["kind"] = "item",
+			["name"] = "Sivakayan Wings",
+			["page"] = "Sivakayan Wings",
+			["subtype"] = "armor",
+		},
+		{
 			["image"] = "Skeleton Eye icon.png",
 			["key"] = "item:gen - skeleton eye",
 			["kind"] = "item",
 			["name"] = "Skeleton Eye",
 			["page"] = "Skeleton Eye",
 			["subtype"] = "general",
+		},
+		{
+			["image"] = "Skill Book Crippling Blow icon.png",
+			["key"] = "item:skillbook - crippling blow",
+			["kind"] = "item",
+			["name"] = "Skill Book: Crippling Blow",
+			["page"] = "Skill Book: Crippling Blow",
+			["subtype"] = "skillbook",
+		},
+		{
+			["image"] = "Skill Book Lingering Inferno icon.png",
+			["key"] = "item:skillbook - lingering inferno",
+			["kind"] = "item",
+			["name"] = "Skill Book: Lingering Inferno",
+			["page"] = "Skill Book: Lingering Inferno",
+			["subtype"] = "skillbook",
+		},
+		{
+			["image"] = "Skill Book Reap and Renew icon.png",
+			["key"] = "item:skillbook - reap and renew",
+			["kind"] = "item",
+			["name"] = "Skill Book: Reap and Renew",
+			["page"] = "Skill Book: Reap and Renew",
+			["subtype"] = "skillbook",
+		},
+		{
+			["image"] = "Skill Book Soluna's Touch icon.png",
+			["key"] = "item:skillbook - soluna's touch",
+			["kind"] = "item",
+			["name"] = "Skill Book: Soluna's Touch",
+			["page"] = "Skill Book: Soluna's Touch",
+			["subtype"] = "skillbook",
+		},
+		{
+			["image"] = "Skill Book Trick Shot icon.png",
+			["key"] = "item:skillbook - trick shot",
+			["kind"] = "item",
+			["name"] = "Skill Book: Trick Shot",
+			["page"] = "Skill Book: Trick Shot",
+			["subtype"] = "skillbook",
+		},
+		{
+			["image"] = "Skill Book Void Slice icon.png",
+			["key"] = "item:skillbook - void slice",
+			["kind"] = "item",
+			["name"] = "Skill Book: Void Slice",
+			["page"] = "Skill Book: Void Slice",
+			["subtype"] = "skillbook",
 		},
 		{
 			["image"] = "Stance Aggressive icon.png",
@@ -1333,6 +2066,14 @@ return {
 			["name"] = "The Elderstone Mines",
 			["page"] = "The Elderstone Mines",
 			["subtype"] = "Dungeon",
+		},
+		{
+			["image"] = "The Faceless icon.png",
+			["key"] = "item:quest - game piece the faceless sivakayan",
+			["kind"] = "item",
+			["name"] = "The Faceless",
+			["page"] = "The Faceless",
+			["subtype"] = "general",
 		},
 		{
 			["key"] = "faction:evil",

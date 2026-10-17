@@ -163,10 +163,12 @@ Place a view template on a page to show a list from the game data. It changes af
 |-
 | [[Template:Quest data|Quest data]] || [[Module:Erenshor/Data/Quests]] || A quest's acquisition and completion routes, requirements, rewards, and alternatives
 |-
+| [[Template:Game board|Game board]] || [[Module:Erenshor/Data/GameBoard]] || The Braxonian Game Board's bosses, pieces, levels, and drops
+|-
 | [[Template:World drops|World drops]] || [[Module:Erenshor/Data/WorldDrops]] || Special world drop rolls on eligible loot-bearing kills
 |}
 
-For example, write <code><nowiki>{{Zone roster}}</nowiki></code> on a zone page, or <code><nowiki>{{Class abilities|stablekey=class:druid}}</nowiki></code> to select a class explicitly. A view without a key uses the entity of its kind on the current page. If several entities share that page, give the template the intended <code>stablekey</code>.
+For example, write <code><nowiki>{{Zone roster}}</nowiki></code> on a zone page, or <code><nowiki>{{Class abilities|stablekey=class:druid}}</nowiki></code> to select a class explicitly. An entity-specific view without a key uses the entity of its kind on the current page. If several entities share that page, give the template the intended <code>stablekey</code>. Use <code><nowiki>{{Game board}}</nowiki></code> for the board's boss table.
 
 Spawn chances are chances per eligible spawn roll, not the chance of meeting a character anywhere in a zone. Scripted encounters do not imply a fixed spawn position. Furniture-only rows require the named set to be placed.
 

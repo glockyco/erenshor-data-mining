@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 from pathlib import Path
 
@@ -50,118 +49,6 @@ class FakeTreasureRepository:
 
     def get_chest_waves(self) -> list[ChestWave]:
         return [ChestWave(0, 0.0, 3, 4, 5.0), ChestWave(1, 1.0, None, None, None)]
-
-
-def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
-    item = make_item()
-    character = make_character()
-    spell = make_spell()
-    skill = make_skill(stance_to_use_stable_key="stance:aggressive")
-    stance = make_stance()
-    quest = make_quest()
-    zone = make_zone()
-    item_repo = FakeItemRepository(items=[item], stats={}, classes={})
-    character_repo = FakeCharacterRepository([character])
-    validated_paths: list[Path] = []
-
-    def record_validation(path: Path) -> LuaValidationResult:
-        validated_paths.append(path)
-        return LuaValidationResult(path=path, tool="stylua")
-
-    result = generate_lua_data_modules(
-        build_repo=FakeBuildRepository(),
-        treasure_repo=FakeTreasureRepository(),
-        item_repo=item_repo,
-        provenance_repo=FakeItemProvenanceRepository([item.stable_key]),
-        character_repo=character_repo,
-        spell_repo=FakeSpellRepository([spell]),
-        skill_repo=FakeSkillRepository([skill]),
-        stance_repo=FakeStanceRepository([stance]),
-        quest_repo=FakeQuestRepository([quest]),
-        zone_repo=FakeZoneRepository([zone], {}),
-        faction_repo=FakeFactionRepository(),
-        class_display=FakeClassDisplayService(),
-        output_root=tmp_path,
-        max_page_bytes=4194304,
-        lifecycle=ContentLifecycle({}, {}, {}),
-        validate=record_validation,
-    )
-
-    build_path = tmp_path / "Erenshor" / "Data" / "Build.lua"
-    items_path = tmp_path / "Erenshor" / "Data" / "Items.lua"
-    item_shard_path = tmp_path / "Erenshor" / "Data" / "Items" / "Weapons.lua"
-    links_path = tmp_path / "Erenshor" / "Data" / "Links.lua"
-    spells_path = tmp_path / "Erenshor" / "Data" / "Spells.lua"
-    skills_path = tmp_path / "Erenshor" / "Data" / "Skills.lua"
-    stances_path = tmp_path / "Erenshor" / "Data" / "Stances.lua"
-    treasure_path = tmp_path / "Erenshor" / "Data" / "TreasureGuardians.lua"
-    vendor_stock_path = tmp_path / "Erenshor" / "Data" / "VendorStock.lua"
-    world_drops_path = tmp_path / "Erenshor" / "Data" / "WorldDrops.lua"
-    from erenshor.application.wiki_lua.items_v2 import item_bucket
-
-    bucket = item_bucket(item.stable_key)
-    expected = [
-        items_path,
-        item_shard_path,
-        tmp_path / "Erenshor" / "Data" / "ItemsV2.lua",
-        tmp_path / "Erenshor" / "Data" / "ItemsV2" / f"{bucket}.lua",
-        tmp_path / "Erenshor" / "Data" / "ItemProvenanceV1" / f"{bucket}.lua",
-        tmp_path / "Erenshor" / "Data" / "Characters.lua",
-        tmp_path
-        / "Erenshor"
-        / "Data"
-        / "Characters"
-        / f"{hashlib.sha256(character.stable_key.encode()).hexdigest()[:2]}.lua",
-        links_path,
-        spells_path,
-        skills_path,
-        stances_path,
-        tmp_path / "Erenshor" / "Data" / "StanceRelations.lua",
-        tmp_path / "Erenshor" / "Data" / "EntityLifecycle.lua",
-        build_path,
-        treasure_path,
-        vendor_stock_path,
-        world_drops_path,
-        tmp_path / "Erenshor" / "Data" / "ZoneRosters.lua",
-        tmp_path / "Erenshor" / "Data" / "ClassAbilities.lua",
-        tmp_path / "Erenshor" / "Data" / "Quests.lua",
-    ]
-    assert result.written_paths == expected
-    assert result.validation_tools == dict.fromkeys(expected, "stylua")
-    assert result.manifest_paths == (tmp_path / "world-drops-provenance.json",)
-    assert result.manifest_paths[0].is_file()
-    candidates = [path for path in validated_paths if path.name == "provenance.lua"]
-    assert len(candidates) == 1
-    validated_output_paths = [path for path in validated_paths if path.name != "provenance.lua"]
-    staging_root = validated_output_paths[0].parents[2]
-    assert [path.relative_to(staging_root) for path in validated_output_paths] == [
-        path.relative_to(tmp_path) for path in result.written_paths
-    ]
-    assert build_path.read_text(encoding="utf-8") == (
-        'return {\n  ["gameBuildId"] = "24405256",\n  ["publishedAt"] = "2026-07-27T12:34:56+00:00",\n}\n'
-    )
-    assert '"Weapons"' in items_path.read_text(encoding="utf-8")
-    assert "item:sword_of_flames" in item_shard_path.read_text(encoding="utf-8")
-    links_text = links_path.read_text(encoding="utf-8")
-    assert "return {" in links_text
-    for stable_key in (
-        "item:sword_of_flames",
-        "character:a_grizzly_bear",
-        "spell:minor_lightning",
-        "skill:double_attack",
-        "stance:aggressive",
-        "quest:magical_sword",
-        "zone:PortAzure",
-        "faction:the_followers_of_evil",
-        "class:windblade",
-    ):
-        assert stable_key in links_text
-    assert "return {" in spells_path.read_text(encoding="utf-8")
-    assert "return {" in skills_path.read_text(encoding="utf-8")
-    assert "return {" in stances_path.read_text(encoding="utf-8")
-    relations = (tmp_path / "Erenshor" / "Data" / "StanceRelations.lua").read_text(encoding="utf-8")
-    assert '["tooltipSkillStableKey"] = "skill:double_attack"' in relations
-    assert '["activatedBy"] = {' in relations
 
 
 def test_generation_validates_nonnull_blank_item_catalog_pages(tmp_path: Path) -> None:

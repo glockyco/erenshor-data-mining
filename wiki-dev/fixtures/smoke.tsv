@@ -339,3 +339,15 @@ Item Pictures Icon	!elem:figcaption
 Item Pictures Icon	elem:style=.pi-type-Item .pi-image-thumbnail[alt=""]{width:160px;height:160px;object-fit:contain}
 Item Pictures Render	!category:Pages_with_broken_file_links
 Image Screenshot Only	!category:Pages_with_broken_file_links
+Lua GameBoard Smoke	text:PASS Erenshor GameBoard testcases
+Game Board Fixture	elem:table.erenshor-game-board
+Game Board Fixture	elem:tr.erenshor-game-board-boss=35
+Game Board Fixture	elem:[data-erenshor-key="character:candlekeeper"]=Candlekeeper
+Game Board Fixture	elem:[data-erenshor-key="item:quest - game piece the candlekeeper"]=A Strange Figurine
+Game Board Fixture	elem:[data-erenshor-key="character:bowmistress of sivakaya"]=Bowmistress of Sivakaya
+Game Board Fixture	elem:[data-erenshor-key="item:quest - game piece the faceless sivakayan"]=The Faceless
+Game Board Fixture	elem:[data-erenshor-key="character:reaver of sivakaya bkp"]=Reaver of Sivakaya
+Game Board Fixture	elem:[data-erenshor-key="item:weap - 39 - reaver's steel"]=Reaver's Steel
+Game Board Fixture	elem:ul.erenshor-game-board-drops=6.86%
+Game Board Fixture	!category:Pages_with_missing_Erenshor_game_board_data
+Game Board Fixture	!category:Pages_with_unresolved_Erenshor_links
