@@ -1,5 +1,5 @@
 <includeonly>{{#invoke:Erenshor/ClassAbilities|abilities}}</includeonly><noinclude>
 Lists the spells and skills that obtainable items teach to a class, their required levels, and alternate teaching items. The teaching item's class restrictions apply to spells. Skills also require a positive required level for the class.
 
-Place <code>{{Class abilities}}</code> on a class page, or <code>{{Class abilities|stablekey=class:druid}}</code> to select a class explicitly.
+Place <code><nowiki>{{Class abilities}}</nowiki></code> on a class page, or <code><nowiki>{{Class abilities|stablekey=class:druid}}</nowiki></code> to select a class explicitly.
 </noinclude>

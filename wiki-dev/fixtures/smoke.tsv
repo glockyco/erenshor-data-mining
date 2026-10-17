@@ -243,6 +243,10 @@ Class Abilities Fixture	elem:.wikitable=Abilities and spells
 Class Abilities Fixture	elem:.erenshor-link--ability=Ember
 Class Abilities Fixture	elem:.erenshor-link--item=Scroll of Ember
 Class Abilities Fixture	!category:Pages_with_missing_Erenshor_class_abilities_data
+Template:Class abilities	elem:code={{Class abilities}}
+Template:Class abilities	elem:code={{Class abilities|stablekey=class:druid}}
+Template:Zone roster	elem:code={{Zone roster}}
+Template:Zone roster	elem:code={{Zone roster|stablekey=zone:abyssal}}
 Erenshor Quest Data Tests	text:PASS Erenshor QuestData testcases
 A Skeleton Eye for Alyssia Fearnon	elem:table.erenshor-quest-data
 A Skeleton Eye for Alyssia Fearnon	text:155
