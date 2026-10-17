@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 
+import pytest
 from tests.unit.application.wiki_lua.fakes import make_character
 
 from erenshor.application.wiki.generators.sections.categories import CategoryGenerator
@@ -342,3 +343,32 @@ def test_a_summoned_creature_marks_its_image_as_a_summon_image() -> None:
         "|render=Summoned Treant render.png\n|screenshot=Summoned Treant screenshot.png\n|imagekind=summon\n" in summon
     )
     assert "|imagekind=\n" in character
+
+
+@pytest.mark.parametrize(
+    ("level", "group", "modifier", "low", "high"),
+    [
+        (1, 0, 0, 0, 1),
+        (34, 0, 0, -1, 1),
+        (35, 0, 0, 0, 0),
+        (34, 1, 0, 0, 0),
+        (1, 1, 0, 0, 0),
+        (35, 1, 0, 0, 0),
+        (34, 0, 1, 0, 0),
+        (35, 0, -1, -1, 1),
+    ],
+)
+def test_character_level_variance_uses_effective_spawn_level(
+    level: int, group: int, modifier: int, low: int, high: int
+) -> None:
+    content = CharacterSectionGenerator().generate_template(
+        EnrichedCharacterData(
+            character=make_character(level=level, group_encounter=group),
+            spawn_infos=[replace(_spawn(chance=100, x=1), level_mod=modifier)],
+            spells=[],
+        ),
+        page_title="A Grizzly Bear",
+    )
+    assert f"|levelmodmin={modifier}\n" in content
+    assert f"|levelvariancemin={low}\n" in content
+    assert f"|levelvariancemax={high}\n" in content

@@ -992,6 +992,18 @@
       "note": "An NPC below level 35 that is no simulated player and no group encounter starts one level lower (20%) or higher (16%). Re-implemented by guardian_outcomes in src/erenshor/application/processor/treasure.py."
     },
     {
+      "id": "npc.level_floor",
+      "mode": "assert",
+      "type": "NPC",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (MyStats.Level < 1) { MyStats.Level = 1; }"
+      },
+      "note": "NPC.Start clamps the level to one after its random variance. Re-implemented by npc_level_bounds."
+    },
+    {
       "id": "npc.balance_hp",
       "mode": "assert",
       "type": "NPC",

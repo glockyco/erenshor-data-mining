@@ -24,6 +24,7 @@ from erenshor.domain.enriched_data.character import EnrichedCharacterData
 from erenshor.domain.entities.character import Character
 from erenshor.domain.value_objects.faction import FactionModifier
 from erenshor.domain.value_objects.loot import LootDropDisplayInfo
+from erenshor.domain.value_objects.npc_level import npc_level_bounds
 from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
 from erenshor.domain.value_objects.wiki_filename import picture_file_title
 from erenshor.domain.value_objects.wiki_link import FactionLink, ZoneLink
@@ -77,9 +78,13 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         spells = format_visible_links(enriched.spells)
         level_mod_min, level_mod_max = self._calculate_level_mod_range(enriched.spawn_infos)
 
-        is_group_encounter = bool(character.group_encounter)
-        variance_min = 0 if is_group_encounter else -1
-        variance_max = 0 if is_group_encounter else 1
+        base_level = character.level or 0
+        low_level = base_level + level_mod_min
+        high_level = base_level + level_mod_max
+        level_min, _ = npc_level_bounds(low_level, bool(character.group_encounter))
+        _, level_max = npc_level_bounds(high_level, bool(character.group_encounter))
+        variance_min = level_min - low_level
+        variance_max = level_max - high_level
 
         # A treasure chest never takes damage, so it has no combat stats.
         # code-fact: treasure.chest_immune.damage
