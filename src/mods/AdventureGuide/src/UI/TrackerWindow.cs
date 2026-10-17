@@ -502,11 +502,7 @@ public sealed class TrackerWindow
         // Prerequisite line if blocked
         DrawPrerequisite(row);
 
-        if (
-            _nav.OriginQuest?.RuntimeKey == quest.RuntimeKey
-            && !(_guide.Visible && _state.SelectedQuestKey == quest.RuntimeKey)
-            && NavigationDisplay.HasGuidance(_nav)
-        )
+        if (_nav.OriginQuest?.RuntimeKey == quest.RuntimeKey && NavigationDisplay.HasGuidance(_nav))
         {
             ImGui.Indent();
             NavigationDisplay.DrawRequirements(_nav, _state.CurrentZone);
