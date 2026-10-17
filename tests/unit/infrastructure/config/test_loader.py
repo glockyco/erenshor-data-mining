@@ -15,6 +15,7 @@ from erenshor.infrastructure.config.loader import (
     _deep_merge,
     get_repo_root,
     load_config,
+    require_matching_source_checkout,
 )
 from erenshor.infrastructure.config.schema import Config
 
@@ -537,3 +538,51 @@ enabled = false
         assert config.variants["main"].name == "Main Game"  # Preserved
         assert config.variants["main"].app_id == "2382520"  # Preserved
         assert config.variants["main"].google_sheets.spreadsheet_id == "base-spreadsheet-id"  # Preserved
+
+
+@pytest.mark.parametrize("git_marker", ["directory", "file"])
+def test_source_checkout_guard_rejects_mismatched_editable_source(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, git_marker: str
+) -> None:
+    root = tmp_path / "worktree"
+    root.mkdir()
+    if git_marker == "directory":
+        (root / ".git").mkdir()
+    else:
+        (root / ".git").write_text("gitdir: ../main/.git/worktrees/test")
+    source = tmp_path / "main"
+    source.mkdir()
+    (source / ".git").mkdir()
+    monkeypatch.setattr("erenshor.__file__", str(source / "src/erenshor/__init__.py"))
+
+    with pytest.raises(ConfigLoadError, match="Refresh the dev shell"):
+        require_matching_source_checkout(root)
+
+
+@pytest.mark.parametrize("source_kind", ["matching", "installed_wheel", "no_file"])
+def test_source_checkout_guard_accepts_matching_source_or_installation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, source_kind: str
+) -> None:
+    root = tmp_path / "worktree"
+    root.mkdir()
+    (root / ".git").write_text("gitdir: /main/.git/worktrees/test")
+    if source_kind == "matching":
+        source_file = str(root / "src/erenshor/__init__.py")
+    elif source_kind == "installed_wheel":
+        source_file = str(tmp_path / "site-packages/erenshor/__init__.py")
+    else:
+        source_file = None
+    monkeypatch.setattr("erenshor.__file__", source_file)
+
+    require_matching_source_checkout(root)
+
+
+def test_source_checkout_guard_preserves_non_checkout_config_roots(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    source = tmp_path / "main"
+    source.mkdir()
+    (source / ".git").mkdir()
+    monkeypatch.setattr("erenshor.__file__", str(source / "src/erenshor/__init__.py"))
+
+    require_matching_source_checkout(tmp_path / "temporary-config")

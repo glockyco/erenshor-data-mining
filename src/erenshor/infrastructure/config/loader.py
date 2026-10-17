@@ -21,6 +21,8 @@ from typing import Any
 
 from pydantic import ValidationError
 
+import erenshor
+
 from .paths import checkout_root
 from .schema import Config
 
@@ -53,6 +55,20 @@ def _find_repo_root() -> Path:
     raise ConfigLoadError(
         "Could not find repository root. Make sure you are running from within the Erenshor repository."
     )
+
+
+def require_matching_source_checkout(repo_root: Path) -> None:
+    """Reject stale editable imports before a CLI invocation can write files."""
+    root = repo_root.resolve()
+    if checkout_root(root) != root or erenshor.__file__ is None:
+        return
+    source_root = checkout_root(Path(erenshor.__file__))
+    if source_root is not None and source_root != root:
+        raise ConfigLoadError(
+            f"Imported Erenshor source belongs to {source_root}, but the current checkout is {root}. "
+            "Refresh the dev shell with 'nix develop' from this checkout, or reload direnv, "
+            "before running the CLI."
+        )
 
 
 def _deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:

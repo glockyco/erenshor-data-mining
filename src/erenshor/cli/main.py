@@ -20,6 +20,7 @@ from rich.tree import Tree
 
 from erenshor import __version__
 from erenshor.infrastructure.config import ConfigLoadError, get_repo_root, load_config
+from erenshor.infrastructure.config.loader import require_matching_source_checkout
 from erenshor.infrastructure.logging import setup_logging
 from erenshor.infrastructure.logging.setup import LoggingSetupError
 from erenshor.infrastructure.steam.installation import GameInstallationError, find_game_installation
@@ -88,9 +89,9 @@ def main(
     logging verbosity, and variant selection.
     """
     try:
-        # Load configuration first
-        config = load_config()
         repo_root = get_repo_root()
+        require_matching_source_checkout(repo_root)
+        config = load_config()
 
         # Override log level based on verbose/quiet flags
         if verbose and quiet:

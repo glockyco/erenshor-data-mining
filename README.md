@@ -82,6 +82,8 @@ Three things the shell cannot provide:
 
 Enter the dev shell and run the existing bootstrap command in each new worktree. The editable Python installation selects the checkout containing the current directory at interpreter startup. This also applies to `python`, `erenshor`, and `uv run` inherited from another checkout's dev shell. No `PYTHONPATH` override is needed.
 
+After a dev-shell update, enter `nix develop` again or reload direnv. An inherited immutable environment may still import a different checkout. The CLI rejects that mismatch before loading configuration or creating logs.
+
 ```sh
 python -c 'import erenshor; from erenshor.infrastructure.config import get_repo_root; print(erenshor.__file__); print(get_repo_root())'
 ```
