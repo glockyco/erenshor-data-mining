@@ -232,6 +232,12 @@ Lua WorldDrops Smoke	text:PASS Erenshor WorldDrops testcases
 World Drops Fixture	elem:.wikitable=World drops
 World Drops Fixture	elem:.erenshor-link--item=Ember Longsword
 World Drops Fixture	text:Lowest enemy level
+Lua ZoneRoster Smoke	text:PASS Erenshor ZoneRoster testcases
+Zone Roster Fixture	elem:.wikitable=Enemies
+Zone Roster Fixture	elem:.erenshor-link--character=A Grizzly Bear
+Zone Roster Fixture	text:Night only
+Zone Roster Fixture	text:Event spawn
+Zone Roster Fixture	!category:Pages_with_missing_Erenshor_zone_roster_data
 Lua ClassAbilities Smoke	text:PASS Erenshor ClassAbilities testcases
 Class Abilities Fixture	elem:.wikitable=Abilities and spells
 Class Abilities Fixture	elem:.erenshor-link--ability=Ember
