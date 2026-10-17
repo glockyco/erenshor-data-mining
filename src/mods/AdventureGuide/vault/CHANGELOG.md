@@ -16,6 +16,7 @@
 - Follow the current character's saved return destination from the Reliquary.
 - Close the guide with Escape without opening the game menu.
 - Count repeated quest items together and keep alternative turn-ins separate.
+- Keep item-read quest guidance working with alternative turn-ins.
 
 ## v2026.1008.0
 

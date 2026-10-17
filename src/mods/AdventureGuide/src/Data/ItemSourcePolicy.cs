@@ -10,7 +10,7 @@ internal static class ItemSourcePolicy
         if (quest.RequiredItems != null)
             foreach (var item in quest.RequiredItems)
                 if (
-                    item.VariantKey == step.RequirementVariant
+                    (step.RequirementVariant == null || item.VariantKey == step.RequirementVariant)
                     && item.OutputQuality == step.OutputQuality
                     && (
                         step.TargetKey != null

@@ -181,6 +181,22 @@ public sealed class RequirementResolverTests
 
         Assert.Equal(10, resolver.Resolve(quest, quest.Steps![0], "A").SelectedSpawn?.X);
         Assert.Equal(20, resolver.Resolve(quest, quest.Steps[1], "A").SelectedSpawn?.X);
+
+        // Reading or acquiring the item does not select a native turn-in variant.
+        var readStep = new QuestStep
+        {
+            Action = "read",
+            TargetType = "item",
+            TargetKey = "item:runner",
+        };
+        Assert.Equal(10, resolver.Resolve(quest, readStep, "A").SelectedSpawn?.X);
+        quest.Acquisition =
+        [
+            new AcquisitionSource { Method = "item_read", SourceStableKey = "item:runner" },
+        ];
+        var acquisitionStep = resolver.BuildAcquisitionStep(quest);
+        Assert.NotNull(acquisitionStep);
+        Assert.Equal(10, resolver.Resolve(quest, acquisitionStep, "A").SelectedSpawn?.X);
         Assert.Null(
             ItemSourcePolicy.SourcesFor(
                 quest,
