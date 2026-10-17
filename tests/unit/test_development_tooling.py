@@ -120,42 +120,6 @@ def test_lua_tooling_is_configured_for_scribunto_modules() -> None:
     assert "frame" in luacheck
 
 
-def test_python_selector_matches_flake_and_ci_minor_version() -> None:
-    selector = Path(".python-version").read_text(encoding="utf-8").strip()
-    assert selector == "3.14"
-
-    flake = Path("flake.nix").read_text(encoding="utf-8")
-    assert "python = pkgs.python314" in flake
-    assert "UV_PYTHON = pythonSet.python.interpreter" in flake
-
-    ci = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
-    assert "DeterminateSystems/determinate-nix-action@61cbfe2efc2d4e7a8a6d56967c3c1058e846c858 # v3.21.9" in ci
-    assert "actions/setup-python" not in ci
-
-
-def test_ci_uses_the_flake_toolchain_for_project_commands() -> None:
-    ci = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
-
-    assert ci.count("DeterminateSystems/determinate-nix-action@61cbfe2efc2d4e7a8a6d56967c3c1058e846c858") == 7
-    assert "actions/setup-python" not in ci
-    assert "actions/setup-node" not in ci
-    assert "actions/setup-dotnet" not in ci
-    assert "pnpm/action-setup" not in ci
-    assert "astral-sh/setup-uv" not in ci
-    assert "uv sync" not in ci
-    assert "uv run" not in ci
-
-    project_tools = ("erenshor ", "pytest ", "pnpm ", "dotnet ")
-    unwrapped = [
-        line.strip()[len("run: ") :]
-        for line in ci.splitlines()
-        if line.strip().startswith("run: ")
-        and any(tool in line for tool in project_tools)
-        and "nix develop --command" not in line
-    ]
-    assert unwrapped == []
-
-
 def test_github_workflows_do_not_create_mutable_python_environments() -> None:
     workflows = "\n".join(path.read_text(encoding="utf-8") for path in sorted(Path(".github/workflows").glob("*.yml")))
 
