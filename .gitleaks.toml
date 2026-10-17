@@ -1,0 +1,12 @@
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+
+[[rules.allowlists]]
+# These native quest DB names are public game identifiers, not credentials.
+condition = "AND"
+paths = ['''(^|/)quest_guides/quest-guide\.json$''']
+regexTarget = "secret"
+regexes = ['''^ShardsToStones[12]$''']

@@ -1,0 +1,7 @@
+[extend]
+path = ".gitleaks.toml"
+
+[[allowlists]]
+# Full-history CI scans generated guide data outside the interactive commit path.
+description = "Generated game guide artifact"
+paths = ['''^quest_guides/quest-guide\.json$''']

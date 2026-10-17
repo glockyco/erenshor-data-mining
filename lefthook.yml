@@ -42,7 +42,7 @@ pre-commit:
     # gitleaks ships in the dev shell, so a missing binary is a broken
     # environment rather than a reason to push unscanned changes.
     - name: gitleaks
-      run: scripts/with-dev-env.sh gitleaks git --pre-commit --staged --redact --verbose
+      run: scripts/with-dev-env.sh gitleaks git --pre-commit --staged --config .gitleaks.pre-commit.toml --timeout 30 --redact
 
 commit-msg:
   jobs:
