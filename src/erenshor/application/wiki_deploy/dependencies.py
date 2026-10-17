@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Mapping, Sequence
+from dataclasses import replace
 from typing import Protocol
 
 from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, RepoWikiPageManifestEntry, stage_rank
@@ -148,7 +149,7 @@ def order_and_check_dependencies(
 
     for entry in manifest.entries:
         visit(entry.title, entry.title)
-    return RepoWikiPageManifest(entries=tuple(ordered))
+    return replace(manifest, entries=tuple(ordered))
 
 
 def needed_live_dependencies(source_texts: Mapping[str, str], client: object) -> dict[str, str | None]:

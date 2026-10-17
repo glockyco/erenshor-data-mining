@@ -16,7 +16,14 @@ from PIL import Image
 
 from erenshor.application.processor.pictures import CATALOG_DIRECTORY
 
-__all__ = ["ICON_SIZES", "PORTRAIT_SIZES", "CatalogImagesResult", "build_character_portraits", "build_item_icons"]
+__all__ = [
+    "ICON_SIZES",
+    "PORTRAIT_SIZES",
+    "CatalogImagesResult",
+    "build_character_portraits",
+    "build_item_icons",
+    "selected_source_paths",
+]
 
 ICON_SIZES = (20, 48)
 PORTRAIT_SIZES = (96, 192)
@@ -30,27 +37,19 @@ class CatalogImagesResult:
     removed: int
 
 
-def build_item_icons(database_path: Path, images_dir: Path, output_dir: Path) -> CatalogImagesResult:
-    """Build every map-visible item's icons in ``static/items``."""
+def _item_hashes(database_path: Path) -> list[str]:
     with sqlite3.connect(f"file:{database_path}?mode=ro", uri=True) as conn:
-        hashes = sorted(
+        return sorted(
             str(row[0])
             for row in conn.execute(
                 "SELECT DISTINCT image_hash FROM items WHERE is_map_visible = 1 AND image_hash IS NOT NULL"
             )
         )
-    return _build_images(hashes, images_dir, output_dir, ICON_SIZES, "item")
 
 
-def build_character_portraits(database_path: Path, images_dir: Path, output_dir: Path) -> CatalogImagesResult:
-    """Build approved portraits of map-visible characters in ``static/characters``.
-
-    Visibility comes from the same deduplication members that the map queries.
-    Missing portraits are omitted; a referenced portrait missing its catalog file
-    fails the build rather than falling back to a wiki picture.
-    """
+def _character_hashes(database_path: Path) -> list[str]:
     with sqlite3.connect(f"file:{database_path}?mode=ro", uri=True) as conn:
-        hashes = sorted(
+        return sorted(
             str(row[0])
             for row in conn.execute(
                 """SELECT DISTINCT c.image_hash
@@ -59,7 +58,27 @@ def build_character_portraits(database_path: Path, images_dir: Path, output_dir:
                    WHERE d.is_map_visible = 1 AND c.image_hash IS NOT NULL"""
             )
         )
-    return _build_images(hashes, images_dir, output_dir, PORTRAIT_SIZES, "character")
+
+
+def selected_source_paths(database_path: Path, images_dir: Path) -> list[Path]:
+    """Return only catalog pixels selected by the map's native visibility queries."""
+    hashes = set(_item_hashes(database_path)) | set(_character_hashes(database_path))
+    return [images_dir / CATALOG_DIRECTORY / f"{image_hash}.png" for image_hash in sorted(hashes)]
+
+
+def build_item_icons(database_path: Path, images_dir: Path, output_dir: Path) -> CatalogImagesResult:
+    """Build every map-visible item's icons in ``static/items``."""
+    return _build_images(_item_hashes(database_path), images_dir, output_dir, ICON_SIZES, "item")
+
+
+def build_character_portraits(database_path: Path, images_dir: Path, output_dir: Path) -> CatalogImagesResult:
+    """Build approved portraits of map-visible characters in ``static/characters``.
+
+    Visibility comes from the same deduplication members that the map queries.
+    Missing portraits are omitted. A referenced portrait missing its catalog file
+    fails the build rather than falling back to a wiki picture.
+    """
+    return _build_images(_character_hashes(database_path), images_dir, output_dir, PORTRAIT_SIZES, "character")
 
 
 def _build_images(

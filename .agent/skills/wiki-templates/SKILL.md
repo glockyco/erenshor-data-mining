@@ -6,7 +6,7 @@ description: Fetch, generate, validate, deploy, and roll back Erenshor wiki arti
 # Wiki content workflow
 
 Run commands from the repository root. Use `-V <variant>` on `erenshor` when the target is not `main`.
-Keep generated articles, repository-owned pages, and interface gadgets on their separate deployment paths.
+Keep standalone generated-article, repository-page, and interface-gadget commands available. Use an ordered publication plan when one review covers dependent content or several publishing surfaces.
 
 ## Rules
 
@@ -20,6 +20,16 @@ The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its 
 - Do not change the structure of a live data module in place. Publish the new structure under a new title, move the readers, then remove the old page.
 - Every live write needs approval after a dry run. Read the dry run's whole output before asking: `grep` drops the lines that Rich wraps and the warnings it was not written for. The bot cannot delete pages, and wiki.gg limits it to 8 moves a minute, so publishing images moves and deletes files with the administrator account. The plan's task group 9 lists the pages for an administrator.
 - Show a visible change to the user as a screenshot of the local wiki before the live deploy. Code, a spec, or the game's UI is not the user's taste.
+
+## Ordered publication review
+
+Use `publish prepare` with the fixed selection schema in `src/erenshor/application/publish/models.py`. Select exact repository, data, and article titles. Preparation captures live revisions and generates data and articles inside the new variant-local run directory without changing shared fetched pages or tracked editor text.
+
+Read the complete prepared payloads and diffs through `publish apply` with root dry run before approval. Include changed catalog pages and required data shards explicitly, because preparation never expands the live write set. A provisional render finding still requires the direct pre-write check.
+
+For prose changes, separately review the exact variant-local edit file and provide its SHA-256 declaration in the selection. The plan projects those replacements before article generation. Execution applies the frozen guarded edit, refetches its receipt revision, and regenerates. Any difference from the reviewed projection blocks the article write.
+
+Only a human may approve the reviewed digest for live apply or resume. Changed sources, destinations, dependencies, or editor revisions require a new plan. Inspect status after a failure and reconcile uncertain outcomes before continuing. Keep the native per-page manifests and rollback sidecars. Rollback uses the existing guarded command and does not delete newly created pages.
 
 ## Generated articles
 
@@ -85,7 +95,7 @@ The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its 
    Each run writes a manifest and rollback text under `variants/<variant>/wiki/article-deploys/<run>/`.
    Restore a run with `uv run erenshor wiki rollback-repo-pages --manifest <manifest>`.
    The command fails when a page is a conflict or blocked, or when the run stops early.
-   Before the first write, the manifest lists every planned page with its base revision. Each written page gets its new revision, and a rollback restores only those pages.
+   Before the first write, the manifest lists every planned page with its base revision. Each request is checkpointed as pending before it is sent, so a lost response cannot look like a run that wrote nothing.
 
 ## Lua data and repository-owned pages
 
@@ -129,7 +139,7 @@ The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its 
    Pass that run's `manifest.json` to `wiki rollback-repo-pages --manifest` to undo the deploy. `--manifest-output` chooses another path.
    Deployment checks source hashes, saves old text, and guards edits with live revisions.
    The default assertion is `bot`. Use `--assert-user <username>` to guard the account identity.
-   A deploy that fails after its first write names the pages it wrote and prints the rollback command for its manifest. Run it, or finish the deploy, before anything else.
+   A failed deploy may have written pages even when it has no acknowledged revision. Keep its manifest and run its rollback command to reconcile pending requests before another deploy.
 
    After the deploy, pages show the new templates once the job queue rerenders them. To check sooner, parse a page's wikitext (`action=parse` with `text=`); `action=parse` with `page=` returns the parser cache. Purge the users of a changed module when readers must see it at once.
 
@@ -141,6 +151,9 @@ The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its 
    ```
 
    Rollback refuses to overwrite later edits unless you pass `--force`.
+   Rollback reconciles pending writes against revision-bound live source, the writing account, and the exact parent revision captured before the request. It refuses ambiguous outcomes even with `--force`, because matching text after an intervening edit does not prove a receipt.
+   Keep the same manifest while retrying rollback. It checkpoints each restoration and skips acknowledged restorations.
+   A post-write verification failure keeps its receipt and requires rollback before publishing again. When the server merged an intervening edit, rollback restores its actual parent's text and content model and keeps the original reviewed preimage beside it, so the intervening editor text survives.
    Rollback leaves pages created by the deploy in place. Delete them manually if appropriate.
 
 ## Removed, renamed, and unused content

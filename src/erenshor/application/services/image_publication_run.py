@@ -2,18 +2,27 @@
 
 A run moves files first, then uploads, then writes redirects to the pictures'
 files, then deletes each copy followed at once by the redirect that replaces
-it, and deletes the orphans last. Before each write it reads the title again,
-and it skips a title that changed since the plan, so the bot never replaces
-something that someone else wrote meanwhile. An upload never ignores
-MediaWiki's warnings up front: when the wiki answers only with warnings that
-the verdict expects, the run confirms the stashed upload, and otherwise it
-skips the title. The bot account uploads and edits. An administrator's account
+it, and deletes the orphans last. Every native page edit first checkpoints its
+reviewed source, intended source and account in the run ledger. An unknown
+outcome stops the run and stays pending. Revert reconciles all pending edits
+read-only from account, exact parent, page, source and model evidence before
+undoing earlier uploads. Missing evidence blocks recovery without replaying
+the request. A failed verification retains the acknowledged revision and its
+actual parent separately from the reviewed preimage.
+Recovery records its request reference and completed restoration revision in
+the original run, so a later file-recovery failure does not replay restored
+page edits. Completed restorations are checked historically, not by matching
+the current page's text. Every known native edit remains bound to its recorded
+wiki endpoint before recovery can change pages or earlier files.
+An upload never ignores MediaWiki's warnings up front: when the wiki answers
+only with warnings that the verdict expects, the run confirms the stashed
+upload, and otherwise it skips the title. The bot account uploads and edits. An administrator's account
 with the delete and file-move grants moves and deletes, because administrators
 skip the wiki's limit of 8 moves a minute that bot accounts have.
 
-Every write goes to ``run.json`` the moment it happens, with the bytes that an
-update replaced and the description of a deleted copy, so a stopped run loses
-nothing and a later revert can restore what the run changed. A revert uploads
+Page edit intent goes to ``run.json`` before the request. Other writes are
+recorded when acknowledged, with the bytes an update replaced and the
+description of a deleted copy. A revert uploads
 the replaced bytes again, restores deleted files, restores a redirect it
 changed, and moves a moved file back without a redirect. Created files and
 created redirects stay, and the revert lists them.
@@ -28,15 +37,24 @@ upload or move purges its title at once so readers never see this.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from typing import TYPE_CHECKING, Any, Protocol
 
 from loguru import logger
 
+from erenshor.application.wiki_deploy.manifest import durable_write_text
+from erenshor.application.wiki_deploy.pages import remote_write_rejected
 from erenshor.domain.value_objects.wiki_filename import render_body
-from erenshor.infrastructure.wiki import MediaWikiAPIError, MediaWikiNetworkError, MediaWikiUploadWarningError
+from erenshor.infrastructure.wiki import (
+    MediaWikiAPIError,
+    MediaWikiEditVerificationError,
+    MediaWikiNetworkError,
+    MediaWikiUploadWarningError,
+)
+from erenshor.infrastructure.wiki.content import normalize_saved_text
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -73,9 +91,16 @@ _REDIRECT = re.compile(r"^\s*#REDIRECT\s*\[\[\s*:?\s*([^\]|]+?)\s*(?:\|[^\]]*)?\
 class PublishWriter(Protocol):
     """The reads and writes of the bot account that a run needs."""
 
+    api_url: str
+
+    @property
+    def edit_account(self) -> str: ...
+
     def get_file_versions(self, title: str, limit: int = 50) -> tuple[MediaWikiFileVersion, ...]: ...
 
     def get_page_snapshots(self, titles: Sequence[str]) -> dict[str, MediaWikiPageSnapshot]: ...
+
+    def get_revision_snapshots(self, revision_ids: Sequence[int]) -> dict[int, MediaWikiPageSnapshot]: ...
 
     def is_file_used(self, title: str) -> bool: ...
 
@@ -148,7 +173,16 @@ def description(picture: Picture, game_build: str, entity_key: str, title: str) 
 
 @dataclass
 class RunRecord:
-    """The writes of one run, saved to ``run.json`` after each one."""
+    """Save native edit intent before requesting a write and resolve that same entry.
+
+    ``done=None`` with ``pending_mutation`` means the write outcome is unknown.
+    ``done`` otherwise records a known mutation, not verification success.
+    ``requires_rollback`` keeps the reviewed snapshot separate from the actual
+    written revision and its parent, so recovery cannot substitute a reviewed
+    preimage for an intervening editor's revision.
+    Restoration references are saved here before the recovery request, so a
+    stopped recovery can attribute its result from the existing recovery ledger.
+    """
 
     directory: Path
     entries: list[dict[str, Any]] = field(default_factory=list)
@@ -161,11 +195,119 @@ class RunRecord:
 
     def add(self, entry: dict[str, Any]) -> None:
         self.entries.append(entry)
-        self.directory.mkdir(parents=True, exist_ok=True)
-        path = self.directory / "run.json"
-        temporary = path.with_name(".run.json.tmp")
-        temporary.write_text(json.dumps({"entries": self.entries}, indent=2, ensure_ascii=False) + "\n")
-        temporary.replace(path)
+        self.save()
+
+    def update(self, entry: dict[str, Any], **values: Any) -> None:
+        entry.update(values)
+        self.save()
+
+    def save(self) -> None:
+        """Durably checkpoint the authoritative ledger without adding a second event for an intent."""
+        durable_write_text(
+            self.directory / "run.json",
+            json.dumps({"entries": self.entries}, indent=2, ensure_ascii=False) + "\n",
+        )
+
+
+def _verification_failed(
+    record: RunRecord,
+    error: MediaWikiEditVerificationError,
+    entry: dict[str, Any],
+    reviewed: MediaWikiPageSnapshot,
+) -> None:
+    """Retain the acknowledged write independently of whether its evidence can be saved."""
+    failure = {
+        "done": True,
+        "pending_mutation": False,
+        "mutation_state": "acknowledged",
+        "verified": False,
+        "requires_rollback": True,
+        "revision": error.new_revision_id,
+        "reason": str(error),
+        "reviewed_snapshot": asdict(reviewed),
+        "written_snapshot": asdict(error.written_snapshot) if error.written_snapshot is not None else None,
+        "actual_parent_snapshot": (
+            asdict(error.actual_parent_snapshot) if error.actual_parent_snapshot is not None else None
+        ),
+    }
+    try:
+        record.update(entry, **failure)
+    except Exception as persistence_error:
+        # RunRecord retains the entry in memory before attempting durable I/O.
+        error.add_note(f"Saving image revision {error.new_revision_id} failed: {persistence_error}")
+
+
+def _write_page(
+    entry: dict[str, Any],
+    page: MediaWikiPageSnapshot,
+    text: str,
+    writer: PublishWriter,
+    record: RunRecord,
+    summary: str,
+    *,
+    restoration_of: tuple[RunRecord, dict[str, Any]] | None = None,
+) -> int | None:
+    """Persist intent before native I/O and stop on every outcome that is not a proven rejection."""
+    if any(previous.get("pending_mutation") for previous in record.entries):
+        raise ValueError("Resolve the image run's pending native edit before another write")
+    model = page.content_model if page.revision is not None else "wikitext"
+    if not model:
+        raise ValueError(f"Cannot record recoverable edit intent without a content model: {page.title}")
+    entry.update(
+        done=None,
+        pending_mutation=True,
+        mutation_state="pending",
+        reviewed_snapshot=asdict(page),
+        intended_source=text,
+        intended_source_sha256=hashlib.sha256(text.encode("utf-8")).hexdigest(),
+        intended_content_model=model,
+        edit_account=writer.edit_account,
+        api_url=writer.api_url,
+        summary=summary,
+    )
+    record.add(entry)
+    if restoration_of is not None:
+        authority, original = restoration_of
+        authority.update(
+            original,
+            restoration_record=str(record.directory.resolve()),
+            restoration_entry=len(record.entries) - 1,
+        )
+    try:
+        if page.revision is None:
+            revision = writer.safe_create_page(page.title, text, page.start_timestamp, summary=summary)
+        else:
+            revision = writer.safe_edit_page(page.title, text, page.revision, summary=summary)
+    except MediaWikiEditVerificationError as error:
+        _verification_failed(record, error, entry, page)
+        raise
+    except BaseException as error:
+        rejected = isinstance(error, MediaWikiAPIError) and remote_write_rejected(error)
+        try:
+            record.update(
+                entry,
+                done=False if rejected else None,
+                pending_mutation=not rejected,
+                mutation_state="rejected" if rejected else "ambiguous",
+                reason=str(error),
+            )
+        except Exception as persistence_error:
+            error.add_note(f"Saving image edit outcome failed: {persistence_error}")
+        if rejected:
+            return None
+        raise
+    record.update(
+        entry,
+        done=page.revision is None or revision != page.revision.revision_id,
+        pending_mutation=False,
+        mutation_state="applied",
+        verified=True,
+        revision=revision,
+    )
+    if restoration_of is not None:
+        authority, original = restoration_of
+        authority.update(original, restoration_revision=revision, requires_rollback=False)
+    return revision
 
 
 def execute(
@@ -189,6 +331,8 @@ def execute(
     Raises:
         ValueError: If the plan moves or deletes and no administrator is given.
     """
+    if any(entry.get("pending_mutation") for entry in record.entries):
+        raise ValueError("Resolve the image run's pending native edit before another write")
     if plan.needs_administrator and administrator is None:
         raise ValueError("The plan moves or deletes files, which needs the administrator account")
     missing_files: set[str] = set()
@@ -253,12 +397,14 @@ def _describe(item: PlannedTitle, catalog: Catalog, writer: PublishWriter, recor
     text = description(
         catalog.pictures[item.image_hash], catalog.game_build, catalog.entities.get(item.title, ""), item.title
     )
-    try:
-        writer.safe_edit_page(item.title, text, page.revision, summary=summary)
-    except MediaWikiAPIError as error:
-        record.add(_skipped(item, "describe", f"the edit failed: {error}"))
-        return
-    record.add({"title": item.title, "action": "describe", "done": True, "text": text, "old_text": page.source_text})
+    _write_page(
+        {"title": item.title, "action": "describe", "text": text, "old_text": page.source_text},
+        page,
+        text,
+        writer,
+        record,
+        summary,
+    )
 
 
 def _current(writer: PublishWriter, title: str) -> MediaWikiFileVersion | None:
@@ -419,28 +565,18 @@ def redirect(
     """
     content = f"#REDIRECT [[{target}]]"
     page = writer.get_page_snapshots([title])[title]
-    try:
-        if page.source_text is None:
-            revision = writer.safe_create_page(title, content, page.start_timestamp, summary=summary)
-            record.add({"title": title, "action": "redirect", "done": True, "target": target, "old_text": None})
-            return
+    if page.source_text is not None:
         current_target = _redirect_target(page.source_text)
         if page.revision is None or current_target is None or not _same_title(current_target, expected):
             record.add(_not_done(title, "redirect", "the page changed since the plan"))
             return
-        revision = writer.safe_edit_page(title, content, page.revision, summary=summary)
-    except MediaWikiAPIError as error:
-        record.add(_not_done(title, "redirect", f"the edit failed: {error}"))
-        return
-    record.add(
-        {
-            "title": title,
-            "action": "redirect",
-            "done": True,
-            "target": target,
-            "old_text": page.source_text,
-            "revision": revision,
-        }
+    _write_page(
+        {"title": title, "action": "redirect", "target": target, "old_text": page.source_text},
+        page,
+        content,
+        writer,
+        record,
+        summary,
     )
 
 
@@ -463,6 +599,182 @@ def _same_title(left: str, right: str | None) -> bool:
     return normal(left) == normal(right)
 
 
+def _pending_write_evidence(
+    entry: dict[str, Any], writer: PublishWriter, *, written: MediaWikiPageSnapshot | None = None
+) -> dict[str, Any]:
+    """Read proof of a committed request without replaying it or adopting an editor's revision."""
+    title = str(entry["title"])
+    reviewed = entry.get("reviewed_snapshot")
+    text = entry.get("intended_source")
+    model = entry.get("intended_content_model")
+    account = entry.get("edit_account")
+    if (
+        not isinstance(reviewed, dict)
+        or reviewed.get("title") != title
+        or not isinstance(text, str)
+        or hashlib.sha256(text.encode("utf-8")).hexdigest() != entry.get("intended_source_sha256")
+        or not isinstance(model, str)
+        or not model
+        or not account
+        or account != writer.edit_account
+        or not entry.get("api_url")
+        or entry["api_url"] != writer.api_url
+    ):
+        raise ValueError("the durable request source, model, account or endpoint is not proven")
+    base = reviewed.get("revision")
+    if base is not None and not isinstance(base, dict):
+        raise ValueError("the reviewed revision is not proven")
+    base_id = 0 if base is None else base.get("revision_id")
+    page = written if written is not None else writer.get_page_snapshots([title])[title]
+    revision = page.revision
+    nochange = (
+        written is not None
+        and entry.get("verified") is True
+        and entry.get("done") is False
+        and not entry.get("pending_mutation")
+        and revision is not None
+        and revision.revision_id == base_id
+    )
+    if (
+        page.title != title
+        or revision is None
+        or revision.title != title
+        or revision.page_id <= 0
+        or (revision.revision_id == base_id and not nochange)
+        or (not nochange and revision.parent_revision_id != base_id)
+        or revision.user != account
+        or page.source_text is None
+        or normalize_saved_text(page.source_text) != normalize_saved_text(text)
+        or page.content_model != model
+    ):
+        raise ValueError("the pending edit's own-account revision, exact parent, source and model are not proven")
+    parent = None
+    if base is not None:
+        if (
+            type(base_id) is not int
+            or base_id <= 0
+            or base.get("title") != title
+            or revision.page_id != base.get("page_id")
+            or not isinstance(reviewed.get("source_text"), str)
+            or reviewed.get("content_model") != model
+        ):
+            raise ValueError("the reviewed parent page, source or model is not proven")
+        parent = writer.get_revision_snapshots([base_id])[base_id]
+        if (
+            parent.title != title
+            or parent.revision is None
+            or parent.revision.title != title
+            or parent.revision.revision_id != base_id
+            or parent.revision.page_id != revision.page_id
+            or parent.source_text is None
+            or normalize_saved_text(parent.source_text) != normalize_saved_text(reviewed["source_text"])
+            or parent.content_model != model
+        ):
+            raise ValueError("the historical parent revision is not proven")
+    elif reviewed.get("source_text") is not None:
+        raise ValueError("the reviewed missing page is not proven")
+    return {
+        "done": True,
+        "pending_mutation": False,
+        "mutation_state": "reconciled",
+        "verified": True,
+        "revision": revision.revision_id,
+        "written_snapshot": asdict(page),
+        "actual_parent_snapshot": asdict(parent) if parent is not None else None,
+        "requires_rollback": parent is not None,
+    }
+
+
+def _reconcile_pending_edits(run: RunRecord, writer: PublishWriter, record: RunRecord) -> bool:
+    """Prove every ambiguous request read-only before undoing any known file or page mutation."""
+    proven: list[tuple[dict[str, Any], dict[str, Any]]] = []
+    for entry in run.entries:
+        if not entry.get("pending_mutation"):
+            continue
+        try:
+            evidence = _pending_write_evidence(entry, writer)
+        except (MediaWikiAPIError, KeyError, ValueError) as error:
+            record.add(_not_done(str(entry["title"]), f"reconcile {entry['action']}", str(error)))
+            return False
+        proven.append((entry, evidence))
+    for entry, evidence in proven:
+        run.update(entry, **evidence)
+    return True
+
+
+def _edit_endpoint_matches(entry: dict[str, Any], writer: PublishWriter, record: RunRecord) -> bool:
+    if entry.get("api_url") and entry["api_url"] == writer.api_url:
+        return True
+    record.add(_not_done(str(entry["title"]), f"revert {entry['action']}", "the recorded wiki endpoint is not proven"))
+    return False
+
+
+def _resume_restorations(run: RunRecord, writer: PublishWriter, record: RunRecord) -> bool:
+    """Attribute linked restoration requests before skipping a restored edit or undoing earlier files."""
+    for entry in run.entries:
+        if entry.get("restoration_record") is None:
+            continue
+        try:
+            _resume_restoration(run, entry, writer)
+        except (MediaWikiAPIError, OSError, KeyError, IndexError, TypeError, ValueError) as error:
+            record.add(_not_done(str(entry["title"]), f"resume {entry['action']}", str(error)))
+            return False
+    return True
+
+
+def _resume_restoration(run: RunRecord, entry: dict[str, Any], writer: PublishWriter) -> None:
+    from pathlib import Path
+
+    directory = entry["restoration_record"]
+    index = entry.get("restoration_entry")
+    if not isinstance(directory, str) or type(index) is not int or index < 0:
+        raise ValueError("the original ledger's restoration reference is not proven")
+    recovery = RunRecord.load(Path(directory))
+    restored = recovery.entries[index]
+    reviewed = restored.get("reviewed_snapshot")
+    parent = entry.get("actual_parent_snapshot")
+    written = entry.get("written_snapshot")
+    if (
+        restored.get("title") != entry["title"]
+        or restored.get("action") != f"revert {entry['action']}"
+        or not isinstance(reviewed, dict)
+        or not isinstance(reviewed.get("revision"), dict)
+        or reviewed["revision"].get("revision_id") != entry.get("revision")
+        or not isinstance(parent, dict)
+        or not isinstance(parent.get("source_text"), str)
+        or not isinstance(written, dict)
+        or not isinstance(written.get("revision"), dict)
+        or reviewed["revision"].get("page_id") != written["revision"].get("page_id")
+        or not isinstance(restored.get("intended_source"), str)
+        or normalize_saved_text(restored["intended_source"]) != normalize_saved_text(parent["source_text"])
+        or restored.get("intended_content_model") != parent.get("content_model")
+        or restored.get("edit_account") != entry.get("edit_account")
+    ):
+        raise ValueError("the restoration request does not match the original acknowledged edit and actual parent")
+    if restored.get("mutation_state") == "rejected":
+        run.update(entry, restoration_record=None, restoration_entry=None)
+        return
+    if restored.get("requires_rollback"):
+        raise ValueError("the linked restoration has an unresolved acknowledged verification failure")
+    revision = restored.get("revision")
+    if restored.get("pending_mutation"):
+        evidence = _pending_write_evidence(restored, writer)
+        revision = evidence["revision"]
+        recovery.update(restored, **(evidence | {"requires_rollback": False}))
+    else:
+        if not restored.get("verified") or type(revision) is not int or revision <= 0:
+            raise ValueError("the linked restoration revision is not proven")
+        # A later upload or editor revision must not cause a completed page restoration to replay.
+        snapshot = writer.get_revision_snapshots([revision])[revision]
+        if snapshot.revision is None or snapshot.revision.revision_id != revision:
+            raise ValueError("the linked historical restoration revision is not proven")
+        _pending_write_evidence(restored, writer, written=snapshot)
+    if entry.get("restoration_revision") is not None and entry["restoration_revision"] != revision:
+        raise ValueError("the original ledger's restoration revision differs from its linked request")
+    if entry.get("restoration_revision") != revision or entry.get("requires_rollback"):
+        run.update(entry, restoration_revision=revision, requires_rollback=False)
+
+
 def revert(
     run: RunRecord,
     writer: PublishWriter,
@@ -470,6 +782,8 @@ def revert(
     record: RunRecord,
     owners: Sequence[str],
     summary: str,
+    *,
+    titles: Sequence[str] | None = None,
 ) -> None:
     """Undo what a run changed.
 
@@ -484,13 +798,33 @@ def revert(
     Raises:
         ValueError: If the run moved or deleted something and no administrator is given.
     """
-    done = [entry for entry in run.entries if entry.get("done")]
+    if any(entry.get("pending_mutation") for entry in record.entries):
+        raise ValueError("Resolve the recovery run's pending native edit before another write")
+    for entry in run.entries:
+        if (
+            entry.get("reviewed_snapshot") is not None
+            or (entry.get("done") and entry["action"] in ("redirect", "describe"))
+        ) and not _edit_endpoint_matches(entry, writer, record):
+            return
+    if not _resume_restorations(run, writer, record):
+        return
+    if not _reconcile_pending_edits(run, writer, record):
+        return
+    done = [entry for entry in run.entries if entry.get("done") and (titles is None or entry["title"] in titles)]
     if administrator is None and any(entry["action"] in ("move", "retire", "orphan") for entry in done):
         raise ValueError("The run moved or deleted files, which only the administrator account undoes")
     restored = {str(entry["title"]) for entry in done if entry["action"] == "retire"}
+    # Recover the actual overwritten parent before undoing earlier uploads or moves.
+    for entry in done:
+        if entry.get("requires_rollback") and not _restore_unverified_edit(
+            entry, writer, record, summary, authority=run
+        ):
+            return
     for entry in done:
         title = str(entry["title"])
         action = entry["action"]
+        if entry.get("requires_rollback") or entry.get("restoration_revision") is not None:
+            continue
         if action == "update":
             _revert_update(entry, run.directory, writer, record, owners, summary)
         elif action == "retire" and administrator is not None:
@@ -579,13 +913,23 @@ def _restore_copy(
         return
     try:
         administrator.undelete_page(title, summary)
-        restored = writer.get_page_snapshots([title])[title]
-        if restored.revision is not None and entry.get("description") is not None:
-            writer.safe_edit_page(title, str(entry["description"]), restored.revision, summary=summary)
     except MediaWikiAPIError as error:
         record.add({"title": title, "action": "revert retire", "done": False, "reason": str(error)})
         return
-    record.add({"title": title, "action": "revert retire", "done": True})
+    restored = writer.get_page_snapshots([title])[title]
+    if restored.revision is not None and entry.get("description") is not None:
+        revision = _write_page(
+            {"title": title, "action": "revert retire", "old_text": restored.source_text, "undeleted": True},
+            restored,
+            str(entry["description"]),
+            writer,
+            record,
+            summary,
+        )
+        if revision is None:
+            return
+    else:
+        record.add({"title": title, "action": "revert retire", "done": True})
     _purge(administrator, (title,))
 
 
@@ -604,29 +948,106 @@ def _restore_orphan(entry: dict[str, Any], administrator: AdministratorWriter, r
 
 def _restore_redirect(entry: dict[str, Any], writer: PublishWriter, record: RunRecord, summary: str) -> None:
     title = str(entry["title"])
+    if not _edit_endpoint_matches(entry, writer, record):
+        return
     page = writer.get_page_snapshots([title])[title]
     current = _redirect_target(page.source_text or "")
-    if page.revision is None or current is None or not _same_title(current, str(entry["target"])):
+    if (
+        page.revision is None
+        or (entry.get("revision") is not None and page.revision.revision_id != entry["revision"])
+        or current is None
+        or not _same_title(current, str(entry["target"]))
+    ):
         record.add({"title": title, "action": "revert redirect", "done": False, "reason": "the page changed since"})
         return
-    try:
-        writer.safe_edit_page(title, str(entry["old_text"]), page.revision, summary=summary)
-    except MediaWikiAPIError as error:
-        record.add({"title": title, "action": "revert redirect", "done": False, "reason": str(error)})
-        return
-    record.add({"title": title, "action": "revert redirect", "done": True})
+    _write_page(
+        {"title": title, "action": "revert redirect", "old_text": page.source_text},
+        page,
+        str(entry["old_text"]),
+        writer,
+        record,
+        summary,
+    )
 
 
 def _restore_description(entry: dict[str, Any], writer: PublishWriter, record: RunRecord, summary: str) -> None:
     """Put a description page's earlier text back, while it still holds the description that the run wrote."""
     title = str(entry["title"])
+    if not _edit_endpoint_matches(entry, writer, record):
+        return
     page = writer.get_page_snapshots([title])[title]
-    if page.revision is None or page.source_text != str(entry["text"]).rstrip():
+    if (
+        page.revision is None
+        or (entry.get("revision") is not None and page.revision.revision_id != entry["revision"])
+        or page.source_text is None
+        or normalize_saved_text(page.source_text) != normalize_saved_text(str(entry["text"]))
+    ):
         record.add({"title": title, "action": "revert describe", "done": False, "reason": "the page changed since"})
         return
-    try:
-        writer.safe_edit_page(title, str(entry["old_text"]), page.revision, summary=summary)
-    except MediaWikiAPIError as error:
-        record.add({"title": title, "action": "revert describe", "done": False, "reason": str(error)})
-        return
-    record.add({"title": title, "action": "revert describe", "done": True})
+    _write_page(
+        {"title": title, "action": "revert describe", "old_text": page.source_text},
+        page,
+        str(entry["old_text"]),
+        writer,
+        record,
+        summary,
+    )
+
+
+def _restore_unverified_edit(
+    entry: dict[str, Any],
+    writer: PublishWriter,
+    record: RunRecord,
+    summary: str,
+    *,
+    authority: RunRecord | None = None,
+) -> bool:
+    """Restore only a proven actual parent while the acknowledged revision is still current."""
+    title = str(entry["title"])
+    action = f"revert {entry['action']}"
+    if not _edit_endpoint_matches(entry, writer, record):
+        return False
+    parent = entry.get("actual_parent_snapshot")
+    written = entry.get("written_snapshot")
+    if not isinstance(parent, dict) or not isinstance(written, dict):
+        record.add(_not_done(title, action, "the actual parent revision is not proven"))
+        return False
+    parent_revision = parent.get("revision")
+    written_revision = written.get("revision")
+    if (
+        not isinstance(parent_revision, dict)
+        or not isinstance(written_revision, dict)
+        or not isinstance(parent.get("source_text"), str)
+        or not isinstance(parent.get("content_model"), str)
+        or not parent["content_model"]
+        or parent.get("title") != title
+        or written.get("title") != title
+        or written_revision.get("revision_id") != entry["revision"]
+        or written_revision.get("parent_revision_id") != parent_revision.get("revision_id")
+        or written_revision.get("page_id") != parent_revision.get("page_id")
+    ):
+        record.add(_not_done(title, action, "the actual parent revision is not proven"))
+        return False
+    page = writer.get_page_snapshots([title])[title]
+    if (
+        page.revision is None
+        or page.revision.revision_id != entry["revision"]
+        or page.revision.page_id != written_revision["page_id"]
+        or page.source_text is None
+        or not isinstance(written.get("source_text"), str)
+        or normalize_saved_text(page.source_text) != normalize_saved_text(written["source_text"])
+        or page.content_model != written.get("content_model")
+        or page.content_model != parent["content_model"]
+    ):
+        record.add(_not_done(title, action, "the acknowledged revision changed or its model cannot be restored"))
+        return False
+    revision = _write_page(
+        {"title": title, "action": action, "old_text": page.source_text},
+        page,
+        parent["source_text"],
+        writer,
+        record,
+        summary,
+        restoration_of=(authority, entry) if authority is not None else None,
+    )
+    return revision is not None

@@ -289,9 +289,12 @@ def test_deploy_repo_pages_prepares_all_sidecars_before_first_write(tmp_path: Pa
         checkpoint=checkpoint,
     )
 
-    assert len(checkpoints) == 3
-    assert client.revisions["Module:Erenshor/A"] == 2
-    assert client.revisions["Module:Erenshor/B"] == 2
+    assert len(checkpoints) == 5
+    assert checkpoints[1].entries[0].pending_mutation
+    assert checkpoints[3].entries[1].pending_mutation
+    assert all(not entry.pending_mutation for entry in checkpoints[-1].entries)
+    assert client.revisions["Module:Erenshor/A"] == checkpoints[-1].entries[0].new_revision_id
+    assert client.revisions["Module:Erenshor/B"] == checkpoints[-1].entries[1].new_revision_id
 
 
 def test_deploy_repo_pages_checkpoint_journals_partial_failure(tmp_path: Path) -> None:
@@ -331,8 +334,12 @@ def test_deploy_repo_pages_checkpoint_journals_partial_failure(tmp_path: Path) -
     else:
         raise AssertionError("expected the second write to fail")
 
-    assert len(checkpoints) == 2
-    [prepared, after_first] = checkpoints
+    assert len(checkpoints) == 4
+    prepared, before_first, after_first, before_second = checkpoints
+    assert before_first.entries[0].pending_mutation
+    assert not after_first.entries[0].pending_mutation
+    assert before_second.entries[0].new_revision_id == client.revisions["Module:Erenshor/A"]
+    assert before_second.entries[1].pending_mutation
     assert all(entry.deploy_action is None for entry in prepared.entries)
     actions = {entry.title: entry.deploy_action for entry in after_first.entries}
     assert actions["Module:Erenshor/A"] == "edited"
@@ -403,3 +410,50 @@ def test_a_page_that_another_account_left_equal_to_the_source_is_not_drift(tmp_p
 
     assert [(entry.title, entry.status) for entry in result.entries] == [("Template:Quest", "unchanged")]
     assert client.revisions["Template:Quest"] == 1
+
+
+def test_prepared_snapshots_refuse_a_new_revision_before_creating_rollback(tmp_path: Path) -> None:
+    write_page(tmp_path, "wiki/modules/Erenshor/Example.lua", "return { new = true }\n")
+    manifest = build_repo_page_manifest(tmp_path, variant="main")
+    title = "Module:Erenshor/Example"
+    client = MediaWikiFake()
+    client.put_page(title, "return {}")
+    expected = client.get_page_snapshots([title])
+    client.put_page(title, "return {}", user="Editor")
+
+    with pytest.raises(ValueError, match="changed after the prepared review"):
+        deploy_repo_pages(
+            manifest=manifest,
+            repo_root=tmp_path,
+            client=client,
+            summary="Publish reviewed data",
+            assertion="bot",
+            expected_snapshots=expected,
+            rollback_root=tmp_path / "rollback",
+            accept_drift=(title,),
+        )
+
+    assert client.revisions[title] == 2
+    assert not (tmp_path / "rollback").exists()
+
+
+def test_prepared_snapshot_revision_guards_remain_atomic(tmp_path: Path) -> None:
+    write_page(tmp_path, "wiki/modules/Erenshor/Example.lua", "return { new = true }\n")
+    manifest = build_repo_page_manifest(tmp_path, variant="main")
+    title = "Module:Erenshor/Example"
+    client = MediaWikiFake()
+    client.put_page(title, "return {}")
+    expected = client.get_page_snapshots([title])
+
+    result = deploy_repo_pages(
+        manifest=manifest,
+        repo_root=tmp_path,
+        client=client,
+        summary="Publish reviewed data",
+        assertion="bot",
+        expected_snapshots=expected,
+        rollback_root=tmp_path / "rollback",
+    )
+
+    assert result.entries[0].old_revision_id == expected[title].revision.revision_id
+    assert result.entries[0].new_revision_id == client.revisions[title]

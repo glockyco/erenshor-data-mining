@@ -24,12 +24,7 @@ def mock_credentials_file(tmp_path: Path) -> Path:
 @pytest.fixture
 def publisher(mock_credentials_file: Path) -> GoogleSheetsPublisher:
     """Create a publisher instance with mock credentials."""
-    return GoogleSheetsPublisher(
-        credentials_file=mock_credentials_file,
-        batch_size=1000,
-        max_retries=3,
-        retry_delay=0.1,
-    )
+    return GoogleSheetsPublisher(credentials_file=mock_credentials_file)
 
 
 @pytest.fixture
@@ -48,26 +43,10 @@ class TestGoogleSheetsPublisherInit:
 
     def test_init_creates_publisher(self, mock_credentials_file: Path) -> None:
         """Test that publisher can be initialized."""
-        publisher = GoogleSheetsPublisher(
-            credentials_file=mock_credentials_file,
-            batch_size=500,
-            max_retries=5,
-            retry_delay=2.0,
-        )
-
-        assert publisher.credentials_file == mock_credentials_file
-        assert publisher.batch_size == 500
-        assert publisher.max_retries == 5
-        assert publisher.retry_delay == 2.0
-        assert publisher._service is None  # Lazy initialization
-
-    def test_init_with_defaults(self, mock_credentials_file: Path) -> None:
-        """Test that publisher uses default values."""
         publisher = GoogleSheetsPublisher(credentials_file=mock_credentials_file)
 
-        assert publisher.batch_size == 1000
-        assert publisher.max_retries == 3
-        assert publisher.retry_delay == 1.0
+        assert publisher.credentials_file == mock_credentials_file
+        assert publisher._service is None
 
 
 class TestGoogleSheetsPublisherAuth:
@@ -87,6 +66,7 @@ class TestGoogleSheetsPublisherAuth:
 
             assert service is not None
             assert publisher._service is service  # Cached
+            assert service._http.http.timeout == 240
 
     def test_get_service_reuses_cached_service(self, publisher: GoogleSheetsPublisher) -> None:
         """Test that service is cached after first initialization."""
@@ -167,7 +147,7 @@ class TestGoogleSheetsPublisherPublish:
         mock_response.status = 403
         mock_error = HttpError(resp=mock_response, content=b"Permission denied")
 
-        with patch.object(publisher, "_get_sheet_tables", side_effect=mock_error):
+        with patch.object(publisher, "prepare_table", side_effect=mock_error):
             result = publisher.publish(
                 spreadsheet_id="test123",
                 sheet_name="TestSheet",
@@ -188,7 +168,7 @@ class TestGoogleSheetsPublisherPublish:
         mock_response.reason = "Internal Server Error"
         mock_error = HttpError(resp=mock_response, content=b"Server error")
 
-        with patch.object(publisher, "_get_sheet_tables", side_effect=mock_error):
+        with patch.object(publisher, "prepare_table", side_effect=mock_error):
             result = publisher.publish(
                 spreadsheet_id="test123",
                 sheet_name="TestSheet",
@@ -203,7 +183,7 @@ class TestGoogleSheetsPublisherPublish:
         self, publisher: GoogleSheetsPublisher, sample_rows: list[list[str | int]]
     ) -> None:
         """Test that generic exceptions are handled gracefully."""
-        with patch.object(publisher, "_get_sheet_tables", side_effect=RuntimeError("Unexpected error")):
+        with patch.object(publisher, "prepare_table", side_effect=RuntimeError("Unexpected error")):
             result = publisher.publish(
                 spreadsheet_id="test123",
                 sheet_name="TestSheet",
@@ -213,82 +193,18 @@ class TestGoogleSheetsPublisherPublish:
             assert result.success is False
             assert "Unexpected error" in result.error
 
-
-class TestGoogleSheetsPublisherTableDetection:
-    """Tests for table detection."""
-
-    def test_get_sheet_tables_returns_regular_tables(self, publisher: GoogleSheetsPublisher) -> None:
-        """Test that get_sheet_tables returns regular tables."""
-        mock_service = MagicMock()
-        publisher._service = mock_service
-
-        mock_table = {
-            "tableId": "table123",
-            "range": {
-                "sheetId": 0,
-                "startRowIndex": 0,
-                "endRowIndex": 10,
-            },
-        }
-
-        mock_service.spreadsheets().get().execute.return_value = {
-            "sheets": [
-                {
-                    "properties": {"title": "TestSheet"},
-                    "tables": [mock_table],
-                }
-            ]
-        }
-
-        tables = publisher._get_sheet_tables("test123", "TestSheet")
-
-        assert len(tables) == 1
-        assert tables[0] == mock_table
-
-    def test_get_sheet_tables_returns_empty_list_when_no_tables(self, publisher: GoogleSheetsPublisher) -> None:
-        """Test that get_sheet_tables returns empty list when no tables exist."""
-        mock_service = MagicMock()
-        publisher._service = mock_service
-
-        mock_service.spreadsheets().get().execute.return_value = {
-            "sheets": [
-                {
-                    "properties": {"title": "TestSheet"},
-                }
-            ]
-        }
-
-        tables = publisher._get_sheet_tables("test123", "TestSheet")
-
-        assert tables == []
-
-    def test_get_sheet_tables_returns_data_source_tables(self, publisher: GoogleSheetsPublisher) -> None:
-        """Test that get_sheet_tables returns data source tables."""
-        mock_service = MagicMock()
-        publisher._service = mock_service
-
-        mock_table = {
-            "tableId": "table123",
-            "tableRange": {
-                "sheetId": 0,
-                "startRowIndex": 0,
-                "endRowIndex": 10,
-            },
-        }
-
-        mock_service.spreadsheets().get().execute.return_value = {
-            "sheets": [
-                {
-                    "properties": {"title": "TestSheet"},
-                    "dataSourceTables": [mock_table],
-                }
-            ]
-        }
-
-        tables = publisher._get_sheet_tables("test123", "TestSheet")
-
-        assert len(tables) == 1
-        assert tables[0] == mock_table
+    def test_publish_uses_single_tab_atomic_builder(
+        self, publisher: GoogleSheetsPublisher, sample_rows: list[list[str | int]]
+    ) -> None:
+        prepared = {"spreadsheet_id": "test123", "tabs": [{"sheet_name": "TestSheet"}]}
+        with (
+            patch.object(publisher, "prepare_table", return_value=prepared) as prepare,
+            patch.object(publisher, "execute_prepared") as execute,
+        ):
+            result = publisher.publish("test123", "TestSheet", sample_rows)
+        assert result.success is True
+        prepare.assert_called_once_with("test123", "TestSheet", sample_rows)
+        execute.assert_called_once_with(prepared)
 
 
 class TestGoogleSheetsPublisherTestConnection:
@@ -350,3 +266,20 @@ class TestPublishResult:
         assert result.success is False
         assert result.row_count == 0
         assert result.error == "Permission denied"
+
+
+def test_standalone_unknown_batch_reports_uncertainty_without_retry(publisher: GoogleSheetsPublisher) -> None:
+    from erenshor.infrastructure.publishers.sheets import SheetsRequestError
+
+    with (
+        patch.object(publisher, "prepare_table", return_value={}),
+        patch.object(
+            publisher,
+            "execute_prepared",
+            side_effect=SheetsRequestError("lost acknowledgement", {"outcomes": []}, uncertain=True),
+        ) as execute,
+    ):
+        result = publisher.publish("spreadsheet", "items", [["header"], [1]])
+    assert result.success is False
+    assert "Outcome is uncertain" in result.error
+    execute.assert_called_once()

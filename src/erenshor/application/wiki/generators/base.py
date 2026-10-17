@@ -87,7 +87,7 @@ class PageGenerator(ABC):
         """Initialize page generator with shared context.
 
         Args:
-            context: Shared context with repositories and resolver
+            context: Shared repositories, storage, and rendering configuration
         """
         self.context = context
 
@@ -108,7 +108,7 @@ class PageGenerator(ABC):
                 # Group entities by page title and return unique titles
                 page_titles = set()
                 for item in items:
-                    page_title = self.context.resolver.resolve_page_title(item.stable_key)
+                    page_title = item.wiki_page_name
                     if page_title:
                         page_titles.add(page_title)
                 return list(page_titles)
@@ -116,30 +116,16 @@ class PageGenerator(ABC):
         """
 
     @abstractmethod
-    def generate_pages(self) -> Iterator[GeneratedPage]:
+    def generate_pages(self, *, page_titles: frozenset[str] | None = None) -> Iterator[GeneratedPage]:
         """Generate complete wiki pages.
 
         Called during the generate phase. Should yield GeneratedPage objects
         with complete wikitext content and metadata.
+        ``page_titles`` limits assembly and rendering to exact page titles.
+        Every entity sharing a selected title must still contribute to that page.
 
         Yields:
             GeneratedPage objects with title, content, and metadata
-
-        Example:
-            ```python
-            def generate_pages(self) -> Iterator[GeneratedPage]:
-                items = self.context.item_repo.get_items_for_wiki_generation()
-                for item in items:
-                    content = self._generate_item_page(item)
-                    yield GeneratedPage(
-                        title=self.context.resolver.resolve_page_title(item.stable_key),
-                        content=content,
-                        metadata=PageMetadata(
-                            summary="Update item data from game export",
-                            minor=False,
-                        ),
-                    )
-            ```
         """
 
     def _render_template(self, template_name: str, context: dict[str, Any]) -> str:

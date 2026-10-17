@@ -15,13 +15,10 @@ from loguru import logger
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
-from sqlalchemy import create_engine
 
-from erenshor.application.sheets.formatter import SheetsFormatter
-from erenshor.application.sheets.service import SheetsService
+from erenshor.application.sheets.service import SheetsService, create_sheets_service
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
-from erenshor.infrastructure.publishers.sheets import GoogleSheetsPublisher
 
 if TYPE_CHECKING:
     from erenshor.cli.context import CLIContext
@@ -48,42 +45,7 @@ def _create_sheets_service(cli_ctx: CLIContext, *, service: SheetsService | None
     """
     if service is not None:
         return service
-    # Get variant config
-    variant_config = cli_ctx.config.variants[cli_ctx.variant]
-
-    # Create database engine for formatter
-    db_path = variant_config.resolved_database(cli_ctx.repo_root)
-    engine = create_engine(f"sqlite:///{db_path}")
-
-    # Get queries directory path
-    from pathlib import Path
-
-    import erenshor.application.sheets
-
-    queries_dir = Path(erenshor.application.sheets.__file__).parent / "queries"
-
-    # Create formatter
-    map_base_url = variant_config.maps.base_url
-    formatter = SheetsFormatter(engine=engine, queries_dir=queries_dir, map_base_url=map_base_url)
-
-    # Create publisher
-    sheets_config = cli_ctx.config.global_.google_sheets
-    credentials_file = sheets_config.resolved_credentials_file(cli_ctx.repo_root)
-    publisher = GoogleSheetsPublisher(credentials_file=credentials_file)
-
-    # Get spreadsheet ID for variant
-    variant_sheets_config = variant_config.google_sheets
-    if not variant_sheets_config or not variant_sheets_config.spreadsheet_id:
-        raise ValueError(f"No spreadsheet_id configured for variant '{cli_ctx.variant}'")
-
-    spreadsheet_id = variant_sheets_config.spreadsheet_id
-
-    # Create and return service
-    return SheetsService(
-        formatter=formatter,
-        publisher=publisher,
-        spreadsheet_id=spreadsheet_id,
-    )
+    return create_sheets_service(cli_ctx)
 
 
 @app.command("list")

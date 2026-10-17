@@ -15,7 +15,9 @@ class MockItemGenerator(PageGenerator):
     def get_pages_to_fetch(self) -> list[str]:
         return ["Item 1", "Item 2"]
 
-    def generate_pages(self):
+    def generate_pages(self, *, page_titles: frozenset[str] | None = None):
+        if page_titles is not None and "Item 1" not in page_titles:
+            return
         yield GeneratedPage(
             title="Item 1",
             content="{{Item|name=Item 1}}",
@@ -29,7 +31,9 @@ class MockCharacterGenerator(PageGenerator):
     def get_pages_to_fetch(self) -> list[str]:
         return ["Character 1"]
 
-    def generate_pages(self):
+    def generate_pages(self, *, page_titles: frozenset[str] | None = None):
+        if page_titles is not None and "Character 1" not in page_titles:
+            return
         yield GeneratedPage(
             title="Character 1",
             content="{{Character|name=Character 1}}",

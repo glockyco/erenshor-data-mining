@@ -10,6 +10,7 @@ from tests.fakes.mediawiki import MediaWikiFake
 from erenshor.application.wiki_deploy.dependencies import literal_dependencies
 from erenshor.application.wiki_deploy.manifest import build_repo_page_manifest
 from erenshor.application.wiki_deploy.pages import (
+    RepoPageDeployResult,
     deploy_repo_pages,
     prepare_repo_page_checks,
     read_repo_page_sources,
@@ -26,9 +27,9 @@ def source(root: Path, name: str, text: str) -> None:
     path.write_text(text, encoding="utf-8")
 
 
-def deploy(root: Path, wiki: MediaWikiFake, **options: object) -> None:
+def deploy(root: Path, wiki: MediaWikiFake, **options: object) -> RepoPageDeployResult:
     manifest = build_repo_page_manifest(root, variant="main", include_templates=True, include_generated_data=True)
-    deploy_repo_pages(
+    return deploy_repo_pages(
         manifest=manifest,
         repo_root=root,
         client=wiki,
@@ -70,6 +71,7 @@ def test_new_script_error_blocks_write_and_names_user(tmp_path: Path) -> None:
     wiki = MediaWikiFake(edit_account="Bot")
     wiki.put_page("Template:Item", "old")
     wiki.put_page("Example", "{{Item}}")
+    before = dict(wiki.revisions)
     wiki.embedded_in["Template:Item"] = ("Example",)
     wiki.parse_overrides[("Example", "Template:Item")] = MediaWikiParse(
         '<strong class="scribunto-error">Lua error</strong>', (), ()
@@ -77,7 +79,7 @@ def test_new_script_error_blocks_write_and_names_user(tmp_path: Path) -> None:
     with pytest.raises(RenderCheckError, match="Template:Item blocked on Example: script error"):
         deploy(tmp_path, wiki, render_check=True)
     assert wiki.pages == {"Template:Item": "old", "Example": "{{Item}}"}
-    assert wiki.revisions == {"Template:Item": 1, "Example": 1}
+    assert wiki.revisions == before
 
 
 def test_new_missing_template_blocks_write(tmp_path: Path) -> None:
@@ -85,6 +87,7 @@ def test_new_missing_template_blocks_write(tmp_path: Path) -> None:
     wiki = MediaWikiFake(edit_account="Bot")
     wiki.put_page("Template:Item", "old")
     wiki.put_page("Example", "{{Item}}")
+    before = dict(wiki.revisions)
     wiki.embedded_in["Template:Item"] = ("Example",)
     wiki.parse_overrides[("Example", "Template:Item")] = MediaWikiParse(
         "<p>new</p>", (MediaWikiParsedLink("Template:Missing", False),), ()
@@ -92,7 +95,7 @@ def test_new_missing_template_blocks_write(tmp_path: Path) -> None:
     with pytest.raises(RenderCheckError, match="Template:Item blocked on Example: missing template Template:Missing"):
         deploy(tmp_path, wiki, render_check=True)
     assert wiki.pages == {"Template:Item": "old", "Example": "{{Item}}"}
-    assert wiki.revisions == {"Template:Item": 1, "Example": 1}
+    assert wiki.revisions == before
 
 
 def test_visible_change_reports_removed_added_lines(tmp_path: Path) -> None:
@@ -100,15 +103,16 @@ def test_visible_change_reports_removed_added_lines(tmp_path: Path) -> None:
     wiki = MediaWikiFake(edit_account="Bot")
     wiki.put_page("Template:Item", "old")
     wiki.put_page("Example", "{{Item}}")
+    example_revision = wiki.revisions["Example"]
     wiki.embedded_in["Template:Item"] = ("Example",)
     wiki.parse_overrides[("Example", None)] = MediaWikiParse("<p>old</p>", (), ())
     wiki.parse_overrides[("Example", "Template:Item")] = MediaWikiParse("<p>new</p>", (), ())
     reports = []
-    deploy(tmp_path, wiki, render_check=True, report_render=reports.append)
+    result = deploy(tmp_path, wiki, render_check=True, report_render=reports.append)
     [change] = reports[0].differences
     assert (change.title, change.removed, change.added) == ("Example", ("old",), ("new",))
     assert wiki.pages["Template:Item"] == "new"
-    assert wiki.revisions == {"Template:Item": 2, "Example": 1}
+    assert wiki.revisions == {"Template:Item": result.entries[0].new_revision_id, "Example": example_revision}
 
 
 def test_category_change_reports_removed_added_categories() -> None:
@@ -197,6 +201,7 @@ def test_dry_run_provisional_for_same_run_dependency(tmp_path: Path) -> None:
     wiki = MediaWikiFake(edit_account="Bot")
     wiki.put_page("Template:Item", "old")
     wiki.put_page("Example", "{{Item}}")
+    before = dict(wiki.revisions)
     wiki.embedded_in["Template:Item"] = ("Example",)
     manifest = build_repo_page_manifest(tmp_path, variant="main", include_templates=True)
     sources = read_repo_page_sources(manifest, tmp_path)
@@ -205,7 +210,7 @@ def test_dry_run_provisional_for_same_run_dependency(tmp_path: Path) -> None:
     reports = []
     render_repo_page_checks(ordered, sources, snapshots, wiki, catalog={}, dry_run=True, report=reports.append)
     assert next(report for report in reports if report.title == "Template:Item").provisional
-    assert wiki.revisions == {"Template:Item": 1, "Example": 1}
+    assert wiki.revisions == before
 
 
 def test_dry_run_reports_a_script_error_of_a_page_whose_dependency_the_run_writes(tmp_path: Path) -> None:
@@ -281,6 +286,7 @@ def test_stylesheet_renders_its_users_as_sanitized_css(tmp_path: Path) -> None:
     wiki = MediaWikiFake(edit_account="Bot")
     wiki.put_page("Template:Item/styles.css", ".pi-image { color: red; }")
     wiki.put_page("Example", "{{Item}}")
+    example_revision = wiki.revisions["Example"]
     wiki.embedded_in["Template:Item/styles.css"] = ("Example",)
     parse = wiki.parse_wikitext
 
@@ -290,9 +296,12 @@ def test_stylesheet_renders_its_users_as_sanitized_css(tmp_path: Path) -> None:
         return parse(title, text, **options)
 
     wiki.parse_wikitext = parse_stylesheet
-    deploy(tmp_path, wiki, render_check=True)
+    result = deploy(tmp_path, wiki, render_check=True)
     assert wiki.pages["Template:Item/styles.css"] == ".pi-image { color: blue; }"
-    assert wiki.revisions == {"Template:Item/styles.css": 2, "Example": 1}
+    assert wiki.revisions == {
+        "Template:Item/styles.css": result.entries[0].new_revision_id,
+        "Example": example_revision,
+    }
 
 
 def test_dry_run_accepts_a_stylesheet_that_the_same_deploy_creates(tmp_path: Path) -> None:
@@ -301,6 +310,7 @@ def test_dry_run_accepts_a_stylesheet_that_the_same_deploy_creates(tmp_path: Pat
     wiki = MediaWikiFake(edit_account="Bot")
     wiki.put_page("Template:Item", "old")
     wiki.put_page("Example", "{{Item}}")
+    before = dict(wiki.revisions)
     wiki.embedded_in["Template:Item"] = ("Example",)
     # Live, the stylesheet does not exist yet, so the sandboxed template finds it missing.
     wiki.parse_overrides[("Example", "Template:Item")] = MediaWikiParse(
@@ -314,7 +324,7 @@ def test_dry_run_accepts_a_stylesheet_that_the_same_deploy_creates(tmp_path: Pat
     render_repo_page_checks(ordered, sources, snapshots, wiki, catalog={}, dry_run=True, report=reports.append)
     assert [entry.title for entry in ordered.entries] == ["Template:Item/styles.css", "Template:Item"]
     assert next(report for report in reports if report.title == "Template:Item").provisional
-    assert wiki.revisions == {"Template:Item": 1, "Example": 1}
+    assert wiki.revisions == before
 
 
 @pytest.mark.parametrize(
@@ -384,6 +394,7 @@ def test_a_deploy_without_the_render_check_parses_nothing(tmp_path: Path) -> Non
     wiki = MediaWikiFake(edit_account="Bot")
     wiki.put_page("Template:Item", "old")
     wiki.put_page("Example", "{{Item}}")
+    example_revision = wiki.revisions["Example"]
     wiki.embedded_in["Template:Item"] = ("Example",)
 
     def no_parse(*args: object, **options: object) -> MediaWikiParse:
@@ -391,7 +402,7 @@ def test_a_deploy_without_the_render_check_parses_nothing(tmp_path: Path) -> Non
 
     wiki.parse_wikitext = no_parse
 
-    deploy(tmp_path, wiki)
+    result = deploy(tmp_path, wiki)
 
     assert wiki.pages["Template:Item"] == "new"
-    assert wiki.revisions == {"Template:Item": 2, "Example": 1}
+    assert wiki.revisions == {"Template:Item": result.entries[0].new_revision_id, "Example": example_revision}

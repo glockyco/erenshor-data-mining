@@ -53,10 +53,6 @@ class GeneratedCorpus:
     expectations: Mapping[str, WikiPageExpectation]
 
 
-# Pages whose generated text is one table among the text of editors.
-_OVERVIEW_TITLES = frozenset({ArmorOverviewPageGenerator.PAGE_TITLE, WeaponsOverviewPageGenerator.PAGE_TITLE})
-
-
 class WikiGenerateService:
     """Service for generating wiki pages locally."""
 
@@ -108,7 +104,7 @@ class WikiGenerateService:
         Args:
             dry_run: If True, generate content but don't save to storage.
             limit: Maximum number of pages to generate (for testing).
-            page_titles: If specified, only generate these specific page titles. If None, generate all pages.
+            page_titles: Exact titles to assemble and render. None selects all titles. An empty list selects none.
             generator_names: Optional list of generator names to use. If None, use all registered generators.
             validate: Optional callback that checks the pages of the run. It
                 runs when every page succeeded, and an exception fails the run.
@@ -125,24 +121,25 @@ class WikiGenerateService:
         generators = get_generators_by_name(self._context, generator_names)
         logger.debug(f"Using {len(generators)} generators")
 
+        selected_titles = frozenset(page_titles) if page_titles is not None else None
         generated_pages: list[GeneratedPage] = []
         for generator in generators:
             logger.debug(f"Running generator: {generator.__class__.__name__}")
-            pages = list(generator.generate_pages())
+            pages = list(generator.generate_pages(page_titles=selected_titles))
             logger.debug(f"  Generated {len(pages)} pages")
             generated_pages.extend(pages)
 
         logger.info(f"Total pages generated: {len(generated_pages)}")
-        if self._lifecycle is not None and not page_titles and not limit and not generator_names:
+        if self._lifecycle is not None and page_titles is None and not limit and not generator_names:
             validate_generated_lifecycle({page.title: page.stable_keys for page in generated_pages}, self._lifecycle)
 
         # Remove stale storage entries on full unfiltered generation
-        if not page_titles and not limit and not generator_names:
+        if not dry_run and page_titles is None and not limit and not generator_names:
             removed = self._storage.remove_stale_pages({page.title for page in generated_pages})
             if removed:
                 logger.info(f"Cleaned up {removed} stale pages")
 
-        if page_titles:
+        if page_titles is not None:
             page_titles_set = set(page_titles)
             filtered = [page for page in generated_pages if page.title in page_titles_set]
             logger.info(

@@ -18,12 +18,13 @@ import hashlib
 import io
 import re
 from collections.abc import Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any, Literal
 
 from erenshor.application.services.image_publication import LiveWiki
 from erenshor.infrastructure.wiki import (
+    MediaWikiAPIError,
     MediaWikiAssertionError,
     MediaWikiEditConflictError,
     MediaWikiFile,
@@ -37,6 +38,7 @@ from erenshor.infrastructure.wiki import (
     MediaWikiTitleStatus,
     MediaWikiUploadWarningError,
 )
+from erenshor.infrastructure.wiki.content import normalize_saved_text
 
 EditAssertion = Literal["user", "bot"]
 
@@ -77,6 +79,10 @@ class MediaWikiFake:
     revisions: dict[str, int] = field(default_factory=dict)
     page_ids: dict[str, int] = field(default_factory=dict)
     page_users: dict[str, str | None] = field(default_factory=dict)
+    page_parents: dict[str, int] = field(default_factory=dict)
+    page_comments: dict[str, str | None] = field(default_factory=dict)
+    content_models: dict[str, str] = field(default_factory=dict)
+    api_url: str = "https://fixture.invalid/api.php"
     files: dict[str, list[_FileVersion]] = field(default_factory=dict)
     archive: dict[str, tuple[list[_FileVersion], str]] = field(default_factory=dict)
     used: set[str] = field(default_factory=set)
@@ -101,12 +107,23 @@ class MediaWikiFake:
     closed: bool = False
     _stash: dict[str, tuple[str, bytes, str]] = field(default_factory=dict)
     _next_page_id: int = 1000
+    _next_revision_id: int = 1
+    _revision_snapshots: dict[int, MediaWikiPageSnapshot] = field(default_factory=dict, repr=False)
+    _archived_pages: dict[str, MediaWikiPageSnapshot] = field(default_factory=dict, repr=False)
 
     # --- Arranging a scenario ---
 
-    def put_page(self, title: str, text: str, *, user: str | None = None) -> None:
-        """Set a page's text as if an earlier edit had already landed; bumps its revision."""
-        self._write_page(title, text, user)
+    def put_page(
+        self,
+        title: str,
+        text: str,
+        *,
+        user: str | None = None,
+        content_model: str | None = None,
+        summary: str | None = None,
+    ) -> None:
+        """Set page source as an earlier immutable revision."""
+        self._write_page(title, text, user, content_model, summary=summary)
         self._mark_dark()
 
     def put_redirect(self, title: str, target: str) -> None:
@@ -116,14 +133,44 @@ class MediaWikiFake:
     def put_file(self, title: str, data: bytes, *, user: str | None = None, comment: str = "Automated upload") -> None:
         uploader = user or self.edit_account or "ErenshorBot"
         self.files.setdefault(title, []).insert(0, _FileVersion(data, uploader, comment))
-        self._write_page(title, self.pages.get(title, "an old description"), user)
+        self._write_page(title, self.pages.get(title, "an old description"), user, summary=comment)
         self._mark_dark()
 
-    def _write_page(self, title: str, text: str, user: str | None) -> None:
-        self.pages[title] = text.rstrip()
-        self.revisions[title] = self.revisions.get(title, 0) + 1
-        self.page_ids.setdefault(title, self._next_id())
+    def _write_page(
+        self,
+        title: str,
+        text: str,
+        user: str | None,
+        content_model: str | None = None,
+        *,
+        summary: str | None = None,
+    ) -> None:
+        previous = self.revisions.get(title, 0)
+        if previous and previous not in self._revision_snapshots:
+            self._revision_snapshots[previous] = self._page_snapshot(title)
+        self._next_revision_id = max(self._next_revision_id, max(self.revisions.values(), default=0) + 1)
+        self.pages[title] = normalize_saved_text(text)
+        self.page_parents[title] = previous
+        self.revisions[title] = self._next_revision_id
+        self._next_revision_id += 1
+        if title not in self.page_ids:
+            self.page_ids[title] = self._next_id()
         self.page_users[title] = user or self.edit_account
+        self.page_comments[title] = summary
+        model = content_model or self.content_models.get(title)
+        if model is None:
+            if title.startswith("Module:"):
+                model = "Scribunto"
+            elif title.startswith("MediaWiki:") and title.endswith(".css"):
+                model = "css"
+            elif title.startswith("MediaWiki:") and title.endswith(".js"):
+                model = "javascript"
+            elif title.startswith("Template:") and title.endswith(".css"):
+                model = "sanitized-css"
+            else:
+                model = "wikitext"
+        self.content_models[title] = model
+        self._revision_snapshots[self.revisions[title]] = self._page_snapshot(title)
 
     def _next_id(self) -> int:
         page_id = self._next_page_id
@@ -233,22 +280,38 @@ class MediaWikiFake:
     ) -> dict[str, MediaWikiPageSnapshot]:
         if assertion is not None:
             self._check_assertion(assertion, assert_user)
-        snapshots = {}
-        for title in titles:
-            text = self.pages.get(title)
-            revision = (
-                MediaWikiPageRevision(
-                    title,
-                    self.page_ids.get(title, 0),
-                    self.revisions[title],
-                    "2026-01-01T00:00:00Z",
-                    "2026-01-01T00:00:01Z",
-                    self.page_users.get(title),
-                )
-                if text is not None
-                else None
+        return {title: self._page_snapshot(title) for title in titles}
+
+    def _page_snapshot(self, title: str) -> MediaWikiPageSnapshot:
+        text = self.pages.get(title)
+        revision = (
+            MediaWikiPageRevision(
+                title,
+                self.page_ids[title],
+                self.revisions[title],
+                "2026-01-01T00:00:00Z",
+                "2026-01-01T00:00:01Z",
+                self.page_users.get(title),
+                parent_revision_id=self.page_parents.get(title),
+                comment=self.page_comments.get(title),
             )
-            snapshots[title] = MediaWikiPageSnapshot(title, text, revision, "2026-01-01T00:00:01Z")
+            if text is not None
+            else None
+        )
+        return MediaWikiPageSnapshot(title, text, revision, "2026-01-01T00:00:01Z", self.content_models.get(title))
+
+    def get_revision_snapshots(self, revision_ids: Sequence[int]) -> dict[int, MediaWikiPageSnapshot]:
+        if any(type(revision_id) is not int or revision_id <= 0 for revision_id in revision_ids):
+            raise ValueError("Historical revision IDs must be positive integers")
+        current_titles = {page_id: title for title, page_id in self.page_ids.items()}
+        snapshots = {}
+        for revision_id in dict.fromkeys(revision_ids):
+            snapshot = self._revision_snapshots.get(revision_id)
+            revision = snapshot.revision if snapshot is not None else None
+            if revision is None or revision.page_id not in current_titles:
+                raise MediaWikiAPIError(f"Historical revision not returned or unreadable: {revision_id}")
+            title = current_titles[revision.page_id]
+            snapshots[revision_id] = replace(snapshot, title=title, revision=replace(revision, title=title))
         return snapshots
 
     def get_page_revision_metadata(
@@ -335,7 +398,7 @@ class MediaWikiFake:
         self._check_assertion(assertion, assert_user)
         if title in self.pages:
             raise MediaWikiEditConflictError(f"Lost create race while safely creating page {title!r}")
-        self._write_page(title, content, self.edit_account)
+        self._write_page(title, content, self.edit_account, content_model, summary=summary)
         self._mark_dark()
         return self.revisions[title]
 
@@ -354,7 +417,7 @@ class MediaWikiFake:
         self._check_assertion(assertion, assert_user)
         if self.revisions.get(title) != base_revision.revision_id:
             raise MediaWikiEditConflictError(f"Edit conflict while safely editing page {title!r}")
-        self._write_page(title, content, self.edit_account)
+        self._write_page(title, content, self.edit_account, content_model, summary=summary)
         self._mark_dark()
         return self.revisions[title]
 
@@ -391,21 +454,24 @@ class MediaWikiFake:
         self.uploads += 1
         self.files.setdefault(title, []).insert(0, _FileVersion(data, self.edit_account or "ErenshorBot", comment))
         if title not in self.pages:
-            self._write_page(title, text, self.edit_account)
+            self._write_page(title, text, self.edit_account, summary=comment)
         self._mark_dark()
 
     def move_page(self, from_title: str, to_title: str, reason: str, *, leave_redirect: bool = True) -> None:
         """Move a file and its page; MediaWiki moves over a page only when it is a one-revision redirect back."""
         if to_title in self.pages and not (
-            self._target(self.pages[to_title]) == from_title and self.revisions[to_title] == 1
+            self._target(self.pages[to_title]) == from_title and self.page_parents[to_title] == 0
         ):
             raise MediaWikiEditConflictError(f"Lost move race: {to_title!r} already exists")
         if from_title in self.files:
             self.files[to_title] = self.files.pop(from_title)
         self.pages[to_title] = self.pages.pop(from_title)
         self.revisions[to_title] = self.revisions.pop(from_title)
-        self.page_ids[to_title] = self.page_ids.pop(from_title, self._next_id())
+        self.page_ids[to_title] = self.page_ids.pop(from_title)
         self.page_users[to_title] = self.page_users.pop(from_title, None)
+        self.page_parents[to_title] = self.page_parents.pop(from_title, 0)
+        self.page_comments[to_title] = self.page_comments.pop(from_title, None)
+        self.content_models[to_title] = self.content_models.pop(from_title, "wikitext")
         if leave_redirect:
             self._write_page(from_title, f"#REDIRECT [[{to_title}]]", self.edit_account)
         self._mark_dark()
@@ -415,10 +481,14 @@ class MediaWikiFake:
     # --- Deletions (the administrator's) ---
 
     def delete_page(self, title: str, reason: str) -> None:
+        self._archived_pages[title] = self._page_snapshot(title)
         self.archive[title] = (self.files.pop(title, []), self.pages.pop(title))
         self.revisions.pop(title, None)
         self.page_ids.pop(title, None)
         self.page_users.pop(title, None)
+        self.page_parents.pop(title, None)
+        self.page_comments.pop(title, None)
+        self.content_models.pop(title, None)
         self._mark_dark()
 
     def undelete_page(self, title: str, reason: str) -> None:
@@ -426,8 +496,25 @@ class MediaWikiFake:
         versions, text = self.archive.pop(title)
         if versions:
             self.files[title] = versions
+        archived = self._archived_pages.pop(title, None)
         if title not in self.pages:
-            self._write_page(title, text, self.edit_account)
+            if archived is None or archived.revision is None:
+                self._write_page(title, text, self.edit_account)
+            else:
+                self.pages[title] = text
+                self.page_ids[title] = archived.revision.page_id
+                self.revisions[title] = archived.revision.revision_id
+                self.page_parents[title] = archived.revision.parent_revision_id or 0
+                self.page_users[title] = archived.revision.user
+                self.page_comments[title] = archived.revision.comment
+                self.content_models[title] = archived.content_model or "wikitext"
+        elif archived is not None and archived.revision is not None:
+            for revision_id, snapshot in self._revision_snapshots.items():
+                revision = snapshot.revision
+                if revision is not None and revision.page_id == archived.revision.page_id:
+                    self._revision_snapshots[revision_id] = replace(
+                        snapshot, revision=replace(revision, page_id=self.page_ids[title])
+                    )
 
     # --- CDN purge ---
 

@@ -615,6 +615,7 @@ class TestWikiDeployCommand:
 
         audit.return_value = report
         writer = MagicMock()
+        writer.api_url = context.config.global_.mediawiki.api_url
         writer.safe_edit_page.return_value = 11
         _use_mediawiki_client(monkeypatch, writer)
         applied = runner.invoke(wiki.app, ["apply-retired-pages"], obj=context)
@@ -739,6 +740,7 @@ class TestWikiDeployCommand:
             }
 
         client = MagicMock()
+        client.api_url = context.config.global_.mediawiki.api_url
         client.get_page_snapshots.side_effect = snapshots
         client.safe_edit_page.return_value = 12
         client.get_page_categories.return_value = {}

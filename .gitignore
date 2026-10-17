@@ -603,6 +603,11 @@ DocProject/Help/html
 
 # Click-Once directory
 publish/
+# The publication coordinator and its tests are source, not Click-Once output.
+!src/erenshor/application/publish/
+!src/erenshor/application/publish/**
+!tests/unit/application/publish/
+!tests/unit/application/publish/**
 
 # Publish Web Output
 *.[Pp]ublish.xml

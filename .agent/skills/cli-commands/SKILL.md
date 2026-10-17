@@ -32,3 +32,17 @@ Commands that only read state need no declaration.
 The decorator runs every declared check, reports each failure, and aborts before the handler.
 `eval reset` and `eval watch` change remote state without local input dependencies.
 The `test` group uses its own task-graph preflight.
+
+For coordinated publishing, use the `publish` command group instead of a shell
+chain. Its closed schema lives in `application/publish/models.py`. Preparation
+freezes exact selected payloads without live writes. Root dry run describes
+preparation without durable artifacts and inspects prepared apply/resume without
+approval. Only an explicit human declaration of the reviewed digest permits a
+live apply or resume. Never generate an approval declaration for an operator.
+The native summary names every operation and guard while linking complete hashed
+payloads and request bytes. Keep workbook cells out of terminal output, because
+unbounded output prevents practical review. The sidecars remain authoritative.
+
+Preserve fail-fast behavior and the durable operation journal when changing a
+publisher seam. Resume must reconcile recorded successes and reject editor
+changes, altered inputs, and uncertain provider outcomes before continuing.

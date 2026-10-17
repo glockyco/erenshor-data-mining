@@ -4,7 +4,7 @@
 The tool reads current inventories from the clean main database, fetches the live
 vendor pages, and replaces only the ``Store inventory`` wikitable. Missing tables
 are inserted before trailing category tags. It defaults to a diff-only dry run;
-``--live`` enables conflict-guarded MediaWiki edits.
+``--live`` uses native guarded edits and retains their durable rollback manifest.
 
 Usage:
     uv run python src/tools/update_vendor_inventory_tables.py
@@ -16,12 +16,16 @@ from __future__ import annotations
 
 import argparse
 import sys
+import tempfile
 from dataclasses import dataclass
 from difflib import unified_diff
 from pathlib import Path
 from typing import Literal, cast
 
-from erenshor.infrastructure.config.loader import load_config
+from erenshor.application.wiki_deploy.guarded_edits import GuardedEditResult, GuardedPageEdit, apply_guarded_edits
+from erenshor.application.wiki_deploy.manifest import read_repo_page_manifest
+from erenshor.infrastructure.config.loader import get_repo_root, load_config
+from erenshor.infrastructure.config.paths import require_owned_write_path
 from erenshor.infrastructure.wiki.client import MediaWikiClient, MediaWikiPageSnapshot
 from erenshor.tools.vendor_inventory_tables import (
     DEFAULT_DATABASE,
@@ -134,26 +138,61 @@ def print_plan(updates: tuple[PendingUpdate, ...], selected_count: int, *, show_
             _ = sys.stdout.writelines(diff)
 
 
-def update_live(client: MediaWikiClient, updates: tuple[PendingUpdate, ...]) -> None:
+def update_live(
+    client: MediaWikiClient,
+    updates: tuple[PendingUpdate, ...],
+    *,
+    repo_root: Path,
+    run_dir: Path,
+    wiki_root: Path,
+) -> GuardedEditResult:
+    edits = []
     for update in updates:
-        revision = update.snapshot.revision
-        if revision is None:
-            raise ValueError(f"Cannot safely edit page without a base revision: {update.inventory.page}")
-        new_revision = client.safe_edit_page(
-            title=update.inventory.page,
-            content=update.updated_text,
-            base_revision=revision,
-            summary=EDIT_SUMMARY,
-            assertion="bot",
-            content_model="wikitext",
+        snapshot = update.snapshot
+        if snapshot.revision is None or snapshot.source_text is None:
+            raise ValueError(f"Cannot safely edit page without a complete base: {update.inventory.page}")
+        if snapshot.content_model != "wikitext":
+            raise ValueError(f"Vendor inventory page must use wikitext: {update.inventory.page}")
+        edits.append(
+            GuardedPageEdit(
+                update.inventory.page,
+                EDIT_SUMMARY,
+                update.updated_text,
+                snapshot.source_text,
+                snapshot.revision,
+                content_model="wikitext",
+            )
         )
-        print(f"Updated {update.inventory.page}: revision {revision.revision_id} -> {new_revision}")
+    require_owned_write_path(run_dir, repo_root)
+    result = apply_guarded_edits(
+        edits,
+        repo_root=repo_root,
+        run_dir=run_dir,
+        client=client,
+        assert_user=client.edit_account,
+        variant="main",
+        wiki_root=wiki_root,
+        stop_on_conflict=True,
+    )
+    print(f"Native manifest: {result.manifest_path}")
+    manifest = read_repo_page_manifest(result.manifest_path)
+    for entry in manifest.entries:
+        if entry.new_revision_id is not None:
+            state = "Write requires recovery" if entry.requires_rollback else "Updated"
+            print(f"{state} {entry.title}: revision {entry.new_revision_id}")
+    if result.failed:
+        raise RuntimeError(
+            f"Vendor publication stopped: {result.stopped or result.conflicts}. "
+            f"Retain native recovery manifest {result.manifest_path}"
+        )
+    return result
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(sys.argv[1:] if argv is None else argv)
     inventories = select_inventories(load_vendor_inventories(args.database), args.pages, args.limit)
-    config = load_config().global_.mediawiki
+    project = load_config()
+    config = project.global_.mediawiki
     client = MediaWikiClient(
         api_url=config.api_url,
         bot_username=config.bot_username,
@@ -172,7 +211,13 @@ def main(argv: list[str] | None = None) -> int:
         updates = build_updates(inventories, snapshots)
         print_plan(updates, len(inventories), show_diff=not args.live and not args.summary_only)
         if args.live:
-            update_live(client, updates)
+            repo_root = get_repo_root()
+            wiki_root = project.variants["main"].resolved_wiki(repo_root)
+            runs = wiki_root / "vendor-page-edits"
+            require_owned_write_path(runs, repo_root)
+            runs.mkdir(parents=True, exist_ok=True)
+            run_dir = Path(tempfile.mkdtemp(prefix="run-", dir=runs))
+            update_live(client, updates, repo_root=repo_root, run_dir=run_dir, wiki_root=wiki_root)
         else:
             print("Dry run only; pass --live to apply these conflict-guarded edits.")
     finally:

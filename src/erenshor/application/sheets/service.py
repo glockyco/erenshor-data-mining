@@ -30,16 +30,40 @@ Example:
     >>> print(f"Deployed {result.deployed} sheets")
 """
 
+from __future__ import annotations
+
+import json
 import time
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 from loguru import logger
 from rich.console import Console
 from rich.progress import track
+from sqlalchemy import create_engine
 
 from erenshor.application.sheets.formatter import SheetsFormatter
 from erenshor.infrastructure.publishers.sheets import GoogleSheetsPublisher
+
+if TYPE_CHECKING:
+    from erenshor.cli.context import CLIContext
+
+
+def create_sheets_service(ctx: CLIContext) -> SheetsService:
+    """Construct the owning formatter and publisher for the selected variant."""
+    variant = ctx.config.variants[ctx.variant]
+    sheets = variant.google_sheets
+    if not sheets or not sheets.spreadsheet_id:
+        raise ValueError(f"No spreadsheet_id configured for variant '{ctx.variant}'")
+    engine = create_engine(f"sqlite:///{variant.resolved_database(ctx.repo_root)}")
+    formatter = SheetsFormatter(
+        engine=engine, queries_dir=Path(__file__).parent / "queries", map_base_url=variant.maps.base_url
+    )
+    publisher = GoogleSheetsPublisher(
+        credentials_file=ctx.config.global_.google_sheets.resolved_credentials_file(ctx.repo_root)
+    )
+    return SheetsService(formatter=formatter, publisher=publisher, spreadsheet_id=sheets.spreadsheet_id)
 
 
 class SheetsServiceError(Exception):
@@ -135,6 +159,48 @@ class SheetsService:
         self._console = Console()
 
         logger.debug("SheetsService initialized")
+
+    def destination_identity(self) -> dict[str, Any]:
+        """Expose account assertions without serializing credential secrets."""
+        credentials = json.loads(self._publisher.credentials_file.read_text(encoding="utf-8"))
+        if credentials.get("type") != "service_account" or not credentials.get("client_email"):
+            raise ValueError("Sheets publication requires an identifiable service account")
+        return {
+            "spreadsheet_id": self._spreadsheet_id,
+            "account": {
+                key: credentials[key]
+                for key in ("type", "client_email", "client_id", "project_id")
+                if key in credentials
+            },
+        }
+
+    def prepare_tabs(self, sheet_names: list[str]) -> dict[str, Any]:
+        """Run selected SQL once and freeze one atomic spreadsheet publication."""
+        available = set(self._formatter.get_sheet_names())
+        missing = set(sheet_names) - available
+        if missing:
+            raise SheetsServiceError(f"Invalid sheet names: {', '.join(sorted(missing))}")
+        names = sorted(sheet_names, key=lambda name: (name.casefold(), name))
+        rows = {name: self._formatter.format_sheet(name) for name in names}
+        prepared = self._publisher.prepare_tables(self._spreadsheet_id, rows)
+        prepared["queries"] = [
+            {
+                "sheet_name": name,
+                "path": str((self._formatter.queries_dir / f"{name}.sql").resolve()),
+                "sql": (self._formatter.queries_dir / f"{name}.sql").read_text(encoding="utf-8"),
+            }
+            for name in names
+        ]
+        return prepared
+
+    @property
+    def publisher(self) -> GoogleSheetsPublisher:
+        """Keep prepared execution on the standalone command's publisher."""
+        return self._publisher
+
+    def close(self) -> None:
+        """Release query connections after adapter preparation or inspection."""
+        self._formatter.engine.dispose()
 
     def list_sheets(self) -> list[SheetMetadata]:
         """List available sheets from SQL query files.

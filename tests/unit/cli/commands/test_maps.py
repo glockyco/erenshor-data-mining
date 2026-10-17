@@ -13,7 +13,7 @@ from typing import Any
 import pytest
 import typer
 
-from erenshor.application.maps import build_info
+from erenshor.application.maps import build_info, publication
 from erenshor.cli.commands import maps
 from erenshor.cli.context import CLIContext
 from erenshor.infrastructure.config.schema import Config, GlobalConfig, MapsConfig, UnityConfig, VariantConfig
@@ -268,6 +268,18 @@ def _ready_to_deploy(tmp_path: Path, monkeypatch: Any, *, dry_run: bool = False)
 
     monkeypatch.setenv("CLOUDFLARE_API_TOKEN", "token")
     monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
+    monkeypatch.setattr(
+        publication,
+        "destination",
+        lambda context, target: {
+            "target": target,
+            "url": (
+                context.config.variants[context.variant].maps.base_url
+                if target == "canonical"
+                else context.config.variants[context.variant].maps.legacy_base_url
+            ),
+        },
+    )
     return ctx, calls
 
 
@@ -347,7 +359,7 @@ def test_deploy_names_a_resumable_command_when_only_the_legacy_service_fails(
     assert "maps deploy --target legacy" in capsys.readouterr().out
 
 
-def test_deploy_dry_run_reports_both_services_without_invoking_wrangler(
+def test_deploy_dry_run_reports_both_services_without_invoking_deploy(
     tmp_path: Path, monkeypatch: Any, capsys: Any
 ) -> None:
     ctx, calls = _ready_to_deploy(tmp_path, monkeypatch, dry_run=True)
@@ -445,3 +457,39 @@ def test_maps_dev_treats_signal_shutdown_as_expected(tmp_path: Path, monkeypatch
     maps.dev(ctx)
 
     assert process.returncode == -maps.signal.SIGTERM
+
+
+@pytest.mark.parametrize("dry_run", [False, True])
+def test_deploy_uses_shared_destination_authority_before_any_upload(
+    tmp_path: Path, monkeypatch: Any, dry_run: bool
+) -> None:
+    ctx, calls = _ready_to_deploy(tmp_path, monkeypatch, dry_run=dry_run)
+    targets = []
+
+    def destination(context: Any, target: str) -> dict[str, str]:
+        assert context is ctx.obj
+        targets.append(target)
+        if target == "legacy":
+            raise ValueError("Configured host does not match the selected service")
+        return {"url": "https://maps.example.test"}
+
+    monkeypatch.setattr(publication, "destination", destination)
+    with pytest.raises(typer.Exit):
+        maps.deploy(ctx)
+    assert targets == ["canonical", "legacy"]
+    assert calls == []
+
+
+def test_deploy_rechecks_shared_destination_at_each_actual_target(tmp_path: Path, monkeypatch: Any) -> None:
+    ctx, calls = _ready_to_deploy(tmp_path, monkeypatch)
+    targets = []
+
+    def destination(context: Any, target: str) -> dict[str, str]:
+        assert context is ctx.obj
+        targets.append(target)
+        return {"url": target}
+
+    monkeypatch.setattr(publication, "destination", destination)
+    maps.deploy(ctx)
+    assert targets == ["canonical", "legacy", "canonical", "legacy"]
+    assert len(calls) == 2

@@ -31,7 +31,7 @@ from erenshor.infrastructure.wiki import (
     MediaWikiTitleStatus,
     MediaWikiUploadWarningError,
 )
-from erenshor.infrastructure.wiki.client import MediaWikiPageSnapshot
+from erenshor.infrastructure.wiki.client import MediaWikiEditVerificationError, MediaWikiPageSnapshot
 
 
 @dataclass(slots=True)
@@ -116,6 +116,159 @@ def _mock_client(
         **kwargs,
     )
     return client, scenario.api
+
+
+def _revision_response(
+    title: str = "Template:Item",
+    revision_id: int = 1234,
+    *,
+    source: str = "old source",
+    parent_id: int = 1233,
+    page_id: int = 42,
+    content_model: str = "wikitext",
+) -> dict[str, Any]:
+    return {
+        "curtimestamp": "2026-06-04T12:00:00Z",
+        "query": {
+            "pages": {
+                str(page_id): {
+                    "pageid": page_id,
+                    "title": title,
+                    "revisions": [
+                        {
+                            "revid": revision_id,
+                            "parentid": parent_id,
+                            "timestamp": "2026-06-04T11:59:00Z",
+                            "user": "ErenshorBot",
+                            "slots": {"main": {"*": source, "contentmodel": content_model}},
+                        }
+                    ],
+                }
+            }
+        },
+    }
+
+
+def _missing_snapshot_response(title: str, *, requested: str | None = None) -> dict[str, Any]:
+    return {
+        "curtimestamp": "2026-06-04T12:00:00Z",
+        "query": {
+            "normalized": [] if requested is None else [{"from": requested, "to": title}],
+            "pages": {"-1": {"title": title, "missing": ""}},
+        },
+    }
+
+
+@pytest.mark.parametrize(
+    "api_url",
+    [
+        "https://SecretUser:SecretPassword@example.invalid/api.php",
+        "https://SecretUser:SecretPassword@example.invalid/not-an-api",
+        "https://SecretUser@example.invalid/api.php",
+        "https://:SecretPassword@example.invalid/api.php",
+    ],
+)
+def test_client_rejects_url_credentials_without_disclosing_them(api_url: str) -> None:
+    from loguru import logger
+
+    messages: list[str] = []
+    sink = logger.add(messages.append)
+    try:
+        with pytest.raises(ValueError, match="must not contain credentials") as error:
+            MediaWikiClient(api_url=api_url, clock=MockClock())
+    finally:
+        logger.remove(sink)
+
+    output = str(error.value) + "".join(messages)
+    assert "SecretUser" not in output
+    assert "SecretPassword" not in output
+    assert api_url not in output
+
+
+class TestMediaWikiRevisionLineage:
+    @pytest.mark.parametrize("reader", ["current", "historical", "metadata"])
+    @pytest.mark.parametrize("parent_id", [0, 41, None])
+    def test_reads_actual_parent_or_preserves_legacy_absence(self, reader: str, parent_id: int | None) -> None:
+        snapshot = self._read_revision(reader, {} if parent_id is None else {"parentid": parent_id})
+        assert snapshot.parent_revision_id == parent_id
+
+    @pytest.mark.parametrize("reader", ["current", "historical", "metadata"])
+    @pytest.mark.parametrize("parent_id", [-1, True, "41", None])
+    def test_rejects_malformed_returned_parent(self, reader: str, parent_id: Any) -> None:
+        with pytest.raises(MediaWikiAPIError, match="parentid"):
+            self._read_revision(reader, {"parentid": parent_id})
+
+    @pytest.mark.parametrize("reader", ["current", "historical", "metadata"])
+    @pytest.mark.parametrize(
+        ("extra", "expected"),
+        [
+            ({"comment": "Reviewed [conversion-approval:abc123]"}, "Reviewed [conversion-approval:abc123]"),
+            ({"comment": ""}, ""),
+            ({}, None),
+            ({"commenthidden": ""}, None),
+            ({"commenthidden": "", "comment": "must not expose"}, None),
+        ],
+    )
+    def test_reads_actual_revision_comment_or_hidden_absence(
+        self, reader: str, extra: dict[str, Any], expected: str | None
+    ) -> None:
+        assert self._read_revision(reader, extra).comment == expected
+
+    @pytest.mark.parametrize("reader", ["current", "historical", "metadata"])
+    @pytest.mark.parametrize("comment", [None, 42, True])
+    def test_rejects_malformed_returned_comment(self, reader: str, comment: Any) -> None:
+        with pytest.raises(MediaWikiAPIError, match="comment"):
+            self._read_revision(reader, {"comment": comment})
+
+    @staticmethod
+    def _read_revision(reader: str, extra: dict[str, Any]) -> MediaWikiPageRevision:
+        client, _ = _mock_client(
+            [
+                {
+                    "curtimestamp": "2026-10-17T12:00:00Z",
+                    "query": {
+                        "pages": {
+                            "7": {
+                                "pageid": 7,
+                                "title": "Example",
+                                "revisions": [
+                                    {
+                                        "revid": 42,
+                                        "timestamp": "2026-10-16T12:00:00Z",
+                                        "user": "Editor",
+                                        "slots": {"main": {"*": "source", "contentmodel": "wikitext"}},
+                                    }
+                                    | extra
+                                ],
+                            }
+                        }
+                    },
+                }
+            ],
+            clock=MockClock(),
+        )
+        if reader == "metadata":
+            revision = client.get_page_revision_metadata("Example")
+        elif reader == "current":
+            revision = client.get_page_snapshots(["Example"])["Example"].revision
+        else:
+            revision = client.get_revision_snapshots([42])[42].revision
+        assert revision is not None
+        return revision
+
+    def test_fake_tracks_actual_creation_and_edit_parent(self) -> None:
+        from tests.fakes.mediawiki import MediaWikiFake
+
+        client = MediaWikiFake()
+        client.put_page("Example", "created")
+        created = client.get_page_revision_metadata("Example")
+        assert created is not None
+        assert created.parent_revision_id == 0
+        client.revisions["Example"] = 41
+        client.put_page("Example", "edited")
+        edited = client.get_page_snapshots(["Example"])["Example"].revision
+        assert edited is not None
+        assert edited.parent_revision_id == 41
 
 
 class _CountingTransport(httpx.BaseTransport):
@@ -473,7 +626,7 @@ class TestMediaWikiClientGetPages:
                                         "revid": 456,
                                         "timestamp": "2026-06-04T12:00:00Z",
                                         "user": "Editor",
-                                        "slots": {"main": {"*": "Sword content"}},
+                                        "slots": {"main": {"*": "Sword content", "contentmodel": "wikitext"}},
                                     }
                                 ],
                             },
@@ -502,6 +655,7 @@ class TestMediaWikiClientGetPages:
 
         assert isinstance(snapshots["Item:Sword"], MediaWikiPageSnapshot)
         assert snapshots["Item:Sword"].source_text == "Sword content"
+        assert snapshots["Item:Sword"].content_model == "wikitext"
         assert snapshots["Item:Sword"].revision is not None
         assert snapshots["Item:Sword"].revision.revision_id == 456
         assert snapshots["Item:Sword"].revision.user == "Editor"
@@ -511,7 +665,7 @@ class TestMediaWikiClientGetPages:
         assert snapshots["Item:Missing"].source_text is None
         assert snapshots["Item:Missing"].revision is None
         request_params = api.requests[0].query
-        assert request_params["rvprop"] == "ids|timestamp|user|content|contentmodel"
+        assert request_params["rvprop"] == "ids|timestamp|user|comment|content|contentmodel"
         assert request_params["curtimestamp"] == "1"
         assert request_params["assert"] == "bot"
         assert request_params["assertuser"] == "Bot"
@@ -599,6 +753,180 @@ class TestMediaWikiClientGetPages:
         with pytest.raises(MediaWikiAPIError, match="larger than the API result limit"):
             client.get_page_snapshots(["Huge"])
 
+    def test_get_revision_snapshots_keeps_each_same_page_historical_revision(self) -> None:
+        client, api = _mock_client(
+            [
+                {
+                    "curtimestamp": "2026-10-17T12:00:00Z",
+                    "query": {
+                        "pages": {
+                            "7": {
+                                "pageid": 7,
+                                "title": "Module:Example",
+                                "lastrevid": 99,
+                                "contentmodel": "wikitext",
+                                "revisions": [
+                                    {
+                                        "revid": 42,
+                                        "timestamp": "2026-10-15T12:00:00Z",
+                                        "user": "Editor",
+                                        "contentmodel": "wikitext",
+                                        "slots": {
+                                            "main": {
+                                                "*": "return {\r\n  old = true\r\n}\r\n",
+                                                "contentmodel": "Scribunto",
+                                            }
+                                        },
+                                    },
+                                    {
+                                        "revid": 43,
+                                        "timestamp": "2026-10-16T12:00:00Z",
+                                        "userhidden": "",
+                                        "slots": {"main": {"*": "", "contentmodel": "Scribunto"}},
+                                    },
+                                ],
+                            }
+                        }
+                    },
+                }
+            ],
+            clock=MockClock(),
+        )
+
+        snapshots = client.get_revision_snapshots([43, 42, 43])
+
+        assert set(snapshots) == {42, 43}
+        assert snapshots[42].source_text == "return {\r\n  old = true\r\n}\r\n"
+        assert snapshots[42].content_model == "Scribunto"
+        assert snapshots[42].revision == MediaWikiPageRevision(
+            title="Module:Example",
+            page_id=7,
+            revision_id=42,
+            timestamp="2026-10-15T12:00:00Z",
+            start_timestamp="2026-10-17T12:00:00Z",
+            user="Editor",
+        )
+        assert snapshots[43].source_text == ""
+        assert snapshots[43].revision is not None
+        assert snapshots[43].revision.revision_id == 43
+        assert snapshots[43].revision.user is None
+        request = api.requests[0]
+        assert request.method == "GET"
+        assert request.query["revids"] == "43|42"
+        assert request.query["prop"] == "revisions|info"
+        assert request.query["rvslots"] == "main"
+        assert request.query["rvprop"] == "ids|timestamp|user|comment|content|contentmodel"
+        assert request.query["curtimestamp"] == "1"
+        assert "titles" not in request.query
+
+    @pytest.mark.parametrize(
+        ("change", "message"),
+        [
+            ({"slots": {"main": {"contentmodel": "wikitext"}}}, "42.*"),
+            ({"slots": {"main": {"*": None, "contentmodel": "wikitext"}}}, "42.*source"),
+            ({"texthidden": ""}, "42.*hidden"),
+            ({"slots": {"main": {"*": "hidden", "contentmodel": "wikitext", "texthidden": ""}}}, "42.*hidden"),
+            ({"slots": {"main": {"*": "source"}}}, "42.*contentmodel"),
+            ({"timestamp": None}, "42.*timestamp"),
+            ({"user": None}, "42.*user"),
+            ({"revid": 99}, "unexpected revision 99"),
+        ],
+    )
+    def test_get_revision_snapshots_rejects_unreadable_revision(self, change: dict[str, Any], message: str) -> None:
+        revision = {
+            "revid": 42,
+            "timestamp": "2026-10-16T12:00:00Z",
+            "user": "Editor",
+            "slots": {"main": {"*": "source", "contentmodel": "wikitext"}},
+        } | change
+        client, _ = _mock_client(
+            [
+                {
+                    "curtimestamp": "2026-10-17T12:00:00Z",
+                    "query": {
+                        "pages": {
+                            "7": {
+                                "pageid": 7,
+                                "title": "Example",
+                                "contentmodel": "wikitext",
+                                "revisions": [revision],
+                            }
+                        }
+                    },
+                }
+            ],
+            clock=MockClock(),
+        )
+
+        with pytest.raises(MediaWikiAPIError, match=message):
+            client.get_revision_snapshots([42])
+
+    def test_get_revision_snapshots_rejects_missing_or_deleted_revision(self) -> None:
+        client, _ = _mock_client(
+            [
+                {
+                    "curtimestamp": "2026-10-17T12:00:00Z",
+                    "query": {"badrevids": {"42": {"revid": 42, "missing": ""}}, "pages": {}},
+                }
+            ],
+            clock=MockClock(),
+        )
+
+        with pytest.raises(MediaWikiAPIError, match=r"not returned or unreadable.*42"):
+            client.get_revision_snapshots([42])
+
+    def test_get_revision_snapshots_batches_and_follows_continuation(self) -> None:
+        def response(revision_id: int) -> dict[str, Any]:
+            return {
+                "curtimestamp": "2026-10-17T12:00:00Z",
+                "query": {
+                    "pages": {
+                        "7": {
+                            "pageid": 7,
+                            "title": "Example",
+                            "revisions": [
+                                {
+                                    "revid": revision_id,
+                                    "timestamp": "2026-10-16T12:00:00Z",
+                                    "user": "Editor",
+                                    "contentmodel": "wikitext",
+                                    "slots": {"main": {"*": str(revision_id)}},
+                                }
+                            ],
+                        }
+                    }
+                },
+            }
+
+        client, api = _mock_client(
+            [
+                response(42) | {"continue": {"rvcontinue": "7|43", "continue": "||"}},
+                response(43),
+                response(44),
+            ],
+            batch_size=2,
+            clock=MockClock(),
+        )
+
+        assert set(client.get_revision_snapshots([42, 43, 44])) == {42, 43, 44}
+        assert api.requests[1].query["revids"] == "42|43"
+        assert api.requests[1].query["rvcontinue"] == "7|43"
+        assert api.requests[2].query["revids"] == "44"
+
+    def test_get_revision_snapshots_empty_request_makes_no_request(self) -> None:
+        client, api = _mock_client([], clock=MockClock())
+
+        assert client.get_revision_snapshots([]) == {}
+        assert api.requests == []
+
+    @pytest.mark.parametrize("revision_id", [0, -1, True, "42"])
+    def test_get_revision_snapshots_rejects_invalid_revision_ids(self, revision_id: Any) -> None:
+        client, api = _mock_client([], clock=MockClock())
+
+        with pytest.raises(ValueError, match="positive integers"):
+            client.get_revision_snapshots([revision_id])
+        assert api.requests == []
+
     """Test guarded page writes."""
 
     def test_safe_edit_page_reports_a_failed_edit_result(self) -> None:
@@ -606,6 +934,7 @@ class TestMediaWikiClientGetPages:
         client, _ = _mock_client(
             [
                 {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
+                _revision_response("Item:Sword"),
                 {"edit": {"result": "Failure", "error": "Permission denied"}},
             ],
             clock=MockClock(),
@@ -625,15 +954,17 @@ class TestMediaWikiClientGetPages:
         """A write without summary or minor flag takes the client defaults."""
         client, api = _mock_client(
             [
+                _missing_snapshot_response("Item:Sword"),
                 {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
-                {"edit": {"result": "Success", "newrevid": 7}},
+                {"edit": {"result": "Success", "oldrevid": 0, "newrevid": 7}},
+                _revision_response("Item:Sword", 7, source="new content", parent_id=0),
             ],
             edit_summary="Default summary",
             minor_edit=True,
             clock=MockClock(),
         )
         client.safe_create_page(title="Item:Sword", content="new content", start_timestamp="2026-06-04T12:00:00Z")
-        call_data = api.requests[-1].data
+        call_data = next(request.data for request in api.requests if request.method == "POST")
         assert call_data["summary"] == "Default summary"
         assert call_data["minor"] == "1"
 
@@ -643,6 +974,8 @@ class TestMediaWikiClientGetPages:
         def handler(request: httpx.Request) -> httpx.Response:
             if request.method == "POST":
                 raise httpx.TimeoutException("Request timeout", request=request)
+            if request.url.params.get("prop") == "revisions":
+                return httpx.Response(200, json=_revision_response("Item:Sword"))
             return httpx.Response(200, json={"query": {"tokens": {"csrftoken": "test_csrf_token"}}})
 
         client = MediaWikiClient(
@@ -660,17 +993,31 @@ class TestMediaWikiClientGetPages:
             client.safe_edit_page(title="Item:Sword", content="new content", base_revision=base_revision)
 
     @pytest.mark.parametrize(
-        ("user", "text", "landed"), [("WoWBot", "new content\n", True), ("Ulor", "new content", False)]
+        ("user", "text", "parent_id", "landed"),
+        [
+            ("WoWBot", "new content\n", 1234, True),
+            ("Ulor", "new content", 1234, False),
+            ("WoWBot", "new content", 1233, False),
+            ("WoWBot", "new content", None, False),
+        ],
     )
     def test_a_timed_out_edit_counts_only_when_the_page_holds_it_from_this_account(
-        self, user: str, text: str, landed: bool
+        self, user: str, text: str, parent_id: int | None, landed: bool
     ) -> None:
         def handler(request: httpx.Request) -> httpx.Response:
             if request.method == "POST":
                 raise httpx.TimeoutException("Request timeout", request=request)
             if request.url.params.get("meta") == "tokens":
                 return httpx.Response(200, json={"query": {"tokens": {"csrftoken": "test_csrf_token"}}})
-            revision = {"revid": 1235, "timestamp": "t", "user": user, "slots": {"main": {"*": text}}}
+            if request.url.params.get("rvprop") == "ids|timestamp|user|comment":
+                return httpx.Response(200, json=_revision_response("Item:Sword"))
+            revision = {
+                "revid": 1235,
+                "parentid": parent_id,
+                "timestamp": "t",
+                "user": user,
+                "slots": {"main": {"*": text}},
+            }
             page = {"pageid": 42, "title": "Item:Sword", "revisions": [revision]}
             return httpx.Response(200, json={"curtimestamp": "t", "query": {"pages": {"42": page}}})
 
@@ -727,7 +1074,7 @@ class TestMediaWikiClientRevisionMetadata:
         assert call_params["action"] == "query"
         assert call_params["titles"] == "Template:Item"
         assert call_params["prop"] == "revisions"
-        assert call_params["rvprop"] == "ids|timestamp|user"
+        assert call_params["rvprop"] == "ids|timestamp|user|comment"
         assert call_params["curtimestamp"] == "1"
 
     def test_get_page_revision_metadata_returns_none_for_missing_page(self) -> None:
@@ -767,12 +1114,129 @@ class TestMediaWikiClientRevisionMetadata:
 class TestMediaWikiClientSafeCreatePage:
     """Test conflict-safe wiki page creation."""
 
-    def test_safe_create_page_sends_create_hash_timestamp_and_assertion_parameters(self) -> None:
+    @pytest.mark.parametrize(
+        ("parent_id", "source", "model", "old_revision_id"),
+        [
+            (1234, "reviewed source", "json", 0),
+            (0, "transformed source", "json", 0),
+            (0, "reviewed source", "wikitext", 0),
+            (0, "reviewed source", "json", None),
+        ],
+    )
+    def test_create_requires_true_creation_source_and_requested_model(
+        self, parent_id: int, source: str, model: str, old_revision_id: int | None
+    ) -> None:
+        responses = [
+            _missing_snapshot_response("Example"),
+            {"query": {"tokens": {"csrftoken": "token"}}},
+            {"edit": {"result": "Success", "oldrevid": old_revision_id, "newrevid": 1235}},
+            _revision_response("Example", 1235, source=source, parent_id=parent_id, content_model=model),
+        ]
+        if parent_id:
+            responses.append(_revision_response("Example", parent_id, source="actual parent"))
+        client, api = _mock_client(responses, clock=MockClock())
+
+        with pytest.raises(MediaWikiEditVerificationError) as error:
+            client.safe_create_page("Example", "reviewed source", "t", content_model="json")
+
+        assert error.value.new_revision_id == 1235
+        assert error.value.written_snapshot is not None
+        assert (error.value.actual_parent_snapshot is not None) == bool(parent_id)
+        assert sum(request.method == "POST" for request in api.requests) == 1
+
+    def test_create_unreadable_history_retains_acknowledged_revision(self) -> None:
+        client, _ = _mock_client(
+            [
+                _missing_snapshot_response("Example"),
+                {"query": {"tokens": {"csrftoken": "token"}}},
+                {"edit": {"result": "Success", "oldrevid": 0, "newrevid": 1235}},
+                {"error": {"code": "permissiondenied", "info": "History unreadable"}},
+            ],
+            clock=MockClock(),
+        )
+
+        with pytest.raises(MediaWikiEditVerificationError) as error:
+            client.safe_create_page("Example", "reviewed source", "t")
+
+        assert error.value.new_revision_id == 1235
+        assert error.value.written_snapshot is None
+        assert error.value.actual_parent_snapshot is None
+
+    @pytest.mark.parametrize(
+        ("parent_id", "model", "source", "landed"),
+        [
+            (0, "json", "reviewed source", True),
+            (1234, "json", "reviewed source", False),
+            (0, "wikitext", "reviewed source", False),
+            (0, "json", "different source", False),
+        ],
+    )
+    def test_lost_create_response_requires_creation_parent_source_and_model(
+        self, parent_id: int, model: str, source: str, landed: bool
+    ) -> None:
+        posted = False
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            nonlocal posted
+            if request.method == "POST":
+                posted = True
+                raise httpx.TimeoutException("Request timeout", request=request)
+            if request.url.params.get("meta") == "tokens":
+                return httpx.Response(200, json={"query": {"tokens": {"csrftoken": "token"}}})
+            if not posted:
+                return httpx.Response(200, json=_missing_snapshot_response("Example"))
+            return httpx.Response(
+                200,
+                json=_revision_response("Example", 1235, parent_id=parent_id, source=source, content_model=model),
+            )
+
+        client = MediaWikiClient(
+            api_url="https://erenshor.wiki.gg/api.php",
+            bot_username="ErenshorBot@Deploy",
+            transport=httpx.MockTransport(handler),
+            clock=MockClock(),
+        )
+        if landed:
+            assert client.safe_create_page("Example", "reviewed source", "t", content_model="json") == 1235
+        else:
+            with pytest.raises(MediaWikiNetworkError):
+                client.safe_create_page("Example", "reviewed source", "t", content_model="json")
+
+    def test_create_resolves_native_canonical_title_before_posting(self) -> None:
+        client, api = _mock_client(
+            [
+                _missing_snapshot_response("Example page", requested="example_page"),
+                {"query": {"tokens": {"csrftoken": "token"}}},
+                {"edit": {"result": "Success", "oldrevid": 0, "newrevid": 1235}},
+                _revision_response("Example page", 1235, source="reviewed source", parent_id=0),
+            ],
+            clock=MockClock(),
+        )
+
+        assert client.safe_create_page("example_page", "reviewed source", "t") == 1235
+        post = next(request for request in api.requests if request.method == "POST")
+        assert post.data["title"] == "Example page"
+        assert api.requests[0].query["titles"] == "example_page"
+
+    def test_create_preflight_existing_page_never_posts(self) -> None:
+        client, api = _mock_client([_revision_response("Example")], clock=MockClock())
+
+        with pytest.raises(MediaWikiEditConflictError, match="already exists"):
+            client.safe_create_page("Example", "reviewed source", "t")
+
+        assert all(request.method == "GET" for request in api.requests)
+
+    @pytest.mark.parametrize("content_model", ["json", "Scribunto", "sanitized-css"])
+    def test_safe_create_page_sends_create_hash_timestamp_and_assertion_parameters(self, content_model: str) -> None:
         """Test safe creates include create-only, start timestamp, MD5, and assertion guard."""
         with _mediawiki_api_server(
             [
+                _missing_snapshot_response("Module:Erenshor/Data/Items"),
                 {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
-                {"edit": {"result": "Success", "newrevid": 1235}},
+                {"edit": {"result": "Success", "oldrevid": 0, "newrevid": 1235}},
+                _revision_response(
+                    "Module:Erenshor/Data/Items", 1235, source="return {}", parent_id=0, content_model=content_model
+                ),
             ]
         ) as (api_url, api):
             client = MediaWikiClient(api_url=api_url, transport=api.transport, clock=MockClock())
@@ -784,12 +1248,14 @@ class TestMediaWikiClientSafeCreatePage:
                 summary="Create repo-owned module",
                 assertion="bot",
                 assert_user="ErenshorBot",
-                content_model="json",
+                content_model=content_model,
             )
 
         assert new_revision_id == 1235
-        assert len(api.requests) == 2
-        token_request, edit_request = api.requests
+        assert len(api.requests) == 4
+        canonical_request, token_request, edit_request, verification_request = api.requests
+        assert canonical_request.query["titles"] == "Module:Erenshor/Data/Items"
+        assert verification_request.query["revids"] == "1235"
         assert token_request.method == "GET"
         assert token_request.query["action"] == "query"
         assert token_request.query["meta"] == "tokens"
@@ -804,17 +1270,19 @@ class TestMediaWikiClientSafeCreatePage:
         assert edit_request.data["md5"] == hashlib.md5(b"return {}", usedforsecurity=False).hexdigest()
         assert edit_request.data["assert"] == "bot"
         assert edit_request.data["assertuser"] == "ErenshorBot"
-        assert edit_request.data["contentmodel"] == "json"
+        assert edit_request.data["contentmodel"] == content_model
         assert edit_request.data["bot"] == "1"
 
     def test_safe_create_page_refreshes_csrf_token_once_after_badtoken(self) -> None:
         """Test stale CSRF tokens are refreshed once without changing the create guard."""
         with _mediawiki_api_server(
             [
+                _missing_snapshot_response("Module:Erenshor/Data/Items"),
                 {"query": {"tokens": {"csrftoken": "stale_token"}}},
                 {"error": {"code": "badtoken", "info": "Invalid token"}},
                 {"query": {"tokens": {"csrftoken": "fresh_token"}}},
-                {"edit": {"result": "Success", "newrevid": 1235}},
+                {"edit": {"result": "Success", "oldrevid": 0, "newrevid": 1235}},
+                _revision_response("Module:Erenshor/Data/Items", 1235, source="return {}", parent_id=0),
             ]
         ) as (api_url, api):
             client = MediaWikiClient(api_url=api_url, transport=api.transport, clock=MockClock())
@@ -837,6 +1305,7 @@ class TestMediaWikiClientSafeCreatePage:
         """Test losing the create race (articleexists) is a conflict, not a generic failure."""
         with _mediawiki_api_server(
             [
+                _missing_snapshot_response("Module:Erenshor/Data/Items"),
                 {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
                 {"error": {"code": "articleexists", "info": "The page you tried to create has been created already."}},
             ]
@@ -853,15 +1322,356 @@ class TestMediaWikiClientSafeCreatePage:
         assert "Module:Erenshor/Data/Items" in str(excinfo.value)
 
 
+class TestMediaWikiClientWriteReceipts:
+    """Every failed historical verification retains the native acknowledgement."""
+
+    @pytest.mark.parametrize("create", [False, True])
+    @pytest.mark.parametrize("parent_read_fails", [False, True])
+    @pytest.mark.parametrize(
+        "failure_type", [httpx.RemoteProtocolError, httpx.ProxyError, RuntimeError, KeyError, KeyboardInterrupt]
+    )
+    def test_post_ack_failures_retain_receipt_and_available_source(
+        self, create: bool, parent_read_fails: bool, failure_type: type[BaseException]
+    ) -> None:
+        posts = 0
+        failed_reads = 0
+        failures: list[BaseException] = []
+        stored_source = "Actual\r\nsaved\u00a0"
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            nonlocal posts, failed_reads
+            if request.method == "POST":
+                posts += 1
+                return httpx.Response(
+                    200, json={"edit": {"result": "Success", "oldrevid": 0 if create else 1234, "newrevid": 1236}}
+                )
+            if request.url.params.get("meta") == "tokens":
+                return httpx.Response(200, json={"query": {"tokens": {"csrftoken": "token"}}})
+            historical_id = request.url.params.get("revids")
+            if historical_id is not None:
+                if parent_read_fails and historical_id == "1236":
+                    return httpx.Response(
+                        200, json=_revision_response(revision_id=1236, parent_id=1235, source=stored_source)
+                    )
+                failed_reads += 1
+                failure = failure_type("History failed")
+                failures.append(failure)
+                raise failure
+            return httpx.Response(
+                200, json=_missing_snapshot_response("Template:Item") if create else _revision_response()
+            )
+
+        client = MediaWikiClient(
+            api_url="https://erenshor.wiki.gg/api.php",
+            transport=httpx.MockTransport(handler),
+            clock=MockClock(),
+            request_policy=MediaWikiRequestPolicy(max_retries=1),
+        )
+        base = MediaWikiPageRevision("Template:Item", 42, 1234, "t", "t", "ErenshorBot")
+
+        with pytest.raises(MediaWikiEditVerificationError, match="could not be verified") as error:
+            if create:
+                client.safe_create_page("Template:Item", "reviewed source", "t")
+            else:
+                client.safe_edit_page("Template:Item", "reviewed source", base)
+
+        assert posts == 1
+        assert failed_reads == (2 if issubclass(failure_type, httpx.TransportError) else 1)
+        assert error.value.new_revision_id == 1236
+        assert error.value.actual_parent_snapshot is None
+        if parent_read_fails:
+            assert error.value.written_snapshot is not None
+            assert error.value.written_snapshot.source_text == stored_source
+            assert error.value.written_snapshot.revision is not None
+            assert error.value.written_snapshot.revision.parent_revision_id == 1235
+        else:
+            assert error.value.written_snapshot is None
+        if issubclass(failure_type, httpx.TransportError):
+            assert isinstance(error.value.__cause__, MediaWikiNetworkError)
+            assert error.value.__cause__.__cause__ is failures[-1]
+        else:
+            assert error.value.__cause__ is failures[-1]
+
+    @pytest.mark.parametrize("create", [False, True])
+    def test_lost_post_answer_and_failed_attribution_remain_unknown_without_retry(self, create: bool) -> None:
+        posts = 0
+        attribution_reads = 0
+        post_failure = httpx.RemoteProtocolError("POST answer lost")
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            nonlocal posts, attribution_reads
+            if request.method == "POST":
+                posts += 1
+                raise post_failure
+            if request.url.params.get("meta") == "tokens":
+                return httpx.Response(200, json={"query": {"tokens": {"csrftoken": "token"}}})
+            if posts:
+                attribution_reads += 1
+                raise httpx.RemoteProtocolError("Attribution unavailable", request=request)
+            return httpx.Response(
+                200, json=_missing_snapshot_response("Template:Item") if create else _revision_response()
+            )
+
+        client = MediaWikiClient(
+            api_url="https://erenshor.wiki.gg/api.php",
+            transport=httpx.MockTransport(handler),
+            clock=MockClock(),
+            request_policy=MediaWikiRequestPolicy(max_retries=1),
+        )
+        base = MediaWikiPageRevision("Template:Item", 42, 1234, "t", "t", "ErenshorBot")
+
+        with pytest.raises(MediaWikiNetworkError, match="POST answer lost") as error:
+            if create:
+                client.safe_create_page("Template:Item", "reviewed source", "t")
+            else:
+                client.safe_edit_page("Template:Item", "reviewed source", base)
+
+        assert not isinstance(error.value, MediaWikiEditVerificationError)
+        assert error.value.__cause__ is post_failure
+        assert posts == 1
+        assert attribution_reads == 2
+
+    @pytest.mark.parametrize("failure_type", [httpx.RemoteProtocolError, httpx.ProxyError, httpx.ReadTimeout])
+    def test_download_translates_exhausted_transport_failures(self, failure_type: type[httpx.TransportError]) -> None:
+        attempts = 0
+        failure = failure_type("Download failed")
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            nonlocal attempts
+            attempts += 1
+            raise failure
+
+        client = MediaWikiClient(
+            api_url="https://erenshor.wiki.gg/api.php",
+            transport=httpx.MockTransport(handler),
+            clock=MockClock(),
+            request_policy=MediaWikiRequestPolicy(max_retries=1),
+        )
+        with pytest.raises(MediaWikiNetworkError) as error:
+            client.download("https://erenshor.wiki.gg/images/example.png")
+
+        assert error.value.__cause__ is failure
+        assert attempts == 2
+
+
+class TestMediaWikiClientSavedTextNormalization:
+    """Saved-source comparisons share MediaWiki normalization without changing API strings."""
+
+    @pytest.mark.parametrize("mode", ["edit", "create", "nochange", "lost-edit", "lost-create"])
+    @pytest.mark.parametrize(
+        ("requested", "stored", "matches"),
+        [
+            ("First\r\nSecond\rThird \t\n\r\x00\x0b", "First\nSecond\nThird", True),
+            ("Source\u00a0 \t\n", "Source\u00a0", True),
+            ("Source\u00a0", "Source", False),
+            ("Source", "Source\u00a0", False),
+            ("Source\u2003", "Source", False),
+            ("Source\x0c", "Source", False),
+        ],
+    )
+    def test_checked_writes_compare_only_saved_text_normalization(
+        self, mode: str, requested: str, stored: str, matches: bool
+    ) -> None:
+        create = mode in {"create", "lost-create"}
+        posts: list[dict[str, str]] = []
+        saved_revision_id = 1234 if mode == "nochange" else 1235
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            if request.method == "POST":
+                posts.append({key: values[-1] for key, values in parse_qs(request.content.decode()).items()})
+                if mode.startswith("lost-"):
+                    raise httpx.RemoteProtocolError("POST answer lost", request=request)
+                edit = {"result": "Success", "oldrevid": 0 if create else 1234, "newrevid": saved_revision_id}
+                if mode == "nochange":
+                    edit["nochange"] = ""
+                return httpx.Response(200, json={"edit": edit})
+            if request.url.params.get("meta") == "tokens":
+                return httpx.Response(200, json={"query": {"tokens": {"csrftoken": "token"}}})
+            if not posts:
+                return httpx.Response(
+                    200, json=_missing_snapshot_response("Template:Item") if create else _revision_response()
+                )
+            if request.url.params.get("revids") == "1234":
+                return httpx.Response(200, json=_revision_response(source="Original\r\npreimage\u00a0"))
+            return httpx.Response(
+                200,
+                json=_revision_response(revision_id=saved_revision_id, source=stored, parent_id=0 if create else 1234),
+            )
+
+        client = MediaWikiClient(
+            api_url="https://erenshor.wiki.gg/api.php",
+            bot_username="ErenshorBot@Deploy",
+            transport=httpx.MockTransport(handler),
+            clock=MockClock(),
+        )
+        base = MediaWikiPageRevision("Template:Item", 42, 1234, "t", "t", "ErenshorBot")
+
+        def write() -> int:
+            if create:
+                return client.safe_create_page("Template:Item", requested, "t")
+            return client.safe_edit_page("Template:Item", requested, base)
+
+        if matches:
+            assert write() == saved_revision_id
+        elif mode.startswith("lost-"):
+            with pytest.raises(MediaWikiNetworkError):
+                write()
+        elif mode == "nochange":
+            with pytest.raises(MediaWikiEditConflictError):
+                write()
+        else:
+            with pytest.raises(MediaWikiEditVerificationError) as error:
+                write()
+            assert error.value.new_revision_id == saved_revision_id
+            assert error.value.written_snapshot is not None
+            assert error.value.written_snapshot.source_text == stored
+            if not create:
+                assert error.value.actual_parent_snapshot is not None
+                assert error.value.actual_parent_snapshot.source_text == "Original\r\npreimage\u00a0"
+        assert len(posts) == 1
+        assert posts[0]["text"] == requested
+        assert posts[0]["md5"] == hashlib.md5(requested.encode(), usedforsecurity=False).hexdigest()
+
+
 class TestMediaWikiClientSafeEditPage:
     """Test conflict-safe wiki page edits."""
 
-    def test_safe_edit_page_sends_conflict_hash_and_assertion_parameters(self) -> None:
+    def test_edit_requires_requested_content_model(self) -> None:
+        client, _ = _mock_client(
+            [
+                {"query": {"tokens": {"csrftoken": "token"}}},
+                _revision_response(),
+                {"edit": {"result": "Success", "oldrevid": 1234, "newrevid": 1235}},
+                _revision_response(revision_id=1235, parent_id=1234, source="reviewed source"),
+                _revision_response(),
+            ],
+            clock=MockClock(),
+        )
+        base = MediaWikiPageRevision("Template:Item", 42, 1234, "t", "t", "ErenshorBot")
+
+        with pytest.raises(MediaWikiEditVerificationError) as error:
+            client.safe_edit_page("Template:Item", "reviewed source", base, content_model="json")
+
+        assert error.value.new_revision_id == 1235
+        assert error.value.written_snapshot is not None
+        assert error.value.written_snapshot.content_model == "wikitext"
+
+    def test_stale_preflight_never_posts_an_edit(self) -> None:
+        client, api = _mock_client(
+            [
+                {"query": {"tokens": {"csrftoken": "token"}}},
+                _revision_response(revision_id=1235),
+            ],
+            clock=MockClock(),
+        )
+        base = MediaWikiPageRevision("Template:Item", 42, 1234, "t", "t", "ErenshorBot")
+
+        with pytest.raises(MediaWikiEditConflictError, match="before writing"):
+            client.safe_edit_page("Template:Item", "reviewed source", base)
+
+        assert all(request.method == "GET" for request in api.requests)
+
+    @pytest.mark.parametrize(
+        ("parent_id", "stored_source", "old_revision_id"),
+        [
+            (1235, "reviewed source\neditor paragraph", 1234),
+            (1235, "reviewed source", 1235),
+            (1234, "unexpected transformed source", 1234),
+            (1234, "reviewed source", None),
+        ],
+    )
+    def test_acknowledged_race_preserves_written_and_actual_parent_snapshots(
+        self, parent_id: int, stored_source: str, old_revision_id: int | None
+    ) -> None:
+        client, api = _mock_client(
+            [
+                {"query": {"tokens": {"csrftoken": "token"}}},
+                _revision_response(),
+                {"edit": {"result": "Success", "oldrevid": old_revision_id, "newrevid": 1236}},
+                _revision_response(revision_id=1236, parent_id=parent_id, source=stored_source),
+                _revision_response(revision_id=parent_id, source="actual parent with editor paragraph"),
+            ],
+            clock=MockClock(),
+        )
+        base = MediaWikiPageRevision("Template:Item", 42, 1234, "t", "t", "ErenshorBot")
+
+        with pytest.raises(MediaWikiEditVerificationError) as error:
+            client.safe_edit_page("Template:Item", "reviewed source", base)
+
+        assert error.value.new_revision_id == 1236
+        assert error.value.written_snapshot is not None
+        assert error.value.written_snapshot.source_text == stored_source
+        assert error.value.actual_parent_snapshot is not None
+        assert error.value.actual_parent_snapshot.source_text == "actual parent with editor paragraph"
+        assert error.value.actual_parent_snapshot.revision is not None
+        assert error.value.actual_parent_snapshot.revision.revision_id == parent_id
+        assert sum(request.method == "POST" for request in api.requests) == 1
+        assert api.requests[-2].query["revids"] == "1236"
+        assert api.requests[-1].query["revids"] == str(parent_id)
+
+    @pytest.mark.parametrize("parent_read_fails", [False, True])
+    def test_acknowledged_receipt_survives_unreadable_history(self, parent_read_fails: bool) -> None:
+        responses: list[dict[str, Any]] = [
+            {"query": {"tokens": {"csrftoken": "token"}}},
+            _revision_response(),
+            {"edit": {"result": "Success", "oldrevid": 1234, "newrevid": 1236}},
+        ]
+        if parent_read_fails:
+            responses.append(_revision_response(revision_id=1236, parent_id=1235, source="merged source"))
+        responses.append({"error": {"code": "permissiondenied", "info": "History unreadable"}})
+        client, api = _mock_client(responses, clock=MockClock())
+        base = MediaWikiPageRevision("Template:Item", 42, 1234, "t", "t", "ErenshorBot")
+
+        with pytest.raises(MediaWikiEditVerificationError, match="could not be verified") as error:
+            client.safe_edit_page("Template:Item", "reviewed source", base)
+
+        assert error.value.new_revision_id == 1236
+        assert (error.value.written_snapshot is not None) == parent_read_fails
+        assert error.value.actual_parent_snapshot is None
+        assert sum(request.method == "POST" for request in api.requests) == 1
+
+    def test_nochange_does_not_substitute_a_newer_revision(self) -> None:
+        client, _ = _mock_client(
+            [
+                {"query": {"tokens": {"csrftoken": "token"}}},
+                _revision_response(),
+                {"edit": {"result": "Success", "nochange": ""}},
+                _revision_response(revision_id=1235, source="reviewed source"),
+            ],
+            clock=MockClock(),
+        )
+        base = MediaWikiPageRevision("Template:Item", 42, 1234, "t", "t", "ErenshorBot")
+
+        with pytest.raises(MediaWikiEditConflictError, match="no-change"):
+            client.safe_edit_page("Template:Item", "reviewed source", base)
+
+    def test_edit_verifies_canonical_base_title_for_requested_alias(self) -> None:
+        client, api = _mock_client(
+            [
+                {"query": {"tokens": {"csrftoken": "token"}}},
+                _revision_response("Example page"),
+                {"edit": {"result": "Success", "oldrevid": 1234, "newrevid": 1235}},
+                _revision_response("Example page", 1235, source="reviewed source", parent_id=1234),
+            ],
+            clock=MockClock(),
+        )
+        base = MediaWikiPageRevision("Example page", 42, 1234, "t", "t", "ErenshorBot")
+
+        assert client.safe_edit_page("example_page", "reviewed source", base) == 1235
+        post = next(request for request in api.requests if request.method == "POST")
+        assert post.data["title"] == "example_page"
+
+    @pytest.mark.parametrize("content_model", ["wikitext", "Scribunto", "sanitized-css"])
+    def test_safe_edit_page_sends_conflict_hash_and_assertion_parameters(self, content_model: str) -> None:
         """Test safe edits include base revision, start timestamp, MD5, and assertion guard."""
         client, api = _mock_client(
             [
                 {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
-                {"edit": {"result": "Success", "newrevid": 1235}},
+                _revision_response(),
+                {"edit": {"result": "Success", "oldrevid": 1234, "newrevid": 1235}},
+                _revision_response(
+                    revision_id=1235, parent_id=1234, source="new template source", content_model=content_model
+                ),
             ],
             clock=MockClock(),
         )
@@ -880,32 +1690,36 @@ class TestMediaWikiClientSafeEditPage:
             summary="Deploy repo-owned template",
             assertion="bot",
             assert_user="ErenshorBot",
-            content_model="wikitext",
+            content_model=content_model,
         )
 
         assert new_revision_id == 1235
-        call_data = api.requests[-1].data
+        call_data = next(request.data for request in api.requests if request.method == "POST")
         assert call_data["action"] == "edit"
         assert call_data["title"] == "Template:Item"
         assert call_data["text"] == "new template source"
         assert call_data["summary"] == "Deploy repo-owned template"
         assert call_data["token"] == "test_csrf_token"
         assert call_data["baserevid"] == "1234"
-        assert call_data["contentmodel"] == "wikitext"
+        assert call_data["contentmodel"] == content_model
         assert call_data["starttimestamp"] == "2026-06-04T12:00:00Z"
         assert call_data["md5"] == hashlib.md5(b"new template source", usedforsecurity=False).hexdigest()
         assert call_data["assert"] == "bot"
         assert call_data["assertuser"] == "ErenshorBot"
         assert call_data["bot"] == "1"
+        assert call_data["nocreate"] == "1"
 
     def test_safe_edit_page_refreshes_csrf_token_once_after_badtoken(self) -> None:
         """Test stale CSRF tokens are refreshed once without changing the base revision guard."""
         client, api = _mock_client(
             [
                 {"query": {"tokens": {"csrftoken": "stale_token"}}},
+                _revision_response(),
                 {"error": {"code": "badtoken", "info": "Invalid token"}},
                 {"query": {"tokens": {"csrftoken": "fresh_token"}}},
-                {"edit": {"result": "Success", "newrevid": 1235}},
+                _revision_response(),
+                {"edit": {"result": "Success", "oldrevid": 1234, "newrevid": 1235}},
+                _revision_response(revision_id=1235, parent_id=1234, source="new template source"),
             ],
             clock=MockClock(),
         )
@@ -937,8 +1751,10 @@ class TestMediaWikiClientSafeEditPage:
         client, api = _mock_client(
             [
                 {"query": {"tokens": {"csrftoken": "stale_token"}}},
+                _revision_response(),
                 {"error": {"code": "badtoken", "info": "Invalid token"}},
                 {"query": {"tokens": {"csrftoken": "still_bad_token"}}},
+                _revision_response(),
                 {"error": {"code": "badtoken", "info": "Invalid token"}},
             ],
             clock=MockClock(),
@@ -965,6 +1781,7 @@ class TestMediaWikiClientSafeEditPage:
         client, _ = _mock_client(
             [
                 {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
+                _revision_response(),
                 {"error": {"code": "editconflict", "info": "Edit conflict"}},
             ],
             clock=MockClock(),
@@ -985,6 +1802,7 @@ class TestMediaWikiClientSafeEditPage:
         client, _ = _mock_client(
             [
                 {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
+                _revision_response(),
                 {"error": {"code": "assertbotfailed", "info": "Not logged in as a bot"}},
             ],
             clock=MockClock(),
@@ -1005,6 +1823,7 @@ class TestMediaWikiClientSafeEditPage:
         client, _ = _mock_client(
             [
                 {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
+                _revision_response(),
                 {"error": {"code": "permissiondenied", "info": "Permission denied"}},
             ],
             clock=MockClock(),
@@ -1025,7 +1844,9 @@ class TestMediaWikiClientSafeEditPage:
         with _mediawiki_api_server(
             [
                 {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
+                _revision_response(page_id=7),
                 {"edit": {"result": "Success", "pageid": 7, "title": "Template:Item", "nochange": ""}},
+                _revision_response(page_id=7, source="identical source"),
             ]
         ) as (api_url, api):
             client = MediaWikiClient(api_url=api_url, transport=api.transport, clock=MockClock())

@@ -264,24 +264,6 @@ class GoogleSheetsConfig(ConfigModel):
         default="$HOME/.config/erenshor/google-credentials.json",
         description="Path to Google Service Account credentials JSON file",
     )
-    batch_size: int = Field(
-        default=1000,
-        ge=1,
-        le=10000,
-        description="Number of rows to upload per batch request",
-    )
-    max_retries: int = Field(
-        default=3,
-        ge=0,
-        le=10,
-        description="Maximum number of retry attempts for failed operations",
-    )
-    retry_delay: int = Field(
-        default=5,
-        ge=1,
-        le=60,
-        description="Delay in seconds between retry attempts",
-    )
 
     def resolved_credentials_file(self, repo_root: Path, validate: bool = True) -> Path:
         """Get resolved credentials file path.
@@ -459,6 +441,10 @@ class MapsConfig(ConfigModel):
     base_url: str = Field(
         default="https://erenshor.compendiums.org",
         description="Public base URL of the deployed maps website",
+    )
+    legacy_base_url: str = Field(
+        default="https://erenshor-maps.wowmuch1.workers.dev",
+        description="Public origin of the legacy companion compatibility Worker",
     )
 
     def resolved_source_dir(self, repo_root: Path) -> Path:

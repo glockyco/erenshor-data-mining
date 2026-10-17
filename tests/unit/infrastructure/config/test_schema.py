@@ -247,40 +247,11 @@ class TestGoogleSheetsConfig:
         """Test that GoogleSheetsConfig has correct default values."""
         config = GoogleSheetsConfig()
         assert "$HOME" in config.credentials_file
-        assert config.batch_size == 1000
-        assert config.max_retries == 3
-        assert config.retry_delay == 5
 
-    def test_batch_size_constraints(self):
-        """Test that batch_size respects min/max constraints."""
-        # Valid values
-        GoogleSheetsConfig(batch_size=1)  # Min
-        GoogleSheetsConfig(batch_size=1000)  # Default
-        GoogleSheetsConfig(batch_size=10000)  # Max
-
-        # Too low
-        with pytest.raises(ValidationError):
-            GoogleSheetsConfig(batch_size=0)
-
-        # Too high
-        with pytest.raises(ValidationError):
-            GoogleSheetsConfig(batch_size=10001)
-
-    def test_retry_constraints(self):
-        """Test that retry settings respect min/max constraints."""
-        # Valid values
-        GoogleSheetsConfig(max_retries=0)  # Min
-        GoogleSheetsConfig(max_retries=10)  # Max
-        GoogleSheetsConfig(retry_delay=1)  # Min
-        GoogleSheetsConfig(retry_delay=60)  # Max
-
-        # Too low
-        with pytest.raises(ValidationError):
-            GoogleSheetsConfig(max_retries=-1)
-
-        # Too high
-        with pytest.raises(ValidationError):
-            GoogleSheetsConfig(retry_delay=61)
+    @pytest.mark.parametrize("field", ["batch_size", "max_retries", "retry_delay"])
+    def test_unsupported_chunking_and_retry_controls_are_rejected(self, field):
+        with pytest.raises(ValidationError, match="Extra inputs"):
+            GoogleSheetsConfig(**{field: 1})
 
     def test_resolved_credentials_file(self, tmp_path: Path):
         """Test resolved_credentials_file() method."""
@@ -364,6 +335,17 @@ class TestVariantGoogleSheetsConfig:
 
 class TestMapsConfig:
     """Tests for MapsConfig model."""
+
+    def test_map_origins_preserve_shipped_defaults_and_allow_independent_configuration(self):
+        config = MapsConfig()
+        assert config.base_url == "https://erenshor.compendiums.org"
+        assert config.legacy_base_url == "https://erenshor-maps.wowmuch1.workers.dev"
+        configured = MapsConfig(
+            base_url="https://maps.example.test",
+            legacy_base_url="https://compat.example.test",
+        )
+        assert configured.base_url == "https://maps.example.test"
+        assert configured.legacy_base_url == "https://compat.example.test"
 
     def test_resolved_source_dir(self, tmp_path: Path):
         """Test resolved_source_dir() method."""

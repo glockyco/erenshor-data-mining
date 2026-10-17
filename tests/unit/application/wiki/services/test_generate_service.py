@@ -148,3 +148,62 @@ def test_generation_records_the_live_roots_that_match_no_generated_entity(tmp_pa
     metadata = WikiStorage(tmp_path).get_metadata_by_title("Frost")
     assert metadata is not None
     assert metadata.kept_roots == ["Character: Braxonian Chest"]
+
+
+def test_exact_selection_reaches_generators_before_rendering(monkeypatch: pytest.MonkeyPatch) -> None:
+    service, storage, _ = _service()
+    service._context = MagicMock()
+    generator = MagicMock()
+    generator.generate_pages.return_value = [_page("Selected", "content")]
+    monkeypatch.setattr(
+        "erenshor.application.wiki.services.generate_service.get_generators_by_name", lambda *_: [generator]
+    )
+
+    result = service.generate_all(page_titles=["Selected"], dry_run=True)
+
+    assert result.succeeded == 1
+    generator.generate_pages.assert_called_once_with(page_titles=frozenset({"Selected"}))
+    storage.remove_stale_pages.assert_not_called()
+
+
+def test_empty_exact_selection_is_not_a_full_generation(monkeypatch: pytest.MonkeyPatch) -> None:
+    service, storage, _ = _service()
+    service._context = MagicMock()
+    generator = MagicMock()
+    generator.generate_pages.return_value = []
+    monkeypatch.setattr(
+        "erenshor.application.wiki.services.generate_service.get_generators_by_name", lambda *_: [generator]
+    )
+
+    result = service.generate_all(page_titles=[])
+
+    assert result.total == 0
+    generator.generate_pages.assert_called_once_with(page_titles=frozenset())
+    storage.remove_stale_pages.assert_not_called()
+
+
+def test_selected_generation_does_not_hide_a_generator_failure(monkeypatch: pytest.MonkeyPatch) -> None:
+    service, _, _ = _service()
+    service._context = MagicMock()
+    generator = MagicMock()
+    generator.generate_pages.side_effect = RuntimeError("Generator failed")
+    monkeypatch.setattr(
+        "erenshor.application.wiki.services.generate_service.get_generators_by_name", lambda *_: [generator]
+    )
+
+    with pytest.raises(RuntimeError, match="Generator failed"):
+        service.generate_all(page_titles=["Selected"])
+
+
+def test_full_generation_dry_run_keeps_existing_storage(monkeypatch: pytest.MonkeyPatch) -> None:
+    service, storage, _ = _service()
+    service._context = MagicMock()
+    generator = MagicMock()
+    generator.generate_pages.return_value = [_page("Selected", "content")]
+    monkeypatch.setattr(
+        "erenshor.application.wiki.services.generate_service.get_generators_by_name", lambda *_: [generator]
+    )
+
+    service.generate_all(dry_run=True)
+
+    storage.remove_stale_pages.assert_not_called()

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import tomllib
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Protocol, cast
 
 from erenshor.application.wiki_deploy.articles import parse_problems
 from erenshor.application.wiki_deploy.guarded_edits import GuardedPageEdit
@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from pathlib import Path
 
+    from erenshor.application.wiki_deploy.manifest import ContentModel
     from erenshor.infrastructure.wiki import MediaWikiPageSnapshot, MediaWikiParse
 
 
@@ -51,30 +52,35 @@ def load_page_edit_requests(path: Path) -> tuple[PageEditRequest, ...]:
     more ``[[pages.replace]]`` entries with the exact ``old`` text and its
     ``new`` text.
     """
-    data = tomllib.loads(path.read_text(encoding="utf-8"))
+    return parse_page_edit_requests(path.read_bytes(), source=str(path))
+
+
+def parse_page_edit_requests(content: bytes, *, source: str) -> tuple[PageEditRequest, ...]:
+    """Parse captured TOML bytes without rereading their source."""
+    data = tomllib.loads(content.decode("utf-8"))
     pages = data.get("pages")
     if not isinstance(pages, list) or not pages:
-        raise PageEditError(f"{path} lists no [[pages]]")
+        raise PageEditError(f"{source} lists no [[pages]]")
     requests: list[PageEditRequest] = []
     for page in pages:
         title = page.get("title")
         summary = page.get("summary")
         if not isinstance(title, str) or not title.strip():
-            raise PageEditError(f"{path}: a page has no title")
+            raise PageEditError(f"{source}: a page has no title")
         if not isinstance(summary, str) or not summary.strip():
-            raise PageEditError(f"{path}: {title} has no summary")
+            raise PageEditError(f"{source}: {title} has no summary")
         replacements: list[TextReplacement] = []
         for replacement in page.get("replace") or []:
             old, new = replacement.get("old"), replacement.get("new")
             if not isinstance(old, str) or not old or not isinstance(new, str) or old == new:
-                raise PageEditError(f"{path}: {title} has a replacement without a changed text")
+                raise PageEditError(f"{source}: {title} has a replacement without a changed text")
             replacements.append(TextReplacement(old, new))
         if not replacements:
-            raise PageEditError(f"{path}: {title} has no [[pages.replace]]")
+            raise PageEditError(f"{source}: {title} has no [[pages.replace]]")
         requests.append(PageEditRequest(title, summary, tuple(replacements)))
     titles = [request.title for request in requests]
     if len(set(titles)) != len(titles):
-        raise PageEditError(f"{path} lists a page twice")
+        raise PageEditError(f"{source} lists a page twice")
     return tuple(requests)
 
 
@@ -86,13 +92,24 @@ def plan_page_edits(requests: Sequence[PageEditRequest], client: PageEditClient)
         snapshot = snapshots.get(request.title)
         if snapshot is None or snapshot.source_text is None or snapshot.revision is None:
             raise PageEditError(f"{request.title} does not exist")
+        if snapshot.content_model not in ("wikitext", "Scribunto", "sanitized-css"):
+            raise PageEditError(f"{request.title} has an unsupported or missing content model")
         text = snapshot.source_text
         for replacement in request.replacements:
             count = text.count(replacement.old)
             if count != 1:
                 raise PageEditError(f"{request.title} holds the text {count} times, not once: {replacement.old[:80]!r}")
             text = text.replace(replacement.old, replacement.new, 1)
-        edits.append(GuardedPageEdit(request.title, request.summary, text, snapshot.source_text, snapshot.revision))
+        edits.append(
+            GuardedPageEdit(
+                request.title,
+                request.summary,
+                text,
+                snapshot.source_text,
+                snapshot.revision,
+                content_model=cast("ContentModel", snapshot.content_model),
+            )
+        )
     return tuple(edits)
 
 

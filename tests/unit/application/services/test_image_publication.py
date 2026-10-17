@@ -4,30 +4,44 @@ from __future__ import annotations
 
 import hashlib
 import io
+import os
+import stat
 from pathlib import Path
 from typing import Any
+from urllib.parse import parse_qs
 
+import httpx
 import pytest
 from PIL import Image
 from tests.fakes.mediawiki import MediaWikiFake, PurgeRequest
 
 from erenshor.application.pictures import identify
+from erenshor.application.services import image_publication_run
 from erenshor.application.services.image_publication import (
     Catalog,
     LivePictureCache,
     LiveWiki,
+    Orphan,
     Picture,
+    PlannedTitle,
     PublishPlan,
     plan_publication,
     write_contact_sheets,
 )
 from erenshor.application.services.image_publication_run import RunRecord, description, execute, revert
+from erenshor.infrastructure.time import MockClock
 from erenshor.infrastructure.wiki import (
     MediaWikiAPIError,
+    MediaWikiEditVerificationError,
+    MediaWikiNetworkError,
 )
 from erenshor.infrastructure.wiki.client import (
+    MediaWikiClient,
     MediaWikiFile,
+    MediaWikiPageRevision,
 )
+from erenshor.infrastructure.wiki.content import normalize_saved_text
+from erenshor.infrastructure.wiki.rate_limit import MediaWikiRequestPolicy
 
 BOT = "WoWBot"
 OPERATOR = "WoWMuch"
@@ -583,3 +597,840 @@ def test_a_failed_purge_does_not_undo_an_upload(setup: Any) -> None:
 
     assert [(entry["action"], entry["done"]) for entry in record.entries] == [("create", True)]
     assert "File:Thorned Branch.png" in wiki.files
+
+
+def _fail_image_edit_verification(
+    wiki: MediaWikiFake,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    parent_known: bool = True,
+    written_known: bool = True,
+) -> list[MediaWikiEditVerificationError]:
+    """A native edit can merge over an editor's newer revision before verification rejects it."""
+    errors: list[MediaWikiEditVerificationError] = []
+
+    def edit(title: str, content: str, base_revision: MediaWikiPageRevision, summary: str | None = None) -> int:
+        wiki.put_page(title, "editor's actual preimage", user="Editor")
+        parent = wiki.get_page_snapshots([title])[title]
+        wiki.put_page(title, content, user=BOT)
+        written = wiki.get_page_snapshots([title])[title]
+        assert written.revision is not None
+        error = MediaWikiEditVerificationError(
+            "native edit used an unexpected parent",
+            new_revision_id=written.revision.revision_id,
+            written_snapshot=written if written_known else None,
+            actual_parent_snapshot=parent if parent_known else None,
+        )
+        errors.append(error)
+        raise error
+
+    monkeypatch.setattr(wiki, "safe_edit_page", edit)
+    return errors
+
+
+@pytest.mark.parametrize("action", ["describe", "redirect", "revert redirect", "revert describe", "revert retire"])
+def test_image_edit_mismatch_retains_ack_parent_and_reviewed_preimage(
+    setup: Any, monkeypatch: pytest.MonkeyPatch, action: str
+) -> None:
+    pictures, wiki, _, tmp_path = setup
+    title = "File:Notes.png"
+    target = "File:Old Notes.png"
+    wiki.put_redirect(title, target)
+    reviewed = wiki.get_page_snapshots([title])[title]
+    errors = _fail_image_edit_verification(wiki, monkeypatch)
+    record = RunRecord(tmp_path / "run")
+    original_text = reviewed.source_text
+
+    with pytest.raises(MediaWikiEditVerificationError) as caught:
+        if action == "redirect":
+            image_publication_run.redirect(title, "File:New Notes.png", target, wiki, record, "Publish")
+        elif action == "describe":
+            image_hash = pictures.add(SCROLL, title)
+            image_publication_run._describe(
+                PlannedTitle(title, "describe", image_hash, title, "", redirect_target=target),
+                pictures.build(),
+                wiki,
+                record,
+                "Publish",
+            )
+        elif action == "revert redirect":
+            image_publication_run._restore_redirect(
+                {"title": title, "target": target, "old_text": "reviewed old redirect", "api_url": wiki.api_url},
+                wiki,
+                record,
+                "Revert",
+            )
+        elif action == "revert describe":
+            image_publication_run._restore_description(
+                {
+                    "title": title,
+                    "text": original_text,
+                    "old_text": "reviewed old description",
+                    "api_url": wiki.api_url,
+                },
+                wiki,
+                record,
+                "Revert",
+            )
+        else:
+            wiki.put_file(title, OLD)
+            wiki.delete_page(title, "fixture")
+            wiki.put_redirect(title, target)
+            image_publication_run._restore_copy(
+                {"title": title, "file": target, "description": "reviewed deleted description"},
+                wiki,
+                wiki,
+                record,
+                "Revert",
+            )
+
+    assert caught.value is errors[0]
+    (entry,) = RunRecord.load(record.directory).entries
+    assert entry["done"] is True
+    assert entry["verified"] is False
+    assert entry["requires_rollback"] is True
+    assert entry["revision"] == errors[0].new_revision_id == wiki.revisions[title]
+    assert entry["old_text"] == original_text
+    assert entry["reviewed_snapshot"]["source_text"] == original_text
+    assert entry["actual_parent_snapshot"]["source_text"] == "editor's actual preimage"
+    assert entry["actual_parent_snapshot"]["content_model"] == "wikitext"
+    assert entry["actual_parent_snapshot"]["revision"]["user"] == "Editor"
+    assert (
+        entry["written_snapshot"]["revision"]["parent_revision_id"]
+        == (entry["actual_parent_snapshot"]["revision"]["revision_id"])
+    )
+    assert entry["reason"] == str(errors[0])
+    if action == "revert retire":
+        assert entry["undeleted"] is True
+        assert title in wiki.files
+
+
+@pytest.mark.parametrize("proof", ["complete", "unknown parent", "unknown written", "model changed", "later revision"])
+def test_reviewed_image_recovery_restores_actual_parent_or_refuses(
+    setup: Any, monkeypatch: pytest.MonkeyPatch, proof: str
+) -> None:
+    _, wiki, _, tmp_path = setup
+    title = "File:Notes.png"
+    wiki.put_redirect(title, "File:Old.png")
+    errors = _fail_image_edit_verification(
+        wiki, monkeypatch, parent_known=proof != "unknown parent", written_known=proof != "unknown written"
+    )
+    run = RunRecord(tmp_path / "run")
+    with pytest.raises(MediaWikiEditVerificationError):
+        image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, run, "Publish")
+    monkeypatch.undo()
+    saved = RunRecord.load(run.directory)
+    if proof == "model changed":
+        saved.entries[0]["actual_parent_snapshot"]["content_model"] = "javascript"
+    elif proof == "later revision":
+        wiki.put_page(title, wiki.pages[title], user=BOT)
+    before = wiki.revisions[title]
+    recovery = RunRecord(tmp_path / "recovery")
+
+    revert(saved, wiki, None, recovery, OWNERS, "Reviewed recovery")
+
+    assert len(errors) == 1
+    (entry,) = recovery.entries
+    if proof == "complete":
+        assert entry["done"] is True
+        assert wiki.pages[title] == "editor's actual preimage"
+        assert wiki.revisions[title] != before
+    else:
+        assert entry["done"] is False
+        assert wiki.pages[title] == "#REDIRECT [[File:New.png]]"
+        assert wiki.revisions[title] == before
+
+
+def test_image_verification_failure_stops_dependencies_and_retains_confirmed_upload(
+    setup: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    pictures, wiki, cache, tmp_path = setup
+    title = "File:A Collection of Notes.png"
+    pictures.add(SCROLL, title)
+    wiki.put_file(title, OLD)
+    wiki.put_redirect(title, "File:A collection of notes.png")
+    wiki.put_file("File:Orphan.png", OLD)
+    catalog = pictures.build()
+    plan = _plan(catalog, wiki, cache)
+    assert _verdicts(plan)[title] == "update"
+    assert plan.orphans
+    errors = _fail_image_edit_verification(wiki, monkeypatch)
+    record = RunRecord(tmp_path / "run")
+
+    with pytest.raises(MediaWikiEditVerificationError) as caught:
+        execute(plan, catalog, wiki, wiki, record, "Publish")
+
+    assert caught.value is errors[0]
+    assert [entry["action"] for entry in record.entries] == ["update", "describe"]
+    assert wiki.uploads == 1
+    assert "File:Orphan.png" in wiki.files
+    assert (record.directory / record.entries[0]["replaced"]).read_bytes() == OLD
+    assert RunRecord.load(record.directory).entries == record.entries
+
+
+def test_image_ack_survives_missing_evidence_and_ledger_io_failure(setup: Any, monkeypatch: pytest.MonkeyPatch) -> None:
+    _, wiki, _, tmp_path = setup
+    title = "File:Notes.png"
+    wiki.put_redirect(title, "File:Old.png")
+    errors = _fail_image_edit_verification(wiki, monkeypatch, parent_known=False, written_known=False)
+    record = RunRecord(tmp_path / "run")
+    durable_write = image_publication_run.durable_write_text
+    checkpoints = 0
+
+    def fail_ledger(path: Path, text: str) -> None:
+        nonlocal checkpoints
+        checkpoints += 1
+        if checkpoints > 1:
+            raise OSError("ledger disk unavailable")
+        durable_write(path, text)
+
+    monkeypatch.setattr(image_publication_run, "durable_write_text", fail_ledger)
+    with pytest.raises(MediaWikiEditVerificationError) as caught:
+        image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, record, "Publish")
+
+    assert caught.value is errors[0]
+    (entry,) = record.entries
+    assert entry["revision"] == wiki.revisions[title] == errors[0].new_revision_id
+    assert entry["written_snapshot"] is None
+    assert entry["actual_parent_snapshot"] is None
+    assert entry["done"] is True
+    assert "ledger disk unavailable" in caught.value.__notes__[0]
+
+
+def test_image_recovery_verification_failure_retains_its_own_ack_and_stops(
+    setup: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _, wiki, _, tmp_path = setup
+    title = "File:Notes.png"
+    wiki.put_redirect(title, "File:Old.png")
+    errors = _fail_image_edit_verification(wiki, monkeypatch)
+    run = RunRecord(tmp_path / "run")
+    with pytest.raises(MediaWikiEditVerificationError):
+        image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, run, "Publish")
+    recovery = RunRecord(tmp_path / "recovery")
+
+    with pytest.raises(MediaWikiEditVerificationError) as caught:
+        revert(RunRecord.load(run.directory), wiki, None, recovery, OWNERS, "Reviewed recovery")
+
+    assert caught.value is errors[1]
+    (entry,) = RunRecord.load(recovery.directory).entries
+    assert entry["requires_rollback"] is True
+    assert entry["revision"] == errors[1].new_revision_id
+    assert entry["old_text"] == "#REDIRECT [[File:New.png]]"
+    assert entry["actual_parent_snapshot"]["source_text"] == "editor's actual preimage"
+    assert run.entries[0]["old_text"] == "#REDIRECT [[File:Old.png]]"
+
+
+def test_unknown_image_parent_blocks_earlier_upload_recovery(setup: Any, monkeypatch: pytest.MonkeyPatch) -> None:
+    pictures, wiki, cache, tmp_path = setup
+    title = "File:A Collection of Notes.png"
+    pictures.add(SCROLL, title)
+    wiki.put_file(title, OLD)
+    wiki.put_redirect(title, "File:A collection of notes.png")
+    catalog = pictures.build()
+    _fail_image_edit_verification(wiki, monkeypatch, parent_known=False)
+    run = RunRecord(tmp_path / "run")
+    with pytest.raises(MediaWikiEditVerificationError):
+        execute(_plan(catalog, wiki, cache), catalog, wiki, wiki, run, "Publish")
+    recovery = RunRecord(tmp_path / "recovery")
+
+    revert(RunRecord.load(run.directory), wiki, None, recovery, OWNERS, "Reviewed recovery")
+
+    assert wiki.uploads == 1
+    assert wiki.files[title][0].data == SCROLL
+    assert len(recovery.entries) == 1
+    assert recovery.entries[0]["done"] is False
+    assert "parent revision is not proven" in recovery.entries[0]["reason"]
+
+
+class _NativeImageAPI:
+    """Exercise image consumers through the real native client with a lost POST response."""
+
+    title = "File:Notes.png"
+    old_target = "File:Old.png"
+    new_target = "File:New.png"
+
+    def __init__(self, directory: Path, *, outcome: str = "lost", commit: bool = True, create: bool = False) -> None:
+        self.directory = directory
+        self.outcome = outcome
+        self.commit = commit
+        self.fail_reads = False
+        self.requests: list[tuple[str, dict[str, str]]] = []
+        self.history: dict[int, dict[str, Any]] = {}
+        self.current = 0 if create else 1234
+        if not create:
+            self.history[1234] = self._revision(1234, 1233, f"#REDIRECT [[{self.old_target}]]")
+
+    def _revision(self, revision: int, parent: int, text: str) -> dict[str, Any]:
+        return {
+            "revid": revision,
+            "parentid": parent,
+            "timestamp": "2026-10-17T00:00:00Z",
+            "user": BOT,
+            "slots": {"main": {"contentmodel": "wikitext", "*": normalize_saved_text(text)}},
+        }
+
+    def handle(self, request: httpx.Request) -> httpx.Response:
+        params = (
+            {key: values[0] for key, values in parse_qs(request.content.decode()).items()}
+            if request.method == "POST"
+            else dict(request.url.params)
+        )
+        self.requests.append((request.method, params))
+        if request.method == "POST":
+            assert params["action"] == "edit"
+            assert params["title"] == self.title
+            pending = RunRecord.load(self.directory).entries[-1]
+            assert pending["done"] is None
+            assert pending["pending_mutation"] is True
+            assert pending["intended_source"] == params["text"]
+            old = self.current
+            if self.commit:
+                self.current = max(1234, self.current) + 1
+                self.history[self.current] = self._revision(self.current, old, params["text"])
+            if self.outcome == "success":
+                return httpx.Response(
+                    200, json={"edit": {"result": "Success", "oldrevid": old, "newrevid": self.current}}
+                )
+            self.fail_reads = True
+            if self.outcome == "interrupt":
+                raise KeyboardInterrupt("operator interrupted the POST")
+            if self.outcome == "protocol":
+                raise httpx.RemoteProtocolError("POST response lost", request=request)
+            raise httpx.ReadTimeout("POST response lost", request=request)
+        if params.get("meta") == "tokens":
+            return httpx.Response(200, json={"query": {"tokens": {"csrftoken": "fixture-token"}}})
+        assert params.get("prop") in ("revisions", "revisions|info")
+        if self.fail_reads:
+            raise httpx.ReadTimeout("attribution read unavailable", request=request)
+        if (
+            self.outcome == "preflight changed"
+            and params.get("prop") == "revisions"
+            and "content" not in params.get("rvprop", "").split("|")
+        ):
+            self.current = 1235
+            self.history[self.current] = self._revision(self.current, 1234, f"#REDIRECT [[{self.new_target}]]")
+            self.history[self.current]["user"] = "Editor"
+        if "revids" in params:
+            revisions = [self.history[int(value)] for value in params["revids"].split("|")]
+        else:
+            assert params["titles"] == self.title
+            if not self.current:
+                return httpx.Response(
+                    200,
+                    json={
+                        "curtimestamp": "2026-10-17T00:00:01Z",
+                        "query": {"pages": {"-1": {"title": self.title, "missing": ""}}},
+                    },
+                )
+            revisions = [self.history[self.current]]
+        return httpx.Response(
+            200,
+            json={
+                "curtimestamp": "2026-10-17T00:00:01Z",
+                "query": {
+                    "pages": {
+                        "42": {
+                            "pageid": 42,
+                            "title": self.title,
+                            "contentmodel": "wikitext",
+                            "revisions": revisions,
+                        }
+                    }
+                },
+            },
+        )
+
+    def client(self) -> MediaWikiClient:
+        return MediaWikiClient(
+            api_url="https://fixture.invalid/api.php",
+            bot_username=f"{BOT}@Publish",
+            clock=MockClock(),
+            transport=httpx.MockTransport(self.handle),
+            request_policy=MediaWikiRequestPolicy(max_retries=1),
+        )
+
+
+@pytest.mark.parametrize("outcome", ["lost", "protocol", "interrupt"])
+@pytest.mark.parametrize("commit", [False, True])
+@pytest.mark.parametrize(("action", "create"), [("redirect", False), ("redirect", True), ("describe", False)])
+def test_native_image_unknown_outcome_is_durable_and_stops_dependencies(
+    tmp_path: Path, outcome: str, commit: bool, action: str, create: bool
+) -> None:
+    run = RunRecord(tmp_path / "run")
+    api = _NativeImageAPI(run.directory, outcome=outcome, commit=commit, create=create)
+    administrator = MediaWikiFake()
+    administrator.put_file("File:Orphan.png", OLD)
+    pictures = _Catalog(tmp_path / "catalog")
+    image_hash = pictures.add(SCROLL, api.title)
+    first = (
+        PlannedTitle(api.title, "describe", image_hash, api.title, "", redirect_target=api.old_target)
+        if action == "describe"
+        else PlannedTitle(api.title, "redirect", "", api.new_target, "", redirect_target=api.old_target)
+    )
+    plan = PublishPlan(
+        (
+            first,
+            PlannedTitle("File:Later.png", "redirect", "", api.new_target, ""),
+        ),
+        (Orphan("File:Orphan.png", _sha1(OLD), "t"),),
+        (),
+    )
+    expected_error = KeyboardInterrupt if outcome == "interrupt" else MediaWikiNetworkError
+    with api.client() as writer:
+        with pytest.raises(expected_error):
+            execute(plan, pictures.build(), writer, administrator, run, "Publish")
+        (pending,) = RunRecord.load(run.directory).entries
+        assert pending["done"] is None
+        assert pending["pending_mutation"] is True
+        assert pending["mutation_state"] == "ambiguous"
+        assert pending["edit_account"] == BOT
+        assert pending["reviewed_snapshot"]["source_text"] == (None if create else f"#REDIRECT [[{api.old_target}]]")
+        assert pending["intended_content_model"] == "wikitext"
+        assert pending["intended_source_sha256"] == hashlib.sha256(pending["intended_source"].encode()).hexdigest()
+        recovery = RunRecord(tmp_path / "recovery")
+        revert(RunRecord.load(run.directory), writer, administrator, recovery, OWNERS, "Revert")
+        assert RunRecord.load(run.directory).entries[0]["pending_mutation"] is True
+        assert recovery.entries[0]["action"] == f"reconcile {action}"
+        assert recovery.entries[0]["done"] is False
+        if not commit:
+            api.fail_reads = False
+            revert(RunRecord.load(run.directory), writer, administrator, recovery, OWNERS, "Revert")
+            assert RunRecord.load(run.directory).entries[0]["pending_mutation"] is True
+    assert len([request for request in api.requests if request[0] == "POST"]) == 1
+    assert all(params.get("titles") != "File:Later.png" for _, params in api.requests)
+    assert "File:Orphan.png" in administrator.files
+    assert administrator.archive == {}
+
+
+@pytest.mark.parametrize("create", [False, True])
+def test_native_image_ack_resolves_the_same_intent_once(tmp_path: Path, create: bool) -> None:
+    run = RunRecord(tmp_path / "run")
+    api = _NativeImageAPI(run.directory, outcome="success", create=create)
+    with api.client() as writer:
+        image_publication_run.redirect(api.title, api.new_target, api.old_target, writer, run, "Publish")
+    (entry,) = RunRecord.load(run.directory).entries
+    assert entry["done"] is True
+    assert entry["pending_mutation"] is False
+    assert entry["verified"] is True
+    assert entry["revision"] == api.current
+    assert sum(bool(entry.get("done")) for entry in run.entries) == 1
+
+
+@pytest.mark.parametrize(
+    "proof",
+    [
+        "complete",
+        "other actor",
+        "unknown parent",
+        "different parent",
+        "model",
+        "source",
+        "unicode whitespace",
+        "endpoint",
+    ],
+)
+def test_native_image_pending_recovery_requires_strong_evidence_before_upload_undo(tmp_path: Path, proof: str) -> None:
+    run = RunRecord(tmp_path / "run")
+    api = _NativeImageAPI(run.directory)
+    run.add({"title": "File:Earlier.png", "action": "update", "done": True, "new_sha1": "earlier-upload"})
+    with api.client() as writer:
+        with pytest.raises(MediaWikiNetworkError):
+            image_publication_run.redirect(api.title, api.new_target, api.old_target, writer, run, "Publish")
+        api.fail_reads = False
+        api.outcome = "success"
+        if proof == "other actor":
+            api.history[api.current]["user"] = "Editor"
+        elif proof == "unknown parent":
+            api.history[api.current].pop("parentid")
+        elif proof == "different parent":
+            api.history[api.current]["parentid"] = 1233
+        elif proof == "model":
+            api.history[api.current]["slots"]["main"]["contentmodel"] = "javascript"
+        elif proof == "source":
+            api.history[api.current]["slots"]["main"]["*"] = "editor content"
+        elif proof == "unicode whitespace":
+            api.history[api.current]["slots"]["main"]["*"] += "\u00a0"
+        elif proof == "endpoint":
+            writer.api_url = "https://another.invalid/api.php"
+        saved = RunRecord.load(run.directory)
+        recovery = RunRecord(tmp_path / "recovery")
+        if proof == "complete":
+            api.directory = recovery.directory
+            revert(saved, writer, None, recovery, OWNERS, "Revert", titles=[api.title])
+            assert api.history[api.current]["slots"]["main"]["*"] == f"#REDIRECT [[{api.old_target}]]"
+            (restored,) = recovery.entries
+            assert restored["done"] is True
+            original = RunRecord.load(run.directory)
+            assert len(original.entries) == 2
+            assert original.entries[1]["pending_mutation"] is False
+            assert original.entries[1]["mutation_state"] == "reconciled"
+            assert original.entries[1]["actual_parent_snapshot"]["revision"]["revision_id"] == 1234
+            assert len([request for request in api.requests if request[0] == "POST"]) == 2
+        else:
+            revert(saved, writer, None, recovery, OWNERS, "Revert")
+            assert RunRecord.load(run.directory).entries[1]["pending_mutation"] is True
+            assert recovery.entries[0]["done"] is False
+            assert len([request for request in api.requests if request[0] == "POST"]) == 1
+
+
+@pytest.mark.parametrize(
+    "action", ["describe", "revert redirect", "revert describe", "revert retire", "revert unverified"]
+)
+def test_image_helpers_checkpoint_intent_before_interrupted_native_edit(
+    setup: Any, monkeypatch: pytest.MonkeyPatch, action: str
+) -> None:
+    pictures, wiki, _, tmp_path = setup
+    title = "File:Notes.png"
+    target = "File:Old.png"
+    wiki.put_redirect(title, target)
+    page = wiki.get_page_snapshots([title])[title]
+    record = RunRecord(tmp_path / "run")
+    calls = 0
+
+    def interrupted(*args: Any, **kwargs: Any) -> int:
+        nonlocal calls
+        calls += 1
+        (pending,) = RunRecord.load(record.directory).entries
+        assert pending["pending_mutation"] is True
+        assert pending["done"] is None
+        assert pending["reviewed_snapshot"]["source_text"] == page.source_text
+        raise KeyboardInterrupt("interrupted native edit")
+
+    monkeypatch.setattr(wiki, "safe_edit_page", interrupted)
+    with pytest.raises(KeyboardInterrupt):
+        if action == "describe":
+            image_hash = pictures.add(SCROLL, title)
+            image_publication_run._describe(
+                PlannedTitle(title, "describe", image_hash, title, "", redirect_target=target),
+                pictures.build(),
+                wiki,
+                record,
+                "Publish",
+            )
+        elif action == "revert redirect":
+            image_publication_run._restore_redirect(
+                {"title": title, "target": target, "old_text": "old source", "api_url": wiki.api_url},
+                wiki,
+                record,
+                "Revert",
+            )
+        elif action == "revert describe":
+            image_publication_run._restore_description(
+                {"title": title, "text": page.source_text, "old_text": "old source", "api_url": wiki.api_url},
+                wiki,
+                record,
+                "Revert",
+            )
+        elif action == "revert retire":
+            wiki.put_file(title, OLD)
+            wiki.delete_page(title, "fixture")
+            wiki.put_redirect(title, target)
+            image_publication_run._restore_copy(
+                {"title": title, "file": target, "description": "old source"}, wiki, wiki, record, "Revert"
+            )
+        else:
+            from dataclasses import asdict
+
+            assert page.revision is not None
+            parent = page
+            wiki.put_page(title, "written text")
+            written = wiki.get_page_snapshots([title])[title]
+            assert written.revision is not None
+            page = written
+            image_publication_run._restore_unverified_edit(
+                {
+                    "title": title,
+                    "action": "redirect",
+                    "api_url": wiki.api_url,
+                    "revision": written.revision.revision_id,
+                    "actual_parent_snapshot": asdict(parent),
+                    "written_snapshot": asdict(written),
+                },
+                wiki,
+                record,
+                "Revert",
+            )
+    assert calls == 1
+    (pending,) = RunRecord.load(record.directory).entries
+    assert pending["pending_mutation"] is True
+    assert pending["done"] is None
+
+
+def test_image_intent_checkpoint_failure_prevents_native_write(setup: Any, monkeypatch: pytest.MonkeyPatch) -> None:
+    _, wiki, _, tmp_path = setup
+    title = "File:Notes.png"
+    wiki.put_redirect(title, "File:Old.png")
+    revision = wiki.revisions[title]
+
+    def fail_checkpoint(self: RunRecord) -> None:
+        raise OSError("intent cannot be persisted")
+
+    monkeypatch.setattr(RunRecord, "save", fail_checkpoint)
+    with pytest.raises(OSError, match="intent cannot be persisted"):
+        image_publication_run.redirect(
+            title, "File:New.png", "File:Old.png", wiki, RunRecord(tmp_path / "run"), "Publish"
+        )
+    assert wiki.revisions[title] == revision
+
+
+def test_image_description_recovery_normalizes_saved_text_but_keeps_unicode_whitespace(setup: Any) -> None:
+    _, wiki, _, tmp_path = setup
+    title = "File:Notes.png"
+    text = "Summary\r\nLicense\u00a0\r\n"
+    wiki.put_page(title, text)
+    run = RunRecord(tmp_path / "run")
+    image_publication_run._restore_description(
+        {"title": title, "text": text, "old_text": "raw\r\npreimage\u00a0", "api_url": wiki.api_url},
+        wiki,
+        run,
+        "Revert",
+    )
+    assert wiki.pages[title] == "raw\npreimage\u00a0"
+    assert run.entries[0]["intended_source"] == "raw\r\npreimage\u00a0"
+    wiki.put_page(title, "Summary\nLicense")
+    refused = RunRecord(tmp_path / "refused")
+    before = wiki.revisions[title]
+    image_publication_run._restore_description(
+        {"title": title, "text": text, "old_text": "old", "api_url": wiki.api_url}, wiki, refused, "Revert"
+    )
+    assert wiki.revisions[title] == before
+    assert refused.entries[0]["done"] is False
+
+
+def test_native_image_explicit_preflight_rejection_does_not_adopt_matching_editor_revision(tmp_path: Path) -> None:
+    run = RunRecord(tmp_path / "run")
+    api = _NativeImageAPI(run.directory, outcome="preflight changed")
+    with api.client() as writer:
+        image_publication_run.redirect(api.title, api.new_target, api.old_target, writer, run, "Publish")
+        (entry,) = RunRecord.load(run.directory).entries
+        assert entry["done"] is False
+        assert entry["pending_mutation"] is False
+        assert entry["mutation_state"] == "rejected"
+        recovery = RunRecord(tmp_path / "recovery")
+        revert(RunRecord.load(run.directory), writer, None, recovery, OWNERS, "Revert")
+    assert api.history[api.current]["user"] == "Editor"
+    assert not any(method == "POST" for method, _ in api.requests)
+    assert recovery.entries == []
+
+
+@pytest.mark.parametrize("failure", [None, "file_fsync", "directory_fsync"])
+def test_image_native_edit_waits_for_durable_intent(
+    setup: Any, monkeypatch: pytest.MonkeyPatch, failure: str | None
+) -> None:
+    _, wiki, _, tmp_path = setup
+    title = "File:Notes.png"
+    wiki.put_redirect(title, "File:Old.png")
+    original_revision = wiki.revisions[title]
+    record = RunRecord(tmp_path / "nested" / "run")
+    events: list[str] = []
+    original_fsync = os.fsync
+    original_replace = os.replace
+    original_edit = wiki.safe_edit_page
+
+    def observe_fsync(descriptor: int) -> None:
+        kind = "directory_fsync" if stat.S_ISDIR(os.fstat(descriptor).st_mode) else "file_fsync"
+        if kind == failure:
+            raise OSError(f"{kind} unavailable")
+        original_fsync(descriptor)
+        events.append(kind)
+
+    def observe_replace(source: Any, destination: Any, *args: Any, **kwargs: Any) -> None:
+        original_replace(source, destination, *args, **kwargs)
+        if Path(destination) == record.directory / "run.json":
+            events.append("replace")
+
+    def observe_edit(title: str, content: str, base_revision: MediaWikiPageRevision, summary: str | None = None) -> int:
+        expected_directories = 1 + len(record.directory.absolute().parents)
+        assert events == ["file_fsync", "replace", *(["directory_fsync"] * expected_directories)]
+        (pending,) = RunRecord.load(record.directory).entries
+        assert pending["pending_mutation"] is True
+        assert pending["done"] is None
+        assert pending["intended_source"] == content
+        events.append("native_edit")
+        return original_edit(title, content, base_revision, summary=summary)
+
+    monkeypatch.setattr(os, "fsync", observe_fsync)
+    monkeypatch.setattr(os, "replace", observe_replace)
+    monkeypatch.setattr(wiki, "safe_edit_page", observe_edit)
+
+    if failure is not None:
+        with pytest.raises(OSError, match=f"{failure} unavailable"):
+            image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, record, "Publish")
+        assert "native_edit" not in events
+        assert wiki.revisions[title] == original_revision
+    else:
+        image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, record, "Publish")
+        assert events.count("native_edit") == 1
+        assert RunRecord.load(record.directory).entries[0]["pending_mutation"] is False
+
+
+@pytest.mark.parametrize("action", ["redirect", "describe", "acknowledged"])
+@pytest.mark.parametrize("binding", ["other endpoint", "missing endpoint"])
+def test_known_image_edit_endpoint_binding_blocks_all_earlier_recovery(
+    setup: Any, monkeypatch: pytest.MonkeyPatch, action: str, binding: str
+) -> None:
+    from copy import deepcopy
+
+    pictures, wiki, _, tmp_path = setup
+    title = "File:Notes.png"
+    wiki.put_file(title, SCROLL)
+    wiki.put_redirect(title, "File:Old.png")
+    run = RunRecord(tmp_path / "run")
+    run.add(
+        {
+            "title": title,
+            "action": "update",
+            "done": True,
+            "new_sha1": _sha1(SCROLL),
+            "old_sha1": _sha1(OLD),
+            "replaced": "old.bin",
+        }
+    )
+    (run.directory / "old.bin").write_bytes(OLD)
+    if action == "acknowledged":
+        _fail_image_edit_verification(wiki, monkeypatch)
+        with pytest.raises(MediaWikiEditVerificationError):
+            image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, run, "Publish")
+        monkeypatch.undo()
+    elif action == "describe":
+        image_hash = pictures.add(SCROLL, title)
+        image_publication_run._describe(
+            PlannedTitle(title, "describe", image_hash, title, "", redirect_target="File:Old.png"),
+            pictures.build(),
+            wiki,
+            run,
+            "Publish",
+        )
+    else:
+        image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, run, "Publish")
+    clone = deepcopy(wiki)
+    if binding == "other endpoint":
+        clone.api_url = "https://clone.invalid/api.php"
+    else:
+        run.entries[-1].pop("api_url")
+        run.save()
+    before = clone.revisions[title]
+    recovery = RunRecord(tmp_path / "recovery")
+
+    revert(RunRecord.load(run.directory), clone, None, recovery, OWNERS, "Revert")
+
+    assert clone.revisions[title] == before
+    assert clone.uploads == 0
+    assert clone.files[title][0].data == SCROLL
+    assert recovery.entries[0]["done"] is False
+    assert "endpoint is not proven" in recovery.entries[0]["reason"]
+
+
+@pytest.mark.parametrize("interruption", ["upload failure", "before receipt checkpoint", "before original checkpoint"])
+def test_original_image_run_resumes_after_parent_restoration(
+    setup: Any, monkeypatch: pytest.MonkeyPatch, interruption: str
+) -> None:
+    pictures, wiki, cache, tmp_path = setup
+    title = "File:A Collection of Notes.png"
+    pictures.add(SCROLL, title)
+    wiki.put_file(title, OLD)
+    wiki.put_redirect(title, "File:A collection of notes.png")
+    catalog = pictures.build()
+    _fail_image_edit_verification(wiki, monkeypatch)
+    run = RunRecord(tmp_path / "run")
+    with pytest.raises(MediaWikiEditVerificationError):
+        execute(_plan(catalog, wiki, cache), catalog, wiki, wiki, run, "Publish")
+    monkeypatch.undo()
+    first = RunRecord(tmp_path / "first-recovery")
+    native_update = RunRecord.update
+
+    def interrupted_update(self: RunRecord, entry: dict[str, Any], **values: Any) -> None:
+        if (
+            interruption == "before receipt checkpoint"
+            and self.directory == first.directory
+            and values.get("verified") is True
+        ):
+            raise KeyboardInterrupt("before recovery receipt checkpoint")
+        if (
+            interruption == "before original checkpoint"
+            and self.directory == run.directory
+            and "restoration_revision" in values
+        ):
+            raise KeyboardInterrupt("before original restoration checkpoint")
+        native_update(self, entry, **values)
+
+    def interrupted_upload(*args: Any, **kwargs: Any) -> dict[str, Any]:
+        raise MediaWikiNetworkError("upload recovery interrupted")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(RunRecord, "update", interrupted_update)
+        if interruption == "upload failure":
+            patch.setattr(wiki, "upload_file", interrupted_upload)
+            revert(RunRecord.load(run.directory), wiki, None, first, OWNERS, "Revert")
+        else:
+            with pytest.raises(KeyboardInterrupt):
+                revert(RunRecord.load(run.directory), wiki, None, first, OWNERS, "Revert")
+    assert wiki.pages[title] == "editor's actual preimage"
+    assert wiki.files[title][0].data == SCROLL
+    original = RunRecord.load(run.directory)
+    assert original.entries[1]["restoration_record"] == str(first.directory.resolve())
+    assert original.entries[1]["restoration_entry"] == 0
+    if interruption == "upload failure":
+        assert original.entries[1]["requires_rollback"] is False
+        assert original.entries[1]["restoration_revision"] == wiki.revisions[title]
+    else:
+        assert "restoration_revision" not in original.entries[1]
+    assert first.directory.joinpath("run.json").is_file()
+
+    def no_replay(*args: Any, **kwargs: Any) -> int:
+        pytest.fail("completed page restoration must not be replayed")
+
+    monkeypatch.setattr(wiki, "safe_edit_page", no_replay)
+    second = RunRecord(tmp_path / "second-recovery")
+    revert(RunRecord.load(run.directory), wiki, None, second, OWNERS, "Revert")
+
+    assert wiki.files[title][0].data == OLD
+    assert wiki.pages[title] == "editor's actual preimage"
+    assert RunRecord.load(run.directory).entries[1]["requires_rollback"] is False
+    assert RunRecord.load(run.directory).entries[1]["restoration_revision"] is not None
+    assert [(entry["action"], entry["done"]) for entry in second.entries] == [("revert update", True)]
+    assert RunRecord.load(first.directory).entries[0]["pending_mutation"] is False
+
+
+@pytest.mark.parametrize("proof", ["other actor", "unknown parent"])
+def test_image_restoration_crash_recovery_does_not_adopt_matching_text_without_ancestry(
+    setup: Any, monkeypatch: pytest.MonkeyPatch, proof: str
+) -> None:
+    pictures, wiki, cache, tmp_path = setup
+    title = "File:A Collection of Notes.png"
+    pictures.add(SCROLL, title)
+    wiki.put_file(title, OLD)
+    wiki.put_redirect(title, "File:A collection of notes.png")
+    catalog = pictures.build()
+    _fail_image_edit_verification(wiki, monkeypatch)
+    run = RunRecord(tmp_path / "run")
+    with pytest.raises(MediaWikiEditVerificationError):
+        execute(_plan(catalog, wiki, cache), catalog, wiki, wiki, run, "Publish")
+    monkeypatch.undo()
+    first = RunRecord(tmp_path / "first-recovery")
+    native_update = RunRecord.update
+
+    def lose_receipt(self: RunRecord, entry: dict[str, Any], **values: Any) -> None:
+        if self.directory == first.directory and values.get("verified") is True:
+            raise KeyboardInterrupt("lost restoration receipt")
+        native_update(self, entry, **values)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(RunRecord, "update", lose_receipt)
+        with pytest.raises(KeyboardInterrupt):
+            revert(RunRecord.load(run.directory), wiki, None, first, OWNERS, "Revert")
+    if proof == "other actor":
+        wiki.put_page(title, wiki.pages[title], user="Editor")
+    else:
+        wiki.page_parents.pop(title)
+    before = wiki.revisions[title]
+    second = RunRecord(tmp_path / "second-recovery")
+
+    revert(RunRecord.load(run.directory), wiki, None, second, OWNERS, "Revert")
+
+    assert wiki.revisions[title] == before
+    assert wiki.files[title][0].data == SCROLL
+    assert "restoration_revision" not in RunRecord.load(run.directory).entries[1]
+    assert RunRecord.load(first.directory).entries[0]["pending_mutation"] is True
+    assert second.entries[0]["done"] is False

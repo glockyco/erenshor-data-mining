@@ -85,10 +85,6 @@ upload_minor_edit = true
 # 7. Share spreadsheets with service account email
 credentials_file = "$HOME/.config/erenshor/google-credentials.json"
 
-# Batch processing settings (rarely need changing)
-batch_size = 1000
-max_retries = 3
-retry_delay = 5
 
 [global.behavior]
 # Global retry behavior (rarely need changing)

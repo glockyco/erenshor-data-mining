@@ -541,8 +541,13 @@ def publish(
     the plan and contact sheets of every changing picture to
     images/publish/<stamp>/. With the root --dry-run option, stops there.
     Otherwise uploads and edits with the bot account, moves and deletes with
-    the administrator account, checks each title again first, and records every
-    write in run.json.
+    the administrator account and checks each title again first. Saves native
+    page edit intent before the request. An unknown outcome stops publication.
+    Revert reconciles pending edits read-only before undoing earlier writes
+    and refuses recovery when endpoint, account, parent, source or model proof
+    is missing. Resume an interrupted revert with the original publication
+    stamp. Keep its recovery records so completed page restorations can be
+    attributed without replaying them.
 
     Examples:
         erenshor --dry-run images publish
@@ -575,14 +580,13 @@ def publish(
             if unknown:
                 console.print(f"[red]The run {revert_stamp} wrote no {', '.join(sorted(unknown))}.[/red]")
                 raise typer.Exit(1)
-            reverted = RunRecord(
-                reverted.directory, [entry for entry in reverted.entries if entry["title"] in revert_titles]
-            )
-        done = [entry for entry in reverted.entries if entry.get("done")]
-        if not done:
-            console.print(f"[red]The run {revert_stamp} recorded no write.[/red]")
+        selected = [entry for entry in reverted.entries if not revert_titles or entry["title"] in revert_titles]
+        done = [entry for entry in selected if entry.get("done")]
+        pending = [entry for entry in reverted.entries if entry.get("pending_mutation")]
+        if not done and not pending:
+            console.print(f"[red]The run {revert_stamp} recorded no write or pending edit.[/red]")
             raise typer.Exit(1)
-        console.print(f"{len(done)} writes of run {revert_stamp} to undo")
+        console.print(f"{len(done)} writes to undo, {len(pending)} pending edits to reconcile in run {revert_stamp}")
         if cli_ctx.dry_run:
             console.print("[yellow]Dry run: nothing was written.[/yellow]")
             return
@@ -593,7 +597,15 @@ def publish(
             _administrator_client(cli_ctx, console, needed=needed) as administrator,
         ):
             writer.login()
-            revert(reverted, writer, administrator, record, owners, f"Revert the picture publication of {revert_stamp}")
+            revert(
+                reverted,
+                writer,
+                administrator,
+                record,
+                owners,
+                f"Revert the picture publication of {revert_stamp}",
+                titles=revert_titles or None,
+            )
         _print_record(console, record)
         return
 
@@ -719,6 +731,8 @@ def _print_record(console: Console, record: RunRecord) -> None:
     done = Counter(str(entry["action"]) for entry in record.entries if entry.get("done"))
     console.print("Written: " + (", ".join(f"{count} {action}" for action, count in sorted(done.items())) or "nothing"))
     for entry in record.entries:
-        if not entry.get("done"):
+        if entry.get("pending_mutation"):
+            console.print(f"  [red]pending[/red] {entry['action']} {entry['title']}: outcome requires reconciliation")
+        elif not entry.get("done"):
             console.print(f"  [yellow]skipped[/yellow] {entry['action']} {entry['title']}: {entry.get('reason', '')}")
-    console.print(f"[green]✓[/green] Record: {record.directory / 'run.json'}")
+    console.print(f"Record: {record.directory / 'run.json'}")

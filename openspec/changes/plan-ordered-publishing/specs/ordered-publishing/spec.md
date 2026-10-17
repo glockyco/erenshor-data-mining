@@ -26,14 +26,30 @@ The publisher SHALL require a nonempty explicit selection of exact wiki page tit
 
 ### Requirement: A prepared plan identifies exact writes
 
-Preparation SHALL produce a deterministic immutable plan and review artifacts containing every selected operation, dependency, local output, remote destination, exact payload hash, expected base, expected post-state, and recovery limit. The complete payloads SHALL be available for review. No live mutation SHALL occur during preparation or dry run. Counts, command strings, or provisional render checks SHALL NOT substitute for exact payloads.
+Preparation SHALL produce a deterministic immutable plan and review artifacts containing every selected operation, dependency, local output, remote destination, exact payload hash, expected base, expected owned post-state, and recovery limit. The complete payloads SHALL be available for review. Selected tabs for one spreadsheet SHALL form one native atomic operation with a complete stable workbook preimage and exact request-body bytes. Provider-managed reference rebasing SHALL NOT be represented as a locally predicted formula postimage. No live mutation SHALL occur during preparation or dry run. Counts, command strings, or provisional render checks SHALL NOT substitute for exact payloads.
 
 #### Scenario: Preview contains wiki, map, and sheet operations
 - **WHEN** an operator dry-runs a prepared plan
 - **THEN** the report provides complete wiki diffs, map artifact manifests, and typed sheet row payloads
-- **AND** it includes sheet table resizing, clearing, inserted or deleted rows, shifted content, and all affected ranges
+- **AND** it includes exact atomic Sheets body bytes and size, the complete stable workbook preimage, typed owned values and final table ranges, and structural effects on surrounding content
 - **AND** it records fixed bases or explicit predecessor-receipt references
 - **AND** no live write occurs
+
+#### Scenario: A workbook payload is too large for terminal review
+- **WHEN** preparation or dry-run inspection includes a large stable workbook or typed row payload
+- **THEN** the native CLI presents a bounded summary containing every operation, base, dependency, destination and recovery limit
+- **AND** each omitted inventory or value set has an exact artifact pointer, hash and size or count
+- **AND** complete immutable payloads and exact Sheets wire-body bytes remain available as sidecars under the same approval boundary
+
+#### Scenario: Opaque content resembles a path token
+- **WHEN** approved prose, a cell value, SQL or a summary contains literal `$RUN` or `$REPO` text
+- **THEN** serialization and execution preserve that content exactly
+- **AND** only declared filesystem path fields are relocated
+
+#### Scenario: A resize would destroy non-owned content
+- **WHEN** table shrink would delete beside-table content or metadata, or width growth would overwrite an occupied outside column
+- **THEN** preparation identifies the destructive overlap and fails before approval
+- **AND** it does not silently erase that content
 
 #### Scenario: A selected sheet lacks its required table
 - **WHEN** preparation inspects a selected tab and finds no table required by the existing publisher
@@ -69,10 +85,26 @@ A live apply or resume SHALL require an explicit human approval declaration nami
 - **AND** no unrelated revision advancement is accepted
 
 #### Scenario: The provider lacks atomic revision guards
-- **WHEN** a map or Sheets operation uses a provider without demonstrated conditional writes
+- **WHEN** a selected wiki edit, map or Sheets operation uses a provider without demonstrated conditional writes
 - **THEN** review names the snapshot-based guard and concurrent-writer limitation
 - **AND** execution compares the approved base before mutation and checks the resulting state afterward
 - **AND** unknown or mismatched state stops the run instead of being reported as atomic protection
+
+#### Scenario: MediaWiki merges a racing editor change
+- **WHEN** MediaWiki acknowledges an edit whose actual historical parent or saved source differs from the approved transition
+- **THEN** the native writer retains the acknowledged write and the actual editor-parent snapshot before reporting failure
+- **AND** the reviewed preimage remains preserved separately from the actual-parent rollback preimage
+- **AND** every downstream operation stops without automatic rollback or an atomic compare-and-set claim
+
+#### Scenario: Acknowledged wiki source cannot be inspected
+- **WHEN** the edit acknowledgement identifies a new revision but historical source or parent inspection fails
+- **THEN** the native manifest retains that acknowledged revision and unresolved recovery state
+- **AND** neither rollback nor resume treats the operation as zero writes
+
+#### Scenario: A chip target changes without changing its placeholder
+- **WHEN** a smart-chip target changes after the stable workbook preimage was captured
+- **THEN** the spreadsheet operation rejects the changed preimage before mutation
+- **AND** the review and retained preimage include the original chip identity
 
 ### Requirement: Data and the shared link catalog precede readers
 
@@ -97,7 +129,7 @@ The plan SHALL deterministically order selected data and shared link-catalog wri
 
 ### Requirement: People's prose requires separate review and regeneration
 
-The publisher SHALL preserve people's prose except for exact one-time replacements supplied in a separately reviewed variant-local edit file. It SHALL bind that file and its review declaration to the plan. It SHALL NOT infer prose edits, copy those texts into tracked repository content, or treat general publish approval as permission to invent prose changes. Affected article deploys SHALL follow the reviewed prose edits, refetch, regeneration, and validation.
+The publisher SHALL preserve people's prose except for exact one-time replacements supplied in a separately reviewed variant-local edit file. It SHALL capture and hash the edit file's bytes once, parse that same capture, and require the source still to match the separate review digest before finalizing preparation. It SHALL bind that file and its review declaration to the plan. It SHALL NOT infer prose edits, copy those texts into tracked repository content, or treat general publish approval as permission to invent prose changes. Affected article deploys SHALL follow the reviewed prose edits, refetch, regeneration, and validation.
 
 #### Scenario: Prose changes on a page with a generated root
 - **WHEN** a separately reviewed replacement and a generated-root update target the same article
@@ -116,6 +148,17 @@ The publisher SHALL preserve people's prose except for exact one-time replacemen
 - **WHEN** selection includes a prose file without a matching separate review declaration
 - **THEN** preparation rejects the prose operation
 - **AND** it does not synthesize or apply a replacement
+
+#### Scenario: The prose file changes during preparation
+- **WHEN** a file replacement occurs after its separate review digest was checked
+- **THEN** preparation never parses the replacement under the earlier declaration
+- **AND** a changed final source digest prevents plan finalization
+
+#### Scenario: Another selected article transcludes a prose-edited page
+- **WHEN** article A transcludes page B and B has an approved prose predecessor
+- **THEN** A's dependency uses B's approved projected text and actual predecessor receipt
+- **AND** an approved intermediate prose revision is accepted before B's selected article successor
+- **AND** an unrelated editor revision is refused
 
 ### Requirement: Maps deployment uses the reviewed fresh build
 
@@ -142,7 +185,7 @@ For each selected maps publication, preparation SHALL run the existing build pat
 
 ### Requirement: A failed operation halts plan progression
 
-The coordinator SHALL execute operations through checked calls, not a shell chain that masks earlier failures. The first failed, partial, interrupted, blocked, or uncertain operation SHALL make the plan fail and stop progression to every not-yet-started operation, including independent surfaces. Existing operation-level partial results SHALL remain visible. Sheets tabs SHALL be separate plan operations so standalone batch failure collection cannot continue the plan.
+The coordinator SHALL execute operations through checked calls, not a shell chain that masks earlier failures. The first failed, partial, interrupted, blocked, or uncertain operation SHALL make the plan fail and stop progression to every not-yet-started operation, including independent surfaces. Existing operation-level partial results SHALL remain visible. Explicitly selected tabs for one spreadsheet SHALL execute through one provider-atomic batch, preserving each tab's native request order. Standalone multi-tab failure collection SHALL NOT continue a coordinated plan.
 
 #### Scenario: A middle command fails in the historical shell-chain order
 - **WHEN** wiki article deploy fails after earlier wiki work succeeded and sheets and maps are later in the plan
@@ -150,15 +193,19 @@ The coordinator SHALL execute operations through checked calls, not a shell chai
 - **AND** the result reports the original failing command and known earlier writes
 - **AND** a successful final subprocess cannot mask the failure
 
-#### Scenario: One sheet tab fails
-- **WHEN** the first selected tab fails after some structural requests were written
-- **THEN** the plan records those known partial effects and fails
-- **AND** the next selected tab is not published
-- **AND** status does not imply that the failed tab was unchanged
+#### Scenario: A selected spreadsheet batch is rejected
+- **WHEN** Google rejects one request in the approved atomic batch before applying it
+- **THEN** no selected tab is reported as partially published
+- **AND** the spreadsheet operation fails and later plan operations remain blocked
+
+#### Scenario: A selected spreadsheet response is lost
+- **WHEN** the atomic batch may have been applied but its acknowledgement is unavailable
+- **THEN** the whole spreadsheet operation is uncertain
+- **AND** no automatic retry or fictional per-tab success receipt is produced
 
 ### Requirement: Resume reconciles partial success and native recovery
 
-The coordinator SHALL persist operation intent before mutation and durable receipts afterward. It SHALL preserve existing wiki manifests as the authority for wiki rollback. Resume SHALL be explicit, reconcile completed results and remaining bases, skip verified successful writes, and refuse unknown outcomes or invalidated approval. It SHALL NOT automatically retry uncertain mutations, roll back later editor work, or promise unsupported cross-service rollback.
+The coordinator SHALL persist operation intent before mutation and durable receipts afterward. It SHALL preserve existing wiki manifests as the authority for wiki rollback. Planned wiki source text, rollback preimages and manifest replacements SHALL be durable before provider mutation. Resume SHALL be explicit, reconcile completed results and remaining bases, skip verified successful writes, and refuse unknown outcomes or invalidated approval. The spreadsheet receipt SHALL retain the complete observed stable postimage after exact owned output and preservation checks. Resume SHALL compare that observed state, not a fabricated formula projection. It SHALL NOT automatically retry uncertain mutations, roll back later editor work, or promise unsupported cross-service rollback.
 
 #### Scenario: A wiki deploy is partially successful
 - **WHEN** a native wiki deploy writes some planned pages and then stops
@@ -171,6 +218,12 @@ The coordinator SHALL persist operation intent before mutation and durable recei
 - **THEN** the operation is uncertain until uniquely reconciled with provider evidence
 - **AND** it is not blindly repeated or described as successful
 
+#### Scenario: A standalone wiki edit loses its acknowledgement
+- **WHEN** the native writer persists its request intent and the provider commits before a timeout or process interruption
+- **THEN** its native manifest retains an unresolved per-page mutation rather than reporting zero writes
+- **AND** rollback and conversion recovery refuse to skip or blindly repeat that page
+- **AND** rollback submits the preserved original preimage bytes and verifies stored text using MediaWiki's saved-text normalization
+
 #### Scenario: Completed work is changed before resume
 - **WHEN** a completed destination no longer matches its recorded receipt and expected content
 - **THEN** resume fails without overwriting it
@@ -180,3 +233,71 @@ The coordinator SHALL persist operation intent before mutation and durable recei
 - **WHEN** the dry run includes map or sheet writes with only provider-specific recovery
 - **THEN** review names that limitation and the evidence retained for recovery
 - **AND** failure reporting does not offer a nonexistent universal rollback command
+
+### Requirement: Shared native callers retain write attribution and uncertainty
+
+Existing owning native publishers SHALL preserve acknowledged revisions and available saved-source and parent evidence when verification fails. They SHALL persist recoverable intent before a mutation whose outcome may become unknown. A generic exception SHALL NOT turn a possible write into a definite non-write or bypass the native account, endpoint, parent, page, model and source checks. This requirement does not add interface or image operations to coordinated selection.
+
+#### Scenario: A protocol failure follows an edit acknowledgement
+- **WHEN** a successful native edit identifies its new revision and later historical verification fails through transport, protocol, parsing or interruption
+- **THEN** the acknowledged revision and any gathered saved-source and parent evidence remain available to its owning durable recovery record
+- **AND** downstream publication stops rather than reporting zero writes
+
+#### Scenario: Another administrator supplies the planned source
+- **WHEN** another administrator writes matching target text before the native caller can perform its approved transition
+- **THEN** generic exception reconciliation does not attribute that revision to this deployment or rollback
+- **AND** recovery cannot overwrite it using a fabricated own-write receipt
+
+#### Scenario: An image description or redirect outcome is unknown
+- **WHEN** a native edit may have committed but neither its acknowledgement nor strong attribution can be obtained
+- **THEN** the existing image ledger retains pending or ambiguous intent with its reviewed preimage and intended transition
+- **AND** later dependent redirects or deletions stop
+- **AND** recovery refuses to ignore that intent or blindly replay it
+
+#### Scenario: Source contains line endings and Unicode whitespace
+- **WHEN** a native source comparison handles CR or CRLF line endings and trailing Unicode whitespace
+- **THEN** it applies MediaWiki's saved-text normalization consistently rather than Python's unrestricted whitespace trimming
+- **AND** the original submitted and rollback preimage bytes remain unchanged
+
+#### Scenario: An interface request commits before its completion checkpoint
+- **WHEN** the original manifest still contains pending request intent without a recorded deploy action
+- **THEN** recovery attributes every possible pending request before restoring any earlier page
+- **AND** missing or ambiguous proof blocks recovery rather than excluding the possible write
+
+#### Scenario: A pending rollback still shows its request base
+- **WHEN** an earlier rollback request has no attributable completion and the live revision remains its captured base
+- **THEN** recovery retains that unresolved intent and performs no new mutation, even with force
+- **AND** only a proven completion or explicit provider rejection permits the next recovery action
+
+#### Scenario: An actual-parent image restore succeeds before later recovery fails
+- **WHEN** a page restoration completes but an earlier upload cannot yet be restored
+- **THEN** the original publication ledger retains attributable restoration state and its linked recovery evidence
+- **AND** another recovery invocation validates that receipt and continues without replaying the page edit
+
+#### Scenario: A known image edit is recovered against another endpoint
+- **WHEN** configuration points recovery at another wiki with coincident page IDs, revisions and source
+- **THEN** the recorded endpoint mismatch blocks recovery before any earlier mutation is undone
+- **AND** matching content does not replace destination attribution
+
+### Requirement: Execution retains the reviewed local storage boundary
+
+Apply and resume SHALL revalidate selected-variant run storage and resolved native output paths before opening them. They SHALL reject copied runs under tracked wiki sources and nested output symlinks escaping the approved run or entering another checkout.
+
+#### Scenario: A native output directory is replaced with a foreign symlink
+- **WHEN** a prepared run's manifest or attempt destination resolves outside approved run storage
+- **THEN** execution fails before the corresponding provider mutation
+- **AND** it leaves the foreign destination unchanged
+
+### Requirement: Guard work remains proportional to actual dependencies
+
+Normal apply SHALL NOT reread every unrelated completed wiki page before each operation. Explicit resume and inspection SHALL reconcile completed wiki pages with batched provider snapshots. Byte proofs MAY be shared only within one execution while relevant file and directory metadata seals remain unchanged. Fresh execution or resume SHALL establish fresh byte proofs.
+
+#### Scenario: Many independent wiki pages are published
+- **WHEN** a plan applies many independent wiki pages without a failure
+- **THEN** completed-page reconciliation does not grow quadratically
+- **AND** each page still checks its current revision and actual dependency bases before writing
+
+#### Scenario: A source changes without changing its size or restored modification time
+- **WHEN** a relevant file's kernel change-time or identity seal differs from launch
+- **THEN** the affected operation refuses the cached proof before writing
+- **AND** explicit preparation and review are required again

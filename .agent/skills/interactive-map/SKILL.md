@@ -21,9 +21,29 @@ description: Build, verify, deploy, or debug the interactive map. Use when chang
    The canonical service deploys first, then the legacy service.
    If the second deploy fails, resume with `uv run erenshor maps deploy --target legacy`.
 
+For a coordinated publication, use the prepared `publish` workflow instead of
+chaining wiki, map, and Sheets deploy commands. Select map targets explicitly in
+the selection file. Preparation runs the checked maps build and freezes its
+Worker bundles, assets, database route, and native provenance for review.
+Review the complete artifact manifests and captured Cloudflare account,
+service, deployment, and version identities before approving the plan digest.
+Apply and resume never rebuild under that approval.
+
+Map deployment uses a preflight-and-postflight guard, not an atomic provider
+revision guard. Another writer can race the deployment. Resume verifies the
+recorded active version, its upload annotation, pinned artifact evidence, and
+the database body before skipping a completed target. After canonical success,
+resume only the remaining legacy operation through the same plan. A lost or
+unknown provider receipt requires reconciliation, not a blind redeploy.
+Provider recovery is a separately reviewed action using the recorded previous
+deployment/version IDs. It is not an automatic or cross-service rollback.
+
 Production analytics uses the tracked public configuration in `src/maps/.env.production`.
 Do not require a machine-local token to publish the normal site.
 Development leaves analytics off so local browsing does not count as site traffic.
+Prepared publication rejects private dotenv overrides and non-public dotenv
+assignments, so credentials never become approval fingerprints. Keep public
+production build inputs in the maintained production environment file.
 
 Use the CLI rather than `pnpm dev` or `pnpm build`.
 It sets `ERENSHOR_MAPS_DATABASE_PATH` to the selected clean database.

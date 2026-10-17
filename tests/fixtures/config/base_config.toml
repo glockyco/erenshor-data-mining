@@ -30,9 +30,6 @@ bot_password = ""
 
 [global.google_sheets]
 credentials_file = "$HOME/.config/erenshor/google-credentials.json"
-batch_size = 1000
-max_retries = 3
-retry_delay = 5
 
 [global.behavior]
 max_retries = 3

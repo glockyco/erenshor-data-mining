@@ -10,9 +10,12 @@ from dataclasses import asdict, dataclass
 from pathlib import Path, PureWindowsPath
 from typing import Literal, cast
 
+from erenshor.infrastructure.wiki.client import MediaWikiPageRevision, MediaWikiPageSnapshot
+
 DeployAction = Literal["unchanged", "created", "edited"]
 MutationState = Literal["pending", "applied", "ambiguous"]
 ContentModel = Literal["css", "javascript", "json", "vue", "wikitext"]
+DeployRequestState = Literal["unattempted", "pending", "rejected"]
 
 _ACTIONS = frozenset({"unchanged", "created", "edited"})
 _MUTATION_STATES = frozenset({"pending", "applied", "ambiguous"})
@@ -42,6 +45,29 @@ _ENTRY_KEYS = frozenset(
         "mutation_state",
     }
 )
+_VERIFICATION_KEYS = frozenset({"edit_verification_error", "rollback_verification_error"})
+_REQUEST_KEYS = frozenset(
+    {
+        "deploy_request_base",
+        "deploy_account",
+        "deploy_api_url",
+        "rollback_request_base",
+        "rollback_account",
+        "rollback_api_url",
+        "rollback_new_revision_id",
+        "deploy_request_state",
+        "rollback_request_state",
+    }
+)
+
+
+@dataclass(frozen=True, slots=True)
+class InterfaceEditVerificationReceipt:
+    """Keep acknowledged native edit evidence without replacing the reviewed preimage."""
+
+    new_revision_id: int
+    written_snapshot: MediaWikiPageSnapshot | None = None
+    actual_parent_snapshot: MediaWikiPageSnapshot | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -60,6 +86,17 @@ class InterfacePageManifestEntry:
     deployed_text_sha256: str | None = None
     deploy_action: DeployAction | None = None
     mutation_state: MutationState = "pending"
+    edit_verification_error: InterfaceEditVerificationReceipt | None = None
+    rollback_verification_error: InterfaceEditVerificationReceipt | None = None
+    deploy_request_base: MediaWikiPageSnapshot | None = None
+    deploy_account: str | None = None
+    deploy_api_url: str | None = None
+    deploy_request_state: DeployRequestState | None = None
+    rollback_request_base: MediaWikiPageSnapshot | None = None
+    rollback_account: str | None = None
+    rollback_api_url: str | None = None
+    rollback_request_state: Literal["pending", "rejected"] | None = None
+    rollback_new_revision_id: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -157,9 +194,9 @@ def _reject_duplicate_keys(pairs: list[tuple[str, object]]) -> dict[str, object]
 def _entry_from_payload(raw: object, index: int) -> InterfacePageManifestEntry:
     if not isinstance(raw, dict):
         raise ValueError(f"entries[{index}] must be an object")
-    if set(raw) != _ENTRY_KEYS:
+    if not set(raw) >= _ENTRY_KEYS or set(raw) - _ENTRY_KEYS - _VERIFICATION_KEYS - _REQUEST_KEYS:
         missing = sorted(_ENTRY_KEYS - set(raw))
-        unknown = sorted(set(raw) - _ENTRY_KEYS)
+        unknown = sorted(set(raw) - _ENTRY_KEYS - _VERIFICATION_KEYS - _REQUEST_KEYS)
         details = ([f"missing {', '.join(missing)}"] if missing else []) + (
             [f"unknown {', '.join(unknown)}"] if unknown else []
         )
@@ -189,6 +226,95 @@ def _entry_from_payload(raw: object, index: int) -> InterfacePageManifestEntry:
         deployed_text_sha256=_optional_digest(raw["deployed_text_sha256"], "deployed_text_sha256", index),
         deploy_action=cast("DeployAction | None", action_raw),
         mutation_state=cast("MutationState", mutation_state_raw),
+        edit_verification_error=_verification_from_payload(raw.get("edit_verification_error"), index),
+        rollback_verification_error=_verification_from_payload(raw.get("rollback_verification_error"), index),
+        deploy_request_base=_snapshot_from_payload(raw.get("deploy_request_base"), index),
+        deploy_account=_optional_string(raw.get("deploy_account"), "deploy_account", index),
+        deploy_api_url=_optional_string(raw.get("deploy_api_url"), "deploy_api_url", index),
+        deploy_request_state=cast(
+            "DeployRequestState | None",
+            _optional_string(raw.get("deploy_request_state"), "deploy_request_state", index),
+        ),
+        rollback_request_base=_snapshot_from_payload(raw.get("rollback_request_base"), index),
+        rollback_account=_optional_string(raw.get("rollback_account"), "rollback_account", index),
+        rollback_api_url=_optional_string(raw.get("rollback_api_url"), "rollback_api_url", index),
+        rollback_request_state=cast(
+            "Literal['pending', 'rejected'] | None",
+            _optional_string(raw.get("rollback_request_state"), "rollback_request_state", index),
+        ),
+        rollback_new_revision_id=_optional_int(raw.get("rollback_new_revision_id"), "rollback_new_revision_id", index),
+    )
+
+
+def _verification_from_payload(raw: object, index: int) -> InterfaceEditVerificationReceipt | None:
+    if raw is None:
+        return None
+    if not isinstance(raw, dict) or set(raw) != {"new_revision_id", "written_snapshot", "actual_parent_snapshot"}:
+        raise ValueError(f"entries[{index}] has invalid verification receipt fields")
+    revision_id = _optional_int(raw["new_revision_id"], "verification.new_revision_id", index)
+    if revision_id is None or revision_id <= 0:
+        raise ValueError(f"entries[{index}] verification receipt lacks an acknowledged revision")
+    return InterfaceEditVerificationReceipt(
+        new_revision_id=revision_id,
+        written_snapshot=_snapshot_from_payload(raw["written_snapshot"], index),
+        actual_parent_snapshot=_snapshot_from_payload(raw["actual_parent_snapshot"], index),
+    )
+
+
+def _snapshot_from_payload(raw: object, index: int) -> MediaWikiPageSnapshot | None:
+    if raw is None:
+        return None
+    if not isinstance(raw, dict) or set(raw) != {
+        "title",
+        "source_text",
+        "revision",
+        "start_timestamp",
+        "content_model",
+    }:
+        raise ValueError(f"entries[{index}] has invalid verification snapshot fields")
+    revision_raw = raw["revision"]
+    revision = None
+    if revision_raw is not None:
+        required_revision_fields = {
+            "title",
+            "page_id",
+            "revision_id",
+            "timestamp",
+            "start_timestamp",
+            "user",
+            "parent_revision_id",
+        }
+        if (
+            not isinstance(revision_raw, dict)
+            or not set(revision_raw) >= required_revision_fields
+            or set(revision_raw) - required_revision_fields - {"comment"}
+        ):
+            raise ValueError(f"entries[{index}] has invalid verification revision fields")
+        page_id = _optional_int(revision_raw["page_id"], "verification.page_id", index)
+        revision_id = _optional_int(revision_raw["revision_id"], "verification.revision_id", index)
+        if page_id is None or revision_id is None:
+            raise ValueError(f"entries[{index}] verification revision lacks IDs")
+        comment = revision_raw.get("comment")
+        if comment is not None and not isinstance(comment, str):
+            raise ValueError(f"entries[{index}] has invalid verification revision comment")
+        revision = MediaWikiPageRevision(
+            title=_required_string(revision_raw["title"], "verification.title", index),
+            page_id=page_id,
+            revision_id=revision_id,
+            timestamp=_required_string(revision_raw["timestamp"], "verification.timestamp", index),
+            start_timestamp=_required_string(revision_raw["start_timestamp"], "verification.start_timestamp", index),
+            user=_optional_string(revision_raw["user"], "verification.user", index),
+            parent_revision_id=_optional_int(
+                revision_raw["parent_revision_id"], "verification.parent_revision_id", index
+            ),
+            comment=comment,
+        )
+    return MediaWikiPageSnapshot(
+        title=_required_string(raw["title"], "verification.title", index),
+        source_text=_optional_string(raw["source_text"], "verification.source_text", index),
+        revision=revision,
+        start_timestamp=_required_string(raw["start_timestamp"], "verification.start_timestamp", index),
+        content_model=_optional_string(raw["content_model"], "verification.content_model", index),
     )
 
 
@@ -254,6 +380,48 @@ def _validate_manifest(manifest: InterfaceDeployManifest) -> None:
             _validate_digest(entry.rollback_text_sha256, f"entries[{index}].rollback_text_sha256", index)
         if entry.deployed_text_sha256 is not None:
             _validate_digest(entry.deployed_text_sha256, f"entries[{index}].deployed_text_sha256", index)
+        if entry.deploy_request_state not in (None, "unattempted", "pending", "rejected"):
+            raise ValueError(f"entries[{index}] has invalid deploy request state")
+        if entry.deploy_request_state == "rejected" and (
+            entry.deploy_action is not None or entry.new_revision_id is not None or entry.mutation_state != "pending"
+        ):
+            raise ValueError(f"entries[{index}] rejected request must not record a completed mutation")
+        if entry.rollback_request_state not in (None, "pending", "rejected"):
+            raise ValueError(f"entries[{index}] has invalid rollback request state")
+        if entry.rollback_request_state == "rejected" and entry.rollback_new_revision_id is not None:
+            raise ValueError(f"entries[{index}] rejected rollback request must not have an acknowledgement")
+        for request_base, account, api_url in (
+            (entry.deploy_request_base, entry.deploy_account, entry.deploy_api_url),
+            (entry.rollback_request_base, entry.rollback_account, entry.rollback_api_url),
+        ):
+            if (request_base is None) != (account is None) or (request_base is None) != (api_url is None):
+                raise ValueError(f"entries[{index}] request base, account and API URL must be recorded together")
+            if request_base is not None:
+                _snapshot_from_payload(asdict(request_base), index)
+                if (
+                    request_base.title != entry.title
+                    or not isinstance(account, str)
+                    or not account.strip()
+                    or not isinstance(api_url, str)
+                    or not api_url.strip()
+                ):
+                    raise ValueError(f"entries[{index}] has invalid request identity")
+        if entry.rollback_new_revision_id is not None and (
+            type(entry.rollback_new_revision_id) is not int
+            or entry.rollback_new_revision_id <= 0
+            or entry.rollback_request_base is None
+        ):
+            raise ValueError(f"entries[{index}] has invalid rollback acknowledgement")
+        for receipt in (entry.edit_verification_error, entry.rollback_verification_error):
+            if receipt is not None:
+                if not isinstance(receipt, InterfaceEditVerificationReceipt):
+                    raise ValueError(f"entries[{index}] has invalid verification receipt")
+                _verification_from_payload(asdict(receipt), index)
+        if entry.edit_verification_error is not None:
+            if entry.new_revision_id != entry.edit_verification_error.new_revision_id:
+                raise ValueError(f"entries[{index}] verification receipt differs from acknowledged revision")
+            if entry.mutation_state != "ambiguous":
+                raise ValueError(f"entries[{index}] unverified edit must remain ambiguous")
 
         state = entry.mutation_state
         if state == "pending" and entry.deploy_action is not None:
@@ -353,6 +521,7 @@ __all__ = [
     "ContentModel",
     "DeployAction",
     "InterfaceDeployManifest",
+    "InterfaceEditVerificationReceipt",
     "InterfacePageManifestEntry",
     "MutationState",
     "read_interface_deploy_manifest",

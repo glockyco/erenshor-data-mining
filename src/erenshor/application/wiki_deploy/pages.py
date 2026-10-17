@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 from collections.abc import Callable, Collection, Mapping, Sequence
 from dataclasses import dataclass, replace
+from os.path import relpath
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Protocol
 from urllib.parse import quote
@@ -20,10 +21,18 @@ from erenshor.application.wiki_deploy.manifest import (
     DeployAction,
     RepoWikiPageManifest,
     RepoWikiPageManifestEntry,
+    durable_write_text,
     stage_rank,
     validate_repo_page_manifest_for_deploy,
 )
 from erenshor.application.wiki_deploy.render_check import RenderCheck, check_render
+from erenshor.infrastructure.wiki import (
+    MediaWikiAPIError,
+    MediaWikiAssertionError,
+    MediaWikiEditConflictError,
+    MediaWikiPermissionError,
+)
+from erenshor.infrastructure.wiki.client import MediaWikiEditVerificationError
 from erenshor.infrastructure.wiki.content import normalize_saved_text
 
 if TYPE_CHECKING:
@@ -71,6 +80,7 @@ class WikiPageDeployClient(Protocol):
         bot: bool = True,
         assertion: EditAssertion = "bot",
         assert_user: str | None = None,
+        content_model: str | None = None,
     ) -> int: ...
 
     def safe_create_page(
@@ -83,6 +93,7 @@ class WikiPageDeployClient(Protocol):
         bot: bool = True,
         assertion: EditAssertion = "bot",
         assert_user: str | None = None,
+        content_model: str | None = None,
     ) -> int: ...
 
 
@@ -171,12 +182,13 @@ def prepare_repo_page_checks(
     live_dependencies: dict[str, str | None] | None = None,
 ) -> RepoWikiPageManifest:
     """Check transitive dependencies and order the planned writes."""
-    changed = RepoWikiPageManifest(
+    changed = replace(
+        manifest,
         entries=tuple(
             entry
             for entry in manifest.entries
             if repo_page_action(snapshots[entry.title], source_texts[entry.title]) != "unchanged"
-        )
+        ),
     )
     live = needed_live_dependencies({entry.title: source_texts[entry.title] for entry in changed.entries}, client)
     live.update({title: snapshot.source_text for title, snapshot in snapshots.items() if title not in live})
@@ -184,7 +196,8 @@ def prepare_repo_page_checks(
         live_dependencies.update(live)
     ordered = order_and_check_dependencies(changed, source_texts, live)
     positions = {entry.title: index for index, entry in enumerate(ordered.entries)}
-    return RepoWikiPageManifest(
+    return replace(
+        manifest,
         entries=tuple(
             sorted(
                 manifest.entries,
@@ -194,7 +207,7 @@ def prepare_repo_page_checks(
                     entry.title,
                 ),
             )
-        )
+        ),
     )
 
 
@@ -300,6 +313,7 @@ def deploy_repo_pages(
     render_check: bool = False,
     full_render_check: bool = False,
     report_render: Callable[[RenderCheck], None] | None = None,
+    expected_snapshots: Mapping[str, MediaWikiPageSnapshot] | None = None,
 ) -> RepoPageDeployResult:
     """Deploy changed manifest pages through the safe MediaWiki edit path.
 
@@ -328,6 +342,18 @@ def deploy_repo_pages(
     missing = [title for title in titles if title not in snapshots]
     if missing:
         raise ValueError(f"Missing page snapshot for requested title: {missing[0]}")
+    if expected_snapshots is not None:
+        for title in titles:
+            expected = expected_snapshots[title]
+            actual = snapshots[title]
+            expected_revision = expected.revision.revision_id if expected.revision else None
+            actual_revision = actual.revision.revision_id if actual.revision else None
+            if (
+                actual_revision != expected_revision
+                or actual.source_text != expected.source_text
+                or actual.content_model != expected.content_model
+            ):
+                raise ValueError(f"{title} changed after the prepared review")
     drift = find_drift(
         manifest.entries, source_texts, snapshots, deploy_account=client.edit_account, accepted=accept_drift
     )
@@ -350,9 +376,8 @@ def deploy_repo_pages(
             old_revision_timestamp = snapshot.revision.timestamp
             if rollback_root is not None:
                 rollback_path = rollback_root / rollback_filename(entry.title)
-                rollback_path.parent.mkdir(parents=True, exist_ok=True)
-                rollback_path.write_text(remote_text, encoding="utf-8")
-                rollback_text_source = rollback_path.relative_to(repo_root).as_posix()
+                durable_write_text(rollback_path, remote_text)
+                rollback_text_source = relpath(rollback_path, repo_root)
         prepared_entries.append(
             replace(
                 entry,
@@ -361,17 +386,22 @@ def deploy_repo_pages(
                 new_revision_id=None,
                 new_revision_timestamp=None,
                 rollback_text_source=rollback_text_source,
+                rollback_content_model=snapshot.content_model if changed and remote_text is not None else None,
                 deploy_action=None,
             )
         )
 
-    prepared_manifest = RepoWikiPageManifest(entries=tuple(prepared_entries))
+    prepared_manifest = replace(
+        manifest,
+        entries=tuple(prepared_entries),
+        api_url=getattr(client, "api_url", None),
+    )
     if checkpoint is not None:
         checkpoint(prepared_manifest)
 
     live_parse_cache: dict[str, MediaWikiParse] = {}
     result_entries: list[RepoPageDeployResultEntry] = []
-    for entry, prepared_entry in zip(manifest.entries, prepared_manifest.entries, strict=True):
+    for index, (entry, prepared_entry) in enumerate(zip(manifest.entries, prepared_manifest.entries, strict=True)):
         snapshot = snapshots[entry.title]
         source_text = source_texts[entry.title]
         remote_text = snapshot.source_text
@@ -400,15 +430,65 @@ def deploy_repo_pages(
             if report_render is not None:
                 report_render(rendered)
 
+        pending_entries = list(prepared_manifest.entries)
+        pending_entries[index] = replace(
+            pending_entries[index],
+            pending_mutation=True,
+            pending_operation="deploy",
+            pending_base_revision_id=0 if snapshot.revision is None else snapshot.revision.revision_id,
+            pending_acknowledged_revision_id=None,
+        )
+        prepared_manifest = replace(prepared_manifest, entries=tuple(pending_entries))
+        if checkpoint is not None:
+            checkpoint(build_deployed_manifest(prepared_manifest, RepoPageDeployResult(entries=tuple(result_entries))))
+        try:
+            if remote_text is None:
+                new_revision_id = client.safe_create_page(
+                    title=entry.title,
+                    content=source_text,
+                    start_timestamp=snapshot.start_timestamp,
+                    summary=summary,
+                    assertion=assertion,
+                    assert_user=assert_user,
+                    content_model=entry.content_model,
+                )
+            else:
+                base_revision = snapshot.revision
+                if base_revision is None:
+                    raise ValueError(f"Remote page snapshot has no revision: {entry.title}")
+                new_revision_id = client.safe_edit_page(
+                    title=entry.title,
+                    content=source_text,
+                    base_revision=base_revision,
+                    summary=summary,
+                    assertion=assertion,
+                    assert_user=assert_user,
+                    content_model=entry.content_model,
+                )
+        except MediaWikiEditVerificationError as error:
+            pending_entries[index] = record_verification_receipt(pending_entries[index], error)
+            prepared_manifest = replace(prepared_manifest, entries=tuple(pending_entries))
+            if checkpoint is not None:
+                checkpoint(
+                    build_deployed_manifest(prepared_manifest, RepoPageDeployResult(entries=tuple(result_entries)))
+                )
+            pending_entries[index] = capture_verified_parent(pending_entries[index], error, repo_root)
+            prepared_manifest = replace(prepared_manifest, entries=tuple(pending_entries))
+            if checkpoint is not None:
+                checkpoint(
+                    build_deployed_manifest(prepared_manifest, RepoPageDeployResult(entries=tuple(result_entries)))
+                )
+            raise
+        except MediaWikiAPIError as error:
+            if remote_write_rejected(error):
+                pending_entries[index] = replace(pending_entries[index], pending_mutation=False)
+                prepared_manifest = replace(prepared_manifest, entries=tuple(pending_entries))
+                if checkpoint is not None:
+                    checkpoint(
+                        build_deployed_manifest(prepared_manifest, RepoPageDeployResult(entries=tuple(result_entries)))
+                    )
+            raise
         if remote_text is None:
-            new_revision_id = client.safe_create_page(
-                title=entry.title,
-                content=source_text,
-                start_timestamp=snapshot.start_timestamp,
-                summary=summary,
-                assertion=assertion,
-                assert_user=assert_user,
-            )
             result_entries.append(
                 RepoPageDeployResultEntry(
                     title=entry.title,
@@ -420,17 +500,6 @@ def deploy_repo_pages(
                 )
             )
         else:
-            base_revision = snapshot.revision
-            if base_revision is None:
-                raise ValueError(f"Remote page snapshot has no revision: {entry.title}")
-            new_revision_id = client.safe_edit_page(
-                title=entry.title,
-                content=source_text,
-                base_revision=base_revision,
-                summary=summary,
-                assertion=assertion,
-                assert_user=assert_user,
-            )
             result_entries.append(
                 RepoPageDeployResultEntry(
                     title=entry.title,
@@ -481,6 +550,82 @@ def build_deployed_manifest(manifest: RepoWikiPageManifest, result: RepoPageDepl
                 new_revision_id=result_entry.new_revision_id,
                 rollback_text_source=result_entry.rollback_text_source,
                 deploy_action=result_entry.status,
+                pending_mutation=False,
             )
         )
-    return RepoWikiPageManifest(entries=tuple(merged_entries))
+    return replace(manifest, entries=tuple(merged_entries))
+
+
+def remote_write_rejected(error: MediaWikiAPIError) -> bool:
+    """Return only explicit server rejections, never missing or malformed receipts."""
+    if isinstance(error, MediaWikiEditVerificationError):
+        return False
+    if isinstance(error, (MediaWikiEditConflictError, MediaWikiAssertionError, MediaWikiPermissionError)):
+        return True
+    cause: BaseException | None = error
+    while cause is not None:
+        if isinstance(cause, MediaWikiAPIError) and cause.code is not None:
+            return True
+        cause = cause.__cause__
+    return False
+
+
+def record_verification_receipt(
+    entry: RepoWikiPageManifestEntry, error: MediaWikiEditVerificationError
+) -> RepoWikiPageManifestEntry:
+    """Preserve an acknowledged mutation before attempting to save more evidence."""
+    receipt = replace(
+        entry,
+        pending_mutation=True,
+        pending_acknowledged_revision_id=error.new_revision_id,
+        requires_rollback=True,
+    )
+    if entry.pending_operation == "deploy":
+        receipt = replace(
+            receipt,
+            new_revision_id=error.new_revision_id,
+            deploy_action="created" if entry.old_revision_id is None else "edited",
+        )
+    return receipt
+
+
+def capture_verified_parent(
+    entry: RepoWikiPageManifestEntry, error: MediaWikiEditVerificationError, repo_root: Path
+) -> RepoWikiPageManifestEntry:
+    """Retain the reviewed preimage and separately save the actual parent of a merged write."""
+    written = error.written_snapshot
+    if entry.pending_operation != "deploy" or written is None or written.revision is None:
+        return entry
+    revision = written.revision
+    if revision.revision_id != error.new_revision_id or written.title != entry.title:
+        return entry
+    if revision.parent_revision_id == 0 and entry.pending_base_revision_id == 0:
+        return replace(
+            entry, pending_mutation=False, deploy_action="created", new_revision_timestamp=revision.timestamp
+        )
+    parent = error.actual_parent_snapshot
+    if (
+        parent is None
+        or parent.revision is None
+        or parent.source_text is None
+        or not parent.content_model
+        or parent.title != entry.title
+        or parent.revision.revision_id != revision.parent_revision_id
+        or entry.rollback_text_source is None
+    ):
+        return entry
+    original_path = repo_root / entry.rollback_text_source
+    parent_path = original_path.with_name(
+        f"{original_path.stem}.parent-{parent.revision.revision_id}{original_path.suffix}"
+    )
+    durable_write_text(parent_path, parent.source_text)
+    return replace(
+        entry,
+        old_revision_id=parent.revision.revision_id,
+        old_revision_timestamp=parent.revision.timestamp,
+        new_revision_timestamp=revision.timestamp,
+        rollback_text_source=relpath(parent_path, repo_root),
+        rollback_content_model=parent.content_model,
+        pending_mutation=False,
+        deploy_action="edited",
+    )

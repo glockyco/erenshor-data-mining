@@ -55,13 +55,13 @@ class ZonePageGenerator(PageGenerator):
         """Return unique wiki page names for all zones (for field preservation fetch)."""
         return list({z.wiki_page_name for z in self.context.zone_repo.get_all_zones() if z.wiki_page_name})
 
-    def generate_pages(self) -> Iterator[GeneratedPage]:
+    def generate_pages(self, *, page_titles: frozenset[str] | None = None) -> Iterator[GeneratedPage]:
         """Yield one GeneratedPage per unique wiki_page_name."""
         # Group zones by wiki_page_name.
         # Zones without wiki_page_name are excluded from the wiki entirely.
         groups: dict[str, list[Zone]] = {}
         for zone in self.context.zone_repo.get_all_zones():
-            if zone.wiki_page_name:
+            if zone.wiki_page_name and (page_titles is None or zone.wiki_page_name in page_titles):
                 groups.setdefault(zone.wiki_page_name, []).append(zone)
 
         logger.info(f"ZonePageGenerator: generating {len(groups)} zone pages")

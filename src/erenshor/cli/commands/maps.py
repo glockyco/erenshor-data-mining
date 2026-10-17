@@ -21,7 +21,7 @@ from loguru import logger
 from rich.console import Console
 from rich.panel import Panel
 
-from erenshor.application.maps import build_info
+from erenshor.application.maps import build_info, publication
 from erenshor.application.maps.catalog_images import build_character_portraits, build_item_icons
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
@@ -320,7 +320,11 @@ def build(
     maps_dir = variant_config.maps.resolved_source_dir(cli_ctx.repo_root)
     build_dir = variant_config.maps.resolved_build_dir(cli_ctx.repo_root)
     db_path = _get_database_path(cli_ctx)
-    site_env = {**os.environ, MAPS_DATABASE_PATH_ENV: str(db_path)}
+    site_env = {
+        **os.environ,
+        MAPS_DATABASE_PATH_ENV: str(db_path),
+        "ERENSHOR_MAPS_BUILD_DIR": str(build_dir),
+    }
 
     try:
         build_info.validate_tile_files(maps_dir)
@@ -404,11 +408,9 @@ def deploy(
     Deploys the built site to Cloudflare using wrangler. Requires valid
     Cloudflare credentials. Build must exist before deploying.
 
-    One build is published to two Worker services: `erenshor-maps-site`
-    serves erenshor.compendiums.org, and `erenshor-maps` keeps
-    erenshor-maps.wowmuch1.workers.dev alive for shipped companion mods.
-    With the default target both are deployed, canonical first, because
-    that is the deploy that moves the Custom Domain.
+    The selected variant's canonical and legacy origins must match the
+    Wrangler configurations and the account's live hostname associations.
+    With the default target both services are deployed, canonical first.
     """
     cli_ctx: CLIContext = ctx.obj
 
@@ -418,6 +420,13 @@ def deploy(
     build_dir = variant_config.maps.resolved_build_dir(cli_ctx.repo_root)
 
     targets = DEPLOY_ORDER if target is DeployTarget.ALL else (target.value,)
+    try:
+        destinations = {
+            name: publication.destination(cli_ctx, "canonical" if name == "site" else "legacy") for name in targets
+        }
+    except Exception as error:
+        console.print(f"[red]Map destination check failed: {error}[/red]")
+        raise typer.Exit(1) from error
 
     # Show info panel
     console.print()
@@ -442,6 +451,8 @@ def deploy(
     # Run deployment
     for position, name in enumerate(targets):
         try:
+            if publication.destination(cli_ctx, "canonical" if name == "site" else "legacy") != destinations[name]:
+                raise ValueError("Map destination/account changed before deployment")
             logger.info(f"Deploying {DEPLOY_CONFIGS[name]} to Cloudflare via wrangler")
             _run(_deploy_command(name, dry_run=False), maps_dir)
         except KeyboardInterrupt:

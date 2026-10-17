@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from dataclasses import replace
 from pathlib import Path
 
@@ -284,8 +285,13 @@ def test_repo_page_manifest_round_trips_deployment_metadata(tmp_path: Path) -> N
                 new_revision_timestamp="2026-06-04T12:01:00Z",
                 rollback_text_source="rollback/Template_Item.wiki",
                 deploy_action="edited",
+                pending_mutation=True,
+                rollback_revision_id=102,
             ),
-        )
+        ),
+        api_url="https://wiki.example/api.php",
+        variant="canary",
+        wiki_root=str(tmp_path / "wiki"),
     )
     output_path = tmp_path / "deploy-manifest.json"
 
@@ -293,3 +299,94 @@ def test_repo_page_manifest_round_trips_deployment_metadata(tmp_path: Path) -> N
     reloaded = read_repo_page_manifest(output_path)
 
     assert reloaded == deployed_manifest
+
+
+def test_old_manifest_still_loads_without_attribution_or_pending_fields(tmp_path: Path) -> None:
+    write_page(tmp_path, "wiki/modules/Erenshor/Example.lua", "return {}\n")
+    path = tmp_path / "manifest.json"
+    manifest = build_repo_page_manifest(tmp_path, variant="main")
+    write_repo_page_manifest(manifest, path)
+    payload = json.loads(path.read_bytes())
+    for key in ("api_url", "variant", "wiki_root"):
+        payload.pop(key)
+    for entry in payload["entries"]:
+        entry.pop("pending_mutation")
+        entry.pop("rollback_revision_id")
+        entry.pop("pending_operation")
+        entry.pop("pending_base_revision_id")
+        entry.pop("pending_acknowledged_revision_id")
+        entry.pop("requires_rollback")
+        entry.pop("rollback_content_model")
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    loaded = read_repo_page_manifest(path)
+
+    assert loaded.api_url is None
+    assert loaded.variant is None
+    assert loaded.wiki_root is None
+    assert not loaded.entries[0].pending_mutation
+    assert loaded.entries[0].rollback_revision_id is None
+    assert loaded.entries[0].pending_operation is None
+    assert loaded.entries[0].pending_base_revision_id is None
+    assert loaded.entries[0].rollback_content_model is None
+
+
+def test_manifest_filters_and_outcome_clones_keep_attribution(tmp_path: Path) -> None:
+    from erenshor.application.wiki_deploy.dependencies import order_and_check_dependencies
+    from erenshor.application.wiki_deploy.pages import RepoPageDeployResult, build_deployed_manifest
+
+    write_page(tmp_path, "wiki/modules/Erenshor/Example.lua", "return {}\n")
+    manifest = replace(
+        build_repo_page_manifest(tmp_path, variant="main"),
+        api_url="https://wiki.example/api.php",
+        variant="canary",
+        wiki_root=str(tmp_path / "wiki"),
+    )
+    selected = select_repo_page_manifest(manifest)
+    ordered = order_and_check_dependencies(selected, {manifest.entries[0].title: "return {}\n"}, {})
+    deployed = build_deployed_manifest(ordered, RepoPageDeployResult(entries=()))
+
+    assert deployed == manifest
+
+
+@pytest.mark.parametrize(
+    "api_url",
+    [
+        "https://account:secret@wiki.example/api.php",
+        "https://account@wiki.example/api.php",
+        "https://:secret@wiki.example/api.php",
+        "https://@wiki.example/api.php",
+    ],
+)
+def test_manifest_rejects_endpoint_userinfo_without_echoing_secrets(api_url: str, tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="must not contain credentials") as raised:
+        RepoWikiPageManifest(entries=(), api_url=api_url)
+    assert "account" not in str(raised.value)
+    assert "secret" not in str(raised.value)
+    path = tmp_path / "manifest.json"
+    path.write_text(json.dumps({"entries": [], "api_url": api_url}), encoding="utf-8")
+    with pytest.raises(ValueError, match="must not contain credentials"):
+        read_repo_page_manifest(path)
+
+
+def test_pending_request_intent_round_trips(tmp_path: Path) -> None:
+    write_page(tmp_path, "wiki/modules/Erenshor/Example.lua", "return {}\n")
+    manifest = build_repo_page_manifest(tmp_path, variant="main")
+    [entry] = manifest.entries
+    manifest = replace(
+        manifest,
+        entries=(
+            replace(
+                entry,
+                pending_mutation=True,
+                pending_operation="rollback",
+                pending_base_revision_id=42,
+                pending_acknowledged_revision_id=43,
+                requires_rollback=True,
+                rollback_content_model="json",
+            ),
+        ),
+    )
+    path = tmp_path / "manifest.json"
+    write_repo_page_manifest(manifest, path)
+    assert read_repo_page_manifest(path) == manifest

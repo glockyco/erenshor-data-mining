@@ -246,12 +246,16 @@ def _create_normal_bot_mediawiki_client(
 
 
 def _create_wiki_composition(
-    cli_ctx: CLIContext, *, with_client: bool, wiki_client: MediaWikiClient | None = None
+    cli_ctx: CLIContext,
+    *,
+    with_client: bool,
+    wiki_client: MediaWikiClient | None = None,
+    storage: WikiStorage | None = None,
 ) -> _WikiComposition:
     """Create one database, storage, and GeneratorContext for a wiki command."""
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     database = DatabaseConnection(variant_config.resolved_database(cli_ctx.repo_root), read_only=True)
-    storage = WikiStorage(variant_config.resolved_wiki(cli_ctx.repo_root))
+    storage = storage or WikiStorage(variant_config.resolved_wiki(cli_ctx.repo_root))
     maps_source_dir = variant_config.maps.resolved_source_dir(cli_ctx.repo_root)
     zone_positions_path = maps_source_dir / "src" / "lib" / "data" / "zone-positions.json"
     context = GeneratorContext(
@@ -1224,6 +1228,9 @@ def rollback_interface_command(
             )
             return
 
+        def checkpoint(checkpointed_manifest: InterfaceDeployManifest) -> None:
+            write_interface_deploy_manifest(checkpointed_manifest, manifest_file)
+
         result = rollback_interface_pages(
             manifest,
             cli_ctx.repo_root,
@@ -1231,6 +1238,7 @@ def rollback_interface_command(
             summary,
             force=force,
             assert_user=interface_username,
+            checkpoint=checkpoint,
         )
     except Exception as e:
         console.print(f"[red]Error during interface rollback: {e}[/red]")

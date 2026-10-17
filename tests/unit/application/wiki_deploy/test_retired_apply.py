@@ -132,6 +132,7 @@ def test_changed_page_is_skipped_and_manifest_restores_written_pages(tmp_path: P
     lifecycle, report = _review()
     edits = plan_retired_edits(report, lifecycle)
     client, texts, revisions = _wiki(report)
+    client.api_url = "https://wiki.example/api.php"
     originals = texts.copy()
     revisions["Old Book"] = 11
     texts["Old Book"] = "An editor changed the book."

@@ -105,12 +105,31 @@ Unity, images, wiki, and backups may remain symlinks when used only as read inpu
 | `erenshor wiki generate-lua` / `deploy-repo-pages` | Generates the Lua data modules and deploys repository-owned modules and templates with revision guards and rollback data. |
 | `erenshor sheets deploy` | Publishes the sheet queries. |
 | `erenshor maps dev` / `build` / `preview` / `deploy` | Develops, verifies, and deploys the map. |
+| `erenshor publish prepare` / `apply` / `status` / `resume` | Reviews and coordinates explicitly selected wiki, map, and sheet writes with one immutable plan. |
 | `erenshor mod build` / `deploy` / `thunderstore` | Builds, installs, and packages the mods. `-V` selects the game install, `--loader` the loader. |
 | `erenshor guide export-mod` | Writes `quest_guides/quest-guide.json`, the quest data that AdventureGuide embeds. |
 | `erenshor eval run '<C#>'` | Evaluates code in the running game through HotRepl. |
 | `erenshor capture run` | Captures map tiles through MapTileCapture. |
 
 Run every subsystem through `erenshor`, not through `pnpm`, `wrangler`, or `dotnet` directly. `erenshor <group> --help` lists the options.
+
+### Reviewed publishing
+
+Use `publish` for a coordinated update instead of chaining publishing commands in a shell. Its fixed selection schema is declared in `src/erenshor/application/publish/models.py`. Select exact titles, map targets, and sheet tabs. Missing dependencies are reported, never added to the live write set.
+
+Prepare into a new directory under the selected variant's storage. Preparation inspects live bases and freezes complete payloads without publishing. Selected maps are built locally at this step. Start with the native `review-summary.json`, then open its referenced payloads and exact Sheets request-body sidecar. The summary includes every operation, destination, base, dependency, guard and recovery limit without dumping workbook cells into the terminal.
+
+Inspect the plan with root `--dry-run` and `publish apply`. The complete `review.json` and hashed payload files retain exact wiki text and diffs, map asset hashes, and the stable Sheets preimage with typed rows and atomic request bytes. A concise summary does not replace review of those payloads or change the approval digest.
+
+Only a human approval declaration naming that reviewed digest permits live `apply` or `resume`. Keep editor prose in a separately reviewed variant-local replacement file, not tracked wiki sources. The selection must include its exact file digest. The publisher does not invent prose changes.
+
+The first failure stops every later operation. Keep the entire run directory and native wiki rollback manifests. `status` reports known writes and blocked or uncertain work. Explicit `resume` rechecks completed receipts and remaining bases before skipping successful operations. Changed inputs, destinations, editor revisions, or uncertain provider outcomes require reconciliation and a newly reviewed continuation.
+
+Wiki writes check the current revision before editing and verify the saved revision, parent and source afterward. MediaWiki can merge a racing edit, so this is not atomic compare-and-set. A mismatch stops publication and retains the actual write and editor's prior text for separately reviewed recovery. Map and Sheets checks also cannot prevent a concurrent writer between inspection and mutation.
+
+There is no automatic or cross-service rollback. Wiki rollback cannot delete new pages, and map or sheet restoration is a separate provider-specific review.
+
+Selected tabs for one spreadsheet publish together in one native atomic batch. Google manages reference rebasing. The publisher checks owned outputs and retains the observed workbook state for resume rather than predicting formulas. Atomicity does not prevent a concurrent editor from racing the preflight check.
 
 ### Game updates
 

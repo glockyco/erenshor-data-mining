@@ -87,7 +87,7 @@ class EntityPageGenerator(PageGenerator):
 
         return page_titles
 
-    def generate_pages(self) -> Iterator[GeneratedPage]:
+    def generate_pages(self, *, page_titles: frozenset[str] | None = None) -> Iterator[GeneratedPage]:
         all_entities = self._load_entities()
 
         # Group entities by wiki_page_name (all entities in clean DB have one)
@@ -96,6 +96,8 @@ class EntityPageGenerator(PageGenerator):
             page_title = entity.wiki_page_name
             if page_title is None:
                 logger.debug(f"Skipping entity with no wiki_page_name: {entity.stable_key}")
+                continue
+            if page_titles is not None and page_title not in page_titles:
                 continue
             if page_title not in page_groups:
                 page_groups[page_title] = []

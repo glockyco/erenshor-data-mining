@@ -14,19 +14,30 @@ import hashlib
 import re
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field, replace
+from os.path import relpath
 from typing import TYPE_CHECKING, Literal, Protocol
 
 from erenshor.application.wiki.generators.page_normalizer import PageNormalizer
 from erenshor.application.wiki.services.helpers import normalise_generated_page_content
 from erenshor.application.wiki_deploy.link_audit_service import TRACKING_CATEGORIES
-from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, RepoWikiPageManifestEntry
-from erenshor.application.wiki_deploy.pages import rollback_filename
+from erenshor.application.wiki_deploy.manifest import (
+    RepoWikiPageManifest,
+    RepoWikiPageManifestEntry,
+    durable_write_text,
+)
+from erenshor.application.wiki_deploy.pages import (
+    capture_verified_parent,
+    record_verification_receipt,
+    remote_write_rejected,
+    rollback_filename,
+)
 from erenshor.infrastructure.wiki import (
     MediaWikiAPIError,
     MediaWikiAssertionError,
     MediaWikiEditConflictError,
     MediaWikiEditError,
 )
+from erenshor.infrastructure.wiki.client import MediaWikiEditVerificationError
 from erenshor.infrastructure.wiki.content import normalize_saved_text
 
 if TYPE_CHECKING:
@@ -66,6 +77,7 @@ class ArticleDeployClient(Protocol):
         bot: bool = True,
         assertion: Literal["user", "bot"] = "bot",
         assert_user: str | None = None,
+        content_model: str | None = None,
     ) -> int: ...
 
     def safe_create_page(
@@ -78,6 +90,7 @@ class ArticleDeployClient(Protocol):
         bot: bool = True,
         assertion: Literal["user", "bot"] = "bot",
         assert_user: str | None = None,
+        content_model: str | None = None,
     ) -> int: ...
 
 
@@ -234,20 +247,25 @@ def plan_article_deploy(
 class _DeployState:
     entries: list[RepoWikiPageManifestEntry]
     positions: dict[str, int]
+    api_url: str | None = None
+    variant: str | None = None
+    wiki_root: str | None = None
     unchanged: list[str] = field(default_factory=list)
     conflicts: list[ArticleIssue] = field(default_factory=list)
     blocked: list[ArticleIssue] = field(default_factory=list)
     stopped: str | None = None
 
     def manifest(self) -> RepoWikiPageManifest:
-        return RepoWikiPageManifest(entries=tuple(self.entries))
+        return RepoWikiPageManifest(
+            entries=tuple(self.entries), api_url=self.api_url, variant=self.variant, wiki_root=self.wiki_root
+        )
 
     def record_write(self, title: str, base: MediaWikiPageRevision | None, new_revision_id: int) -> None:
         """Record a saved write in the manifest entry of ``title``."""
         index = self.positions[title]
         if base is not None and new_revision_id == base.revision_id:
             # MediaWiki saved no change, so a rollback has nothing to restore.
-            self.entries[index] = replace(self.entries[index], deploy_action="unchanged")
+            self.entries[index] = replace(self.entries[index], deploy_action="unchanged", pending_mutation=False)
             self.unchanged.append(title)
             return
         self.entries[index] = replace(
@@ -255,6 +273,7 @@ class _DeployState:
             old_revision_timestamp=None if base is None else base.timestamp,
             new_revision_id=new_revision_id,
             deploy_action="created" if base is None else "edited",
+            pending_mutation=False,
         )
 
 
@@ -268,6 +287,9 @@ def deploy_articles(
     summary: str,
     checkpoint: Callable[[RepoWikiPageManifest], None] | None = None,
     batch_size: int = 50,
+    assert_user: str | None = None,
+    variant: str | None = None,
+    wiki_root: Path | None = None,
 ) -> ArticleDeployResult:
     """Write the planned articles that are still at their fetched revision.
 
@@ -286,13 +308,21 @@ def deploy_articles(
     """
     writes = plan.writes
     entries = _prepare_manifest(writes, storage, repo_root, rollback_root)
-    state = _DeployState(entries=entries, positions={entry.title: index for index, entry in enumerate(entries)})
+    state = _DeployState(
+        entries=entries,
+        positions={entry.title: index for index, entry in enumerate(entries)},
+        api_url=getattr(client, "api_url", None),
+        variant=variant,
+        wiki_root=None if wiki_root is None else str(wiki_root.resolve()),
+    )
     if checkpoint is not None:
         checkpoint(state.manifest())
     for start in range(0, len(writes), batch_size):
         batch = writes[start : start + batch_size]
         try:
-            snapshots = client.get_page_snapshots([article.title for article in batch], assertion="bot")
+            snapshots = client.get_page_snapshots(
+                [article.title for article in batch], assertion="bot", assert_user=assert_user
+            )
             live_categories = client.get_page_categories(
                 [article.title for article in batch if snapshots[article.title].revision is not None]
             )
@@ -308,11 +338,12 @@ def deploy_articles(
                 client=client,
                 storage=storage,
                 summary=summary,
+                assert_user=assert_user,
+                checkpoint=checkpoint,
+                repo_root=repo_root,
             )
             if outcome == "stop":
                 break
-            if outcome == "requested" and checkpoint is not None:
-                checkpoint(state.manifest())
         if state.stopped is not None:
             break
 
@@ -345,12 +376,12 @@ def _prepare_manifest(
             if fetched_text is None:
                 raise FileNotFoundError(f"Fetched wiki content missing for {article.title!r}")
             rollback_path = rollback_root / rollback_filename(article.title)
-            rollback_path.write_text(fetched_text, encoding="utf-8")
-            rollback_text_source = rollback_path.relative_to(repo_root).as_posix()
+            durable_write_text(rollback_path, fetched_text)
+            rollback_text_source = relpath(rollback_path, repo_root)
         entries.append(
             RepoWikiPageManifestEntry(
                 title=article.title,
-                source_path=storage.generated_path(article.title).relative_to(repo_root).as_posix(),
+                source_path=relpath(storage.generated_path(article.title), repo_root),
                 source_sha256=hashlib.sha256(article.generated_text.encode("utf-8")).hexdigest(),
                 ownership_class="article",
                 upload_stage="article",
@@ -371,6 +402,9 @@ def _write_article(
     client: ArticleDeployClient,
     storage: WikiStorage,
     summary: str,
+    assert_user: str | None = None,
+    checkpoint: Callable[[RepoWikiPageManifest], None] | None = None,
+    repo_root: Path,
 ) -> _WriteOutcome:
     """Write one article if its live page is still the one that generation merged into."""
     title = article.title
@@ -388,10 +422,27 @@ def _write_article(
         state.blocked.append(ArticleIssue(title, "; ".join(problems)))
         return "skipped"
 
+    index = state.positions[title]
+    state.entries[index] = replace(
+        state.entries[index],
+        pending_mutation=True,
+        pending_operation="deploy",
+        pending_base_revision_id=0 if live is None else live.revision_id,
+        pending_acknowledged_revision_id=None,
+        rollback_content_model=None if live is None else snapshot.content_model,
+    )
+    if checkpoint is not None:
+        checkpoint(state.manifest())
     try:
         if live is not None:
             new_revision_id = client.safe_edit_page(
-                title=title, content=article.generated_text, base_revision=live, summary=summary, assertion="bot"
+                title=title,
+                content=article.generated_text,
+                base_revision=live,
+                summary=summary,
+                assertion="bot",
+                assert_user=assert_user,
+                content_model="wikitext",
             )
         else:
             new_revision_id = client.safe_create_page(
@@ -400,12 +451,31 @@ def _write_article(
                 start_timestamp=snapshot.start_timestamp,
                 summary=summary,
                 assertion="bot",
+                assert_user=assert_user,
+                content_model="wikitext",
             )
     except MediaWikiAPIError as error:
-        return _record_write_error(state, title, error)
+        if isinstance(error, MediaWikiEditVerificationError):
+            state.entries[index] = record_verification_receipt(state.entries[index], error)
+            if checkpoint is not None:
+                checkpoint(state.manifest())
+            state.entries[index] = capture_verified_parent(state.entries[index], error, repo_root)
+            if checkpoint is not None:
+                checkpoint(state.manifest())
+            state.stopped = f"{title}: {error}"
+        elif remote_write_rejected(error):
+            state.entries[index] = replace(state.entries[index], pending_mutation=False)
+            if checkpoint is not None:
+                checkpoint(state.manifest())
+            return _record_write_error(state, title, error)
+        else:
+            state.stopped = f"{title}: uncertain remote mutation: {error}"
+        return "stop"
 
-    storage.record_deployed(title, article.generated_text, new_revision_id)
     state.record_write(title, live, new_revision_id)
+    if checkpoint is not None:
+        checkpoint(state.manifest())
+    storage.record_deployed(title, article.generated_text, new_revision_id)
     return "requested"
 
 

@@ -21,11 +21,13 @@ from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, NoReturn
+from urllib.parse import urlsplit
 
 import httpx
 from loguru import logger
 
 from erenshor.infrastructure.time import Clock, RealClock
+from erenshor.infrastructure.wiki.content import normalize_saved_text
 from erenshor.infrastructure.wiki.rate_limit import (
     MediaWikiRequestor,
     MediaWikiRequestPolicy,
@@ -132,8 +134,8 @@ class MediaWikiRateLimitError(MediaWikiAPIError):
 class MediaWikiPageRevision:
     """Revision metadata used to guard conflict-safe MediaWiki edits.
 
-    ``user`` is the account that made the revision, or None when MediaWiki
-    hides it.
+    ``user`` and ``comment`` are None when MediaWiki hides them. Legacy
+    responses without a comment retain None.
     """
 
     title: str
@@ -142,6 +144,8 @@ class MediaWikiPageRevision:
     timestamp: str
     start_timestamp: str
     user: str | None
+    parent_revision_id: int | None = None
+    comment: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -153,6 +157,27 @@ class MediaWikiPageSnapshot:
     revision: MediaWikiPageRevision | None
     start_timestamp: str
     content_model: str | None = None
+
+
+class MediaWikiEditVerificationError(MediaWikiEditConflictError):
+    """An acknowledged write could not be proven safe.
+
+    Recovery callers retain its revision ID and any historical snapshots read
+    before verification failed. A verification exception is chained as the cause.
+    """
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        new_revision_id: int,
+        written_snapshot: MediaWikiPageSnapshot | None = None,
+        actual_parent_snapshot: MediaWikiPageSnapshot | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.new_revision_id = new_revision_id
+        self.written_snapshot = written_snapshot
+        self.actual_parent_snapshot = actual_parent_snapshot
 
 
 @dataclass(frozen=True, slots=True)
@@ -261,6 +286,26 @@ def _revision_user(raw_revision: dict[str, Any]) -> str | None:
     if not isinstance(user, str) or not user:
         raise TypeError("revision user is not text")
     return user
+
+
+def _revision_parent_id(raw_revision: dict[str, Any]) -> int | None:
+    """Read API lineage without inventing parents for legacy responses."""
+    if "parentid" not in raw_revision:
+        return None
+    parent_id = raw_revision["parentid"]
+    if type(parent_id) is not int or parent_id < 0:
+        raise TypeError("revision parentid is not a nonnegative integer")
+    return parent_id
+
+
+def _revision_comment(raw_revision: dict[str, Any]) -> str | None:
+    """Read immutable edit summaries without inventing hidden or absent text."""
+    if "commenthidden" in raw_revision or "comment" not in raw_revision:
+        return None
+    comment = raw_revision["comment"]
+    if not isinstance(comment, str):
+        raise TypeError("revision comment is not text")
+    return comment
 
 
 def _hidden_or_text(entry: Mapping[str, Any], key: str) -> str | None:
@@ -387,8 +432,11 @@ class MediaWikiClient:
             user_agent: User-Agent header for API requests when set.
 
         Raises:
-            ValueError: If api_url doesn't end with /api.php or batch_size is invalid.
+            ValueError: If api_url contains credentials, lacks /api.php, or batch_size is invalid.
         """
+        endpoint = urlsplit(api_url)
+        if endpoint.username is not None or endpoint.password is not None:
+            raise ValueError("API URL must not contain credentials. Use separate bot credentials.")
         if not api_url.endswith("/api.php"):
             raise ValueError(f"API URL must end with /api.php, got: {api_url}")
 
@@ -472,7 +520,7 @@ class MediaWikiClient:
         except httpx.TimeoutException as e:
             logger.error(f"MediaWiki API request timeout: {e}")
             raise MediaWikiNetworkError(f"Request timeout: {e}") from e
-        except httpx.NetworkError as e:
+        except httpx.TransportError as e:
             logger.error(f"MediaWiki API network error: {e}")
             raise MediaWikiNetworkError(f"Network error: {e}") from e
         except MediaWikiRetryableRequestError as e:
@@ -1096,7 +1144,12 @@ class MediaWikiClient:
 
     def download(self, url: str) -> bytes:
         """Return the bytes at a URL of the wiki, such as a file's ``url``."""
-        response = self._requestor.download(url)
+        try:
+            response = self._requestor.download(url)
+        except httpx.TimeoutException as error:
+            raise MediaWikiNetworkError(f"Request timeout: {error}") from error
+        except httpx.TransportError as error:
+            raise MediaWikiNetworkError(f"Network error: {error}") from error
         if response.status_code != 200:
             raise MediaWikiNetworkError(f"HTTP {response.status_code} downloading {url}")
         return response.content
@@ -1350,7 +1403,7 @@ class MediaWikiClient:
                 "action": "query",
                 "titles": "|".join(batch),
                 "prop": "revisions",
-                "rvprop": "ids|timestamp|user|content|contentmodel",
+                "rvprop": "ids|timestamp|user|comment|content|contentmodel",
                 "rvslots": "main",
                 "curtimestamp": "1",
             }
@@ -1417,10 +1470,15 @@ class MediaWikiClient:
                     raw_revision = page["revisions"][0]
                     revision_id = int(raw_revision["revid"])
                     revision_timestamp = str(raw_revision["timestamp"])
-                    revision_content_model = raw_revision.get("contentmodel", page.get("contentmodel"))
+                    main_slot = raw_revision["slots"]["main"]
+                    if not isinstance(main_slot, dict):
+                        raise TypeError("main slot is not an object")
+                    revision_content_model = main_slot.get(
+                        "contentmodel", raw_revision.get("contentmodel", page.get("contentmodel"))
+                    )
                     if revision_content_model is not None and not isinstance(revision_content_model, str):
                         raise TypeError("contentmodel is not text")
-                    source_text = raw_revision["slots"]["main"]["*"]
+                    source_text = main_slot["*"]
                     if not isinstance(source_text, str):
                         raise TypeError("revision source is not text")
                     revision = MediaWikiPageRevision(
@@ -1430,6 +1488,8 @@ class MediaWikiClient:
                         timestamp=revision_timestamp,
                         start_timestamp=start_timestamp,
                         user=_revision_user(raw_revision),
+                        parent_revision_id=_revision_parent_id(raw_revision),
+                        comment=_revision_comment(raw_revision),
                     )
                 except (KeyError, IndexError, TypeError, ValueError) as e:
                     raise MediaWikiAPIError(f"Invalid page snapshot response for '{requested_title}': {e}") from e
@@ -1446,6 +1506,104 @@ class MediaWikiClient:
                 )
             pending = deferred + pending[len(batch) :]
 
+        return snapshots
+
+    def get_revision_snapshots(self, revision_ids: Sequence[int]) -> dict[int, MediaWikiPageSnapshot]:
+        """Read exact historical revisions, keyed by their returned revision IDs.
+
+        Source strings retain the API's line endings. Every requested revision
+        must have readable source, a revision content model, and guard metadata.
+        Missing or deleted revisions raise ``MediaWikiAPIError`` rather than
+        returning a missing-page snapshot or substituting the current revision.
+        """
+        if any(type(revision_id) is not int or revision_id <= 0 for revision_id in revision_ids):
+            raise ValueError("Historical revision IDs must be positive integers")
+        requested = list(dict.fromkeys(revision_ids))
+        snapshots: dict[int, MediaWikiPageSnapshot] = {}
+        for offset in range(0, len(requested), self.batch_size):
+            batch = requested[offset : offset + self.batch_size]
+            params = {
+                "action": "query",
+                "revids": "|".join(str(revision_id) for revision_id in batch),
+                "prop": "revisions|info",
+                "rvprop": "ids|timestamp|user|comment|content|contentmodel",
+                "rvslots": "main",
+                "curtimestamp": "1",
+            }
+            for result in self._query_continued(params, "historical revision snapshots"):
+                start_timestamp = result.get("curtimestamp")
+                if not isinstance(start_timestamp, str) or not start_timestamp:
+                    raise MediaWikiAPIError("Missing curtimestamp while fetching historical revision snapshots")
+                query = result.get("query")
+                pages = query.get("pages") if isinstance(query, dict) else None
+                if not isinstance(pages, dict):
+                    raise MediaWikiAPIError(f"Invalid historical revision response for {batch!r}: missing pages")
+                for page in pages.values():
+                    if not isinstance(page, dict):
+                        raise MediaWikiAPIError(f"Invalid historical revision response for {batch!r}: malformed page")
+                    title, page_id = page.get("title"), page.get("pageid")
+                    if (
+                        not isinstance(title, str)
+                        or not title
+                        or type(page_id) is not int
+                        or page_id <= 0
+                        or "missing" in page
+                        or "invalid" in page
+                    ):
+                        raise MediaWikiAPIError(f"Invalid historical revision response for {batch!r}: unreadable page")
+                    revisions = page.get("revisions", [])
+                    if not isinstance(revisions, list):
+                        raise MediaWikiAPIError(
+                            f"Invalid historical revision response for {batch!r}: malformed revisions"
+                        )
+                    for raw_revision in revisions:
+                        revision_id = raw_revision.get("revid") if isinstance(raw_revision, dict) else None
+                        if type(revision_id) is not int or revision_id not in batch:
+                            raise MediaWikiAPIError(
+                                f"Invalid historical revision response for {batch!r}: "
+                                f"unexpected revision {revision_id!r}"
+                            )
+                        try:
+                            revision_timestamp = raw_revision["timestamp"]
+                            if not isinstance(revision_timestamp, str) or not revision_timestamp:
+                                raise TypeError("revision timestamp is not text")
+                            main_slot = raw_revision["slots"]["main"]
+                            if not isinstance(main_slot, dict):
+                                raise TypeError("main slot is not an object")
+                            if any(
+                                key in entry
+                                for entry in (raw_revision, main_slot)
+                                for key in ("texthidden", "suppressed", "contenthidden")
+                            ):
+                                raise ValueError("revision source is hidden")
+                            source_text = main_slot["*"]
+                            if not isinstance(source_text, str):
+                                raise TypeError("revision source is not text")
+                            content_model = main_slot.get("contentmodel", raw_revision.get("contentmodel"))
+                            if not isinstance(content_model, str) or not content_model:
+                                raise TypeError("revision contentmodel is not text")
+                            revision = MediaWikiPageRevision(
+                                title=title,
+                                page_id=page_id,
+                                revision_id=revision_id,
+                                timestamp=revision_timestamp,
+                                start_timestamp=start_timestamp,
+                                user=_revision_user(raw_revision),
+                                parent_revision_id=_revision_parent_id(raw_revision),
+                                comment=_revision_comment(raw_revision),
+                            )
+                        except (KeyError, IndexError, TypeError, ValueError) as e:
+                            raise MediaWikiAPIError(f"Invalid historical revision {revision_id}: {e}") from e
+                        snapshots[revision_id] = MediaWikiPageSnapshot(
+                            title=title,
+                            source_text=source_text,
+                            revision=revision,
+                            start_timestamp=start_timestamp,
+                            content_model=content_model,
+                        )
+            missing = [revision_id for revision_id in batch if revision_id not in snapshots]
+            if missing:
+                raise MediaWikiAPIError(f"Historical revisions not returned or unreadable: {missing!r}")
         return snapshots
 
     def parse_wikitext(
@@ -1653,7 +1811,7 @@ class MediaWikiClient:
             "action": "query",
             "titles": title,
             "prop": "revisions",
-            "rvprop": "ids|timestamp|user",
+            "rvprop": "ids|timestamp|user|comment",
             "curtimestamp": "1",
         }
         if assertion is not None:
@@ -1684,6 +1842,8 @@ class MediaWikiClient:
             revision_title = str(page["title"])
             revision_page_id = int(page.get("pageid", page_id))
             revision_user = _revision_user(revision)
+            parent_revision_id = _revision_parent_id(revision)
+            comment = _revision_comment(revision)
         except (KeyError, IndexError, TypeError, ValueError) as e:
             raise MediaWikiAPIError(f"Invalid revision metadata response for '{title}': {e}") from e
 
@@ -1694,6 +1854,8 @@ class MediaWikiClient:
             timestamp=revision_timestamp,
             start_timestamp=start_timestamp,
             user=revision_user,
+            parent_revision_id=parent_revision_id,
+            comment=comment,
         )
 
     def get_edit_start_timestamp(
@@ -1732,7 +1894,12 @@ class MediaWikiClient:
         assert_user: str | None = None,
         content_model: str | None = None,
     ) -> int:
-        """Edit an existing page with conflict, timestamp, hash, and user guards."""
+        """Preflight and verify an edit without claiming atomic compare-and-swap.
+
+        MediaWiki can merge an intervening edit despite ``baserevid``. Verify
+        the acknowledged historical revision's parent and stored source before
+        reporting success. A verification error retains the write receipt.
+        """
         if assertion not in ("user", "bot"):
             raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
 
@@ -1750,13 +1917,14 @@ class MediaWikiClient:
             "summary": summary,
             "baserevid": str(base_revision.revision_id),
             "starttimestamp": base_revision.start_timestamp,
+            "nocreate": "1",
             "md5": hashlib.md5(content.encode(), usedforsecurity=False).hexdigest(),
             "assert": assertion,
         }
         if assert_user is not None:
             data["assertuser"] = assert_user
         if content_model is not None:
-            if content_model not in {"css", "javascript", "json", "vue", "wikitext"}:
+            if content_model not in {"Scribunto", "sanitized-css", "css", "javascript", "json", "vue", "wikitext"}:
                 raise ValueError(f"unsupported content model: {content_model}")
             data["contentmodel"] = content_model
         if minor:
@@ -1767,6 +1935,14 @@ class MediaWikiClient:
         last_error: MediaWikiAPIError | None = None
         for attempt in range(2):
             data["token"] = self.get_csrf_token()
+            current = self.get_page_revision_metadata(title, assertion=assertion, assert_user=assert_user)
+            if (
+                current is None
+                or current.revision_id != base_revision.revision_id
+                or current.page_id != base_revision.page_id
+                or current.title != base_revision.title
+            ):
+                raise MediaWikiEditConflictError(f"Edit conflict before writing {title!r}: base revision changed")
             try:
                 result = self._request({}, method="POST", data=data.copy())
             except MediaWikiAPIError as e:
@@ -1775,7 +1951,9 @@ class MediaWikiClient:
                     logger.warning(f"CSRF token rejected while safely editing {title}; refreshing once")
                     continue
                 if isinstance(e, MediaWikiNetworkError):
-                    landed = self._landed_revision(title, content, base_revision.revision_id)
+                    landed = self._landed_revision(
+                        title, content, base_revision.revision_id, content_model=content_model
+                    )
                     if landed is not None:
                         logger.warning(f"The answer to the edit of {title} was lost; revision {landed} holds it")
                         return landed
@@ -1789,15 +1967,29 @@ class MediaWikiClient:
                 raise MediaWikiEditError(f"Safe edit failed: {error}")
 
             if "nochange" in edit_result:
-                logger.info(
-                    f"Safe edit was a no-op for {title}; content already at revision {base_revision.revision_id}"
-                )
+                snapshot = self.get_page_snapshots([title], assertion=assertion, assert_user=assert_user)[title]
+                if (
+                    snapshot.revision is None
+                    or snapshot.revision.revision_id != base_revision.revision_id
+                    or snapshot.source_text is None
+                    or normalize_saved_text(snapshot.source_text) != normalize_saved_text(content)
+                    or (content_model is not None and snapshot.content_model != content_model)
+                ):
+                    raise MediaWikiEditConflictError(f"Edit conflict after no-change response for {title!r}")
                 return base_revision.revision_id
             try:
                 new_revision_id = int(edit_result["newrevid"])
             except (KeyError, TypeError, ValueError) as e:
                 raise MediaWikiEditError(f"Safe edit response for '{title}' did not include newrevid") from e
 
+            self._verify_edit_revision(
+                base_revision.title,
+                content,
+                base_revision.revision_id,
+                new_revision_id,
+                acknowledged_old_revision_id=edit_result.get("oldrevid"),
+                content_model=content_model,
+            )
             logger.info(f"Successfully safely edited page: {title} -> revision {new_revision_id}")
             return new_revision_id
 
@@ -1815,7 +2007,7 @@ class MediaWikiClient:
         assert_user: str | None = None,
         content_model: str | None = None,
     ) -> int:
-        """Create a missing page with timestamp, hash, assertion, and create-only guards."""
+        """Create with create-only guards and verify the saved revision's parent, source, and requested model."""
         if assertion not in ("user", "bot"):
             raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
 
@@ -1839,13 +2031,19 @@ class MediaWikiClient:
         if assert_user is not None:
             data["assertuser"] = assert_user
         if content_model is not None:
-            if content_model not in {"css", "javascript", "json", "vue", "wikitext"}:
+            if content_model not in {"Scribunto", "sanitized-css", "css", "javascript", "json", "vue", "wikitext"}:
                 raise ValueError(f"unsupported content model: {content_model}")
             data["contentmodel"] = content_model
         if minor:
             data["minor"] = "1"
         if bot:
             data["bot"] = "1"
+
+        snapshot = self.get_page_snapshots([title], assertion=assertion, assert_user=assert_user)[title]
+        if snapshot.revision is not None:
+            raise MediaWikiEditConflictError(f"Conflict before creating {title!r}: page already exists")
+        title = snapshot.title
+        data["title"] = title
 
         last_error: MediaWikiAPIError | None = None
         for attempt in range(2):
@@ -1858,7 +2056,7 @@ class MediaWikiClient:
                     logger.warning(f"CSRF token rejected while safely creating {title}; refreshing once")
                     continue
                 if isinstance(e, MediaWikiNetworkError):
-                    landed = self._landed_revision(title, content, None)
+                    landed = self._landed_revision(title, content, None, content_model=content_model)
                     if landed is not None:
                         logger.warning(f"The answer to the creation of {title} was lost; revision {landed} holds it")
                         return landed
@@ -1876,18 +2074,73 @@ class MediaWikiClient:
             except (KeyError, TypeError, ValueError) as e:
                 raise MediaWikiEditError(f"Safe create response for '{title}' did not include newrevid") from e
 
+            self._verify_edit_revision(
+                title,
+                content,
+                0,
+                new_revision_id,
+                acknowledged_old_revision_id=edit_result.get("oldrevid"),
+                content_model=content_model,
+            )
             logger.info(f"Successfully safely created page: {title} -> revision {new_revision_id}")
             return new_revision_id
 
         raise MediaWikiEditError(f"Failed to safely create page '{title}': {last_error}")
 
-    def _landed_revision(self, title: str, content: str, base_revision_id: int | None) -> int | None:
-        """The revision that holds a write whose answer was lost, or None when the write did not land.
+    def _verify_edit_revision(
+        self,
+        title: str,
+        content: str,
+        base_revision_id: int,
+        new_revision_id: int,
+        *,
+        acknowledged_old_revision_id: object = None,
+        content_model: str | None = None,
+    ) -> None:
+        """Verify saved source and ancestry, retaining acknowledged writes on failure."""
+        written: MediaWikiPageSnapshot | None = None
+        parent: MediaWikiPageSnapshot | None = None
+        try:
+            written = self.get_revision_snapshots([new_revision_id])[new_revision_id]
+            revision = written.revision
+            if (
+                revision is not None
+                and written.title == title
+                and revision.revision_id == new_revision_id
+                and written.source_text is not None
+                and normalize_saved_text(written.source_text) == normalize_saved_text(content)
+                and (content_model is None or written.content_model == content_model)
+                and revision.parent_revision_id == base_revision_id
+                and type(acknowledged_old_revision_id) is int
+                and acknowledged_old_revision_id == base_revision_id
+            ):
+                return
+            if revision is not None and revision.parent_revision_id is not None and revision.parent_revision_id > 0:
+                parent = self.get_revision_snapshots([revision.parent_revision_id])[revision.parent_revision_id]
+        except (Exception, KeyboardInterrupt) as error:
+            # Keep the receipt even when verification fails outside the API
+            # error hierarchy or the operator interrupts a history read.
+            raise MediaWikiEditVerificationError(
+                f"Write receipt for {title!r} revision {new_revision_id} could not be verified: {error}",
+                new_revision_id=new_revision_id,
+                written_snapshot=written,
+                actual_parent_snapshot=parent,
+            ) from error
+        raise MediaWikiEditVerificationError(
+            f"Write receipt for {title!r} revision {new_revision_id} differs from its reviewed base or source",
+            new_revision_id=new_revision_id,
+            written_snapshot=written,
+            actual_parent_snapshot=parent,
+        )
+
+    def _landed_revision(
+        self, title: str, content: str, base_revision_id: int | None, *, content_model: str | None = None
+    ) -> int | None:
+        """Return an attributable saved revision, or None when attribution cannot establish one.
 
         A timeout or dropped connection may hide an edit that MediaWiki saved.
-        The write landed when the page's latest revision is newer than the base,
-        made by this client's account, and holds the content, which MediaWiki
-        stores without trailing whitespace.
+        Adoption requires the exact expected parent, this client's account,
+        and matching source after MediaWiki's saved-text normalization.
         """
         try:
             snapshot = self.get_page_snapshots([title])[title]
@@ -1898,8 +2151,10 @@ class MediaWikiClient:
             revision is None
             or snapshot.source_text is None
             or revision.revision_id == base_revision_id
+            or revision.parent_revision_id != (base_revision_id if base_revision_id is not None else 0)
             or revision.user != self.edit_account
-            or snapshot.source_text.rstrip() != content.rstrip()
+            or normalize_saved_text(snapshot.source_text) != normalize_saved_text(content)
+            or (content_model is not None and snapshot.content_model != content_model)
         ):
             return None
         return revision.revision_id

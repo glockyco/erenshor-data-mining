@@ -20,10 +20,18 @@ from erenshor.application.wiki_interface.manifest import (
     ContentModel,
     DeployAction,
     InterfaceDeployManifest,
+    InterfaceEditVerificationReceipt,
     InterfacePageManifestEntry,
     rollback_sidecar_filename,
 )
-from erenshor.infrastructure.wiki.client import MediaWikiPageRevision, MediaWikiPageSnapshot
+from erenshor.infrastructure.wiki.client import (
+    MediaWikiAssertionError,
+    MediaWikiEditConflictError,
+    MediaWikiEditVerificationError,
+    MediaWikiPageRevision,
+    MediaWikiPageSnapshot,
+    MediaWikiPermissionError,
+)
 from erenshor.infrastructure.wiki.content import normalize_saved_text
 
 DEFINITION_TITLE = "MediaWiki:Gadgets-definition"
@@ -56,6 +64,11 @@ class InterfaceMutationError(InterfaceDeployError):
 class InterfaceDeployClient(Protocol):
     """The narrow MediaWiki API needed by this deployment path."""
 
+    api_url: str
+
+    @property
+    def edit_account(self) -> str: ...
+
     def get_current_user_rights(
         self,
         assertion: Literal["user"] = "user",
@@ -79,7 +92,7 @@ class InterfaceDeployClient(Protocol):
         bot: bool = False,
         assertion: Literal["user"] = "user",
         assert_user: str | None = None,
-        content_model: ContentModel | None = None,
+        content_model: str | None = None,
     ) -> int: ...
 
     def safe_create_page(
@@ -92,7 +105,7 @@ class InterfaceDeployClient(Protocol):
         bot: bool = False,
         assertion: Literal["user"] = "user",
         assert_user: str | None = None,
-        content_model: ContentModel | None = None,
+        content_model: str | None = None,
     ) -> int: ...
 
 
@@ -245,6 +258,9 @@ def deploy_interface_pages(
     rollback_dir = _constrained_rollback_root(root, rollback_root)
     rollback_root_relative = rollback_dir.relative_to(root).as_posix()
     _require_editinterface(client, plan.assert_user)
+    edit_account = client.edit_account
+    if not edit_account:
+        raise InterfaceDeployError("The native client has no edit account")
 
     prepared: list[InterfacePageManifestEntry] = []
     if any(entry.planned_action == "edited" for entry in plan.entries):
@@ -278,6 +294,10 @@ def deploy_interface_pages(
                 deployed_text_sha256=_text_digest(source_texts[entry.title]),
                 deploy_action=None,
                 mutation_state="pending",
+                deploy_request_base=snapshot,
+                deploy_account=edit_account,
+                deploy_api_url=client.api_url,
+                deploy_request_state="unattempted",
             )
         )
     prepared_manifest = InterfaceDeployManifest(entries=tuple(prepared), rollback_root=rollback_root_relative)
@@ -292,6 +312,9 @@ def deploy_interface_pages(
                 checkpoint, InterfaceDeployManifest(entries=tuple(completed), rollback_root=rollback_root_relative)
             )
             continue
+        current = replace(current, deploy_request_state="pending")
+        completed[index] = current
+        _checkpoint(checkpoint, InterfaceDeployManifest(entries=tuple(completed), rollback_root=rollback_root_relative))
         snapshot = current_snapshots[entry.title]
         try:
             if entry.planned_action == "created":
@@ -327,6 +350,38 @@ def deploy_interface_pages(
                 deploy_action=entry.planned_action,
                 mutation_state="applied",
             )
+        except MediaWikiEditVerificationError as error:
+            # The native acknowledgement is stronger than any later current-page read.
+            completed[index] = replace(
+                current,
+                new_revision_id=error.new_revision_id,
+                deploy_action=entry.planned_action,
+                mutation_state="ambiguous",
+                edit_verification_error=_verification_receipt(error),
+            )
+            recovery_manifest = InterfaceDeployManifest(entries=tuple(completed), rollback_root=rollback_root_relative)
+            try:
+                _checkpoint(checkpoint, recovery_manifest)
+            except BaseException as checkpoint_error:
+                raise InterfaceMutationError(
+                    f"Verification failed for acknowledged edit of {entry.title} and checkpoint failed",
+                    recovery_manifest,
+                ) from checkpoint_error
+            raise InterfaceMutationError(
+                f"Verification failed for acknowledged edit of {entry.title}; rollback evidence checkpointed",
+                recovery_manifest,
+            ) from error
+        except (MediaWikiEditConflictError, MediaWikiAssertionError, MediaWikiPermissionError) as error:
+            # Native rejections provide no write receipt and must not adopt another editor's revision.
+            completed[index] = replace(current, deploy_request_state="rejected")
+            recovery_manifest = InterfaceDeployManifest(entries=tuple(completed), rollback_root=rollback_root_relative)
+            try:
+                _checkpoint(checkpoint, recovery_manifest)
+            except BaseException as checkpoint_error:
+                raise InterfaceMutationError(
+                    f"Rejected mutation for {entry.title} could not be checkpointed", recovery_manifest
+                ) from checkpoint_error
+            raise InterfaceDeployError(f"Native mutation rejected for {entry.title}") from error
         except BaseException as error:
             reconciled = _reconcile_mutation(client, entry, source_texts[entry.title], current, plan.assert_user)
             completed[index] = reconciled
@@ -381,11 +436,24 @@ def rollback_interface_pages(
     summary: str,
     force: bool = False,
     assert_user: str | None = None,
+    *,
+    checkpoint: Checkpoint,
 ) -> InterfaceRollbackResult:
-    """Restore edited entries in reverse order and report created entries."""
+    """Restore attributable writes using the latest checkpoint of the original manifest.
+
+    Persist each actual rollback request base before writing so retries cannot
+    mistake another editor's matching text for this account's restoration.
+    """
     if not isinstance(manifest, InterfaceDeployManifest):
         raise TypeError("manifest must be an InterfaceDeployManifest")
+    if not callable(checkpoint):
+        raise TypeError("checkpoint must be callable")
     root = repo_root.resolve()
+    for entry in manifest.entries:
+        if entry.rollback_verification_error is not None:
+            raise InterfaceMutationError(f"Rollback verification remains unresolved for {entry.title}", manifest)
+    manifest = _recover_pending_deploys(manifest, client, assert_user, checkpoint)
+    manifest = _recover_pending_rollbacks(manifest, root, client, assert_user, checkpoint)
     created_titles = tuple(
         entry.title
         for entry in manifest.entries
@@ -398,20 +466,11 @@ def rollback_interface_pages(
         _require_editinterface(client, assert_user)
 
     restored: list[InterfaceRollbackEntry] = []
-    for entry in reversed(editable):
-        sidecar_path = _sidecar_path(root, manifest, entry)
-        try:
-            if sidecar_path.is_symlink() or not sidecar_path.is_file():
-                raise InterfaceDeployError(f"Rollback sidecar must be a regular non-symlink file: {sidecar_path}")
-            rollback_data = sidecar_path.read_bytes()
-            rollback_text = rollback_data.decode("utf-8")
-        except InterfaceDeployError:
-            raise
-        except (OSError, UnicodeError) as error:
-            raise InterfaceDeployError(f"Rollback sidecar is unavailable for {entry.title}: {sidecar_path}") from error
-        expected_digest = entry.rollback_text_sha256
-        if expected_digest is None or hashlib.sha256(rollback_data).hexdigest() != expected_digest:
-            raise InterfaceDeployError(f"Rollback sidecar digest mismatch for {entry.title}")
+    for original_entry in reversed(editable):
+        entry = original_entry
+        rollback_text, rollback_model, restored_revision_id = _rollback_target(root, manifest, entry)
+        if entry.deploy_api_url is None or entry.deploy_api_url != client.api_url:
+            raise InterfaceRevisionConflictError(f"Deployment wiki identity remains unresolved for {entry.title}")
 
         snapshots = client.get_page_snapshots([entry.title], assertion="user", assert_user=assert_user)
         snapshot = snapshots.get(entry.title)
@@ -421,27 +480,52 @@ def rollback_interface_pages(
         current_text = _snapshot_text(snapshot)
         if current_revision is None or current_text is None:
             raise InterfaceRevisionConflictError(f"Cannot roll back page without a current revision: {entry.title}")
-        if normalize_saved_text(current_text) == normalize_saved_text(rollback_text):
+        if entry.rollback_request_state != "rejected" and _matches_request(
+            snapshot,
+            entry.rollback_request_base,
+            entry.rollback_account,
+            rollback_model,
+            _text_digest(rollback_text),
+            entry.rollback_new_revision_id,
+            request_api_url=entry.rollback_api_url,
+            api_url=client.api_url,
+        ):
             restored.append(
                 InterfaceRollbackEntry(
                     title=entry.title,
-                    restored_revision_id=entry.old_revision_id,
+                    restored_revision_id=restored_revision_id,
                     new_revision_id=current_revision.revision_id,
                 )
             )
             continue
+        if normalize_saved_text(current_text) == normalize_saved_text(rollback_text):
+            raise InterfaceRevisionConflictError(f"Restored text has no attributable rollback receipt: {entry.title}")
+        if entry.new_revision_id is None and not _matches_request(
+            snapshot,
+            entry.deploy_request_base,
+            entry.deploy_account,
+            entry.content_model,
+            entry.deployed_text_sha256,
+            request_api_url=entry.deploy_api_url,
+            api_url=client.api_url,
+        ):
+            raise InterfaceRevisionConflictError(f"Ambiguous deploy has no attributable revision: {entry.title}")
         if not force and entry.new_revision_id is not None and current_revision.revision_id != entry.new_revision_id:
             raise InterfaceRevisionConflictError(
                 "Page changed since deploy: "
                 f"{entry.title} is at revision {current_revision.revision_id}, "
                 f"expected {entry.new_revision_id}"
             )
-        if (
-            not force
-            and entry.new_revision_id is None
-            and (entry.deployed_text_sha256 is None or _text_digest(current_text) != entry.deployed_text_sha256)
-        ):
-            raise InterfaceRevisionConflictError(f"Ambiguous page changed before rollback: {entry.title}")
+        entry = replace(
+            entry,
+            rollback_request_base=snapshot,
+            rollback_account=client.edit_account,
+            rollback_api_url=client.api_url,
+            rollback_request_state="pending",
+            rollback_new_revision_id=None,
+        )
+        manifest = _replace_manifest_entry(manifest, entry)
+        _checkpoint(checkpoint, manifest)
         try:
             new_revision_id = client.safe_edit_page(
                 title=entry.title,
@@ -451,28 +535,73 @@ def rollback_interface_pages(
                 bot=False,
                 assertion="user",
                 assert_user=assert_user,
-                content_model=entry.content_model,
+                content_model=rollback_model,
             )
             if isinstance(new_revision_id, bool) or not isinstance(new_revision_id, int):
                 raise InterfaceDeployError(f"MediaWiki did not return a rollback revision id for {entry.title}")
-        except BaseException as error:
-            reconciled = client.get_page_snapshots([entry.title], assertion="user", assert_user=assert_user).get(
-                entry.title
+        except MediaWikiEditVerificationError as error:
+            failed_entry = replace(
+                entry,
+                rollback_new_revision_id=error.new_revision_id,
+                rollback_verification_error=_verification_receipt(error),
             )
-            reconciled_text = _snapshot_text(reconciled) if reconciled is not None else None
-            reconciled_revision = _snapshot_revision(reconciled) if reconciled is not None else None
-            if (
-                reconciled_revision is not None
-                and reconciled_text is not None
-                and normalize_saved_text(reconciled_text) == normalize_saved_text(rollback_text)
+            failed_manifest = _replace_manifest_entry(manifest, failed_entry)
+            # Checkpoint the receipt before any further evidence read.
+            try:
+                _checkpoint(checkpoint, failed_manifest)
+            except BaseException as checkpoint_error:
+                raise InterfaceMutationError(
+                    f"Rollback verification failed for acknowledged edit of {entry.title} and checkpoint failed",
+                    failed_manifest,
+                ) from checkpoint_error
+            raise InterfaceMutationError(
+                f"Rollback verification failed for acknowledged edit of {entry.title}; receipt checkpointed",
+                failed_manifest,
+            ) from error
+        except (MediaWikiEditConflictError, MediaWikiAssertionError, MediaWikiPermissionError) as error:
+            rejected_entry = replace(entry, rollback_request_state="rejected")
+            rejected_manifest = _replace_manifest_entry(manifest, rejected_entry)
+            try:
+                _checkpoint(checkpoint, rejected_manifest)
+            except BaseException as checkpoint_error:
+                raise InterfaceMutationError(
+                    f"Rejected rollback for {entry.title} could not be checkpointed", rejected_manifest
+                ) from checkpoint_error
+            raise InterfaceRevisionConflictError(f"Native rollback rejected for {entry.title}") from error
+        except BaseException as error:
+            try:
+                reconciled = client.get_page_snapshots([entry.title], assertion="user", assert_user=assert_user).get(
+                    entry.title
+                )
+            except BaseException as read_error:
+                raise InterfaceMutationError(
+                    f"Rollback outcome is ambiguous for {entry.title}", manifest
+                ) from read_error
+            if not _matches_request(
+                reconciled,
+                entry.rollback_request_base,
+                entry.rollback_account,
+                rollback_model,
+                _text_digest(rollback_text),
+                entry.rollback_new_revision_id,
+                request_api_url=entry.rollback_api_url,
+                api_url=client.api_url,
             ):
-                new_revision_id = reconciled_revision.revision_id
-            else:
-                raise InterfaceDeployError(f"Rollback outcome is ambiguous for {entry.title}") from error
+                raise InterfaceMutationError(f"Rollback outcome is ambiguous for {entry.title}", manifest) from error
+            assert reconciled is not None and reconciled.revision is not None
+            new_revision_id = reconciled.revision.revision_id
+        entry = replace(entry, rollback_new_revision_id=new_revision_id)
+        manifest = _replace_manifest_entry(manifest, entry)
+        try:
+            _checkpoint(checkpoint, manifest)
+        except BaseException as error:
+            raise InterfaceMutationError(
+                f"Rollback for {entry.title} committed but checkpoint failed", manifest
+            ) from error
         restored.append(
             InterfaceRollbackEntry(
                 title=entry.title,
-                restored_revision_id=entry.old_revision_id,
+                restored_revision_id=restored_revision_id,
                 new_revision_id=new_revision_id,
             )
         )
@@ -590,6 +719,38 @@ def _text_digest(text: str) -> str:
     return hashlib.sha256(normalize_saved_text(text).encode("utf-8")).hexdigest()
 
 
+def _verification_receipt(error: MediaWikiEditVerificationError) -> InterfaceEditVerificationReceipt:
+    return InterfaceEditVerificationReceipt(
+        new_revision_id=error.new_revision_id,
+        written_snapshot=error.written_snapshot,
+        actual_parent_snapshot=error.actual_parent_snapshot,
+    )
+
+
+def _verified_actual_parent(entry: InterfacePageManifestEntry) -> MediaWikiPageSnapshot:
+    receipt = entry.edit_verification_error
+    assert receipt is not None
+    written = receipt.written_snapshot
+    parent = receipt.actual_parent_snapshot
+    if (
+        written is None
+        or written.title != entry.title
+        or written.revision is None
+        or written.revision.title != entry.title
+        or written.revision.revision_id != receipt.new_revision_id
+        or parent is None
+        or parent.title != entry.title
+        or parent.revision is None
+        or parent.revision.title != entry.title
+        or parent.revision.page_id != written.revision.page_id
+        or parent.revision.revision_id != written.revision.parent_revision_id
+        or parent.source_text is None
+        or parent.content_model is None
+    ):
+        raise InterfaceRevisionConflictError(f"Actual parent evidence remains unresolved for {entry.title}")
+    return parent
+
+
 def _reconcile_mutation(
     client: InterfaceDeployClient,
     plan_entry: InterfaceDeployPlanEntry,
@@ -607,42 +768,228 @@ def _reconcile_mutation(
             manifest_entry,
             deploy_action=plan_entry.planned_action,
             mutation_state="ambiguous",
-            new_revision_id=None,
+            new_revision_id=manifest_entry.new_revision_id,
         )
     if snapshot is None:
         return replace(
             manifest_entry,
             deploy_action=plan_entry.planned_action,
             mutation_state="ambiguous",
-            new_revision_id=None,
+            new_revision_id=manifest_entry.new_revision_id,
         )
-    try:
-        remote_text = _snapshot_text(snapshot)
-        revision = _snapshot_revision(snapshot)
-        _verify_content_model(plan_entry.title, snapshot, plan_entry.content_model)
-    except BaseException:
-        return replace(
-            manifest_entry,
-            deploy_action=plan_entry.planned_action,
-            mutation_state="ambiguous",
-            new_revision_id=None,
-        )
-    if (
-        remote_text is not None
-        and revision is not None
-        and normalize_saved_text(remote_text) == normalize_saved_text(target_text)
+    if _matches_request(
+        snapshot,
+        manifest_entry.deploy_request_base,
+        manifest_entry.deploy_account,
+        plan_entry.content_model,
+        _text_digest(target_text),
+        manifest_entry.new_revision_id,
+        request_api_url=manifest_entry.deploy_api_url,
+        api_url=client.api_url,
     ):
+        assert snapshot.revision is not None
         return replace(
             manifest_entry,
             deploy_action=plan_entry.planned_action,
             mutation_state="applied",
-            new_revision_id=revision.revision_id,
+            new_revision_id=snapshot.revision.revision_id,
         )
     return replace(
         manifest_entry,
         deploy_action=plan_entry.planned_action,
         mutation_state="ambiguous",
-        new_revision_id=None,
+        new_revision_id=manifest_entry.new_revision_id,
+    )
+
+
+def _replace_manifest_entry(
+    manifest: InterfaceDeployManifest, entry: InterfacePageManifestEntry
+) -> InterfaceDeployManifest:
+    return replace(manifest, entries=tuple(entry if item.title == entry.title else item for item in manifest.entries))
+
+
+def _rollback_target(
+    root: Path, manifest: InterfaceDeployManifest, entry: InterfacePageManifestEntry
+) -> tuple[str, str, int | None]:
+    """Load the verified rollback source without changing the reviewed sidecar."""
+    sidecar_path = _sidecar_path(root, manifest, entry)
+    try:
+        if sidecar_path.is_symlink() or not sidecar_path.is_file():
+            raise InterfaceDeployError(f"Rollback sidecar must be a regular non-symlink file: {sidecar_path}")
+        rollback_data = sidecar_path.read_bytes()
+        rollback_text = rollback_data.decode("utf-8")
+    except InterfaceDeployError:
+        raise
+    except (OSError, UnicodeError) as error:
+        raise InterfaceDeployError(f"Rollback sidecar is unavailable for {entry.title}: {sidecar_path}") from error
+    if entry.rollback_text_sha256 is None or hashlib.sha256(rollback_data).hexdigest() != entry.rollback_text_sha256:
+        raise InterfaceDeployError(f"Rollback sidecar digest mismatch for {entry.title}")
+    if entry.edit_verification_error is not None:
+        parent = _verified_actual_parent(entry)
+        assert parent.source_text is not None and parent.content_model is not None and parent.revision is not None
+        return parent.source_text, parent.content_model, parent.revision.revision_id
+    return rollback_text, entry.content_model, entry.old_revision_id
+
+
+def _recover_pending_rollbacks(
+    manifest: InterfaceDeployManifest,
+    root: Path,
+    client: InterfaceDeployClient,
+    assert_user: str | None,
+    checkpoint: Checkpoint,
+) -> InterfaceDeployManifest:
+    """Attribute all outstanding rollback requests before issuing another write."""
+    pending = [
+        entry
+        for entry in manifest.entries
+        if (entry.rollback_request_base is not None or entry.rollback_request_state == "pending")
+        and entry.rollback_new_revision_id is None
+        and entry.rollback_request_state != "rejected"
+    ]
+    if not pending:
+        return manifest
+    targets: dict[str, tuple[str, str, int | None]] = {}
+    for entry in pending:
+        if (
+            entry.deploy_api_url is None
+            or entry.deploy_api_url != client.api_url
+            or entry.rollback_api_url is None
+            or entry.rollback_api_url != client.api_url
+        ):
+            raise InterfaceRevisionConflictError(f"Rollback wiki identity remains unresolved for {entry.title}")
+        targets[entry.title] = _rollback_target(root, manifest, entry)
+    try:
+        snapshots = client.get_page_snapshots(
+            [entry.title for entry in pending], assertion="user", assert_user=assert_user
+        )
+    except BaseException as error:
+        raise InterfaceMutationError("Pending interface rollback evidence is unavailable", manifest) from error
+    recovered = manifest
+    for entry in pending:
+        snapshot = snapshots.get(entry.title)
+        text, model, _restored_revision_id = targets[entry.title]
+        if not _matches_request(
+            snapshot,
+            entry.rollback_request_base,
+            entry.rollback_account,
+            model,
+            _text_digest(text),
+            entry.rollback_new_revision_id,
+            request_api_url=entry.rollback_api_url,
+            api_url=client.api_url,
+        ):
+            raise InterfaceRevisionConflictError(
+                f"Pending rollback has no attributable rollback receipt: {entry.title}"
+            )
+        assert snapshot is not None and snapshot.revision is not None
+        recovered_entry = replace(entry, rollback_new_revision_id=snapshot.revision.revision_id)
+        recovered = _replace_manifest_entry(recovered, recovered_entry)
+    try:
+        _checkpoint(checkpoint, recovered)
+    except BaseException as error:
+        raise InterfaceMutationError(
+            "Recovered rollback acknowledgements could not be checkpointed", recovered
+        ) from error
+    return recovered
+
+
+def _recover_pending_deploys(
+    manifest: InterfaceDeployManifest,
+    client: InterfaceDeployClient,
+    assert_user: str | None,
+    checkpoint: Checkpoint,
+) -> InterfaceDeployManifest:
+    """Resolve every possible crash-window write before restoring any page."""
+    pending = [
+        entry
+        for entry in manifest.entries
+        if (
+            entry.mutation_state == "pending"
+            and entry.deploy_action is None
+            and entry.deploy_request_state not in ("unattempted", "rejected")
+        )
+        or (entry.mutation_state == "ambiguous" and entry.new_revision_id is None)
+    ]
+    if not pending:
+        return manifest
+    for entry in pending:
+        if entry.deploy_api_url is None or entry.deploy_api_url != client.api_url:
+            raise InterfaceRevisionConflictError(f"Deployment wiki identity remains unresolved for {entry.title}")
+    try:
+        snapshots = client.get_page_snapshots(
+            [entry.title for entry in pending], assertion="user", assert_user=assert_user
+        )
+    except BaseException as error:
+        raise InterfaceMutationError("Pending interface deployment evidence is unavailable", manifest) from error
+    recovered = manifest
+    for entry in pending:
+        snapshot = snapshots.get(entry.title)
+        if not _matches_request(
+            snapshot,
+            entry.deploy_request_base,
+            entry.deploy_account,
+            entry.content_model,
+            entry.deployed_text_sha256,
+            entry.new_revision_id,
+            request_api_url=entry.deploy_api_url,
+            api_url=client.api_url,
+        ):
+            raise InterfaceRevisionConflictError(f"Pending deploy has no attributable revision: {entry.title}")
+        assert snapshot is not None and snapshot.revision is not None and entry.deploy_request_base is not None
+        action: DeployAction = "created" if entry.deploy_request_base.revision is None else "edited"
+        recovered_entry = replace(
+            entry,
+            deploy_action=action,
+            mutation_state="applied",
+            new_revision_id=snapshot.revision.revision_id,
+        )
+        recovered = _replace_manifest_entry(recovered, recovered_entry)
+    try:
+        _checkpoint(checkpoint, recovered)
+    except BaseException as error:
+        raise InterfaceMutationError(
+            "Recovered interface acknowledgements could not be checkpointed", recovered
+        ) from error
+    return recovered
+
+
+def _matches_request(
+    snapshot: MediaWikiPageSnapshot | None,
+    request_base: MediaWikiPageSnapshot | None,
+    account: str | None,
+    content_model: str,
+    text_digest: str | None,
+    acknowledged_revision_id: int | None = None,
+    *,
+    request_api_url: str | None,
+    api_url: str,
+) -> bool:
+    """Attribute only an exact native request descendant to the configured account."""
+    if (
+        snapshot is None
+        or request_base is None
+        or not account
+        or text_digest is None
+        or not request_api_url
+        or request_api_url != api_url
+    ):
+        return False
+    revision = snapshot.revision
+    base = request_base.revision
+    return (
+        revision is not None
+        and snapshot.title == request_base.title
+        and revision.title == request_base.title
+        and revision.page_id > 0
+        and (base is None or (base.title == revision.title and revision.page_id == base.page_id))
+        and revision.revision_id > 0
+        and revision.revision_id != (base.revision_id if base else 0)
+        and revision.parent_revision_id == (base.revision_id if base else 0)
+        and revision.user == account
+        and snapshot.content_model == content_model
+        and snapshot.source_text is not None
+        and _text_digest(snapshot.source_text) == text_digest
+        and (acknowledged_revision_id is None or revision.revision_id == acknowledged_revision_id)
     )
 
 

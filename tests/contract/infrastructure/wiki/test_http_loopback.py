@@ -18,28 +18,58 @@ class _LoopbackHandler(BaseHTTPRequestHandler):
 
     protocol_version = "HTTP/1.0"
     requests: ClassVar[list[dict[str, Any]]] = []
+    created: ClassVar[dict[str, str] | None] = None
 
     def do_GET(self) -> None:
         parsed = urlsplit(self.path)
+        params = parse_qs(parsed.query, keep_blank_values=True)
         self.requests.append(
             {
                 "method": "GET",
                 "path": parsed.path,
                 "query": parsed.query,
-                "params": parse_qs(parsed.query, keep_blank_values=True),
+                "params": params,
                 "headers": dict(self.headers),
             }
         )
-        payload = {
-            "query": {
-                "pages": {
-                    "1": {
-                        "title": "Contract Page &/?",
-                        "revisions": [{"slots": {"main": {"*": "existing text"}}}],
+        if "revids" in params:
+            assert self.created is not None
+            payload = {
+                "curtimestamp": "2026-06-04T12:00:02Z",
+                "query": {
+                    "pages": {
+                        "2": {
+                            "pageid": 2,
+                            "title": self.created["title"],
+                            "revisions": [
+                                {
+                                    "revid": 2,
+                                    "parentid": 0,
+                                    "timestamp": "2026-06-04T12:00:01Z",
+                                    "user": "ContractBot",
+                                    "slots": {"main": {"*": self.created["text"], "contentmodel": "wikitext"}},
+                                }
+                            ],
+                        }
+                    }
+                },
+            }
+        elif "curtimestamp" in params:
+            payload = {
+                "curtimestamp": "2026-06-04T12:00:00Z",
+                "query": {"pages": {"-1": {"title": params["titles"][0], "missing": ""}}},
+            }
+        else:
+            payload = {
+                "query": {
+                    "pages": {
+                        "1": {
+                            "title": "Contract Page &/?",
+                            "revisions": [{"slots": {"main": {"*": "existing text"}}}],
+                        }
                     }
                 }
             }
-        }
         self._respond(payload, cookie="session=contract-cookie; Path=/")
 
     def do_POST(self) -> None:
@@ -57,7 +87,9 @@ class _LoopbackHandler(BaseHTTPRequestHandler):
                 "headers": dict(self.headers),
             }
         )
-        self._respond({"edit": {"result": "Success", "newrevid": 2}})
+        form = parse_qs(body, keep_blank_values=True)
+        type(self).created = {"title": form["title"][0], "text": form["text"][0]}
+        self._respond({"edit": {"result": "Success", "oldrevid": 0, "newrevid": 2}})
 
     def _respond(self, payload: dict[str, Any], *, cookie: str | None = None) -> None:
         body = json.dumps(payload).encode("utf-8")
@@ -76,10 +108,12 @@ class _LoopbackHandler(BaseHTTPRequestHandler):
 def test_mediawiki_client_preserves_loopback_session_encoding() -> None:
     """A real client encodes query/form data and carries GET cookies into POST."""
     _LoopbackHandler.requests = []
+    _LoopbackHandler.created = None
     server = HTTPServer(("127.0.0.1", 0), _LoopbackHandler)
     thread: threading.Thread | None = None
 
     title = "Contract Page &/?"
+    new_title = "New Contract Page &/?"
     try:
         thread = threading.Thread(target=server.serve_forever, name="mediawiki-loopback", daemon=True)
         thread.start()
@@ -91,11 +125,11 @@ def test_mediawiki_client_preserves_loopback_session_encoding() -> None:
             request_policy=MediaWikiRequestPolicy(max_retries=0, jitter=0),
         ) as client:
             assert client.get_page(title) == "existing text"
-            # Seed the cached token so the public write operation is exactly one POST
-            # after the page GET; token acquisition is separately covered by unit tests.
+            # The cached token leaves one mutation POST between native base and receipt reads.
+            # Token acquisition is separately covered by unit tests.
             client._csrf_token = "csrf-token+/="
             client.safe_create_page(
-                title,
+                new_title,
                 "updated text & = / + %",
                 start_timestamp="2026-06-04T12:00:00Z",
                 summary="summary & details",
@@ -105,8 +139,11 @@ def test_mediawiki_client_preserves_loopback_session_encoding() -> None:
             )
 
         requests = _LoopbackHandler.requests
-        assert [request["method"] for request in requests] == ["GET", "POST"]
-        get_request, post_request = requests
+        assert [request["method"] for request in requests] == ["GET", "GET", "POST", "GET"]
+        get_request, preflight, post_request, receipt = requests
+        assert preflight["params"]["titles"] == [new_title]
+        assert preflight["params"]["curtimestamp"] == ["1"]
+        assert receipt["params"]["revids"] == ["2"]
         assert get_request["path"] == "/api.php"
         assert get_request["params"] == {
             "action": ["query"],
@@ -123,7 +160,7 @@ def test_mediawiki_client_preserves_loopback_session_encoding() -> None:
         assert post_request["params"] == {"format": ["json"], "maxlag": ["5"]}
         assert post_request["form"] == {
             "action": ["edit"],
-            "title": [title],
+            "title": [new_title],
             "text": ["updated text & = / + %"],
             "summary": ["summary & details"],
             "createonly": ["1"],

@@ -4,13 +4,17 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import asdict, dataclass
+import os
+import tempfile
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Literal, cast
+from urllib.parse import urlsplit
 
 ContentModel = Literal["Scribunto", "sanitized-css", "wikitext"]
 UploadStage = Literal["stylesheet", "generated_data", "lua_module", "template", "content_page", "article"]
 DeployAction = Literal["unchanged", "created", "edited"]
+PendingOperation = Literal["deploy", "rollback"]
 
 _CONTENT_MODELS: tuple[ContentModel, ...] = ("Scribunto", "sanitized-css", "wikitext")
 
@@ -51,6 +55,13 @@ class RepoWikiPageManifestEntry:
     new_revision_timestamp: str | None = None
     rollback_text_source: str | None = None
     deploy_action: DeployAction | None = None
+    pending_mutation: bool = False
+    rollback_revision_id: int | None = None
+    pending_operation: PendingOperation | None = None
+    pending_base_revision_id: int | None = None
+    pending_acknowledged_revision_id: int | None = None
+    requires_rollback: bool = False
+    rollback_content_model: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -58,8 +69,16 @@ class RepoWikiPageManifest:
     """Deployable content pages; MediaWiki interface pages are forbidden."""
 
     entries: tuple[RepoWikiPageManifestEntry, ...]
+    api_url: str | None = None
+    variant: str | None = None
+    wiki_root: str | None = None
 
     def __post_init__(self) -> None:
+        # Manifests are durable review artifacts, so endpoint credentials must never enter them.
+        if self.api_url is not None:
+            endpoint = urlsplit(self.api_url)
+            if endpoint.username is not None or endpoint.password is not None:
+                raise ValueError("Manifest API URL must not contain credentials")
         interface_titles = [entry.title for entry in self.entries if _is_mediawiki_interface_title(entry.title)]
         if interface_titles:
             raise ValueError(
@@ -189,7 +208,7 @@ def select_repo_page_manifest(
     )
     if requested_titles is not None:
         selected_entries = tuple(entry for entry in selected_entries if entry.title in requested_titles)
-    selected_manifest = RepoWikiPageManifest(entries=selected_entries)
+    selected_manifest = replace(manifest, entries=selected_entries)
     validate_repo_page_manifest_for_deploy(
         selected_manifest,
         include_templates=include_templates,
@@ -233,13 +252,32 @@ def _is_template_title(title: str) -> bool:
     return bool(separator) and namespace.casefold() == "template"
 
 
-def write_repo_page_manifest(manifest: RepoWikiPageManifest, path: Path) -> None:
-    """Atomically write a repo-owned wiki page manifest as deterministic JSON."""
+def durable_write_text(path: Path, text: str) -> None:
+    """Atomically replace UTF-8 text and persist its bytes and directory entry."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    payload = {"entries": [asdict(entry) for entry in manifest.entries]}
-    temporary_path = path.with_name(f".{path.name}.tmp")
-    temporary_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    temporary_path.replace(path)
+    descriptor, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    temporary_path = Path(temporary_name)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8", newline="") as stream:
+            stream.write(text)
+            stream.flush()
+            os.fsync(stream.fileno())
+        temporary_path.replace(path)
+        # Include ancestors because callers may have just created the run directory.
+        for directory in (path.absolute().parent, *path.absolute().parent.parents):
+            directory_descriptor = os.open(directory, os.O_RDONLY | os.O_DIRECTORY)
+            try:
+                os.fsync(directory_descriptor)
+            finally:
+                os.close(directory_descriptor)
+    finally:
+        temporary_path.unlink(missing_ok=True)
+
+
+def write_repo_page_manifest(manifest: RepoWikiPageManifest, path: Path) -> None:
+    """Durably replace a repo-owned wiki page manifest as deterministic JSON."""
+    payload = asdict(manifest)
+    durable_write_text(path, json.dumps(payload, indent=2, sort_keys=True) + "\n")
 
 
 def read_repo_page_manifest(path: Path) -> RepoWikiPageManifest:
@@ -247,7 +285,12 @@ def read_repo_page_manifest(path: Path) -> RepoWikiPageManifest:
     payload = cast("dict[str, object]", json.loads(path.read_text(encoding="utf-8")))
     raw_entries = cast("list[dict[str, object]]", payload["entries"])
     entries = tuple(_entry_from_payload(raw_entry) for raw_entry in raw_entries)
-    return RepoWikiPageManifest(entries=entries)
+    return RepoWikiPageManifest(
+        entries=entries,
+        api_url=_optional_str(payload.get("api_url")),
+        variant=_optional_str(payload.get("variant")),
+        wiki_root=_optional_str(payload.get("wiki_root")),
+    )
 
 
 def _entry_from_payload(raw_entry: dict[str, object]) -> RepoWikiPageManifestEntry:
@@ -264,7 +307,28 @@ def _entry_from_payload(raw_entry: dict[str, object]) -> RepoWikiPageManifestEnt
         new_revision_timestamp=_optional_str(raw_entry.get("new_revision_timestamp")),
         rollback_text_source=_optional_str(raw_entry.get("rollback_text_source")),
         deploy_action=_optional_deploy_action(raw_entry.get("deploy_action")),
+        pending_mutation=_boolean(raw_entry.get("pending_mutation", False), "pending_mutation"),
+        rollback_revision_id=_optional_int(raw_entry.get("rollback_revision_id")),
+        pending_operation=_optional_pending_operation(raw_entry.get("pending_operation")),
+        pending_base_revision_id=_optional_int(raw_entry.get("pending_base_revision_id")),
+        pending_acknowledged_revision_id=_optional_int(raw_entry.get("pending_acknowledged_revision_id")),
+        requires_rollback=_boolean(raw_entry.get("requires_rollback", False), "requires_rollback"),
+        rollback_content_model=_optional_str(raw_entry.get("rollback_content_model")),
     )
+
+
+def _optional_pending_operation(value: object) -> PendingOperation | None:
+    if value is None:
+        return None
+    if value not in ("deploy", "rollback"):
+        raise ValueError("Unknown native pending operation")
+    return cast("PendingOperation", value)
+
+
+def _boolean(value: object, field: str) -> bool:
+    if type(value) is not bool:
+        raise TypeError(f"Expected bool for {field}")
+    return value
 
 
 def _upload_stage(value: str) -> UploadStage:

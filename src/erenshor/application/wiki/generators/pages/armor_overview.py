@@ -39,12 +39,14 @@ class ArmorOverviewPageGenerator(OverviewPageGeneratorBase):
         """
         return [self.PAGE_TITLE]
 
-    def generate_pages(self) -> Iterator[GeneratedPage]:
+    def generate_pages(self, *, page_titles: frozenset[str] | None = None) -> Iterator[GeneratedPage]:
         """Generate Armor overview page.
 
         Yields:
             Single GeneratedPage for Armor overview
         """
+        if page_titles is not None and self.PAGE_TITLE not in page_titles:
+            return
         logger.info("Generating Armor overview page")
 
         # Query all items

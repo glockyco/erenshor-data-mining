@@ -93,19 +93,7 @@ def _code_hash(maps_source_dir: Path) -> str:
 def _tiles_hash(maps_source_dir: Path) -> str:
     validate_tile_inputs(maps_source_dir)
     tiles_dir = maps_source_dir / "static" / "tiles"
-    tile_files = [path for path in tiles_dir.rglob("*") if path.is_file()]
-    manifest_path = tiles_dir / "tiles-manifest.json"
-    manifest_bytes = manifest_path.read_bytes() if manifest_path.is_file() else b""
-    total_bytes = sum(path.stat().st_size for path in tile_files)
-    summary = json.dumps(
-        {
-            "manifest": manifest_bytes.decode(errors="surrogateescape"),
-            "file_count": len(tile_files),
-            "total_bytes": total_bytes,
-        },
-        sort_keys=True,
-    )
-    return _sha(summary.encode())
+    return _hash_files((path for path in tiles_dir.rglob("*") if path.is_file()), tiles_dir)
 
 
 def compute_input_hashes(*, maps_source_dir: Path, database_path: Path) -> dict[str, str]:

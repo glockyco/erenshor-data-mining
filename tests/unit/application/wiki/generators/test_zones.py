@@ -79,3 +79,21 @@ class TestZonePositionsInput:
         (page,) = ZonePageGenerator(mock_context).generate_pages()
 
         assert "MapLink" not in page.content
+
+
+def test_selected_zone_title_keeps_all_scene_roots_and_skips_other_connections(mock_context: Mock) -> None:
+    mock_context.zone_repo.get_all_zones.return_value = [
+        _make_zone("Portal1", "Mysterious Portal"),
+        _make_zone("Elsewhere", "Other Zone"),
+        _make_zone("Portal2", "Mysterious Portal"),
+    ]
+    mock_context.zone_repo.get_zone_connections.return_value = []
+
+    [page] = ZonePageGenerator(mock_context).generate_pages(page_titles=frozenset({"Mysterious Portal"}))
+
+    assert page.title == "Mysterious Portal"
+    assert page.stable_keys == ["zone:Portal1", "zone:Portal2"]
+    assert [call.args[0] for call in mock_context.zone_repo.get_zone_connections.call_args_list] == [
+        "Portal1",
+        "Portal2",
+    ]

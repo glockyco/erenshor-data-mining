@@ -108,6 +108,8 @@ def apply_retired_edits(
     repo_root: Path,
     run_dir: Path,
     client: GuardedEditClient,
+    variant: str | None = None,
+    wiki_root: Path | None = None,
 ) -> GuardedEditResult:
     """Write the retired-page edits with the summary of their action."""
     return apply_guarded_edits(
@@ -118,4 +120,6 @@ def apply_retired_edits(
         repo_root=repo_root,
         run_dir=run_dir,
         client=client,
+        variant=variant,
+        wiki_root=wiki_root,
     )
