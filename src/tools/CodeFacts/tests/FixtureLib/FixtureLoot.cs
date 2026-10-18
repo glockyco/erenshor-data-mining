@@ -70,6 +70,87 @@ namespace FixtureLib
             SingletonB = new KeyValuePair<int, string>(7, "created").Value;
         }
 
+        public void SwitchStrings()
+        {
+            switch (SingletonB)
+            {
+                case "Zeta":
+                    Level++;
+                    break;
+                case "Alpha":
+                case "Beta":
+                    Level += 2;
+                    break;
+            }
+            switch (Level)
+            {
+                case 1:
+                    Drops.Add("unrelated");
+                    break;
+            }
+        }
+
+        public void SwitchMissing()
+        {
+            switch (Level)
+            {
+                case 1:
+                    Drops.Add("other expression");
+                    break;
+            }
+        }
+
+        public void SwitchDuplicate()
+        {
+            switch (SingletonB)
+            {
+                case "first":
+                case "first-other":
+                case "first-third":
+                    Level++;
+                    break;
+            }
+            switch (SingletonB)
+            {
+                case "second":
+                case "second-other":
+                case "second-third":
+                    Level += 2;
+                    break;
+            }
+        }
+
+        public void SwitchNonString()
+        {
+            switch (Level)
+            {
+                case 1:
+                    Drops.Add("numeric");
+                    break;
+                case 2:
+                    Drops.Add("two");
+                    break;
+                case 3:
+                    Drops.Add("three");
+                    break;
+            }
+        }
+
+        public void SwitchDefault()
+        {
+            switch (SingletonB)
+            {
+                case "literal":
+                case "another":
+                case "third":
+                    Level++;
+                    break;
+                default:
+                    Level += 2;
+                    break;
+            }
+        }
+
         public void IteratePool()
         {
             foreach (var item in PoolA)

@@ -232,9 +232,37 @@ internal static class Matchers
                 && NodeMentions(inv.Arguments[0], member)
             );
 
-    /// Extract a literal assignment or argument, or distinct equality literals.
+    /// Extract a literal assignment, argument, closed switch, or equality literals.
     public static Dictionary<string, string> StringConstants(EntityDeclaration scope, FactSpec fact)
     {
+        if (fact.Args.TryGetValue("switch", out string? governingExpression))
+        {
+            string expression = Normalize(governingExpression);
+            var switches = scope
+                .Descendants.OfType<SwitchStatement>()
+                .Where(node => Normalize(node.Expression.ToString()) == expression)
+                .ToList();
+            if (switches.Count != 1)
+                throw new InvalidDataException(
+                    $"string_constants switch '{governingExpression}' bound {switches.Count} times (need exactly 1)"
+                );
+            var labels = new List<string>();
+            foreach (
+                var label in switches[0].SwitchSections.SelectMany(section => section.CaseLabels)
+            )
+            {
+                if (label.Expression is null)
+                    throw new InvalidDataException(
+                        $"string_constants switch '{governingExpression}' has a default label, not a closed string set"
+                    );
+                if (label.Expression is not PrimitiveExpression { Value: string value })
+                    throw new InvalidDataException(
+                        $"string_constants switch '{governingExpression}' has a non-string literal label"
+                    );
+                labels.Add(value);
+            }
+            return new() { [fact.Keys?.SingleOrDefault() ?? "strings"] = string.Join(",", labels) };
+        }
         if (fact.Args.TryGetValue("assignment", out string? member))
         {
             var assignments = scope

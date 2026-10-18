@@ -315,6 +315,59 @@ public sealed class MatcherTests
         Assert.Equal(new Dictionary<string, string> { ["strings"] = "31377423,46289586" }, result);
     }
 
+    [Theory]
+    [InlineData("SingletonB", "strings")]
+    [InlineData("  SingletonB \n ", "classes")]
+    public void StringConstants_extracts_closed_switch_labels_in_source_order(
+        string expression,
+        string key
+    )
+    {
+        var fact = Fact(
+            "fixture.switch_strings",
+            "extract",
+            "SwitchStrings",
+            "string_constants",
+            new() { ["switch"] = expression },
+            [key]
+        );
+        Assert.Equal(
+            "Zeta,Alpha,Beta",
+            Matchers.StringConstants(Method("SwitchStrings"), fact)[key]
+        );
+        var result = RunFacts(fact);
+        Assert.Empty(result.Errors);
+        Assert.Equal("Zeta,Alpha,Beta", Assert.Single(result.Facts).Values![key]);
+    }
+
+    [Theory]
+    [InlineData("SwitchMissing", "SingletonB", "bound 0 times")]
+    [InlineData("SwitchDuplicate", "SingletonB", "bound 2 times")]
+    [InlineData("SwitchNonString", "Level", "non-string literal label")]
+    [InlineData("SwitchDefault", "SingletonB", "default label")]
+    public void StringConstants_rejects_switches_that_do_not_define_one_closed_string_set(
+        string method,
+        string expression,
+        string cause
+    )
+    {
+        var fact = Fact(
+            "fixture.invalid_switch",
+            "extract",
+            method,
+            "string_constants",
+            new() { ["switch"] = expression },
+            ["strings"]
+        );
+        var error = Assert.Throws<InvalidDataException>(() =>
+            Matchers.StringConstants(Method(method), fact)
+        );
+        Assert.Contains(cause, error.Message);
+        var result = RunFacts(fact);
+        Assert.Empty(result.Facts);
+        Assert.Contains(cause, Assert.Single(result.Errors));
+    }
+
     [Fact]
     public void IntComparisons_binds_fixture_auction_envelope()
     {
