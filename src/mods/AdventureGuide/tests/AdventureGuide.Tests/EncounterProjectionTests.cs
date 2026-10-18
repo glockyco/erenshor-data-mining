@@ -34,7 +34,7 @@ public sealed class EncounterProjectionTests : IDisposable
         var game = new Snapshot { AccountClaimed = claimed };
         if (completed)
             game.Completed.Add("CLAIM");
-        var state = new QuestStateTracker(data, new EntityRegistry(), game);
+        var state = new QuestStateTracker(data, game);
         state.SyncFromGameData();
         var quest = data.GetByStableKey(ClaimQuest)!;
 
@@ -66,7 +66,7 @@ public sealed class EncounterProjectionTests : IDisposable
         var game = new Snapshot { AccountClaimed = true };
         game.Active.UnionWith(["CLAIM", "ORDINARY"]);
         game.Completed.Add("ORDINARY");
-        var state = new QuestStateTracker(data, new EntityRegistry(), game);
+        var state = new QuestStateTracker(data, game);
         state.OnSceneChanged("TestScene");
 
         Assert.Equal(QuestRuntimeStatus.Completed, state.GetStatus(data.GetByDBName("CLAIM")!));
@@ -83,7 +83,7 @@ public sealed class EncounterProjectionTests : IDisposable
             state.GetStatus(data.GetByDBName("CLAIM")!)
         );
         game.AccountClaimed = true;
-        state.Update(0);
+        state.Update();
         Assert.Equal(QuestRuntimeStatus.Completed, state.GetStatus(data.GetByDBName("CLAIM")!));
     }
 
@@ -159,14 +159,22 @@ public sealed class EncounterProjectionTests : IDisposable
             );
     }
 
-    [Fact]
-    public void Schema_eight_rejects_missing_encounter_contract()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Schema_eight_rejects_missing_or_null_encounter_contract(bool explicitNull)
     {
         var payload = JObject.FromObject(Wrapper());
-        payload.Remove("_encounters");
+        if (explicitNull)
+            payload["_encounters"] = JValue.CreateNull();
+        else
+            payload.Remove("_encounters");
         Assert.Throws<InvalidDataException>(() => GuideData.Parse(payload.ToString()));
         payload = JObject.FromObject(Wrapper());
-        ((JObject)payload["_encounters"]!).Remove("encounter_event_conditions");
+        if (explicitNull)
+            ((JObject)payload["_encounters"]!)["encounter_event_conditions"] = JValue.CreateNull();
+        else
+            ((JObject)payload["_encounters"]!).Remove("encounter_event_conditions");
         Assert.Throws<JsonSerializationException>(() => GuideData.Parse(payload.ToString()));
     }
 
@@ -254,7 +262,7 @@ public sealed class EncounterProjectionTests : IDisposable
     public void Primitive_changes_invalidate_once_and_expose_current_typed_reads()
     {
         var game = new Snapshot();
-        var state = new QuestStateTracker(Data(), new EntityRegistry(), game);
+        var state = new QuestStateTracker(Data(), game);
         int events = 0;
         int eventVersion = -1;
         state.PrimitiveStateChanged += () =>
@@ -267,7 +275,7 @@ public sealed class EncounterProjectionTests : IDisposable
         game.ReturnZone = "ZoneA";
         game.ReturnLanding = new Vector3(1, 2, 3);
         game.PlayerLevel = 12;
-        state.Update(0);
+        state.Update();
 
         Assert.Equal(before + 1, state.Version);
         Assert.Equal(state.Version, eventVersion);
@@ -282,11 +290,11 @@ public sealed class EncounterProjectionTests : IDisposable
             state.Gates.Facts.ReadCharacterPositionState(EncounterStateKeys.ReturnLanding)!.Value.z
         );
         Assert.Equal(12, state.Gates.Facts.PlayerLevel);
-        state.Update(0);
+        state.Update();
         Assert.Equal(before + 1, state.Version);
         Assert.Equal(1, events);
         game.PlayerLevel = 13;
-        state.Update(0);
+        state.Update();
         Assert.Equal(before + 2, state.Version);
         Assert.Equal(2, events);
     }
@@ -297,7 +305,7 @@ public sealed class EncounterProjectionTests : IDisposable
         var game = new Snapshot { ReturnZone = "ZoneA", ReturnLanding = new Vector3(1, 2, 3) };
         game.Completed.Add("CLAIM");
         var data = Data();
-        var state = new QuestStateTracker(data, new EntityRegistry(), game);
+        var state = new QuestStateTracker(data, game);
         state.OnCharacterLoaded();
         Assert.True(state.IsCompleted(data.GetByDBName("CLAIM")!));
         int events = 0;
@@ -313,7 +321,7 @@ public sealed class EncounterProjectionTests : IDisposable
         Assert.False(state.IsCompleted(data.GetByDBName("CLAIM")!));
         Assert.Equal("ZoneB", state.ReadCharacterZoneState(EncounterStateKeys.ReturnZone));
         Assert.Empty(state.CompletedQuests);
-        state.Update(0);
+        state.Update();
         Assert.Equal(1, events);
     }
 
@@ -322,15 +330,14 @@ public sealed class EncounterProjectionTests : IDisposable
     {
         var state = new QuestStateTracker(
             Data(),
-            new EntityRegistry(),
             new Snapshot { ReturnZone = "ZoneA", ReturnLanding = new Vector3(float.NaN, 2, 3) }
         );
         for (int i = 0; i < 64; i++)
-            state.Update(0);
+            state.Update();
         int version = state.Version;
         long before = GC.GetAllocatedBytesForCurrentThread();
         for (int i = 0; i < 128; i++)
-            state.Update(0);
+            state.Update();
         long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
         Assert.Equal(0L, allocated);
         Assert.Equal(version, state.Version);
@@ -375,7 +382,7 @@ public sealed class EncounterProjectionTests : IDisposable
             ],
         };
         var data = Data();
-        var state = new QuestStateTracker(data, new EntityRegistry());
+        var state = new QuestStateTracker(data);
         state.SyncFromGameData();
 
         Assert.True(state.IsCompleted(data.GetByDBName("CLAIM")!));
@@ -525,7 +532,6 @@ public sealed class EncounterProjectionTests : IDisposable
         public string? ReturnZone { get; set; }
         public Vector3? ReturnLanding { get; set; }
         public int PlayerLevel { get; set; }
-        public Vector3? PlayerPosition => null;
 
         public void CopyActiveQuestsTo(HashSet<string> destination) =>
             destination.UnionWith(Active);

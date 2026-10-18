@@ -97,8 +97,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             }
             _data = GuideData.Load(_logger);
             _entities = new EntityRegistry();
-            _state = new QuestStateTracker(_data, _entities);
-            _state.LoadFromConfig(_config);
+            _state = new QuestStateTracker(_data);
             _trackerState = new TrackerState();
             _trackerState.LoadFromConfig(_config);
 
@@ -123,8 +122,6 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
                 _miningTracker,
                 _lootScanner
             );
-            _state.WorkflowChanged += OnWorkflowChanged;
-            _state.WorkflowCycleReset += OnWorkflowCycleReset;
             _state.FurnishingsChanged += OnFurnishingsChanged;
             _state.KeyringChanged += OnKeyringChanged;
             _state.PrimitiveStateChanged += OnPrimitiveStateChanged;
@@ -133,7 +130,14 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             _config.ShowArrow.SettingChanged += OnShowArrowChanged;
             _groundPath = new GroundPathRenderer(_nav) { Enabled = _config.ShowGroundPath.Value };
             _config.ShowGroundPath.SettingChanged += OnShowGroundPathChanged;
-            _markers = new WorldMarkerSystem(_data, _state, bridge, _lootScanner, _config)
+            _markers = new WorldMarkerSystem(
+                _data,
+                _state,
+                bridge,
+                _entities,
+                _lootScanner,
+                _config
+            )
             {
                 Enabled = _config.ShowWorldMarkers.Value,
             };
@@ -150,12 +154,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             _tracker = new TrackerWindow(_data, _state, _nav, _trackerState, _window, _config);
             Action guideDraw = _window.Draw;
             Action trackerDraw = () => _tracker!.Draw(_inGameplay);
-            Action arrowDraw = () =>
-            {
-                _arrow!.Draw();
-                if (!_window!.Visible && !_tracker!.NavigationGuidanceVisible)
-                    NavigationDisplay.DrawOverlay(_nav!);
-            };
+            Action arrowDraw = _arrow.Draw;
             _imgui.OnLayout = () =>
             {
                 _imgui.DrawIsolated(guideDraw);
@@ -189,8 +188,6 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             SpawnResetPatch.Markers = _markers;
             NpcStartPatch.Markers = _markers;
             NpcStartPatch.Entities = _entities;
-            ScriptedEntityStartPatch.Tracker = _state;
-            ScriptedRewardConsumedPatch.Tracker = _state;
             DeathPatch.Registry = _entities;
             DeathPatch.Timers = _timers;
             DeathPatch.Markers = _markers;
@@ -285,7 +282,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             TryMergeUnknownQuests();
 
         var currentZone = _state?.CurrentZone ?? "";
-        _state?.Update(Time.deltaTime);
+        _state?.Update();
         if (_data != null && _state != null)
             _lootScanner?.Update(_data, _state);
         _nav?.Update(currentZone);
@@ -324,8 +321,6 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         }
         if (_state != null)
         {
-            _state.WorkflowChanged -= OnWorkflowChanged;
-            _state.WorkflowCycleReset -= OnWorkflowCycleReset;
             _state.FurnishingsChanged -= OnFurnishingsChanged;
             _state.KeyringChanged -= OnKeyringChanged;
             _state.PrimitiveStateChanged -= OnPrimitiveStateChanged;
@@ -336,7 +331,6 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         _harmony?.UnpatchSelf();
         _harmony = null;
         _tracker?.Dispose();
-        _state?.SaveToConfig();
         _nav?.SavePerCharacter();
         _nav?.SuspendForMenu();
         _state?.TreasureHunt.Clear();
@@ -382,7 +376,6 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             _window?.Hide();
             _nav?.SuspendForMenu();
             _trackerState?.SuspendForMenu();
-            _state?.SuspendForMenu();
             _config?.SuspendCharacter();
             ClearImGuiCaptureState();
         }
@@ -462,15 +455,6 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             _window?.Show();
         }
     }
-
-    private void OnWorkflowChanged(QuestEntry quest)
-    {
-        _nav?.OnGameStateChanged(_state?.CurrentZone ?? "");
-        _lootScanner?.MarkDirty();
-    }
-
-    private void OnWorkflowCycleReset(QuestEntry quest) =>
-        _trackerState?.OnQuestCompleted(quest.RuntimeKey);
 
     private void OnFurnishingsChanged() => _nav?.OnFurnishingsChanged(_state?.CurrentZone ?? "");
 
@@ -584,8 +568,6 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         SpawnResetPatch.Markers = null;
         NpcStartPatch.Markers = null;
         NpcStartPatch.Entities = null;
-        ScriptedEntityStartPatch.Tracker = null;
-        ScriptedRewardConsumedPatch.Tracker = null;
         DeathPatch.Registry = null;
         DeathPatch.Timers = null;
         DeathPatch.Markers = null;

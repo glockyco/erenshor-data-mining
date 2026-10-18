@@ -1,5 +1,6 @@
 using AdventureGuide.Data;
 using AdventureGuide.Navigation;
+using AdventureGuide.State;
 
 namespace AdventureGuide.Tests;
 
@@ -30,108 +31,53 @@ public sealed class MarkerPolicyTests
     }
 
     [Theory]
-    [InlineData("talk", null, null, "Talk to")]
-    [InlineData("talk", "Open sesame", null, "Say 'Open sesame'")]
-    [InlineData("shout", null, null, "Shout near")]
-    [InlineData("shout", "Stay back", null, "Shout 'Stay back'")]
-    [InlineData("kill", null, 1, "Kill")]
-    [InlineData("kill", null, 3, "Kill (3)")]
-    [InlineData("turn_in", null, null, "Turn in")]
-    [InlineData("buy", null, null, "Buy")]
-    [InlineData("loot", null, null, "Loot")]
-    [InlineData("unknown", null, null, "Talk to")]
-    public void Step_action_text_describes_action_and_keyword(
-        string action,
-        string? keyword,
-        int? quantity,
-        string expected
+    [InlineData(0, false, 3)]
+    [InlineData(1, false, 3)]
+    [InlineData(2, false, 1)]
+    [InlineData(3, false, 1)]
+    [InlineData(4, false, 1)]
+    [InlineData(4, true, 0)]
+    public void Item_marker_candidates_preserve_bundle_quantities_and_independent_requirements(
+        int runners,
+        bool tokenHeld,
+        int expectedCount
     )
     {
-        var step = new QuestStep
-        {
-            Action = action,
-            Keyword = keyword,
-            Quantity = quantity,
-        };
-
-        Assert.Equal(expected, MarkerTextFormatter.FormatStepActionText(step));
-    }
-
-    [Fact]
-    public void Turn_in_text_without_required_items_uses_talk_or_keyword()
-    {
-        var quest = new QuestEntry();
-
-        Assert.Equal(
-            "Talk to",
-            MarkerTextFormatter.FormatTurnInText(quest, new CompletionSource())
+        var wrapper = TestData.NativeRequirements(
+            ("item:runner", "A", [1, 3]),
+            ("item:runner", "B", [2]),
+            ("item:token", null, [1])
         );
-        Assert.Equal(
-            "Say 'FIRE'",
-            MarkerTextFormatter.FormatTurnInText(quest, new CompletionSource { Keyword = "FIRE" })
-        );
-    }
-
-    [Fact]
-    public void Turn_in_text_with_one_required_item_names_the_item()
-    {
-        var quest = new QuestEntry
-        {
-            RequiredItems =
+        var quest = wrapper.Quests![0];
+        for (int i = 0; i < quest.RequiredItems!.Count; i++)
+            quest.RequiredItems[i].Sources =
             [
-                new RequiredItemInfo { ItemName = "Dragon Scale", ItemStableKey = "item:scale" },
-            ],
-        };
+                new ItemSource { Type = "vendor", SourceKey = $"character:seller{i}" },
+            ];
+        int Count(string key) =>
+            key == "item:runner" ? runners
+            : tokenHeld ? 1
+            : 0;
+        var candidates = new List<(string? Source, int Have, int Need)>();
+        var missing = StepProgress.MissingRequirements(quest, Count);
+        while (missing.MoveNext())
+            foreach (var source in missing.Current.Sources!)
+                candidates.Add((source.SourceKey, missing.Have, missing.Current.Quantity));
 
-        Assert.Equal(
-            "Give Dragon Scale",
-            MarkerTextFormatter.FormatTurnInText(quest, new CompletionSource())
-        );
-    }
-
-    [Fact]
-    public void Turn_in_text_with_multiple_required_items_reports_the_count()
-    {
-        var quest = new QuestEntry
+        Assert.Equal(expectedCount, candidates.Count);
+        if (runners >= 2)
         {
-            RequiredItems =
-            [
-                new RequiredItemInfo { ItemName = "Dragon Scale", ItemStableKey = "item:scale" },
-                new RequiredItemInfo { ItemName = "Dragon Claw", ItemStableKey = "item:claw" },
-            ],
-        };
-
-        Assert.Equal(
-            "Give 2 items",
-            MarkerTextFormatter.FormatTurnInText(quest, new CompletionSource())
-        );
-    }
-
-    [Fact]
-    public void Turn_in_text_ignores_or_group_alternatives()
-    {
-        var quest = new QuestEntry
+            Assert.DoesNotContain(candidates, candidate => candidate.Source == "character:seller0");
+            Assert.DoesNotContain(candidates, candidate => candidate.Source == "character:seller1");
+        }
+        else
         {
-            RequiredItems =
-            [
-                new RequiredItemInfo
-                {
-                    ItemName = "Red Herb",
-                    ItemStableKey = "item:red-herb",
-                    OrGroup = "herb",
-                },
-                new RequiredItemInfo
-                {
-                    ItemName = "Blue Herb",
-                    ItemStableKey = "item:blue-herb",
-                    OrGroup = "herb",
-                },
-            ],
-        };
-
+            Assert.Contains(("character:seller0", runners, 4), candidates);
+            Assert.Contains(("character:seller1", runners, 2), candidates);
+        }
         Assert.Equal(
-            "Talk to",
-            MarkerTextFormatter.FormatTurnInText(quest, new CompletionSource())
+            tokenHeld && runners >= 2 ? MarkerType.TurnInReady : MarkerType.TurnInPending,
+            MarkerDecision.GetTurnInType(StepProgress.HasRequiredItems(quest, Count), false)
         );
     }
 }

@@ -21,8 +21,6 @@ from erenshor.application.guide.schema import (
     Node,
     NodeType,
     SubjectKind,
-    WorkflowCycle,
-    WorkflowTarget,
 )
 
 from .fixtures import build_graph, character_node, item_node, quest_gate, quest_node, spawn_node
@@ -358,7 +356,6 @@ def test_build_mod_guide_emits_rewards_chain_and_flags() -> None:
     ]
     assert main["rewards"]["unlocked_characters"] == [{"name": "Unlocked Guide", "zone": "Ashen Vale"}]
     assert main["flags"] == {
-        "guide_only": False,
         "repeatable": True,
         "disabled": True,
         "disabled_text": "Unavailable",
@@ -860,154 +857,12 @@ def test_build_mod_guide_emits_arena_steps_in_ordinal_order_and_dedupes_turn_in(
     assert sum(step["action"] == "turn_in" for step in steps) == 1
 
 
-def _workflow_projection_graph() -> EntityGraph:
-    trigger_item = item_node("item:arena-fee", "Arena Fee")
-    location = Node(
-        key="guide-location:arena:one",
-        type=NodeType.LOCATION,
-        display_name="Arena entrance",
-        scene="ArenaScene",
-        zone="Arena Zone",
-        x=10.0,
-        y=20.0,
-        z=30.0,
-        trigger_bounds_center_x=11.0,
-        trigger_bounds_center_y=21.0,
-        trigger_bounds_center_z=31.0,
-        trigger_bounds_extents_x=4.0,
-        trigger_bounds_extents_y=5.0,
-        trigger_bounds_extents_z=6.0,
-        guide_only=True,
-    )
-    target = character_node("character:arena-target", "Arena Target", level=40)
-    reward = character_node("character:arena-reward", "Arena Reward")
-    drop_source = character_node("character:previous-chest", "Previous Chest")
-    vendor_a = character_node("character:vendor-a", "Vendor A", scene="ArenaScene", zone="Arena Zone")
-    vendor_b = character_node("character:vendor-b", "Vendor B", scene="ArenaScene", zone="Arena Zone")
-    unlock_a = quest_node("quest:unlock-a", "UNLOCK_A", display_name="Unlock Vendor A")
-    unlock_b = quest_node("quest:unlock-b", "UNLOCK_B", display_name="Unlock Vendor B")
-    workflow = quest_node(
-        "guide-quest:arena:one",
-        "guide.arena.one",
-        display_name="Arena Round One",
-        implicit=True,
-        repeatable=True,
-        guide_only=True,
-        workflow_cycle=WorkflowCycle(
-            trigger_item_stable_key=trigger_item.key,
-            trigger_item_quantity=1,
-            trigger_mode="proximity_auto_consume",
-            location_stable_key=location.key,
-            targets=[WorkflowTarget(stable_key=target.key, quantity=2)],
-            reward_container_stable_key=reward.key,
-            reset_evidence="reward_container_consumed",
-        ),
-    )
-    return build_graph(
-        workflow,
-        unlock_a,
-        unlock_b,
-        trigger_item,
-        location,
-        target,
-        reward,
-        drop_source,
-        vendor_a,
-        vendor_b,
-        edges=[
-            Edge(source=workflow.key, target=trigger_item.key, type=EdgeType.REQUIRES_ITEM, quantity=1),
-            Edge(source=workflow.key, target=location.key, type=EdgeType.STEP_GO_TO, ordinal=0),
-            Edge(source=workflow.key, target=target.key, type=EdgeType.STEP_KILL, ordinal=1, quantity=2),
-            Edge(source=workflow.key, target=reward.key, type=EdgeType.STEP_LOOT, ordinal=2),
-            Edge(source=drop_source.key, target=trigger_item.key, type=EdgeType.DROPS_ITEM),
-            Edge(source=vendor_a.key, target=trigger_item.key, type=EdgeType.SELLS_ITEM),
-            Edge(source=vendor_b.key, target=trigger_item.key, type=EdgeType.SELLS_ITEM),
-        ],
-        gates=[
-            quest_gate(SubjectKind.VENDOR_ITEM, vendor_a.key, (unlock_a.key,), item=trigger_item.key),
-            quest_gate(SubjectKind.VENDOR_ITEM, vendor_b.key, (unlock_b.key,), item=trigger_item.key),
-        ],
-    )
-
-
-def test_build_mod_guide_projects_workflow_inside_unified_quest_contract() -> None:
-    graph = _workflow_projection_graph()
+def test_build_mod_guide_rejects_duplicate_db_names() -> None:
+    first = quest_node("quest:first", "FIRST")
+    second = quest_node("quest:second", "SECOND")
+    graph = build_graph(first, second)
     compiled = compile_graph(graph)
-    first = serialize_mod_guide(graph, compiled)
-    assert first == serialize_mod_guide(graph, compiled)
-
-    data = json.loads(first)
-    assert "encounters" not in data
-    workflow = _main_entry(data, "guide-quest:arena:one")
-    assert workflow["flags"]["guide_only"] is True
-    assert workflow["acceptance"] == "implicit"
-    assert workflow["zone_context"] == "Arena Zone"
-    assert [step["action"] for step in workflow["steps"]] == ["obtain", "go_to", "kill", "loot"]
-
-    obtain = workflow["steps"][0]
-    vendors = {source["name"]: source for source in obtain["sources"] if source["type"] == "vendor"}
-    assert set(vendors) == {"Vendor A", "Vendor B"}
-    assert vendors["Vendor A"]["instruction"] == "Buy Arena Fee."
-    assert data["_conditions"][vendors["Vendor A"]["condition"]] == [[{"kind": "quest_done", "ref": "UNLOCK_A"}]]
-    assert vendors["Vendor B"]["instruction"] == "Buy Arena Fee."
-    assert data["_conditions"][vendors["Vendor B"]["condition"]] == [[{"kind": "quest_done", "ref": "UNLOCK_B"}]]
-    assert any(source["type"] == "drop" and source["name"] == "Previous Chest" for source in obtain["sources"])
-
-    go_to = workflow["steps"][1]
-    assert go_to["description"] == "Go to Arena entrance."
-    assert go_to["location"] == {
-        "stable_key": "guide-location:arena:one",
-        "display_name": "Arena entrance",
-        "scene": "ArenaScene",
-        "x": 10.0,
-        "y": 20.0,
-        "z": 30.0,
-    }
-    assert workflow["workflow_cycle"] == {
-        "trigger": {
-            "item_stable_key": "item:arena-fee",
-            "item_name": "Arena Fee",
-            "quantity": 1,
-            "mode": "proximity_auto_consume",
-            "consumes_item_automatically": True,
-            "location": {
-                **go_to["location"],
-                "bounds": {
-                    "center": {"x": 11.0, "y": 21.0, "z": 31.0},
-                    "extents": {"x": 4.0, "y": 5.0, "z": 6.0},
-                },
-            },
-        },
-        "targets": [{"stable_key": "character:arena-target", "display_name": "Arena Target", "quantity": 2}],
-        "reset_evidence": "reward_container_consumed",
-        "reward_container": {"stable_key": "character:arena-reward", "display_name": "Arena Reward"},
-    }
-
-
-def test_build_mod_guide_rejects_invalid_workflow_projection_metadata() -> None:
-    graph = _workflow_projection_graph()
-    compiled = compile_graph(graph)
-    location_id = compiled.node_key_to_id["guide-location:arena:one"]
-    compiled.nodes[location_id].x = math.nan
-
-    with pytest.raises(ValueError, match="invalid x coordinate"):
-        build_mod_guide(graph, compiled)
-
-    compiled = compile_graph(graph)
-    workflow_spec = next(spec for spec in compiled.quest_specs if spec.is_guide_only)
-    assert workflow_spec.workflow_cycle is not None
-    workflow_spec.workflow_cycle.reset_evidence = ""
-
-    with pytest.raises(ValueError, match="invalid reset evidence"):
-        build_mod_guide(graph, compiled)
-
-
-def test_build_mod_guide_rejects_real_and_synthetic_db_name_collision() -> None:
-    real = quest_node("quest:real", "REAL")
-    synthetic = quest_node("guide-quest:one", "guide.one", implicit=True)
-    graph = build_graph(real, synthetic)
-    compiled = compile_graph(graph)
-    synthetic.db_name = "REAL"
+    second.db_name = "FIRST"
 
     with pytest.raises(ValueError, match="duplicate quest db_name"):
         build_mod_guide(graph, compiled)
@@ -1197,31 +1052,6 @@ def test_manual_pickup_preserves_instruction_and_requires_the_quest_that_enables
         "condition": source["condition"],
     }
     assert data["_conditions"][source["condition"]] == [[{"kind": "quest_done", "ref": "CLAIM"}]]
-
-
-def test_guide_only_steps_include_all_background_sources_after_normal_sources() -> None:
-    graph = _workflow_projection_graph()
-    item = graph.get_node("item:arena-fee")
-    assert item is not None
-    item.background_sources = [
-        BackgroundSource("world_drop", "Any enemy", 0.1, level=1),
-        BackgroundSource("fishing_bonus", "Any fishing catch", 1.25),
-        BackgroundSource(
-            "treasure_chest",
-            "Treasure map chest",
-            50,
-            level=1,
-            level_max=9,
-            source_key="character:unplaced-chest",
-            instruction="Read a Treasure Map and dig at the marked spot.",
-        ),
-    ]
-    entry = _main_entry(build_mod_guide(graph, compile_graph(graph)), "guide-quest:arena:one")
-    sources = entry["required_items"][0]["sources"]
-    assert entry["steps"][0]["sources"] == sources
-    assert {source["type"] for source in sources[:3]} == {"drop", "vendor"}
-    assert {source["type"] for source in sources[3:]} == {"world_drop", "fishing_bonus", "treasure_chest"}
-    assert "level_estimate" not in entry["steps"][0]
 
 
 def test_placements_index_their_entry_lines_and_keys_name_their_door_zones() -> None:

@@ -22,8 +22,6 @@ internal interface IQuestGameState
 
     Vector3? ReadCharacterPositionState(string key);
 
-    Vector3? PlayerPosition { get; }
-
     int PlayerLevel { get; }
 }
 
@@ -32,9 +30,6 @@ internal sealed class LiveQuestGameState : IQuestGameState
     public static readonly LiveQuestGameState Instance = new();
 
     private LiveQuestGameState() { }
-
-    public Vector3? PlayerPosition =>
-        GameData.PlayerControl != null ? GameData.PlayerControl.transform.position : null;
 
     public int PlayerLevel => GameData.PlayerStats != null ? GameData.PlayerStats.Level : 0;
 

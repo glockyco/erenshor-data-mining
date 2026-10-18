@@ -16,6 +16,8 @@ from typing import TYPE_CHECKING
 from erenshor.domain.value_objects.item_provenance import ItemAcquisition, ItemUse
 
 from .schema import (
+    Activation,
+    ActivationRef,
     AtomKind,
     BackgroundSource,
     Edge,
@@ -25,7 +27,6 @@ from .schema import (
     Node,
     NodeType,
     SubjectKind,
-    WorkflowCycle,
 )
 
 if TYPE_CHECKING:
@@ -48,7 +49,6 @@ class NodeFlags(IntEnum):
     INVULNERABLE = 1 << 8
     IS_RARE = 1 << 9
     IS_TRIGGER_SPAWN = 1 << 10
-    GUIDE_ONLY = 1 << 11
 
 
 class EdgeFlags(IntEnum):
@@ -73,12 +73,6 @@ class CompiledNode:
     x: float = math.nan
     y: float = math.nan
     z: float = math.nan
-    trigger_bounds_center_x: float = math.nan
-    trigger_bounds_center_y: float = math.nan
-    trigger_bounds_center_z: float = math.nan
-    trigger_bounds_extents_x: float = math.nan
-    trigger_bounds_extents_y: float = math.nan
-    trigger_bounds_extents_z: float = math.nan
     flags: int = 0
     level: int = 0
     zone_key: str | None = None
@@ -93,7 +87,6 @@ class CompiledNode:
     key_item_key: str | None = None
     destination_zone_key: str | None = None
     destination_display: str | None = None
-    workflow_cycle: WorkflowCycle | None = None
     background_sources: list[BackgroundSource] = field(default_factory=list)
     obtainability_level: int | None = None
 
@@ -167,33 +160,6 @@ class SubjectCondition:
 
 
 @dataclass(slots=True)
-class WorkflowTargetSpec:
-    target_id: int
-    quantity: int
-
-
-@dataclass(slots=True)
-class WorkflowCycleSpec:
-    trigger_item_id: int
-    trigger_item_quantity: int
-    trigger_mode: str
-    location_id: int
-    targets: list[WorkflowTargetSpec] = field(default_factory=list)
-    reward_container_id: int | None = None
-    reset_evidence: str = "targets_defeated"
-
-
-@dataclass(slots=True)
-class QuestSpec:
-    """Quest-level structure that the writer validates and reads workflows from."""
-
-    quest_id: int
-    quest_index: int
-    workflow_cycle: WorkflowCycleSpec | None = None
-    is_guide_only: bool = False
-
-
-@dataclass(slots=True)
 class CompiledData:
     """All precomputed guide data that :mod:`.mod_writer` reads."""
 
@@ -210,7 +176,6 @@ class CompiledData:
     forward_adjacency: list[list[int]] = field(default_factory=list)
     reverse_adjacency: list[list[int]] = field(default_factory=list)
 
-    quest_specs: list[QuestSpec] = field(default_factory=list)
     item_sources: list[list[SourceSite]] = field(default_factory=list)
     # Subjects refer to each distinct condition by index.
     conditions: list[Condition] = field(default_factory=list)
@@ -224,6 +189,8 @@ class CompiledData:
     zone_line_destination_contexts: dict[str, dict[str, object]] = field(default_factory=dict)
     acquisitions_by_item: dict[str, list[ItemAcquisition]] = field(default_factory=dict)
     source_metadata: dict[str, Edge] = field(default_factory=dict)
+    activations: dict[str, Activation] = field(default_factory=dict)
+    placement_activations: dict[str, tuple[ActivationRef, ...]] = field(default_factory=dict)
 
 
 _NODE_TYPE_ORDER = list(NodeType)
@@ -264,11 +231,49 @@ def compile_graph(graph: EntityGraph) -> CompiledData:
     _compile_nodes(graph, compiled)
     _compile_edges(graph, compiled)
     _assign_dense_indices(compiled)
-    _compile_quest_specs(compiled)
     _compile_item_sources(compiled)
+    _compile_activations(graph, compiled)
     _compile_conditions(graph, compiled)
     _check_requirement_cycles(compiled)
     return compiled
+
+
+def _compile_activations(graph: EntityGraph, compiled: CompiledData) -> None:
+    compiled.activations = {node.key: node.activation for node in graph.all_nodes() if node.activation is not None}
+    bound: set[tuple[str, int, str, str]] = set()
+    placement_characters: dict[str, set[str]] = defaultdict(set)
+    for edge in graph.all_edges():
+        if edge.type == EdgeType.HAS_SPAWN:
+            placement_characters[edge.target].add(edge.source)
+    for placement in graph.nodes_of_type(NodeType.SPAWN_POINT):
+        if not placement.activations:
+            continue
+        characters = placement_characters[placement.key]
+        if not characters:
+            raise ValueError(f"activation placement has no character binding: {placement.key!r}")
+        for ref in placement.activations:
+            activation = compiled.activations.get(ref.key)
+            if activation is None or not 0 <= ref.offering < len(activation.offerings):
+                raise ValueError(f"unknown activation or offering on {placement.key!r}")
+            offer = activation.offerings[ref.offering]
+            if ref.role == "spawn":
+                expected = {spawn.character for spawn in offer.spawns}
+            elif ref.role == "reward" and offer.reward is not None:
+                expected = {offer.reward}
+            else:
+                raise ValueError(f"invalid activation role {ref.role!r} on {placement.key!r}")
+            if placement.scene != activation.scene or not characters <= expected:
+                raise ValueError(f"activation role or scene mismatch on {placement.key!r}")
+            bound.update((ref.key, ref.offering, ref.role, character) for character in characters)
+        compiled.placement_activations[placement.key] = placement.activations
+    for key, activation in compiled.activations.items():
+        for index, offer in enumerate(activation.offerings):
+            expected_roles = [("spawn", spawn.character) for spawn in offer.spawns]
+            if offer.reward is not None:
+                expected_roles.append(("reward", offer.reward))
+            for role, character in expected_roles:
+                if (key, index, role, character) not in bound:
+                    raise ValueError(f"activation character has no bound placement: {key!r} {character!r}")
 
 
 def _compile_nodes(graph: EntityGraph, compiled: CompiledData) -> None:
@@ -286,24 +291,6 @@ def _compile_nodes(graph: EntityGraph, compiled: CompiledData) -> None:
             y=node.y if node.y is not None else math.nan,
             z=node.z if node.z is not None else math.nan,
             flags=_node_flags(node),
-            trigger_bounds_center_x=node.trigger_bounds_center_x
-            if node.trigger_bounds_center_x is not None
-            else math.nan,
-            trigger_bounds_center_y=node.trigger_bounds_center_y
-            if node.trigger_bounds_center_y is not None
-            else math.nan,
-            trigger_bounds_center_z=node.trigger_bounds_center_z
-            if node.trigger_bounds_center_z is not None
-            else math.nan,
-            trigger_bounds_extents_x=node.trigger_bounds_extents_x
-            if node.trigger_bounds_extents_x is not None
-            else math.nan,
-            trigger_bounds_extents_y=node.trigger_bounds_extents_y
-            if node.trigger_bounds_extents_y is not None
-            else math.nan,
-            trigger_bounds_extents_z=node.trigger_bounds_extents_z
-            if node.trigger_bounds_extents_z is not None
-            else math.nan,
             level=max(node.level or 0, 0),
             zone_key=node.zone_key,
             db_name=node.db_name,
@@ -317,7 +304,6 @@ def _compile_nodes(graph: EntityGraph, compiled: CompiledData) -> None:
             key_item_key=node.key_item_key,
             destination_zone_key=node.destination_zone_key,
             destination_display=node.destination_display,
-            workflow_cycle=node.workflow_cycle,
             background_sources=node.background_sources,
             obtainability_level=node.obtainability_level,
         )
@@ -346,8 +332,6 @@ def _node_flags(node: Node) -> int:
         flags |= NodeFlags.IS_DIRECTLY_PLACED
     if node.is_enabled:
         flags |= NodeFlags.IS_ENABLED
-    if node.guide_only:
-        flags |= NodeFlags.GUIDE_ONLY
     if node.invulnerable:
         flags |= NodeFlags.INVULNERABLE
     if node.is_rare:
@@ -411,91 +395,6 @@ def _assign_dense_indices(compiled: CompiledData) -> None:
     ]
     for ii, node_id in enumerate(compiled.item_node_ids):
         compiled.node_item_index[node_id] = ii
-
-
-def _workflow_cycle_spec(compiled: CompiledData, node: CompiledNode) -> WorkflowCycleSpec | None:
-    cycle = node.workflow_cycle
-    if cycle is None:
-        return None
-
-    def node_id(key: str, label: str, expected_type: NodeType | None = None) -> int:
-        if key not in compiled.node_key_to_id:
-            raise ValueError(f"workflow {node.key!r} references missing {label} node {key!r}")
-        result = compiled.node_key_to_id[key]
-        if expected_type is not None and compiled.nodes[result].node_type != node_type_byte(expected_type):
-            raise ValueError(f"workflow {node.key!r} references invalid {label} node {key!r}")
-        return result
-
-    if cycle.trigger_item_quantity <= 0:
-        raise ValueError(f"workflow {node.key!r} has non-positive trigger quantity")
-    if not cycle.trigger_mode:
-        raise ValueError(f"workflow {node.key!r} has missing trigger mode")
-    if cycle.reset_evidence not in {"reward_container_consumed", "targets_defeated"}:
-        raise ValueError(f"workflow {node.key!r} has invalid reset evidence {cycle.reset_evidence!r}")
-    if (cycle.reward_container_stable_key is None) != (cycle.reset_evidence == "targets_defeated"):
-        raise ValueError(f"workflow {node.key!r} has inconsistent reward container and reset evidence")
-    target_keys = [target.stable_key for target in cycle.targets]
-    if len(set(target_keys)) != len(target_keys):
-        raise ValueError(f"workflow {node.key!r} has duplicate targets")
-    targets = [
-        WorkflowTargetSpec(
-            target_id=node_id(target.stable_key, "target", NodeType.CHARACTER),
-            quantity=target.quantity,
-        )
-        for target in cycle.targets
-    ]
-    if not targets or any(target.quantity <= 0 for target in targets):
-        raise ValueError(f"workflow {node.key!r} has invalid targets")
-    reward_id = (
-        node_id(cycle.reward_container_stable_key, "reward container", NodeType.CHARACTER)
-        if cycle.reward_container_stable_key is not None
-        else None
-    )
-    location_id = node_id(cycle.location_stable_key, "location", NodeType.LOCATION)
-    location = compiled.nodes[location_id]
-    location_values = (
-        location.x,
-        location.y,
-        location.z,
-        location.trigger_bounds_center_x,
-        location.trigger_bounds_center_y,
-        location.trigger_bounds_center_z,
-        location.trigger_bounds_extents_x,
-        location.trigger_bounds_extents_y,
-        location.trigger_bounds_extents_z,
-    )
-    if not all(math.isfinite(value) for value in location_values):
-        raise ValueError(f"workflow {node.key!r} has non-finite location metadata")
-    if any(value <= 0 for value in location_values[-3:]):
-        raise ValueError(f"workflow {node.key!r} has non-positive location extents")
-    return WorkflowCycleSpec(
-        trigger_item_id=node_id(cycle.trigger_item_stable_key, "trigger item", NodeType.ITEM),
-        trigger_item_quantity=cycle.trigger_item_quantity,
-        trigger_mode=cycle.trigger_mode,
-        location_id=location_id,
-        targets=targets,
-        reward_container_id=reward_id,
-        reset_evidence=cycle.reset_evidence,
-    )
-
-
-def _compile_quest_specs(compiled: CompiledData) -> None:
-    compiled.quest_specs = []
-    for quest_index, quest_node_id in enumerate(compiled.quest_node_ids):
-        node = compiled.nodes[quest_node_id]
-        guide_only = bool(node.flags & NodeFlags.GUIDE_ONLY)
-        if guide_only != (node.workflow_cycle is not None):
-            raise ValueError(f"quest {node.key!r} has inconsistent guide-only workflow descriptor")
-        if guide_only and not (node.flags & NodeFlags.IMPLICIT and node.flags & NodeFlags.REPEATABLE):
-            raise ValueError(f"guide-only quest {node.key!r} must be implicit and repeatable")
-        compiled.quest_specs.append(
-            QuestSpec(
-                quest_id=quest_node_id,
-                quest_index=quest_index,
-                is_guide_only=guide_only,
-                workflow_cycle=_workflow_cycle_spec(compiled, node),
-            )
-        )
 
 
 def _compile_item_sources(compiled: CompiledData) -> None:
@@ -659,8 +558,12 @@ def _compile_conditions(graph: EntityGraph, compiled: CompiledData) -> None:
 
     for line in sorted(graph.nodes_of_type(NodeType.ZONE_LINE), key=lambda node: node.key):
         gates = graph.gates_for(SubjectKind.ZONE_LINE, line.key)
-        # A zone line that starts disabled stays shut unless a gate says what activates it.
-        add(SubjectKind.ZONE_LINE, line.key, combine_gates(gates) if gates or line.is_enabled else ())
+        context = graph.zone_line_destination_contexts.get(line.key)
+        stored_return = context is not None and context["kind"] == "stored_return"
+        # A validated stored return is activated by its native initializer.
+        # Unknown saved destinations remain absent from runtime routing.
+        condition = combine_gates(gates) if gates or line.is_enabled or stored_return else ()
+        add(SubjectKind.ZONE_LINE, line.key, condition)
     for character in sorted(graph.nodes_of_type(NodeType.CHARACTER), key=lambda node: node.key):
         character_gates = graph.gates_for(SubjectKind.CHARACTER, character.key)
         for edge in graph.out_edges(character.key, EdgeType.HAS_SPAWN):

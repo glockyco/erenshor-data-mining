@@ -2,34 +2,39 @@
 
 ## Why
 
-AdventureGuide sends players to places they cannot reach yet and to characters that are not there. The guide's entity graph already knows several of these gates, but the writer of the shipped `quest-guide.json` keeps only quest sources (`mod_writer._unlock_groups`), so every door and item gate is lost before the mod sees it. Other gates were never exported: the Shivering Step event, quest scripts that remove objects, disabled zone line components, and encounters that must be won first. Earlier runtime attempts at door gates were removed because they were unreliable and stalled the game, so this change also sets reliability and performance budgets for the runtime.
+AdventureGuide must explain physical access and source availability without directing players to absent characters or unreachable zone lines. This change preserves the implemented keyed-door, Occuphage entrance, Shivering event, probability and compact-UI behavior while completing the common source, account, encounter and portal consumers. Reliability and performance budgets apply to the complete runtime extension.
 
 The gate kinds, highest player impact first:
 
-1. Keyed doors in front of quest targets and zone lines. Examples: the Island Tomb lighthouse entrance and Occuphage (Stowaway's Step Lighthouse Key), the Shivering Step entrance (Shivering Key), Ghost of Wyland Sercher who starts Whispers of Wyland (Ghostly Key), Founder (Dockhouse Key), Lighthouse Flame (Shivering Step Lighthouse Key), Warded Shadow (Shadowed Key), Fallen Braxonia (Ancient Braxonian Key), Sablehart (Sableheart's Key). The game opens a keyed door when the key is on the keyring or in the inventory (`Door.OpenOrShut`). The guide ignores both.
-2. The Shivering Step event (`ShiverEvent`). It assigns Meet Shivering Step on zone entry and finishes it when the four keeper quests are done, swaps the two Kio copies, removes the keepers, darkens the island and activates The Hider and ten spawn triggers after The Shivering Torch, and removes Kio after Changing the Lighthouse. The guide models the keeper quests as prerequisites of Meet Shivering Step and shows The Hider and the second Kio before they exist.
-3. Placements that are inactive when a scene starts. `_character_spawns` drops `is_enabled`, so the guide presents inactive placements as ordinary ones. Outside the Reliquary rooms, whose furniture condition the guide already handles, 34 placed characters are inactive at scene start and have no exported activator, among them The Hider, the restored planar gods, and the disabled copies of Lucian Revald and Revan Gavault.
-4. Zone lines that players cannot use (issue #298). Disabled `Zoneline` components and non-trigger colliders are exported as usable, and copies of the Island Tomb exits in the Shivering scenes are unreachable. A quest can still mark a disabled component as unlocked (Shivering Step to Hidden Hills after A Way To Erenshor). The map and the wiki's zone connections show these lines too.
-5. Quest scripts that remove barriers, and the dungeon locks behind them: the staged barriers of Blooming Sepulcher (A Dying Wish), the Vitheo's Rest key doors, and the removal lists of `QuestSpawnListener`, `MultiQuestListener`, and `DynamicContentManager`, which the export ignores.
-6. Encounters that must be won first: restored planar gods appear after their boss dies, Warded Shadow and the Reliquary Fiend are invulnerable until their wards die, A Strange Hermit answers only after Eldoth Molorai dies, and boss barriers in the planes open when their boss dies.
+1. Keyed doors in front of quest targets and zone lines, including Island Tomb and Occuphage, Shivering Step, Ghost of Wyland Sercher, Founder, Lighthouse Flame, Warded Shadow, Fallen Braxonia and Sablehart. Preserve keyring-or-inventory semantics and reviewed entrance identities.
+2. The Shivering Step event (`ShiverEvent`), including keeper completion, the two Kio copies, darkness, The Hider and trigger activation, and Kio's departure. Preserve the derived event rule rather than reintroducing prerequisite overrides.
+3. Placements that are inactive when a scene starts. Activation coverage and per-copy eligibility follow the authoritative inactive-placement audit referenced by tasks.md, rather than a copied inventory count. Unused roots remain distinct from valid spawned prefabs, restored gods and portal groups.
+4. Zone lines that players cannot use (issue #298), including disabled components, invalid trigger capability and reviewed unreachable geometry. Physical usability remains independent of object activation.
+5. Quest scripts that remove barriers and the dungeon locks behind them, including Blooming Sepulcher, Vitheo's Rest and the quest listener removal lists. Exact guarded targets require host proof.
+6. Encounters that must be won first, including restored planar gods, ward-protected characters, A Strange Hermit and plane barriers. Persistent account claiming remains distinct from transient fight advice.
 
 ## What Changes
 
-- Record every gate as a condition: OR groups of AND-ed atoms. Observable atoms are quest completed, quest not completed, item held, key held (keyring or inventory), and Reliquary room furnished. The advisory atom is encounter won. The mod evaluates observable atoms. It never hides a target because of an advisory atom, and shows that atom as guidance instead.
-- Replace the quest-only unlock representation entirely. The existing quest unlocks of zone lines and characters, quest-started and quest-stopped spawn points, Reliquary furnishings, vendor stock unlocks, and item bag unlocks become conditions, and no path runs beside the new one. **BREAKING** for the database: `gate_conditions` replaces `zone_line_quest_unlocks` and `character_quest_unlocks`. **BREAKING** for the embedded format: `quest-guide.json` version 7 replaces `required_quest_groups`, `_character_quest_unlocks`, `required_quest_db_names`, and `spawn_upon_quest_complete_stable_key` with a condition table and condition references.
+- Record gates as OR groups of AND-ed typed atoms. Observable state includes quests, inventory, keys, room furnishings, stored planning-slot items and explicitly supported account predicates. Unobservable encounter and transient activation state remains advice, not a hard availability test. Guarded initialization and outcome effects retain their separate semantics.
+- Replace the quest-only unlock representation entirely. The clean condition model replaces the old unlock tables. The breaking embedded schema 8 cutover carries common canonical source facts, encounter placements, conditions, completions and guarded event conditions, typed account atoms and dynamic zone-line destination contexts. No schema-7 compatibility path runs beside it.
 - Export every activation effect of the quest listeners in both directions with its trigger (quest, active quest, held item), the usability of each zone line component, and the serialized targets of the scripted activators. Pin the hand-encoded rules of those scripts and the door key rule as code facts.
 - Give each reviewed fact one home. Corrections of exported rows, such as zone lines that players cannot reach, go into `mapping.json` with a reason. Which targets a keyed door or a removable barrier guards goes into a new reviewed file, `barriers.toml`, that the clean build reads and checks for completeness. The door and item curation of `quest_guides/graph_overrides.toml` moves to its proper home, and the Shivering Step overrides give way to the event rule.
 - Model the Shivering Step event from its rules. Meet Shivering Step is acquired on zone entry and completed by the four keeper quests.
+- Consume canonical acquisitions and uses through the shared repository and eligibility contract, preserving acquisition/location identity, variants, material slots, phaseful conditions and exact local probabilities. Keep reviewed presentation notes.
+- Model the native carried-item offering controllers, the Vitheo arena, the Malaroth feeding site and the Braxonian chessboard, as activations of the exact placements they spawn. Sources, kill targets and encounter requirements lead through the offering, and the quest list holds native quests only. Synthetic guide-only workflow quests are removed.
+- Navigate a selected crafted source through its missing ingredients, including crafted keys. Preserve the original goal and recipe choice while accounting for repeated material slots and quantities.
+- Project the Reliquary account claim and character completion through explicitly guarded initialization implications without mutating game state. Preserve exact root and four support placements, account-claim purpose and the post-completion player-home role.
+- Derive all ten PlanningTable portals from one immutable reference selection. Four dedicated slots retain their actual destinations and six rune slots are interchangeable. Resolve the physical saved-character return through common destination contexts and typed live state, never a fixed Hidden fallback.
 - Evaluate conditions in AdventureGuide in one place and migrate every gate consumer to it. When a target or a route hop is gated, explain the gate and navigate to what satisfies it.
-- Mark unusable zone lines in the clean database and exclude them in every reader: the guide, the map, and the wiki's zone connections. This closes issue #298.
+- Derive one physical zone-line usability result and migrate guide, map, legacy wiki and shared zone providers to it. Close issue #298 only after the named host geometry and zoning checks establish the exact unusable lines.
 - Stop generating `quest_guides/guide.json`, which nothing reads, and remove its writer and command.
-- Land each gate kind as its own verified slice, in the order above.
+- Preserve the six gate families while tracking implementation, exported data, integrated data and host proof separately. Source patches, acknowledgements and baseline checks do not prove a production cutover.
 
 Non-goals, each recorded as an issue in the format of issue #282:
 
 - Navigating several quests at once. It becomes its own OpenSpec change after this one lands, with budgets measured on the current navigation first.
-- Travel that is not a zone line: teleport items and spells, the Azynthian Riftstone, the Reliquary rune portals and their movable endpoints, and the Box of Portals return.
-- The Bellwain Isle puzzle, the Chessboard offering workflow, secret passages, and forced travel. The zone-wide spectre spawner keeps issue #282.
+- Travel that is not a physical zone line: teleport items and spells, the Azynthian Riftstone, movable teleport endpoints and the Box of Portals return. Actual planning-table portal zone lines, their initialization and the saved-character physical return are included.
+- The Bellwain Isle puzzle, secret passages, and forced travel. The zone-wide spectre spawner keeps issue #282.
 - Weather as a condition. Evadne keeps a plain explanation of the rain requirement.
 
 ## Capabilities
@@ -49,8 +54,8 @@ None.
 - Code facts: `src/tools/CodeFacts/specs/erenshor-facts.json`.
 - Clean build: `src/erenshor/application/processor/`, the schema in `writer.py`, `mapping.json`, and the new `barriers.toml`.
 - Guide: `src/erenshor/application/guide/`, the `guide` CLI commands, `quest_guides/graph_overrides.toml`, the regenerated `quest_guides/quest-guide.json`, and the removal of `quest_guides/guide.json` and `json_writer.py`.
-- Readers of zone line usability: the map's zone line query (`src/maps/src/lib/database.base.ts`) and the wiki zone page generator (`src/erenshor/application/wiki/generators/pages/zones.py`).
+- Readers of zone line usability and destination contexts: the map's zone line query, the legacy wiki zone page generator and the shared zone overview/wiki Lua providers.
 - AdventureGuide: `Data/`, `State/`, `Navigation/`, `UI/`, `Diagnostics/DebugAPI.cs`, the test project, the README, and both changelogs.
 - Documentation: the README, the AdventureGuide README, and the `refreshing-game-data`, `unity-export-system`, and `runtime-eval` skills.
-- Shared resources: Unity exports, code-facts runs, and clean builds of the main variant, each announced before it starts.
-- Unreleased guide fixes e1d2c587f, 141ce9ad1, and 5773f7ab0 ship with the mod release that follows this change.
+- Ownership: ExportBundleIntegrator owns native refresh. CanonicalSources owns common DDL and source hooks. WikiOverviews/DataZones own generic encounter and navigation projections. AdventureGuide owns its consumer. Rebuilds use announced worktree-owned databases and writable inputs, never shared main databases.
+- No release, publication, push, game launch or Unity launch is authorized by this plan.

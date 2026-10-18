@@ -36,6 +36,7 @@ public sealed class WorldMarkerSystem
     private readonly GuideData _data;
     private readonly QuestStateTracker _state;
     private readonly SpawnPointBridge _bridge;
+    private readonly EntityRegistry _entities;
     private readonly MarkerPool _pool;
     private readonly GuideConfig _config;
     private readonly LootScanner _lootScanner;
@@ -84,6 +85,7 @@ public sealed class WorldMarkerSystem
         GuideData data,
         QuestStateTracker state,
         SpawnPointBridge bridge,
+        EntityRegistry entities,
         LootScanner lootScanner,
         GuideConfig config
     )
@@ -91,6 +93,7 @@ public sealed class WorldMarkerSystem
         _data = data;
         _state = state;
         _bridge = bridge;
+        _entities = entities;
         _lootScanner = lootScanner;
         _config = config;
         _pool = new MarkerPool();
@@ -445,28 +448,41 @@ public sealed class WorldMarkerSystem
                 string name = step.TargetName ?? step.Description;
                 string? progress = null;
                 foreach (var source in step.Sources)
-                    EmitItemSourceMarker(source, name, scene, have, quantity, ref progress);
+                    EmitItemSourceMarker(
+                        source,
+                        name,
+                        scene,
+                        have,
+                        quantity,
+                        step.Sources,
+                        ref progress
+                    );
             }
         }
     }
 
     private void EmitItemSourceMarkers(QuestEntry quest, string scene)
     {
-        if (quest.RequiredItems == null)
-            return;
-
-        foreach (var ri in quest.RequiredItems)
+        var missing = StepProgress.MissingRequirements(quest, _state.CountItemDelegate);
+        while (missing.MoveNext())
         {
-            int have = _state.CountItem(ri.ItemStableKey);
-            if (have >= ri.Quantity)
-                continue;
+            var ri = missing.Current;
+            int have = missing.Have;
 
             string? progress = null;
 
             if (ri.Sources == null)
                 continue;
             foreach (var src in ri.Sources)
-                EmitItemSourceMarker(src, ri.ItemName, scene, have, ri.Quantity, ref progress);
+                EmitItemSourceMarker(
+                    src,
+                    ri.ItemName,
+                    scene,
+                    have,
+                    ri.Quantity,
+                    ri.Sources,
+                    ref progress
+                );
         }
     }
 
@@ -476,6 +492,7 @@ public sealed class WorldMarkerSystem
         string scene,
         int have,
         int quantity,
+        List<ItemSource> siblings,
         ref string? progress
     )
     {
@@ -483,7 +500,7 @@ public sealed class WorldMarkerSystem
             return;
         if (
             ItemSourcePolicy.IsRandomSource(source)
-            || !ItemSourcePolicy.NeedsUsedItem(source, _state.CountItemDelegate)
+            || !ItemSourcePolicy.NeedsUsedItem(source, _state.CountItemDelegate, siblings)
         )
             return;
 
@@ -533,7 +550,15 @@ public sealed class WorldMarkerSystem
         if (source.Children == null)
             return;
         foreach (var child in source.Children)
-            EmitItemSourceMarker(child, itemName, scene, have, quantity, ref progress);
+            EmitItemSourceMarker(
+                child,
+                itemName,
+                scene,
+                have,
+                quantity,
+                source.Children,
+                ref progress
+            );
     }
 
     /// <summary>
@@ -671,7 +696,24 @@ public sealed class WorldMarkerSystem
             var staticPos = new Vector3(sp.X, sp.Y, sp.Z) + Vector3.up * StaticHeightOffset;
             var key = new IntentKey(stableKey, sp.X, sp.Y, sp.Z);
 
-            var info = _bridge.GetState(sp.X, sp.Y, sp.Z, stableKey, displayName);
+            var scripted =
+                sp.Activations == null ? null : _entities.FindClosestScripted(stableKey, staticPos);
+            var info =
+                sp.Activations == null
+                    ? _bridge.GetState(sp.X, sp.Y, sp.Z, stableKey, displayName)
+                    : new SpawnPointBridge.SpawnInfo(
+                        scripted != null
+                            ? SpawnPointBridge.SpawnState.Alive
+                            : SpawnPointBridge.SpawnState.Withheld,
+                        liveNPC: scripted
+                    );
+            if (
+                !SpawnMarkerPolicy.ShowsPlacement(
+                    sp.Activations != null,
+                    info.State == SpawnPointBridge.SpawnState.Alive && info.LiveNPC != null
+                )
+            )
+                continue;
 
             // Use live NPC position when available (NPCs drift from placed position)
             var pos = info.LiveNPC != null ? GetMarkerPosition(info.LiveNPC) : staticPos;
@@ -682,6 +724,8 @@ public sealed class WorldMarkerSystem
                 CharacterKey = stableKey,
                 LiveSpawnPoint = info.LiveSpawnPoint,
                 TrackedNPC = info.LiveNPC,
+                OfferingCharacter =
+                    sp.Activations == null ? null : info.LiveNPC?.GetComponent<Character>(),
                 LiveMiningNode = info.LiveMiningNode,
                 TargetNpcName = info.TargetName,
                 QuestType = questType,
@@ -756,6 +800,15 @@ public sealed class WorldMarkerSystem
             var sp = spawnPoints[i];
             if (sp == null || _questSpawnPoints.Contains(sp.GetInstanceID()))
                 continue;
+            if (
+                _data.IsOfferingOnlyPosition(
+                    _lastScene,
+                    sp.transform.position.x,
+                    sp.transform.position.y,
+                    sp.transform.position.z
+                )
+            )
+                continue;
             var tiers = showAll ? SpawnTiers.None : _bridge.SpawnTiersOf(sp, _data);
             if (!RespawnTimerPolicy.Shows(showAll, showBosses, showElites, tiers))
                 continue;
@@ -821,10 +874,12 @@ public sealed class WorldMarkerSystem
                 int need = 1;
                 foreach (var quest in _data.All)
                 {
-                    if (!_state.IsActionable(quest) || quest.RequiredItems == null)
+                    if (!_state.IsActionable(quest))
                         continue;
-                    foreach (var ri in quest.RequiredItems)
+                    var missing = StepProgress.MissingRequirements(quest, _state.CountItemDelegate);
+                    while (missing.MoveNext())
                     {
+                        var ri = missing.Current;
                         if (
                             string.Equals(
                                 ri.ItemName,
@@ -833,7 +888,7 @@ public sealed class WorldMarkerSystem
                             )
                         )
                         {
-                            have = _state.CountItem(ri.ItemStableKey);
+                            have = missing.Have;
                             need = ri.Quantity;
                             break;
                         }
@@ -865,6 +920,14 @@ public sealed class WorldMarkerSystem
             // A taken pickup is destroyed; the rebuild that the inventory
             // change triggers drops its marker.
             if (!ReferenceEquals(m.TrackedPickup, null) && m.TrackedPickup == null)
+            {
+                instance.SetActive(false);
+                continue;
+            }
+            if (
+                !ReferenceEquals(m.OfferingCharacter, null)
+                && (m.OfferingCharacter == null || !m.OfferingCharacter.Alive)
+            )
             {
                 instance.SetActive(false);
                 continue;
@@ -1190,18 +1253,8 @@ public sealed class WorldMarkerSystem
     }
 
     /// <summary>Check if all required items for a quest are in the player's inventory.</summary>
-    private bool HasAllRequiredItems(QuestEntry quest)
-    {
-        if (quest.RequiredItems == null || quest.RequiredItems.Count == 0)
-            return false;
-
-        foreach (var ri in quest.RequiredItems)
-        {
-            if (_state.CountItem(ri.ItemStableKey) < ri.Quantity)
-                return false;
-        }
-        return true;
-    }
+    private bool HasAllRequiredItems(QuestEntry quest) =>
+        StepProgress.HasRequiredItems(quest, _state.CountItemDelegate);
 
     /// <summary>
     /// Identity of a marker intent: an empty live spawn point, a character at
@@ -1273,6 +1326,8 @@ public struct MarkerEntry
 
     /// <summary>Live NPC for position tracking on directly-placed NPCs (no SpawnPoint).</summary>
     public NPC? TrackedNPC;
+
+    public Character? OfferingCharacter;
 
     /// <summary>Live MiningNode for per-frame mined state and timer updates.</summary>
     public MiningNode? LiveMiningNode;

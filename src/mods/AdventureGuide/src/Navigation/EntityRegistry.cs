@@ -8,10 +8,10 @@ namespace AdventureGuide.Navigation;
 /// Harmony patches on SpawnPoint.SpawnNPC and NPC.Start (add) and
 /// Character.DoDeath (remove). Cleared on scene transitions.
 ///
-/// Spawned NPCs are keyed by the prefab they were cloned from, matching the
-/// export pipeline's "character:{name_lowered}". NPCs placed in a scene have
-/// exported keys "character:{object}:{scene}:{x}:{y}:{z}" and are found by the
-/// object name and position recorded when they started.
+/// SpawnPoint clones are registered by SpawnPatch. Other instantiated NPCs
+/// are registered by NpcStartPatch before NPC.Start renames them. Both use the
+/// prefab key matching the export pipeline's "character:{name_lowered}".
+/// Scene placements use their recorded object name, scene and starting position.
 ///
 /// Lookups are O(1) by stable key. Stale entries (destroyed GameObjects,
 /// dead NPCs missed by the death patch) are filtered out on access.
@@ -72,16 +72,15 @@ public sealed class EntityRegistry
         (bool Placed, PlacedCharacterKey Key, string Normalized)
     > _keyShapes = new(System.StringComparer.Ordinal);
 
-    // Instance IDs of NPCs a SpawnPoint spawned in the current scene. Encounter
-    // scripts instantiate their characters directly, so workflows use this to
-    // tell an encounter's fighters from ordinary spawns of the same prefab.
+    // Instance IDs of NPCs a SpawnPoint spawned in the current scene. Native
+    // offering activations distinguish scripted fighters from ordinary spawns.
     private readonly HashSet<int> _spawnPointNpcs = new();
 
     /// <summary>
-    /// Register a newly spawned NPC. Called from SpawnPatch postfix.
-    /// The spawn point is used to derive the stable key from the prefab name.
-    /// For SyncFromLiveNPCs (no patch context), pass null and fall back to
-    /// the NPC's GameObject name.
+    /// Register an instantiated NPC from SpawnPatch, NpcStartPatch, or a live
+    /// snapshot. A non-null spawn point preserves its ordinary-spawn origin.
+    /// Keys use the recorded prefab name, then the spawn point's prefab, then
+    /// the NPC's GameObject name when no original identity is available.
     /// </summary>
     public void Register(NPC npc, SpawnPoint? spawnPoint = null)
     {
@@ -130,8 +129,7 @@ public sealed class EntityRegistry
         );
     }
 
-    /// <summary>Register a scripted entity under an exported descriptor key.</summary>
-    public void Register(NPC npc, string stableKey)
+    private void Register(NPC npc, string stableKey)
     {
         if (npc == null || string.IsNullOrWhiteSpace(stableKey))
             return;
@@ -190,8 +188,8 @@ public sealed class EntityRegistry
     /// <summary>
     /// Populate from the current NPCTable.LiveNPCs snapshot.
     /// Used on mod init (especially hot-reload) when NPCs already exist.
-    /// Recovers spawn point references by scanning all SpawnPoints in the
-    /// scene for matching SpawnedNPC references.
+    /// Recovers spawn point references by scanning matching SpawnedNPC fields.
+    /// NPCs without a matching spawn point register with their prefab identity.
     /// </summary>
     public void SyncFromLiveNPCs()
     {
@@ -219,13 +217,20 @@ public sealed class EntityRegistry
     /// Find the closest alive NPC matching the given stable key.
     /// Returns null if none alive. Prunes stale entries during iteration.
     /// </summary>
-    public NPC? FindClosest(string? stableKey, Vector3 position)
+    public NPC? FindClosest(string? stableKey, Vector3 position) =>
+        FindClosest(stableKey, position, scriptedOnly: false);
+
+    /// <summary>Find a living script-managed instance, excluding ordinary SpawnPoint spawns.</summary>
+    public NPC? FindClosestScripted(string? stableKey, Vector3 position) =>
+        FindClosest(stableKey, position, scriptedOnly: true);
+
+    private NPC? FindClosest(string? stableKey, Vector3 position, bool scriptedOnly)
     {
         if (stableKey == null)
             return null;
         // A placed character's key names one placement, not a kind of NPC.
         if (TryGetPlacedKey(stableKey, out var placedKey, out var key))
-            return FindPlaced(placedKey);
+            return FindPlaced(placedKey, scriptedOnly);
 
         if (!_byKey.TryGetValue(key, out var list))
             return null;
@@ -241,6 +246,8 @@ public sealed class EntityRegistry
                 list.RemoveAt(i);
                 continue;
             }
+            if (scriptedOnly && IsSpawnPointNpc(entry.Npc))
+                continue;
 
             float dist = Vector3.Distance(position, entry.Npc.transform.position);
             if (dist < bestDist)
@@ -317,7 +324,7 @@ public sealed class EntityRegistry
     /// placement, within the placement tolerance. Prunes stale entries during
     /// iteration.
     /// </summary>
-    private NPC? FindPlaced(in PlacedCharacterKey key)
+    private NPC? FindPlaced(in PlacedCharacterKey key, bool scriptedOnly = false)
     {
         if (!_placedByName.TryGetValue(key.ObjectName, out var list))
             return null;
@@ -333,6 +340,8 @@ public sealed class EntityRegistry
                 list.RemoveAt(i);
                 continue;
             }
+            if (scriptedOnly && IsSpawnPointNpc(placed.Entry.Npc))
+                continue;
             if (!string.Equals(placed.Scene, key.Scene, System.StringComparison.OrdinalIgnoreCase))
                 continue;
             float sqr = (placed.Position - placement).sqrMagnitude;

@@ -30,7 +30,6 @@ internal static class DeathPatch
         if (npc == null)
             return;
 
-        Tracker?.OnCharacterDeath(__instance);
         Registry?.Unregister(npc);
         Timers?.OnNPCDeath(npc);
         Markers?.MarkSpawnDirty();

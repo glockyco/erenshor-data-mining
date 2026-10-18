@@ -155,6 +155,140 @@ public sealed class CanonicalSourceNavigationTests
         );
     }
 
+    private static SourceFact AddPlacementPair(
+        GuideWrapper wrapper,
+        ItemSource first,
+        ItemSource second
+    )
+    {
+        second.AcquisitionKey = first.AcquisitionKey;
+        second.ItemStableKey = first.ItemStableKey;
+        var fact = AddFact(wrapper, first);
+        fact.Locations.Add(
+            new()
+            {
+                LocationKey = second.LocationKey!,
+                Relation = "fixed",
+                Scene = second.Scene,
+                X = second.X,
+                Y = second.Y,
+                Z = second.Z,
+                EntryZoneLineKeys = second.EntryZoneLineKeys ?? [],
+            }
+        );
+        return fact;
+    }
+
+    [Fact]
+    public void Chosen_acquisition_uses_allowed_member_and_repicks_after_live_state_changes()
+    {
+        var first = Located("first", "A", 110);
+        var second = Located("second", "B", 220);
+        first.EntryZoneLineKeys = ["zoneline:home:a"];
+        second.EntryZoneLineKeys = ["zoneline:home:b"];
+        var other = Located("unselected", "Home", 330);
+        var quest = Quest(first, second, other);
+        var wrapper = Wrapper(quest);
+        var fact = AddPlacementPair(wrapper, first, second);
+        fact.ProbabilityMin = 0.00001;
+        fact.ProbabilityMax = 0.00001;
+        fact.ProbabilityBasis = "per_native_roll";
+        fact.Locations[0]
+            .Conditions.Add(
+                new()
+                {
+                    GateKey = "gate:first:level",
+                    Predicate = "actor_level",
+                    Actor = "player",
+                    Minimum = 20,
+                    Scope = first.LocationKey!,
+                    Phase = "availability",
+                }
+            );
+        fact.Locations[1]
+            .Conditions.Add(
+                new()
+                {
+                    GateKey = "gate:second:level",
+                    Predicate = "actor_level",
+                    Actor = "player",
+                    Maximum = 19,
+                    Scope = second.LocationKey!,
+                    Phase = "availability",
+                }
+            );
+        AddFact(wrapper, other);
+        var facts = new GateTestFacts { PlayerLevel = 5 };
+        var (_, resolver, graph) = Build(wrapper, facts);
+        var selection = new SourceNavigationSelection();
+        var step = quest.Steps![0];
+        Assert.True(
+            selection.Select(SourceChoice.FindContaining(step.Sources, first)!, step, quest)
+        );
+
+        var lowLevel = selection.Resolve(resolver, quest, step, "Home");
+        Assert.True(lowLevel.CanNavigate, lowLevel.Message);
+        Assert.Equal("B", lowLevel.SelectedScene);
+        Assert.Equal(220, lowLevel.SelectedSpawn!.X);
+        Assert.Equal("zoneline:home:b", lowLevel.EntryLine!.StableKey);
+        Assert.Equal(
+            "acquisition:first|location:second",
+            Assert.Single(lowLevel.Step.Sources!).MakeSourceId()
+        );
+
+        facts.PlayerLevel = 30;
+        graph.Rebuild();
+        var highLevel = selection.Resolve(resolver, quest, step, "Home");
+        Assert.True(highLevel.CanNavigate, highLevel.Message);
+        Assert.Equal("A", highLevel.SelectedScene);
+        Assert.Equal(110, highLevel.SelectedSpawn!.X);
+        Assert.Equal("zoneline:home:a", highLevel.EntryLine!.StableKey);
+        Assert.Equal(
+            "acquisition:first|location:first",
+            Assert.Single(highLevel.Step.Sources!).MakeSourceId()
+        );
+        Assert.Equal("item:crafted key", highLevel.Step.TargetKey);
+        Assert.Equal(0.00001, fact.ProbabilityMin);
+        Assert.Equal(0.00001, fact.ProbabilityMax);
+        Assert.Equal("per_native_roll", fact.ProbabilityBasis);
+        Assert.Equal("final_acquisition", fact.ProbabilityStage);
+    }
+
+    [Fact]
+    public void Scene_change_repicks_an_actual_member_without_switching_acquisitions()
+    {
+        var first = Located("first", "A", 110);
+        var second = Located("second", "B", 220);
+        var other = Located("unselected", "B", 330);
+        var quest = Quest(first, second, other);
+        var wrapper = Wrapper(quest);
+        AddPlacementPair(wrapper, first, second);
+        AddFact(wrapper, other);
+        var (_, resolver, graph) = Build(wrapper);
+        var step = quest.Steps![0];
+        var selection = new SourceNavigationSelection();
+        Assert.True(
+            selection.Select(SourceChoice.FindContaining(step.Sources, first)!, step, quest)
+        );
+
+        var inA = selection.Resolve(resolver, quest, step, "A");
+        Assert.True(inA.CanNavigate, inA.Message);
+        Assert.Equal(
+            "acquisition:first|location:first",
+            Assert.Single(inA.Step.Sources!).MakeSourceId()
+        );
+        Assert.Equal(110, inA.SelectedSpawn!.X);
+
+        graph.Rebuild();
+        var inB = selection.Resolve(resolver, quest, step, "B");
+        Assert.True(inB.CanNavigate, inB.Message);
+        Assert.Equal(
+            "acquisition:first|location:second",
+            Assert.Single(inB.Step.Sources!).MakeSourceId()
+        );
+        Assert.Equal(220, inB.SelectedSpawn!.X);
+    }
+
     [Fact]
     public void Canonical_location_does_not_expand_a_grouped_character_to_other_copies()
     {
@@ -268,17 +402,23 @@ public sealed class CanonicalSourceNavigationTests
         var facts = new GateTestFacts();
         var (_, resolver, _) = Build(wrapper, facts);
         var selection = new SourceNavigationSelection();
-        Assert.True(selection.Select(source, quest.Steps![0], quest));
+        Assert.True(
+            selection.Select(
+                SourceChoice.ForSources(quest.Steps![0].Sources)[0],
+                quest.Steps[0],
+                quest
+            )
+        );
         var required = selection.Resolve(resolver, quest, quest.Steps[0], "Home");
         Assert.True(required.CanNavigate, required.Message);
         Assert.Equal("item:entry key", required.Step.TargetKey);
         Assert.Contains(required.Chain, link => link.Atom?.Ref == "item:entry key");
-        Assert.Same(source, selection.Source);
+        Assert.Equal("Crafted Key", required.Chain[0].Label);
         facts.Inventory["item:entry key"] = 1;
         var ready = selection.Resolve(resolver, quest, quest.Steps[0], "Home");
         Assert.True(ready.CanNavigate, ready.Message);
         Assert.Equal("A", ready.SelectedScene);
-        Assert.Same(source, selection.Source);
+        Assert.Equal(source.MakeSourceId(), Assert.Single(ready.Step.Sources!).MakeSourceId());
     }
 
     [Fact]
@@ -361,7 +501,13 @@ public sealed class CanonicalSourceNavigationTests
         facts.Inventory["item:ore"] = 1;
         var (data, resolver, _) = Build(wrapper, facts);
         var selection = new SourceNavigationSelection();
-        Assert.True(selection.Select(recipe, quest.Steps![0], quest));
+        Assert.True(
+            selection.Select(
+                SourceChoice.ForSources(quest.Steps![0].Sources)[0],
+                quest.Steps[0],
+                quest
+            )
+        );
         var ore = selection.Resolve(resolver, quest, quest.Steps[0], "Home");
         Assert.True(ore.CanNavigate, ore.Message);
         Assert.Equal("A", ore.SelectedScene);
@@ -369,14 +515,14 @@ public sealed class CanonicalSourceNavigationTests
         Assert.Equal("item:ore", ore.Step.TargetKey);
         Assert.Equal(2, ore.Step.Quantity);
         Assert.Equal("Crafted Key", ore.Chain[0].Label);
-        Assert.Same(recipe, selection.Source);
+        Assert.Equal("item:crafted key", quest.Steps[0].TargetKey);
         facts.Inventory["item:ore"] = 2;
         var wood = selection.Resolve(resolver, quest, quest.Steps[0], "Home");
         Assert.True(wood.CanNavigate, wood.Message);
         Assert.Equal("B", wood.SelectedScene);
         Assert.Same(second, Assert.Single(wood.Step.Sources!));
         Assert.Equal("item:wood", wood.Step.TargetKey);
-        Assert.Same(recipe, selection.Source);
+        Assert.Equal("Crafted Key", wood.Chain[0].Label);
         Assert.Equal(
             "B",
             StepSceneResolver.ResolveScene(quest, quest.Steps[0], data, countItem: facts.ItemCount)
@@ -495,5 +641,119 @@ public sealed class CanonicalSourceNavigationTests
         Assert.True(result.CanNavigate, result.Message);
         Assert.Equal("item:ore", result.Step.TargetKey);
         Assert.Equal(4, result.Step.Quantity);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(3)]
+    [InlineData(4)]
+    [InlineData(7)]
+    public void Collapsed_material_NAV_keeps_the_total_native_requirement(int have)
+    {
+        var recipe = new ItemSource
+        {
+            Type = "crafting",
+            AcquisitionKey = "acquisition:recipe",
+            ItemStableKey = "item:crafted key",
+        };
+        var quest = Quest(recipe);
+        var wrapper = Wrapper(quest);
+        AddFact(wrapper, recipe, "crafting");
+        var material = Located("ore", "A");
+        AddFact(wrapper, material);
+        recipe.Children = [];
+        for (int slot = 1; slot <= 8; slot++)
+        {
+            var input = Ingredient(wrapper, "item:ore", 1, material, slot.ToString());
+            wrapper.ItemUses[input.UseKey!].TargetStableKey = "recipe:key";
+            recipe.Children.Add(input);
+        }
+        var facts = new GateTestFacts();
+        facts.Inventory["item:ore"] = have;
+        var (_, resolver, _) = Build(wrapper, facts);
+        var row = Assert.Single(ItemSourcePolicy.PresentationSources(recipe.Children));
+        var selection = new SourceNavigationSelection();
+        Assert.True(selection.Select(row, quest.Steps![0], quest));
+        var result = selection.Resolve(resolver, quest, quest.Steps[0], "Home");
+        Assert.True(result.CanNavigate, result.Message);
+        Assert.Equal("item:ore", result.Step.TargetKey);
+        Assert.Equal(8, result.Step.Quantity);
+        Assert.Equal("item:crafted key", quest.Steps[0].TargetKey);
+    }
+
+    [Fact]
+    public void Completing_an_explicit_material_resumes_its_recipe_and_other_inputs()
+    {
+        var recipe = new ItemSource
+        {
+            Type = "crafting",
+            AcquisitionKey = "acquisition:recipe",
+            ItemStableKey = "item:crafted key",
+        };
+        var quest = Quest(recipe);
+        var wrapper = Wrapper(quest);
+        AddFact(wrapper, recipe, "crafting");
+        var ore = Located("ore", "A");
+        var wood = Located("wood", "B");
+        AddFact(wrapper, ore);
+        AddFact(wrapper, wood);
+        recipe.Children = [];
+        for (int slot = 1; slot <= 8; slot++)
+        {
+            var input = Ingredient(wrapper, "item:ore", 1, ore, slot.ToString());
+            wrapper.ItemUses[input.UseKey!].TargetStableKey = "recipe:key";
+            recipe.Children.Add(input);
+        }
+        recipe.Children.Add(Ingredient(wrapper, "item:wood", 1, wood, "wood"));
+        var facts = new GateTestFacts();
+        facts.Inventory["item:ore"] = 7;
+        var (_, resolver, _) = Build(wrapper, facts);
+        var selection = new SourceNavigationSelection();
+        var row = ItemSourcePolicy.PresentationSources(recipe.Children)[0];
+        Assert.True(selection.Select(row, quest.Steps![0], quest));
+        var missingOre = selection.Resolve(resolver, quest, quest.Steps[0], "Home");
+        Assert.True(missingOre.CanNavigate, missingOre.Message);
+        Assert.Equal("item:ore", missingOre.Step.TargetKey);
+        Assert.Equal(8, missingOre.Step.Quantity);
+
+        facts.Inventory["item:ore"] = 8;
+        var missingWood = selection.Resolve(resolver, quest, quest.Steps[0], "Home");
+        Assert.True(missingWood.CanNavigate, missingWood.Message);
+        Assert.Equal("item:wood", missingWood.Step.TargetKey);
+        Assert.Equal(1, missingWood.Step.Quantity);
+        Assert.Same(recipe, selection.Choice!.Primary);
+        Assert.Equal("item:crafted key", quest.Steps[0].TargetKey);
+
+        facts.Inventory["item:ore"] = 7;
+        var usedOre = selection.Resolve(resolver, quest, quest.Steps[0], "Home");
+        Assert.True(usedOre.CanNavigate, usedOre.Message);
+        Assert.Equal("item:ore", usedOre.Step.TargetKey);
+        Assert.Equal(8, usedOre.Step.Quantity);
+        Assert.Same(recipe, selection.Choice.Primary);
+    }
+
+    [Fact]
+    public void Canonical_source_locations_keep_their_exported_placement_gates()
+    {
+        using var stream = typeof(GuideData).Assembly.GetManifestResourceStream(
+            "AdventureGuide.quest-guide.json"
+        );
+        Assert.NotNull(stream);
+        using var reader = new StreamReader(stream);
+        var data = GuideData.Parse(reader.ReadToEnd());
+        var location = data.SourceFacts[
+                "acquisition:[\"character_drop\",\"character:acceptor\",\"item:gen - cod - pg 3\"]"
+            ]
+            .Locations.Single();
+        var spawn = location.Spawn!;
+        Assert.Equal("spawn:saltedstrand:740.17:25.37:338.07", spawn.StableKey);
+        Assert.NotNull(spawn.Condition);
+
+        var facts = new GateTestFacts();
+        var gates = new GateConditions(data, facts);
+        Assert.False(gates.IsAvailable(spawn.Condition));
+        facts.Keyring.Add(data.GateItems["item:key - old church key"].GameId);
+        Assert.True(gates.IsAvailable(spawn.Condition));
     }
 }

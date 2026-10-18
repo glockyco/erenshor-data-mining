@@ -198,15 +198,16 @@ def test_missing_required_column_fails_even_when_empty(conn):
         read_encounter_contexts(conn)
 
 
-def test_schema_eight_preserves_all_encounter_rows_and_exact_stored_return_line(conn):
+@pytest.mark.parametrize("gated", [False, True])
+def test_schema_eight_preserves_all_encounter_rows_and_exact_stored_return_line(conn, gated):
     import json
 
     from erenshor.application.guide.compiler import compile_graph
     from erenshor.application.guide.encounter_contexts import read_zone_line_destination_contexts
     from erenshor.application.guide.mod_writer import serialize_mod_guide
-    from erenshor.application.guide.schema import Node, NodeType
+    from erenshor.application.guide.schema import Node, NodeType, SubjectKind
 
-    from .fixtures import build_graph, quest_node
+    from .fixtures import build_graph, quest_gate, quest_node
 
     graph = build_graph(
         quest_node(_QUEST, "UNRELATED_DB_NAME"),
@@ -215,6 +216,7 @@ def test_schema_eight_preserves_all_encounter_rows_and_exact_stored_return_line(
             NodeType.ZONE_LINE,
             "Physical return",
             scene="Home",
+            is_enabled=False,
             x=1,
             y=2,
             z=3,
@@ -224,6 +226,18 @@ def test_schema_eight_preserves_all_encounter_rows_and_exact_stored_return_line(
             landing_y=8,
             landing_z=9,
         ),
+        Node(
+            "line:unsupported",
+            NodeType.ZONE_LINE,
+            "Unsupported inactive line",
+            scene="Home",
+            is_enabled=False,
+            x=4,
+            y=2,
+            z=3,
+            destination_zone_key="zone:stale",
+        ),
+        gates=[quest_gate(SubjectKind.ZONE_LINE, "line:actual", (_QUEST,))] if gated else [],
     )
     conn.execute(
         "CREATE TABLE zone_line_destination_contexts (zone_line_stable_key TEXT, kind TEXT, "
@@ -247,7 +261,13 @@ def test_schema_eight_preserves_all_encounter_rows_and_exact_stored_return_line(
         "landing_state_key": "character_state:reliquary_return_landing",
         "source_key": "controller:actual",
     }
-    [line] = payload["_zone_lines"]
+    lines = {entry["stable_key"]: entry for entry in payload["_zone_lines"]}
+    line = lines["line:actual"]
+    if gated:
+        assert payload["_conditions"][line["condition"]] == [[{"kind": "quest_done", "ref": "UNRELATED_DB_NAME"}]]
+    else:
+        assert "condition" not in line
+    assert payload["_conditions"][lines["line:unsupported"]["condition"]] == []
     assert line["stable_key"] == "line:actual"
     assert not {"destination_zone_key", "destination_display", "landing_x", "landing_y", "landing_z"}.intersection(line)
 

@@ -61,9 +61,6 @@ public sealed class QuestEntry
     [JsonProperty("acceptance")]
     public string? Acceptance { get; set; }
 
-    [JsonProperty("workflow_cycle")]
-    public WorkflowCycle? WorkflowCycle { get; set; }
-
     /// <summary>
     /// True when the quest is classified as implicit — no acquisition NPC,
     /// becomes active when the player enters the completion zone.
@@ -71,12 +68,6 @@ public sealed class QuestEntry
     [JsonIgnore]
     public bool IsImplicit =>
         string.Equals(Acceptance, "implicit", System.StringComparison.OrdinalIgnoreCase);
-
-    [JsonIgnore]
-    public bool IsGuideOnly => Flags is { GuideOnly: true };
-
-    [JsonIgnore]
-    public string RuntimeKey => IsGuideOnly ? StableKey : DBName;
 
     /// <summary>Whether this quest has step-by-step guide data.</summary>
     [JsonIgnore]
@@ -118,11 +109,17 @@ public sealed class QuestStep
     [JsonProperty("or_group")]
     public string? OrGroup { get; set; }
 
+    [JsonProperty("requirement_variant")]
+    public string? RequirementVariant { get; set; }
+
+    [JsonProperty("output_quality")]
+    public string? OutputQuality { get; set; }
+
     [JsonProperty("level_estimate")]
     public LevelEstimate? LevelEstimate { get; set; }
 
     [JsonProperty("location")]
-    public WorkflowLocation? Location { get; set; }
+    public StepLocation? Location { get; set; }
 
     [JsonProperty("sources")]
     public List<ItemSource>? Sources { get; set; }
@@ -237,6 +234,9 @@ public sealed class ItemSource
     [JsonProperty("instruction")]
     public string? Instruction { get; set; }
 
+    [JsonIgnore]
+    public string? ActivationInstruction { get; internal set; }
+
     [JsonProperty("keyword")]
     public string? Keyword { get; set; }
 
@@ -315,6 +315,21 @@ public sealed class RequiredItemInfo
 
     [JsonProperty("or_group")]
     public string? OrGroup { get; set; }
+
+    [JsonProperty("use_keys")]
+    public List<string>? UseKeys { get; set; }
+
+    [JsonProperty("use_key")]
+    private string? LegacyUseKey
+    {
+        set => throw new InvalidDataException("Native required items must provide use_keys");
+    }
+
+    [JsonProperty("variant_key")]
+    public string? VariantKey { get; set; }
+
+    [JsonProperty("output_quality")]
+    public string? OutputQuality { get; set; }
 
     [JsonProperty("sources")]
     public List<ItemSource>? Sources { get; set; }
@@ -446,64 +461,7 @@ public sealed class ChainLink
     public string Relationship { get; set; } = "";
 }
 
-public sealed class WorkflowCycle
-{
-    [JsonProperty("trigger")]
-    public WorkflowTrigger Trigger { get; set; } = new();
-
-    [JsonProperty("targets")]
-    public List<WorkflowTarget> Targets { get; set; } = new();
-
-    [JsonProperty("reward_container")]
-    public WorkflowRewardContainer? RewardContainer { get; set; }
-
-    [JsonProperty("reset_evidence")]
-    public string ResetEvidence { get; set; } = "";
-}
-
-public sealed class WorkflowTrigger
-{
-    [JsonProperty("item_stable_key")]
-    public string ItemStableKey { get; set; } = "";
-
-    [JsonProperty("item_name")]
-    public string ItemName { get; set; } = "";
-
-    [JsonProperty("quantity")]
-    public int Quantity { get; set; }
-
-    [JsonProperty("mode")]
-    public string Mode { get; set; } = "";
-
-    [JsonProperty("consumes_item_automatically")]
-    public bool ConsumesItemAutomatically { get; set; }
-
-    [JsonProperty("location")]
-    public WorkflowLocation Location { get; set; } = new();
-}
-
-public sealed class WorkflowTarget
-{
-    [JsonProperty("stable_key")]
-    public string StableKey { get; set; } = "";
-
-    [JsonProperty("display_name")]
-    public string DisplayName { get; set; } = "";
-
-    [JsonProperty("quantity")]
-    public int Quantity { get; set; }
-}
-
-public sealed class WorkflowRewardContainer
-{
-    [JsonProperty("stable_key")]
-    public string StableKey { get; set; } = "";
-
-    [JsonProperty("display_name")]
-    public string DisplayName { get; set; } = "";
-}
-
-public sealed class WorkflowLocation
+public sealed class StepLocation
 {
     [JsonProperty("stable_key")]
     public string StableKey { get; set; } = "";
@@ -522,50 +480,10 @@ public sealed class WorkflowLocation
 
     [JsonProperty("z")]
     public float Z { get; set; }
-
-    [JsonProperty("bounds")]
-    public WorkflowBounds? Bounds { get; set; }
-
-    /// <summary>
-    /// Whether a point lies within the exported trigger bounds grown by
-    /// <paramref name="margin"/> on every side.
-    /// </summary>
-    public bool Contains(float x, float y, float z, float margin = 0f)
-    {
-        if (Bounds == null)
-            return false;
-        return Math.Abs(x - Bounds.Center.X) <= Bounds.Extents.X + margin
-            && Math.Abs(y - Bounds.Center.Y) <= Bounds.Extents.Y + margin
-            && Math.Abs(z - Bounds.Center.Z) <= Bounds.Extents.Z + margin;
-    }
-}
-
-public sealed class WorkflowBounds
-{
-    [JsonProperty("center")]
-    public WorkflowVector Center { get; set; } = new();
-
-    [JsonProperty("extents")]
-    public WorkflowVector Extents { get; set; } = new();
-}
-
-public sealed class WorkflowVector
-{
-    [JsonProperty("x")]
-    public float X { get; set; }
-
-    [JsonProperty("y")]
-    public float Y { get; set; }
-
-    [JsonProperty("z")]
-    public float Z { get; set; }
 }
 
 public sealed class QuestFlags
 {
-    [JsonProperty("guide_only")]
-    public bool GuideOnly { get; set; }
-
     [JsonProperty("repeatable")]
     public bool Repeatable { get; set; }
 

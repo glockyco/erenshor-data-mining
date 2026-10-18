@@ -1,6 +1,6 @@
 """Node construction for the Adventure Guide entity graph.
 
-This module owns database-backed node builders and guide-only workflow facts.
+This module owns database-backed entity nodes and native activation facts.
 The caller controls the shared SQLite connection and scene-to-zone lookup.
 """
 
@@ -10,7 +10,17 @@ import math
 import sqlite3
 from typing import TYPE_CHECKING
 
-from .schema import Edge, EdgeType, Node, NodeType, WorkflowCycle, WorkflowTarget
+from .schema import (
+    Activation,
+    ActivationBounds,
+    ActivationOffering,
+    ActivationRef,
+    ActivationSite,
+    ActivationSpawn,
+    ActivationVector,
+    Node,
+    NodeType,
+)
 
 if TYPE_CHECKING:
     from .graph import EntityGraph
@@ -28,6 +38,7 @@ def build_nodes(
     _add_zone_nodes(conn, graph)
     _add_zone_line_nodes(conn, graph, scene_to_zone)
     _add_spawn_point_nodes(conn, graph, scene_to_zone)
+    _add_native_activations(conn, graph)
     _add_mining_node_nodes(conn, graph, scene_to_zone)
     _add_water_nodes(conn, graph, scene_to_zone)
     _add_forge_nodes(conn, graph, scene_to_zone)
@@ -45,7 +56,6 @@ def build_nodes(
     _add_class_nodes(conn, graph)
     _add_stance_nodes(conn, graph)
     _add_ascension_nodes(conn, graph)
-    _add_guide_workflow_nodes_and_edges(conn, graph, scene_to_zone)
 
 
 def _build_scene_to_zone(conn: sqlite3.Connection) -> dict[str, str]:
@@ -310,6 +320,185 @@ def _add_spawn_point_nodes(
                 furniture_slot=r["furniture_slot"],
             )
         )
+
+
+def _activation_site(row: sqlite3.Row) -> ActivationSite | None:
+    fields = (
+        "event_x",
+        "event_y",
+        "event_z",
+        "trigger_bounds_center_x",
+        "trigger_bounds_center_y",
+        "trigger_bounds_center_z",
+        "trigger_bounds_extents_x",
+        "trigger_bounds_extents_y",
+        "trigger_bounds_extents_z",
+    )
+    values = tuple(row[field] for field in fields)
+    if all(value is None for value in values):
+        return None
+    if any(value is None or not math.isfinite(value) for value in values):
+        raise ValueError("native activation has an incomplete or nonfinite site")
+    if any(value < 0 for value in values[6:]):
+        raise ValueError("native activation has negative trigger extents")
+    return ActivationSite(
+        values[0],
+        values[1],
+        values[2],
+        ActivationBounds(
+            ActivationVector(values[3], values[4], values[5]),
+            ActivationVector(values[6], values[7], values[8]),
+        ),
+    )
+
+
+def _add_native_activations(conn: sqlite3.Connection, graph: EntityGraph) -> None:
+    """Bind exported controller facts to exact spawned placements."""
+    rows = conn.execute(
+        """SELECT * FROM character_spawns
+           WHERE source_script IN ('VithArena', 'MalarothFeed', 'Chessboard')
+           ORDER BY source_script, scene, spawn_point_stable_key, character_stable_key"""
+    ).fetchall()
+    controllers: dict[str, Activation] = {}
+    bindings: dict[str, list[ActivationRef]] = {}
+    bound: set[tuple[str, int, str, str]] = set()
+
+    def offering(
+        item_key: str, spawns: tuple[ActivationSpawn, ...], reward: str | None = None, *, random: bool = False
+    ) -> ActivationOffering:
+        item = graph.get_node(item_key)
+        if item is None or item.type != NodeType.ITEM:
+            raise ValueError(f"native activation references missing offering item {item_key!r}")
+        if not spawns:
+            raise ValueError(f"native activation offering {item_key!r} has no spawned characters")
+        for character in [*(spawn.character for spawn in spawns), *([reward] if reward else [])]:
+            node = graph.get_node(character)
+            if node is None or node.type != NodeType.CHARACTER:
+                raise ValueError(f"native activation references missing character {character!r}")
+        return ActivationOffering(item_key, item.display_name, spawns, reward, random)
+
+    def bind(row: sqlite3.Row, key: str, index: int, role: str) -> None:
+        placement = graph.get_node(row["spawn_point_stable_key"])
+        if placement is None or placement.type != NodeType.SPAWN_POINT or not placement.scene:
+            raise ValueError(f"native activation has unbound controller placement {row['spawn_point_stable_key']!r}")
+        ref = ActivationRef(key, index, role)
+        refs = bindings.setdefault(placement.key, [])
+        if ref not in refs:
+            refs.append(ref)
+        bound.add((key, index, role, row["character_stable_key"]))
+
+    if conn.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'arena_rounds'").fetchone():
+        rounds = conn.execute("SELECT * FROM arena_rounds ORDER BY scene, arena_object_name, round_index").fetchall()
+        arena_groups: dict[tuple[str, str], list[sqlite3.Row]] = {}
+        for row in rounds:
+            arena_groups.setdefault((row["scene"], row["arena_object_name"]), []).append(row)
+        enemies: dict[str, dict[str, int]] = {}
+        sequences: set[tuple[str, int]] = set()
+        round_keys = {row["stable_key"] for row in rounds}
+        for row in conn.execute("SELECT * FROM arena_round_enemies ORDER BY arena_round_stable_key, sequence_index"):
+            round_key = row["arena_round_stable_key"]
+            sequence = row["sequence_index"]
+            if round_key not in round_keys or not isinstance(sequence, int) or sequence < 0:
+                raise ValueError(f"invalid native arena enemy binding {round_key!r}")
+            if (round_key, sequence) in sequences:
+                raise ValueError(f"duplicate native arena enemy sequence {round_key!r}: {sequence}")
+            sequences.add((round_key, sequence))
+            counts = enemies.setdefault(round_key, {})
+            character = row["enemy_character_stable_key"]
+            counts[character] = counts.get(character, 0) + 1
+        for (scene, object_name), group in arena_groups.items():
+            if not scene or not object_name or len({r["round_index"] for r in group}) != len(group):
+                raise ValueError("native arena has missing identity or duplicate round index")
+            key = f"activation:VithArena:{scene}:{object_name}"
+            site = _activation_site(group[0])
+            display = group[0]["event_display_name"]
+            if site is None or not display:
+                raise ValueError(f"native arena {key!r} has no exported site or display name")
+            offers = []
+            for row in group:
+                if _activation_site(row) != site or row["event_display_name"] != display:
+                    raise ValueError(f"native arena {key!r} has conflicting sites")
+                offers.append(
+                    offering(
+                        row["coin_item_stable_key"],
+                        tuple(
+                            ActivationSpawn(character, count)
+                            for character, count in enemies.get(row["stable_key"], {}).items()
+                        ),
+                        row["award_chest_character_stable_key"],
+                    )
+                )
+            controllers[key] = Activation("VithArena", scene, display, site, tuple(offers))
+
+    trigger_groups: dict[tuple[str, str, ActivationSite], list[sqlite3.Row]] = {}
+    for row in rows:
+        script, scene = row["source_script"], row["scene"]
+        if not scene:
+            raise ValueError("native activation placement has no scene")
+        if script == "VithArena":
+            matches = []
+            for key, controller in controllers.items():
+                if controller.scene != scene:
+                    continue
+                for index, offer in enumerate(controller.offerings):
+                    if row["character_stable_key"] in {spawn.character for spawn in offer.spawns}:
+                        matches.append((key, index, "spawn"))
+                    if row["character_stable_key"] == offer.reward:
+                        matches.append((key, index, "reward"))
+            if not matches or len({key for key, _, _ in matches}) != 1:
+                raise ValueError(f"unbound or ambiguous native arena placement {row['spawn_point_stable_key']!r}")
+            for key, index, role in matches:
+                bind(row, key, index, role)
+        else:
+            site = _activation_site(row)
+            if site is None or not row["event_display_name"]:
+                placement = row["spawn_point_stable_key"]
+                raise ValueError(f"native controller placement {placement!r} has no exported site or display name")
+            trigger_groups.setdefault((script, scene, site), []).append(row)
+    for (script, scene, site), group in trigger_groups.items():
+        key = f"activation:{script}:{scene}:{site.x:.2f}:{site.y:.2f}:{site.z:.2f}"
+        if key in controllers:
+            raise ValueError(f"ambiguous native activation site identity {key!r}")
+        if len({row["event_display_name"] for row in group}) != 1:
+            raise ValueError(f"native activation {key!r} has conflicting display names")
+        by_item: dict[str, list[sqlite3.Row]] = {}
+        for row in group:
+            item = row["trigger_item_stable_key"]
+            if not item:
+                raise ValueError(f"unbound native controller placement {row['spawn_point_stable_key']!r}: no offering")
+            by_item.setdefault(item, []).append(row)
+        offers = []
+        for index, item in enumerate(sorted(by_item)):
+            characters = sorted({row["character_stable_key"] for row in by_item[item]})
+            # code-fact: chessboard.faceless_choices
+            # Multiple exported Faceless targets are alternatives, not six simultaneous spawns.
+            offers.append(
+                offering(item, tuple(ActivationSpawn(char, 1) for char in characters), random=len(characters) > 1)
+            )
+            for row in by_item[item]:
+                bind(row, key, index, "spawn")
+        controllers[key] = Activation(script, scene, group[0]["event_display_name"], site, tuple(offers))
+    for key, controller in controllers.items():
+        for index, offer in enumerate(controller.offerings):
+            expected = [("spawn", spawn.character) for spawn in offer.spawns]
+            if offer.reward is not None:
+                expected.append(("reward", offer.reward))
+            for role, character in expected:
+                if (key, index, role, character) not in bound:
+                    raise ValueError(f"native activation character has no bound placement: {key!r} {character!r}")
+        graph.add_node(
+            Node(
+                key,
+                NodeType.LOCATION,
+                controller.display_name,
+                scene=controller.scene,
+                activation=controller,
+            )
+        )
+    for key, refs in bindings.items():
+        placement = graph.get_node(key)
+        assert placement is not None
+        placement.activations = tuple(refs)
 
 
 def _add_mining_node_nodes(
@@ -690,330 +879,3 @@ def _require_finite(value: object, field: str, key: str) -> float:
     if not math.isfinite(result):
         raise ValueError(f"{key!r} has non-finite {field}: {value!r}")
     return result
-
-
-def _add_guide_workflow_nodes_and_edges(
-    conn: sqlite3.Connection,
-    graph: EntityGraph,
-    scene_to_zone: dict[str, str],
-) -> None:
-    """Build guide-only repeatable workflows from exported source facts."""
-    zone_displays = _zone_display(conn)
-    known_db_names = {node.db_name for node in graph.all_nodes() if node.db_name is not None}
-
-    def table_exists(name: str) -> bool:
-        return (
-            conn.execute(
-                "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
-                (name,),
-            ).fetchone()
-            is not None
-        )
-
-    def add_location(
-        *,
-        location_key: str,
-        display_name: str,
-        scene: str | None,
-        zone_key: str | None,
-        x: object,
-        y: object,
-        z: object,
-        bounds: tuple[object, object, object, object, object, object],
-    ) -> None:
-        if graph.has_node(location_key):
-            raise ValueError(f"guide location key collides with existing node: {location_key!r}")
-        if not scene or not display_name:
-            raise ValueError(f"{location_key!r} has missing scene or display name")
-        center_x, center_y, center_z, extent_x, extent_y, extent_z = bounds
-        extents = tuple(
-            _require_finite(value, field, location_key)
-            for value, field in zip(
-                (extent_x, extent_y, extent_z),
-                ("trigger_bounds_extents_x", "trigger_bounds_extents_y", "trigger_bounds_extents_z"),
-                strict=True,
-            )
-        )
-        if any(value <= 0 for value in extents):
-            raise ValueError(f"{location_key!r} has non-positive trigger bounds extents")
-        graph.add_node(
-            Node(
-                key=location_key,
-                type=NodeType.LOCATION,
-                display_name=display_name or location_key,
-                scene=scene,
-                zone_key=zone_key or _resolve_zone(scene, scene_to_zone),
-                zone=_zone_display_name(zone_key or _resolve_zone(scene, scene_to_zone), zone_displays),
-                x=_require_finite(x, "event_x", location_key),
-                y=_require_finite(y, "event_y", location_key),
-                z=_require_finite(z, "event_z", location_key),
-                guide_only=True,
-                trigger_bounds_center_x=_require_finite(center_x, "trigger_bounds_center_x", location_key),
-                trigger_bounds_center_y=_require_finite(center_y, "trigger_bounds_center_y", location_key),
-                trigger_bounds_center_z=_require_finite(center_z, "trigger_bounds_center_z", location_key),
-                trigger_bounds_extents_x=extents[0],
-                trigger_bounds_extents_y=extents[1],
-                trigger_bounds_extents_z=extents[2],
-            )
-        )
-
-    def add_workflow(
-        *,
-        quest_key: str,
-        display_name: str,
-        db_name: str,
-        trigger_item_key: str,
-        trigger_mode: str,
-        location_key: str,
-        targets: list[WorkflowTarget],
-        reward_container_key: str | None,
-        reset_evidence: str,
-    ) -> None:
-        if reset_evidence not in {"reward_container_consumed", "targets_defeated"}:
-            raise ValueError(f"{quest_key!r} has invalid reset evidence {reset_evidence!r}")
-        if (reward_container_key is None) != (reset_evidence == "targets_defeated"):
-            raise ValueError(f"{quest_key!r} has inconsistent reward container and reset evidence")
-        if db_name in known_db_names:
-            raise ValueError(f"guide quest db name collides with existing node: {db_name!r}")
-        if not display_name:
-            raise ValueError(f"{quest_key!r} has missing workflow display name")
-        if not trigger_mode:
-            raise ValueError(f"{quest_key!r} has missing trigger_mode")
-        if not targets:
-            raise ValueError(f"{quest_key!r} has no workflow targets")
-        if any(target.quantity <= 0 for target in targets):
-            raise ValueError(f"{quest_key!r} has non-positive target quantity")
-        for key, expected_type in [
-            (trigger_item_key, NodeType.ITEM),
-            (location_key, NodeType.LOCATION),
-            *[(target.stable_key, NodeType.CHARACTER) for target in targets],
-        ]:
-            node = graph.get_node(key)
-            if node is None or node.type != expected_type:
-                raise ValueError(f"{quest_key!r} references missing or invalid {expected_type.value} node {key!r}")
-        if reward_container_key is not None:
-            reward = graph.get_node(reward_container_key)
-            if reward is None or reward.type != NodeType.CHARACTER:
-                raise ValueError(
-                    f"{quest_key!r} references missing or invalid reward container {reward_container_key!r}"
-                )
-        if graph.has_node(quest_key):
-            raise ValueError(f"guide quest key collides with existing node: {quest_key!r}")
-        graph.add_node(
-            Node(
-                key=quest_key,
-                type=NodeType.QUEST,
-                display_name=display_name or quest_key,
-                db_name=db_name,
-                implicit=True,
-                repeatable=True,
-                guide_only=True,
-                workflow_cycle=WorkflowCycle(
-                    trigger_item_stable_key=trigger_item_key,
-                    trigger_item_quantity=1,
-                    trigger_mode=trigger_mode,
-                    location_stable_key=location_key,
-                    targets=targets,
-                    reward_container_stable_key=reward_container_key,
-                    reset_evidence=reset_evidence,
-                ),
-            )
-        )
-        known_db_names.add(db_name)
-        graph.add_edge(Edge(source=quest_key, target=trigger_item_key, type=EdgeType.REQUIRES_ITEM, quantity=1))
-        graph.add_edge(Edge(source=quest_key, target=location_key, type=EdgeType.STEP_GO_TO, ordinal=0))
-        for ordinal, target in enumerate(targets, start=1):
-            graph.add_edge(
-                Edge(
-                    source=quest_key,
-                    target=target.stable_key,
-                    type=EdgeType.STEP_KILL,
-                    ordinal=ordinal,
-                    quantity=target.quantity,
-                )
-            )
-        if reward_container_key is not None:
-            graph.add_edge(
-                Edge(
-                    source=quest_key,
-                    target=reward_container_key,
-                    type=EdgeType.STEP_LOOT,
-                    ordinal=len(targets) + 1,
-                )
-            )
-
-    if table_exists("arena_rounds"):
-        arena_rows = conn.execute(
-            """SELECT stable_key, scene, round_index, coin_item_stable_key,
-                      award_chest_character_stable_key, trigger_mode, event_display_name,
-                      event_x, event_y, event_z, trigger_bounds_center_x,
-                      trigger_bounds_center_y, trigger_bounds_center_z,
-                      trigger_bounds_extents_x, trigger_bounds_extents_y,
-                      trigger_bounds_extents_z
-               FROM arena_rounds ORDER BY round_index, stable_key"""
-        ).fetchall()
-        enemy_rows = (
-            conn.execute(
-                """SELECT arena_round_stable_key, sequence_index, enemy_character_stable_key
-                   FROM arena_round_enemies ORDER BY arena_round_stable_key, sequence_index"""
-            ).fetchall()
-            if table_exists("arena_round_enemies")
-            else []
-        )
-        rounds: dict[str, sqlite3.Row] = {}
-        for row in arena_rows:
-            key = row["stable_key"]
-            if not key or key in rounds:
-                raise ValueError(f"arena round stable key is missing or duplicated: {key!r}")
-            rounds[key] = row
-        enemies: dict[str, list[tuple[int, str]]] = {}
-        for row in enemy_rows:
-            key = row["arena_round_stable_key"]
-            if key not in rounds:
-                raise ValueError(f"arena enemies reference unknown round: {key!r}")
-            sequence = row["sequence_index"]
-            if not isinstance(sequence, int) or sequence < 0:
-                raise ValueError(f"arena round {key!r} has invalid sequence index {sequence!r}")
-            if any(existing[0] == sequence for existing in enemies.setdefault(key, [])):
-                raise ValueError(f"arena round {key!r} repeats sequence index {sequence}")
-            enemies[key].append((sequence, row["enemy_character_stable_key"]))
-        for key, row in rounds.items():
-            sequence_rows = sorted(enemies.get(key, []))
-            if not sequence_rows:
-                raise ValueError(f"arena round {key!r} has no enemies")
-            grouped: dict[str, int] = {}
-            order: list[str] = []
-            for _, enemy_key in sequence_rows:
-                if not enemy_key:
-                    raise ValueError(f"arena round {key!r} has missing enemy")
-                enemy_node = graph.get_node(enemy_key)
-                if enemy_node is None or enemy_node.type != NodeType.CHARACTER:
-                    raise ValueError(
-                        f"arena round {key!r} references missing or invalid enemy character node {enemy_key!r}"
-                    )
-                if enemy_key not in grouped:
-                    order.append(enemy_key)
-                grouped[enemy_key] = grouped.get(enemy_key, 0) + 1
-            location_key = f"guide-location:arena:{key}"
-            add_location(
-                location_key=location_key,
-                display_name=row["event_display_name"],
-                scene=row["scene"],
-                zone_key=None,
-                x=row["event_x"],
-                y=row["event_y"],
-                z=row["event_z"],
-                bounds=tuple(
-                    row[field]
-                    for field in (
-                        "trigger_bounds_center_x",
-                        "trigger_bounds_center_y",
-                        "trigger_bounds_center_z",
-                        "trigger_bounds_extents_x",
-                        "trigger_bounds_extents_y",
-                        "trigger_bounds_extents_z",
-                    )
-                ),
-            )
-            add_workflow(
-                quest_key=f"guide-quest:arena:{key}",
-                display_name=f"{row['event_display_name']} - Round {row['round_index']}",
-                db_name=f"guide.arena.{key}",
-                trigger_item_key=row["coin_item_stable_key"],
-                trigger_mode=row["trigger_mode"],
-                location_key=location_key,
-                targets=[WorkflowTarget(enemy_key, grouped[enemy_key]) for enemy_key in order],
-                reward_container_key=row["award_chest_character_stable_key"],
-                reset_evidence="reward_container_consumed",
-            )
-
-    if table_exists("character_spawns"):
-        # A trigger item describes spawn eligibility. Only separately exported
-        # interaction-site metadata establishes a bounded guide workflow.
-        trigger_rows = conn.execute(
-            """SELECT character_stable_key, spawn_point_stable_key, zone_stable_key, scene,
-                      event_x, event_y, event_z, trigger_item_stable_key, trigger_mode,
-                      event_display_name, trigger_bounds_center_x, trigger_bounds_center_y,
-                      trigger_bounds_center_z, trigger_bounds_extents_x,
-                      trigger_bounds_extents_y, trigger_bounds_extents_z
-               FROM character_spawns
-               WHERE event_display_name IS NOT NULL
-                  OR event_x IS NOT NULL OR event_y IS NOT NULL OR event_z IS NOT NULL
-                  OR trigger_bounds_center_x IS NOT NULL OR trigger_bounds_center_y IS NOT NULL
-                  OR trigger_bounds_center_z IS NOT NULL OR trigger_bounds_extents_x IS NOT NULL
-                  OR trigger_bounds_extents_y IS NOT NULL OR trigger_bounds_extents_z IS NOT NULL
-               ORDER BY spawn_point_stable_key, character_stable_key"""
-        ).fetchall()
-        grouped_rows: dict[str, list[sqlite3.Row]] = {}
-        for row in trigger_rows:
-            spawn_key = row["spawn_point_stable_key"]
-            if not spawn_key:
-                raise ValueError("trigger spawn row has no spawn point stable key")
-            grouped_rows.setdefault(spawn_key, []).append(row)
-        for spawn_key, rows in grouped_rows.items():
-            first = rows[0]
-            fact_fields = (
-                "zone_stable_key",
-                "scene",
-                "event_x",
-                "event_y",
-                "event_z",
-                "trigger_item_stable_key",
-                "trigger_mode",
-                "event_display_name",
-                "trigger_bounds_center_x",
-                "trigger_bounds_center_y",
-                "trigger_bounds_center_z",
-                "trigger_bounds_extents_x",
-                "trigger_bounds_extents_y",
-                "trigger_bounds_extents_z",
-            )
-            facts = tuple(first[field] for field in fact_fields)
-            for row in rows[1:]:
-                if tuple(row[field] for field in fact_fields) != facts:
-                    raise ValueError(f"conflicting duplicate trigger rows for {spawn_key!r}")
-            target_counts: dict[str, int] = {}
-            for row in rows:
-                target_key = row["character_stable_key"]
-                if not target_key:
-                    raise ValueError(f"trigger {spawn_key!r} has missing target")
-                target_counts[target_key] = target_counts.get(target_key, 0) + 1
-            location_key = f"guide-location:trigger:{spawn_key}"
-            add_location(
-                location_key=location_key,
-                display_name=first["event_display_name"],
-                scene=first["scene"],
-                zone_key=first["zone_stable_key"],
-                x=first["event_x"],
-                y=first["event_y"],
-                z=first["event_z"],
-                bounds=tuple(
-                    first[field]
-                    for field in (
-                        "trigger_bounds_center_x",
-                        "trigger_bounds_center_y",
-                        "trigger_bounds_center_z",
-                        "trigger_bounds_extents_x",
-                        "trigger_bounds_extents_y",
-                        "trigger_bounds_extents_z",
-                    )
-                ),
-            )
-            target_nodes: list[Node] = []
-            for target_key in sorted(target_counts):
-                target_node = graph.get_node(target_key)
-                if target_node is None or target_node.type != NodeType.CHARACTER:
-                    raise ValueError(f"trigger {spawn_key!r} references missing or invalid target")
-                target_nodes.append(target_node)
-            target_display = " / ".join(node.display_name for node in target_nodes)
-            add_workflow(
-                quest_key=f"guide-quest:trigger:{spawn_key}",
-                db_name=f"guide.trigger.{spawn_key}",
-                trigger_item_key=first["trigger_item_stable_key"],
-                trigger_mode=first["trigger_mode"],
-                display_name=target_display,
-                location_key=location_key,
-                targets=[WorkflowTarget(key, target_counts[key]) for key in sorted(target_counts)],
-                reward_container_key=None,
-                reset_evidence="targets_defeated",
-            )

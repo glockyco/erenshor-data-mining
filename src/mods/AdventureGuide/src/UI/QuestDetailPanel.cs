@@ -18,7 +18,7 @@ public sealed class QuestDetailPanel
     private readonly TrackerState _tracker;
     private readonly GuideConfig _config;
 
-    // Rebuilt only when selection or quest/inventory/workflow state changes.
+    // Rebuilt only when selection or quest/inventory state changes.
     // Pre-cache closed trees too, so opening a tree does not allocate.
     private readonly Dictionary<QuestEntry, QuestDisplayCache> _questDisplay = new();
     private readonly HashSet<string> _visited = new();
@@ -69,7 +69,7 @@ public sealed class QuestDetailPanel
             return;
         }
 
-        var quest = _data.GetByRuntimeKey(_state.SelectedQuestKey);
+        var quest = _data.GetByDBName(_state.SelectedQuestKey);
         if (quest == null)
         {
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
@@ -91,7 +91,7 @@ public sealed class QuestDetailPanel
         // Track/Untrack button inline before quest name
         if (_tracker.Enabled)
         {
-            bool tracked = _tracker.IsTracked(quest.RuntimeKey);
+            bool tracked = _tracker.IsTracked(quest.DBName);
             bool completed = _state.IsCompleted(quest);
             if (!completed || tracked)
             {
@@ -100,9 +100,9 @@ public sealed class QuestDetailPanel
                 if (ImGui.SmallButton(tracked ? "[Untrack]" : "[Track]"))
                 {
                     if (tracked)
-                        _tracker.Untrack(quest.RuntimeKey);
+                        _tracker.Untrack(quest.DBName);
                     else
-                        _tracker.Track(quest.RuntimeKey);
+                        _tracker.Track(quest.DBName);
                 }
                 if (tracked)
                     ImGui.PopStyleColor();
@@ -154,11 +154,11 @@ public sealed class QuestDetailPanel
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
         ImGui.TextUnformatted(_levelZoneLine);
 
-        // Tooltip: show all steps with their levels, mark the driving step
+        // Show step levels without treating alternative completions as mandatory.
         if (ImGui.IsItemHovered() && quest.Steps is { Count: > 0 })
         {
             ImGui.BeginTooltip();
-            ImGui.TextUnformatted("Quest level: hardest step");
+            ImGui.TextUnformatted("Quest level: easiest complete path");
             ImGui.Separator();
             int? questLvl = quest.LevelEstimate?.Recommended;
             foreach (var step in quest.Steps)
@@ -190,15 +190,6 @@ public sealed class QuestDetailPanel
             return;
         }
 
-        if (_state.Workflows.IsUnverifiable(quest))
-        {
-            ImGui.PushStyleColor(ImGuiCol.Text, Theme.Warning);
-            Theme.TextWrapped(
-                "Workflow state is ambiguous after reload. Re-enter the trigger area with the required item."
-            );
-            ImGui.PopStyleColor();
-        }
-
         if (!ImGui.CollapsingHeader("Objectives", ImGuiTreeNodeFlags.DefaultOpen))
             return;
 
@@ -219,7 +210,7 @@ public sealed class QuestDetailPanel
         if (quest.Steps == null || quest.Steps.Count == 0)
             return;
 
-        ImGui.PushID(quest.RuntimeKey);
+        ImGui.PushID(quest.DBName);
 
         int currentStepIndex = _questDisplay[quest].CurrentStepIndex;
         string? prevOrGroup = null;
@@ -228,8 +219,15 @@ public sealed class QuestDetailPanel
         {
             var step = quest.Steps[i];
 
-            // Show "OR" separator between consecutive steps in the same or_group
-            if (step.OrGroup != null && step.OrGroup == prevOrGroup)
+            if (
+                (step.OrGroup != null && step.OrGroup == prevOrGroup)
+                || (
+                    i > 0
+                    && step.RequirementVariant != null
+                    && quest.Steps[i - 1].RequirementVariant != null
+                    && step.RequirementVariant != quest.Steps[i - 1].RequirementVariant
+                )
+            )
             {
                 ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
                 ImGui.TextUnformatted("  -- OR --");
@@ -237,7 +235,12 @@ public sealed class QuestDetailPanel
             }
 
             StepState state;
-            if (i < currentStepIndex)
+            if (
+                step.RequirementVariant != null
+                    ? currentStepIndex == quest.Steps.Count
+                        || _questDisplay[quest].Steps[step].HasRequiredQuantity
+                    : i < currentStepIndex
+            )
                 state = StepState.Completed;
             else if (i == currentStepIndex)
                 state = StepState.Current;
@@ -317,7 +320,7 @@ public sealed class QuestDetailPanel
         DrawSubQuestSteps(step, quest, visited);
 
         // Show alternative zone lines when cross-zone navigating this step
-        if (_nav.IsNavigating(quest.RuntimeKey, step.Order))
+        if (_nav.IsNavigating(quest.DBName, step.Order))
         {
             var alternatives = _nav.GetAlternativeZoneLines(_state.CurrentZone);
             if (alternatives.Count > 1)
@@ -339,7 +342,7 @@ public sealed class QuestDetailPanel
         // available source with spawn data or a scene.
         var display = _questDisplay[quest].Steps[step];
         bool navigable = display.Navigable;
-        bool isActive = _nav.IsNavigating(quest.RuntimeKey, step.Order);
+        bool isActive = _nav.IsNavigating(quest.DBName, step.Order);
 
         if (!navigable && !isActive)
         {
@@ -411,27 +414,31 @@ public sealed class QuestDetailPanel
         ImGui.Indent();
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
 
-        if (
-            !NavigationDisplay.IsOrigin(_nav, quest, step)
-            && display.PreviewSource is ItemSource preview
-        )
-        {
-            var sourceDisplay = display.Sources[(preview, 0)];
-            Theme.TextWrapped(sourceDisplay.Label);
-            DrawSourceTooltip(sourceDisplay);
-            if (preview.Type == "drop" && preview.Instruction is string preparation)
-                Theme.TextWrapped(preparation);
-            if (SourceListText.Timing(preview, GameData.Time.hour) is string timing)
-                Theme.TextWrapped(timing);
-        }
-
         ImGui.PushID(step.Order);
-        if (ImGui.TreeNode("Choose a source"))
+        if (visibleSources.Count == 1)
+        {
+            var choice = visibleSources[0];
+            var source = choice.Primary;
+            bool alreadyShown =
+                NavigationDisplay.IsOrigin(_nav, quest, step)
+                && _nav.SelectedItemSource is ItemSource selected
+                && choice.Contains(selected)
+                && source.Children is not { Count: > 0 }
+                && source.Type != "quest_reward";
+            if (!alreadyShown)
+                DrawSource(choice, quest, step, visited);
+        }
+        else if (ImGui.TreeNode("Choose a source"))
         {
             foreach (var source in visibleSources)
                 DrawSource(source, quest, step, visited);
             ImGui.TreePop();
         }
+        else if (
+            !NavigationDisplay.IsOrigin(_nav, quest, step)
+            && display.PreviewSource is ItemSource preview
+        )
+            DrawSourceText(display.Sources[(preview, 0)]);
         ImGui.PopID();
 
         ImGui.PopStyleColor();
@@ -505,7 +512,7 @@ public sealed class QuestDetailPanel
     }
 
     private void DrawSource(
-        ItemSource src,
+        SourceChoice choice,
         QuestEntry quest,
         QuestStep step,
         HashSet<string> visited,
@@ -513,39 +520,61 @@ public sealed class QuestDetailPanel
         bool allowNavigation = true
     )
     {
-        var display = _questDisplay[quest].Steps[step].Sources[(src, depth)];
+        var stepDisplay = _questDisplay[quest].Steps[step];
+        var choiceDisplay = stepDisplay.Choices[(choice, depth)];
+        var src =
+            _nav.SelectedItemSource is ItemSource endpoint && choice.Contains(endpoint)
+                ? endpoint
+                : choiceDisplay.Representative;
+        var display = stepDisplay.Sources[(src, depth)];
         bool isOrigin = NavigationDisplay.IsOrigin(_nav, quest, step);
-        bool chosen = isOrigin && ReferenceEquals(_nav.ChosenItemSource, src);
-        bool selected = isOrigin && ReferenceEquals(_nav.SelectedItemSource, src);
-        ImGui.PushID(display.RowId);
-        if (allowNavigation && display.Navigable && IsNavigationEnabled)
+        bool chosen = isOrigin && ReferenceEquals(_nav.ChosenSourceChoice, choice);
+        bool selected =
+            isOrigin && _nav.SelectedItemSource is ItemSource current && choice.Contains(current);
+        ImGui.PushID(choiceDisplay.RowId);
+        if (
+            allowNavigation
+            && (depth > 0 || stepDisplay.VisibleSources.Count > 1)
+            && choiceDisplay.Navigable
+            && IsNavigationEnabled
+        )
         {
-            bool activeChoice = chosen || (_nav.ChosenItemSource == null && selected);
-            if (ImGui.RadioButton("##choose-source", activeChoice) && !activeChoice)
-                _nav.NavigateToSource(src, step, quest, _state.CurrentZone);
-            if (ImGui.IsItemHovered())
-            {
-                ImGui.BeginTooltip();
-                ImGui.TextUnformatted("Navigate using this source.");
-                ImGui.EndTooltip();
-            }
-            ImGui.SameLine();
+            bool activeChoice = chosen || (_nav.ChosenSourceChoice == null && selected);
+            if (activeChoice)
+                ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
+            if (ImGui.SmallButton("[NAV]") && !activeChoice)
+                _nav.NavigateToSource(choice, step, quest, _state.CurrentZone);
+            if (activeChoice)
+                ImGui.PopStyleColor();
+            ImGui.SameLine(0, 4f * _config.ResolvedUiScale);
         }
+        ImGui.BeginGroup();
+        DrawSourceText(
+            display,
+            selected
+                && display.Instruction is string sourcePreparation
+                && SourceListText.RepeatsPreparation(sourcePreparation, _nav.Requirements?.Message)
+        );
 
-        if (!display.Available)
-            ImGui.PushStyleColor(ImGuiCol.Text, Theme.SourceDimmed);
-        Theme.TextWrapped(display.Label);
-        DrawSourceTooltip(display);
-        if (!display.Available)
-            ImGui.PopStyleColor();
-        if (src.Type == "drop" && src.Instruction is string preparation)
-            Theme.TextWrapped(preparation);
-        if (display.Odds is string odds)
-            Theme.TextWrapped(odds);
+        DrawGateRequirements(display.Requirements, isOrigin ? _nav.ImmediateRequirement : null);
 
-        if (display.Requirements is { Count: > 0 } && ImGui.TreeNode("Requirements"))
+        if (choiceDisplay.LocationsLabel is string locations && ImGui.TreeNode(locations))
         {
-            DrawGateRequirements(display.Requirements);
+            foreach (var location in choice.Locations)
+            {
+                var locationDisplay = stepDisplay.Sources[(location.Primary, depth)];
+                if (locationDisplay.Label != display.Label)
+                    Theme.TextWrapped(locationDisplay.Label);
+                Theme.TextWrapped(locationDisplay.PlacementLabel);
+                if (locationDisplay.Odds is string odds && odds != display.Odds)
+                    Theme.TextWrapped(odds);
+                if (
+                    locationDisplay.Instruction is string preparation
+                    && preparation != display.Instruction
+                )
+                    Theme.TextWrapped(preparation);
+                DrawGateRequirements(locationDisplay.Requirements);
+            }
             ImGui.TreePop();
         }
 
@@ -565,33 +594,45 @@ public sealed class QuestDetailPanel
             else if (subQuest != null && ImGui.SmallButton("Open quest"))
                 _state.SelectQuest(subQuest);
         }
-        if (
-            !questTree
-            && src.Children is { Count: > 0 }
-            && ImGui.TreeNode("Sources and ingredients")
-        )
+        if (!questTree && display.Children.Count > 0 && ImGui.TreeNode("Sources and ingredients"))
         {
-            foreach (var child in src.Children)
+            foreach (var child in display.Children)
                 DrawSource(
                     child,
                     quest,
                     step,
                     visited,
                     depth + 1,
-                    allowNavigation && ItemSourcePolicy.NeedsUsedItem(src, _state.CountItemDelegate)
+                    allowNavigation && display.NeedsInput
                 );
             ImGui.TreePop();
         }
+        ImGui.EndGroup();
         ImGui.PopID();
     }
 
-    private static void DrawSourceTooltip(SourceDisplayCache display)
+    private static void DrawSourceText(SourceDisplayCache display, bool hidePreparation = false)
     {
-        if (!ImGui.IsItemHovered())
-            return;
-        ImGui.BeginTooltip();
-        Theme.TextWrapped(display.Details);
-        ImGui.EndTooltip();
+        float fontSize = ImGui.GetFontSize();
+        if (display.FontSize != fontSize)
+        {
+            display.FontSize = fontSize;
+            display.InlineWidth = ImGui.CalcTextSize(display.InlineLabel).X;
+        }
+        bool inline =
+            display.KeepLocationWithAction
+            || display.InlineWidth <= ImGui.GetContentRegionAvail().X;
+        if (!display.Available)
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.SourceDimmed);
+        Theme.TextWrapped(inline ? display.InlineLabel : display.Label);
+        if (!inline && display.Location is string location)
+            Theme.TextWrapped(location);
+        if (!display.Available)
+            ImGui.PopStyleColor();
+        if (display.Odds is string odds)
+            Theme.TextWrapped(odds);
+        if (!hidePreparation && display.Instruction is string preparation)
+            Theme.TextWrapped(preparation);
     }
 
     /// <summary>
@@ -831,22 +872,41 @@ public sealed class QuestDetailPanel
         public List<GateRequirement>? Requirements;
         public bool HasRequiredQuantity;
         public bool Navigable;
-        public readonly List<ItemSource> VisibleSources = new();
+        public readonly List<SourceChoice> VisibleSources = new();
+        public readonly Dictionary<
+            (SourceChoice Choice, int Depth),
+            SourceChoiceDisplayCache
+        > Choices = new();
         public readonly Dictionary<(ItemSource Source, int Depth), SourceDisplayCache> Sources =
             new();
     }
 
-    private sealed class SourceDisplayCache
+    private sealed class SourceChoiceDisplayCache
     {
         public int RowId;
+        public ItemSource Representative = null!;
+        public bool Navigable;
+        public string? LocationsLabel;
+    }
+
+    private sealed class SourceDisplayCache
+    {
         public string Label = "";
-        public string Details = "";
+        public string PlacementLabel = "";
+        public string? Instruction;
         public string? Odds;
+        public string? Location;
+        public string InlineLabel = "";
+        public bool KeepLocationWithAction;
+        public float InlineWidth;
+        public float FontSize;
         public bool Navigable;
         public bool Available;
         public string? QuestTreeLabel;
         public string? OpenQuestLabel;
         public List<GateRequirement>? Requirements;
+        public bool NeedsInput;
+        public IReadOnlyList<SourceChoice> Children = Array.Empty<SourceChoice>();
     }
 
     private sealed class GateRequirement
@@ -873,16 +933,19 @@ public sealed class QuestDetailPanel
         return requirements;
     }
 
-    private void DrawGateRequirements(List<GateRequirement>? requirements)
+    private void DrawGateRequirements(
+        List<GateRequirement>? requirements,
+        string? alreadyShown = null
+    )
     {
         if (requirements == null || requirements.Count == 0)
-            return;
-        if (!ImGui.TreeNode("Requirements"))
             return;
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
         for (int i = 0; i < requirements.Count; i++)
         {
             var requirement = requirements[i];
+            if (string.Equals(requirement.Text, alreadyShown, StringComparison.Ordinal))
+                continue;
             if (requirement.Quest is QuestEntry quest)
             {
                 ImGui.PushID(i);
@@ -894,7 +957,6 @@ public sealed class QuestDetailPanel
                 Theme.TextWrapped(requirement.Text);
         }
         ImGui.PopStyleColor();
-        ImGui.TreePop();
     }
 
     /// <summary>
@@ -915,7 +977,7 @@ public sealed class QuestDetailPanel
         _stepTreeQuestKeys = null;
         _levelZoneLine = null;
 
-        var quest = questKey == null ? null : _data.GetByRuntimeKey(questKey);
+        var quest = questKey == null ? null : _data.GetByDBName(questKey);
         if (quest == null)
             return;
 
@@ -1082,8 +1144,9 @@ public sealed class QuestDetailPanel
         // cycle/depth fallbacks depend on the current ancestor set.
         foreach (var step in quest.Steps)
         {
-            foreach (var src in display.Steps[step].VisibleSources)
-                CacheSourceQuestTree(src, visited);
+            foreach (var choice in display.Steps[step].VisibleSources)
+            foreach (var member in choice.Members)
+                CacheSourceQuestTree(member, visited);
 
             if (step.Action == "complete_quest" && step.TargetKey != null)
                 CacheInlineQuest(_data.GetByStableKey(step.TargetKey), visited);
@@ -1194,14 +1257,15 @@ public sealed class QuestDetailPanel
             && sources != null
         )
         {
-            foreach (var source in sources)
+            foreach (var choice in SourceChoice.ForSources(sources))
             {
-                display.VisibleSources.Add(source);
-                CacheSourceLabels(source, step, display);
+                display.VisibleSources.Add(choice);
+                CacheSourceChoice(choice, step, display);
             }
         }
-        foreach (var source in display.VisibleSources)
+        foreach (var choice in display.VisibleSources)
         {
+            var source = display.Choices[(choice, 0)].Representative;
             if (HasNavigableSource(source))
             {
                 display.PreviewSource = source;
@@ -1210,15 +1274,18 @@ public sealed class QuestDetailPanel
         }
         if (display.PreviewSource == null && display.VisibleSources.Count > 0)
         {
-            foreach (var source in display.VisibleSources)
+            foreach (var choice in display.VisibleSources)
             {
+                var source = display.Choices[(choice, 0)].Representative;
                 if (IsSourceAvailable(source))
                 {
                     display.PreviewSource = source;
                     break;
                 }
             }
-            display.PreviewSource ??= display.VisibleSources[0];
+            display.PreviewSource ??= display
+                .Choices[(display.VisibleSources[0], 0)]
+                .Representative;
         }
         if (display.PreviewSource != null)
             display.Navigable |= display.Sources[(display.PreviewSource, 0)].Navigable;
@@ -1233,31 +1300,133 @@ public sealed class QuestDetailPanel
         return display;
     }
 
+    private void CacheSourceChoice(
+        SourceChoice choice,
+        QuestStep step,
+        StepDisplayCache stepDisplay,
+        int depth = 0,
+        List<ItemSource>? inputSiblings = null
+    )
+    {
+        if (stepDisplay.Choices.ContainsKey((choice, depth)))
+            return;
+        var display = new SourceChoiceDisplayCache
+        {
+            RowId = stepDisplay.Choices.Count,
+            Representative = choice.Primary,
+            LocationsLabel =
+                choice.Locations.Count > 1 ? $"Locations ({choice.Locations.Count})" : null,
+        };
+        bool available = false;
+        bool reachable = false;
+        foreach (var member in choice.Members)
+        {
+            CacheSourceLabels(member, step, stepDisplay, depth, inputSiblings);
+            display.Navigable |= CanChooseSource(member, inputSiblings);
+            bool candidate = HasNavigableSource(member, inputSiblings);
+            if (!reachable && candidate)
+                display.Representative = member;
+            else if (!reachable && !available && stepDisplay.Sources[(member, depth)].Available)
+                display.Representative = member;
+            reachable |= candidate;
+            available |= stepDisplay.Sources[(member, depth)].Available;
+        }
+        stepDisplay.Choices.Add((choice, depth), display);
+    }
+
     private void CacheSourceLabels(
         ItemSource src,
         QuestStep step,
         StepDisplayCache stepDisplay,
-        int depth = 0
+        int depth = 0,
+        List<ItemSource>? inputSiblings = null
     )
     {
         if (stepDisplay.Sources.ContainsKey((src, depth)))
             return;
-        string label = SourceListText.Summary(src);
+        double? inputQuantity =
+            src.Type == "ingredient"
+                ? ItemSourcePolicy.RequiredInputQuantity(src, inputSiblings)
+                : null;
+        string label = SourceListText.Action(src, inputQuantity: inputQuantity);
 
         var display = new SourceDisplayCache
         {
-            RowId = stepDisplay.Sources.Count,
             Label = label,
-            Details = SourceListText.Details(src),
-            Odds = SourceListText.OptionOdds(src),
-            Navigable = CanChooseSource(src),
+            Location = SourceListText.Location(src),
+            KeepLocationWithAction = src.Type is "fishing" or "mining",
+            Odds = src.Type == "fishing" ? SourceListText.OptionOdds(src) : null,
+            Navigable = CanChooseSource(src, inputSiblings),
             Available = IsSourceAvailable(src),
+            NeedsInput = ItemSourcePolicy.NeedsUsedItem(
+                src,
+                _state.CountItemDelegate,
+                inputSiblings
+            ),
+            Children =
+                src.Children == null
+                    ? Array.Empty<SourceChoice>()
+                    : ItemSourcePolicy.PresentationSources(src.Children),
         };
+        display.InlineLabel =
+            display.Location == null
+                ? label
+                : label + (src.Type is "fishing" or "mining" ? " in " : " · ") + display.Location;
+        display.PlacementLabel =
+            src.X is float x && src.Y is float y && src.Z is float z
+                ? $"{display.Location ?? label} · ({x:0.##}, {y:0.##}, {z:0.##})"
+                : display.InlineLabel;
+        if (
+            src.Type != "vendor"
+            && SourceListText.Preparation(src) is string instruction
+            && !SourceListText.RepeatsAction(src, instruction)
+        )
+            display.Instruction = instruction;
         display.Requirements = CacheGateRequirements(_state.Gates.Explain(src.Condition));
-        if (src.SourceKey != null)
+        if (src.AcquisitionKey != null)
+            display.Requirements.AddRange(
+                CacheGateRequirements(_state.Gates.Explain(src.CanonicalSpawn?.Condition))
+            );
+        else if (src.SourceKey != null)
             display.Requirements.AddRange(
                 CacheGateRequirements(_state.Gates.ExplainCharacter(src.SourceKey))
             );
+        foreach (var family in _state.Gates.SourceRequirements(src))
+        {
+            List<GateAtom>? best = null;
+            int missing = int.MaxValue;
+            foreach (var group in family)
+            {
+                int count = 0;
+                foreach (var atom in group)
+                    if (!_state.Gates.Holds(atom))
+                        count++;
+                if (count < missing)
+                {
+                    best = group;
+                    missing = count;
+                }
+            }
+            if (best == null || missing == 0)
+                continue;
+            foreach (var atom in best)
+            {
+                if (_state.Gates.Holds(atom))
+                    continue;
+                string text = _state.Gates.Describe(atom);
+                if (display.Requirements.Exists(requirement => requirement.Text == text))
+                    continue;
+                display.Requirements.Add(
+                    new GateRequirement
+                    {
+                        Text = text,
+                        Quest = atom.Kind is GateAtomKind.QuestDone or GateAtomKind.QuestNotDone
+                            ? _data.GetByDBName(atom.Ref)
+                            : null,
+                    }
+                );
+            }
+        }
         if (src.Type == "quest_reward" && src.QuestKey != null)
         {
             display.QuestTreeLabel = $"Quest steps##sqt_{step.Order}_{src.QuestKey}";
@@ -1269,8 +1438,8 @@ public sealed class QuestDetailPanel
         stepDisplay.Sources.Add((src, depth), display);
         if (src.Children != null)
         {
-            foreach (var child in src.Children)
-                CacheSourceLabels(child, step, stepDisplay, depth + 1);
+            foreach (var child in display.Children)
+                CacheSourceChoice(child, step, stepDisplay, depth + 1, src.Children);
         }
     }
 
@@ -1278,7 +1447,7 @@ public sealed class QuestDetailPanel
 
     private bool IsSourceAvailable(ItemSource source) => _state.Gates.IsSourceAvailable(source);
 
-    private bool CanChooseSource(ItemSource source)
+    private bool CanChooseSource(ItemSource source, List<ItemSource>? inputSiblings = null)
     {
         if (source.Type == "treasure_chest")
             return _state.TreasureHunt.State.Active;
@@ -1296,19 +1465,19 @@ public sealed class QuestDetailPanel
             return _data.GetByStableKey(source.QuestKey)?.HasSteps == true;
         if (
             source.Children != null
-            && ItemSourcePolicy.NeedsUsedItem(source, _state.CountItemDelegate)
+            && ItemSourcePolicy.NeedsUsedItem(source, _state.CountItemDelegate, inputSiblings)
         )
         {
             foreach (var child in source.Children)
             {
-                if (CanChooseSource(child))
+                if (CanChooseSource(child, source.Children))
                     return true;
             }
         }
         return false;
     }
 
-    private bool HasNavigableSource(ItemSource s)
+    private bool HasNavigableSource(ItemSource s, List<ItemSource>? inputSiblings = null)
     {
         if (!IsSourceAvailable(s))
             return false;
@@ -1316,7 +1485,7 @@ public sealed class QuestDetailPanel
             return _state.TreasureHunt.State.Active;
         if (
             ItemSourcePolicy.IsRandomSource(s)
-            || !ItemSourcePolicy.NeedsUsedItem(s, _state.CountItemDelegate)
+            || !ItemSourcePolicy.NeedsUsedItem(s, _state.CountItemDelegate, inputSiblings)
         )
             return false;
         if (ItemSourcePolicy.IsStaticCandidate(s) && s.Scene != null)
@@ -1332,7 +1501,7 @@ public sealed class QuestDetailPanel
         {
             foreach (var child in s.Children)
             {
-                if (HasNavigableSource(child))
+                if (HasNavigableSource(child, s.Children))
                     return true;
             }
         }

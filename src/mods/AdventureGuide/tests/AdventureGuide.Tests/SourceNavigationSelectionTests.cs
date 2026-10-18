@@ -34,6 +34,9 @@ public sealed class SourceNavigationSelectionTests
             Steps = [.. steps],
         };
 
+    private static SourceChoice Choice(QuestStep step, ItemSource member) =>
+        SourceChoice.FindContaining(step.Sources, member)!;
+
     private static (RequirementResolver resolver, ZoneGraph graph) Resolver(
         GateTestFacts? facts = null,
         List<List<List<GateAtom>>>? conditions = null,
@@ -78,13 +81,13 @@ public sealed class SourceNavigationSelectionTests
         var selection = new SourceNavigationSelection();
         var (resolver, _) = Resolver();
 
-        Assert.True(selection.Select(chosen, step, quest));
+        Assert.True(selection.Select(Choice(step, chosen), step, quest));
         var first = selection.Resolve(resolver, quest, step, "A");
         Assert.True(first.CanNavigate, first.Message);
         Assert.Equal("B", first.SelectedScene);
         Assert.Same(chosen, Assert.Single(first.Step.Sources!));
 
-        Assert.True(selection.Select(chosen, step, quest));
+        Assert.True(selection.Select(Choice(step, chosen), step, quest));
         var again = selection.Resolve(resolver, quest, step, "A");
         Assert.True(again.CanNavigate, again.Message);
         Assert.Equal("B", again.SelectedScene);
@@ -103,18 +106,18 @@ public sealed class SourceNavigationSelectionTests
         var selection = new SourceNavigationSelection();
         var (resolver, _) = Resolver();
 
-        Assert.True(selection.Select(b, first, quest));
+        Assert.True(selection.Select(Choice(first, b), first, quest));
         Assert.Equal("B", selection.Resolve(resolver, quest, first, "A").SelectedScene);
         Assert.Equal("B", selection.Resolve(resolver, quest, first, "B").SelectedScene);
-        Assert.True(selection.Select(a, first, quest));
+        Assert.True(selection.Select(Choice(first, a), first, quest));
         Assert.Equal("A", selection.Resolve(resolver, quest, first, "B").SelectedScene);
-        Assert.True(selection.Select(c, second, quest));
+        Assert.True(selection.Select(Choice(second, c), second, quest));
         var next = selection.Resolve(resolver, quest, second, "B");
         Assert.True(next.CanNavigate, next.Message);
         Assert.Equal("C", next.SelectedScene);
         Assert.Equal(2, next.Step.Order);
         Assert.Same(c, Assert.Single(next.Step.Sources!));
-        Assert.False(selection.Select(b, second, quest));
+        Assert.False(selection.Select(Choice(first, b), second, quest));
         Assert.Equal("C", selection.Resolve(resolver, quest, second, "C").SelectedScene);
     }
 
@@ -152,7 +155,7 @@ public sealed class SourceNavigationSelectionTests
         );
         var selection = new SourceNavigationSelection();
 
-        Assert.True(selection.Select(chosen, step, quest));
+        Assert.True(selection.Select(Choice(step, chosen), step, quest));
         var locked = selection.Resolve(resolver, quest, step, "A");
         Assert.True(locked.CanNavigate, locked.Message);
         Assert.Equal("item:key", locked.Step.TargetKey);
@@ -173,6 +176,44 @@ public sealed class SourceNavigationSelectionTests
     }
 
     [Fact]
+    public void Foreign_member_with_the_same_endpoint_identity_cannot_replace_the_choice()
+    {
+        var actual = Fish("B");
+        var foreign = Fish("B");
+        var step = Collect(1, Fish("A"), actual);
+        var quest = Quest("Fishing", step);
+        var foreignStep = Collect(1, foreign);
+        var selection = new SourceNavigationSelection();
+        var (resolver, _) = Resolver();
+
+        Assert.Equal(actual.MakeSourceId(), foreign.MakeSourceId());
+        Assert.True(selection.Select(Choice(step, actual), step, quest));
+        Assert.False(selection.Select(Choice(foreignStep, foreign), step, quest));
+
+        var result = selection.Resolve(resolver, quest, step, "A");
+        Assert.True(result.CanNavigate, result.Message);
+        Assert.Equal("B", result.SelectedScene);
+        Assert.Same(actual, Assert.Single(result.Step.Sources!));
+    }
+
+    [Fact]
+    public void Random_source_fallback_retains_only_the_chosen_source()
+    {
+        var chosen = new ItemSource { Type = "world_drop", Chance = 0.001 };
+        var other = new ItemSource { Type = "world_drop", Chance = 5 };
+        var step = Collect(1, other, chosen);
+        var quest = Quest("World drop", step);
+        var selection = new SourceNavigationSelection();
+        var (resolver, _) = Resolver();
+        Assert.True(selection.Select(Choice(step, chosen), step, quest));
+
+        var result = selection.Resolve(resolver, quest, step, "A");
+        Assert.True(result.CanNavigate, result.Message);
+        Assert.Equal(0.001, Assert.Single(result.Step.Sources!).Chance);
+        Assert.Equal(5, other.Chance);
+    }
+
+    [Fact]
     public void Old_objective_choice_cannot_constrain_another_quest_and_clear_restores_all_sources()
     {
         var a = Fish("A");
@@ -184,7 +225,7 @@ public sealed class SourceNavigationSelectionTests
         var selection = new SourceNavigationSelection();
         var (resolver, _) = Resolver();
 
-        Assert.True(selection.Select(b, oldStep, oldQuest));
+        Assert.True(selection.Select(Choice(oldStep, b), oldStep, oldQuest));
         var current = selection.Resolve(resolver, currentQuest, currentStep, "C");
         Assert.True(current.CanNavigate, current.Message);
         Assert.Same(currentStep, current.Step);

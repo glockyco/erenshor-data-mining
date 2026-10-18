@@ -10,7 +10,6 @@ public static class CharacterSlotState
     public static readonly Key<string> TrackedQuests = Register("TrackedQuests", "");
     public static readonly Key<string> NavQuest = Register("NavQuest", "");
     public static readonly Key<int> NavStep = Register("NavStep", 0);
-    public static readonly Key<string> WorkflowRecovery = Register("WorkflowRecovery", "");
 
     private static Key<T> Register<T>(string name, T defaultValue)
     {

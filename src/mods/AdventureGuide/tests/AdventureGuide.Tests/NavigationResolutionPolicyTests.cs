@@ -55,7 +55,7 @@ public sealed class NavigationResolutionPolicyTests
         [
             new() { Order = 1, TargetKey = "item:first" },
             new() { Order = 2 },
-            new() { Order = 3, Location = new WorkflowLocation() },
+            new() { Order = 3, Location = new StepLocation() },
         ];
         Assert.Equal(3, NavigationResolutionPolicy.SelectOriginStepOrder(steps, 1, 1));
         Assert.Equal(0, NavigationResolutionPolicy.SelectOriginStepOrder(steps, 1, 3));
@@ -108,21 +108,13 @@ public sealed class NavigationResolutionPolicyTests
     }
 
     [Fact]
-    public void Guide_only_quest_identity_uses_stable_key_not_empty_database_name()
+    public void Quest_identity_uses_native_database_name_not_stable_key()
     {
-        var first = new QuestEntry
-        {
-            StableKey = "guide:first",
-            Flags = new() { GuideOnly = true },
-        };
-        var second = new QuestEntry
-        {
-            StableKey = "guide:second",
-            Flags = new() { GuideOnly = true },
-        };
+        var first = new QuestEntry { StableKey = "quest:shared", DBName = "FirstQuest" };
+        var second = new QuestEntry { StableKey = "quest:shared", DBName = "SecondQuest" };
         var step = new QuestStep { Order = 1, TargetKey = "item:target" };
         Assert.False(NavigationResolutionPolicy.SameStep(first, step, second, step));
-        second.StableKey = first.StableKey;
+        second.DBName = first.DBName;
         Assert.True(NavigationResolutionPolicy.SameStep(first, step, second, step));
     }
 
@@ -176,7 +168,7 @@ public sealed class NavigationResolutionPolicyTests
     {
         var sources = new List<ItemSource> { new(), new() };
         var spawns = new List<SpawnPoint> { new(), new() };
-        var location = new WorkflowLocation();
+        var location = new StepLocation();
         var line = new ZoneLineEntry();
         var previous = EndpointResolution(
             new() { DBName = "Quest" },
@@ -262,7 +254,7 @@ public sealed class NavigationResolutionPolicyTests
         var sourceB = new ItemSource();
         var spawnA = new SpawnPoint();
         var spawnB = new SpawnPoint();
-        var location = new WorkflowLocation { X = 1 };
+        var location = new StepLocation { X = 1 };
         var line = new ZoneLineEntry();
         var previous = EndpointResolution(
             new() { DBName = "Quest" },
@@ -285,7 +277,7 @@ public sealed class NavigationResolutionPolicyTests
             TargetKey = change == "target" ? "item:other" : "item:target",
             Location = change switch
             {
-                "location" => new WorkflowLocation { X = 2 },
+                "location" => new StepLocation { X = 2 },
                 "missing-location" => null,
                 _ => location,
             },

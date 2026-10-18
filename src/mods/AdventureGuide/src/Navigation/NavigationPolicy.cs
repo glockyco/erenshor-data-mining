@@ -53,7 +53,7 @@ public static class NavigationPolicy
             location.Z,
             step.TargetName ?? step.Description,
             location.Scene,
-            quest.RuntimeKey,
+            quest.DBName,
             step.Order,
             step.TargetKey,
             originQuestKey,

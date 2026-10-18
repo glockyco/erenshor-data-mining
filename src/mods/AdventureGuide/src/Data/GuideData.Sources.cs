@@ -75,6 +75,156 @@ public sealed partial class GuideData
         foreach (var pair in wrapper.QuestStateKeys)
             if (string.IsNullOrWhiteSpace(pair.Key) || string.IsNullOrWhiteSpace(pair.Value))
                 throw new InvalidDataException("Invalid canonical quest-state key");
+        ValidateNativeRequirements(wrapper);
+    }
+
+    private static void ValidateNativeRequirements(GuideWrapper wrapper)
+    {
+        foreach (var quest in wrapper.Quests!)
+        {
+            var expected = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var use in wrapper.ItemUses!.Values)
+                if (use.Kind == "quest_requirement" && use.TargetStableKey == quest.StableKey)
+                    expected.Add(use.UseKey);
+            var referenced = new HashSet<string>(StringComparer.Ordinal);
+            var identities = new HashSet<(string, string?, string?)>();
+            if (quest.RequiredItems != null)
+                foreach (var item in quest.RequiredItems)
+                {
+                    if (item.UseKeys == null)
+                    {
+                        if (
+                            item.VariantKey != null
+                            || expected.Any(key =>
+                                wrapper.ItemUses[key].ItemStableKey == item.ItemStableKey
+                            )
+                        )
+                            throw new InvalidDataException(
+                                $"Native requirement is missing slot evidence: {quest.StableKey}"
+                            );
+                        continue;
+                    }
+                    if (
+                        item.UseKeys.Count == 0
+                        || item.OrGroup != null
+                        || item.Quantity < 0
+                        || item.VariantKey is ""
+                        || !identities.Add(
+                            (item.ItemStableKey, item.VariantKey, item.OutputQuality)
+                        )
+                    )
+                        throw new InvalidDataException("Invalid native requirement identity");
+                    double quantity = 0;
+                    foreach (string key in item.UseKeys)
+                    {
+                        if (
+                            string.IsNullOrWhiteSpace(key)
+                            || !wrapper.ItemUses.TryGetValue(key, out var use)
+                            || use.Kind != "quest_requirement"
+                            || use.TargetStableKey != quest.StableKey
+                            || use.ItemStableKey != item.ItemStableKey
+                            || use.VariantKey != item.VariantKey
+                            || !referenced.Add(key)
+                            || use.QuantityKind != "exact"
+                            || use.QuantityMin is not double minimum
+                            || use.QuantityMax != minimum
+                            || minimum < 0
+                            || minimum != Math.Truncate(minimum)
+                            || RequestedQuality(use) != item.OutputQuality
+                        )
+                            throw new InvalidDataException(
+                                $"Mismatched native requirement slot: {key}"
+                            );
+                        quantity += minimum;
+                    }
+                    if (quantity != item.Quantity)
+                        throw new InvalidDataException(
+                            "Native requirement quantity differs from slots"
+                        );
+                }
+            if (!expected.SetEquals(referenced))
+                throw new InvalidDataException(
+                    $"Native requirement slots are not fully represented: {quest.StableKey}"
+                );
+            ValidateNativeCollectSteps(quest);
+        }
+    }
+
+    private static string? RequestedQuality(ItemUseFact use)
+    {
+        string? quality = null;
+        foreach (var condition in use.Conditions)
+            if (
+                condition.Predicate == "quality"
+                && condition.Phase is "availability" or "operation_input"
+            )
+            {
+                if (condition.Value == null || (quality != null && quality != condition.Value))
+                    throw new InvalidDataException("Invalid native requirement quality");
+                quality = condition.Value;
+            }
+        return quality;
+    }
+
+    private static void ValidateNativeCollectSteps(QuestEntry quest)
+    {
+        var requirements = quest.RequiredItems;
+        var matched = new HashSet<RequiredItemInfo>();
+        var closedVariants = new HashSet<string>(StringComparer.Ordinal);
+        string? previousVariant = null;
+        bool variantsEnded = false;
+        if (quest.Steps != null)
+            foreach (var step in quest.Steps)
+            {
+                if (step.RequirementVariant != previousVariant)
+                {
+                    if (previousVariant != null)
+                    {
+                        closedVariants.Add(previousVariant);
+                        variantsEnded |= step.RequirementVariant == null;
+                    }
+                    if (
+                        step.RequirementVariant != null
+                        && (variantsEnded || closedVariants.Contains(step.RequirementVariant))
+                    )
+                        throw new InvalidDataException("Native variant bundles must be contiguous");
+                    previousVariant = step.RequirementVariant;
+                }
+                if (step.RequirementVariant != null && step.Action != "collect")
+                    throw new InvalidDataException("Native variants require collect steps");
+                if (step.Action != "collect")
+                    continue;
+                RequiredItemInfo? item = null;
+                if (requirements != null)
+                    foreach (var candidate in requirements)
+                        if (
+                            candidate.UseKeys != null
+                            && candidate.ItemStableKey == step.TargetKey
+                            && candidate.VariantKey == step.RequirementVariant
+                            && candidate.OutputQuality == step.OutputQuality
+                        )
+                        {
+                            item = candidate;
+                            break;
+                        }
+                if (item == null)
+                {
+                    if (
+                        step.RequirementVariant != null
+                        || requirements?.Any(candidate =>
+                            candidate.UseKeys != null && candidate.ItemStableKey == step.TargetKey
+                        ) == true
+                    )
+                        throw new InvalidDataException("Unbound native collect step");
+                    continue;
+                }
+                if (step.OrGroup != null || step.Quantity != item.Quantity || !matched.Add(item))
+                    throw new InvalidDataException("Invalid native collect requirement");
+            }
+        if (requirements != null)
+            foreach (var item in requirements)
+                if (item.UseKeys != null && !matched.Contains(item))
+                    throw new InvalidDataException("Native requirement has no collect step");
     }
 
     private void LoadSourceFacts(GuideWrapper wrapper)
@@ -120,11 +270,13 @@ public sealed partial class GuideData
                         entries!.Add(index);
                     }
                     SpawnPoint? original = null;
-                    if (location.PlacementKey != null)
-                        placements.TryGetValue(location.PlacementKey, out original);
+                    string? coordinateKey = location.CoordinateStableKey ?? location.PlacementKey;
+                    if (coordinateKey != null)
+                        placements.TryGetValue(coordinateKey, out original);
                     location.Spawn = new SpawnPoint
                     {
-                        StableKey = location.PlacementKey ?? location.LocationKey,
+                        StableKey =
+                            original?.StableKey ?? location.PlacementKey ?? location.LocationKey,
                         Scene = location.Scene,
                         X = location.X.Value,
                         Y = location.Y.Value,
@@ -133,6 +285,7 @@ public sealed partial class GuideData
                         Condition = original?.Condition,
                         IsDirectlyPlaced = original?.IsDirectlyPlaced ?? false,
                         SourceScript = original?.SourceScript,
+                        Activations = original?.Activations,
                     };
                 }
             }
@@ -505,12 +658,12 @@ public sealed partial class GuideData
 
 internal sealed partial class GuideWrapper
 {
-    [JsonProperty("_source_facts", Required = Required.Always)]
+    [JsonProperty("_source_facts"), JsonRequired]
     public Dictionary<string, SourceFact> SourceFacts { get; set; } = new(StringComparer.Ordinal);
 
-    [JsonProperty("_item_uses", Required = Required.Always)]
+    [JsonProperty("_item_uses"), JsonRequired]
     public Dictionary<string, ItemUseFact> ItemUses { get; set; } = new(StringComparer.Ordinal);
 
-    [JsonProperty("_quest_state_keys", Required = Required.Always)]
+    [JsonProperty("_quest_state_keys"), JsonRequired]
     public Dictionary<string, string> QuestStateKeys { get; set; } = new(StringComparer.Ordinal);
 }

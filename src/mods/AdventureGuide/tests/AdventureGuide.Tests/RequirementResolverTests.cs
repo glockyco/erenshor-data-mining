@@ -6,6 +6,298 @@ namespace AdventureGuide.Tests;
 
 public sealed class RequirementResolverTests
 {
+    [Fact]
+    public void Null_variant_requirements_remain_ordinary_and_requirements()
+    {
+        var wrapper = TestData.NativeRequirements(("item:a", null, [1]), ("item:b", null, [3]));
+        var (data, quest, state) = RequirementState(wrapper, ("item:a", 1), ("item:b", 1));
+
+        Assert.Equal(1, StepProgress.GetCurrentStepIndex(quest, state, data));
+        Assert.False(StepProgress.HasRequiredItems(quest, state.CountItemDelegate));
+    }
+
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(1, 0)]
+    [InlineData(3, 0)]
+    [InlineData(4, 1)]
+    public void Repeated_native_slots_require_their_combined_inventory_quantity(
+        int inventory,
+        int current
+    )
+    {
+        var wrapper = TestData.NativeRequirements(("item:runner", null, [1, 3]));
+        var (data, quest, state) = RequirementState(wrapper, ("item:runner", inventory));
+
+        Assert.Equal(current, StepProgress.GetCurrentStepIndex(quest, state, data));
+        Assert.Equal(inventory >= 4, StepProgress.HasRequiredItems(quest, state.CountItemDelegate));
+    }
+
+    [Theory]
+    [InlineData(0, 0, 0)]
+    [InlineData(1, 0, 1)]
+    [InlineData(0, 1, 0)]
+    [InlineData(1, 1, 2)]
+    public void All_distinct_items_in_a_native_bundle_are_required(int a, int b, int current)
+    {
+        var wrapper = TestData.NativeRequirements(("item:a", "A", [1]), ("item:b", "A", [1]));
+        var (data, quest, state) = RequirementState(wrapper, ("item:a", a), ("item:b", b));
+
+        Assert.Equal(current, StepProgress.GetCurrentStepIndex(quest, state, data));
+        Assert.Equal(
+            a == 1 && b == 1,
+            StepProgress.HasRequiredItems(quest, state.CountItemDelegate)
+        );
+    }
+
+    [Theory]
+    [InlineData(0, 0, 0)]
+    [InlineData(1, 0, 2)]
+    [InlineData(0, 1, 2)]
+    public void A_complete_single_slot_variant_satisfies_the_native_alternatives(
+        int a,
+        int b,
+        int current
+    )
+    {
+        var wrapper = TestData.NativeRequirements(("item:a", "A", [1]), ("item:b", "B", [1]));
+        var (data, quest, state) = RequirementState(wrapper, ("item:a", a), ("item:b", b));
+
+        Assert.Equal(current, StepProgress.GetCurrentStepIndex(quest, state, data));
+        Assert.Equal(
+            a == 1 || b == 1,
+            StepProgress.HasRequiredItems(quest, state.CountItemDelegate)
+        );
+        Assert.Equal(a == 1, StepProgress.IsStepComplete(quest.Steps![0], state, data));
+    }
+
+    [Theory]
+    [InlineData(1, 1, 0, 0, 4)]
+    [InlineData(0, 0, 1, 1, 4)]
+    [InlineData(1, 0, 0, 1, 1)]
+    [InlineData(0, 1, 1, 0, 0)]
+    [InlineData(0, 0, 0, 0, 0)]
+    public void Native_multi_slot_alternatives_cannot_mix_partial_bundles(
+        int a,
+        int b,
+        int c,
+        int d,
+        int current
+    )
+    {
+        var wrapper = TestData.NativeRequirements(
+            ("item:a", "A", [1]),
+            ("item:b", "A", [1]),
+            ("item:c", "B", [1]),
+            ("item:d", "B", [1])
+        );
+        var (data, quest, state) = RequirementState(
+            wrapper,
+            ("item:a", a),
+            ("item:b", b),
+            ("item:c", c),
+            ("item:d", d)
+        );
+
+        Assert.Equal(current, StepProgress.GetCurrentStepIndex(quest, state, data));
+        Assert.Equal(current == 4, StepProgress.HasRequiredItems(quest, state.CountItemDelegate));
+        Assert.Equal(a == 1, StepProgress.IsStepComplete(quest.Steps![0], state, data));
+    }
+
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(1, 2)]
+    [InlineData(3, 2)]
+    [InlineData(4, 2)]
+    public void Repeated_items_are_never_summed_across_native_variants(int count, int current)
+    {
+        var wrapper = TestData.NativeRequirements(
+            ("item:runner", "A", [1]),
+            ("item:runner", "B", [3])
+        );
+        var (data, quest, state) = RequirementState(wrapper, ("item:runner", count));
+
+        Assert.Equal(current, StepProgress.GetCurrentStepIndex(quest, state, data));
+    }
+
+    [Fact]
+    public void Same_item_in_different_native_variants_uses_its_own_sources()
+    {
+        var wrapper = TestData.NativeRequirements(
+            ("item:runner", "A", [1]),
+            ("item:runner", "B", [3])
+        );
+        var quest = wrapper.Quests![0];
+        var first = new ItemSource { Type = "drop", SourceKey = "character:first" };
+        var second = new ItemSource { Type = "drop", SourceKey = "character:second" };
+        quest.RequiredItems![0].Sources = [first];
+        quest.RequiredItems[1].Sources = [second];
+        var firstSpawn = new SpawnPoint { Scene = "A", X = 10 };
+        var secondSpawn = new SpawnPoint { Scene = "A", X = 20 };
+        wrapper.CharacterSpawns = new()
+        {
+            ["character:first"] = [firstSpawn],
+            ["character:second"] = [secondSpawn],
+        };
+        wrapper.ZoneLookup = new()
+        {
+            ["A"] = new ZoneInfo { StableKey = "zone:a", DisplayName = "A" },
+        };
+        foreach (var (source, spawn) in new[] { (first, firstSpawn), (second, secondSpawn) })
+        {
+            source.AcquisitionKey = "acquisition:" + source.SourceKey;
+            source.LocationKey = "location:" + source.SourceKey;
+            wrapper.SourceFacts.Add(
+                source.AcquisitionKey,
+                new SourceFact
+                {
+                    AcquisitionKey = source.AcquisitionKey,
+                    ItemStableKey = "item:runner",
+                    Kind = "character_drop",
+                    SourceStableKey = source.SourceKey,
+                    SourceCopyStableKey = source.SourceKey,
+                    PlayerAccessState = "verified_player",
+                    ProbabilityKind = "unknown",
+                    ProbabilityStage = "final_acquisition",
+                    QuantityKind = "unknown",
+                    Locations =
+                    [
+                        new SourceLocation
+                        {
+                            LocationKey = source.LocationKey,
+                            Relation = "spawn",
+                            Scene = spawn.Scene,
+                            X = spawn.X,
+                            Y = spawn.Y,
+                            Z = spawn.Z,
+                            SourceCopyStableKey = source.SourceKey,
+                        },
+                    ],
+                }
+            );
+        }
+        var data = GuideData.FromWrapper(wrapper);
+        var resolver = Resolver(data);
+
+        Assert.Equal(10, resolver.Resolve(quest, quest.Steps![0], "A").SelectedSpawn?.X);
+        Assert.Equal(20, resolver.Resolve(quest, quest.Steps[1], "A").SelectedSpawn?.X);
+
+        // Reading or acquiring the item does not select a native turn-in variant.
+        var readStep = new QuestStep
+        {
+            Action = "read",
+            TargetType = "item",
+            TargetKey = "item:runner",
+        };
+        Assert.Equal(10, resolver.Resolve(quest, readStep, "A").SelectedSpawn?.X);
+        quest.Acquisition =
+        [
+            new AcquisitionSource { Method = "item_read", SourceStableKey = "item:runner" },
+        ];
+        var acquisitionStep = resolver.BuildAcquisitionStep(quest);
+        Assert.NotNull(acquisitionStep);
+        Assert.Equal(10, resolver.Resolve(quest, acquisitionStep, "A").SelectedSpawn?.X);
+        Assert.Null(
+            ItemSourcePolicy.SourcesFor(
+                quest,
+                new QuestStep { TargetKey = "item:runner", RequirementVariant = "missing" }
+            )
+        );
+        Assert.Null(
+            ItemSourcePolicy.SourcesFor(
+                quest,
+                new QuestStep
+                {
+                    TargetKey = "item:wrong",
+                    TargetName = "item:runner",
+                    RequirementVariant = "A",
+                }
+            )
+        );
+    }
+
+    [Fact]
+    public void Authored_or_groups_keep_their_original_alternative_semantics()
+    {
+        var quest = Quest(
+            "authored",
+            new QuestStep
+            {
+                Order = 1,
+                Action = "collect",
+                Description = "Collect item a.",
+                TargetKey = "item:a",
+                Quantity = 1,
+                OrGroup = "authored",
+            }
+        );
+        quest.Steps!.AddRange([
+            new QuestStep
+            {
+                Order = 2,
+                Action = "collect",
+                Description = "Collect item b.",
+                TargetKey = "item:b",
+                Quantity = 1,
+                OrGroup = "authored",
+            },
+            new QuestStep
+            {
+                Order = 3,
+                Action = "turn_in",
+                Description = "Turn in the requirements.",
+            },
+        ]);
+        var wrapper = new GuideWrapper
+        {
+            Version = 8,
+            Encounters = TestData.EmptyEncounters(),
+            Quests = [quest],
+        };
+        var (data, _, state) = RequirementState(wrapper, ("item:b", 1));
+
+        Assert.Equal(2, StepProgress.GetCurrentStepIndex(quest, state, data));
+        Assert.Empty(state.ActiveQuests);
+        Assert.Empty(state.CompletedQuests);
+    }
+
+    private static (GuideData Data, QuestEntry Quest, QuestStateTracker State) RequirementState(
+        GuideWrapper wrapper,
+        params (string Item, int Count)[] inventory
+    )
+    {
+        var data = GuideData.FromWrapper(wrapper);
+        var snapshot = new RequirementSnapshot();
+        foreach (var (item, count) in inventory)
+            snapshot.Inventory[item] = count;
+        var state = new QuestStateTracker(data, snapshot);
+        state.SyncFromGameData();
+        return (data, wrapper.Quests![0], state);
+    }
+
+    private sealed class RequirementSnapshot : IQuestGameState
+    {
+        public Dictionary<string, int> Inventory { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+        public void CopyActiveQuestsTo(HashSet<string> destination) { }
+
+        public void CopyCompletedQuestsTo(HashSet<string> destination) { }
+
+        public void CopyInventoryCountsTo(Dictionary<string, int> destination)
+        {
+            foreach (var pair in Inventory)
+                destination.Add(pair.Key, pair.Value);
+        }
+
+        public bool ReadAccountState(string key) => false;
+
+        public string? ReadCharacterZoneState(string key) => null;
+
+        public UnityEngine.Vector3? ReadCharacterPositionState(string key) => null;
+
+        public int PlayerLevel => 1;
+    }
+
     private static QuestEntry Quest(string name, QuestStep step) =>
         new()
         {
@@ -505,6 +797,58 @@ public sealed class RequirementResolverTests
         Assert.Same(step, result.Step);
         Assert.Equal(new[] { first, second }, result.Advisories);
         Assert.All(result.Chain, link => Assert.Equal(GateAtomKind.EncounterWon, link.Atom!.Kind));
+    }
+
+    [Fact]
+    public void Encounter_focus_retains_original_advice_through_key_and_scene_changes()
+    {
+        var data = ShippingData();
+        var quest = data.GetByDBName("Riftstone")!;
+        var origin = quest.Steps![0];
+        var facts = new GateTestFacts();
+        var resolver = Resolver(data, facts);
+        var original = resolver.Resolve(quest, origin, "Stowaway");
+        var context = NavigationResolutionPolicy.CaptureAdvisories(original);
+        var encounter = context.Single(link => link.Atom?.Ref == "character:eldoth molorai");
+        var focus = new QuestStep
+        {
+            Order = origin.Order,
+            Action = "kill",
+            Description = encounter.Label,
+            TargetType = "character",
+            TargetKey = encounter.Atom!.Ref,
+            TargetName = "Eldoth Molorai",
+        };
+
+        foreach (
+            var (scene, key, targetType) in new[]
+            {
+                ("Stowaway", (string?)null, "item"),
+                ("Stowaway", "item:key - ghostly key", "item"),
+                ("AzynthiClear", "item:key - intricate", "character"),
+            }
+        )
+        {
+            if (key != null)
+                facts.Keyring.Add(data.GateItems[key].GameId);
+            var result = NavigationResolutionPolicy.PreserveAdvisories(
+                resolver.Resolve(quest, focus, scene),
+                context
+            );
+            Assert.True(result.CanNavigate, result.Message);
+            Assert.Single(result.Chain, link => link.Atom?.Ref == "character:eldoth molorai");
+            Assert.Equal(targetType, result.Step.TargetType);
+            if (targetType == "character")
+                Assert.Equal("character:eldoth molorai", result.Step.TargetKey);
+            context = NavigationResolutionPolicy.CaptureAdvisories(result);
+        }
+
+        var unreachable = NavigationResolutionPolicy.PreserveAdvisories(
+            resolver.Resolve(quest, focus, "MainMenu"),
+            context
+        );
+        Assert.False(unreachable.CanNavigate);
+        Assert.Single(unreachable.Chain, link => link.Atom?.Ref == "character:eldoth molorai");
     }
 
     [Theory]

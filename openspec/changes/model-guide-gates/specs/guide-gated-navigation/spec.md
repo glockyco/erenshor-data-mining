@@ -8,7 +8,7 @@ Defines how AdventureGuide decides which targets and routes are available from t
 
 ### Requirement: Availability follows the observable game state
 
-AdventureGuide SHALL evaluate the observable atoms of each condition from the live game state: completed quests, inventory contents, the keyring, and the Reliquary room slots. A key atom SHALL hold when the key is on the keyring or in the inventory. A subject SHALL be available when its condition holds with every advisory atom treated as holding. Every consumer of a gate (routing, target selection, world markers, the quest detail panel, the tracker, and step scene resolution) SHALL use the same evaluation.
+AdventureGuide SHALL evaluate observable availability from mirrored quests, inventory, keyring, room furnishings, stored Planar/rune items and supported account state through one shared evaluator. A key SHALL hold in inventory or keyring. Advisory atoms SHALL be treated as holding. Routing, source choice, markers, panels, tracker and scene resolution SHALL use this same evaluation. Unknown typed state keys SHALL fail rather than read false. Initialization and outcome effects SHALL NOT be interpreted as current-state conjunctions.
 
 #### Scenario: A key moves to the keyring
 
@@ -23,6 +23,10 @@ AdventureGuide SHALL evaluate the observable atoms of each condition from the li
 ### Requirement: Advisory atoms guide and never hide
 
 AdventureGuide SHALL NOT hide, skip, or reject a target because of an advisory atom. It SHALL show each advisory atom of the target's condition as a requirement, with navigation to the characters it names.
+
+Transient activation and per-spawn release advice SHALL NOT become fabricated hard completion gates. PietyTrigger's quest guard SHALL describe activation, never imply despawn after quest completion. Actual live-entity withholding SHALL remain separate. Supported persistent account claims SHALL use the common effective-state projection rather than advisory kill history.
+
+Selecting an encounter requirement's NAV action SHALL preserve the original quest and step and retain its advisory context while resolving the selected fight's prerequisites. The selected action SHALL remain visible and distinguish navigation focus from completion. Inventory and scene changes SHALL refresh real prerequisites without dropping that context or manufacturing kill history. Selecting another origin, advancing the origin or clearing navigation SHALL clear the old focus.
 
 #### Scenario: A restored god
 
@@ -45,9 +49,24 @@ Navigation, world markers, and source lists SHALL NOT present a target whose con
 - **WHEN** all four Shivering Step keeper quests are complete
 - **THEN** no world marker points at the keepers or the first Kio
 
+### Requirement: Offering-spawned targets lead through their activation
+
+A target, source or encounter requirement whose placement is offering-spawned SHALL resolve from observable state. A live spawned target SHALL be navigated directly. A reward SHALL lead to its live precursors before it exists. Otherwise navigation SHALL lead to the controller site when the offering is held, and to the offering item's acquisition when it is not, preserving the original goal. Guidance SHALL warn when another offering of the same controller is carried. A reload or scene change SHALL resume from live state without an unverifiable workflow warning.
+
+#### Scenario: Registering an arena rank
+
+- **WHEN** Vitheo's Arena II needs Vithean Arena Fee (2) and the player chooses the round 1 chest source without Vithean Arena Fee (1)
+- **THEN** navigation leads to a source of Vithean Arena Fee (1)
+- **AND** with that fee held, it leads to Vitheo's arena, then the round 1 enemies, then the chest
+
+#### Scenario: Two offerings carried
+
+- **WHEN** the player carries Odd Malaroth Feed while seeking Shivunax
+- **THEN** guidance warns that another carried offering can be used instead
+
 ### Requirement: Navigation leads to what satisfies a gate
 
-When the navigation target or a hop of its route is gated by an observable atom, AdventureGuide SHALL navigate to what satisfies it: the sources of a missing item or key, the current step of a missing quest, or the Reliquary planning table for a missing furnishing. Among the groups of a condition it SHALL choose the group with the fewest unmet atoms, and among equal groups the one whose first requirement is nearest by route. When the requirement is gated itself, it SHALL repeat this choice and SHALL stop with an explanation, without navigation, when no requirement can be reached. The navigation display, the quest detail panel, and the tracker SHALL show the chain from the original step to the requirement being navigated.
+When the navigation target or a hop of its route is gated by an observable atom, AdventureGuide SHALL navigate to what satisfies it: the sources of a missing item or key, the current step of a missing quest, or the Reliquary planning table for a missing furnishing. Among the groups of a condition it SHALL choose the group with the fewest unmet atoms, and among equal groups the one whose first requirement is nearest by route. When the requirement is gated itself, it SHALL repeat this choice and SHALL stop with an explanation, without navigation, when no requirement can be reached. The quest panel and tracker SHALL show the next action and immediate unmet requirement on their existing surfaces, with advisory encounter navigation where applicable. Full chains SHALL remain inspectable through diagnostics. No separate guidance HUD or explanation tree SHALL be required.
 
 #### Scenario: Island Tomb through the lighthouse
 
@@ -59,9 +78,52 @@ When the navigation target or a hop of its route is gated by an observable atom,
 - **WHEN** the player navigates to a Jaws of Sivakaya target from the Duskenlight Coast without the Nighthollow Candle and without She Sees You
 - **THEN** navigation leads to the requirement of the group with fewer unmet atoms and names the other group as an alternative
 
+### Requirement: Source guidance prioritizes the player's next action
+
+An item objective SHALL show one source preview while its picker is collapsed and the actual selected endpoint during navigation. Expanding the picker SHALL NOT repeat its preview above the choices. It SHALL show where to act, time restrictions, combat preparation and level context without standalone percentages or a large empty action column. Fishing and mining levels SHALL be identified as area levels, not skill requirements. Alternative sources SHALL remain accessible in a collapsed picker, including quest rewards, ingredients and item-use workflows. Choosing a source SHALL start navigation for that objective without depending on an already active route. The choice SHALL survive prerequisite navigation and scene refreshes, and SHALL NOT constrain another objective.
+
+Source choice and prerequisite traversal SHALL retain canonical acquisition, actual location, variant, operation and material-slot identities. No-location sources SHALL remain explanatory/non-navigable without fabricated endpoints. Nested recipe, reward and item-use children SHALL retain the original goal and explicit source selection. Operation inputs SHALL appear as timing/preparation/children, not unconditional availability blocks. Output quality SHALL match the requested result.
+
+Top-level choices SHALL group one acquisition in one material-use context while retaining every original source, fact and location identity. Location details SHALL group only physically equivalent endpoints with the same actor and semantic gate context. Only an endpoint's own provenance scope may be rebound after physical equivalence. External scopes, independent gate families, OR groups, time, probability and preparation differences SHALL remain meaningful. Distinct furnished-room slots and different actors sharing a name SHALL remain separate. Selecting an acquisition SHALL evaluate its allowed real members, not pin an arbitrary duplicate placement.
+
+#### Scenario: Browsing does not rewrite tracker guidance
+
+- **WHEN** the player opens or closes the guide or selects another entry while navigating
+- **THEN** the tracker retains the same originating quest and next action
+- **AND** neither tracking nor navigation changes merely because an entry is visible
+
+#### Scenario: Repeated physical placements
+
+- **WHEN** one acquisition has many placements or two provenance rows describe the same furnished-room location
+- **THEN** the picker shows one acquisition choice with optional location details
+- **AND** all underlying endpoint identities remain available for eligibility and navigation
+- **AND** every distinct room requirement remains visible
+
+#### Scenario: A night-only fishing source
+
+- **WHEN** a player selects a night-only Moongill source during the day
+- **THEN** the default guidance names the zone and the night window
+- **AND** it does not display an unconditional chance, a zero daytime chance or an expanded list of alternatives
+- **AND** source details retain its chance per successful catch
+
+#### Scenario: Changing the selected source
+
+- **WHEN** a player chooses another source with no navigation already active
+- **THEN** navigation starts for that source and the displayed summary matches the actual endpoint
+- **AND** a gated source leads to its unmet prerequisite rather than presenting the locked target as reachable
+
+#### Scenario: Conditional combat preparation
+
+- **WHEN** a selected drop source requires a per-spawn trade, weather or ward deaths to become vulnerable
+- **THEN** the source explains that preparation separately from its loot chance
+- **AND** a completed trade quest is not treated as proof that every future spawn is vulnerable
+- **AND** distinct required ward placements retain their required count even when they share a character template
+
 ### Requirement: Routing excludes unusable zone lines
 
 Cross-zone routing SHALL NOT use a zone line that the data marks unusable, even as a locked fallback. It SHALL prefer a route whose zone lines are available. When every route needs a gated zone line, it SHALL route to the first gated hop and apply the requirement guidance to that hop. When the target's placement names its entrances, the route SHALL enter the target's scene through the entrance with the cheapest route, and that entrance counts as a hop of the route.
+
+Every destination consumer SHALL use central `ZoneGraph.ResolveDestination`, including rebuild, entry selection, placement routes and navigation selection, labels and landing calculations. Static lines SHALL retain their existing destinations. A bound stored-return line SHALL resolve only from a nonempty known live saved zone and finite saved landing. Invalid state SHALL remove it from accessible and locked fallback routes. Serialized Hidden and invented zero landing SHALL never be fallbacks. The existing adjacency lifecycle SHALL rebuild on relevant tracked account, character and scene changes without a second route cache.
 
 #### Scenario: Shivering Step exits
 
@@ -94,3 +156,77 @@ With twelve tracked quests and one navigated quest, in Stowaway's Step and in Sh
 
 - **WHEN** the player loots ten items in a row with twelve tracked quests
 - **THEN** the slowest frame spends at most 2 ms more in the guide than the slowest frame of the baseline
+
+### Requirement: Common account initialization projects effective completion
+
+AdventureGuide SHALL compile static reverse reachability of supported positive `scene_awake_quest_completed` and `scene_awake_account_claimed` implications, including account/character cycles. Effective state SHALL be the OR of reachable raw true sources. Supported initialization guards and results SHALL be true. Unsupported event semantics SHALL fail loading. Host-death outcomes SHALL NOT participate in current-state closure.
+
+Raw active/completed mirrors and `IsGameQuestCompleted` SHALL remain raw. Only quests explicitly bound by common initialization/completion rows SHALL use projected completion before active/implicit status selection. Account state SHALL read the already-loaded `GameData.AccountClaimedReliquary`. Saved return zone and landing SHALL read GameData.ReliqDest and GameData.ReliqLanding through supported typed keys. The guide SHALL NOT parse saves, invoke LoadReliquary or mutate flags, quests or saves.
+
+#### Scenario: Fresh account
+
+- **WHEN** the raw account claim is false and the character has not completed the claim quest
+- **THEN** the claim encounter remains available
+
+#### Scenario: Claimed account before scene Awake
+
+- **WHEN** the account is claimed and a new character has not completed CLAIMRELIQUARY
+- **THEN** the guide treats the bound completion as satisfied without proposing another fight
+- **AND** the raw character quest mirror remains unfinished
+
+#### Scenario: Legacy character before scene Awake
+
+- **WHEN** raw account claim is false and the character completed CLAIMRELIQUARY
+- **THEN** the explicit Awake implication projects effective account claim and suppresses a repeat fight
+- **AND** no game flag or save is changed
+
+#### Scenario: False availability and true outcome
+
+- **WHEN** the loaded contract contains false account availability and a true host-death outcome
+- **THEN** the outcome does not make current availability contradictory or imply that a death already happened
+
+### Requirement: Stored-slot instructions preserve typed portal roles
+
+AdventureGuide SHALL read the stored Planar and six rune slots through the existing shared slot mirror, never substitute inventory possession or completed quests. It SHALL display the generated instruction from common typed role/destination metadata. Six identical rune actions SHALL display once while preserving six alternative gate identities. Native slot IDs and UI-specific slot-to-destination maps SHALL NOT be displayed or used. Removing/replacing a stored item SHALL invalidate the existing consumers.
+
+#### Scenario: Dedicated portal
+
+- **WHEN** a dedicated portal's required item is absent from its exact slot
+- **THEN** guidance names the item and actual destination's planning-table slot
+- **AND** carrying the item or completing its quest does not open the route
+
+#### Scenario: Rune portal
+
+- **WHEN** a rune is installed in any one of the six rune slots
+- **THEN** its actual portal becomes available and one generic rune-slot action describes the requirement
+
+### Requirement: Account and saved-return changes invalidate existing consumers
+
+Tracker update/load boundaries SHALL compare the supported account flag and saved return state, increment the existing Version and invalidate route/display consumers once per observed change. Warm polling SHALL remain allocation-free. No availability-result cache or new kill-history cache SHALL be introduced. Static implication indices and bounded identity/presentation caches SHALL remain permitted. Unobservable transient advice and required counts SHALL be preserved.
+
+#### Scenario: Character switch changes the return
+
+- **WHEN** character A's saved zone/landing changes to character B's different valid zone/landing
+- **THEN** routing, labels and landing calculations use B's state after existing invalidation
+- **AND** empty, unknown or nonfinite state produces no accessible or locked fallback edge
+
+### Requirement: Crafted sources navigate missing ingredients
+
+Choosing a crafted source SHALL retain that recipe and the original goal while navigation follows a missing input's acquisition. Held quantities SHALL satisfy input requirements cumulatively across repeated native material slots. Resolved prerequisite steps SHALL target the actual input item so needed-item and corpse tracking follow the current acquisition.
+
+#### Scenario: A crafted key needs repeated materials
+
+- **WHEN** the selected key recipe requires the same material in two native slots and inventory covers only the first slot
+- **THEN** navigation follows a source for the remaining material quantity
+- **AND** the recipe remains selected until its prerequisites and crafting action are satisfied
+- **AND** a scene change does not replace the original crafted-key goal
+
+### Requirement: Final evidence covers the complete consumer
+
+Final acceptance SHALL separately establish implementation, refreshed exported data, integrated generated data and host proof. A common-producer fixture SHALL pass through actual Python generation and the C# parser/evaluator, preserving false values, phases, scopes and exact root/four-support identities. Old schema data, handwritten JSON alone, a source packet or baseline CI SHALL NOT prove the production cutover. Existing performance budgets SHALL be repeated after slot, account and saved-return observations, with twelve identical tracked quests, Alice's Necklace step 2, both baseline scenes, 600 actual ticks, ten patch-plus-tick events, five scene-handler samples and separate real repaint samples. GC.GetTotalMemory SHALL use a positive control without gen-0 collection and SHALL NOT be described as exact per-thread allocation or whole-scene timing.
+
+#### Scenario: Pending host proof
+
+- **WHEN** offline implementation exists but geometry, nested-source or account/return host checks lack authorized runtime evidence
+- **THEN** the affected proof remains incomplete and the change is not archived
+- **AND** no game launch, account mutation, release or publication follows automatically

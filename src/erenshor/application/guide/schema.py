@@ -120,7 +120,6 @@ class EdgeType(str, Enum):
     STEP_TURN_IN = "step_turn_in"
     STEP_LOOT = "step_loot"
     STEP_BUY = "step_buy"
-    STEP_GO_TO = "step_go_to"
     CREATES_ITEM = "creates_item"
 
 
@@ -194,26 +193,56 @@ class Gate:
     item_key: str | None = None
 
 
-# ---------------------------------------------------------------------------
-# Workflow descriptors
-# ---------------------------------------------------------------------------
+@dataclass(frozen=True, slots=True)
+class ActivationVector:
+    x: float
+    y: float
+    z: float
 
 
-@dataclass(slots=True)
-class WorkflowTarget:
-    stable_key: str
+@dataclass(frozen=True, slots=True)
+class ActivationBounds:
+    center: ActivationVector
+    extents: ActivationVector
+
+
+@dataclass(frozen=True, slots=True)
+class ActivationSite:
+    x: float
+    y: float
+    z: float
+    bounds: ActivationBounds
+
+
+@dataclass(frozen=True, slots=True)
+class ActivationSpawn:
+    character: str
     quantity: int
 
 
-@dataclass(slots=True)
-class WorkflowCycle:
-    trigger_item_stable_key: str
-    trigger_item_quantity: int
-    trigger_mode: str
-    location_stable_key: str
-    targets: list[WorkflowTarget]
-    reward_container_stable_key: str | None = None
-    reset_evidence: str = "targets_defeated"
+@dataclass(frozen=True, slots=True)
+class ActivationOffering:
+    item_stable_key: str
+    item_name: str
+    spawns: tuple[ActivationSpawn, ...]
+    reward: str | None = None
+    random: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class Activation:
+    script: str
+    scene: str
+    display_name: str
+    site: ActivationSite
+    offerings: tuple[ActivationOffering, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class ActivationRef:
+    key: str
+    offering: int
+    role: str
 
 
 @dataclass(slots=True)
@@ -348,15 +377,9 @@ class Node:
     landing_x: float | None = None
     landing_y: float | None = None
     landing_z: float | None = None
-    # Guide-only synthetic workflows and trigger locations
-    guide_only: bool = False
-    workflow_cycle: WorkflowCycle | None = None
-    trigger_bounds_center_x: float | None = None
-    trigger_bounds_center_y: float | None = None
-    trigger_bounds_center_z: float | None = None
-    trigger_bounds_extents_x: float | None = None
-    trigger_bounds_extents_y: float | None = None
-    trigger_bounds_extents_z: float | None = None
+    # Native offering controllers and their exact spawned placements.
+    activation: Activation | None = None
+    activations: tuple[ActivationRef, ...] = ()
 
 
 @dataclass

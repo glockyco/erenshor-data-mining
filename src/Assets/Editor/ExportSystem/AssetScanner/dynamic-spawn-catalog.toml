@@ -14,71 +14,78 @@ schema_version = 1
 script = "Chessboard"
 fields = ["PeonNPC"]
 position_field = "SpawnLoc"
-include_host_position = true
 trigger_item_field = "Peon"
 trigger_mode = "proximity_auto_consume"
-event_display_name = "game board"
+include_host_position = true
 include_host_bounds = true
+event_display_name = "game board"
+reason = "SpawnLoc is the piece instantiate position. The Chess host transform and trigger bounds define the board trigger. The shipped chat message names it the game board."
 
 [[allowed]]
 script = "Chessboard"
 fields = ["EmberNPC"]
 position_field = "SpawnLoc"
-include_host_position = true
 trigger_item_field = "Ember"
 trigger_mode = "proximity_auto_consume"
-event_display_name = "game board"
+include_host_position = true
 include_host_bounds = true
+event_display_name = "game board"
+reason = "SpawnLoc is the piece instantiate position. The Chess host transform and trigger bounds define the board trigger. The shipped chat message names it the game board."
 
 [[allowed]]
 script = "Chessboard"
 fields = ["BlazeNPC"]
 position_field = "SpawnLoc"
-include_host_position = true
 trigger_item_field = "Blaze"
 trigger_mode = "proximity_auto_consume"
-event_display_name = "game board"
+include_host_position = true
 include_host_bounds = true
+event_display_name = "game board"
+reason = "SpawnLoc is the piece instantiate position. The Chess host transform and trigger bounds define the board trigger. The shipped chat message names it the game board."
 
 [[allowed]]
 script = "Chessboard"
 fields = ["MonarchNPC"]
 position_field = "SpawnLoc"
-include_host_position = true
 trigger_item_field = "Monarch"
 trigger_mode = "proximity_auto_consume"
-event_display_name = "game board"
+include_host_position = true
 include_host_bounds = true
+event_display_name = "game board"
+reason = "SpawnLoc is the piece instantiate position. The Chess host transform and trigger bounds define the board trigger. The shipped chat message names it the game board."
 
 [[allowed]]
 script = "Chessboard"
 fields = ["KingsmanNPC"]
 position_field = "SpawnLoc"
-include_host_position = true
 trigger_item_field = "Kingsman"
 trigger_mode = "proximity_auto_consume"
-event_display_name = "game board"
+include_host_position = true
 include_host_bounds = true
+event_display_name = "game board"
+reason = "SpawnLoc is the piece instantiate position. The Chess host transform and trigger bounds define the board trigger. The shipped chat message names it the game board."
 
 [[allowed]]
 script = "Chessboard"
 fields = ["CandlekeeperNPC"]
 position_field = "SpawnLoc"
-include_host_position = true
 trigger_item_field = "Candlekeeper"
 trigger_mode = "proximity_auto_consume"
-event_display_name = "game board"
+include_host_position = true
 include_host_bounds = true
+event_display_name = "game board"
+reason = "SpawnLoc is the piece instantiate position. The Chess host transform and trigger bounds define the board trigger. The shipped chat message names it the game board."
 
 [[allowed]]
 script = "Chessboard"
 fields = ["FacelessDuel", "FacelessArc", "FacelessPal", "FacelessDru", "FacelessStorm", "FacelessReaver"]
 position_field = "SpawnLoc"
-include_host_position = true
 trigger_item_field = "Faceless"
 trigger_mode = "proximity_auto_consume"
-event_display_name = "game board"
+include_host_position = true
 include_host_bounds = true
+event_display_name = "game board"
+reason = "SpawnLoc is the piece instantiate position. The Chess host transform and trigger bounds define the board trigger. The shipped chat message names it the game board."
 
 [[allowed]]
 script = "Constellation"

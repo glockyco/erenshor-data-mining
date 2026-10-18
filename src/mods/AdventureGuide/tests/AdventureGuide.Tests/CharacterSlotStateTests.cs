@@ -29,7 +29,7 @@ public sealed class CharacterSlotStateTests
             .ToArray();
         Assert.Equal(declared, CharacterSlotState.All);
         Assert.Equal(
-            new[] { "Owner", "TrackedQuests", "NavQuest", "NavStep", "WorkflowRecovery" },
+            new[] { "Owner", "TrackedQuests", "NavQuest", "NavStep" },
             CharacterSlotState.All.Select(key => key.Name)
         );
         Assert.Equal(
@@ -98,12 +98,12 @@ public sealed class CharacterSlotStateTests
         using var config = new GuideConfig(backend);
         config.PrepareCharacter(3, "Returning");
         var tracked = config.BindPerCharacter(3, CharacterSlotState.TrackedQuests);
-        var recovery = config.BindPerCharacter(3, CharacterSlotState.WorkflowRecovery);
+        var navigation = config.BindPerCharacter(3, CharacterSlotState.NavQuest);
         config.SuspendCharacter();
         config.ResetCharacterSlot(3); // EraseCharacter and successful SaveChar use this path.
         config.PrepareCharacter(3, "Returning");
         Assert.Equal("", tracked.Value);
-        Assert.Equal("", recovery.Value);
+        Assert.Equal("", navigation.Value);
         AssertDefaultState(config, 3);
         Assert.Equal("Returning", config.BindPerCharacter(3, CharacterSlotState.Owner).Value);
         Assert.Same(tracked, config.BindPerCharacter(3, CharacterSlotState.TrackedQuests));
@@ -125,6 +125,21 @@ public sealed class CharacterSlotStateTests
         Assert.Equal(1, backend.CharacterBindings.Count(binding => binding.Key == "Owner_Slot3"));
     }
 
+    [Fact]
+    public void Removed_recovery_setting_does_not_participate_in_native_slot_loading()
+    {
+        var backend = SeedSlot(3, "Returning");
+        backend.Values["_Character.WorkflowRecovery_Slot3"] = "{invalid recovery";
+        using var config = new GuideConfig(backend);
+        config.PrepareCharacter(3, "Returning");
+
+        AssertSavedState(config, 3);
+        Assert.DoesNotContain(
+            backend.CharacterBindings,
+            binding => binding.Key == "WorkflowRecovery_Slot3"
+        );
+    }
+
     private static PersistedBackend SeedSlot(int slot, string owner)
     {
         var backend = new PersistedBackend();
@@ -133,7 +148,6 @@ public sealed class CharacterSlotStateTests
         backend.Values[$"_Character.TrackedQuests_Slot{slot}"] = "quest-one;quest-two";
         backend.Values[$"_Character.NavQuest_Slot{slot}"] = "quest-one";
         backend.Values[$"_Character.NavStep_Slot{slot}"] = 2;
-        backend.Values[$"_Character.WorkflowRecovery_Slot{slot}"] = "saved-recovery";
         return backend;
     }
 
@@ -145,10 +159,6 @@ public sealed class CharacterSlotStateTests
         );
         Assert.Equal("quest-one", config.BindPerCharacter(slot, CharacterSlotState.NavQuest).Value);
         Assert.Equal(2, config.BindPerCharacter(slot, CharacterSlotState.NavStep).Value);
-        Assert.Equal(
-            "saved-recovery",
-            config.BindPerCharacter(slot, CharacterSlotState.WorkflowRecovery).Value
-        );
     }
 
     private static void AssertDefaultState(GuideConfig config, int slot)
@@ -156,7 +166,6 @@ public sealed class CharacterSlotStateTests
         Assert.Equal("", config.BindPerCharacter(slot, CharacterSlotState.TrackedQuests).Value);
         Assert.Equal("", config.BindPerCharacter(slot, CharacterSlotState.NavQuest).Value);
         Assert.Equal(0, config.BindPerCharacter(slot, CharacterSlotState.NavStep).Value);
-        Assert.Equal("", config.BindPerCharacter(slot, CharacterSlotState.WorkflowRecovery).Value);
     }
 
     // Each bind returns a new wrapper, like Lunaris. GuideConfig must cache it so

@@ -23,12 +23,17 @@ public sealed class NavigationController
     private readonly LootScanner _lootScanner;
     private readonly ZoneGraph _zoneGraph;
     private readonly RequirementResolver _requirements;
+    private readonly int[] _offeringLiveIds;
+
+    private bool IsOfferingCharacterLive(string key) =>
+        _entities.FindClosestScripted(key, GetPlayerPosition() ?? Vector3.zero) != null;
+
     private int _lastResolvedStateVersion = int.MinValue;
     private string? _lastResolvedScene;
     private readonly HashSet<string> _reportedResolutionErrors = new(
         StringComparer.OrdinalIgnoreCase
     );
-    private QuestStep? _navigationOverride;
+    private (QuestStep Step, IReadOnlyList<RequirementLink> Advisories)? _navigationOverride;
     private readonly SourceNavigationSelection _sourceSelection = new();
 
     private RequirementResolution? _requirementResult;
@@ -42,14 +47,19 @@ public sealed class NavigationController
             if (value == null)
                 return;
             for (int i = value.Chain.Count - 1; i >= 0; i--)
-                if (value.Chain[i].Atom is { Kind: not GateAtomKind.EncounterWon })
+                if (value.Chain[i].Atom is { Kind: not GateAtomKind.EncounterWon } atom)
                 {
-                    ImmediateRequirement = value.Chain[i].Label;
+                    ImmediateRequirement =
+                        atom.Kind is GateAtomKind.KeyHeld or GateAtomKind.ItemHeld
+                        && _data.GateItems.TryGetValue(atom.Ref, out var item)
+                            ? $"Needs {item.Name}"
+                            : value.Chain[i].Label;
                     break;
                 }
         }
     }
     public string? ImmediateRequirement { get; private set; }
+    public string? RequirementCharacterKey => _navigationOverride?.Step.TargetKey;
     public string? NextActionLabel =>
         SelectedSourceSummary ?? (Target == null ? null : _resolvedStep?.Description);
     public ZoneLineEntry? ChosenEntryLine => _chosenEntryLine ?? Requirements?.EntryLine;
@@ -72,9 +82,10 @@ public sealed class NavigationController
         && NavigationResolutionPolicy.CanUseZoneLine(line, _state.Gates);
 
     public ItemSource? SelectedItemSource { get; private set; }
-    public ItemSource? ChosenItemSource => _sourceSelection.Source;
+    public SourceChoice? ChosenSourceChoice => _sourceSelection.Choice;
     public string? SelectedSourceSummary { get; private set; }
-    public string? SelectedSourceDetails { get; private set; }
+    public string? SelectedSourceLocation { get; private set; }
+    public string? SelectedSourceOdds { get; private set; }
     public string? SelectedSourceTiming =>
         SelectedItemSource == null
             ? null
@@ -85,13 +96,22 @@ public sealed class NavigationController
         if (ReferenceEquals(source, SelectedItemSource))
             return;
         SelectedItemSource = source;
-        SelectedSourceSummary = source == null ? null : UI.SourceListText.Summary(source);
-        SelectedSourceDetails = source == null ? null : UI.SourceListText.Details(source);
+        SelectedSourceSummary =
+            source == null
+                ? null
+                : "Next: "
+                    + UI.SourceListText.Action(
+                        source,
+                        Requirements?.Step is { TargetType: "item" } step ? step.TargetName : null
+                    );
+        SelectedSourceLocation = source == null ? null : UI.SourceListText.Location(source);
+        SelectedSourceOdds =
+            source?.Type == "fishing" ? UI.SourceListText.OptionOdds(source) : null;
     }
 
     public string CurrentScene => _state.CurrentZone;
     public QuestEntry? OriginQuest =>
-        _originQuestKey == null ? null : _data.GetByRuntimeKey(_originQuestKey);
+        _originQuestKey == null ? null : _data.GetByDBName(_originQuestKey);
     public QuestStep? OriginStep
     {
         get
@@ -256,8 +276,10 @@ public sealed class NavigationController
             data,
             state.Gates,
             _zoneGraph,
-            CurrentRequirementStep
+            CurrentRequirementStep,
+            IsOfferingCharacterLive
         );
+        _offeringLiveIds = new int[data.ActivationCharacters.Count];
     }
 
     /// <summary>
@@ -271,26 +293,26 @@ public sealed class NavigationController
         _sourceSelection.Clear();
         _pinnedZoneLine = null;
         _treasureHunt.Drop();
-        _originQuestKey = quest.RuntimeKey;
+        _originQuestKey = quest.DBName;
         _originStepOrder = step.Order;
         SavePerCharacter();
         return ResolveAndNavigate(step, quest, currentScene);
     }
 
-    /// <summary>Choose one source without toggling the auto-selected source off.</summary>
+    /// <summary>Choose an acquisition while allowing its actual placements to be resolved.</summary>
     public bool NavigateToSource(
-        ItemSource source,
+        SourceChoice choice,
         QuestStep step,
         QuestEntry quest,
         string currentScene
     )
     {
-        if (!_sourceSelection.Select(source, step, quest))
+        if (!_sourceSelection.Select(choice, step, quest))
             return false;
         _navigationOverride = null;
         _pinnedZoneLine = null;
         _treasureHunt.Drop();
-        _originQuestKey = quest.RuntimeKey;
+        _originQuestKey = quest.DBName;
         _originStepOrder = step.Order;
         SavePerCharacter();
         return ResolveAndNavigate(step, quest, currentScene);
@@ -305,16 +327,18 @@ public sealed class NavigationController
         var quest = OriginQuest;
         if (quest == null)
             return false;
-        _navigationOverride = new QuestStep
+        var advisoryContext = NavigationResolutionPolicy.CaptureAdvisories(Requirements);
+        var step = new QuestStep
         {
             Order = _originStepOrder,
-            Action = "talk",
+            Action = "kill",
             Description = displayName,
             TargetType = "character",
             TargetKey = characterKey,
             TargetName = displayName,
         };
-        return ResolveAndNavigate(_navigationOverride, quest, currentScene);
+        _navigationOverride = (step, advisoryContext);
+        return ResolveAndNavigate(step, quest, currentScene);
     }
 
     private QuestStep? CurrentRequirementStep(QuestEntry quest)
@@ -422,7 +446,7 @@ public sealed class NavigationController
     /// <summary>Resolve the selected step again, keeping it selected.</summary>
     private bool ResolveOrigin(string currentScene, bool preserveCrossZoneCache = false)
     {
-        var quest = _originQuestKey != null ? _data.GetByRuntimeKey(_originQuestKey) : null;
+        var quest = _originQuestKey != null ? _data.GetByDBName(_originQuestKey) : null;
         if (quest?.Steps == null)
             return false;
         if (_state.IsCompleted(quest))
@@ -441,9 +465,9 @@ public sealed class NavigationController
             return false;
         }
         SetOriginStepOrder(order);
-        if (_navigationOverride != null)
+        if (_navigationOverride is { } navigationOverride)
             return ResolveAndNavigate(
-                _navigationOverride,
+                navigationOverride.Step,
                 quest,
                 currentScene,
                 preserveCrossZoneCache
@@ -562,13 +586,18 @@ public sealed class NavigationController
                     result.AvailableSpawns
                 );
             }
+            if (_navigationOverride is { } navigationOverride)
+                result = NavigationResolutionPolicy.PreserveAdvisories(
+                    result,
+                    navigationOverride.Advisories
+                );
             bool sameOrigin =
                 sameResolutionScene
                 && Target != null
                 && IsMatch(
                     Target.OriginQuestKey,
                     Target.OriginStepOrder,
-                    _originQuestKey ?? quest.RuntimeKey,
+                    _originQuestKey ?? quest.DBName,
                     _originStepOrder
                 );
             if (
@@ -625,7 +654,7 @@ public sealed class NavigationController
         catch (Exception error)
         {
             ResetTargetState();
-            if (_reportedResolutionErrors.Add(quest.RuntimeKey))
+            if (_reportedResolutionErrors.Add(quest.DBName))
                 AdventureGuideLog.Current.LogError(
                     $"Cannot resolve navigation for {quest.DisplayName}",
                     error
@@ -654,12 +683,37 @@ public sealed class NavigationController
 
         _resolvedStep = step;
 
+        if (Requirements?.Activation is { } activation)
+        {
+            var spawn = Requirements.SelectedSpawn!;
+            var live =
+                activation.LiveCharacter == null
+                    ? null
+                    : _entities.FindClosestScripted(
+                        activation.LiveCharacter,
+                        GetPlayerPosition() ?? Vector3.zero
+                    );
+            if (step.Sources is { Count: > 0 })
+                SetSelectedSource(step.Sources[0]);
+            Target = MakeTarget(
+                live != null ? NavigationTarget.Kind.Character : NavigationTarget.Kind.Position,
+                live != null
+                    ? live.transform.position
+                    : new Vector3(activation.X, activation.Y, activation.Z),
+                activation.Instruction ?? step.TargetName ?? step.Description,
+                spawn.Scene,
+                quest.DBName,
+                step.Order,
+                activation.LiveCharacter
+            );
+            return true;
+        }
         if (step.Location != null)
         {
             Target = CreateFixedPositionTarget(
                 step,
                 quest,
-                _originQuestKey ?? quest.RuntimeKey,
+                _originQuestKey ?? quest.DBName,
                 _originStepOrder
             );
             return true;
@@ -695,7 +749,7 @@ public sealed class NavigationController
                             step.TargetKey
                         ),
                         currentScene,
-                        quest.RuntimeKey,
+                        quest.DBName,
                         step.Order,
                         step.TargetKey
                     );
@@ -743,6 +797,7 @@ public sealed class NavigationController
     {
         SavePerCharacter();
         _treasureHunt.Drop();
+        _sourceSelection.Clear();
         ResetTargetState();
         _navigationOverride = null;
         _originQuestKey = null;
@@ -776,6 +831,7 @@ public sealed class NavigationController
         // Switching characters: save outgoing state before rebinding
         SavePerCharacter();
         _treasureHunt.Drop();
+        _sourceSelection.Clear();
         ResetTargetState();
         _originQuestKey = null;
         _originStepOrder = 0;
@@ -794,7 +850,7 @@ public sealed class NavigationController
     {
         if (string.IsNullOrEmpty(questKey) || stepOrder <= 0)
             return false;
-        var quest = _data.GetByRuntimeKey(questKey!);
+        var quest = _data.GetByDBName(questKey!);
         if (quest?.Steps == null || _state.IsCompleted(quest))
             return false;
         foreach (var step in quest.Steps)
@@ -966,18 +1022,18 @@ public sealed class NavigationController
             return;
         }
 
-        var quest = _data.GetByRuntimeKey(Target.QuestKey);
+        var quest = _data.GetByDBName(Target.QuestKey);
         if (quest?.Steps == null)
         {
             Clear();
             return;
         }
 
-        var origin = _originQuestKey != null ? _data.GetByRuntimeKey(_originQuestKey) : null;
+        var origin = _originQuestKey != null ? _data.GetByDBName(_originQuestKey) : null;
         var completion = NavigationCompletionPolicy.Decide(
             origin != null && _state.IsCompleted(origin),
             _state.IsCompleted(quest),
-            origin != null && origin.RuntimeKey != quest.RuntimeKey
+            origin != null && origin.DBName != quest.DBName
         );
         if (completion == NavigationCompletionAction.Clear)
         {
@@ -1027,11 +1083,7 @@ public sealed class NavigationController
             if (step.TargetKey != null)
             {
                 if (
-                    string.Equals(
-                        quest.RuntimeKey,
-                        _originQuestKey,
-                        StringComparison.OrdinalIgnoreCase
-                    )
+                    string.Equals(quest.DBName, _originQuestKey, StringComparison.OrdinalIgnoreCase)
                 )
                     SetOriginStepOrder(step.Order);
                 ResolveAndNavigate(step, quest, currentScene, preserveCrossZoneCache: true);
@@ -1073,6 +1125,20 @@ public sealed class NavigationController
     public void Update(string currentScene)
     {
         ObserveScene(currentScene);
+        if (OriginQuest is { } offeringOrigin && _data.ActivationCharacters.Count > 0)
+        {
+            bool changed = false;
+            var position = GetPlayerPosition() ?? Vector3.zero;
+            for (int i = 0; i < _offeringLiveIds.Length; i++)
+            {
+                var npc = _entities.FindClosestScripted(_data.ActivationCharacters[i], position);
+                int id = npc != null ? npc.GetInstanceID() : 0;
+                changed |= _offeringLiveIds[i] != id;
+                _offeringLiveIds[i] = id;
+            }
+            if (changed)
+                RefreshResolvedStep(offeringOrigin, currentScene);
+        }
         if (Target == null)
             return;
 
@@ -1136,10 +1202,13 @@ public sealed class NavigationController
             }
             else
             {
-                var liveNpc = _entities.FindClosest(Target.SourceId, playerPos.Value);
+                var liveNpc =
+                    Requirements?.Activation != null
+                        ? _entities.FindClosestScripted(Target.SourceId, playerPos.Value)
+                        : _entities.FindClosest(Target.SourceId, playerPos.Value);
                 if (liveNpc != null)
                     Target.Position = liveNpc.transform.position;
-                else
+                else if (Requirements?.Activation == null)
                 {
                     var bestRespawn = FindShortestRespawnPosition(Target.SourceId);
                     if (bestRespawn.HasValue)
@@ -1257,7 +1326,7 @@ public sealed class NavigationController
             RefreshResolvedStep(origin, currentScene);
         if (Target == null || _resolvedStep == null)
             return;
-        var quest = _data.GetByRuntimeKey(Target.QuestKey);
+        var quest = _data.GetByDBName(Target.QuestKey);
         if (quest != null)
             ResolveClosestActiveSource(
                 quest,
@@ -1275,10 +1344,13 @@ public sealed class NavigationController
         if (_currentSourceKey == null || _positionedSources.ContainsKey(_currentSourceKey))
             return;
 
-        var liveNpc = _entities.FindClosest(_currentSourceKey, playerPos);
+        var liveNpc =
+            Requirements?.Activation != null
+                ? _entities.FindClosestScripted(_currentSourceKey, playerPos)
+                : _entities.FindClosest(_currentSourceKey, playerPos);
         if (liveNpc != null)
             Target!.Position = liveNpc.transform.position;
-        else
+        else if (Requirements?.Activation == null)
         {
             var bestRespawn = FindShortestRespawnPosition(_currentSourceKey);
             if (bestRespawn.HasValue)
@@ -1314,7 +1386,7 @@ public sealed class NavigationController
             new Vector3(spawn.X, spawn.Y, spawn.Z),
             WithCharacterUnlockText(step.TargetName ?? step.Description, step.TargetKey),
             spawn.Scene,
-            quest.RuntimeKey,
+            quest.DBName,
             step.Order,
             step.TargetKey
         );
@@ -1365,7 +1437,7 @@ public sealed class NavigationController
             Vector3.zero,
             step.TargetName ?? destScene,
             destScene,
-            quest.RuntimeKey,
+            quest.DBName,
             step.Order
         );
         return true;
@@ -1390,7 +1462,7 @@ public sealed class NavigationController
         {
             if (_state.TreasureHunt.State.Active && ContainsTreasureChest(sources))
             {
-                EngageTreasureHunt(quest.RuntimeKey, step.Order);
+                EngageTreasureHunt(quest.DBName, step.Order);
                 return true;
             }
             // No sources with spawn data — fallback to zone navigation
@@ -1777,7 +1849,7 @@ public sealed class NavigationController
                 bestPosition,
                 displayName,
                 bestScene,
-                quest.RuntimeKey,
+                quest.DBName,
                 step.Order,
                 bestSourceKey
             );
@@ -1823,7 +1895,7 @@ public sealed class NavigationController
             destScene,
             displayName,
             sourceId!,
-            quest.RuntimeKey,
+            quest.DBName,
             step.Order,
             currentScene
         );
@@ -2415,7 +2487,7 @@ public sealed class NavigationController
     {
         CorpsePriorityPolicy.FillItems(
             _resolvedStep,
-            _data.GetByRuntimeKey(questKey),
+            _data.GetByDBName(questKey),
             _countItem,
             _neededItems
         );

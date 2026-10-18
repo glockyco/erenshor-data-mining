@@ -188,37 +188,7 @@ def _estimate_quest_level(
     factors: list[int] = []
     ctx = _LevelContext(graph, zone_medians, char_levels, char_zones, quest_levels, item_cache)
 
-    # Kill targets (AND — all must die): character accessibility
-    for edge in graph.out_edges(quest.key, EdgeType.STEP_KILL):
-        lvl = _character_accessibility_level(edge.target, ctx, set())
-        if lvl is not None:
-            factors.append(lvl)
-
-    # Talk/shout targets (AND): zone median of NPC's zone
-    for edge in graph.out_edges(quest.key, EdgeType.STEP_TALK):
-        _add_zone_factor(edge.target, char_zones, zone_medians, factors)
-    for edge in graph.out_edges(quest.key, EdgeType.STEP_SHOUT):
-        _add_zone_factor(edge.target, char_zones, zone_medians, factors)
-
-    # Travel targets (AND): zone median of destination
-    # Guide workflow locations use the same zone-median estimate as travel.
-    for edge in graph.out_edges(quest.key, EdgeType.STEP_GO_TO):
-        target = graph.get_node(edge.target)
-        if target and target.zone_key in zone_medians:
-            factors.append(zone_medians[target.zone_key])
-    for edge in graph.out_edges(quest.key, EdgeType.STEP_TRAVEL):
-        target = graph.get_node(edge.target)
-        if target and target.key in zone_medians:
-            factors.append(zone_medians[target.key])
-
-    # Read targets (OR — reading any one completes): min across alternatives
-    read_levels: list[int] = []
-    for edge in graph.out_edges(quest.key, EdgeType.STEP_READ):
-        lvl = _item_obtainability_level(edge.target, ctx, set())
-        if lvl is not None:
-            read_levels.append(lvl)
-    if read_levels:
-        factors.append(min(read_levels))
+    _add_step_level_factors(quest.key, ctx, factors)
 
     # Turn-in targets (OR — any alternative): min accessibility
     completion_levels: list[int] = []
@@ -286,6 +256,39 @@ def _estimate_quest_level(
         return None
 
     return max(factors)
+
+
+def _add_step_level_factors(quest_key: str, ctx: _LevelContext, factors: list[int]) -> None:
+    """Keep required steps AND-ed and explicit completion alternatives OR-ed."""
+    alternative_levels: dict[str, int] = {}
+    read_levels: list[int] = []
+    for edge in ctx.graph.out_edges(quest_key):
+        if edge.type == EdgeType.STEP_KILL:
+            level = _character_accessibility_level(edge.target, ctx, set())
+        elif edge.type in (EdgeType.STEP_TALK, EdgeType.STEP_SHOUT):
+            zone_key = ctx.char_zones.get(edge.target)
+            level = ctx.zone_medians.get(zone_key) if zone_key else None
+        elif edge.type == EdgeType.STEP_TRAVEL:
+            target = ctx.graph.get_node(edge.target)
+            if target is None:
+                continue
+            zone_key = target.key
+            level = ctx.zone_medians.get(zone_key) if zone_key else None
+        elif edge.type == EdgeType.STEP_READ:
+            level = _item_obtainability_level(edge.target, ctx, set())
+        else:
+            continue
+        if level is None:
+            continue
+        if edge.group:
+            alternative_levels[edge.group] = min(alternative_levels.get(edge.group, level), level)
+        elif edge.type == EdgeType.STEP_READ:
+            read_levels.append(level)
+        else:
+            factors.append(level)
+    factors.extend(alternative_levels.values())
+    if read_levels:
+        factors.append(min(read_levels))
 
 
 def _add_required_item_factors(
@@ -432,22 +435,38 @@ def _character_accessibility_level(
     ctx: _LevelContext,
     visiting: set[str],
 ) -> int | None:
-    """Level to access a character: combat level plus unlock requirements.
-
-    Base: max(char_level, zone_median) — the existing combat factor.
-    Plus: if the character has incoming UNLOCKS_CHARACTER edges, include
-    the cost of satisfying those unlock requirements.
-    """
+    """Combat and unlock cost, including offerings when every copy needs one."""
     base = _character_level_factor(
         char_key,
         ctx.char_levels,
         ctx.char_zones,
         ctx.zone_medians,
     )
+    if char_key in visiting:
+        return None
+    visiting.add(char_key)
     unlock = _unlock_requirement_level(char_key, ctx, visiting)
-    if base is not None and unlock is not None:
-        return max(base, unlock)
-    return base if base is not None else unlock
+    placements = [
+        placement
+        for edge in ctx.graph.out_edges(char_key, EdgeType.HAS_SPAWN)
+        if (placement := ctx.graph.get_node(edge.target)) is not None
+    ]
+    offering_levels: list[int] = []
+    if placements and all(placement.activations for placement in placements):
+        item_keys: set[str] = set()
+        for placement in placements:
+            for ref in placement.activations:
+                controller = ctx.graph.get_node(ref.key)
+                assert controller is not None and controller.activation is not None
+                item_keys.add(controller.activation.offerings[ref.offering].item_stable_key)
+        offering_levels = [
+            level for key in sorted(item_keys) if (level := _item_obtainability_level(key, ctx, visiting)) is not None
+        ]
+    visiting.discard(char_key)
+    factors = [
+        level for level in (base, unlock, min(offering_levels) if offering_levels else None) if level is not None
+    ]
+    return max(factors) if factors else None
 
 
 def _unlock_requirement_level(
@@ -497,18 +516,6 @@ def _character_level_factor(
     return char_level or zone_med
 
 
-def _add_zone_factor(
-    char_key: str,
-    char_zones: dict[str, str],
-    zone_medians: dict[str, int],
-    factors: list[int],
-) -> None:
-    """Append a zone-median factor for a character's zone."""
-    zone_key = char_zones.get(char_key)
-    if zone_key and zone_key in zone_medians:
-        factors.append(zone_medians[zone_key])
-
-
 def _quest_topological_order(graph: EntityGraph) -> list[str]:
     """Topologically sort quests by chains_to and quest-reward dependencies.
 
@@ -518,7 +525,7 @@ def _quest_topological_order(graph: EntityGraph) -> list[str]:
     """
     from collections import deque
 
-    quest_keys = [n.key for n in graph.nodes_of_type(NodeType.QUEST) if not n.guide_only]
+    quest_keys = [n.key for n in graph.nodes_of_type(NodeType.QUEST)]
     quest_set = set(quest_keys)
     in_degree: dict[str, int] = dict.fromkeys(quest_keys, 0)
     dependents: dict[str, list[str]] = {k: [] for k in quest_keys}

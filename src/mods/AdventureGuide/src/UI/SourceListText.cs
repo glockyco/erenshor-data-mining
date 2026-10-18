@@ -6,9 +6,43 @@ namespace AdventureGuide.UI;
 /// <summary>Source text is formatted when presentation caches change, not during drawing.</summary>
 internal static class SourceListText
 {
-    public static string Summary(ItemSource source)
+    public static string? Preparation(ItemSource source) =>
+        source.ActivationInstruction ?? source.Instruction;
+
+    public static bool RepeatsPreparation(string preparation, string? guidance) =>
+        guidance != null
+        && guidance.StartsWith(preparation, StringComparison.Ordinal)
+        && (guidance.Length == preparation.Length || guidance[preparation.Length] == '\n');
+
+    public static string Action(
+        ItemSource source,
+        string? itemName = null,
+        double? inputQuantity = null
+    )
     {
-        string action = source.Type switch
+        string action = ActionText(source, itemName, inputQuantity);
+        return source.Type != "fishing" && OptionOdds(source) is string odds
+            ? $"{action} ({odds})"
+            : action;
+    }
+
+    public static bool RepeatsAction(ItemSource source, string instruction)
+    {
+        string action = ActionText(source);
+        return string.Equals(instruction, action, StringComparison.Ordinal)
+            || (
+                instruction.Length == action.Length + 1
+                && instruction[instruction.Length - 1] == '.'
+                && instruction.StartsWith(action, StringComparison.Ordinal)
+            );
+    }
+
+    private static string ActionText(
+        ItemSource source,
+        string? itemName = null,
+        double? inputQuantity = null
+    ) =>
+        source.Type switch
         {
             "drop" => $"Defeat {source.Name}",
             "world_drop" or "common_world_item" => source.Name ?? "World drops",
@@ -18,31 +52,58 @@ internal static class SourceListText
             "dialog_give" => source.Keyword is { Length: > 0 }
                 ? $"Say \"{source.Keyword}\" to {source.Name}"
                 : $"Talk to {source.Name}",
-            "fishing" => "Fish",
-            "mining" => "Mine",
+            "fishing" => itemName == null ? "Fish" : $"Fish for {itemName}",
+            "mining" => itemName == null ? "Mine" : $"Mine {itemName}",
             "pickup" => source.Name == null ? "Find in the world" : $"Find {source.Name}",
-            "crafting" => $"Craft {source.Name}",
+            "crafting" => $"Craft using {source.Name}",
             "quest_reward" => $"Quest reward: {source.Name}",
             "ingredient" => $"Ingredient: {source.Name}"
-                + (source.NodeCount is int qty ? $" x{qty}" : ""),
+                + (
+                    (inputQuantity ?? source.Quantity ?? source.NodeCount) is double qty && qty > 1
+                        ? $" x{qty.ToString("0.##", CultureInfo.InvariantCulture)}"
+                        : ""
+                ),
             "item_use" => $"Use {source.Name}",
             _ => source.Name ?? source.Type,
         };
+
+    public static string? Location(ItemSource source)
+    {
         string? zone = source.Zone ?? source.Scene;
-        string text =
-            zone == null ? action
-            : source.Type is "fishing" or "mining" ? $"{action} in {zone}"
-            : $"{action}  ·  {zone}";
-        return AreaLabel(source) is string level ? $"{text} ({level})" : text;
+        string? level = AreaLabel(source);
+        string? location =
+            zone == null ? level
+            : level == null ? zone
+            : $"{zone} · {level}";
+        string? slot = RoomSlot(source);
+        return slot == null ? location
+            : location == null ? $"Room {slot}"
+            : $"{location} · Room {slot}";
+    }
+
+    private static string? RoomSlot(ItemSource source)
+    {
+        if (source.CanonicalLocation == null)
+            return null;
+        string? slot = null;
+        foreach (var condition in source.CanonicalLocation.Conditions)
+        {
+            if (condition.Phase != "availability" || condition.Predicate != "room_furnished")
+                continue;
+            if (slot != null && slot != condition.ReferenceSlot)
+                return null;
+            slot = condition.ReferenceSlot;
+        }
+        return slot;
     }
 
     public static string? AreaLabel(ItemSource source)
     {
         if (ItemSourcePolicy.IsRandomSource(source) || source.Level is not int level)
             return null;
-        return source.Type is "fishing" or "mining" ? $"Area Lv {level}"
-            : source.Type is "drop" or "vendor" or "dialog_give" ? $"NPC Lv {level}"
-            : $"Lv {level}";
+        return source.Type is "fishing" or "mining" ? $"Area Lv{level}"
+            : source.Type is "drop" or "vendor" or "dialog_give" ? $"NPC Lv{level}"
+            : $"Lv{level}";
     }
 
     public static string? OptionOdds(ItemSource source)
@@ -50,59 +111,22 @@ internal static class SourceListText
         if (source.Type == "fishing")
         {
             if (source.TimeRestriction == "day")
-                return $"Day only · {Percent(source.DayChance!.Value)}";
+                return $"Day only (06:00-21:59) · {Percent(source.DayChance!.Value)} per successful catch";
             if (source.TimeRestriction == "night")
-                return $"Night only · {Percent(source.NightChance!.Value)}";
+                return $"Night only (22:00-05:59) · {Percent(source.NightChance!.Value)} per successful catch";
             return source.DayChance == source.NightChance
-                ? Percent(source.DayChance!.Value)
-                : $"Day {Percent(source.DayChance!.Value)} / night {Percent(source.NightChance!.Value)}";
+                ? $"{Percent(source.DayChance!.Value)} per successful catch"
+                : $"Day {Percent(source.DayChance!.Value)} / night {Percent(source.NightChance!.Value)} per successful catch";
         }
         if (source.Chance is not double chance)
             return null;
-        return source.ChanceMax is double maximum && maximum != chance
-            ? $"{Percent(chance)} to {Percent(maximum)}"
-            : Percent(chance);
-    }
-
-    public static string Details(ItemSource source)
-    {
-        string text = Summary(source);
-        if (source.Type == "fishing")
-        {
-            if (source.TimeRestriction == "day")
-                text +=
-                    "\nDay only (06:00-21:59): "
-                    + Percent(source.DayChance!.Value)
-                    + " per successful catch.";
-            else if (source.TimeRestriction == "night")
-                text +=
-                    "\nNight only (22:00-05:59): "
-                    + Percent(source.NightChance!.Value)
-                    + " per successful catch.";
-            else if (source.DayChance == source.NightChance)
-                text +=
-                    "\nDay and night: "
-                    + Percent(source.DayChance!.Value)
-                    + " per successful catch.";
-            else
-                text +=
-                    "\nDay (06:00-21:59): "
-                    + Percent(source.DayChance!.Value)
-                    + ", night (22:00-05:59): "
-                    + Percent(source.NightChance!.Value)
-                    + " per successful catch.";
-        }
-        else if (source.Chance is double chance)
-        {
-            text += "\nChance: " + Percent(chance);
-            if (source.ChanceMax is double maximum && maximum != chance)
-                text += " to " + Percent(maximum);
-        }
-        if (source.Type == "treasure_chest")
-            text += $"\nDig at Lv {source.Level}-{source.LevelMax}.";
-        if (!string.IsNullOrWhiteSpace(source.Instruction))
-            text += "\n" + source.Instruction;
-        return text;
+        string odds =
+            source.ChanceMax is double maximum && maximum != chance
+                ? $"{Percent(chance)} to {Percent(maximum)}"
+                : Percent(chance);
+        return source.Type == "treasure_chest"
+            ? $"{odds} · Dig at Lv {source.Level}-{source.LevelMax}"
+            : odds;
     }
 
     private static string Percent(double chance) =>
@@ -113,18 +137,11 @@ internal static class SourceListText
     /// <summary>Phase changes select literal text without rebuilding source labels.</summary>
     public static string? Timing(ItemSource? source, int hour)
     {
-        if (source?.Type != "fishing")
+        if (source?.Type != "fishing" || ItemSourcePolicy.FishingChance(source, hour) > 0)
             return null;
-        bool available = ItemSourcePolicy.FishingChance(source, hour) > 0;
-        return source.TimeRestriction == "day"
-            ? available
-                ? "Fish during the day (06:00-21:59)."
-                : "Return during the day (06:00-21:59)."
-            : source.TimeRestriction == "night"
-                ? available
-                    ? "Fish at night (22:00-05:59)."
-                    : "Return at night (22:00-05:59)."
-                : null;
+        return source.TimeRestriction == "day" ? "Wait for day."
+            : source.TimeRestriction == "night" ? "Wait for night."
+            : null;
     }
 
     public static string FishingStatus(ItemSource source, int hour) =>

@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from erenshor.domain.value_objects.item_provenance import ItemAcquisition, ItemUse, is_actionable_acquisition
 
-from .compiler import CompiledData, Condition, QuestSpec, edge_type_byte, node_type_byte
+from .compiler import CompiledData, Condition, edge_type_byte, node_type_byte
 from .schema import AtomKind, Edge, EdgeType, GateAtom, Node, NodeType, SubjectKind
 
 if TYPE_CHECKING:
@@ -52,7 +52,6 @@ def build_mod_guide(
     db_names = {node.key: node.db_name for node in quests}
     compiled_nodes = _compiled_nodes(compiled)
     _validate_compiled_references(compiled, compiled_nodes)
-    quest_specs = _quest_specs_by_id(compiled, compiled_nodes)
     compiled_edges = _compiled_edges(compiled, compiled_nodes)
     reward_by_item = _reward_edges_by_item(compiled_edges)
 
@@ -70,6 +69,7 @@ def build_mod_guide(
         "_zone_lookup": _zone_lookup(nodes),
         "_conditions": [_condition_payload(graph, condition) for condition in compiled.conditions],
         "_gate_items": _gate_items(graph, nodes, compiled, compiled_nodes, reward_by_item),
+        "_activations": {key: asdict(value) for key, value in sorted(compiled.activations.items())},
         "_character_spawns": _character_spawns(graph, nodes, compiled, line_index),
         # Respawn timers can be limited to spawn points that can spawn a boss or an elite.
         "_encounter_tiers": {
@@ -91,7 +91,6 @@ def build_mod_guide(
                 nodes,
                 compiled,
                 compiled_nodes,
-                quest_specs,
                 reward_by_item,
                 incoming_chain,
                 db_names,
@@ -167,30 +166,6 @@ def _validate_compiled_references(compiled: CompiledData, nodes: dict[int, Any])
     for key, node_id in compiled.node_key_to_id.items():
         if node_id not in nodes:
             raise ValueError(f"dangling compiled key index: {key!r}->{node_id}")
-
-
-def _quest_specs_by_id(compiled: CompiledData, nodes: dict[int, Any]) -> dict[int, QuestSpec]:
-    result: dict[int, QuestSpec] = {}
-    quest_type = node_type_byte(NodeType.QUEST)
-    for spec in compiled.quest_specs:
-        if spec.quest_id in result:
-            raise ValueError(f"duplicate compiled quest spec: {spec.quest_id}")
-        node = nodes.get(spec.quest_id)
-        if node is None or node.node_type != quest_type:
-            raise ValueError(f"compiled quest spec references invalid quest node: {spec.quest_id}")
-        if (
-            spec.quest_index < 0
-            or spec.quest_index >= len(compiled.quest_node_ids)
-            or compiled.quest_node_ids[spec.quest_index] != spec.quest_id
-        ):
-            raise ValueError(f"compiled quest spec has invalid quest index: {spec.quest_id}->{spec.quest_index}")
-        if spec.is_guide_only != (spec.workflow_cycle is not None):
-            raise ValueError(f"compiled quest spec has inconsistent workflow metadata: {node.key!r}")
-        result[spec.quest_id] = spec
-    missing = set(compiled.quest_node_ids) - set(result)
-    if missing:
-        raise ValueError(f"missing compiled quest specs: {sorted(missing)!r}")
-    return result
 
 
 def _compiled_edges(compiled: CompiledData, nodes: dict[int, Any]) -> list[Any]:
@@ -289,6 +264,8 @@ def _character_spawns(
                 "is_directly_placed": bool(spawn.is_directly_placed),
             }
             _put_if(value, "source_script", spawn.source_script)
+            if refs := compiled.placement_activations.get(spawn.key):
+                value["activations"] = [asdict(ref) for ref in refs]
             _put_if(
                 value,
                 "condition",
@@ -384,7 +361,7 @@ def _gate_items(
     compiled_nodes: dict[int, Any],
     reward_by_item: dict[int, list[Any]],
 ) -> dict[str, dict[str, Any]]:
-    """The items that conditions name, with their game ID and where to get them.
+    """Items referenced by conditions or activations, with game IDs and sources.
 
     The keyring holds game item IDs. Navigation to a missing key or item uses
     the sources. door_zones names the zones of the doors a key opens, so the
@@ -415,6 +392,11 @@ def _gate_items(
             and atom.predicate in {"item_held", "key_held", "room_furnished"}
             and atom.reference_stable_key is not None
         }
+        | {
+            offering.item_stable_key
+            for activation in compiled.activations.values()
+            for offering in activation.offerings
+        }
     )
     zone_by_scene = {
         node.scene.lower(): node.display_name for node in nodes.values() if node.type == NodeType.ZONE and node.scene
@@ -432,7 +414,9 @@ def _gate_items(
     for key in keys:
         item = nodes.get(key)
         if item is None or item.type != NodeType.ITEM or not item.game_id:
-            raise ValueError(f"a condition names {key!r}, which is not an item of the guide with a game ID")
+            raise ValueError(
+                f"a condition or activation names {key!r}, which is not an item of the guide with a game ID"
+            )
         value: dict[str, Any] = {"name": item.display_name, "game_id": item.game_id}
         if door_zones.get(key):
             value["door_zones"] = sorted(door_zones[key])
@@ -485,7 +469,6 @@ def _quest_entry(
     nodes: dict[str, Node],
     compiled: CompiledData,
     compiled_nodes: dict[int, Any],
-    quest_specs: dict[int, QuestSpec],
     reward_by_item: dict[int, list[Any]],
     incoming_chain: dict[str, list[Edge]],
     db_names: dict[str, str | None],
@@ -517,7 +500,6 @@ def _quest_entry(
     rewards = _rewards(quest, graph, nodes)
     chain = _chain(graph, quest, nodes, incoming_chain, db_names)
     flags = _flags(quest)
-    workflow_cycle = _workflow_cycle_payload(quest, compiled, compiled_nodes, quest_specs)
     for key, value in (
         ("acquisition", acquisition),
         ("prerequisites", prerequisites),
@@ -527,125 +509,11 @@ def _quest_entry(
         ("rewards", rewards),
         ("chain", chain),
         ("flags", flags),
-        ("workflow_cycle", workflow_cycle),
     ):
         if value or key in {"rewards", "flags"}:
             result[key] = value
     if quest.level is not None:
         result["level_estimate"] = {"recommended": quest.level}
-    return result
-
-
-def _workflow_cycle_payload(
-    quest: Node,
-    compiled: CompiledData,
-    compiled_nodes: dict[int, Any],
-    quest_specs: dict[int, QuestSpec],
-) -> dict[str, Any] | None:
-    quest_id = _compiled_id(compiled, quest.key)
-    spec = quest_specs.get(quest_id)
-    if spec is None:
-        raise ValueError(f"missing compiled quest spec for {quest.key!r}")
-    if quest.guide_only != spec.is_guide_only:
-        raise ValueError(f"quest {quest.key!r} has inconsistent guide-only projection")
-    cycle = spec.workflow_cycle
-    if not quest.guide_only:
-        if cycle is not None:
-            raise ValueError(f"game quest {quest.key!r} unexpectedly has workflow metadata")
-        return None
-    if cycle is None or not quest.implicit or not quest.repeatable:
-        raise ValueError(f"guide-only quest {quest.key!r} has invalid workflow lifecycle")
-    if cycle.trigger_mode != "proximity_auto_consume":
-        raise ValueError(f"guide-only quest {quest.key!r} has unsupported trigger mode {cycle.trigger_mode!r}")
-    if (
-        isinstance(cycle.trigger_item_quantity, bool)
-        or not isinstance(cycle.trigger_item_quantity, int)
-        or cycle.trigger_item_quantity <= 0
-    ):
-        raise ValueError(f"guide-only quest {quest.key!r} has invalid trigger quantity")
-
-    def require_node(node_id: int, expected_type: NodeType, label: str) -> Any:
-        node = compiled_nodes.get(node_id)
-        if node is None or node.node_type != node_type_byte(expected_type) or not node.key or not node.display_name:
-            raise ValueError(f"guide-only quest {quest.key!r} references invalid {label}")
-        return node
-
-    trigger_item = require_node(cycle.trigger_item_id, NodeType.ITEM, "trigger item")
-    location = require_node(cycle.location_id, NodeType.LOCATION, "trigger location")
-    targets: list[dict[str, Any]] = []
-    seen_targets: set[int] = set()
-    for target_spec in cycle.targets:
-        if target_spec.target_id in seen_targets:
-            raise ValueError(f"guide-only quest {quest.key!r} has duplicate workflow targets")
-        if (
-            isinstance(target_spec.quantity, bool)
-            or not isinstance(target_spec.quantity, int)
-            or target_spec.quantity <= 0
-        ):
-            raise ValueError(f"guide-only quest {quest.key!r} has invalid target quantity")
-        target = require_node(target_spec.target_id, NodeType.CHARACTER, "workflow target")
-        seen_targets.add(target_spec.target_id)
-        targets.append(
-            {
-                "stable_key": target.key,
-                "display_name": target.display_name,
-                "quantity": target_spec.quantity,
-            }
-        )
-    if not targets:
-        raise ValueError(f"guide-only quest {quest.key!r} has no workflow targets")
-    targets.sort(key=lambda target: target["stable_key"])
-
-    reward_container = None
-    if cycle.reward_container_id is not None:
-        reward = require_node(cycle.reward_container_id, NodeType.CHARACTER, "reward container")
-        reward_container = {"stable_key": reward.key, "display_name": reward.display_name}
-    if cycle.reset_evidence not in {"reward_container_consumed", "targets_defeated"}:
-        raise ValueError(f"guide-only quest {quest.key!r} has invalid reset evidence")
-    if (reward_container is None) != (cycle.reset_evidence == "targets_defeated"):
-        raise ValueError(f"guide-only quest {quest.key!r} has inconsistent reset evidence")
-
-    result: dict[str, Any] = {
-        "trigger": {
-            "item_stable_key": trigger_item.key,
-            "item_name": trigger_item.display_name,
-            "quantity": cycle.trigger_item_quantity,
-            "mode": cycle.trigger_mode,
-            "consumes_item_automatically": True,
-            "location": _workflow_location_payload(location, include_bounds=True),
-        },
-        "targets": targets,
-        "reset_evidence": cycle.reset_evidence,
-    }
-    _put_if(result, "reward_container", reward_container)
-    return result
-
-
-def _workflow_location_payload(node: Any, *, include_bounds: bool) -> dict[str, Any]:
-    if node.node_type != node_type_byte(NodeType.LOCATION) or not node.key or not node.display_name or not node.scene:
-        raise ValueError("invalid workflow location identity")
-    result: dict[str, Any] = {
-        "stable_key": node.key,
-        "display_name": node.display_name,
-        "scene": node.scene,
-        "x": _required_number(node.key, "x coordinate", node.x),
-        "y": _required_number(node.key, "y coordinate", node.y),
-        "z": _required_number(node.key, "z coordinate", node.z),
-    }
-    if include_bounds:
-        center = {
-            "x": _required_number(node.key, "trigger bounds center x", node.trigger_bounds_center_x),
-            "y": _required_number(node.key, "trigger bounds center y", node.trigger_bounds_center_y),
-            "z": _required_number(node.key, "trigger bounds center z", node.trigger_bounds_center_z),
-        }
-        extents = {
-            "x": _required_number(node.key, "trigger bounds extents x", node.trigger_bounds_extents_x),
-            "y": _required_number(node.key, "trigger bounds extents y", node.trigger_bounds_extents_y),
-            "z": _required_number(node.key, "trigger bounds extents z", node.trigger_bounds_extents_z),
-        }
-        if any(value <= 0 for value in extents.values()):
-            raise ValueError(f"workflow location {node.key!r} has non-positive trigger bounds")
-        result["bounds"] = {"center": center, "extents": extents}
     return result
 
 
@@ -812,19 +680,32 @@ def _required_items(
         if quest_key != quest.key:
             continue
         canonical_items.add(item_key)
+        grouped: dict[tuple[str | None, str | None], list[ItemUse]] = {}
         for use in sorted(uses, key=lambda use: use.use_key):
+            grouped.setdefault((use.variant_key, _requested_quality(use)), []).append(use)
+        for (variant, quality), members in grouped.items():
             canonical_item = nodes[item_key]
-            quantity = use.quantity_min
-            if quantity is None or not math.isfinite(quantity) or quantity < 0 or int(quantity) != quantity:
-                raise ValueError(f"Quest requirement has no integer quantity: {use.use_key}")
+            total = 0
+            for use in members:
+                quantity = use.quantity_min
+                if (
+                    quantity is None
+                    or isinstance(quantity, bool)
+                    or not math.isfinite(quantity)
+                    or quantity < 0
+                    or use.quantity_kind != "exact"
+                    or use.quantity_max != quantity
+                    or int(quantity) != quantity
+                ):
+                    raise ValueError(f"Quest requirement has no integer quantity: {use.use_key}")
+                total += int(quantity)
             value: dict[str, Any] = {
                 "item_name": canonical_item.display_name,
                 "item_stable_key": item_key,
-                "use_key": use.use_key,
-                "quantity": int(quantity),
+                "use_keys": [use.use_key for use in members],
+                "quantity": total,
             }
-            _put_if(value, "or_group", use.variant_key)
-            quality = _requested_quality(use)
+            _put_if(value, "variant_key", variant)
             _put_if(value, "output_quality", quality)
             sources = _canonical_item_sources(compiled, item_key, nodes, quest.key, frozenset(), quality)
             if sources:
@@ -848,7 +729,15 @@ def _required_items(
             if sources:
                 value["sources"] = sources
             result.append(value)
-    return sorted(result, key=lambda row: (row["item_stable_key"], row.get("or_group", ""), row.get("use_key", "")))
+    return sorted(
+        result,
+        key=lambda row: (
+            row.get("variant_key", ""),
+            row["item_stable_key"],
+            row.get("output_quality", ""),
+            row.get("or_group", ""),
+        ),
+    )
 
 
 def _with_source_conditions(sources: list[dict[str, Any]], item: Node, compiled: CompiledData) -> list[dict[str, Any]]:
@@ -1044,7 +933,7 @@ def _steps(
                 "recommended": level,
                 "factors": [{"source": "zone", "name": target.zone or target.display_name, "level": level}],
             }
-        if target.type != NodeType.ITEM or action not in {"collect", "obtain", "read"}:
+        if target.type != NodeType.ITEM or action not in {"collect", "read"}:
             return None
         item = required_by_key.get(target.key)
         sources = item.get("sources", []) if item is not None else source_cache.get(target.key)
@@ -1067,22 +956,20 @@ def _steps(
         sequence += 1
     acquisition_step_count = sequence
     for item in required_items:
-        action = "obtain" if quest.guide_only else "collect"
-        verb = "Obtain" if quest.guide_only else "Collect"
         step = {
-            "action": action,
-            "description": f"{verb} {item['quantity']}x {item['item_name']}."
+            "action": "collect",
+            "description": f"Collect {item['quantity']}x {item['item_name']}."
             if item["quantity"] > 1
-            else f"{verb} {item['item_name']}.",
+            else f"Collect {item['item_name']}.",
             "target_name": item["item_name"],
             "target_type": "item",
             "target_key": item["item_stable_key"],
             "quantity": item["quantity"],
         }
         _put_if(step, "or_group", item.get("or_group"))
-        _put_if(step, "level_estimate", level_for(nodes[item["item_stable_key"]], action))
-        if quest.guide_only and item.get("sources"):
-            step["sources"] = item["sources"]
+        _put_if(step, "requirement_variant", item.get("variant_key"))
+        _put_if(step, "output_quality", item.get("output_quality"))
+        _put_if(step, "level_estimate", level_for(nodes[item["item_stable_key"]], "collect"))
         entries.append((-500000, sequence, step))
         sequence += 1
     step_types = {
@@ -1094,7 +981,6 @@ def _steps(
         EdgeType.STEP_TRAVEL: "travel",
         EdgeType.STEP_SHOUT: "shout",
         EdgeType.STEP_READ: "read",
-        EdgeType.STEP_GO_TO: "go_to",
     }
     for edge_type, action in step_types.items():
         for edge in graph.out_edges(quest.key, edge_type):
@@ -1104,12 +990,6 @@ def _steps(
             if any(entry[2].get("target_key") == target.key and entry[2].get("action") == action for entry in entries):
                 continue
             step = _step_value(action, target, edge.keyword, edge.group, edge.quantity)
-            if action == "go_to":
-                location_id = _compiled_id(compiled, target.key)
-                location = compiled_nodes.get(location_id)
-                if location is None:
-                    raise ValueError(f"dangling compiled location node: {target.key!r}")
-                step["location"] = _workflow_location_payload(location, include_bounds=False)
             _put_if(step, "level_estimate", level_for(target, action))
             entries.append((edge.ordinal if edge.ordinal is not None else 0, sequence, step))
             sequence += 1
@@ -1185,10 +1065,6 @@ def _step_value(
         description = f'Say "{keyword}" to {target.display_name}.' if keyword else f"Speak to {target.display_name}."
     elif action == "buy":
         description = f"Buy {target.display_name}."
-    elif action == "obtain":
-        description = f"Obtain {target.display_name}."
-    elif action == "go_to":
-        description = f"Go to {target.display_name}."
     elif action == "kill":
         quantity_prefix = f"{quantity}x " if quantity is not None and quantity > 1 else ""
         description = f"Defeat {quantity_prefix}{target.display_name}."
@@ -1333,7 +1209,6 @@ def _chain(
 
 def _flags(quest: Node) -> dict[str, Any]:
     value = {
-        "guide_only": bool(quest.guide_only),
         "repeatable": bool(quest.repeatable),
         "disabled": bool(quest.disabled),
         "kill_turn_in_holder": bool(quest.kill_turn_in_holder),
@@ -1353,7 +1228,6 @@ def _quest_type(graph: EntityGraph, quest: Node, nodes: dict[str, Node]) -> str 
         (EdgeType.STEP_KILL, "kill"),
         (EdgeType.STEP_TALK, "dialog"),
         (EdgeType.STEP_TRAVEL, "zone_trigger"),
-        (EdgeType.STEP_GO_TO, "location_trigger"),
         (EdgeType.STEP_SHOUT, "shout"),
         (EdgeType.STEP_READ, "item_read"),
     ):
@@ -1378,7 +1252,7 @@ def _quest_type(graph: EntityGraph, quest: Node, nodes: dict[str, Node]) -> str 
 
 
 def _infer_zone(graph: EntityGraph, quest: Node, nodes: dict[str, Node]) -> str | None:
-    for edge_type in (EdgeType.ASSIGNED_BY, EdgeType.COMPLETED_BY, EdgeType.STEP_GO_TO):
+    for edge_type in (EdgeType.ASSIGNED_BY, EdgeType.COMPLETED_BY):
         for edge in graph.out_edges(quest.key, edge_type):
             target = nodes.get(edge.target)
             if target and target.zone:
@@ -1609,6 +1483,7 @@ def _normalize_source_tables(result: dict[str, Any], compiled: CompiledData) -> 
                 acquisition_keys.add(value["acquisition_key"])
             if "use_key" in value:
                 use_keys.add(value["use_key"])
+            use_keys.update(value.get("use_keys", ()))
             use_keys.update(value.get("operation_use_keys", ()))
             for member in value.values():
                 visit(member)

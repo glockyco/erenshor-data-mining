@@ -58,8 +58,7 @@ public sealed partial class GateConditions
     }
 
     public bool IsProjectedQuestCompleted(QuestEntry quest) =>
-        !quest.IsGuideOnly
-        && _data.EncounterProjection.IsBoundQuest(quest.DBName)
+        _data.EncounterProjection.IsBoundQuest(quest.DBName)
         && _data.EncounterProjection.IsQuestCompleted(quest.DBName, Facts);
 
     public bool Holds(GateAtom atom) =>

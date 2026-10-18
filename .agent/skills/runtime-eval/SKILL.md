@@ -112,6 +112,10 @@ the ordered requirement chain, alternatives, advisory encounters, and any blocke
 message. The chain remains inspectable when no reachable navigation target exists.
 Compare the dump with the navigation overlay, quest detail panel, and tracker.
 
+For offering-activated sources, compare the selected source's offering, live
+inventory, activation site, and summoned characters with `DumpNav()` and the
+overlay. See the AdventureGuide README for navigation behavior.
+
 ## ScriptEngine reload
 
 For BepInEx scripts deployed with `--scripts`, press F6 or call ScriptEngine through HotRepl:

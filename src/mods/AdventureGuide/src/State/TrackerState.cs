@@ -119,7 +119,7 @@ public sealed class TrackerState
         for (int i = _orderedList.Count - 1; i >= 0; i--)
         {
             var key = _orderedList[i];
-            var quest = data.GetByRuntimeKey(key);
+            var quest = data.GetByDBName(key);
             bool questExists = quest != null;
             bool isCompleted = questExists && state.IsCompleted(quest!);
             bool isRepeatable = questExists && quest!.Flags is { Repeatable: true };
