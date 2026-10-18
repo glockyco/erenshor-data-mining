@@ -1,7 +1,5 @@
 """Quest repository for specialized quest queries."""
 
-from typing import cast
-
 from loguru import logger
 
 from erenshor.domain.entities.quest import Quest
@@ -67,33 +65,45 @@ class QuestRepository(BaseRepository[Quest]):
             raise RepositoryError(f"Failed to retrieve quest faction changes: {e}") from e
 
     def get_quest_panel_rows(self) -> dict[str, list[dict[str, object]]]:
-        """Project persisted item facts alongside configured quest execution metadata.
-
-        Resource metadata describes TradeWindow effects only when a turn-in route
-        exists. An item grant additionally needs its exact canonical native route.
-        """
+        """Present canonical quest routes and their item grants as wiki panel rows."""
         try:
             quests = self._execute_raw(
                 "SELECT stable_key FROM quests WHERE wiki_page_name IS NOT NULL ORDER BY stable_key", ()
             )
             panels: dict[str, list[dict[str, object]]] = {str(row["stable_key"]): [] for row in quests}
+            routes = [
+                dict(row)
+                for row in self._execute_raw(
+                    "SELECT * FROM quest_routes ORDER BY phase DESC, quest_stable_key, method, "
+                    "source_stable_key, note, variant_resource_name, dialog_index",
+                    (),
+                )
+            ]
+            reward_routes = {
+                (row["quest_stable_key"], row["variant_resource_name"], row["source_stable_key"])
+                for row in routes
+                if row["grants_resource_rewards"]
+            }
+            rewarded_variants = {(quest, variant) for quest, variant, _ in reward_routes}
+            partial_variants = {
+                (row["quest_stable_key"], row["variant_resource_name"])
+                for row in routes
+                if row["phase"] == "start" and row["method"] == "partial_turnin"
+            }
             provenance = ItemProvenanceRepository(self.db)
             acquisitions = [fact for fact in provenance.iter_acquisitions() if fact.kind in {"quest_reward", "dialog"}]
             uses = [fact for fact in provenance.iter_uses() if fact.kind == "quest_requirement"]
             rewards: dict[tuple[str, str], list[ItemAcquisition]] = {}
             for fact in acquisitions:
-                if fact.kind == "quest_reward" and fact.source_stable_key and fact.variant_key:
-                    rewards.setdefault((fact.source_stable_key, fact.variant_key), []).append(fact)
+                if (
+                    fact.kind == "quest_reward"
+                    and (fact.source_stable_key, fact.variant_key, fact.source_copy_stable_key) in reward_routes
+                ):
+                    rewards.setdefault((str(fact.source_stable_key), str(fact.variant_key)), []).append(fact)
             variants = [
                 dict(row)
                 for row in self._execute_raw(
-                    """
-                    SELECT qv.*, COALESCE((
-                        SELECT SUM(quantity) FROM quest_required_items r
-                        WHERE r.quest_variant_resource_name = qv.resource_name
-                    ), 0) AS required_count
-                    FROM quest_variants qv ORDER BY resource_name
-                    """,
+                    "SELECT * FROM quest_variants ORDER BY resource_name",
                     (),
                 )
             ]
@@ -102,21 +112,22 @@ class QuestRepository(BaseRepository[Quest]):
                 quest_key = str(variant["quest_stable_key"])
                 if quest_key not in panels:
                     continue
+                grants_rewards = (quest_key, variant["resource_name"]) in rewarded_variants
                 row: dict[str, object] = {
                     "type": "variant",
                     "variant": variant["resource_name"],
-                    "experience": variant["xp_on_complete"],
-                    "gold": variant["gold_on_complete"],
+                    "experience": variant["xp_on_complete"] if grants_rewards else 0,
+                    "gold": variant["gold_on_complete"] if grants_rewards else 0,
                     "repeatable": bool(variant["repeatable"]),
-                    "oncePerSpawn": bool(variant["once_per_spawn_instance"]),
+                    "oncePerSpawn": bool(grants_rewards and variant["once_per_spawn_instance"]),
                     "partialAssigns": bool(
-                        variant["assign_this_quest_on_partial_complete"]
-                        and variant["dialog_on_partial_success"]
-                        and cast("int", variant["required_count"]) > 1
+                        grants_rewards and (quest_key, variant["resource_name"]) in partial_variants
                     ),
-                    "killsHolder": bool(variant["kill_turn_in_holder"]),
-                    "dropsInvulnerability": bool(variant["drop_invuln_on_holder"]),
+                    "killsHolder": bool(grants_rewards and variant["kill_turn_in_holder"]),
+                    "dropsInvulnerability": bool(grants_rewards and variant["drop_invuln_on_holder"]),
                 }
+                if grants_rewards:
+                    row["rewardMethod"] = "item_turnin"
                 item_rewards = rewards.get((quest_key, str(variant["resource_name"])), [])
                 if item_rewards:
                     outcomes = {(fact.item_stable_key, self._reward_quantity(fact)) for fact in item_rewards}
@@ -148,10 +159,11 @@ class QuestRepository(BaseRepository[Quest]):
                     variant_key = str(record["quest_variant_resource_name"])
                     quest_key = variant_quests[variant_key]
                     if quest_key in panels:
-                        panels[quest_key].append(
-                            {"type": row_type, "variant": variant_key}
-                            | {field: record[column] for column, field in fields.items()}
-                        )
+                        if row_type == "completes" and (quest_key, variant_key) not in rewarded_variants:
+                            continue
+                        child: dict[str, object] = {"type": row_type, "variant": variant_key}
+                        child.update({field: record[column] for column, field in fields.items()})
+                        panels[quest_key].append(child)
             for use in sorted(
                 uses,
                 key=lambda fact: (
@@ -162,6 +174,8 @@ class QuestRepository(BaseRepository[Quest]):
                 ),
             ):
                 if use.target_stable_key is None or use.target_stable_key not in panels:
+                    continue
+                if (use.target_stable_key, use.variant_key) not in rewarded_variants:
                     continue
                 if use.quantity_min != use.quantity_max or use.quantity_min is None:
                     raise RepositoryError(f"Quest requirement {use.use_key} has no exact quantity")
@@ -175,34 +189,7 @@ class QuestRepository(BaseRepository[Quest]):
                     }
                 )
 
-            self._add_panel_sources(panels, variants, acquisitions)
-            turnin_quests = {
-                key
-                for key, rows in panels.items()
-                if any(row["type"] == "completion" and row["method"] == "item_turnin" for row in rows)
-            }
-            for key, rows in panels.items():
-                for row in rows:
-                    if row["type"] != "variant":
-                        continue
-                    if key in turnin_quests:
-                        row["rewardMethod"] = "item_turnin"
-                    else:
-                        # FinishQuest does not execute the resource's TradeWindow effects.
-                        row["experience"] = 0
-                        row["gold"] = 0
-                        row.pop("item", None)
-                        row.pop("quantity", None)
-                        for flag in ("oncePerSpawn", "partialAssigns", "killsHolder", "dropsInvulnerability"):
-                            row[flag] = False
-                panels[key] = [
-                    row
-                    for row in rows
-                    if not (key not in turnin_quests and row["type"] in {"required", "completes"})
-                    and not (
-                        row["type"] == "completion" and row["method"] == "chain" and row["source"] not in turnin_quests
-                    )
-                ]
+            self._add_panel_sources(panels, routes, acquisitions)
             return panels
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve quest panels: {e}") from e
@@ -241,172 +228,126 @@ class QuestRepository(BaseRepository[Quest]):
     def _add_panel_sources(
         self,
         panels: dict[str, list[dict[str, object]]],
-        variants: list[dict[str, object]],
+        routes: list[dict[str, object]],
         acquisitions: list[ItemAcquisition],
     ) -> None:
-        """Keep dialog gates and item grants on their exact source route."""
-        characters = self._execute_raw(
-            """
-            WITH representatives AS (
-                SELECT group_key, MIN(member_stable_key) AS stable_key
-                FROM character_deduplications WHERE is_wiki_generated = 1 GROUP BY group_key
+        """Join route facts to wiki representatives and placement qualifiers."""
+        representatives = {
+            str(row["group_key"]): row["stable_key"]
+            for row in self._execute_raw(
+                "SELECT group_key, MIN(member_stable_key) AS stable_key "
+                "FROM character_deduplications WHERE is_wiki_generated = 1 GROUP BY group_key",
+                (),
             )
-            SELECT s.member_stable_key, r.stable_key
-            FROM character_fact_sources s
-            JOIN representatives r ON r.group_key = s.group_key
-            """,
-            (),
-        )
-        source_characters = {str(row["member_stable_key"]): row["stable_key"] for row in characters}
+        }
         placements: dict[str, list[dict[str, object]]] = {}
         for placement in self._execute_raw(
-            """
-            SELECT DISTINCT character_stable_key, furniture_item_stable_key, furniture_slot
-            FROM character_spawns
-            WHERE character_stable_key IN (
-                SELECT source_stable_key FROM quest_acquisition_sources WHERE source_type = 'character'
-                UNION
-                SELECT source_stable_key FROM quest_completion_sources WHERE source_type = 'character'
-            )
-            ORDER BY character_stable_key, furniture_item_stable_key, furniture_slot
-            """,
+            "SELECT DISTINCT character_stable_key, furniture_item_stable_key, furniture_slot "
+            "FROM character_spawns WHERE character_stable_key IN ("
+            "SELECT source_stable_key FROM quest_routes WHERE source_kind = 'character') "
+            "ORDER BY character_stable_key, furniture_item_stable_key, furniture_slot",
             (),
         ):
-            condition = (
+            qualifier = (
                 {"furniture": placement["furniture_item_stable_key"], "room": placement["furniture_slot"]}
                 if placement["furniture_item_stable_key"]
                 else {}
             )
-            placements.setdefault(str(placement["character_stable_key"]), []).append(condition)
-
-        def append_route(quest_key: str, route: dict[str, object]) -> None:
-            conditions = placements.get(str(route.get("sourceCopy")), [{}])
-            # An unconditional placement needs no furniture qualifier.
-            if {} in conditions:
-                panels[quest_key].append(route)
-            else:
-                panels[quest_key].extend(route | condition for condition in conditions)
-
-        dialogs = [
-            dict(row)
-            for row in self._execute_raw(
-                "SELECT * FROM character_dialogs ORDER BY character_stable_key, dialog_index", ()
-            )
-        ]
-        dialog_rewards = {
-            (fact.source_copy_stable_key, fact.variant_key): fact for fact in acquisitions if fact.kind == "dialog"
-        }
-        trade_rewards = [fact for fact in acquisitions if fact.kind == "quest_reward"]
-        for table, row_type, dialog_column in (
-            ("quest_acquisition_sources", "acquisition", "assign_quest_stable_key"),
-            ("quest_completion_sources", "completion", "complete_quest_stable_key"),
+            placements.setdefault(str(placement["character_stable_key"]), []).append(qualifier)
+        conditions: dict[str, dict[str, object]] = {}
+        fields = {"quest_done": "prerequisite", "quest_not_done": "blockedByQuest", "item_not_owned": "notOwnedItem"}
+        for atom in self._execute_raw(
+            "SELECT * FROM quest_route_conditions ORDER BY route_key, gate_key, group_index, atom_index", ()
         ):
-            sources = self._execute_raw(
-                f"SELECT DISTINCT * FROM {table} ORDER BY quest_stable_key, method, source_stable_key, note",
-                (),
-            )
-            for source in sources:
-                quest_key = str(source["quest_stable_key"])
-                if quest_key not in panels:
-                    continue
-                source_key = source["source_stable_key"]
-                source_kind = source["source_type"]
-                method = source["method"]
-                row: dict[str, object] = {"type": row_type, "method": method}
-                if method == "item_turnin" and any(
-                    fact.source_stable_key == quest_key and fact.source_copy_stable_key == source_key
-                    for fact in trade_rewards
-                ):
-                    continue
-                if source_kind == "character":
-                    if source_key not in source_characters:
-                        continue
-                    row["sourceCopy"] = source_key
-                    row["source"] = source_characters[source_key]
-                    row["sourceKind"] = "character"
-                elif source_key:
-                    row["source"] = source_key
-                    row["sourceKind"] = source_kind
-                if source["note"]:
-                    row["note"] = source["note"]
-                if method in {"dialog", "talk"}:
-                    matching = [
-                        dialog
-                        for dialog in dialogs
-                        if dialog["character_stable_key"] == source_key and dialog[dialog_column] == quest_key
-                    ]
-                    for dialog in matching:
-                        route = row | {"dialogIndex": dialog["dialog_index"]}
-                        if dialog["give_item_stable_key"]:
-                            route["notOwnedItem"] = dialog["give_item_stable_key"]
-                        gift = dialog_rewards.get((str(source_key), str(dialog["dialog_index"])))
-                        if row_type == "completion" and gift is not None:
-                            route["item"] = gift.item_stable_key
-                            route["quantity"] = self._reward_quantity(gift)
-                            route["acquisitionKey"] = gift.acquisition_key
-                        assigned_quest = dialog["assign_quest_stable_key"]
-                        if assigned_quest:
-                            repeat_flags = {
-                                bool(variant["repeatable"])
-                                for variant in variants
-                                if variant["quest_stable_key"] == assigned_quest
-                            }
-                            if len(repeat_flags) != 1:
-                                raise RepositoryError(
-                                    f"Cannot resolve dialog {source_key}:{dialog['dialog_index']} "
-                                    f"assignment gate for {assigned_quest}"
-                                )
-                            if False in repeat_flags:
-                                route["blockedByQuest"] = assigned_quest
-                        if dialog["keywords"]:
-                            route["keywords"] = dialog["keywords"]
-                        if dialog["required_quest_stable_key"]:
-                            route["prerequisite"] = dialog["required_quest_stable_key"]
-                        if row_type == "completion" and gift is not None:
-                            self._append_item_route(panels, quest_key, route, gift)
-                        else:
-                            append_route(quest_key, route)
-                    if matching:
-                        continue
-                if method == "quest_chain":
-                    matching_variants = [
-                        variant
-                        for variant in variants
-                        if variant["quest_stable_key"] == source_key
-                        and variant["assign_new_quest_on_complete_stable_key"] == quest_key
-                    ]
-                    for variant in matching_variants:
-                        append_route(quest_key, row | {"sourceVariant": variant["resource_name"]})
-                    if matching_variants:
-                        continue
-                if method == "partial_turnin":
-                    for variant in variants:
-                        if (
-                            variant["quest_stable_key"] == quest_key
-                            and variant["assign_this_quest_on_partial_complete"]
-                            and variant["dialog_on_partial_success"]
-                            and cast("int", variant["required_count"]) > 1
-                        ):
-                            append_route(quest_key, row | {"variant": variant["resource_name"]})
-                    continue
-                append_route(quest_key, row)
-        for fact in trade_rewards:
-            if fact.source_stable_key is None or fact.source_stable_key not in panels:
+            if atom["atom_kind"] not in fields or atom["group_index"] != 0:
+                raise RepositoryError(f"Cannot present quest route condition {dict(atom)}")
+            target = conditions.setdefault(str(atom["route_key"]), {})
+            field = fields[atom["atom_kind"]]
+            if field in target and target[field] != atom["atom_stable_key"]:
+                raise RepositoryError(f"Cannot present multiple {field} conditions for route {atom['route_key']}")
+            target[field] = atom["atom_stable_key"]
+        trade_rewards: dict[tuple[str | None, str | None, str | None], list[ItemAcquisition]] = {}
+        dialog_rewards: dict[tuple[str | None, str | None], ItemAcquisition] = {}
+        for fact in acquisitions:
+            if fact.kind == "quest_reward":
+                trade_rewards.setdefault(
+                    (fact.source_stable_key, fact.source_copy_stable_key, fact.variant_key), []
+                ).append(fact)
+            else:
+                dialog_rewards[(fact.source_copy_stable_key, fact.variant_key)] = fact
+        rewarded_sources = {
+            (route["quest_stable_key"], route["source_stable_key"])
+            for route in routes
+            if route["grants_resource_rewards"]
+            and (route["quest_stable_key"], route["source_stable_key"], route["variant_resource_name"]) in trade_rewards
+        }
+        generic_rows: set[tuple[object, ...]] = set()
+        grants: list[tuple[str, dict[str, object], ItemAcquisition]] = []
+        for route in routes:
+            quest = str(route["quest_stable_key"])
+            if quest not in panels:
                 continue
-            quest_key = fact.source_stable_key
-            source = source_characters.get(str(fact.source_copy_stable_key), fact.source_group_key)
-            if not source:
-                raise RepositoryError(f"Quest item grant {fact.acquisition_key} has no character source")
-            route = {
-                "type": "completion",
-                "method": "item_turnin",
-                "variant": fact.variant_key,
-                "source": source,
-                "sourceKind": "character",
-                "sourceCopy": fact.source_copy_stable_key,
-                "mechanic": fact.mechanic,
-                "acquisitionKey": fact.acquisition_key,
-                "item": fact.item_stable_key,
-                "quantity": self._reward_quantity(fact),
+            row: dict[str, object] = {
+                "type": "acquisition" if route["phase"] == "start" else "completion",
+                "method": route["method"],
             }
-            self._append_item_route(panels, quest_key, route, fact)
+            source = str(route["source_stable_key"]) if route["source_stable_key"] is not None else None
+            resource = str(route["variant_resource_name"]) if route["variant_resource_name"] is not None else None
+            group = route["source_group_key"]
+            rewards = trade_rewards.get((quest, source, resource), []) if route["grants_resource_rewards"] else []
+            if route["source_kind"] == "character":
+                representative = representatives.get(str(group))
+                if not representative and not rewards:
+                    continue
+                row.update(sourceCopy=source, source=representative or group, sourceKind="character")
+            elif source:
+                row.update(source=source, sourceKind=route["source_kind"])
+            for column, field in (("dialog_index", "dialogIndex"), ("keywords", "keywords"), ("note", "note")):
+                if route[column] is not None:
+                    row[field] = route[column]
+            row.update(conditions.get(str(route["route_key"]), {}))
+            if resource is not None and not route["grants_resource_rewards"]:
+                row["sourceVariant" if route["method"] == "quest_chain" else "variant"] = resource
+            if rewards:
+                for fact in rewards:
+                    grants.append(
+                        (
+                            quest,
+                            {
+                                "type": "completion",
+                                "method": route["method"],
+                                "variant": resource,
+                                "source": row["source"],
+                                "sourceKind": "character",
+                                "sourceCopy": source,
+                                "mechanic": fact.mechanic,
+                                "acquisitionKey": fact.acquisition_key,
+                                "item": fact.item_stable_key,
+                                "quantity": self._reward_quantity(fact),
+                            },
+                            fact,
+                        )
+                    )
+                continue
+            if route["grants_resource_rewards"]:
+                # The panel collapses resource variants without item grants to one source row.
+                if (quest, source) in rewarded_sources:
+                    continue
+                identity = (quest, *tuple(sorted(row.items())))
+                if identity in generic_rows:
+                    continue
+                generic_rows.add(identity)
+            gift = dialog_rewards.get((source, str(route["dialog_index"])))
+            if route["phase"] == "completion" and gift is not None:
+                row.update(
+                    item=gift.item_stable_key, quantity=self._reward_quantity(gift), acquisitionKey=gift.acquisition_key
+                )
+                self._append_item_route(panels, quest, row, gift)
+                continue
+            qualifiers = placements.get(str(source), [{}])
+            if {} in qualifiers:
+                panels[quest].append(row)
+            else:
+                panels[quest].extend(row | qualifier for qualifier in qualifiers)
+        for quest, row, fact in sorted(grants, key=lambda grant: (grant[2].item_stable_key, grant[2].acquisition_key)):
+            self._append_item_route(panels, quest, row, fact)

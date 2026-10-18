@@ -69,6 +69,9 @@ def _persist(writer: Writer, *facts: ItemAcquisition | ItemUse) -> None:
         else:
             builder.uses.append(fact)
     builder.persist()
+    for fact in facts:
+        if isinstance(fact, ItemAcquisition) and fact.kind == "quest_reward":
+            _route(writer, f"turnin:{fact.variant_key}", "item_turnin", fact.variant_key)
     writer.conn.commit()
 
 
@@ -77,6 +80,8 @@ def _turnin(writer: Writer) -> None:
         "INSERT INTO quest_completion_sources "
         "VALUES ('quest:shared', 'item_turnin', 'character', 'character:copy', NULL)"
     )
+    for resource in ("native-a", "unrelated-b"):
+        _route(writer, f"turnin:{resource}", "item_turnin", resource)
     writer.conn.commit()
 
 
@@ -93,6 +98,23 @@ def _reward(key: str, mechanic: str) -> ItemAcquisition:
         quantity_min=2,
         quantity_max=2,
         quantity_kind="exact",
+    )
+
+
+def _route(writer: Writer, key: str, method: str, variant: str | None = None, dialog_index: int | None = None) -> None:
+    writer.conn.execute(
+        "INSERT OR IGNORE INTO quest_routes "
+        "(route_key, quest_stable_key, phase, method, source_kind, source_stable_key, source_group_key, "
+        "variant_resource_name, dialog_index, keywords, grants_resource_rewards) "
+        "VALUES (?, 'quest:shared', 'completion', ?, 'character', 'character:copy', 'group', ?, ?, ?, ?)",
+        (
+            key,
+            method,
+            variant,
+            dialog_index,
+            "thanks" if dialog_index is not None else None,
+            int(method == "item_turnin"),
+        ),
     )
 
 
@@ -148,7 +170,9 @@ def test_canonical_trade_route_does_not_require_raw_completion_source(
     rows = QuestRepository(db).get_quest_panel_rows()["quest:shared"]
 
     assert any(row["type"] == "completion" and row["acquisitionKey"] == "reward:slot2" for row in rows)
-    assert all(row["experience"] == 300 for row in rows if row["type"] == "variant")
+    variants = {row["variant"]: row for row in rows if row["type"] == "variant"}
+    assert variants["native-a"]["experience"] == 300
+    assert variants["unrelated-b"]["experience"] == 0
 
 
 def test_required_items_keep_variant_native_slot_and_independent_quantity(
@@ -199,6 +223,17 @@ def test_dialog_gift_keeps_payload_gates_and_canonical_furniture(
         "VALUES ('character:copy', ?, 'thanks', 'item:canonical', 'quest:assigned', 'quest:shared', 'quest:assigned')",
         [(4,), (8,)],
     )
+    for index in (4, 8):
+        route_key = f"dialog:{index}"
+        _route(writer, route_key, "talk", dialog_index=index)
+        writer.conn.executemany(
+            "INSERT INTO quest_route_conditions VALUES (?, ?, 0, 0, ?, ?)",
+            [
+                (route_key, "not_owned", "item_not_owned", "item:canonical"),
+                (route_key, "dialog_assignment", "quest_not_done", "quest:assigned"),
+                (route_key, "dialog_prerequisite", "quest_done", "quest:assigned"),
+            ],
+        )
     furnished = ProvenanceCondition("furniture", 0, 0, "room_furnished", "item:furniture", "west")
     _persist(
         writer,
@@ -262,3 +297,33 @@ def test_quest_panel_rejects_missing_canonical_contract(database: tuple[Writer, 
 
     with pytest.raises(RepositoryError, match="Unsupported item provenance schema"):
         QuestRepository(db).get_quest_panel_rows()
+
+
+def test_item_provenance_without_a_quest_route_cannot_invent_a_completion(
+    database: tuple[Writer, DatabaseConnection],
+) -> None:
+    writer, db = database
+    _persist(writer, _reward("reward:orphan", "trade:orphan"))
+    writer.conn.execute("DELETE FROM quest_routes")
+    writer.conn.commit()
+
+    rows = QuestRepository(db).get_quest_panel_rows()["quest:shared"]
+
+    assert not any(row["type"] == "completion" for row in rows)
+    assert all(
+        row["experience"] == 0 and row["gold"] == 0 and "item" not in row for row in rows if row["type"] == "variant"
+    )
+
+
+def test_resource_reward_attribution_follows_the_persisted_route_flag(
+    database: tuple[Writer, DatabaseConnection],
+) -> None:
+    writer, db = database
+    _persist(writer, _reward("reward:slot", "trade:slot"))
+    writer.conn.execute("UPDATE quest_routes SET grants_resource_rewards=0")
+    writer.conn.commit()
+
+    rows = QuestRepository(db).get_quest_panel_rows()["quest:shared"]
+
+    assert all("item" not in row for row in rows)
+    assert all(row["experience"] == 0 for row in rows if row["type"] == "variant")

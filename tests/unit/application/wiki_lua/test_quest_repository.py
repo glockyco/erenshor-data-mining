@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from erenshor.application.processor.item_provenance import ProvenanceBuilder
+from erenshor.application.processor.quest_routes import process_quest_routes
 from erenshor.application.processor.writer import Writer
 from erenshor.domain.value_objects.item_provenance import PROVENANCE_SCHEMA_VERSION
 from erenshor.infrastructure.database.connection import DatabaseConnection
@@ -109,6 +110,16 @@ def _panel_rows(writer: Writer, repo: QuestRepository) -> dict[str, list[dict[st
     builder.quests()
     builder.vendors_and_dialog()
     builder.persist()
+    writer.conn.execute(
+        "INSERT OR IGNORE INTO character_quest_manager_quests "
+        "SELECT s.source_stable_key, s.quest_stable_key, "
+        "row_number() OVER (PARTITION BY s.source_stable_key ORDER BY v.resource_name) + 100, v.resource_name "
+        "FROM quest_completion_sources s JOIN quest_variants v ON v.quest_stable_key=s.quest_stable_key "
+        "WHERE s.method='item_turnin' AND NOT EXISTS ("
+        "SELECT 1 FROM character_quest_manager_quests m WHERE m.character_stable_key=s.source_stable_key "
+        "AND m.quest_variant_resource_name=v.resource_name)"
+    )
+    process_quest_routes(writer.conn)
     writer.conn.commit()
     return repo.get_quest_panel_rows()
 
@@ -432,8 +443,15 @@ def test_finishquest_without_turnin_does_not_grant_configured_rewards(
             {
                 "quest_stable_key": "quest:one",
                 "method": method,
-                "source_type": "character",
-                "source_stable_key": "character:a",
+                "source_type": {"read": "item", "zone": "zone", "chain": "quest", "scripted": "scripted"}.get(
+                    method, "character"
+                ),
+                "source_stable_key": {
+                    "read": "item:unused",
+                    "zone": "zone:here",
+                    "chain": "quest:two",
+                    "scripted": None,
+                }.get(method, "character:a"),
             }
         ]
     )
@@ -524,3 +542,108 @@ def test_dialog_giveitem_is_a_distinct_reward_with_executed_gates(panel_db: tupl
     assert reward["notOwnedItem"] == "item:actual"
     assert reward["blockedByQuest"] == "quest:two"
     assert reward["prerequisite"] == "quest:gate"
+
+
+def test_panel_routes_survive_removing_their_derivation_inputs(panel_db: tuple[Writer, QuestRepository]) -> None:
+    writer, repo = panel_db
+    writer.insert_quest_variants([_variant("Dialog", repeatable=0)])
+    writer.insert_quest_acquisition_sources(
+        [
+            {
+                "quest_stable_key": "quest:one",
+                "method": "dialog",
+                "source_type": "character",
+                "source_stable_key": "character:b",
+            }
+        ]
+    )
+    writer.insert_character_dialogs(
+        [
+            {
+                "character_stable_key": "character:b",
+                "dialog_index": 7,
+                "keywords": "they",
+                "assign_quest_stable_key": "quest:one",
+                "required_quest_stable_key": "quest:gate",
+                "give_item_stable_key": "item:gift",
+            }
+        ]
+    )
+    expected = _panel_rows(writer, repo)
+    for table in (
+        "quest_acquisition_sources",
+        "quest_completion_sources",
+        "character_dialogs",
+        "quest_required_items",
+        "character_quest_manager_quests",
+    ):
+        writer.conn.execute(f"DROP TABLE {table}")
+    writer.conn.commit()
+
+    assert repo.get_quest_panel_rows() == expected
+
+
+def test_panel_conditions_follow_route_atoms_not_native_dialog_fields(panel_db: tuple[Writer, QuestRepository]) -> None:
+    writer, repo = panel_db
+    writer.insert_quest_variants([_variant("Dialog")])
+    writer.insert_quest_completion_sources(
+        [
+            {
+                "quest_stable_key": "quest:one",
+                "method": "talk",
+                "source_type": "character",
+                "source_stable_key": "character:b",
+            }
+        ]
+    )
+    writer.insert_character_dialogs(
+        [
+            {
+                "character_stable_key": "character:b",
+                "dialog_index": 3,
+                "keywords": "old",
+                "complete_quest_stable_key": "quest:one",
+                "required_quest_stable_key": "quest:gate",
+            }
+        ]
+    )
+    _panel_rows(writer, repo)
+    writer.conn.execute("UPDATE quest_routes SET keywords='canonical'")
+    writer.conn.execute("UPDATE quest_route_conditions SET atom_stable_key='quest:two'")
+    writer.conn.commit()
+
+    route = next(row for row in repo.get_quest_panel_rows()["quest:one"] if row["type"] == "completion")
+
+    assert route["keywords"] == "canonical"
+    assert route["prerequisite"] == "quest:two"
+    assert route["sourceCopy"] == "character:b" and route["source"] == "character:a"
+
+
+def test_panel_collapses_turnin_variants_without_item_rewards(panel_db: tuple[Writer, QuestRepository]) -> None:
+    writer, repo = panel_db
+    writer.insert_quest_variants([_variant(resource) for resource in ("First", "Second", "Third")])
+    _turnin(writer)
+
+    rows = _panel_rows(writer, repo)["quest:one"]
+    routes = [row for row in rows if row["type"] == "completion"]
+
+    assert len(routes) == 1
+    assert "variant" not in routes[0]
+    assert writer.conn.execute("SELECT COUNT(*) FROM quest_routes WHERE phase='completion'").fetchone()[0] == 3
+
+
+def test_panel_item_grants_keep_canonical_item_order_before_resource_order(
+    panel_db: tuple[Writer, QuestRepository],
+) -> None:
+    writer, repo = panel_db
+    writer.insert_quest_variants(
+        [
+            _variant("First", item_on_complete_stable_key="item:z"),
+            _variant("Second", item_on_complete_stable_key="item:a"),
+        ]
+    )
+    _turnin(writer)
+
+    rows = _panel_rows(writer, repo)["quest:one"]
+
+    assert [row["variant"] for row in rows if row["type"] == "completion"] == ["Second", "First"]
