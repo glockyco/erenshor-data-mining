@@ -989,6 +989,31 @@ CREATE TABLE quest_acquisition_sources (
 CREATE INDEX quest_acquisition_sources_quest_idx
     ON quest_acquisition_sources (quest_stable_key);
 
+CREATE TABLE quest_routes (
+    route_key TEXT PRIMARY KEY NOT NULL,
+    quest_stable_key TEXT NOT NULL REFERENCES quests(stable_key),
+    phase TEXT NOT NULL CHECK (phase IN ('start', 'completion')),
+    method TEXT NOT NULL,
+    source_kind TEXT NOT NULL,
+    source_stable_key TEXT,
+    source_group_key TEXT,
+    variant_resource_name TEXT,
+    dialog_index INTEGER,
+    keywords TEXT,
+    note TEXT,
+    grants_resource_rewards INTEGER NOT NULL CHECK (grants_resource_rewards IN (0, 1))
+);
+CREATE INDEX quest_routes_quest_idx ON quest_routes(quest_stable_key, phase);
+CREATE TABLE quest_route_conditions (
+    route_key TEXT NOT NULL REFERENCES quest_routes(route_key),
+    gate_key TEXT NOT NULL,
+    group_index INTEGER NOT NULL,
+    atom_index INTEGER NOT NULL,
+    atom_kind TEXT NOT NULL CHECK (atom_kind IN ('quest_done', 'quest_not_done', 'item_not_owned')),
+    atom_stable_key TEXT NOT NULL,
+    PRIMARY KEY (route_key, gate_key, group_index, atom_index)
+);
+
 -- Prefab defaults of explicitly referenced authored sims. No world-NPC semantics.
 CREATE TABLE authored_sims (
     stable_key                  TEXT PRIMARY KEY NOT NULL,

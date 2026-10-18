@@ -53,6 +53,7 @@ from .knowledge_base import process_knowledge_base
 from .mapping import load_mapping, validate_character_name_overrides
 from .navigation_contexts import process_zone_line_destinations
 from .pictures import process_pictures
+from .quest_routes import process_quest_routes
 from .special_world_drops import process_common_world_items, process_special_world_drops
 from .treasure import process_treasure
 from .ui_items import process_ui_items
@@ -210,6 +211,10 @@ def build(
             reviewed_unreachable=frozenset(key for key, rule in mapping.items() if rule["loot_unreachable"]),
         )
         logger.info(f"Item provenance input coverage: {provenance_report}")
+
+        logger.info("Selecting canonical quest routes...")
+        route_count = process_quest_routes(writer.conn)
+        logger.info(f"Quest routes: {route_count} rows")
 
         logger.info("Finalising clean DB (VACUUM + ANALYZE)...")
         writer.finalize()
