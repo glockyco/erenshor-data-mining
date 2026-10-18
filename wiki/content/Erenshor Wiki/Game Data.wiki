@@ -251,6 +251,8 @@ These hidden categories collect pages that need a fix.
 | [[:Category:Pages with missing Erenshor class abilities data]] || {{PAGESINCATEGORY:Pages with missing Erenshor class abilities data}} || <code><nowiki>{{Class abilities}}</nowiki></code> finds no class or learned abilities. Give it the intended class key, or report the missing data.
 |-
 | [[:Category:Pages with missing Erenshor quest data]] || {{PAGESINCATEGORY:Pages with missing Erenshor quest data}} || <code><nowiki>{{Quest data}}</nowiki></code> finds no quest. Give it the intended quest key, or report the missing data.
+|-
+| [[:Category:Pages with missing Erenshor game board data]] || {{PAGESINCATEGORY:Pages with missing Erenshor game board data}} || <code><nowiki>{{Game board}}</nowiki></code> finds no board boss in the game data. Report the missing data.
 |}
 
 == Templates that the project maintains ==
@@ -267,7 +269,7 @@ Each of these templates has its documentation on its own page.
 ; Character parts
 : [[Template:TreasureGuardianStats|TreasureGuardianStats]], [[Template:Vendor stock|Vendor stock]]
 ; Data-backed views
-: [[Template:Zone roster|Zone roster]], [[Template:Class abilities|Class abilities]], [[Template:Quest data|Quest data]]
+: [[Template:Zone roster|Zone roster]], [[Template:Class abilities|Class abilities]], [[Template:Quest data|Quest data]], [[Template:Game board|Game board]]
 ; Links
 : [[Template:ItemLink|ItemLink]], [[Template:CharacterLink|CharacterLink]], [[Template:AbilityLink|AbilityLink]], [[Template:QuestLink|QuestLink]], [[Template:ZoneLink|ZoneLink]], [[Template:FactionLink|FactionLink]], [[Template:ClassLink|ClassLink]]
 ; Other

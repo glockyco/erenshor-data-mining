@@ -1,4 +1,4 @@
 __HIDDENCAT__
-Pages where [[Template:Game board]] cannot find any generated board boss data.
+This hidden maintenance category collects pages where <code><nowiki>{{Game board}}</nowiki></code> finds no board boss in the game data.
 
-Report missing game data at [[Erenshor Wiki:Game Data]].
+To fix a page, report the missing data. See [[Erenshor Wiki:Game Data#Maintenance categories]].
