@@ -631,7 +631,7 @@ class ProgressionBuilder:
             atoms = [row | {"gate": row["gate_key"]} for row in self.route_conditions.get(route["route_key"], [])]
             for way in self.product(node, variants, self.conditions(node, atoms, fact), fact):
                 self.add(node, way, fact)
-        variants = {row["resource_name"]: row["quest_stable_key"] for row in self.rows("quest_variants")}
+        quest_of_variant = {row["resource_name"]: row["quest_stable_key"] for row in self.rows("quest_variants")}
         executable = {row["variant_resource_name"] for row in routes if row["grants_resource_rewards"]}
         for row in self.rows("quest_complete_other_quests"):
             other = row["completed_quest_stable_key"]
@@ -639,7 +639,7 @@ class ProgressionBuilder:
             if other in started and variant in executable:
                 self.add(
                     other,
-                    [Need("after", variants[variant]), Need("quest active", "quest_start:" + other)],
+                    [Need("after", quest_of_variant[variant]), Need("quest active", "quest_start:" + other)],
                     f"quest_complete_other_quests {variant}",
                 )
 
