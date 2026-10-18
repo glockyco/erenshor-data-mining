@@ -533,8 +533,8 @@ class ProgressionBuilder:
                 raise _error(chest, fact, "arena round has no scene or arena identity")
             if not fighters[key]:
                 raise _error(chest, fact, "arena round has no fighters")
-            coin = (Need("summoned with", row["coin_item_stable_key"]),)
-            ways = [coin]
+            coin: Way = (Need("summoned with", row["coin_item_stable_key"]),)
+            ways: list[Way] = [coin]
             for fighter, count in sorted(fighters[key].items()):
                 releases[row["scene"], fighter].append(coin)
                 arenas[row["scene"], fighter].add(row["arena_object_name"])
