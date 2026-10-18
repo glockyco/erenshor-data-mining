@@ -105,8 +105,7 @@ public sealed partial class GuideData
                         continue;
                     }
                     if (
-                        quest.IsGuideOnly
-                        || item.UseKeys.Count == 0
+                        item.UseKeys.Count == 0
                         || item.OrGroup != null
                         || item.Quantity < 0
                         || item.VariantKey is ""

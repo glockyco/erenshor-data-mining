@@ -32,6 +32,7 @@
 - Keep encounter requirements visible when navigating to a prerequisite fight.
 - Keep locked-door and quest requirements on item source locations.
 - Explain which fee, feed or figurine summons arena fights, Malaroth feeding-site bosses and chessboard pieces, and lead the arrow there.
+- Remove the separate arena round and Malaroth feeding-site entries from the quest list.
 
 ## v2026.1008.0
 

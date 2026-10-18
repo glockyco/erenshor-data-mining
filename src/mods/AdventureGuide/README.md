@@ -114,6 +114,12 @@ current next action, and the quest panel shows it when that quest is selected.
 The source picker keeps chances with their actions and shows fishing rates with
 their catch restrictions, including outside the catch window.
 
+Offering-activated sources stay part of the selected quest's navigation. The guide
+follows a missing offering's sources, then directs the player to the activation
+site. When its summoned characters are live, navigation follows them instead.
+Competing offerings show a warning before activation. These activities do not
+create separate guide quests or saved completion state.
+
 ## Data Pipeline
 
 `uv run erenshor guide export-mod` reads the selected variant's clean database,

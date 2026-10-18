@@ -252,7 +252,7 @@ public sealed class GuideConfigTests
     {
         var backend = new RecordingGuideConfigBackend();
         var config = new GuideConfig(backend);
-        config.BindPerCharacter(2, CharacterSlotState.WorkflowRecovery);
+        config.BindPerCharacter(2, CharacterSlotState.NavQuest);
 
         config.Dispose();
 

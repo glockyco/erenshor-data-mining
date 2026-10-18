@@ -1,17 +1,12 @@
-using AdventureGuide.Config;
 using AdventureGuide.Data;
-using AdventureGuide.Navigation;
 
 namespace AdventureGuide.State;
 
 /// <summary>
-/// Single status boundary for game-backed and guide-only quest entries.
-/// Game quests retain raw mirrors and project completion only through common encounter bindings.
-/// Guide-only workflows never read or mutate game quest collections.
+/// Tracks native quest state and projects completion through common encounter bindings.
 /// </summary>
 public sealed class QuestStateTracker
 {
-    private readonly GuideData _data;
     private readonly IQuestGameState _gameState;
     private readonly HashSet<string> _activeQuests = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _completedQuests = new(StringComparer.OrdinalIgnoreCase);
@@ -33,7 +28,6 @@ public sealed class QuestStateTracker
     public int Version { get; private set; }
     public string CurrentZone { get; private set; } = "";
     public string? SelectedQuestKey { get; set; }
-    public GuideWorkflowState Workflows { get; }
 
     /// <summary>The Reliquary rooms' furniture, which decides where furnishings stand.</summary>
     public ReliquaryFurnishings Furnishings { get; }
@@ -48,9 +42,6 @@ public sealed class QuestStateTracker
     /// </summary>
     internal Func<string, int> CountItemDelegate { get; }
 
-    public event Action<QuestEntry>? WorkflowChanged;
-    public event Action<QuestEntry>? WorkflowCycleReset;
-
     /// <summary>Raised after the planning table's rooms change, once Version moved.</summary>
     public event Action? FurnishingsChanged;
 
@@ -60,25 +51,21 @@ public sealed class QuestStateTracker
     /// <summary>Supported account or character primitives changed after Version moved.</summary>
     public event Action? PrimitiveStateChanged;
 
-    public QuestStateTracker(GuideData data, EntityRegistry entities)
-        : this(data, entities, LiveQuestGameState.Instance) { }
+    public QuestStateTracker(GuideData data)
+        : this(data, LiveQuestGameState.Instance) { }
 
-    internal QuestStateTracker(GuideData data, EntityRegistry entities, IQuestGameState gameState)
+    internal QuestStateTracker(GuideData data, IQuestGameState gameState)
     {
-        _data = data;
         CountItemDelegate = CountItem;
         _gameState = gameState;
-        Workflows = new GuideWorkflowState(data, entities);
         Furnishings = new ReliquaryFurnishings();
         Gates = new GateConditions(data, new GameGateFacts(this));
         _keyringCount = GameData.Keyring?.Count ?? 0;
         CapturePrimitiveState();
-        Workflows.Changed += OnWorkflowChanged;
-        Workflows.CycleReset += OnWorkflowCycleReset;
 
         foreach (var quest in data.All)
         {
-            if (quest.IsGuideOnly || !quest.IsImplicit || quest.Steps is not { Count: > 0 })
+            if (!quest.IsImplicit || quest.Steps is not { Count: > 0 })
                 continue;
             var lastStep = quest.Steps[^1];
             string? scene = StepSceneResolver.ResolveScene(quest, lastStep, data);
@@ -86,28 +73,18 @@ public sealed class QuestStateTracker
         }
     }
 
-    public void LoadFromConfig(GuideConfig config) => Workflows.LoadFromConfig(config);
-
-    public void OnCharacterLoaded()
-    {
-        SyncFromGameData();
-        Workflows.OnCharacterLoaded(CountItemDelegate);
-    }
-
-    public void SaveToConfig() => Workflows.SaveToConfig();
-
-    public void SuspendForMenu() => Workflows.SuspendForMenu();
+    public void OnCharacterLoaded() => SyncFromGameData();
 
     public void SetHistory(NavigationHistory history) => _history = history;
 
     public void SelectQuest(QuestEntry quest)
     {
-        if (string.Equals(quest.RuntimeKey, SelectedQuestKey, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(quest.DBName, SelectedQuestKey, StringComparison.OrdinalIgnoreCase))
             return;
         _history?.Navigate(
-            new NavigationHistory.PageRef(NavigationHistory.PageType.Quest, quest.RuntimeKey)
+            new NavigationHistory.PageRef(NavigationHistory.PageType.Quest, quest.DBName)
         );
-        SelectedQuestKey = quest.RuntimeKey;
+        SelectedQuestKey = quest.DBName;
     }
 
     public IReadOnlyCollection<string> ActiveQuests => _activeQuests;
@@ -115,12 +92,6 @@ public sealed class QuestStateTracker
 
     public QuestRuntimeStatus GetStatus(QuestEntry quest)
     {
-        if (quest.IsGuideOnly)
-            return QuestStatusPolicy.GetGuideOnlyStatus(
-                Workflows.IsInCurrentScene(quest),
-                Workflows.IsInProgress(quest)
-            );
-
         if (Gates.IsProjectedQuestCompleted(quest))
             return QuestRuntimeStatus.Completed;
         if (_activeQuests.Contains(quest.DBName))
@@ -190,27 +161,16 @@ public sealed class QuestStateTracker
     public void OnInventoryChanged()
     {
         _dirty = true;
-        Workflows.OnInventoryChanged(CurrentZone, _gameState.PlayerPosition, CountItemDelegate);
         Version++;
     }
 
-    public void OnCharacterStarted(Character character) =>
-        Workflows.ObserveCharacterStarted(character);
-
-    public void OnCharacterDeath(Character character) =>
-        Workflows.ObserveCharacterDeath(character, CountItemDelegate);
-
-    public void OnRewardContainerConsumed(Character character) =>
-        Workflows.ObserveRewardContainerConsumed(character, CountItemDelegate);
-
-    public void Update(float deltaTime)
+    public void Update()
     {
         if (CapturePrimitiveState())
         {
             Version++;
             PrimitiveStateChanged?.Invoke();
         }
-        Workflows.Update(deltaTime, CountItemDelegate);
         int keyringCount = GameData.Keyring?.Count ?? 0;
         if (keyringCount != _keyringCount)
         {
@@ -237,7 +197,6 @@ public sealed class QuestStateTracker
     {
         CurrentZone = sceneName;
         SyncFromGameData();
-        Workflows.OnSceneChanged(sceneName, CountItemDelegate);
     }
 
     public int CountItem(string itemStableKey)
@@ -308,17 +267,6 @@ public sealed class QuestStateTracker
                 continue;
             _implicitlyActiveQuests.Add(implicitQuest.DBName);
         }
-    }
-
-    private void OnWorkflowChanged(QuestEntry quest)
-    {
-        Version++;
-        WorkflowChanged?.Invoke(quest);
-    }
-
-    private void OnWorkflowCycleReset(QuestEntry quest)
-    {
-        WorkflowCycleReset?.Invoke(quest);
     }
 
     private readonly struct ImplicitQuest

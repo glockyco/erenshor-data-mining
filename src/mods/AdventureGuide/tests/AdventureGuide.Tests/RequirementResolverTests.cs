@@ -270,7 +270,7 @@ public sealed class RequirementResolverTests
         var snapshot = new RequirementSnapshot();
         foreach (var (item, count) in inventory)
             snapshot.Inventory[item] = count;
-        var state = new QuestStateTracker(data, new EntityRegistry(), snapshot);
+        var state = new QuestStateTracker(data, snapshot);
         state.SyncFromGameData();
         return (data, wrapper.Quests![0], state);
     }
@@ -295,7 +295,6 @@ public sealed class RequirementResolverTests
 
         public UnityEngine.Vector3? ReadCharacterPositionState(string key) => null;
 
-        public UnityEngine.Vector3? PlayerPosition => null;
         public int PlayerLevel => 1;
     }
 

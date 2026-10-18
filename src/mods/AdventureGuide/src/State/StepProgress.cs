@@ -31,9 +31,6 @@ public static class StepProgress
         if (quest.Steps == null || quest.Steps.Count == 0)
             return 0;
 
-        if (quest.IsGuideOnly)
-            return state.Workflows.GetCurrentStepIndex(quest, state.CountItemDelegate);
-
         if (state.IsCompleted(quest))
             return quest.Steps.Count;
 

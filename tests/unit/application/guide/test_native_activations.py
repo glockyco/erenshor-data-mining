@@ -176,6 +176,14 @@ def test_chest_fee_level_follows_previous_offering_without_cycle(native):
 def test_shipped_resource_has_exact_native_controller_coverage():
     path = Path(__file__).resolve().parents[4] / "quest_guides/quest-guide.json"
     payload = json.loads(path.read_text())
+    assert len(payload["quests"]) == 190
+    for quest in payload["quests"]:
+        assert quest["stable_key"].startswith("quest:")
+        assert "guide_only" not in quest["flags"]
+        assert "workflow_cycle" not in quest
+    serialized = json.dumps(payload)
+    assert "guide-quest:" not in serialized
+    assert "guide-location:" not in serialized
     controllers = payload["_activations"]
     assert len(controllers) == 3
     assert sorted(len(controller["offerings"]) for controller in controllers.values()) == [2, 7, 8]

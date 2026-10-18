@@ -65,7 +65,7 @@ internal static class TrackerSorter
         for (int i = 0; i < quests.Count; i++)
         {
             var questKey = quests[i];
-            var quest = data.GetByRuntimeKey(questKey);
+            var quest = data.GetByDBName(questKey);
             if (quest == null)
             {
                 output[questKey] = new StepDistance(false, float.MaxValue);
@@ -168,8 +168,8 @@ internal static class TrackerSorter
                 }
 
                 // Fallback: alphabetical
-                var qa = data.GetByRuntimeKey(a);
-                var qb = data.GetByRuntimeKey(b);
+                var qa = data.GetByDBName(a);
+                var qb = data.GetByDBName(b);
                 return string.Compare(
                     qa?.DisplayName,
                     qb?.DisplayName,
@@ -186,8 +186,8 @@ internal static class TrackerSorter
         quests.Sort(
             (a, b) =>
             {
-                var qa = data.GetByRuntimeKey(a);
-                var qb = data.GetByRuntimeKey(b);
+                var qa = data.GetByDBName(a);
+                var qb = data.GetByDBName(b);
                 int la = qa?.LevelEstimate?.Recommended ?? int.MaxValue;
                 int lb = qb?.LevelEstimate?.Recommended ?? int.MaxValue;
                 int cmp = la.CompareTo(lb);
@@ -209,8 +209,8 @@ internal static class TrackerSorter
         quests.Sort(
             (a, b) =>
             {
-                var qa = data.GetByRuntimeKey(a);
-                var qb = data.GetByRuntimeKey(b);
+                var qa = data.GetByDBName(a);
+                var qb = data.GetByDBName(b);
                 return string.Compare(
                     qa?.DisplayName ?? a,
                     qb?.DisplayName ?? b,

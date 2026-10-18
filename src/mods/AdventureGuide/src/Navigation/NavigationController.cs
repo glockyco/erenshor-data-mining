@@ -111,7 +111,7 @@ public sealed class NavigationController
 
     public string CurrentScene => _state.CurrentZone;
     public QuestEntry? OriginQuest =>
-        _originQuestKey == null ? null : _data.GetByRuntimeKey(_originQuestKey);
+        _originQuestKey == null ? null : _data.GetByDBName(_originQuestKey);
     public QuestStep? OriginStep
     {
         get
@@ -293,7 +293,7 @@ public sealed class NavigationController
         _sourceSelection.Clear();
         _pinnedZoneLine = null;
         _treasureHunt.Drop();
-        _originQuestKey = quest.RuntimeKey;
+        _originQuestKey = quest.DBName;
         _originStepOrder = step.Order;
         SavePerCharacter();
         return ResolveAndNavigate(step, quest, currentScene);
@@ -312,7 +312,7 @@ public sealed class NavigationController
         _navigationOverride = null;
         _pinnedZoneLine = null;
         _treasureHunt.Drop();
-        _originQuestKey = quest.RuntimeKey;
+        _originQuestKey = quest.DBName;
         _originStepOrder = step.Order;
         SavePerCharacter();
         return ResolveAndNavigate(step, quest, currentScene);
@@ -446,7 +446,7 @@ public sealed class NavigationController
     /// <summary>Resolve the selected step again, keeping it selected.</summary>
     private bool ResolveOrigin(string currentScene, bool preserveCrossZoneCache = false)
     {
-        var quest = _originQuestKey != null ? _data.GetByRuntimeKey(_originQuestKey) : null;
+        var quest = _originQuestKey != null ? _data.GetByDBName(_originQuestKey) : null;
         if (quest?.Steps == null)
             return false;
         if (_state.IsCompleted(quest))
@@ -597,7 +597,7 @@ public sealed class NavigationController
                 && IsMatch(
                     Target.OriginQuestKey,
                     Target.OriginStepOrder,
-                    _originQuestKey ?? quest.RuntimeKey,
+                    _originQuestKey ?? quest.DBName,
                     _originStepOrder
                 );
             if (
@@ -654,7 +654,7 @@ public sealed class NavigationController
         catch (Exception error)
         {
             ResetTargetState();
-            if (_reportedResolutionErrors.Add(quest.RuntimeKey))
+            if (_reportedResolutionErrors.Add(quest.DBName))
                 AdventureGuideLog.Current.LogError(
                     $"Cannot resolve navigation for {quest.DisplayName}",
                     error
@@ -702,7 +702,7 @@ public sealed class NavigationController
                     : new Vector3(activation.X, activation.Y, activation.Z),
                 activation.Instruction ?? step.TargetName ?? step.Description,
                 spawn.Scene,
-                quest.RuntimeKey,
+                quest.DBName,
                 step.Order,
                 activation.LiveCharacter
             );
@@ -713,7 +713,7 @@ public sealed class NavigationController
             Target = CreateFixedPositionTarget(
                 step,
                 quest,
-                _originQuestKey ?? quest.RuntimeKey,
+                _originQuestKey ?? quest.DBName,
                 _originStepOrder
             );
             return true;
@@ -749,7 +749,7 @@ public sealed class NavigationController
                             step.TargetKey
                         ),
                         currentScene,
-                        quest.RuntimeKey,
+                        quest.DBName,
                         step.Order,
                         step.TargetKey
                     );
@@ -850,7 +850,7 @@ public sealed class NavigationController
     {
         if (string.IsNullOrEmpty(questKey) || stepOrder <= 0)
             return false;
-        var quest = _data.GetByRuntimeKey(questKey!);
+        var quest = _data.GetByDBName(questKey!);
         if (quest?.Steps == null || _state.IsCompleted(quest))
             return false;
         foreach (var step in quest.Steps)
@@ -1022,18 +1022,18 @@ public sealed class NavigationController
             return;
         }
 
-        var quest = _data.GetByRuntimeKey(Target.QuestKey);
+        var quest = _data.GetByDBName(Target.QuestKey);
         if (quest?.Steps == null)
         {
             Clear();
             return;
         }
 
-        var origin = _originQuestKey != null ? _data.GetByRuntimeKey(_originQuestKey) : null;
+        var origin = _originQuestKey != null ? _data.GetByDBName(_originQuestKey) : null;
         var completion = NavigationCompletionPolicy.Decide(
             origin != null && _state.IsCompleted(origin),
             _state.IsCompleted(quest),
-            origin != null && origin.RuntimeKey != quest.RuntimeKey
+            origin != null && origin.DBName != quest.DBName
         );
         if (completion == NavigationCompletionAction.Clear)
         {
@@ -1083,11 +1083,7 @@ public sealed class NavigationController
             if (step.TargetKey != null)
             {
                 if (
-                    string.Equals(
-                        quest.RuntimeKey,
-                        _originQuestKey,
-                        StringComparison.OrdinalIgnoreCase
-                    )
+                    string.Equals(quest.DBName, _originQuestKey, StringComparison.OrdinalIgnoreCase)
                 )
                     SetOriginStepOrder(step.Order);
                 ResolveAndNavigate(step, quest, currentScene, preserveCrossZoneCache: true);
@@ -1330,7 +1326,7 @@ public sealed class NavigationController
             RefreshResolvedStep(origin, currentScene);
         if (Target == null || _resolvedStep == null)
             return;
-        var quest = _data.GetByRuntimeKey(Target.QuestKey);
+        var quest = _data.GetByDBName(Target.QuestKey);
         if (quest != null)
             ResolveClosestActiveSource(
                 quest,
@@ -1390,7 +1386,7 @@ public sealed class NavigationController
             new Vector3(spawn.X, spawn.Y, spawn.Z),
             WithCharacterUnlockText(step.TargetName ?? step.Description, step.TargetKey),
             spawn.Scene,
-            quest.RuntimeKey,
+            quest.DBName,
             step.Order,
             step.TargetKey
         );
@@ -1441,7 +1437,7 @@ public sealed class NavigationController
             Vector3.zero,
             step.TargetName ?? destScene,
             destScene,
-            quest.RuntimeKey,
+            quest.DBName,
             step.Order
         );
         return true;
@@ -1466,7 +1462,7 @@ public sealed class NavigationController
         {
             if (_state.TreasureHunt.State.Active && ContainsTreasureChest(sources))
             {
-                EngageTreasureHunt(quest.RuntimeKey, step.Order);
+                EngageTreasureHunt(quest.DBName, step.Order);
                 return true;
             }
             // No sources with spawn data — fallback to zone navigation
@@ -1853,7 +1849,7 @@ public sealed class NavigationController
                 bestPosition,
                 displayName,
                 bestScene,
-                quest.RuntimeKey,
+                quest.DBName,
                 step.Order,
                 bestSourceKey
             );
@@ -1899,7 +1895,7 @@ public sealed class NavigationController
             destScene,
             displayName,
             sourceId!,
-            quest.RuntimeKey,
+            quest.DBName,
             step.Order,
             currentScene
         );
@@ -2491,7 +2487,7 @@ public sealed class NavigationController
     {
         CorpsePriorityPolicy.FillItems(
             _resolvedStep,
-            _data.GetByRuntimeKey(questKey),
+            _data.GetByDBName(questKey),
             _countItem,
             _neededItems
         );

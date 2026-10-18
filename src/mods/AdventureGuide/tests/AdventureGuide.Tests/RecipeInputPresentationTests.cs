@@ -117,7 +117,7 @@ public sealed class RecipeInputPresentationTests
         );
         using var reader = new StreamReader(stream!);
         var data = GuideData.Parse(reader.ReadToEnd());
-        var quest = data.GetByRuntimeKey("ArenaToken")!;
+        var quest = data.GetByDBName("ArenaToken")!;
         var recipe = quest.RequiredItems![0].Sources!.Single(source => source.Type == "crafting");
         var inputs = recipe.Children!;
         var rows = ItemSourcePolicy.PresentationSources(inputs);

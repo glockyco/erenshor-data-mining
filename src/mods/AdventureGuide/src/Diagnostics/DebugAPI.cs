@@ -50,13 +50,13 @@ public static class DebugAPI
 
         var sb = new StringBuilder();
         if (Nav.OriginQuest is QuestEntry origin && Nav.OriginStep is QuestStep originStep)
-            sb.AppendLine($"Origin: {origin.RuntimeKey} step {originStep.Order}");
+            sb.AppendLine($"Origin: {origin.DBName} step {originStep.Order}");
 
         if (Nav.Requirements is RequirementResolution requirements)
         {
             sb.AppendLine($"Requirements: canNavigate={requirements.CanNavigate}");
             sb.AppendLine(
-                $"  Endpoint: {requirements.Quest.RuntimeKey} step {requirements.Step.Order}"
+                $"  Endpoint: {requirements.Quest.DBName} step {requirements.Step.Order}"
             );
             for (int i = 0; i < requirements.Chain.Count; i++)
             {
@@ -344,15 +344,8 @@ public static class DebugAPI
         lines.AppendLine($"Type: {q.QuestType}");
         lines.AppendLine($"Zone: {q.ZoneContext}");
         lines.AppendLine($"Level: {q.LevelEstimate?.Recommended}");
-        lines.AppendLine($"RuntimeKey: {q.RuntimeKey}");
         lines.AppendLine($"Active: {State?.IsActive(q)}");
         lines.AppendLine($"Completed: {State?.IsCompleted(q)}");
-        if (q.IsGuideOnly)
-        {
-            lines.AppendLine($"WorkflowStage: {State?.Workflows.GetStage(q)}");
-            lines.AppendLine($"WorkflowGeneration: {State?.Workflows.GetGeneration(q)}");
-        }
-
         if (q.Steps != null)
         {
             lines.AppendLine($"Steps ({q.Steps.Count}):");
@@ -414,9 +407,6 @@ public static class DebugAPI
         if (q == null)
             return $"Quest '{name}' not found";
 
-        if (q.IsGuideOnly)
-            return $"'{q.DisplayName}' is guide-only; its cycle resets from observed game evidence.";
-
         bool wasActive = GameData.HasQuest.Remove(q.DBName);
         bool wasCompleted = GameData.CompletedQuests.Remove(q.DBName);
 
@@ -452,7 +442,7 @@ public static class DebugAPI
     {
         if (Data == null)
             return null;
-        var q = Data.GetByRuntimeKey(name) ?? Data.GetByStableKey(name);
+        var q = Data.GetByDBName(name) ?? Data.GetByStableKey(name);
         if (q != null)
             return q;
         foreach (var entry in Data.All)

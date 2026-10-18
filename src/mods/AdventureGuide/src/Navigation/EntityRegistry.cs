@@ -8,10 +8,10 @@ namespace AdventureGuide.Navigation;
 /// Harmony patches on SpawnPoint.SpawnNPC and NPC.Start (add) and
 /// Character.DoDeath (remove). Cleared on scene transitions.
 ///
-/// Spawned NPCs are keyed by the prefab they were cloned from, matching the
-/// export pipeline's "character:{name_lowered}". NPCs placed in a scene have
-/// exported keys "character:{object}:{scene}:{x}:{y}:{z}" and are found by the
-/// object name and position recorded when they started.
+/// SpawnPoint clones are registered by SpawnPatch. Other instantiated NPCs
+/// are registered by NpcStartPatch before NPC.Start renames them. Both use the
+/// prefab key matching the export pipeline's "character:{name_lowered}".
+/// Scene placements use their recorded object name, scene and starting position.
 ///
 /// Lookups are O(1) by stable key. Stale entries (destroyed GameObjects,
 /// dead NPCs missed by the death patch) are filtered out on access.
@@ -72,16 +72,15 @@ public sealed class EntityRegistry
         (bool Placed, PlacedCharacterKey Key, string Normalized)
     > _keyShapes = new(System.StringComparer.Ordinal);
 
-    // Instance IDs of NPCs a SpawnPoint spawned in the current scene. Encounter
-    // scripts instantiate their characters directly, so workflows use this to
-    // tell an encounter's fighters from ordinary spawns of the same prefab.
+    // Instance IDs of NPCs a SpawnPoint spawned in the current scene. Native
+    // offering activations distinguish scripted fighters from ordinary spawns.
     private readonly HashSet<int> _spawnPointNpcs = new();
 
     /// <summary>
-    /// Register a newly spawned NPC. Called from SpawnPatch postfix.
-    /// The spawn point is used to derive the stable key from the prefab name.
-    /// For SyncFromLiveNPCs (no patch context), pass null and fall back to
-    /// the NPC's GameObject name.
+    /// Register an instantiated NPC from SpawnPatch, NpcStartPatch, or a live
+    /// snapshot. A non-null spawn point preserves its ordinary-spawn origin.
+    /// Keys use the recorded prefab name, then the spawn point's prefab, then
+    /// the NPC's GameObject name when no original identity is available.
     /// </summary>
     public void Register(NPC npc, SpawnPoint? spawnPoint = null)
     {
@@ -130,8 +129,7 @@ public sealed class EntityRegistry
         );
     }
 
-    /// <summary>Register a scripted entity under an exported descriptor key.</summary>
-    public void Register(NPC npc, string stableKey)
+    private void Register(NPC npc, string stableKey)
     {
         if (npc == null || string.IsNullOrWhiteSpace(stableKey))
             return;
@@ -190,8 +188,8 @@ public sealed class EntityRegistry
     /// <summary>
     /// Populate from the current NPCTable.LiveNPCs snapshot.
     /// Used on mod init (especially hot-reload) when NPCs already exist.
-    /// Recovers spawn point references by scanning all SpawnPoints in the
-    /// scene for matching SpawnedNPC references.
+    /// Recovers spawn point references by scanning matching SpawnedNPC fields.
+    /// NPCs without a matching spawn point register with their prefab identity.
     /// </summary>
     public void SyncFromLiveNPCs()
     {

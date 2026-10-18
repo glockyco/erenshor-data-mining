@@ -143,7 +143,7 @@ public sealed class EncounterContext
             }
             else if (scope == "character")
             {
-                if (!quests.Any(quest => quest.StableKey == key && !quest.IsGuideOnly))
+                if (!quests.Any(quest => quest.StableKey == key))
                     throw new InvalidDataException($"Unknown encounter character quest {key}");
             }
             else

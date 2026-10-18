@@ -5,52 +5,18 @@ namespace AdventureGuide.Tests;
 public sealed class GuideContractTests
 {
     [Fact]
-    public void Embedded_shipping_guide_contains_all_valid_workflows()
+    public void Embedded_shipping_guide_contains_native_quests_and_excludes_dead_portals()
     {
-        string tempDirectory = Path.Combine(
-            Path.GetTempPath(),
-            $"AdventureGuide.Tests-{Guid.NewGuid():N}"
+        using var stream = typeof(GuideData).Assembly.GetManifestResourceStream(
+            "AdventureGuide.quest-guide.json"
         );
-        Directory.CreateDirectory(tempDirectory);
-
-        try
-        {
-            string guidePath = Path.Combine(tempDirectory, "AdventureGuide.quest-guide.json");
-            using var stream = typeof(GuideData).Assembly.GetManifestResourceStream(
-                "AdventureGuide.quest-guide.json"
-            );
-            Assert.NotNull(stream);
-            using (var file = File.Create(guidePath))
-            {
-                stream.CopyTo(file);
-            }
-
-            var data = GuideData.Parse(File.ReadAllText(guidePath));
-            var workflows = data.All.Where(quest => quest.IsGuideOnly).ToList();
-
-            Assert.All(
-                workflows,
-                quest =>
-                {
-                    Assert.True(quest.Flags?.Repeatable);
-                    Assert.NotNull(quest.WorkflowCycle);
-                }
-            );
-            Assert.Contains(workflows, quest => quest.DisplayName == "Demented Malaroth");
-            Assert.Contains(workflows, quest => quest.DisplayName == "Shivunax");
-            // The dead Reliquary portal quests are excluded, not stubbed.
-            Assert.False(data.ShouldStubUnknownQuest("RELIQ-HIDDEN"));
-            Assert.False(data.ShouldStubUnknownQuest("AmethiKeys"));
-            for (int round = 1; round <= 8; round++)
-            {
-                string expected = $"Vitheo's arena - Round {round}";
-                Assert.Contains(workflows, quest => quest.DisplayName == expected);
-            }
-        }
-        finally
-        {
-            Directory.Delete(tempDirectory, recursive: true);
-        }
+        Assert.NotNull(stream);
+        using var reader = new StreamReader(stream);
+        var data = GuideData.Parse(reader.ReadToEnd());
+        Assert.NotEmpty(data.All);
+        Assert.All(data.All, quest => Assert.StartsWith("quest:", quest.StableKey));
+        Assert.False(data.ShouldStubUnknownQuest("RELIQ-HIDDEN"));
+        Assert.False(data.ShouldStubUnknownQuest("AmethiKeys"));
     }
 
     [Fact]
@@ -107,8 +73,8 @@ public sealed class GuideContractTests
     [Fact]
     public void Vendor_instruction_is_generic_and_seller_gate_is_structured()
     {
-        var workflow = TestData.WorkflowQuest();
-        workflow.RequiredItems =
+        var quest = OrdinaryQuest("quest:token", "TokenQuest");
+        quest.RequiredItems =
         [
             new RequiredItemInfo
             {
@@ -137,12 +103,12 @@ public sealed class GuideContractTests
                     [new GateAtom { Kind = GateAtomKind.QuestDone, Ref = "GateQuest" }],
                 ],
             ],
-            Quests = [OrdinaryQuest("quest:gate", "GateQuest"), workflow],
+            Quests = [OrdinaryQuest("quest:gate", "GateQuest"), quest],
         };
 
         GuideData.ValidateWrapper(wrapper);
 
-        workflow.RequiredItems[0].Sources![0].Instruction = "Buy Test Token from Seller.";
+        quest.RequiredItems[0].Sources![0].Instruction = "Buy Test Token from Seller.";
         Assert.Throws<InvalidDataException>(() => GuideData.ValidateWrapper(wrapper));
     }
 
@@ -369,6 +335,25 @@ public sealed class GuideContractTests
 
         Assert.Same(ordinary, Assert.Single(ItemSourcePolicy.SourcesFor(quest, quest.Steps[0])!));
         Assert.Same(rare, Assert.Single(ItemSourcePolicy.SourcesFor(quest, quest.Steps[1])!));
+    }
+
+    [Fact]
+    public void Persisted_quest_identity_resolves_native_database_names_only()
+    {
+        var quest = OrdinaryQuest("quest:known", "KnownDB");
+        var data = GuideData.FromWrapper(
+            new GuideWrapper
+            {
+                Version = 8,
+                Encounters = TestData.EmptyEncounters(),
+                Quests = [quest],
+            }
+        );
+
+        Assert.Same(quest, data.GetByDBName("knowndb"));
+        Assert.Null(data.GetByDBName(quest.StableKey));
+        Assert.Null(data.GetByDBName("guide-quest:removed"));
+        Assert.Same(quest, data.GetByStableKey(quest.StableKey));
     }
 
     private static QuestEntry OrdinaryQuest(

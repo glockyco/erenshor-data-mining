@@ -353,7 +353,7 @@ public sealed class QuestListPanel
     private void DrawQuestEntry(QuestEntry quest, float markerWidth)
     {
         bool isSelected = string.Equals(
-            quest.RuntimeKey,
+            quest.DBName,
             _state.SelectedQuestKey,
             StringComparison.OrdinalIgnoreCase
         );
@@ -362,7 +362,7 @@ public sealed class QuestListPanel
         if (isSelected)
             ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
 
-        bool isTracked = _tracker.Enabled && _tracker.IsTracked(quest.RuntimeKey);
+        bool isTracked = _tracker.Enabled && _tracker.IsTracked(quest.DBName);
         var text = GetRowText(quest);
 
         ImGui.PushStyleColor(ImGuiCol.Text, statusColor);
@@ -397,15 +397,13 @@ public sealed class QuestListPanel
             ImGui.BeginTooltip();
             if (quest.ZoneContext != null)
                 ImGui.TextUnformatted(quest.ZoneContext);
-            string status = _state.Workflows.IsUnverifiable(quest)
-                ? "Workflow state unavailable"
-                : _state.GetStatus(quest) switch
-                {
-                    QuestRuntimeStatus.Completed => "Completed",
-                    QuestRuntimeStatus.ImplicitlyActive => "Completable here",
-                    QuestRuntimeStatus.Active => "Active",
-                    _ => "Available",
-                };
+            string status = _state.GetStatus(quest) switch
+            {
+                QuestRuntimeStatus.Completed => "Completed",
+                QuestRuntimeStatus.ImplicitlyActive => "Completable here",
+                QuestRuntimeStatus.Active => "Active",
+                _ => "Available",
+            };
             ImGui.TextUnformatted(status);
             if (quest.LevelEstimate?.Recommended is int tipLvl)
                 ImGui.TextUnformatted($"Level {tipLvl}");
@@ -426,7 +424,7 @@ public sealed class QuestListPanel
         string label = quest.LevelEstimate?.Recommended is int lvl
             ? $"{lvl, 2}  {quest.DisplayName}{suffix}"
             : $"    {quest.DisplayName}{suffix}";
-        text = new RowText(label, "##" + quest.RuntimeKey);
+        text = new RowText(label, "##" + quest.DBName);
         _rowText[quest] = text;
         return text;
     }

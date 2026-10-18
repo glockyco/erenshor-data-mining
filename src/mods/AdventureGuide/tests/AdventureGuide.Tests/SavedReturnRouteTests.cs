@@ -36,8 +36,6 @@ public sealed class SavedReturnRouteTests
 
         public string? StoredItemIn(string slot) => null;
 
-        public Vector3? PlayerPosition => null;
-
         public void CopyActiveQuestsTo(HashSet<string> destination) { }
 
         public void CopyCompletedQuestsTo(HashSet<string> destination) { }
@@ -281,7 +279,7 @@ public sealed class SavedReturnRouteTests
     {
         var data = GuideData.FromWrapper(Wrapper());
         var facts = new Facts();
-        var tracker = new QuestStateTracker(data, new EntityRegistry(), facts);
+        var tracker = new QuestStateTracker(data, facts);
         tracker.OnSceneChanged("Home");
         var graph = new ZoneGraph(data, tracker.Gates);
         int rebuilds = 0;
@@ -291,23 +289,23 @@ public sealed class SavedReturnRouteTests
             graph.Rebuild();
         };
         int version = tracker.Version;
-        tracker.Update(0);
+        tracker.Update();
         Assert.Equal(version, tracker.Version);
         Assert.Equal(0, rebuilds);
         facts.ReturnScene = "B";
         facts.ReturnLanding = new Vector3(31, 32, 33);
-        tracker.Update(0);
+        tracker.Update();
         Assert.Equal(version + 1, tracker.Version);
         Assert.Equal(1, rebuilds);
         Assert.Null(graph.FindRoute("Home", "A"));
         Assert.NotNull(graph.FindRoute("Home", "B"));
-        tracker.Update(0);
+        tracker.Update();
         Assert.Equal(1, rebuilds);
         facts.ReturnLanding = new Vector3(float.NaN, 32, 33);
-        tracker.Update(0);
+        tracker.Update();
         Assert.Equal(2, rebuilds);
         Assert.Null(graph.FindRoute("Home", "B"));
-        tracker.Update(0);
+        tracker.Update();
         Assert.Equal(2, rebuilds);
     }
 

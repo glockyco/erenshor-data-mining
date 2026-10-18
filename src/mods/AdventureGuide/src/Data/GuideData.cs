@@ -73,11 +73,6 @@ public sealed partial class GuideData
     public QuestEntry? GetByStableKey(string stableKey) =>
         _byStableKey.TryGetValue(stableKey, out var entry) ? entry : null;
 
-    public QuestEntry? GetByRuntimeKey(string key) =>
-        _byStableKey.TryGetValue(key, out var stableEntry) ? stableEntry
-        : _byDBName.TryGetValue(key, out var dbEntry) ? dbEntry
-        : null;
-
     /// <summary>Resolve a scene name to a display name via the zone lookup.</summary>
     public string? GetZoneDisplayName(string sceneName) =>
         ZoneLookup.TryGetValue(sceneName, out var info) ? info.DisplayName : null;
@@ -205,12 +200,6 @@ public sealed partial class GuideData
                 throw new InvalidDataException($"Duplicate quest DB name: {quest.DBName}");
 
             ValidateSteps(quest);
-            if (quest.IsGuideOnly)
-                ValidateWorkflow(quest);
-            else if (quest.WorkflowCycle != null)
-                throw new InvalidDataException(
-                    $"Game quest {quest.StableKey} has workflow metadata"
-                );
         }
 
         foreach (var key in stableKeys)
@@ -416,219 +405,7 @@ public sealed partial class GuideData
                 throw new InvalidDataException(
                     $"Quest {quest.StableKey} has malformed step {step.Order}"
                 );
-            if (step.Action == "go_to")
-                ValidateLocation(
-                    step.Location,
-                    requireBounds: false,
-                    $"{quest.StableKey} step {step.Order}"
-                );
         }
-    }
-
-    private static void ValidateWorkflow(QuestEntry quest)
-    {
-        if (
-            !quest.IsImplicit
-            || quest.Flags is not { Repeatable: true }
-            || quest.WorkflowCycle == null
-        )
-            throw new InvalidDataException(
-                $"Guide-only quest {quest.StableKey} has invalid lifecycle"
-            );
-        var steps = quest.Steps;
-        if (steps == null || steps.Count < 3)
-            throw new InvalidDataException(
-                $"Guide-only quest {quest.StableKey} has no workflow steps"
-            );
-
-        var cycle = quest.WorkflowCycle;
-        var trigger = cycle.Trigger;
-        if (
-            string.IsNullOrWhiteSpace(trigger.ItemStableKey)
-            || string.IsNullOrWhiteSpace(trigger.ItemName)
-            || trigger.Quantity <= 0
-            || trigger.Mode != "proximity_auto_consume"
-            || !trigger.ConsumesItemAutomatically
-        )
-            throw new InvalidDataException(
-                $"Guide-only quest {quest.StableKey} has invalid trigger"
-            );
-        ValidateLocation(trigger.Location, requireBounds: true, $"{quest.StableKey} trigger");
-
-        var targetKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        if (cycle.Targets.Count == 0)
-            throw new InvalidDataException($"Guide-only quest {quest.StableKey} has no targets");
-        foreach (var target in cycle.Targets)
-        {
-            if (
-                string.IsNullOrWhiteSpace(target.StableKey)
-                || string.IsNullOrWhiteSpace(target.DisplayName)
-                || target.Quantity <= 0
-                || !targetKeys.Add(target.StableKey)
-            )
-                throw new InvalidDataException(
-                    $"Guide-only quest {quest.StableKey} has invalid targets"
-                );
-        }
-
-        bool targetReset = cycle.ResetEvidence == "targets_defeated";
-        bool rewardReset = cycle.ResetEvidence == "reward_container_consumed";
-        if (!targetReset && !rewardReset)
-            throw new InvalidDataException(
-                $"Guide-only quest {quest.StableKey} has invalid reset evidence"
-            );
-        if ((cycle.RewardContainer == null) != targetReset)
-            throw new InvalidDataException(
-                $"Guide-only quest {quest.StableKey} has inconsistent reward evidence"
-            );
-        if (
-            cycle.RewardContainer != null
-            && (
-                string.IsNullOrWhiteSpace(cycle.RewardContainer.StableKey)
-                || string.IsNullOrWhiteSpace(cycle.RewardContainer.DisplayName)
-            )
-        )
-            throw new InvalidDataException(
-                $"Guide-only quest {quest.StableKey} has invalid reward container"
-            );
-
-        var obtainStep = steps[0];
-        var goToStep = steps[1];
-        if (
-            obtainStep.Action != "obtain"
-            || obtainStep.TargetType != "item"
-            || !string.Equals(
-                obtainStep.TargetKey,
-                trigger.ItemStableKey,
-                StringComparison.OrdinalIgnoreCase
-            )
-            || obtainStep.Quantity != trigger.Quantity
-            || goToStep.Action != "go_to"
-            || goToStep.TargetType != "location"
-            || !string.Equals(
-                goToStep.TargetKey,
-                trigger.Location.StableKey,
-                StringComparison.OrdinalIgnoreCase
-            )
-        )
-            throw new InvalidDataException(
-                $"Guide-only quest {quest.StableKey} has invalid workflow step order"
-            );
-
-        var triggerStepLocation = goToStep.Location;
-        if (
-            triggerStepLocation == null
-            || !string.Equals(
-                triggerStepLocation.StableKey,
-                trigger.Location.StableKey,
-                StringComparison.OrdinalIgnoreCase
-            )
-            || !string.Equals(
-                triggerStepLocation.Scene,
-                trigger.Location.Scene,
-                StringComparison.OrdinalIgnoreCase
-            )
-        )
-            throw new InvalidDataException(
-                $"Guide-only quest {quest.StableKey} has inconsistent trigger location"
-            );
-
-        var expectedKills = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-        foreach (var target in cycle.Targets)
-        {
-            var group = CharacterStableKey.Normalize(target.StableKey);
-            expectedKills[group] = expectedKills.TryGetValue(group, out int count)
-                ? count + target.Quantity
-                : target.Quantity;
-        }
-
-        var stepKills = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-        int lootSteps = 0;
-        for (int i = 2; i < steps.Count; i++)
-        {
-            var step = steps[i];
-            if (step.Action == "loot")
-            {
-                lootSteps++;
-                continue;
-            }
-            if (
-                step.Action != "kill"
-                || string.IsNullOrWhiteSpace(step.TargetKey)
-                || step.TargetType != "character"
-                || step.Quantity is null or <= 0
-            )
-                throw new InvalidDataException(
-                    $"Guide-only quest {quest.StableKey} has unsupported action {step.Action}"
-                );
-            var group = CharacterStableKey.Normalize(step.TargetKey);
-            stepKills[group] = stepKills.TryGetValue(group, out int count)
-                ? count + step.Quantity.Value
-                : step.Quantity.Value;
-        }
-
-        if (
-            stepKills.Count != expectedKills.Count
-            || expectedKills.Any(expected =>
-                !stepKills.TryGetValue(expected.Key, out int count) || count != expected.Value
-            )
-        )
-            throw new InvalidDataException(
-                $"Guide-only quest {quest.StableKey} has inconsistent targets"
-            );
-
-        if (targetReset && lootSteps != 0)
-            throw new InvalidDataException(
-                $"Guide-only quest {quest.StableKey} has unexpected reward loot step"
-            );
-        if (
-            rewardReset
-            && (
-                lootSteps != 1
-                || steps[^1].Action != "loot"
-                || !string.Equals(
-                    steps[^1].TargetKey,
-                    cycle.RewardContainer!.StableKey,
-                    StringComparison.OrdinalIgnoreCase
-                )
-            )
-        )
-            throw new InvalidDataException(
-                $"Guide-only quest {quest.StableKey} has invalid reward loot step"
-            );
-    }
-
-    private static void ValidateLocation(
-        WorkflowLocation? location,
-        bool requireBounds,
-        string context
-    )
-    {
-        if (
-            location == null
-            || string.IsNullOrWhiteSpace(location.StableKey)
-            || string.IsNullOrWhiteSpace(location.DisplayName)
-            || string.IsNullOrWhiteSpace(location.Scene)
-            || !IsFinite(location.X)
-            || !IsFinite(location.Y)
-            || !IsFinite(location.Z)
-        )
-            throw new InvalidDataException($"{context} has invalid location");
-        if (!requireBounds)
-            return;
-        if (
-            location.Bounds == null
-            || !IsFinite(location.Bounds.Center.X)
-            || !IsFinite(location.Bounds.Center.Y)
-            || !IsFinite(location.Bounds.Center.Z)
-            || !IsFinite(location.Bounds.Extents.X)
-            || !IsFinite(location.Bounds.Extents.Y)
-            || !IsFinite(location.Bounds.Extents.Z)
-            || location.Bounds.Extents.X <= 0f
-            || location.Bounds.Extents.Y <= 0f
-            || location.Bounds.Extents.Z <= 0f
-        )
-            throw new InvalidDataException($"{context} has invalid trigger bounds");
     }
 
     private static void ValidateSources(List<ItemSource>? sources, string itemName, string questKey)
@@ -766,8 +543,6 @@ public sealed partial class GuideData
         )
             throw new InvalidDataException($"{questKey} has inconsistent fishing chances");
     }
-
-    private static bool IsFinite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
 }
 
 /// <summary>Top-level JSON wrapper matching the Python GuideOutput structure.</summary>

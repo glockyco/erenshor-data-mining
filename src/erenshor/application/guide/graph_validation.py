@@ -268,11 +268,11 @@ def _add_step_level_factors(quest_key: str, ctx: _LevelContext, factors: list[in
         elif edge.type in (EdgeType.STEP_TALK, EdgeType.STEP_SHOUT):
             zone_key = ctx.char_zones.get(edge.target)
             level = ctx.zone_medians.get(zone_key) if zone_key else None
-        elif edge.type in (EdgeType.STEP_GO_TO, EdgeType.STEP_TRAVEL):
+        elif edge.type == EdgeType.STEP_TRAVEL:
             target = ctx.graph.get_node(edge.target)
             if target is None:
                 continue
-            zone_key = target.key if edge.type == EdgeType.STEP_TRAVEL else target.zone_key
+            zone_key = target.key
             level = ctx.zone_medians.get(zone_key) if zone_key else None
         elif edge.type == EdgeType.STEP_READ:
             level = _item_obtainability_level(edge.target, ctx, set())
@@ -525,7 +525,7 @@ def _quest_topological_order(graph: EntityGraph) -> list[str]:
     """
     from collections import deque
 
-    quest_keys = [n.key for n in graph.nodes_of_type(NodeType.QUEST) if not n.guide_only]
+    quest_keys = [n.key for n in graph.nodes_of_type(NodeType.QUEST)]
     quest_set = set(quest_keys)
     in_degree: dict[str, int] = dict.fromkeys(quest_keys, 0)
     dependents: dict[str, list[str]] = {k: [] for k in quest_keys}

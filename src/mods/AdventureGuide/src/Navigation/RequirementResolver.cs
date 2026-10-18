@@ -168,7 +168,7 @@ public sealed class RequirementResolver
         bool requirement = false;
         while (true)
         {
-            string identity = quest.RuntimeKey + ":" + step.Order + ":" + step.TargetKey;
+            string identity = quest.DBName + ":" + step.Order + ":" + step.TargetKey;
             if (!visited.Add("step:" + identity))
                 return Finish(false, "Requirement cycle prevents navigation.");
 
@@ -1069,7 +1069,7 @@ public sealed class RequirementResolver
                             "Planning slot atom has no instruction"
                         )
                     : "Furnish the Reliquary room at the planning table.",
-            Location = new WorkflowLocation
+            Location = new StepLocation
             {
                 StableKey = source.SourceKey!,
                 DisplayName = source.Name ?? "Planning Table",

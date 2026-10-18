@@ -18,14 +18,14 @@ public sealed class NavigationPolicyTests
         {
             Order = 7,
             Action = "go_to",
-            Description = "Go to the point.",
-            TargetName = "The point",
+            Description = "Furnish the room at the planning table.",
+            TargetName = "Planning Table",
             TargetType = "location",
-            TargetKey = "guide-location:point",
-            Location = new WorkflowLocation
+            TargetKey = "planningtable:point",
+            Location = new StepLocation
             {
-                StableKey = "guide-location:point",
-                DisplayName = "The point",
+                StableKey = "planningtable:point",
+                DisplayName = "Planning Table",
                 Scene = "TestScene",
                 X = 3f,
                 Y = 4f,
@@ -33,17 +33,17 @@ public sealed class NavigationPolicyTests
             },
         };
 
-        var spec = NavigationPolicy.CreateFixedPositionTargetSpec(step, quest, "quest:origin", 2);
+        var spec = NavigationPolicy.CreateFixedPositionTargetSpec(step, quest, "OriginQuest", 2);
 
         Assert.Equal(3f, spec.X);
         Assert.Equal(4f, spec.Y);
         Assert.Equal(5f, spec.Z);
-        Assert.Equal("The point", spec.DisplayName);
+        Assert.Equal("Planning Table", spec.DisplayName);
         Assert.Equal("TestScene", spec.Scene);
         Assert.Equal("PositionQuest", spec.QuestKey);
         Assert.Equal(7, spec.StepOrder);
-        Assert.Equal("guide-location:point", spec.SourceId);
-        Assert.Equal("quest:origin", spec.OriginQuestKey);
+        Assert.Equal("planningtable:point", spec.SourceId);
+        Assert.Equal("OriginQuest", spec.OriginQuestKey);
         Assert.Equal(2, spec.OriginStepOrder);
     }
 
@@ -61,7 +61,7 @@ public sealed class NavigationPolicyTests
         {
             Order = 1,
             Description = "Fallback description",
-            Location = new WorkflowLocation { Scene = "TestScene" },
+            Location = new StepLocation { Scene = "TestScene" },
         };
 
         var spec = NavigationPolicy.CreateFixedPositionTargetSpec(step, quest, "origin", 1);

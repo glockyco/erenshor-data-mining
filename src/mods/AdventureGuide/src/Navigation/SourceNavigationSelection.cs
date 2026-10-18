@@ -17,7 +17,7 @@ internal sealed class SourceNavigationSelection
     {
         if (!IsCurrent(ItemSourcePolicy.SourcesFor(quest, step), choice))
             return false;
-        _questKey = quest.RuntimeKey;
+        _questKey = quest.DBName;
         _stepOrder = step.Order;
         _choice = choice;
         _inputParent = null;
@@ -41,7 +41,7 @@ internal sealed class SourceNavigationSelection
     }
 
     internal bool IsFor(QuestEntry quest, QuestStep step) =>
-        _choice != null && _questKey == quest.RuntimeKey && _stepOrder == step.Order;
+        _choice != null && _questKey == quest.DBName && _stepOrder == step.Order;
 
     internal RequirementResolution Resolve(
         RequirementResolver resolver,

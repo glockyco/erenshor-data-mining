@@ -18,7 +18,7 @@ public sealed class QuestDetailPanel
     private readonly TrackerState _tracker;
     private readonly GuideConfig _config;
 
-    // Rebuilt only when selection or quest/inventory/workflow state changes.
+    // Rebuilt only when selection or quest/inventory state changes.
     // Pre-cache closed trees too, so opening a tree does not allocate.
     private readonly Dictionary<QuestEntry, QuestDisplayCache> _questDisplay = new();
     private readonly HashSet<string> _visited = new();
@@ -69,7 +69,7 @@ public sealed class QuestDetailPanel
             return;
         }
 
-        var quest = _data.GetByRuntimeKey(_state.SelectedQuestKey);
+        var quest = _data.GetByDBName(_state.SelectedQuestKey);
         if (quest == null)
         {
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
@@ -91,7 +91,7 @@ public sealed class QuestDetailPanel
         // Track/Untrack button inline before quest name
         if (_tracker.Enabled)
         {
-            bool tracked = _tracker.IsTracked(quest.RuntimeKey);
+            bool tracked = _tracker.IsTracked(quest.DBName);
             bool completed = _state.IsCompleted(quest);
             if (!completed || tracked)
             {
@@ -100,9 +100,9 @@ public sealed class QuestDetailPanel
                 if (ImGui.SmallButton(tracked ? "[Untrack]" : "[Track]"))
                 {
                     if (tracked)
-                        _tracker.Untrack(quest.RuntimeKey);
+                        _tracker.Untrack(quest.DBName);
                     else
-                        _tracker.Track(quest.RuntimeKey);
+                        _tracker.Track(quest.DBName);
                 }
                 if (tracked)
                     ImGui.PopStyleColor();
@@ -190,15 +190,6 @@ public sealed class QuestDetailPanel
             return;
         }
 
-        if (_state.Workflows.IsUnverifiable(quest))
-        {
-            ImGui.PushStyleColor(ImGuiCol.Text, Theme.Warning);
-            Theme.TextWrapped(
-                "Workflow state is ambiguous after reload. Re-enter the trigger area with the required item."
-            );
-            ImGui.PopStyleColor();
-        }
-
         if (!ImGui.CollapsingHeader("Objectives", ImGuiTreeNodeFlags.DefaultOpen))
             return;
 
@@ -219,7 +210,7 @@ public sealed class QuestDetailPanel
         if (quest.Steps == null || quest.Steps.Count == 0)
             return;
 
-        ImGui.PushID(quest.RuntimeKey);
+        ImGui.PushID(quest.DBName);
 
         int currentStepIndex = _questDisplay[quest].CurrentStepIndex;
         string? prevOrGroup = null;
@@ -329,7 +320,7 @@ public sealed class QuestDetailPanel
         DrawSubQuestSteps(step, quest, visited);
 
         // Show alternative zone lines when cross-zone navigating this step
-        if (_nav.IsNavigating(quest.RuntimeKey, step.Order))
+        if (_nav.IsNavigating(quest.DBName, step.Order))
         {
             var alternatives = _nav.GetAlternativeZoneLines(_state.CurrentZone);
             if (alternatives.Count > 1)
@@ -351,7 +342,7 @@ public sealed class QuestDetailPanel
         // available source with spawn data or a scene.
         var display = _questDisplay[quest].Steps[step];
         bool navigable = display.Navigable;
-        bool isActive = _nav.IsNavigating(quest.RuntimeKey, step.Order);
+        bool isActive = _nav.IsNavigating(quest.DBName, step.Order);
 
         if (!navigable && !isActive)
         {
@@ -986,7 +977,7 @@ public sealed class QuestDetailPanel
         _stepTreeQuestKeys = null;
         _levelZoneLine = null;
 
-        var quest = questKey == null ? null : _data.GetByRuntimeKey(questKey);
+        var quest = questKey == null ? null : _data.GetByDBName(questKey);
         if (quest == null)
             return;
 

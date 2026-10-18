@@ -339,6 +339,8 @@ public sealed partial class GuideData
     private static (int, int, int) PositionKey(float x, float y, float z) =>
         ((int)Math.Round(x * 100f), (int)Math.Round(y * 100f), (int)Math.Round(z * 100f));
 
+    private static bool IsFinite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
+
     private static bool Finite(ActivationPosition? position) =>
         position != null && IsFinite(position.X) && IsFinite(position.Y) && IsFinite(position.Z);
 }

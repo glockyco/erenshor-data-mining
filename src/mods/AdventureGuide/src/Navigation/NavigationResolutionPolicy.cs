@@ -144,7 +144,7 @@ public static class NavigationResolutionPolicy
         QuestEntry questB,
         QuestStep stepB
     ) =>
-        string.Equals(questA.RuntimeKey, questB.RuntimeKey, StringComparison.OrdinalIgnoreCase)
+        string.Equals(questA.DBName, questB.DBName, StringComparison.OrdinalIgnoreCase)
         && stepA.Order == stepB.Order
         && string.Equals(stepA.TargetKey, stepB.TargetKey, StringComparison.OrdinalIgnoreCase);
 

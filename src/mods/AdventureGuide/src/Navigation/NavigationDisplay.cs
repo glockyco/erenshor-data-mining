@@ -10,8 +10,8 @@ internal static class NavigationDisplay
     internal const float GroundOffset = 0.50f;
 
     internal static bool IsOrigin(NavigationController nav, QuestEntry quest, QuestStep step) =>
-        nav.IsNavigating(quest.RuntimeKey, step.Order)
-        && nav.OriginQuest?.RuntimeKey == quest.RuntimeKey
+        nav.IsNavigating(quest.DBName, step.Order)
+        && nav.OriginQuest?.DBName == quest.DBName
         && nav.OriginStep?.Order == step.Order;
 
     internal static bool HasGuidance(NavigationController nav) =>
