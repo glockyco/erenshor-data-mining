@@ -36,6 +36,7 @@ public sealed class WorldMarkerSystem
     private readonly GuideData _data;
     private readonly QuestStateTracker _state;
     private readonly SpawnPointBridge _bridge;
+    private readonly EntityRegistry _entities;
     private readonly MarkerPool _pool;
     private readonly GuideConfig _config;
     private readonly LootScanner _lootScanner;
@@ -84,6 +85,7 @@ public sealed class WorldMarkerSystem
         GuideData data,
         QuestStateTracker state,
         SpawnPointBridge bridge,
+        EntityRegistry entities,
         LootScanner lootScanner,
         GuideConfig config
     )
@@ -91,6 +93,7 @@ public sealed class WorldMarkerSystem
         _data = data;
         _state = state;
         _bridge = bridge;
+        _entities = entities;
         _lootScanner = lootScanner;
         _config = config;
         _pool = new MarkerPool();
@@ -693,7 +696,24 @@ public sealed class WorldMarkerSystem
             var staticPos = new Vector3(sp.X, sp.Y, sp.Z) + Vector3.up * StaticHeightOffset;
             var key = new IntentKey(stableKey, sp.X, sp.Y, sp.Z);
 
-            var info = _bridge.GetState(sp.X, sp.Y, sp.Z, stableKey, displayName);
+            var scripted =
+                sp.Activations == null ? null : _entities.FindClosestScripted(stableKey, staticPos);
+            var info =
+                sp.Activations == null
+                    ? _bridge.GetState(sp.X, sp.Y, sp.Z, stableKey, displayName)
+                    : new SpawnPointBridge.SpawnInfo(
+                        scripted != null
+                            ? SpawnPointBridge.SpawnState.Alive
+                            : SpawnPointBridge.SpawnState.Withheld,
+                        liveNPC: scripted
+                    );
+            if (
+                !SpawnMarkerPolicy.ShowsPlacement(
+                    sp.Activations != null,
+                    info.State == SpawnPointBridge.SpawnState.Alive && info.LiveNPC != null
+                )
+            )
+                continue;
 
             // Use live NPC position when available (NPCs drift from placed position)
             var pos = info.LiveNPC != null ? GetMarkerPosition(info.LiveNPC) : staticPos;
@@ -704,6 +724,8 @@ public sealed class WorldMarkerSystem
                 CharacterKey = stableKey,
                 LiveSpawnPoint = info.LiveSpawnPoint,
                 TrackedNPC = info.LiveNPC,
+                OfferingCharacter =
+                    sp.Activations == null ? null : info.LiveNPC?.GetComponent<Character>(),
                 LiveMiningNode = info.LiveMiningNode,
                 TargetNpcName = info.TargetName,
                 QuestType = questType,
@@ -777,6 +799,15 @@ public sealed class WorldMarkerSystem
         {
             var sp = spawnPoints[i];
             if (sp == null || _questSpawnPoints.Contains(sp.GetInstanceID()))
+                continue;
+            if (
+                _data.IsOfferingOnlyPosition(
+                    _lastScene,
+                    sp.transform.position.x,
+                    sp.transform.position.y,
+                    sp.transform.position.z
+                )
+            )
                 continue;
             var tiers = showAll ? SpawnTiers.None : _bridge.SpawnTiersOf(sp, _data);
             if (!RespawnTimerPolicy.Shows(showAll, showBosses, showElites, tiers))
@@ -889,6 +920,14 @@ public sealed class WorldMarkerSystem
             // A taken pickup is destroyed; the rebuild that the inventory
             // change triggers drops its marker.
             if (!ReferenceEquals(m.TrackedPickup, null) && m.TrackedPickup == null)
+            {
+                instance.SetActive(false);
+                continue;
+            }
+            if (
+                !ReferenceEquals(m.OfferingCharacter, null)
+                && (m.OfferingCharacter == null || !m.OfferingCharacter.Alive)
+            )
             {
                 instance.SetActive(false);
                 continue;
@@ -1287,6 +1326,8 @@ public struct MarkerEntry
 
     /// <summary>Live NPC for position tracking on directly-placed NPCs (no SpawnPoint).</summary>
     public NPC? TrackedNPC;
+
+    public Character? OfferingCharacter;
 
     /// <summary>Live MiningNode for per-frame mined state and timer updates.</summary>
     public MiningNode? LiveMiningNode;

@@ -169,6 +169,7 @@ public sealed partial class GuideData
         data.EncounterProjection = new State.EncounterProjection(data, data.Encounters);
         data.LoadSourceFacts(wrapper);
         data.LoadDestinationContexts(wrapper);
+        data.LoadActivations(wrapper);
         return data;
     }
 
@@ -867,6 +868,9 @@ public sealed class SpawnPoint
 
     [JsonProperty("source_script")]
     public string? SourceScript { get; set; }
+
+    [JsonProperty("activations")]
+    public List<ActivationReference>? Activations { get; set; }
 }
 
 /// <summary>A zone transition point.</summary>

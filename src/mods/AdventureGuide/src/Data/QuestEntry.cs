@@ -243,6 +243,9 @@ public sealed class ItemSource
     [JsonProperty("instruction")]
     public string? Instruction { get; set; }
 
+    [JsonIgnore]
+    public string? ActivationInstruction { get; internal set; }
+
     [JsonProperty("keyword")]
     public string? Keyword { get; set; }
 

@@ -70,6 +70,7 @@ def build_mod_guide(
         "_zone_lookup": _zone_lookup(nodes),
         "_conditions": [_condition_payload(graph, condition) for condition in compiled.conditions],
         "_gate_items": _gate_items(graph, nodes, compiled, compiled_nodes, reward_by_item),
+        "_activations": {key: asdict(value) for key, value in sorted(compiled.activations.items())},
         "_character_spawns": _character_spawns(graph, nodes, compiled, line_index),
         # Respawn timers can be limited to spawn points that can spawn a boss or an elite.
         "_encounter_tiers": {
@@ -289,6 +290,8 @@ def _character_spawns(
                 "is_directly_placed": bool(spawn.is_directly_placed),
             }
             _put_if(value, "source_script", spawn.source_script)
+            if refs := compiled.placement_activations.get(spawn.key):
+                value["activations"] = [asdict(ref) for ref in refs]
             _put_if(
                 value,
                 "condition",
@@ -381,7 +384,7 @@ def _gate_items(
     compiled_nodes: dict[int, Any],
     reward_by_item: dict[int, list[Any]],
 ) -> dict[str, dict[str, Any]]:
-    """The items that conditions name, with their game ID and where to get them.
+    """Items referenced by conditions or activations, with game IDs and sources.
 
     The keyring holds game item IDs. Navigation to a missing key or item uses
     the sources. door_zones names the zones of the doors a key opens, so the
@@ -412,6 +415,11 @@ def _gate_items(
             and atom.predicate in {"item_held", "key_held", "room_furnished"}
             and atom.reference_stable_key is not None
         }
+        | {
+            offering.item_stable_key
+            for activation in compiled.activations.values()
+            for offering in activation.offerings
+        }
     )
     zone_by_scene = {
         node.scene.lower(): node.display_name for node in nodes.values() if node.type == NodeType.ZONE and node.scene
@@ -429,7 +437,9 @@ def _gate_items(
     for key in keys:
         item = nodes.get(key)
         if item is None or item.type != NodeType.ITEM or not item.game_id:
-            raise ValueError(f"a condition names {key!r}, which is not an item of the guide with a game ID")
+            raise ValueError(
+                f"a condition or activation names {key!r}, which is not an item of the guide with a game ID"
+            )
         value: dict[str, Any] = {"name": item.display_name, "game_id": item.game_id}
         if door_zones.get(key):
             value["door_zones"] = sorted(door_zones[key])

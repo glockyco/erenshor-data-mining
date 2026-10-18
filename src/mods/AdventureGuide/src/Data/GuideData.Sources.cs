@@ -286,6 +286,7 @@ public sealed partial class GuideData
                         Condition = original?.Condition,
                         IsDirectlyPlaced = original?.IsDirectlyPlaced ?? false,
                         SourceScript = original?.SourceScript,
+                        Activations = original?.Activations,
                     };
                 }
             }

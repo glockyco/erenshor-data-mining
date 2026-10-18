@@ -48,6 +48,11 @@
         <Compile Include="../../src/Data/FurnishingPolicy.cs" Link="Data/FurnishingPolicy.cs" />
         <Compile Include="../../src/Data/GateAtom.cs" Link="Data/GateAtom.cs" />
         <Compile Include="../../src/Data/EncounterContext.cs" Link="Data/EncounterContext.cs" />
+        <Compile Include="../../src/Data/OfferingActivation.cs" Link="Data/OfferingActivation.cs" />
+        <Compile
+            Include="../../src/Navigation/OfferingNavigation.cs"
+            Link="Navigation/OfferingNavigation.cs"
+        />
         <Compile Include="../../src/Data/SourceFact.cs" Link="Data/SourceFact.cs" />
         <Compile Include="../../src/Data/SourceChoice.cs" Link="Data/SourceChoice.cs" />
         <Compile Include="../../src/Data/GuideData.Sources.cs" Link="Data/GuideData.Sources.cs" />

@@ -16,6 +16,8 @@ from typing import TYPE_CHECKING
 from erenshor.domain.value_objects.item_provenance import ItemAcquisition, ItemUse
 
 from .schema import (
+    Activation,
+    ActivationRef,
     AtomKind,
     BackgroundSource,
     Edge,
@@ -224,6 +226,8 @@ class CompiledData:
     zone_line_destination_contexts: dict[str, dict[str, object]] = field(default_factory=dict)
     acquisitions_by_item: dict[str, list[ItemAcquisition]] = field(default_factory=dict)
     source_metadata: dict[str, Edge] = field(default_factory=dict)
+    activations: dict[str, Activation] = field(default_factory=dict)
+    placement_activations: dict[str, tuple[ActivationRef, ...]] = field(default_factory=dict)
 
 
 _NODE_TYPE_ORDER = list(NodeType)
@@ -266,9 +270,48 @@ def compile_graph(graph: EntityGraph) -> CompiledData:
     _assign_dense_indices(compiled)
     _compile_quest_specs(compiled)
     _compile_item_sources(compiled)
+    _compile_activations(graph, compiled)
     _compile_conditions(graph, compiled)
     _check_requirement_cycles(compiled)
     return compiled
+
+
+def _compile_activations(graph: EntityGraph, compiled: CompiledData) -> None:
+    compiled.activations = {node.key: node.activation for node in graph.all_nodes() if node.activation is not None}
+    bound: set[tuple[str, int, str, str]] = set()
+    placement_characters: dict[str, set[str]] = defaultdict(set)
+    for edge in graph.all_edges():
+        if edge.type == EdgeType.HAS_SPAWN:
+            placement_characters[edge.target].add(edge.source)
+    for placement in graph.nodes_of_type(NodeType.SPAWN_POINT):
+        if not placement.activations:
+            continue
+        characters = placement_characters[placement.key]
+        if not characters:
+            raise ValueError(f"activation placement has no character binding: {placement.key!r}")
+        for ref in placement.activations:
+            activation = compiled.activations.get(ref.key)
+            if activation is None or not 0 <= ref.offering < len(activation.offerings):
+                raise ValueError(f"unknown activation or offering on {placement.key!r}")
+            offer = activation.offerings[ref.offering]
+            if ref.role == "spawn":
+                expected = {spawn.character for spawn in offer.spawns}
+            elif ref.role == "reward" and offer.reward is not None:
+                expected = {offer.reward}
+            else:
+                raise ValueError(f"invalid activation role {ref.role!r} on {placement.key!r}")
+            if placement.scene != activation.scene or not characters <= expected:
+                raise ValueError(f"activation role or scene mismatch on {placement.key!r}")
+            bound.update((ref.key, ref.offering, ref.role, character) for character in characters)
+        compiled.placement_activations[placement.key] = placement.activations
+    for key, activation in compiled.activations.items():
+        for index, offer in enumerate(activation.offerings):
+            expected_roles = [("spawn", spawn.character) for spawn in offer.spawns]
+            if offer.reward is not None:
+                expected_roles.append(("reward", offer.reward))
+            for role, character in expected_roles:
+                if (key, index, role, character) not in bound:
+                    raise ValueError(f"activation character has no bound placement: {key!r} {character!r}")
 
 
 def _compile_nodes(graph: EntityGraph, compiled: CompiledData) -> None:

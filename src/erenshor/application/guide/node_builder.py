@@ -10,7 +10,21 @@ import math
 import sqlite3
 from typing import TYPE_CHECKING
 
-from .schema import Edge, EdgeType, Node, NodeType, WorkflowCycle, WorkflowTarget
+from .schema import (
+    Activation,
+    ActivationBounds,
+    ActivationOffering,
+    ActivationRef,
+    ActivationSite,
+    ActivationSpawn,
+    ActivationVector,
+    Edge,
+    EdgeType,
+    Node,
+    NodeType,
+    WorkflowCycle,
+    WorkflowTarget,
+)
 
 if TYPE_CHECKING:
     from .graph import EntityGraph
@@ -28,6 +42,7 @@ def build_nodes(
     _add_zone_nodes(conn, graph)
     _add_zone_line_nodes(conn, graph, scene_to_zone)
     _add_spawn_point_nodes(conn, graph, scene_to_zone)
+    _add_native_activations(conn, graph)
     _add_mining_node_nodes(conn, graph, scene_to_zone)
     _add_water_nodes(conn, graph, scene_to_zone)
     _add_forge_nodes(conn, graph, scene_to_zone)
@@ -310,6 +325,188 @@ def _add_spawn_point_nodes(
                 furniture_slot=r["furniture_slot"],
             )
         )
+
+
+def _activation_site(row: sqlite3.Row) -> ActivationSite | None:
+    fields = (
+        "event_x",
+        "event_y",
+        "event_z",
+        "trigger_bounds_center_x",
+        "trigger_bounds_center_y",
+        "trigger_bounds_center_z",
+        "trigger_bounds_extents_x",
+        "trigger_bounds_extents_y",
+        "trigger_bounds_extents_z",
+    )
+    values = tuple(row[field] for field in fields)
+    if all(value is None for value in values):
+        return None
+    if any(value is None or not math.isfinite(value) for value in values):
+        raise ValueError("native activation has an incomplete or nonfinite site")
+    if any(value < 0 for value in values[6:]):
+        raise ValueError("native activation has negative trigger extents")
+    return ActivationSite(
+        values[0],
+        values[1],
+        values[2],
+        ActivationBounds(
+            ActivationVector(values[3], values[4], values[5]),
+            ActivationVector(values[6], values[7], values[8]),
+        ),
+    )
+
+
+def _add_native_activations(conn: sqlite3.Connection, graph: EntityGraph) -> None:
+    """Bind exported controller facts, never names or synthetic workflow quests."""
+    rows = conn.execute(
+        """SELECT * FROM character_spawns
+           WHERE source_script IN ('VithArena', 'MalarothFeed', 'Chessboard')
+           ORDER BY source_script, scene, spawn_point_stable_key, character_stable_key"""
+    ).fetchall()
+    controllers: dict[str, Activation] = {}
+    bindings: dict[str, list[ActivationRef]] = {}
+    bound: set[tuple[str, int, str, str]] = set()
+
+    def offering(
+        item_key: str, spawns: tuple[ActivationSpawn, ...], reward: str | None = None, *, random: bool = False
+    ) -> ActivationOffering:
+        item = graph.get_node(item_key)
+        if item is None or item.type != NodeType.ITEM:
+            raise ValueError(f"native activation references missing offering item {item_key!r}")
+        if not spawns:
+            raise ValueError(f"native activation offering {item_key!r} has no spawned characters")
+        for character in [*(spawn.character for spawn in spawns), *([reward] if reward else [])]:
+            node = graph.get_node(character)
+            if node is None or node.type != NodeType.CHARACTER:
+                raise ValueError(f"native activation references missing character {character!r}")
+        return ActivationOffering(item_key, item.display_name, spawns, reward, random)
+
+    def bind(row: sqlite3.Row, key: str, index: int, role: str) -> None:
+        placement = graph.get_node(row["spawn_point_stable_key"])
+        if placement is None or placement.type != NodeType.SPAWN_POINT or not placement.scene:
+            raise ValueError(f"native activation has unbound controller placement {row['spawn_point_stable_key']!r}")
+        ref = ActivationRef(key, index, role)
+        refs = bindings.setdefault(placement.key, [])
+        if ref not in refs:
+            refs.append(ref)
+        bound.add((key, index, role, row["character_stable_key"]))
+
+    if conn.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'arena_rounds'").fetchone():
+        rounds = conn.execute("SELECT * FROM arena_rounds ORDER BY scene, arena_object_name, round_index").fetchall()
+        arena_groups: dict[tuple[str, str], list[sqlite3.Row]] = {}
+        for row in rounds:
+            arena_groups.setdefault((row["scene"], row["arena_object_name"]), []).append(row)
+        enemies: dict[str, dict[str, int]] = {}
+        sequences: set[tuple[str, int]] = set()
+        round_keys = {row["stable_key"] for row in rounds}
+        for row in conn.execute("SELECT * FROM arena_round_enemies ORDER BY arena_round_stable_key, sequence_index"):
+            round_key = row["arena_round_stable_key"]
+            sequence = row["sequence_index"]
+            if round_key not in round_keys or not isinstance(sequence, int) or sequence < 0:
+                raise ValueError(f"invalid native arena enemy binding {round_key!r}")
+            if (round_key, sequence) in sequences:
+                raise ValueError(f"duplicate native arena enemy sequence {round_key!r}: {sequence}")
+            sequences.add((round_key, sequence))
+            counts = enemies.setdefault(round_key, {})
+            character = row["enemy_character_stable_key"]
+            counts[character] = counts.get(character, 0) + 1
+        for (scene, object_name), group in arena_groups.items():
+            if not scene or not object_name or len({r["round_index"] for r in group}) != len(group):
+                raise ValueError("native arena has missing identity or duplicate round index")
+            key = f"activation:VithArena:{scene}:{object_name}"
+            site = _activation_site(group[0])
+            display = group[0]["event_display_name"]
+            if site is None:
+                raise ValueError(f"native arena {key!r} has no site")
+            offers = []
+            for row in group:
+                if _activation_site(row) != site or row["event_display_name"] != display:
+                    raise ValueError(f"native arena {key!r} has conflicting sites")
+                offers.append(
+                    offering(
+                        row["coin_item_stable_key"],
+                        tuple(
+                            ActivationSpawn(character, count)
+                            for character, count in enemies.get(row["stable_key"], {}).items()
+                        ),
+                        row["award_chest_character_stable_key"],
+                    )
+                )
+            controllers[key] = Activation("VithArena", scene, display, site, tuple(offers))
+
+    trigger_groups: dict[tuple[str, str, ActivationSite | None], list[sqlite3.Row]] = {}
+    sited: dict[tuple[str, str], set[bool]] = {}
+    for row in rows:
+        script, scene = row["source_script"], row["scene"]
+        if not scene:
+            raise ValueError("native activation placement has no scene")
+        if script == "VithArena":
+            matches = []
+            for key, controller in controllers.items():
+                if controller.scene != scene:
+                    continue
+                for index, offer in enumerate(controller.offerings):
+                    if row["character_stable_key"] in {spawn.character for spawn in offer.spawns}:
+                        matches.append((key, index, "spawn"))
+                    if row["character_stable_key"] == offer.reward:
+                        matches.append((key, index, "reward"))
+            if not matches or len({key for key, _, _ in matches}) != 1:
+                raise ValueError(f"unbound or ambiguous native arena placement {row['spawn_point_stable_key']!r}")
+            for key, index, role in matches:
+                bind(row, key, index, role)
+        else:
+            site = _activation_site(row)
+            sited.setdefault((script, scene), set()).add(site is not None)
+            trigger_groups.setdefault((script, scene, site), []).append(row)
+    if any(len(values) > 1 for values in sited.values()):
+        raise ValueError("native controller mixes sited and site-less placements")
+    for (script, scene, site), group in trigger_groups.items():
+        key = f"activation:{script}:{scene}"
+        if site is not None:
+            key += f":{site.x:.2f}:{site.y:.2f}:{site.z:.2f}"
+        if key in controllers:
+            raise ValueError(f"ambiguous native activation site identity {key!r}")
+        if len({row["event_display_name"] for row in group}) != 1:
+            raise ValueError(f"native activation {key!r} has conflicting display names")
+        by_item: dict[str, list[sqlite3.Row]] = {}
+        for row in group:
+            item = row["trigger_item_stable_key"]
+            if not item:
+                raise ValueError(f"unbound native controller placement {row['spawn_point_stable_key']!r}: no offering")
+            by_item.setdefault(item, []).append(row)
+        offers = []
+        for index, item in enumerate(sorted(by_item)):
+            characters = sorted({row["character_stable_key"] for row in by_item[item]})
+            # code-fact: chessboard.faceless_choices
+            # Multiple exported Faceless targets are alternatives, not six simultaneous spawns.
+            offers.append(
+                offering(item, tuple(ActivationSpawn(char, 1) for char in characters), random=len(characters) > 1)
+            )
+            for row in by_item[item]:
+                bind(row, key, index, "spawn")
+        controllers[key] = Activation(script, scene, group[0]["event_display_name"], site, tuple(offers))
+    for key, controller in controllers.items():
+        for index, offer in enumerate(controller.offerings):
+            expected = [("spawn", spawn.character) for spawn in offer.spawns]
+            if offer.reward is not None:
+                expected.append(("reward", offer.reward))
+            for role, character in expected:
+                if (key, index, role, character) not in bound:
+                    raise ValueError(f"native activation character has no bound placement: {key!r} {character!r}")
+        graph.add_node(
+            Node(
+                key,
+                NodeType.LOCATION,
+                controller.display_name or controller.script,
+                scene=controller.scene,
+                activation=controller,
+            )
+        )
+    for key, refs in bindings.items():
+        placement = graph.get_node(key)
+        assert placement is not None
+        placement.activations = tuple(refs)
 
 
 def _add_mining_node_nodes(

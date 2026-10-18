@@ -49,8 +49,12 @@ internal static class NavigationDisplay
             Theme.TextWrapped(location);
         if (nav.SelectedSourceOdds is string odds)
             Theme.TextWrapped(odds);
-        if (nav.SelectedItemSource is { Type: "drop", Instruction: not null } preparedSource)
-            Theme.TextWrapped(preparedSource.Instruction);
+        if (
+            nav.SelectedItemSource is { Type: "drop" } preparedSource
+            && UI.SourceListText.Preparation(preparedSource) is string preparation
+            && requirements?.Activation == null
+        )
+            Theme.TextWrapped(preparation);
         if (nav.SelectedSourceTiming is string timing)
             Theme.TextWrapped(timing);
         if (!string.IsNullOrEmpty(requirements?.Message))

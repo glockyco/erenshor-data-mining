@@ -184,6 +184,58 @@ class Gate:
     item_key: str | None = None
 
 
+@dataclass(frozen=True, slots=True)
+class ActivationVector:
+    x: float
+    y: float
+    z: float
+
+
+@dataclass(frozen=True, slots=True)
+class ActivationBounds:
+    center: ActivationVector
+    extents: ActivationVector
+
+
+@dataclass(frozen=True, slots=True)
+class ActivationSite:
+    x: float
+    y: float
+    z: float
+    bounds: ActivationBounds
+
+
+@dataclass(frozen=True, slots=True)
+class ActivationSpawn:
+    character: str
+    quantity: int
+
+
+@dataclass(frozen=True, slots=True)
+class ActivationOffering:
+    item_stable_key: str
+    item_name: str
+    spawns: tuple[ActivationSpawn, ...]
+    reward: str | None = None
+    random: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class Activation:
+    script: str
+    scene: str
+    display_name: str | None
+    site: ActivationSite | None
+    offerings: tuple[ActivationOffering, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class ActivationRef:
+    key: str
+    offering: int
+    role: str
+
+
 # ---------------------------------------------------------------------------
 # Workflow descriptors
 # ---------------------------------------------------------------------------
@@ -347,6 +399,9 @@ class Node:
     trigger_bounds_extents_x: float | None = None
     trigger_bounds_extents_y: float | None = None
     trigger_bounds_extents_z: float | None = None
+    # Native offering controllers and their exact spawned placements.
+    activation: Activation | None = None
+    activations: tuple[ActivationRef, ...] = ()
 
 
 @dataclass

@@ -133,7 +133,14 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             _config.ShowArrow.SettingChanged += OnShowArrowChanged;
             _groundPath = new GroundPathRenderer(_nav) { Enabled = _config.ShowGroundPath.Value };
             _config.ShowGroundPath.SettingChanged += OnShowGroundPathChanged;
-            _markers = new WorldMarkerSystem(_data, _state, bridge, _lootScanner, _config)
+            _markers = new WorldMarkerSystem(
+                _data,
+                _state,
+                bridge,
+                _entities,
+                _lootScanner,
+                _config
+            )
             {
                 Enabled = _config.ShowWorldMarkers.Value,
             };

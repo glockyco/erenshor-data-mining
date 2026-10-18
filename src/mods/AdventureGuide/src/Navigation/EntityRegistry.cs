@@ -219,13 +219,20 @@ public sealed class EntityRegistry
     /// Find the closest alive NPC matching the given stable key.
     /// Returns null if none alive. Prunes stale entries during iteration.
     /// </summary>
-    public NPC? FindClosest(string? stableKey, Vector3 position)
+    public NPC? FindClosest(string? stableKey, Vector3 position) =>
+        FindClosest(stableKey, position, scriptedOnly: false);
+
+    /// <summary>Find a living script-managed instance, excluding ordinary SpawnPoint spawns.</summary>
+    public NPC? FindClosestScripted(string? stableKey, Vector3 position) =>
+        FindClosest(stableKey, position, scriptedOnly: true);
+
+    private NPC? FindClosest(string? stableKey, Vector3 position, bool scriptedOnly)
     {
         if (stableKey == null)
             return null;
         // A placed character's key names one placement, not a kind of NPC.
         if (TryGetPlacedKey(stableKey, out var placedKey, out var key))
-            return FindPlaced(placedKey);
+            return FindPlaced(placedKey, scriptedOnly);
 
         if (!_byKey.TryGetValue(key, out var list))
             return null;
@@ -241,6 +248,8 @@ public sealed class EntityRegistry
                 list.RemoveAt(i);
                 continue;
             }
+            if (scriptedOnly && IsSpawnPointNpc(entry.Npc))
+                continue;
 
             float dist = Vector3.Distance(position, entry.Npc.transform.position);
             if (dist < bestDist)
@@ -317,7 +326,7 @@ public sealed class EntityRegistry
     /// placement, within the placement tolerance. Prunes stale entries during
     /// iteration.
     /// </summary>
-    private NPC? FindPlaced(in PlacedCharacterKey key)
+    private NPC? FindPlaced(in PlacedCharacterKey key, bool scriptedOnly = false)
     {
         if (!_placedByName.TryGetValue(key.ObjectName, out var list))
             return null;
@@ -333,6 +342,8 @@ public sealed class EntityRegistry
                 list.RemoveAt(i);
                 continue;
             }
+            if (scriptedOnly && IsSpawnPointNpc(placed.Entry.Npc))
+                continue;
             if (!string.Equals(placed.Scene, key.Scene, System.StringComparison.OrdinalIgnoreCase))
                 continue;
             float sqr = (placed.Position - placement).sqrMagnitude;

@@ -23,6 +23,11 @@ public sealed class NavigationController
     private readonly LootScanner _lootScanner;
     private readonly ZoneGraph _zoneGraph;
     private readonly RequirementResolver _requirements;
+    private readonly int[] _offeringLiveIds;
+
+    private bool IsOfferingCharacterLive(string key) =>
+        _entities.FindClosestScripted(key, GetPlayerPosition() ?? Vector3.zero) != null;
+
     private int _lastResolvedStateVersion = int.MinValue;
     private string? _lastResolvedScene;
     private readonly HashSet<string> _reportedResolutionErrors = new(
@@ -271,8 +276,10 @@ public sealed class NavigationController
             data,
             state.Gates,
             _zoneGraph,
-            CurrentRequirementStep
+            CurrentRequirementStep,
+            IsOfferingCharacterLive
         );
+        _offeringLiveIds = new int[data.ActivationCharacters.Count];
     }
 
     /// <summary>
@@ -676,6 +683,31 @@ public sealed class NavigationController
 
         _resolvedStep = step;
 
+        if (Requirements?.Activation is { } activation)
+        {
+            var spawn = Requirements.SelectedSpawn!;
+            var live =
+                activation.LiveCharacter == null
+                    ? null
+                    : _entities.FindClosestScripted(
+                        activation.LiveCharacter,
+                        GetPlayerPosition() ?? Vector3.zero
+                    );
+            if (step.Sources is { Count: > 0 })
+                SetSelectedSource(step.Sources[0]);
+            Target = MakeTarget(
+                live != null ? NavigationTarget.Kind.Character : NavigationTarget.Kind.Position,
+                live != null
+                    ? live.transform.position
+                    : new Vector3(activation.X, activation.Y, activation.Z),
+                activation.Instruction ?? step.TargetName ?? step.Description,
+                spawn.Scene,
+                quest.RuntimeKey,
+                step.Order,
+                activation.LiveCharacter
+            );
+            return true;
+        }
         if (step.Location != null)
         {
             Target = CreateFixedPositionTarget(
@@ -1097,6 +1129,20 @@ public sealed class NavigationController
     public void Update(string currentScene)
     {
         ObserveScene(currentScene);
+        if (OriginQuest is { } offeringOrigin && _data.ActivationCharacters.Count > 0)
+        {
+            bool changed = false;
+            var position = GetPlayerPosition() ?? Vector3.zero;
+            for (int i = 0; i < _offeringLiveIds.Length; i++)
+            {
+                var npc = _entities.FindClosestScripted(_data.ActivationCharacters[i], position);
+                int id = npc != null ? npc.GetInstanceID() : 0;
+                changed |= _offeringLiveIds[i] != id;
+                _offeringLiveIds[i] = id;
+            }
+            if (changed)
+                RefreshResolvedStep(offeringOrigin, currentScene);
+        }
         if (Target == null)
             return;
 
@@ -1160,10 +1206,13 @@ public sealed class NavigationController
             }
             else
             {
-                var liveNpc = _entities.FindClosest(Target.SourceId, playerPos.Value);
+                var liveNpc =
+                    Requirements?.Activation != null
+                        ? _entities.FindClosestScripted(Target.SourceId, playerPos.Value)
+                        : _entities.FindClosest(Target.SourceId, playerPos.Value);
                 if (liveNpc != null)
                     Target.Position = liveNpc.transform.position;
-                else
+                else if (Requirements?.Activation == null)
                 {
                     var bestRespawn = FindShortestRespawnPosition(Target.SourceId);
                     if (bestRespawn.HasValue)
@@ -1299,10 +1348,13 @@ public sealed class NavigationController
         if (_currentSourceKey == null || _positionedSources.ContainsKey(_currentSourceKey))
             return;
 
-        var liveNpc = _entities.FindClosest(_currentSourceKey, playerPos);
+        var liveNpc =
+            Requirements?.Activation != null
+                ? _entities.FindClosestScripted(_currentSourceKey, playerPos)
+                : _entities.FindClosest(_currentSourceKey, playerPos);
         if (liveNpc != null)
             Target!.Position = liveNpc.transform.position;
-        else
+        else if (Requirements?.Activation == null)
         {
             var bestRespawn = FindShortestRespawnPosition(_currentSourceKey);
             if (bestRespawn.HasValue)

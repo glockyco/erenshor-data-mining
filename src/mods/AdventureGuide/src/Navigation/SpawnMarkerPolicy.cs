@@ -2,6 +2,9 @@ namespace AdventureGuide.Navigation;
 
 internal static class SpawnMarkerPolicy
 {
+    internal static bool ShowsPlacement(bool offeringSpawned, bool targetAlive) =>
+        !offeringSpawned || targetAlive;
+
     internal static MarkerType? TypeWhenTargetLost(SpawnPointPhase phase) =>
         phase switch
         {

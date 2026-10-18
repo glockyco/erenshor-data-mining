@@ -6,6 +6,14 @@ namespace AdventureGuide.UI;
 /// <summary>Source text is formatted when presentation caches change, not during drawing.</summary>
 internal static class SourceListText
 {
+    public static string? Preparation(ItemSource source) =>
+        source.ActivationInstruction ?? source.Instruction;
+
+    public static bool RepeatsPreparation(string preparation, string? guidance) =>
+        guidance != null
+        && guidance.StartsWith(preparation, StringComparison.Ordinal)
+        && (guidance.Length == preparation.Length || guidance[preparation.Length] == '\n');
+
     public static string Action(
         ItemSource source,
         string? itemName = null,

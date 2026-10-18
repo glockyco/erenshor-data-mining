@@ -558,7 +558,12 @@ public sealed class QuestDetailPanel
             ImGui.SameLine(0, 4f * _config.ResolvedUiScale);
         }
         ImGui.BeginGroup();
-        DrawSourceText(display);
+        DrawSourceText(
+            display,
+            selected
+                && display.Instruction is string sourcePreparation
+                && SourceListText.RepeatsPreparation(sourcePreparation, _nav.Requirements?.Message)
+        );
 
         DrawGateRequirements(display.Requirements, isOrigin ? _nav.ImmediateRequirement : null);
 
@@ -615,7 +620,7 @@ public sealed class QuestDetailPanel
         ImGui.PopID();
     }
 
-    private static void DrawSourceText(SourceDisplayCache display)
+    private static void DrawSourceText(SourceDisplayCache display, bool hidePreparation = false)
     {
         float fontSize = ImGui.GetFontSize();
         if (display.FontSize != fontSize)
@@ -635,7 +640,7 @@ public sealed class QuestDetailPanel
             ImGui.PopStyleColor();
         if (display.Odds is string odds)
             Theme.TextWrapped(odds);
-        if (display.Instruction is string preparation)
+        if (!hidePreparation && display.Instruction is string preparation)
             Theme.TextWrapped(preparation);
     }
 
@@ -1382,7 +1387,7 @@ public sealed class QuestDetailPanel
                 : display.InlineLabel;
         if (
             src.Type != "vendor"
-            && src.Instruction is string instruction
+            && SourceListText.Preparation(src) is string instruction
             && !SourceListText.RepeatsAction(src, instruction)
         )
             display.Instruction = instruction;

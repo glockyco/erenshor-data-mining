@@ -435,22 +435,38 @@ def _character_accessibility_level(
     ctx: _LevelContext,
     visiting: set[str],
 ) -> int | None:
-    """Level to access a character: combat level plus unlock requirements.
-
-    Base: max(char_level, zone_median) — the existing combat factor.
-    Plus: if the character has incoming UNLOCKS_CHARACTER edges, include
-    the cost of satisfying those unlock requirements.
-    """
+    """Combat and unlock cost, including offerings when every copy needs one."""
     base = _character_level_factor(
         char_key,
         ctx.char_levels,
         ctx.char_zones,
         ctx.zone_medians,
     )
+    if char_key in visiting:
+        return None
+    visiting.add(char_key)
     unlock = _unlock_requirement_level(char_key, ctx, visiting)
-    if base is not None and unlock is not None:
-        return max(base, unlock)
-    return base if base is not None else unlock
+    placements = [
+        placement
+        for edge in ctx.graph.out_edges(char_key, EdgeType.HAS_SPAWN)
+        if (placement := ctx.graph.get_node(edge.target)) is not None
+    ]
+    offering_levels: list[int] = []
+    if placements and all(placement.activations for placement in placements):
+        item_keys: set[str] = set()
+        for placement in placements:
+            for ref in placement.activations:
+                controller = ctx.graph.get_node(ref.key)
+                assert controller is not None and controller.activation is not None
+                item_keys.add(controller.activation.offerings[ref.offering].item_stable_key)
+        offering_levels = [
+            level for key in sorted(item_keys) if (level := _item_obtainability_level(key, ctx, visiting)) is not None
+        ]
+    visiting.discard(char_key)
+    factors = [
+        level for level in (base, unlock, min(offering_levels) if offering_levels else None) if level is not None
+    ]
+    return max(factors) if factors else None
 
 
 def _unlock_requirement_level(

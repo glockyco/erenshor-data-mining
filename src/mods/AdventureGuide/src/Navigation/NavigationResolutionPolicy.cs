@@ -84,7 +84,10 @@ public static class NavigationResolutionPolicy
                 result.SelectedSpawn,
                 result.EntryLine,
                 result.AvailableSpawns
-            );
+            )
+            {
+                Activation = result.Activation,
+            };
     }
 
     public static bool ShouldResolveRequirements(int stateVersion, int resolutionVersion) =>
@@ -101,6 +104,8 @@ public static class NavigationResolutionPolicy
         // Item-use children depend on inventory even when their source references are unchanged.
         && !containsItemUse
         && previous != null
+        && previous.Activation == null
+        && current.Activation == null
         && previous.CanNavigate
         && current.CanNavigate
         && SameStep(previous.Quest, previous.Step, current.Quest, current.Step)

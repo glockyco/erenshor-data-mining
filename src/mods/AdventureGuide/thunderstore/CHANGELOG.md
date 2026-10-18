@@ -31,6 +31,7 @@
 - Estimate quest levels from the easier complete alternative without skipping required steps.
 - Keep encounter requirements visible when navigating to a prerequisite fight.
 - Keep locked-door and quest requirements on item source locations.
+- Explain which fee, feed or figurine summons arena fights, Malaroth feeding-site bosses and chessboard pieces, and lead the arrow there.
 
 ## v2026.1008.0
 
