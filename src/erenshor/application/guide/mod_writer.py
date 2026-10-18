@@ -344,19 +344,22 @@ def _zone_line(line: Node, compiled: CompiledData) -> dict[str, Any]:
     return value
 
 
-def _condition_payload(graph: EntityGraph, condition: Condition) -> list[list[dict[str, str]]]:
+def _condition_payload(graph: EntityGraph, condition: Condition) -> list[list[dict[str, str | int]]]:
     """A condition as groups of atoms. A quest atom names the quest's DB name,
     which the game's quest state uses, and every other atom a stable key."""
     return [[_atom_payload(graph, atom) for atom in group] for group in condition]
 
 
-def _atom_payload(graph: EntityGraph, atom: GateAtom) -> dict[str, str]:
+def _atom_payload(graph: EntityGraph, atom: GateAtom) -> dict[str, str | int]:
+    value: dict[str, str | int]
     if atom.kind in (AtomKind.QUEST_DONE, AtomKind.QUEST_NOT_DONE):
         value = {"kind": atom.kind.value, "ref": graph.quest_db_name(atom.ref)}
     else:
         value = {"kind": atom.kind.value, "ref": atom.ref}
     if atom.slot is not None:
         value["slot"] = atom.slot
+    if atom.kind == AtomKind.ENCOUNTER_WON and atom.quantity > 1:
+        value["quantity"] = atom.quantity
     if atom.kind == AtomKind.PLANNING_SLOT_ITEM:
         if not atom.instruction or not atom.instruction.strip():
             raise ValueError(f"Planning-slot atom has no instruction: {atom.ref}.{atom.slot}")

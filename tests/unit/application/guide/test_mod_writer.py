@@ -404,6 +404,25 @@ def test_build_mod_guide_emits_zone_character_and_gate_conditions() -> None:
     ]
 
 
+@pytest.mark.parametrize("quantity", [1, 9])
+def test_defeat_quantity_reaches_the_serialized_compatibility_condition(quantity: int) -> None:
+    graph, _ = _fixture()
+    graph.add_gate(
+        Gate(
+            SubjectKind.CHARACTER,
+            "char:mob",
+            "activation:death",
+            ((GateAtom(AtomKind.ENCOUNTER_WON, "character:stardust", quantity=quantity),),),
+        )
+    )
+    data = json.loads(serialize_mod_guide(graph, compile_graph(graph)))
+    [placement] = data["_character_spawns"]["char:mob"]
+    expected: dict[str, object] = {"kind": "encounter_won", "ref": "character:stardust"}
+    if quantity > 1:
+        expected["quantity"] = quantity
+    assert data["_conditions"][placement["condition"]] == [[expected]]
+
+
 def _resource_graph(source_type: NodeType) -> EntityGraph:
     quest = quest_node("quest:resource", "RESOURCE", display_name="RESOURCE")
     item = item_node("item:resource", "Resource Item")

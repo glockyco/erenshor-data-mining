@@ -292,6 +292,68 @@ public sealed class GateConditionsTests
         Assert.Same(advisory, Assert.Single(gates.Explain(0)));
     }
 
+    [Theory]
+    [InlineData(null, 1, "character:raval", "Defeat Raval")]
+    [InlineData(1, 1, "character:raval", "Defeat Raval")]
+    [InlineData(9, 9, "character:stardust", "Defeat all 9 Stardust")]
+    public void Defeat_quantity_is_read_from_wire_and_shown_without_blocking(
+        int? quantity,
+        int expected,
+        string reference,
+        string description
+    )
+    {
+        string property = quantity.HasValue ? ",\"quantity\":" + quantity.Value : "";
+        string json = """
+            {"_version":8,"_zone_line_destination_contexts":{},"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},"_source_facts":{},"_item_uses":{},"_quest_state_keys":{},"quests":[],
+             "_conditions":[[[{"kind":"encounter_won","ref":"REFERENCE"QUANTITY}]]]}
+            """.Replace("QUANTITY", property).Replace("REFERENCE", reference);
+        var data = GuideData.Parse(json);
+        var atom = Assert.Single(Assert.Single(Assert.Single(data.Conditions)));
+        Assert.Equal(expected, atom.Quantity);
+        var gates = new GateConditions(data, new GateTestFacts());
+        Assert.True(gates.IsAvailable(0));
+        Assert.Equal(description, gates.Describe(Assert.Single(gates.Explain(0))));
+    }
+
+    [Fact]
+    public void Advisory_deduplication_preserves_distinct_defeat_counts()
+    {
+        var once = Atom(GateAtomKind.EncounterWon, "character:stardust");
+        var repeated = Atom(GateAtomKind.EncounterWon, "character:stardust");
+        repeated.Quantity = 9;
+        var gates = new GateConditions(
+            Data([
+                [
+                    [once],
+                    [repeated],
+                    [repeated],
+                ],
+            ]),
+            new GateTestFacts()
+        );
+        var explained = gates.Explain(0);
+        Assert.Equal(2, explained.Count);
+        Assert.Contains(once, explained);
+        Assert.Contains(repeated, explained);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Invalid_defeat_quantity_is_rejected(int quantity)
+    {
+        var atom = Atom(GateAtomKind.EncounterWon, "character:stardust");
+        atom.Quantity = quantity;
+        Assert.Throws<InvalidDataException>(() =>
+            Data([
+                [
+                    [atom],
+                ],
+            ])
+        );
+    }
+
     [Fact]
     public void Missing_condition_is_ungated_empty_disjunction_is_false_and_empty_conjunction_is_true()
     {

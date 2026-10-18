@@ -137,6 +137,8 @@ class SubjectKind(str, Enum):
     SPAWN_POINT = "spawn_point"
     VENDOR_ITEM = "vendor_item"
     ITEM_BAG = "item_bag"
+    UI_ITEM_ACCESS_TARGET = "ui_item_access_target"
+    DOOR = "door"
 
 
 class AtomKind(str, Enum):
@@ -151,6 +153,7 @@ class AtomKind(str, Enum):
     ACCOUNT_STATE = "account_state"
     # Advisory: the mod cannot observe it reliably, so it guides and never hides.
     ENCOUNTER_WON = "encounter_won"
+    WORLD_STATE = "world_state"
     # No game state satisfies it, such as a door whose key cannot be obtained.
     NEVER = "never"
 
@@ -167,6 +170,13 @@ class GateAtom:
     value: str | None = None
     phase: str | None = None
     scope: str | None = None
+    quantity: int = 1
+
+    def __post_init__(self) -> None:
+        if isinstance(self.quantity, bool) or not isinstance(self.quantity, int) or self.quantity <= 0:
+            raise ValueError("Gate atom quantity must be a positive integer")
+        if self.kind != AtomKind.ENCOUNTER_WON and self.quantity != 1:
+            raise ValueError("Only an encounter defeat can have a gate atom quantity")
 
 
 @dataclass(frozen=True, slots=True)

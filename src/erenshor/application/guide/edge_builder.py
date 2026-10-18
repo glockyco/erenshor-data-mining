@@ -236,7 +236,7 @@ def _add_gates(conn: sqlite3.Connection, graph: EntityGraph) -> None:
     """Gates from gate_conditions, with the DB names of the quests they name."""
     rows = conn.execute("""
         SELECT subject_kind, subject_stable_key, item_stable_key, gate, group_index,
-               atom_kind, atom_stable_key, atom_slot
+               atom_kind, atom_stable_key, atom_slot, atom_quantity
         FROM gate_conditions
         ORDER BY subject_kind, subject_stable_key, item_stable_key, gate, group_index,
                  atom_kind, atom_stable_key, atom_slot
@@ -250,7 +250,13 @@ def _add_gates(conn: sqlite3.Connection, graph: EntityGraph) -> None:
             if atom_kind == AtomKind.PLANNING_SLOT_ITEM
             else None
         )
-        atom = GateAtom(atom_kind, r["atom_stable_key"], r["atom_slot"], instruction)
+        atom = GateAtom(
+            atom_kind,
+            r["atom_stable_key"],
+            r["atom_slot"],
+            instruction,
+            quantity=r["atom_quantity"] if r["atom_quantity"] is not None else 1,
+        )
         if atom.kind in (AtomKind.QUEST_DONE, AtomKind.QUEST_NOT_DONE):
             quest_keys.add(atom.ref)
         subject = (r["subject_kind"], r["subject_stable_key"], r["item_stable_key"], r["gate"])

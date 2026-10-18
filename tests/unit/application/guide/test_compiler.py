@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import sqlite3
+from contextlib import closing
+from pathlib import Path
 
 import pytest
 
@@ -48,6 +50,74 @@ def _char(key: str, *, scene: str = "Forest", x: float = 1.0, y: float = 2.0, z:
         y=y,
         z=z,
     )
+
+
+@pytest.mark.parametrize("kind", ["door", "ui_item_access_target"])
+def test_gate_reader_preserves_shared_access_subjects_and_world_state(kind: str) -> None:
+    from erenshor.application.guide.edge_builder import _add_gates
+
+    graph = EntityGraph()
+    with sqlite3.connect(":memory:") as connection:
+        connection.row_factory = sqlite3.Row
+        connection.executescript(
+            """
+            CREATE TABLE gate_conditions (
+                subject_kind TEXT, subject_stable_key TEXT, item_stable_key TEXT, gate TEXT,
+                group_index INTEGER, atom_kind TEXT, atom_stable_key TEXT, atom_slot TEXT, atom_quantity INTEGER
+            );
+            CREATE TABLE quests (stable_key TEXT, db_name TEXT);
+            """
+        )
+        connection.execute(
+            "INSERT INTO gate_conditions VALUES "
+            "(?, 'access:native', NULL, 'activation', 0, 'world_state', ?, NULL, NULL)",
+            (kind, "world_state:weather:raining:zone:braxonian"),
+        )
+        _add_gates(connection, graph)
+
+    assert graph.gates_for(SubjectKind(kind), "access:native") == [
+        Gate(
+            SubjectKind(kind),
+            "access:native",
+            "activation",
+            ((GateAtom(AtomKind.WORLD_STATE, "world_state:weather:raining:zone:braxonian"),),),
+        )
+    ]
+
+
+@pytest.mark.parametrize("quantity", [None, 1, 9])
+def test_gate_reader_and_override_preserve_defeat_quantity(quantity: int | None, tmp_path: Path) -> None:
+    from erenshor.application.guide.edge_builder import _add_gates
+    from erenshor.application.guide.graph_overrides import _parse_gate
+    from erenshor.application.processor.writer import Writer
+
+    graph = EntityGraph()
+    writer = Writer(tmp_path / "reader.sqlite")
+    writer.create_schema()
+    with closing(writer.conn) as connection:
+        connection.execute(
+            """INSERT INTO gate_conditions (
+                subject_kind, subject_stable_key, gate, group_index, atom_kind, atom_stable_key, atom_quantity
+            ) VALUES ('character', 'character:astra', 'activation', 0, 'encounter_won', 'character:stardust', ?)""",
+            (quantity,),
+        )
+        _add_gates(connection, graph)
+    gate = graph.gates_for(SubjectKind.CHARACTER, "character:astra")[0]
+    expected = GateAtom(AtomKind.ENCOUNTER_WON, "character:stardust", quantity=quantity or 1)
+    assert gate.groups == ((expected,),)
+    assert combine_gates([gate]) == ((expected,),)
+    atom: dict[str, object] = {"kind": "encounter_won", "ref": "character:stardust"}
+    if quantity is not None:
+        atom["quantity"] = quantity
+    assert _parse_gate(
+        {"subject_kind": "character", "subject": "character:astra", "gate": "activation", "groups": [[atom]]}
+    ).groups == ((expected,),)
+
+
+@pytest.mark.parametrize("quantity", [0, -1, True, 1.5])
+def test_gate_atom_rejects_invalid_defeat_quantity(quantity) -> None:
+    with pytest.raises(ValueError, match="positive integer"):
+        GateAtom(AtomKind.ENCOUNTER_WON, "character:stardust", quantity=quantity)
 
 
 def test_compile_graph_assigns_dense_node_ids_in_key_order() -> None:

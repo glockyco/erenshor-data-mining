@@ -206,7 +206,11 @@ public sealed partial class GateConditions
                 continue;
             bool duplicate = false;
             for (int k = 0; k < result.Count; k++)
-                if (result[k].Kind == atom.Kind && result[k].Ref == atom.Ref)
+                if (
+                    result[k].Kind == atom.Kind
+                    && result[k].Ref == atom.Ref
+                    && result[k].Quantity == atom.Quantity
+                )
                 {
                     duplicate = true;
                     break;
@@ -274,7 +278,9 @@ public sealed partial class GateConditions
             GateAtomKind.AccountState => atom.Value == "false"
                 ? "Before claiming your Reliquary"
                 : "Claim your Reliquary",
-            GateAtomKind.EncounterWon => "Defeat " + name + " first",
+            GateAtomKind.EncounterWon => atom.Quantity > 1
+                ? "Defeat all " + atom.Quantity + " " + name
+                : "Defeat " + name,
             _ => throw new InvalidOperationException($"Unknown gate atom kind '{atom.Kind}'"),
         };
     }

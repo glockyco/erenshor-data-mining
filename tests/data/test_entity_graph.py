@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, ClassVar
 import pytest
 
 from erenshor.application.guide.schema import AtomKind, EdgeType, GateAtom, NodeType, SubjectKind
+from erenshor.domain.value_objects.item_provenance import ItemAcquisition, is_actionable_acquisition
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -186,10 +187,13 @@ class TestAnglerRingChain:
         assert len(edges) == 1
 
     def test_unlocks_bassle(self, graph: EntityGraph) -> None:
-        gates = graph.gates_for(SubjectKind.CHARACTER, "character:bassle wavebreak")
-        assert any(
-            GateAtom(AtomKind.QUEST_DONE, "quest:anglerring") in group for gate in gates for group in gate.groups
-        )
+        placements = graph.out_edges("character:bassle wavebreak", EdgeType.HAS_SPAWN)
+        assert placements
+        for placement in placements:
+            gates = graph.gates_for(SubjectKind.SPAWN_POINT, placement.target)
+            assert any(
+                GateAtom(AtomKind.QUEST_DONE, "quest:anglerring") in group for gate in gates for group in gate.groups
+            ), placement.target
 
     def test_is_implicit(self, graph: EntityGraph) -> None:
         """Angler's Ring has no acquisition source — it's implicit."""
@@ -296,10 +300,15 @@ class TestFactionNodes:
 
 
 class TestCommonWorldItems:
-    """The common world item swap is one background source per item."""
+    """The common world item swap is one canonical source per item."""
 
     def test_swap_only_rows_are_not_droppers(self, graph: EntityGraph, main_clean_db: Path) -> None:
-        from erenshor.application.guide.node_builder import SWAP_ONLY_DROP
+        swap_only_drop = """ld.is_common_world_item = 1 AND NOT (
+            COALESCE(ld.is_common, 0) OR COALESCE(ld.is_uncommon, 0)
+            OR COALESCE(ld.is_rare, 0) OR COALESCE(ld.is_legendary, 0)
+            OR COALESCE(ld.is_ultra_rare, 0) OR COALESCE(ld.is_guaranteed, 0)
+            OR COALESCE(ld.is_actual, 0)
+        )"""
 
         item = "item:cons - bread"
         conn = sqlite3.connect(f"file:{main_clean_db}?mode=ro", uri=True)
@@ -308,7 +317,7 @@ class TestCommonWorldItems:
                 key
                 for (key,) in conn.execute(
                     "SELECT ld.character_stable_key FROM loot_drops ld"
-                    f" WHERE ld.item_stable_key = ? AND {SWAP_ONLY_DROP}",
+                    f" WHERE ld.item_stable_key = ? AND ({swap_only_drop})",
                     (item,),
                 )
             }
@@ -316,7 +325,7 @@ class TestCommonWorldItems:
                 key
                 for (key,) in conn.execute(
                     "SELECT ld.character_stable_key FROM loot_drops ld"
-                    f" WHERE ld.item_stable_key = ? AND ld.is_common_world_item = 1 AND NOT {SWAP_ONLY_DROP}",
+                    f" WHERE ld.item_stable_key = ? AND ld.is_common_world_item = 1 AND NOT ({swap_only_drop})",
                     (item,),
                 )
                 if graph.has_node(key)
@@ -331,10 +340,16 @@ class TestCommonWorldItems:
         assert own <= droppers
         node = graph.get_node(item)
         assert node is not None
-        sources = [source for source in node.background_sources if source.type == "common_world_item"]
+        sources = [
+            fact
+            for fact in graph.source_facts.values()
+            if isinstance(fact, ItemAcquisition) and fact.item_stable_key == item and fact.kind == "common_world_item"
+        ]
         assert len(sources) == 1
-        assert sources[0].chance_max is not None
-        assert 0 < sources[0].chance < sources[0].chance_max
+        assert is_actionable_acquisition(sources[0])
+        assert sources[0].probability_min is not None
+        assert sources[0].probability_max is not None
+        assert 0 < sources[0].probability_min < sources[0].probability_max
 
     def test_every_common_world_item_has_one_swap_source(self, graph: EntityGraph, main_clean_db: Path) -> None:
         conn = sqlite3.connect(f"file:{main_clean_db}?mode=ro", uri=True)
@@ -347,4 +362,16 @@ class TestCommonWorldItems:
         for item in items:
             node = graph.get_node(item)
             assert node is not None, item
-            assert [source.type for source in node.background_sources].count("common_world_item") == 1, item
+            sources = [
+                fact
+                for fact in graph.source_facts.values()
+                if isinstance(fact, ItemAcquisition)
+                and fact.item_stable_key == item
+                and fact.kind == "common_world_item"
+            ]
+            assert len(sources) == 1, item
+            source = sources[0]
+            assert is_actionable_acquisition(source), item
+            assert source.acquisition_key in graph.source_uses, item
+            assert source.source_stable_key is None
+            assert source.source_copy_stable_key is None

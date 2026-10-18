@@ -120,6 +120,7 @@ public sealed class RequirementResolverTests
         var quest = Quest("Lighthouse scenario", step);
         var facts = new GateTestFacts();
         facts.Quests.Add("MEETBASSLE");
+        facts.Quests.Add("ANGLERRING");
         facts.Keyring.Add(key.Value.GameId);
         var gates = new GateConditions(data, facts);
         var graph = new ZoneGraph(data, gates);

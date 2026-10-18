@@ -301,6 +301,10 @@ public sealed partial class GuideData
             {
                 Kind = kind.Value,
                 Ref = atom.QuestDBName ?? atom.ReferenceStableKey!,
+                Quantity =
+                    atom.Predicate == "encounter_won" && atom.Minimum.HasValue
+                        ? checked((int)atom.Minimum.Value)
+                        : 1,
                 Slot = atom.ReferenceSlot,
                 Actor = atom.Actor,
                 Value = atom.Value,
@@ -405,6 +409,16 @@ public sealed partial class GuideData
         if (atom.Predicate == "time_of_day" && atom.Value is not ("day" or "night"))
             throw new InvalidDataException("Invalid canonical time window");
         ValidateRange(atom.Minimum, atom.Maximum, null, atom.GateKey);
+        if (
+            atom.Predicate == "encounter_won"
+            && atom.Minimum.HasValue
+            && (
+                atom.Minimum.Value < 1
+                || atom.Minimum.Value > int.MaxValue
+                || Math.Truncate(atom.Minimum.Value) != atom.Minimum.Value
+            )
+        )
+            throw new InvalidDataException("Invalid canonical encounter defeat quantity");
     }
 
     private static void ValidateLocation(SourceLocation location)

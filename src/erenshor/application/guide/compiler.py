@@ -640,6 +640,7 @@ def _atom_order(atom: GateAtom) -> tuple[str, ...]:
         atom.phase or "",
         atom.scope or "",
         atom.instruction or "",
+        str(atom.quantity),
     )
 
 

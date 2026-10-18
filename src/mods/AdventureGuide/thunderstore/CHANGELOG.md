@@ -2,6 +2,7 @@
 
 ## v2026.1017.0
 
+- Show how many enemies must be defeated to unlock a target.
 - Lead the arrow to what unlocks a locked quest target, such as a key, an item, another quest, or a furnished Reliquary room, and show the steps on the way.
 - Treat targets behind locked doors as reachable only once you hold the key or have it on your keyring.
 - Reach targets that only one entrance leads to, such as Occuphage through the Stowaway's Step lighthouse.

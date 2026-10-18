@@ -216,6 +216,53 @@ public sealed class CanonicalSourceConditionsTests
             Actor = actor,
         };
 
+    [Theory]
+    [InlineData(null, 1, "character:raval", "Defeat Raval")]
+    [InlineData(9.0, 9, "character:stardust", "Defeat all 9 Stardust")]
+    public void Canonical_defeat_count_reaches_condition_text(
+        double? quantity,
+        int expected,
+        string reference,
+        string description
+    )
+    {
+        var source = new ItemSource
+        {
+            Type = "drop",
+            AcquisitionKey = "acq",
+            LocationKey = "loc",
+        };
+        var fact = Fact();
+        var condition = Condition("encounter_won", reference, "availability");
+        condition.Minimum = quantity;
+        fact.Conditions.Add(condition);
+        var (data, facts) = Load(source, fact);
+        var gates = new GateConditions(data, facts);
+        var atom = Assert.Single(Assert.Single(Assert.Single(gates.SourceRequirements(source))));
+        Assert.Equal(expected, atom.Quantity);
+        Assert.Equal(description, gates.Describe(atom));
+        Assert.True(gates.IsSourceAvailable(source));
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    [InlineData(1.5)]
+    public void Canonical_defeat_count_must_be_a_positive_integer(double quantity)
+    {
+        var source = new ItemSource
+        {
+            Type = "drop",
+            AcquisitionKey = "acq",
+            LocationKey = "loc",
+        };
+        var fact = Fact();
+        var condition = Condition("encounter_won", "character:stardust", "availability");
+        condition.Minimum = quantity;
+        fact.Conditions.Add(condition);
+        Assert.Throws<InvalidDataException>(() => Load(source, fact));
+    }
+
     private static SourceFact Fact() =>
         new()
         {

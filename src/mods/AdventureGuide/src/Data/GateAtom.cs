@@ -64,6 +64,9 @@ public sealed class GateAtom
     [JsonProperty("ref")]
     public string Ref { get; set; } = "";
 
+    [JsonProperty("quantity")]
+    public int Quantity { get; set; } = 1;
+
     [JsonProperty("slot")]
     public string? Slot { get; set; }
 

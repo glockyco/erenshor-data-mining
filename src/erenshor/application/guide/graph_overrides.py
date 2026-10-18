@@ -129,7 +129,11 @@ def _parse_gate(data: dict[str, Any]) -> Gate:
         subject_key=data["subject"],
         gate=data["gate"],
         groups=tuple(
-            tuple(GateAtom(AtomKind(atom["kind"]), atom["ref"], atom.get("slot")) for atom in group) for group in groups
+            tuple(
+                GateAtom(AtomKind(atom["kind"]), atom["ref"], atom.get("slot"), quantity=atom.get("quantity", 1))
+                for atom in group
+            )
+            for group in groups
         ),
         item_key=data.get("item"),
     )

@@ -156,8 +156,13 @@ class EntityGraph:
         self._edges = list(deduped.values())
         gates: dict[Gate, None] = {}
         for gate in self._gates:
+            # Grouping copies must not require furnishing every room at once.
+            if gate.subject_kind == SubjectKind.CHARACTER and gate.subject_key in replacements:
+                for placement in spawns[gate.subject_key]:
+                    gates[replace(gate, subject_kind=SubjectKind.SPAWN_POINT, subject_key=placement.key)] = None
+                continue
             renamed = gate
-            if gate.subject_kind in (SubjectKind.CHARACTER, SubjectKind.VENDOR_ITEM):
+            if gate.subject_kind == SubjectKind.VENDOR_ITEM:
                 renamed = replace(gate, subject_key=replacements.get(gate.subject_key, gate.subject_key))
             gates[renamed] = None
         self._gates = []

@@ -78,3 +78,44 @@ def test_ungated_zone_level_and_completion_preferred_and_furnishing_condition_em
     ]
     assert guide["_gate_items"]["item:smithy"]["game_id"] == "123"
     assert guide["quests"][0]["completion"][0]["source_stable_key"] == "character:world"
+
+
+def test_grouped_character_activity_stays_on_each_original_placement() -> None:
+    graph = EntityGraph()
+    graph.add_node(Node("quest:test", NodeType.QUEST, "Test", db_name="TEST"))
+    graph.add_node(Node("quest:claim", NodeType.QUEST, "Claim", db_name="CLAIM"))
+    graph.add_quest_db_name("quest:claim", "CLAIM")
+    graph.add_node(Node("item:smithy", NodeType.ITEM, "Smithy Set", game_id="123"))
+    for index, slot in enumerate(("L1", "R4")):
+        key = f"character:golem:reliquary:{index}:2:3"
+        _member(graph, key, "item:smithy", slot)
+        graph.add_gate(
+            Gate(
+                SubjectKind.CHARACTER,
+                key,
+                "activation:hierarchy",
+                (
+                    (
+                        GateAtom(AtomKind.QUEST_DONE, "quest:claim"),
+                        GateAtom(AtomKind.ROOM_FURNISHED, "item:smithy", slot),
+                    ),
+                ),
+            )
+        )
+
+    graph.group_furnishing_characters()
+    graph.build_indexes()
+    assert not graph.gates_for(SubjectKind.CHARACTER, "character:golem")
+    guide = build_mod_guide(graph, compile_graph(graph))
+    entries = guide["_character_spawns"]["character:golem"]
+    assert len(entries) == 2
+    conditions = [guide["_conditions"][entry["condition"]] for entry in entries]
+    assert conditions == [
+        [
+            [
+                {"kind": "quest_done", "ref": "CLAIM"},
+                {"kind": "room_furnished", "ref": "item:smithy", "slot": slot},
+            ]
+        ]
+        for slot in ("L1", "R4")
+    ]

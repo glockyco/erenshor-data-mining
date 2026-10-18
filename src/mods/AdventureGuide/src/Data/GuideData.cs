@@ -260,6 +260,11 @@ public sealed partial class GuideData
                 {
                     if (string.IsNullOrWhiteSpace(atom.Ref))
                         throw new InvalidDataException("Gate atom has no reference");
+                    if (
+                        atom.Quantity <= 0
+                        || (atom.Kind != GateAtomKind.EncounterWon && atom.Quantity != 1)
+                    )
+                        throw new InvalidDataException("Invalid gate atom defeat quantity");
                     switch (atom.Kind)
                     {
                         case GateAtomKind.AccountState:
