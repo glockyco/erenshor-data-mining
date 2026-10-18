@@ -32,11 +32,17 @@ internal static class NavigationDisplay
             return;
 
         ImGui.PushID("navigation-requirements");
-        ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-        if (nav.ImmediateRequirement is string blocker)
+        var nextAction = nav.NextActionLabel;
+        if (
+            nav.ImmediateRequirement is string blocker
+            && !string.Equals(blocker, nextAction, StringComparison.Ordinal)
+        )
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
             Theme.TextWrapped(blocker);
-        ImGui.PopStyleColor();
-        if (nav.NextActionLabel is string nextAction)
+            ImGui.PopStyleColor();
+        }
+        if (nextAction != null)
             Theme.TextWrapped(nextAction);
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
         if (nav.SelectedSourceLocation is string location)

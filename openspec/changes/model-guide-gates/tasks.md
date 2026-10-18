@@ -159,6 +159,9 @@ A checked task proves its named behavior and checks, not newer shared-data integ
 - [x] 10.8 Preserve cumulative recipe input thresholds in world-marker recursion and tracker ordering. Pass each original sibling list to the shared input policy.
   - Both native loaders build without warnings or errors. Actual BepInEx consumer traversal reproduces Main stopping the eight-shard ingredient branch at quantity one. The corrected marker and tracker consumers retain the pending branch at one and stop it at eight. Native inventory controls and probe patches were restored.
   - This observes actual consumer traversal in Stowaway with the original recipe and slot-level sources. There are no matching scene markers at that location. It is not raid marker placement or geometric access proof.
+- [x] 10.9 Show an identical prerequisite and next action once in the shared Guide/tracker renderer. Preserve distinct messages and underlying requirement state. Verify ordinary-rune OR and dedicated-slot instructions in the native UI.
+  - Both native loaders build without warnings or errors. Actual BepInEx reproduced the duplicate for both portal kinds. The corrected native Lunaris Guide and tracker show each instruction once while the underlying prerequisite and next-action fields remain unchanged. Distinct Ghostly Key and mining instructions remain separate.
+  - Ordinary-rune proof selects the exact native portal through the existing PinZoneLine API. It does not establish a single-entry panel button. Both cases use native inventory controls without slot or account mutation, and all five item controls were restored.
 
 ## 8. Close-out
 
