@@ -1648,7 +1648,7 @@ def rollback_repo_pages_command(
     ctx: typer.Context,
     manifest_path: Annotated[
         Path,
-        typer.Option("--manifest", help="Deployment manifest JSON produced by deploy-repo-pages or deploy."),
+        typer.Option("--manifest", help="Manifest JSON produced by deploy-repo-pages, deploy, or apply-page-edits."),
     ],
     summary: Annotated[
         str,
@@ -1663,7 +1663,7 @@ def rollback_repo_pages_command(
         typer.Option("--force", help="Restore even if a page changed since the deploy being rolled back."),
     ] = False,
 ) -> None:
-    """Restore the page text recorded in a deploy-repo-pages or deploy manifest."""
+    """Restore the page text recorded in a deploy-repo-pages, deploy, or apply-page-edits manifest."""
     cli_ctx: CLIContext = ctx.obj
 
     manifest = read_repo_page_manifest(manifest_path)
