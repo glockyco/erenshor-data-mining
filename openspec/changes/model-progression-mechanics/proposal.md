@@ -24,7 +24,7 @@ The overrides approximate these mechanisms. They gate the Jaws entrance instead 
 - Faction standing: the rules by which a world faction's standing blocks an NPC's dialog become code facts, and a gate can need a standing with a faction.
 - Hand-coded literals, such as `"STANDANGEL"`, `"JAWSSEEN"`, and spell names, come from code facts that extract them, so a changed literal fails the run instead of drifting.
 - The rule-specific branches of `gates.py` that these rules cover go, with their literal quest keys.
-- Repeat ways: a way that needs something reachable only through its own node is marked, and each way keeps the clean facts that produced it, so that consumers can match their sources and stop offering such a way as the route to the node.
+- Way ranks: each way keeps the tier and depth that the build already computes and the clean facts that produced it, so that a consumer choosing among ways it cannot use yet follows the build's order and never loops.
 - The open producer tasks of `model-guide-gates` move here after a handoff: inactive placements (its task group 4), unusable zone lines (5), and removed barriers (6.1), with the guide's pending producer proposals and evidence as inputs.
 - The guide's overrides lose their gates in a guide change once the clean database holds them.
 
@@ -40,7 +40,7 @@ Migration boundary: each mechanism lands with its consumers unchanged. The requi
 
 ### Modified Capabilities
 
-- `progression-requirements`: ways that repeat their node are marked, and each way keeps the clean facts that produced it.
+- `progression-requirements`: ways carry their rank and the clean facts that produced them.
 
 The requirements of `guide-gate-data` that describe shared clean-build data move into `progression-mechanics` when `model-guide-gates` archives (task 9.1).
 
@@ -50,6 +50,6 @@ The requirements of `guide-gate-data` that describe shared clean-build data move
 - Code facts: an inventory mode and new facts in `src/tools/CodeFacts/`.
 - Clean build: `src/erenshor/application/processor/` (`gates.py` and new modules), the schema in `writer.py`, `barriers.toml`, and `mapping.json`.
 - Readers of zone line usability: the map query in `src/maps/src/lib/database.base.ts` and the wiki zone connections.
-- Guide: the gates of `quest_guides/graph_overrides.toml`, removed in a guide change, and the repeat mark that the guide export carries to its sources.
+- Guide: the gates of `quest_guides/graph_overrides.toml`, removed in a guide change, and the way rank that the guide export carries to its sources.
 - Documentation: the README's Gates concept and the `unity-export-system`, `code-facts`, and `refreshing-game-data` skills.
 - Shared resources: Unity exports, code-facts runs, clean builds, and game sessions for the in-game checks, each coordinated with the Adventure Guide tab.

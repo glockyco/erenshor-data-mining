@@ -154,11 +154,11 @@ Code facts pin the hail threshold, the aggro threshold, the keyword rule, and th
 
 A character that another character summons is present only while its summoner is. `character_chained_spawns` records each summoner and its child, and the clean build expands the child's placements from the summoner's. The child's way needs its summoner, and the adds that a round waits for join the round's death set. Each summoning script is read before its children get the need, and a summon with further conditions gets those too.
 
-### D13. Repeat ways
+### D13. Way ranks for consumers
 
-A way repeats its node when one of its needs can only be reached through the node. The round 8 chest's way to Vithean Arena Fee (1) is one: the chest needs Vithean Arena Fee (8), and every way to that fee passes through Vithean Arena Fee (1). The Master of Battle's buy-back of a fee is another, because it needs the turn-in quest that takes the fee. Such a way is real for a player who has been through the node, but it never explains how to reach the node.
+The build already orders every way when it computes tiers: a way's tier is the highest tier of its needs, plus one at a milestone, and its depth is one more than the deepest of its needs. A node's first way is its way of lowest tier and depth, and first-way depths strictly decrease, so following first ways never returns to a node. The build stores each usable way's tier and depth, and the clean facts that produced the way, such as an item's acquisition key.
 
-For each node with a tier, the build computes the nodes that every way of reaching it passes through, over the needs that tiers count. This is the greatest fixpoint in which a node passes through itself and through what all its usable ways pass through, and a way passes through what any of its needs passes through. A way repeats when its node is among the nodes that one of its needs passes through. A first way never repeats, because first-way depths decrease, and the build fails if one does. The build stores the mark with the way, and with each way the clean facts that produced it, so that a consumer can match its own sources by acquisition key. The guide stops offering a repeat source as a navigation target while that source's needs are unmet.
+A consumer that has to choose among ways whose needs are not yet met ranks them by this order instead of searching at run time. The guide gives each item source the lowest rank among the ways of its acquisition, and prefers the lower rank among sources that need something first. Vithean Arena Fee (1) then leads to the Planar Stone trade of An Arena Token, not to the round 8 chest. That chest is a real way, through a fished Vithean Arena Fee (5) and rounds 5 to 8, but a later one. The buy-back of a fee ranks after the quest that turns the fee in, so it never comes first for a player who lacks the fee.
 
 ## Risks / Trade-offs
 

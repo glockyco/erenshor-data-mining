@@ -1,17 +1,16 @@
 ## ADDED Requirements
 
-### Requirement: Ways that repeat their node are marked
+### Requirement: Ways carry their rank and their facts
 
-A way SHALL be marked as repeating its node when one of its needs can only be reached through that node. Each way SHALL keep the clean facts that produced it. No first way SHALL repeat its node.
+Each way whose needs all have a tier SHALL carry its tier and depth, ordered as first ways are chosen, and each way SHALL keep the clean facts that produced it. A node's first way SHALL have the node's tier and the lowest rank among its ways.
 
 #### Scenario: The arena's first fee
 
 - **WHEN** reading the ways to Vithean Arena Fee (1)
-- **THEN** the round 8 chest's way and the Master of Battle's buy-back are marked as repeating
-- **AND** its first way trades a Planar Stone through An Arena Token and is not marked
+- **THEN** the Planar Stone trade of An Arena Token has the lowest rank and keeps its quest reward acquisition as its fact
+- **AND** the round 8 chest and the Master of Battle's buy-back rank after it
 
-#### Scenario: A later fee
+#### Scenario: A way that cannot be reached
 
-- **WHEN** reading the ways to Vithean Arena Fee (7)
-- **THEN** its first way is the round 6 chest, which needs earlier rounds and is not marked
-- **AND** the Master of Battle's buy-back is marked as repeating
+- **WHEN** a way needs a node without a tier
+- **THEN** the way has no rank

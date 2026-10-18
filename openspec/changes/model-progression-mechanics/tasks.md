@@ -60,9 +60,10 @@ Each Unity export, code-facts run, and clean build of the main variant runs in a
 - [ ] 6.2 Check in the game which interactions a standing below zero blocks: the Arcane Headmaster's hail and keywords with and without the Pupil's Pin, and an Aquilimar NPC with dialog at the starting standing. Verify: the evidence is recorded below, and the game exits normally.
 - [ ] 6.3 `feat(pipeline): let gates need a faction standing`: add the standing atom, its producers (the repeatable quests and kills that raise a faction from its default, and the equipped Pupil's Pin for `AncientSchool`), and the needs of the interactions that 6.2 found blocked. Add unit tests. Verify: `erenshor progression show "item:quest - loss stone"` shows the Pupil's Pin, every quest route of an NPC whose faction starts below zero shows the standing it needs or the evidence of 6.2 that none is needed, and the behaviour catalog has no `pending` entry for section 6.
 
-## 7. Repeat ways (design D13)
+## 7. Way ranks (design D13)
 
-- [ ] 7.1 `feat(pipeline): mark ways that repeat their node`: compute the nodes that every way of reaching a node passes through, mark each repeating way in `progression_ways`, record the clean facts of each way in `progression_way_facts`, fail the build when a first way repeats, and raise the progression contract version. Add unit tests for a ring with an exit, a buy-back after its turn-in, and a slower way that does not pass through its node. Verify: the scenarios of the `progression-requirements` delta hold on build 24405256, and `erenshor wiki generate-lua` passes.
+- [ ] 7.1 `feat(pipeline): store the rank and facts of each way`: store each usable way's tier and depth in `progression_ways`, add `progression_way_facts` with the clean facts of each way, and raise the progression contract version. Add unit tests for a way whose need has no tier and for one way from two facts. Verify: the first way of every node with a tier has its node's tier and the lowest rank, and the scenarios of the `progression-requirements` delta hold on build 24405256.
+- [ ] 7.2 `fix(guide): rank sources that need something by their way rank`: carry the lowest rank of each acquisition's ways to its guide sources, prefer the lower rank among candidates with an unmet requirement, and stop failing a reward whose proxy scene has no route. Verify: the mod tests pass with the regenerated guide data, including `Shipped_arena_chest_source_transitions_from_fee_to_site_to_enemy_to_chest`.
 
 ## 8. Cleanup
 
