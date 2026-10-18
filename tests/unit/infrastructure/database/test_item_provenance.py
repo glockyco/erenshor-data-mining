@@ -157,6 +157,48 @@ def test_all_repository_apis_preserve_complete_facts(
     assert repository.get_player_access("item:one") == "verified_player"
 
 
+def test_bulk_snapshot_preserves_each_getter_order_and_isolates_returned_lists(
+    database: tuple[Writer, DatabaseConnection],
+) -> None:
+    writer, db = database
+    acquisition, use = _facts(writer)
+    writer.conn.execute("INSERT INTO items (stable_key, display_name, image_name) VALUES ('item:two', 'Two', '')")
+    earlier_acquisition = replace(
+        acquisition, acquisition_key="acquisition:aaa", item_stable_key="item:two", conditions=(), locations=()
+    )
+    later_acquisition = replace(acquisition, acquisition_key="acquisition:zzz")
+    earlier_use = replace(use, use_key="use:aaa", item_stable_key="item:two", conditions=(), locations=())
+    later_use = replace(use, use_key="use:zzz")
+    builder = ProvenanceBuilder(writer.conn)
+    builder.acquisitions.extend((later_acquisition, earlier_acquisition))
+    builder.uses.extend((later_use, earlier_use))
+    builder.persist()
+    writer.conn.commit()
+    repository = ItemProvenanceRepository(db)
+
+    acquisitions = repository.get_acquisitions("item:one")
+    assert acquisitions == [acquisition, later_acquisition]
+    assert list(repository.iter_acquisitions()) == [acquisition, later_acquisition, earlier_acquisition]
+    assert repository.get_character_drop_acquisitions(["character:copy", "character:copy"]) == [
+        earlier_acquisition,
+        acquisition,
+        later_acquisition,
+    ]
+    assert repository.get_uses("item:one") == [use, later_use]
+    assert repository.get_uses_targeting("item:one") == [earlier_use, use, later_use]
+    assert list(repository.iter_uses()) == [use, later_use, earlier_use]
+    assert repository.get_acquisitions("item:two") == [earlier_acquisition]
+    assert repository.get_uses("item:two") == [earlier_use]
+    acquisitions.clear()
+    targeted = repository.get_uses_targeting("item:one")
+    targeted.clear()
+    assert repository.get_acquisitions("item:one") == [acquisition, later_acquisition]
+    assert repository.get_uses_targeting("item:one") == [earlier_use, use, later_use]
+    assert repository.get_acquisitions("missing") == []
+    assert repository.get_uses("missing") == []
+    assert repository.get_uses_targeting("missing") == []
+
+
 @pytest.mark.parametrize("versions", [[], [0], [2], [1, 1]])
 def test_repository_rejects_missing_duplicate_or_incompatible_metadata(
     database: tuple[Writer, DatabaseConnection],

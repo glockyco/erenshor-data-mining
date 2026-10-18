@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import sqlite3
 from collections.abc import Callable, Iterable, Iterator
-from typing import Literal, TypedDict, TypeVar
+from typing import Literal, TypeVar
 
 from erenshor.domain.value_objects.item_provenance import (
     ItemAcquisition,
@@ -23,12 +23,6 @@ from erenshor.infrastructure.database.repository import RepositoryError
 _Fact = TypeVar("_Fact", ItemAcquisition, ItemUse)
 
 
-class _Children(TypedDict):
-    conditions: tuple[dict[str, object], ...]
-    locations: tuple[dict[str, object], ...]
-    evidence: tuple[dict[str, object], ...]
-
-
 def _database_condition(row: sqlite3.Row) -> dict[str, object]:
     data: dict[str, object] = dict(row)
     del data["owner_key"]
@@ -43,6 +37,11 @@ def _database_condition(row: sqlite3.Row) -> dict[str, object]:
 class ItemProvenanceRepository:
     def __init__(self, db: DatabaseConnection) -> None:
         self._db = db
+        self._acquisitions: tuple[ItemAcquisition, ...] | None = None
+        self._acquisitions_by_item: dict[str, list[ItemAcquisition]] = {}
+        self._uses: tuple[ItemUse, ...] | None = None
+        self._uses_by_item: dict[str, list[ItemUse]] = {}
+        self._uses_by_target: dict[str, list[ItemUse]] = {}
         try:
             with db.connect() as connection:
                 rows = connection.execute("SELECT * FROM item_provenance_meta").fetchall()
@@ -52,79 +51,90 @@ class ItemProvenanceRepository:
         except (sqlite3.Error, DatabaseConnectionError, ValueError) as error:
             raise RepositoryError(f"Unsupported item provenance schema: {error}") from error
 
-    def _children(self, owner_key: str, family: Literal["acquisition", "use"]) -> _Children:
-        with self._db.connect() as connection:
-            conditions = tuple(
-                _database_condition(row)
-                for row in connection.execute(
-                    f"SELECT * FROM item_{family}_conditions WHERE owner_key = ? "
-                    "ORDER BY gate_key, group_index, atom_index, scope",
-                    (owner_key,),
-                )
-            )
-            locations: list[dict[str, object]] = []
-            for row in connection.execute(
-                f"SELECT * FROM item_{family}_locations WHERE owner_key = ? ORDER BY location_key",
-                (owner_key,),
-            ):
-                data: dict[str, object] = dict(row)
-                del data["owner_key"]
-                for field in ("conditions", "entry_zone_line_keys"):
-                    value = data[field]
-                    if not isinstance(value, str):
-                        raise ValueError(f"Location {field} must be JSON text")
-                    data[field] = json.loads(value)
-                locations.append(data)
-            evidence = tuple(
-                {key: value for key, value in dict(row).items() if key != "owner_key"}
-                for row in connection.execute(
-                    "SELECT * FROM item_provenance_evidence "
-                    "WHERE owner_key = ? ORDER BY input_relation, input_primary_key",
-                    (owner_key,),
-                )
-            )
-        return {"conditions": conditions, "locations": tuple(locations), "evidence": evidence}
-
-    def _hydrate(
+    def _load_facts(
         self,
-        row: sqlite3.Row,
         family: Literal["acquisition", "use"],
         decoder: Callable[[object], _Fact],
-    ) -> _Fact:
+    ) -> tuple[_Fact, ...]:
+        """Decode one immutable snapshot with each child relation loaded in bulk."""
+        conditions: dict[str, list[dict[str, object]]] = {}
+        locations: dict[str, list[dict[str, object]]] = {}
+        evidence: dict[str, list[dict[str, object]]] = {}
         try:
-            data: dict[str, object] = dict(row)
-            identity = data["acquisition_key" if family == "acquisition" else "use_key"]
-            if not isinstance(identity, str):
-                raise ValueError("Fact identity must be text")
-            children = self._children(identity, family)
-            data["conditions"] = children["conditions"]
-            data["locations"] = children["locations"]
-            data["evidence"] = children["evidence"]
-            return decoder(data)
+            with self._db.connect() as connection:
+                for row in connection.execute(
+                    f"SELECT * FROM item_{family}_conditions "
+                    "ORDER BY owner_key, gate_key, group_index, atom_index, scope"
+                ):
+                    conditions.setdefault(row["owner_key"], []).append(_database_condition(row))
+                for row in connection.execute(
+                    f"SELECT * FROM item_{family}_locations ORDER BY owner_key, location_key"
+                ):
+                    data: dict[str, object] = dict(row)
+                    owner_key = str(data.pop("owner_key"))
+                    for field in ("conditions", "entry_zone_line_keys"):
+                        value = data[field]
+                        if not isinstance(value, str):
+                            raise ValueError(f"Location {field} must be JSON text")
+                        data[field] = json.loads(value)
+                    locations.setdefault(owner_key, []).append(data)
+                for row in connection.execute(
+                    "SELECT * FROM item_provenance_evidence ORDER BY owner_key, input_relation, input_primary_key"
+                ):
+                    data = dict(row)
+                    owner_key = str(data.pop("owner_key"))
+                    evidence.setdefault(owner_key, []).append(data)
+                facts = []
+                for row in connection.execute(f"SELECT * FROM item_{family}s ORDER BY item_stable_key, {family}_key"):
+                    data = dict(row)
+                    identity = data[f"{family}_key"]
+                    if not isinstance(identity, str):
+                        raise ValueError("Fact identity must be text")
+                    data["conditions"] = conditions.get(identity, ())
+                    data["locations"] = locations.get(identity, ())
+                    data["evidence"] = evidence.get(identity, ())
+                    facts.append(decoder(data))
+            return tuple(facts)
         except (KeyError, ValueError) as error:
             raise RepositoryError(f"Invalid item provenance {family}: {error}") from error
 
+    def _load_acquisitions(self) -> tuple[ItemAcquisition, ...]:
+        if self._acquisitions is None:
+            facts = self._load_facts("acquisition", acquisition_from_dict)
+            for fact in facts:
+                self._acquisitions_by_item.setdefault(fact.item_stable_key, []).append(fact)
+            self._acquisitions = facts
+        return self._acquisitions
+
+    def _load_uses(self) -> tuple[ItemUse, ...]:
+        if self._uses is None:
+            facts = self._load_facts("use", use_from_dict)
+            for fact in facts:
+                self._uses_by_item.setdefault(fact.item_stable_key, []).append(fact)
+                if fact.target_stable_key is not None:
+                    self._uses_by_target.setdefault(fact.target_stable_key, []).append(fact)
+            for targeted in self._uses_by_target.values():
+                targeted.sort(key=lambda fact: fact.use_key)
+            self._uses = facts
+        return self._uses
+
     def get_acquisitions(self, item_key: str) -> list[ItemAcquisition]:
-        with self._db.connect() as connection:
-            rows = connection.execute(
-                "SELECT * FROM item_acquisitions WHERE item_stable_key = ? ORDER BY acquisition_key",
-                (item_key,),
-            ).fetchall()
-        return [self._hydrate(row, "acquisition", acquisition_from_dict) for row in rows]
+        self._load_acquisitions()
+        return list(self._acquisitions_by_item.get(item_key, ()))
 
     def get_character_drop_acquisitions(self, character_copy_keys: Iterable[str]) -> list[ItemAcquisition]:
         """Project named loot facts for actual copies, never global substitution sources."""
-        keys = tuple(sorted(set(character_copy_keys)))
+        keys = frozenset(character_copy_keys)
         if not keys:
             return []
-        placeholders = ",".join("?" for _ in keys)
-        with self._db.connect() as connection:
-            rows = connection.execute(
-                "SELECT * FROM item_acquisitions WHERE kind = 'character_drop' "
-                f"AND source_copy_stable_key IN ({placeholders}) ORDER BY acquisition_key",
-                keys,
-            ).fetchall()
-        return [self._hydrate(row, "acquisition", acquisition_from_dict) for row in rows]
+        return sorted(
+            (
+                fact
+                for fact in self._load_acquisitions()
+                if fact.kind == "character_drop" and fact.source_copy_stable_key in keys
+            ),
+            key=lambda fact: fact.acquisition_key,
+        )
 
     def get_common_world_character_keys(self) -> frozenset[str]:
         """Resolve contributing copies through canonical evidence, not an independent loot selector."""
@@ -143,20 +153,12 @@ class ItemProvenanceRepository:
         return frozenset(str(row[0]) for row in rows)
 
     def get_uses(self, item_key: str) -> list[ItemUse]:
-        with self._db.connect() as connection:
-            rows = connection.execute(
-                "SELECT * FROM item_uses WHERE item_stable_key = ? ORDER BY use_key",
-                (item_key,),
-            ).fetchall()
-        return [self._hydrate(row, "use", use_from_dict) for row in rows]
+        self._load_uses()
+        return list(self._uses_by_item.get(item_key, ()))
 
     def get_uses_targeting(self, target_key: str) -> list[ItemUse]:
-        with self._db.connect() as connection:
-            rows = connection.execute(
-                "SELECT * FROM item_uses WHERE target_stable_key = ? ORDER BY use_key",
-                (target_key,),
-            ).fetchall()
-        return [self._hydrate(row, "use", use_from_dict) for row in rows]
+        self._load_uses()
+        return list(self._uses_by_target.get(target_key, ()))
 
     def get_disposition(self, item_key: str) -> ItemDisposition | None:
         with self._db.connect() as connection:
@@ -204,20 +206,10 @@ class ItemProvenanceRepository:
         return "no_verified_path"
 
     def iter_acquisitions(self) -> Iterator[ItemAcquisition]:
-        with self._db.connect() as connection:
-            keys = connection.execute(
-                "SELECT DISTINCT item_stable_key FROM item_acquisitions ORDER BY item_stable_key",
-            ).fetchall()
-        for row in keys:
-            yield from self.get_acquisitions(row[0])
+        return iter(self._load_acquisitions())
 
     def iter_uses(self) -> Iterator[ItemUse]:
-        with self._db.connect() as connection:
-            keys = connection.execute(
-                "SELECT DISTINCT item_stable_key FROM item_uses ORDER BY item_stable_key"
-            ).fetchall()
-        for row in keys:
-            yield from self.get_uses(row[0])
+        return iter(self._load_uses())
 
     def iter_dispositions(self) -> Iterator[ItemDisposition]:
         with self._db.connect() as connection:

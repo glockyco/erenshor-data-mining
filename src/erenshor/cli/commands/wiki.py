@@ -260,16 +260,17 @@ def _create_wiki_composition(
     storage = storage or WikiStorage(variant_config.resolved_wiki(cli_ctx.repo_root))
     maps_source_dir = variant_config.maps.resolved_source_dir(cli_ctx.repo_root)
     zone_positions_path = maps_source_dir / "src" / "lib" / "data" / "zone-positions.json"
+    provenance_repo = ItemProvenanceRepository(database)
     context = GeneratorContext(
-        item_repo=ItemRepository(database),
-        item_provenance_repo=ItemProvenanceRepository(database),
+        item_repo=ItemRepository(database, provenance_repo=provenance_repo),
+        item_provenance_repo=provenance_repo,
         character_repo=CharacterRepository(database),
         spell_repo=SpellRepository(database),
         skill_repo=SkillRepository(database),
         stance_repo=StanceRepository(database),
         faction_repo=FactionRepository(database),
         spawn_repo=SpawnPointRepository(database),
-        quest_repo=QuestRepository(database),
+        quest_repo=QuestRepository(database, provenance_repo=provenance_repo),
         zone_repo=ZoneRepository(database),
         storage=storage,
         class_display=ClassDisplayNameService(database),
@@ -451,19 +452,20 @@ def _create_lua_repositories(cli_ctx: CLIContext, *, repositories: _LuaRepositor
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     db_path = variant_config.resolved_database(cli_ctx.repo_root)
     db_connection = DatabaseConnection(db_path, read_only=True)
+    provenance_repo = ItemProvenanceRepository(db_connection)
     return (
-        ItemRepository(db_connection),
+        ItemRepository(db_connection, provenance_repo=provenance_repo),
         CharacterRepository(db_connection),
         SpellRepository(db_connection),
         SkillRepository(db_connection),
         StanceRepository(db_connection),
-        QuestRepository(db_connection),
+        QuestRepository(db_connection, provenance_repo=provenance_repo),
         ZoneRepository(db_connection),
         FactionRepository(db_connection),
         ClassDisplayNameService(db_connection),
         BuildMetadataRepository(db_connection),
         TreasureRepository(db_connection),
-        ItemProvenanceRepository(db_connection),
+        provenance_repo,
         ProgressionRepository(db_connection),
     )
 

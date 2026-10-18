@@ -329,7 +329,7 @@ class TestWikiGenerateCommand:
         for name in constructors:
 
             def make_constructor(_name: str):
-                def constructor(received_connection):
+                def constructor(received_connection, **_shared):
                     constructor_connections.append(received_connection)
                     return MagicMock(name=_name)
 

@@ -5,12 +5,17 @@ from loguru import logger
 from erenshor.domain.entities.quest import Quest
 from erenshor.domain.value_objects.faction import FactionModifier
 from erenshor.domain.value_objects.item_provenance import ItemAcquisition
+from erenshor.infrastructure.database.connection import DatabaseConnection
 from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
 
 class QuestRepository(BaseRepository[Quest]):
     """Read quest entities and panels with canonical item acquisition and use facts."""
+
+    def __init__(self, db: DatabaseConnection, *, provenance_repo: ItemProvenanceRepository | None = None) -> None:
+        super().__init__(db)
+        self._provenance_repository = provenance_repo
 
     def get_quests_for_wiki_generation(self) -> list[Quest]:
         """Get all quests for local Lua data module generation."""
@@ -90,7 +95,9 @@ class QuestRepository(BaseRepository[Quest]):
                 for row in routes
                 if row["phase"] == "start" and row["method"] == "partial_turnin"
             }
-            provenance = ItemProvenanceRepository(self.db)
+            if self._provenance_repository is None:
+                self._provenance_repository = ItemProvenanceRepository(self.db)
+            provenance = self._provenance_repository
             acquisitions = [fact for fact in provenance.iter_acquisitions() if fact.kind in {"quest_reward", "dialog"}]
             uses = [fact for fact in provenance.iter_uses() if fact.kind == "quest_requirement"]
             rewards: dict[tuple[str, str], list[ItemAcquisition]] = {}

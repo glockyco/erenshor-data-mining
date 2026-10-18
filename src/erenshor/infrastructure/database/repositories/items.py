@@ -35,9 +35,10 @@ class ItemRepository(BaseRepository[Item]):
     All queries target the clean snake_case database written by ``extract build``.
     """
 
-    def __init__(self, db: DatabaseConnection) -> None:
+    def __init__(self, db: DatabaseConnection, *, provenance_repo: ItemProvenanceRepository | None = None) -> None:
         super().__init__(db)
-        self._provenance_repository: ItemProvenanceRepository | None = None
+        self._provenance_repository = provenance_repo
+        self._crafting_links: dict[str, ItemLink] | None = None
 
     def _provenance(self) -> ItemProvenanceRepository:
         try:
@@ -331,9 +332,14 @@ class ItemRepository(BaseRepository[Item]):
             raise RepositoryError(f"Missing native crafting reward slot for '{item_stable_key}'") from e
         if not materials and not rewards:
             return None
-        links = self._item_links(
-            [fact.item_stable_key for fact in materials] + [fact.target_stable_key for fact in rewards]
-        )
+        if self._crafting_links is None:
+            self._crafting_links = self._item_links(
+                key
+                for fact in self._provenance().iter_uses()
+                if fact.kind in {"crafting_material", "crafting_recipe"}
+                for key in (fact.item_stable_key, fact.target_stable_key)
+            )
+        links = self._crafting_links
         outcomes = {
             outcome.acquisition_key: outcome
             for target in sorted({fact.target_stable_key for fact in rewards if fact.target_stable_key is not None})
