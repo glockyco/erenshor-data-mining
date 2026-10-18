@@ -25,7 +25,7 @@ from erenshor.infrastructure.logging import setup_logging
 from erenshor.infrastructure.logging.setup import LoggingSetupError
 from erenshor.infrastructure.steam.installation import GameInstallationError, find_game_installation
 
-from .commands import backup, capture, extract, guide, images, maps, mod, publish, sheets, test, wiki
+from .commands import backup, capture, extract, guide, images, maps, mod, progression, publish, sheets, test, wiki
 from .commands import eval as eval_cmd
 from .context import CLIContext
 
@@ -52,6 +52,7 @@ app.add_typer(mod.app, name="mod")
 app.add_typer(capture.app, name="capture")
 app.add_typer(eval_cmd.app, name="eval")
 app.add_typer(guide.app, name="guide")
+app.add_typer(progression.app, name="progression")
 
 
 @app.callback()

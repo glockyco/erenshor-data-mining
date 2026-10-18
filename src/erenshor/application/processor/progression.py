@@ -13,8 +13,8 @@ from typing import Any
 from loguru import logger
 
 from erenshor.domain.value_objects.item_provenance import condition_from_dict
+from erenshor.domain.value_objects.progression import PROGRESSION_SCHEMA_VERSION
 
-CONTRACT_VERSION = 1
 EXPANSION_LIMIT = 32
 START_SCENE_FACTS = {
     "progression.new_character_scene": "mechanic:new_character_start",
@@ -838,7 +838,9 @@ class ProgressionBuilder:
                 for index, need in enumerate(way)
             ],
         )
-        conn.execute("INSERT INTO progression_meta VALUES (?,?)", (CONTRACT_VERSION, builds[0]["game_build_id"]))
+        conn.execute(
+            "INSERT INTO progression_meta VALUES (?,?)", (PROGRESSION_SCHEMA_VERSION, builds[0]["game_build_id"])
+        )
 
 
 def process_progression(connection: sqlite3.Connection) -> None:
