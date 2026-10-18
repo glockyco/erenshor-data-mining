@@ -4,7 +4,8 @@ Each Unity export, code-facts run, and clean build of the main variant runs in a
 
 ## 0. Handoff (design D8)
 
-- [ ] 0.1 Confirm the handoff with the maintainer and the Adventure Guide tab: tasks 4.1, 4.2, 5.1, 5.2, and 6.1 of `model-guide-gates` move here, and the guide tab's audit, inventory, scene proofs, proposals, and door reviews are its inputs. Record below the handed-over files and the commit at which the guide's consumer branch landed. Verify: both changes name one owner for each moved task.
+- [x] 0.1 Confirm the handoff with the maintainer and the Adventure Guide tab: tasks 4.1, 4.2, 5.1, 5.2, and 6.1 of `model-guide-gates` move here, and the guide tab's audit, inventory, scene proofs, proposals, and door reviews are its inputs. Record below the handed-over files and the commit at which the guide's consumer branch landed. Verify: both changes name one owner for each moved task.
+  - The maintainer confirmed that the guide session is no longer active and that this change owns the moved tasks. The guide's inputs are read from `/tmp/erenshor-guide/` (inactive-placement audit and inventory, scene proofs, the proposals in `inactive-placement-proposal/`, `physical-usability-proposal/`, and `producer-activation-damage/`, the door reviews, and the portal receptacle proof). Its consumer branch `guide-final-host-verified` has not landed, so shared producer files are changed here and its uncommitted edits are reviewed unit by unit, never merged.
 
 ## 1. Behaviour coverage (design D1)
 
