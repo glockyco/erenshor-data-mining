@@ -232,10 +232,57 @@ internal static class Matchers
                 && NodeMentions(inv.Arguments[0], member)
             );
 
-    /// All distinct string literals used in `==` comparisons in the member,
-    /// in source order, joined with ','.
+    /// Extract a literal assignment or argument, or distinct equality literals.
     public static Dictionary<string, string> StringConstants(EntityDeclaration scope, FactSpec fact)
     {
+        if (fact.Args.TryGetValue("assignment", out string? member))
+        {
+            var assignments = scope
+                .Descendants.OfType<AssignmentExpression>()
+                .Where(node => Normalize(node.Left!.ToString()) == Normalize(member))
+                .ToList();
+            if (
+                assignments.Count != 1
+                || assignments[0].Operator != AssignmentOperatorType.Assign
+                || assignments[0].Right is not PrimitiveExpression { Value: string value }
+            )
+                throw new InvalidDataException(
+                    $"string_constants assignment '{member}' needs exactly one string literal assignment"
+                );
+            return new() { ["string"] = value };
+        }
+        if (fact.Args.ContainsKey("invocation") || fact.Args.ContainsKey("creation"))
+        {
+            var arguments = fact.Args.TryGetValue("invocation", out string? invocation)
+                ? scope
+                    .Descendants.OfType<InvocationExpression>()
+                    .Where(node => Normalize(node.Target.ToString()) == Normalize(invocation))
+                    .Select(node => node.Arguments.ToArray())
+                    .ToList()
+                : scope
+                    .Descendants.OfType<ObjectCreateExpression>()
+                    .Where(node =>
+                        Normalize(node.Type.ToString()) == Normalize(fact.Args["creation"])
+                    )
+                    .Select(node => node.Arguments.ToArray())
+                    .ToList();
+            if (
+                !fact.Args.TryGetValue("argument", out string? position)
+                || !int.TryParse(
+                    position,
+                    NumberStyles.None,
+                    CultureInfo.InvariantCulture,
+                    out int index
+                )
+                || arguments.Count != 1
+                || index >= arguments[0].Length
+                || arguments[0][index] is not PrimitiveExpression { Value: string value }
+            )
+                throw new InvalidDataException(
+                    "string_constants argument needs exactly one matching call with a string literal at the requested zero-based position"
+                );
+            return new() { ["string"] = value };
+        }
         AstNode search = scope;
         if (fact.Args.TryGetValue("guard_assignment", out string? guard))
         {

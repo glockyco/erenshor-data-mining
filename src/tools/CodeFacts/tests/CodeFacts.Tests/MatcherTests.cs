@@ -394,6 +394,72 @@ public sealed class MatcherTests
         Assert.Equal("Broker A,Broker B", Matchers.StringConstants(method, fact)["strings"]);
     }
 
+    [Theory]
+    [InlineData("AssignString", "SingletonB", true)]
+    [InlineData("AssignString", "Missing", false)]
+    [InlineData("AssignStringTwice", "SingletonB", false)]
+    [InlineData("AssignNonliteral", "SingletonB", false)]
+    public void StringConstants_extracts_one_literal_member_assignment(
+        string method,
+        string member,
+        bool valid
+    )
+    {
+        var fact = Fact(
+            "fixture.assignment",
+            "extract",
+            method,
+            "string_constants",
+            new() { ["assignment"] = member },
+            ["string"]
+        );
+        if (valid)
+            Assert.Equal("start,scene", Matchers.StringConstants(Method(method), fact)["string"]);
+        else
+            Assert.Throws<InvalidDataException>(() =>
+                Matchers.StringConstants(Method(method), fact)
+            );
+    }
+
+    [Theory]
+    [InlineData("InvokeString", "invocation", "Drops.Add", "0", "called")]
+    [InlineData("CreateString", "creation", "Version", "0", "1.2")]
+    [InlineData("InvokeSecondString", "invocation", "Drops.Insert", "1", "inserted")]
+    [InlineData("InvokeSecondString", "invocation", "Drops.Insert", "0", null)]
+    [InlineData("CreateSecondString", "creation", "KeyValuePair<int, string>", "1", "created")]
+    [InlineData("CreateSecondString", "creation", "KeyValuePair<int, string>", "0", null)]
+    [InlineData("InvokeString", "invocation", "Missing", "0", null)]
+    [InlineData("CreateString", "creation", "Missing", "0", null)]
+    [InlineData("InvokeStringTwice", "invocation", "Drops.Add", "0", null)]
+    [InlineData("CreateStringTwice", "creation", "Version", "0", null)]
+    [InlineData("InvokeNonliteral", "invocation", "Drops.Add", "0", null)]
+    [InlineData("CreateNonliteral", "creation", "Version", "0", null)]
+    [InlineData("InvokeString", "invocation", "Drops.Add", "1", null)]
+    [InlineData("CreateString", "creation", "Version", "-1", null)]
+    public void StringConstants_extracts_one_literal_call_argument(
+        string method,
+        string selector,
+        string target,
+        string position,
+        string? expected
+    )
+    {
+        var fact = Fact(
+            "fixture.argument",
+            "extract",
+            method,
+            "string_constants",
+            new() { [selector] = target, ["argument"] = position },
+            ["string"]
+        );
+        if (expected is not null)
+            Assert.Equal(expected, Matchers.StringConstants(Method(method), fact)["string"]);
+        else
+            Assert.Throws<InvalidDataException>(() =>
+                Matchers.StringConstants(Method(method), fact)
+            );
+    }
+
     [Fact]
     public void IntExpression_top_level_ignores_nested_level_thresholds()
     {

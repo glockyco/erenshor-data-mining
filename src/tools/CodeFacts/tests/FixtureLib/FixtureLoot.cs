@@ -12,6 +12,64 @@ namespace FixtureLib
         private static readonly Random Rng = new Random();
         private static float Roll => (float)Rng.NextDouble();
 
+        public void AssignString()
+        {
+            SingletonB = "start,scene";
+        }
+
+        public void AssignStringTwice(bool again)
+        {
+            SingletonB = "first";
+            if (again)
+                SingletonB = "second";
+        }
+
+        public void AssignNonliteral(string value)
+        {
+            SingletonB = value;
+        }
+
+        public void InvokeString()
+        {
+            Drops.Add("called");
+        }
+
+        public void InvokeStringTwice()
+        {
+            Drops.Add("first");
+            Drops.Add("second");
+        }
+
+        public void InvokeNonliteral(string value)
+        {
+            Drops.Add(value);
+        }
+
+        public void CreateString()
+        {
+            Level = new Version("1.2").Major;
+        }
+
+        public void CreateNonliteral(string value)
+        {
+            Level = new Version(value).Major;
+        }
+
+        public void CreateStringTwice()
+        {
+            Level = new Version("1.2").Major + new Version("3.4").Major;
+        }
+
+        public void InvokeSecondString()
+        {
+            Drops.Insert(0, "inserted");
+        }
+
+        public void CreateSecondString()
+        {
+            SingletonB = new KeyValuePair<int, string>(7, "created").Value;
+        }
+
         public void IteratePool()
         {
             foreach (var item in PoolA)
