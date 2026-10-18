@@ -16,8 +16,11 @@
         "GameData.IsQuestDone",
         "Inventory.HasCosmetic",
         "Inventory.HasItem",
+        "NPCFaction.Value",
         "SceneChange.ChangeScene",
-        "SceneChange.ChangeSceneSafe"
+        "SceneChange.ChangeSceneSafe",
+        "SpawnPoint.MyNPCAlive",
+        "WorldFaction.FactionValue"
       ],
       "component": "BehaviourCoverageTests.Inventory_resolves_all_apis_and_ignores_unrelated_names_and_wrong_directions"
     },

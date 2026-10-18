@@ -32,6 +32,8 @@ internal static class BehaviourCoverage
         ["Inventory.HasCosmetic"] = false,
         ["GameData.AccountClaimedReliquary"] = false,
         ["AtmosphereColors.isRaining"] = false,
+        ["SpawnPoint.MyNPCAlive"] = false,
+        ["WorldFaction.FactionValue"] = false,
         ["SceneChange.ChangeScene"] = true,
         ["SceneChange.ChangeSceneSafe"] = true,
         ["GameData.FinishQuest"] = true,
@@ -39,6 +41,7 @@ internal static class BehaviourCoverage
         ["Character.Invulnerable"] = true,
         ["AtmosphereColors.WeightGoal"] = true,
         ["AtmosphereColors.SinceRain"] = true,
+        ["NPCFaction.Value"] = true,
     };
 
     public static SortedDictionary<string, SortedSet<string>> Inventory(CSharpDecompiler decompiler)

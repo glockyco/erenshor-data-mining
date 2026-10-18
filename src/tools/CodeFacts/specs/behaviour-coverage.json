@@ -21,6 +21,15 @@
         "3.4"
       ]
     },
+    "AstraListener": {
+      "apis": [
+        "SpawnPoint.MyNPCAlive"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "2.4"
+      ]
+    },
     "AtmosphereColors": {
       "apis": [
         "AtmosphereColors.SinceRain",
@@ -63,10 +72,14 @@
     "Character": {
       "apis": [
         "Character.Invulnerable",
-        "GameData.FinishQuest"
+        "GameData.FinishQuest",
+        "WorldFaction.FactionValue"
       ],
-      "classification": "core",
-      "component": "CharacterListener QuestCompletionSources. ClearCharmedNPC resets temporary charm invulnerability, not a progression gate."
+      "classification": "pending",
+      "tasks": [
+        "6.1",
+        "6.3"
+      ]
     },
     "Chessboard": {
       "apis": [
@@ -111,12 +124,22 @@
         "3.2"
       ]
     },
-    "FernallaFightEvent": {
+    "FernallaFight": {
       "apis": [
-        "Character.Invulnerable"
+        "SpawnPoint.MyNPCAlive"
       ],
       "classification": "adapter",
-      "component": "CharacterDamageReleaseListener ExportSpawnHealthPhase and DynamicSpawnSourceListener"
+      "component": "ScriptedActivatorListener restored_fernalla and processor/gates.py restored_fernalla"
+    },
+    "FernallaFightEvent": {
+      "apis": [
+        "Character.Invulnerable",
+        "SpawnPoint.MyNPCAlive"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "2.2"
+      ]
     },
     "GameData": {
       "apis": [
@@ -136,12 +159,40 @@
       "classification": "core",
       "component": "guide.gates.reliquary_claim_saved and guide.gates.reliquary_claim_loaded code facts"
     },
+    "GlobalFactionManager": {
+      "apis": [
+        "NPCFaction.Value"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "6.1",
+        "6.3"
+      ]
+    },
+    "HardSetStats": {
+      "apis": [
+        "SpawnPoint.MyNPCAlive"
+      ],
+      "classification": "excluded",
+      "reason": "Only the Eldoth Molorai prefab binds this script. Update counts living wards to scale HP, damage, and level and restore HP out of combat. It does not set invulnerability, activate content, or prevent damage while wards live."
+    },
+    "InfernoTwinsSpawnPoints": {
+      "apis": [
+        "SpawnPoint.MyNPCAlive"
+      ],
+      "classification": "excluded",
+      "reason": "Update only binds the living twins' Character, Stats, and SpawnPoint references and resets its eventSet flag. InfernoTwins consumes those references for combat energy attacks, not a progression unlock or damage release."
+    },
     "Inventory": {
       "apis": [
-        "Inventory.HasCosmetic"
+        "Inventory.HasCosmetic",
+        "NPCFaction.Value"
       ],
-      "classification": "core",
-      "component": "CosmeticItemListener and processor/cosmetics.py"
+      "classification": "pending",
+      "tasks": [
+        "6.1",
+        "6.3"
+      ]
     },
     "ItemBag": {
       "apis": [
@@ -211,17 +262,35 @@
     "NPC": {
       "apis": [
         "GameData.CompletedQuests",
-        "GameData.HasQuest"
+        "GameData.HasQuest",
+        "WorldFaction.FactionValue"
       ],
-      "classification": "excluded",
-      "reason": "Start and QuestMarkerListener use quest state only to create or hide QuestMarker. Neither changes quest availability or world activation."
+      "classification": "pending",
+      "tasks": [
+        "6.1",
+        "6.3"
+      ]
     },
     "NPCAggroArea": {
       "apis": [
-        "Inventory.HasCosmetic"
+        "Inventory.HasCosmetic",
+        "WorldFaction.FactionValue"
       ],
-      "classification": "excluded",
-      "reason": "OnTriggerEnter uses HasCosmetic(MoloraiMask) only to select SimPlayer whispers through LoadResponse, not to change aggro or content availability."
+      "classification": "pending",
+      "tasks": [
+        "6.1",
+        "6.3"
+      ]
+    },
+    "NPCAliveListener": {
+      "apis": [
+        "SpawnPoint.MyNPCAlive"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "2.2",
+        "3.2"
+      ]
     },
     "NPCDialog": {
       "apis": [
@@ -237,10 +306,23 @@
     "NPCDialogManager": {
       "apis": [
         "GameData.CompletedQuests",
-        "GameData.HasQuest"
+        "GameData.HasQuest",
+        "WorldFaction.FactionValue"
       ],
-      "classification": "core",
-      "component": "CharacterListener CharacterDialogs.RequiredQuestStableKey and processor/progression.py dialog rules"
+      "classification": "pending",
+      "tasks": [
+        "6.1",
+        "6.3"
+      ]
+    },
+    "NPCFaction": {
+      "apis": [
+        "NPCFaction.Value"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "6.3"
+      ]
     },
     "NPCInvuln": {
       "apis": [
@@ -258,7 +340,8 @@
     },
     "NPCShoutListener": {
       "apis": [
-        "GameData.FinishQuest"
+        "GameData.FinishQuest",
+        "SpawnPoint.MyNPCAlive"
       ],
       "classification": "adapter",
       "component": "CharacterListener ShoutTriggerQuestStableKey and ScriptedActivatorListener npc_shout_essentials"
@@ -278,6 +361,13 @@
       "tasks": [
         "3.2"
       ]
+    },
+    "PlanarMusicManager": {
+      "apis": [
+        "SpawnPoint.MyNPCAlive"
+      ],
+      "classification": "excluded",
+      "reason": "MonitorMidBosses and MonitorBigBoss use living, engaged spawns only to select BossEngaged and MinibossEngaged. Update consumes these flags to change audio clips and fades, not content availability."
     },
     "PlayerControl": {
       "apis": [
@@ -335,7 +425,8 @@
     "ReliquaryFiend": {
       "apis": [
         "Character.Invulnerable",
-        "GameData.FinishQuest"
+        "GameData.FinishQuest",
+        "SpawnPoint.MyNPCAlive"
       ],
       "classification": "adapter",
       "component": "ScriptedActivatorListener reliquary_wards and processor/combat_eligibility.py"
@@ -410,11 +501,19 @@
       "classification": "core",
       "component": "SpawnPointListener and processor/gates.py spawn quest gates"
     },
+    "SpawnPointLinker": {
+      "apis": [
+        "SpawnPoint.MyNPCAlive"
+      ],
+      "classification": "excluded",
+      "reason": "Update synchronizes actualSpawnDelay only while both linked spawn points are empty and dead. It does not change canSpawn, activation, or spawn candidates, so it changes respawn timing rather than progression availability."
+    },
     "SpellVessel": {
       "apis": [
         "AtmosphereColors.SinceRain",
         "AtmosphereColors.WeightGoal",
-        "SceneChange.ChangeScene"
+        "SceneChange.ChangeScene",
+        "SpawnPoint.MyNPCAlive"
       ],
       "classification": "pending",
       "tasks": [
@@ -450,10 +549,11 @@
       "apis": [
         "AtmosphereColors.WeightGoal",
         "Character.Invulnerable",
-        "SceneChange.ChangeSceneSafe"
+        "SceneChange.ChangeSceneSafe",
+        "SpawnPoint.MyNPCAlive"
       ],
       "classification": "excluded",
-      "reason": "The /raining, /thunder, /bluesky, /toscene, and /invinci branches all require GameData.PlayerControl.dev before changing the listed progression state."
+      "reason": "The /raining, /thunder, /bluesky, /toscene, /invinci, and /killall branches all require GameData.PlayerControl.dev before reading or changing the listed progression state."
     },
     "VendorWindow": {
       "apis": [

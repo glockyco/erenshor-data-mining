@@ -39,6 +39,21 @@ public class SceneChange
     public void ChangeSceneSafe() => System.Console.WriteLine("safe");
 }
 
+public class SpawnPoint
+{
+    public bool MyNPCAlive;
+}
+
+public class WorldFaction
+{
+    public float FactionValue;
+}
+
+public class NPCFaction
+{
+    public float Value;
+}
+
 namespace BehaviourFixtures
 {
     public class AllApis
@@ -47,7 +62,10 @@ namespace BehaviourFixtures
             global::Inventory inventory,
             global::Character character,
             global::AtmosphereColors weather,
-            global::SceneChange scene
+            global::SceneChange scene,
+            global::SpawnPoint spawn,
+            global::WorldFaction faction,
+            global::NPCFaction standing
         )
         {
             global::GameData.FinishQuest("done");
@@ -57,23 +75,36 @@ namespace BehaviourFixtures
             weather.SinceRain--;
             scene.ChangeScene();
             scene.ChangeSceneSafe();
+            standing.Value = 10;
             return global::GameData.IsQuestDone("q")
                 && global::GameData.CompletedQuests.Count > 0
                 && global::GameData.HasQuest.Count > 0
                 && inventory.HasItem()
                 && inventory.HasCosmetic()
                 && global::GameData.AccountClaimedReliquary
-                && weather.isRaining;
+                && weather.isRaining
+                && spawn.MyNPCAlive
+                && faction.FactionValue >= 0;
         }
     }
 
     public class WrongDirection
     {
-        public bool Use(global::Character character, global::AtmosphereColors weather)
+        public bool Use(
+            global::Character character,
+            global::AtmosphereColors weather,
+            global::SpawnPoint spawn,
+            global::WorldFaction faction,
+            global::NPCFaction standing
+        )
         {
             global::GameData.AccountClaimedReliquary = true;
             weather.isRaining = true;
-            return character.Invulnerable || weather.WeightGoal > weather.SinceRain;
+            spawn.MyNPCAlive = true;
+            faction.FactionValue = 10;
+            return character.Invulnerable
+                || weather.WeightGoal > weather.SinceRain
+                || standing.Value >= 0;
         }
     }
 

@@ -60,8 +60,11 @@ public sealed class BehaviourCoverageTests
                 "GameData.IsQuestDone",
                 "Inventory.HasCosmetic",
                 "Inventory.HasItem",
+                "NPCFaction.Value",
                 "SceneChange.ChangeScene",
                 "SceneChange.ChangeSceneSafe",
+                "SpawnPoint.MyNPCAlive",
+                "WorldFaction.FactionValue",
             },
             inventory["BehaviourFixtures.AllApis"]
         );
@@ -70,6 +73,9 @@ public sealed class BehaviourCoverageTests
         Assert.DoesNotContain("BehaviourFixtures.Outer", inventory.Keys);
         Assert.DoesNotContain("GameData", inventory.Keys);
         Assert.DoesNotContain("AtmosphereColors", inventory.Keys);
+        Assert.DoesNotContain("SpawnPoint", inventory.Keys);
+        Assert.DoesNotContain("WorldFaction", inventory.Keys);
+        Assert.DoesNotContain("NPCFaction", inventory.Keys);
         Assert.Contains(
             inventory,
             pair =>
