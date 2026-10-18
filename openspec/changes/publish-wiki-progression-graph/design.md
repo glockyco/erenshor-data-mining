@@ -18,6 +18,7 @@ See `proposal.md` for the motivation. The state on 2026-10-18:
 
 - A checklist of a reader's progress. It needs its own semantics for characters, account state, alternatives, and consumed items, and becomes its own change.
 - Computing requirements in Lua or JavaScript. Both only render what the data module holds.
+- Replacing the Raid Unlocking Walkthrough or placing the view in it. The walkthrough stays the human-written guide, and the graph is an alternative view of the same progression on its own page.
 
 ## Decisions
 
@@ -87,14 +88,14 @@ The data, view, and gadget deploy only after the review of `derive-progression-r
 | `Module:Erenshor/Progression`, its testcases, `Template:Progression graph`, the tracking category page | repository | `wiki deploy-repo-pages` with the dependency, render, and drift checks |
 | `MediaWiki:Gadget-progression-graph*` and their definition lines | repository | `wiki deploy-interface` under the interface account |
 | The section of `Erenshor Wiki:Game Data` | repository | `wiki deploy-repo-pages` |
-| `Progression Graph` and the walkthrough | people | the maintainer creates the first by hand, and the placement on the second is a guarded one-time edit after the review of `publish-wiki-data-views` D5 |
+| `Progression Graph` and the walkthrough | people | the maintainer creates the first by hand with a link to the second, and a link back on the walkthrough is one guarded `wiki apply-page-edits` edit after approval |
 
 ### D8. Failure handling, grouping, and rollback
 
 - Generation fails closed on the checks of D2, naming the module, node, way, and fact.
 - The view shows a message and a tracking category for a missing entity. The gadget never hides the text before it has drawn.
 - Commits group by unit: the data view, the text view, the gadget, and the documentation.
-- The data module, the view, and the template roll back through the manifest of their `deploy-repo-pages` run, the gadget through `wiki rollback-interface`, and the placement through the guarded-edit manifest. A new page stays after a rollback and needs an administrator to delete it.
+- The data module, the view, and the template roll back through the manifest of their `deploy-repo-pages` run, the gadget through `wiki rollback-interface`, and the walkthrough link through `wiki rollback-repo-pages` with the manifest of its guarded edit. A new page stays after a rollback and needs an administrator to delete it.
 
 ## Risks / Trade-offs
 
@@ -108,7 +109,7 @@ The data, view, and gadget deploy only after the review of `derive-progression-r
 1. Land the data view and the text view, and check them in the local wiki with the real data module.
 2. Land the gadget, and check it in a browser in both themes and with the keyboard.
 3. After D6 holds, deploy after a dry run and approval: the shared page index before its Link reader, the progression data module, the view module, the template, the category page, the guide section, then the gadget.
-4. The maintainer creates `Progression Graph`. The walkthrough placement follows the review of `publish-wiki-data-views` D5.
+4. The maintainer creates `Progression Graph` with a link to the walkthrough. After approval, one guarded edit adds a link to `Progression Graph` on the walkthrough.
 
 Rollback follows D8.
 
