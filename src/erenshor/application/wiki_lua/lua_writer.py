@@ -18,10 +18,10 @@ def module_text(value: object) -> str:
 
 def dumps(value: object) -> str:
     """Serialize a value to deterministic Lua source."""
-    return _serialize(value, indent=0)
+    return _serialize(value, depth=0)
 
 
-def _serialize(value: object, indent: int) -> str:
+def _serialize(value: object, depth: int) -> str:
     if value is None:
         serialized = "nil"
     elif isinstance(value, bool):
@@ -35,15 +35,15 @@ def _serialize(value: object, indent: int) -> str:
     elif isinstance(value, str):
         serialized = _quote(value)
     elif isinstance(value, Mapping):
-        serialized = _serialize_mapping(value, indent)
+        serialized = _serialize_mapping(value, depth)
     elif isinstance(value, Sequence) and not isinstance(value, (bytes, bytearray, str)):
-        serialized = _serialize_sequence(value, indent)
+        serialized = _serialize_sequence(value, depth)
     else:
         raise LuaSerializationError(f"unsupported value for Lua serialization: {type(value).__name__}")
     return serialized
 
 
-def _serialize_mapping(value: Mapping[Any, Any], indent: int) -> str:
+def _serialize_mapping(value: Mapping[Any, Any], depth: int) -> str:
     items: list[tuple[str, object]] = []
     for key, item in value.items():
         if not isinstance(key, str):
@@ -54,32 +54,39 @@ def _serialize_mapping(value: Mapping[Any, Any], indent: int) -> str:
     if not items:
         return "{}"
 
-    current = " " * indent
-    child = " " * (indent + 2)
+    current = "\t" * depth
+    child = "\t" * (depth + 1)
     lines = ["{"]
     for key, item in sorted(items, key=lambda entry: entry[0]):
-        lines.append(f"{child}[{_quote(key)}] = {_serialize(item, indent + 2)},")
+        lines.append(f"{child}[{_quote(key)}] = {_serialize(item, depth + 1)},")
     lines.append(f"{current}}}")
     return "\n".join(lines)
 
 
-def _serialize_sequence(value: Sequence[object], indent: int) -> str:
+def _serialize_sequence(value: Sequence[object], depth: int) -> str:
     if not value:
         return "{}"
 
-    current = " " * indent
-    child = " " * (indent + 2)
+    current = "\t" * depth
+    child = "\t" * (depth + 1)
     lines = ["{"]
     for item in value:
         if item is None:
             raise LuaSerializationError("cannot serialize nil list item")
-        lines.append(f"{child}{_serialize(item, indent + 2)},")
+        lines.append(f"{child}{_serialize(item, depth + 1)},")
     lines.append(f"{current}}}")
     return "\n".join(lines)
 
 
 def _quote(value: str) -> str:
+    # Use the quote that needs fewer escapes. StyLua applies the same rule, so
+    # generated modules read like the formatted ones that people maintain.
+    quote = "'" if value.count('"') > value.count("'") else '"'
     escaped = (
-        value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
+        value.replace("\\", "\\\\")
+        .replace(quote, "\\" + quote)
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+        .replace("\t", "\\t")
     )
-    return f'"{escaped}"'
+    return f"{quote}{escaped}{quote}"

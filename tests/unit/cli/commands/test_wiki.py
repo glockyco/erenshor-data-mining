@@ -253,7 +253,7 @@ class TestWikiGenerateCommand:
     ):
         """Test generation receives the concrete faction and class services."""
         repositories = tuple(MagicMock(name=f"repo_{index}") for index in range(13))
-        generation = MagicMock(written_paths=[], validation_tools={}, manifest_paths=())
+        generation = MagicMock(written_paths=[], manifest_paths=())
         create = wiki._create_lua_repositories
         monkeypatch.setattr(
             wiki, "_create_lua_repositories", lambda cli_ctx: create(cli_ctx, repositories=repositories)

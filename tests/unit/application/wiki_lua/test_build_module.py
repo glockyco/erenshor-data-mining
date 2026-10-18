@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from erenshor.application.wiki_lua.build import write_build_module
+from erenshor.application.wiki_lua.lua_writer import module_text
 from erenshor.infrastructure.database.connection import DatabaseConnection
 from erenshor.infrastructure.database.repositories.build_metadata import BuildMetadataRepository
 
@@ -26,8 +27,8 @@ def test_build_module_uses_clean_database_metadata(tmp_path: Path) -> None:
     output_path = write_build_module(_build_repository(tmp_path, with_row=True), tmp_path / "lua")
 
     assert output_path == tmp_path / "lua" / "Erenshor" / "Data" / "Build.lua"
-    assert output_path.read_text(encoding="utf-8") == (
-        'return {\n  ["gameBuildId"] = "24405256",\n  ["publishedAt"] = "2026-07-27T12:34:56+00:00",\n}\n'
+    assert output_path.read_text(encoding="utf-8") == module_text(
+        {"gameBuildId": "24405256", "publishedAt": "2026-07-27T12:34:56+00:00"}
     )
 
 

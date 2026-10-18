@@ -3,16 +3,14 @@
 from __future__ import annotations
 
 import hashlib
-import tempfile
 from collections import defaultdict
-from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
 
 from erenshor.application.wiki_lua.items import ItemDataRepository, _item_kind, _item_record
 from erenshor.application.wiki_lua.lua_writer import module_text
-from erenshor.application.wiki_lua.validation import LuaValidationResult, validate_lua_module
 from erenshor.application.wiki_lua.views import native_reference
 from erenshor.domain.value_objects.item_provenance import (
     PROVENANCE_SCHEMA_VERSION,
@@ -305,9 +303,8 @@ def generate_items_v2_modules(
     class_display_names: Mapping[str, str] | None = None,
     lifecycle: ContentLifecycle | None = None,
     max_page_bytes: int | None = None,
-    render_provenance: Callable[[Mapping[str, object]], str] = module_text,
 ) -> dict[str, str]:
-    """Serialize items and split provenance using the emitted representation."""
+    """Serialize items and split provenance by the size of the published text."""
     data = build_items_v2_data(
         item_repo,
         provenance_repo,
@@ -323,7 +320,7 @@ def generate_items_v2_modules(
     pending = sorted(data.provenance.items(), reverse=True)
     while pending:
         bucket, records = pending.pop()
-        content = render_provenance(records)
+        content = module_text(records)
         size = len(content.encode("utf-8"))
         if max_page_bytes is not None and size > max_page_bytes:
             if len(records) == 1 or len(bucket) == 64:
@@ -358,29 +355,17 @@ def write_items_v2_modules(
     class_display_names: Mapping[str, str] | None = None,
     lifecycle: ContentLifecycle | None = None,
     max_page_bytes: int,
-    validate: Callable[[Path], LuaValidationResult] = validate_lua_module,
 ) -> list[Path]:
     """Write versioned entity and relation pages to the generation staging tree."""
-    # Validation may format generated Lua. Size the same bytes that publication
-    # receives, rather than the larger pre-format serialization.
-    with tempfile.TemporaryDirectory(prefix="erenshor-item-provenance-") as temporary:
-        candidate = Path(temporary) / "provenance.lua"
-
-        def render_provenance(records: Mapping[str, object]) -> str:
-            candidate.write_text(module_text(records), encoding="utf-8")
-            validate(candidate)
-            return candidate.read_text(encoding="utf-8")
-
-        modules = generate_items_v2_modules(
-            item_repo,
-            provenance_repo,
-            build=build,
-            native_catalog=native_catalog,
-            class_display_names=class_display_names,
-            lifecycle=lifecycle,
-            max_page_bytes=max_page_bytes,
-            render_provenance=render_provenance,
-        )
+    modules = generate_items_v2_modules(
+        item_repo,
+        provenance_repo,
+        build=build,
+        native_catalog=native_catalog,
+        class_display_names=class_display_names,
+        lifecycle=lifecycle,
+        max_page_bytes=max_page_bytes,
+    )
     paths: list[Path] = []
     for relative, content in modules.items():
         path = output_root / "Erenshor" / "Data" / relative

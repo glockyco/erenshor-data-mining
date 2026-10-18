@@ -261,6 +261,8 @@
               pkgs.bun
               (assetRipper pkgs)
               pkgs.sqlite
+              # luac checks generated wiki modules in Scribunto's Lua 5.1.
+              pkgs.lua5_1
               pkgs.gitleaks
               pkgs.actionlint
               pkgs.renovate

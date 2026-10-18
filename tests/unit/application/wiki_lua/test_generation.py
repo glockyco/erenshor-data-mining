@@ -30,7 +30,6 @@ from erenshor.application.wiki_lua.generation import (
     build_character_generation_records,
     generate_lua_data_modules,
 )
-from erenshor.application.wiki_lua.validation import LuaValidationResult
 from erenshor.domain.value_objects.item_provenance import ItemAcquisition, ItemDisposition, ItemUse, fact_to_dict
 from erenshor.domain.value_objects.progression import ProgressionNode, ProgressionWay
 from erenshor.domain.value_objects.treasure import ChestWave, GuardianScaling, TreasureGuardian
@@ -81,7 +80,7 @@ def test_generation_validates_nonnull_blank_item_catalog_pages(tmp_path: Path) -
             output_root=tmp_path,
             max_page_bytes=4194304,
             lifecycle=ContentLifecycle({}, {}, {}),
-            validate=lambda path: LuaValidationResult(path=path, tool="stylua"),
+            validate=lambda paths: None,
         )
 
 
@@ -118,7 +117,7 @@ def test_generation_wires_canonical_provenance_and_persists_offline_coverage(tmp
         max_page_bytes=4194304,
         output_root=tmp_path,
         lifecycle=ContentLifecycle({}, {}, {}),
-        validate=lambda path: LuaValidationResult(path=path, tool="stylua"),
+        validate=lambda paths: None,
     )
 
     from erenshor.application.wiki_lua.items_v2 import item_bucket
@@ -164,7 +163,7 @@ def _run_generation(
         output_root=tmp_path,
         max_page_bytes=max_page_bytes,
         lifecycle=lifecycle if lifecycle is not None else ContentLifecycle({}, {}, {}),
-        validate=lambda path: LuaValidationResult(path=path, tool="stylua"),
+        validate=lambda paths: None,
     )
 
 
@@ -177,7 +176,6 @@ def test_generation_writes_and_validates_persisted_progression_rows(tmp_path: Pa
     result = _run_generation(tmp_path, progression_repo=graph)
     path = tmp_path / "Erenshor" / "Data" / "Progression.lua"
     assert path in result.written_paths
-    assert path in result.validation_tools
     content = path.read_text()
     assert key in content
     assert '["milestone"] = true' in content
@@ -256,7 +254,7 @@ def test_generation_requires_faction_and_class_dependencies(tmp_path: Path) -> N
             output_root=tmp_path,
             max_page_bytes=4194304,
             lifecycle=ContentLifecycle({}, {}, {}),
-            validate=lambda path: LuaValidationResult(path=path, tool="stylua"),
+            validate=lambda paths: None,
         )
 
     assert "faction_repo" in str(error.value)

@@ -716,7 +716,7 @@ def generate_lua(ctx: typer.Context) -> None:
         )
         for path in result.written_paths:
             console.print(f"[green]Wrote:[/green] {path}", soft_wrap=True)
-            console.print(f"[green]Validated with:[/green] {result.validation_tools[path]}")
+        console.print(f"[green]Compiled with luac:[/green] {len(result.written_paths)} modules")
         for path in result.manifest_paths:
             console.print(f"[green]Wrote provenance manifest:[/green] {path}", soft_wrap=True)
     except Exception as e:

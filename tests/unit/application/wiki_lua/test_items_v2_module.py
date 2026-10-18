@@ -14,7 +14,6 @@ from erenshor.application.wiki_lua.items_v2 import (
     write_items_v2_modules,
 )
 from erenshor.application.wiki_lua.lua_writer import module_text
-from erenshor.application.wiki_lua.validation import LuaValidationResult
 from erenshor.domain.value_objects.item_provenance import (
     ItemAcquisition,
     ItemDisposition,
@@ -123,7 +122,6 @@ def test_versioned_writer_preserves_full_identity_dimensions_and_picture_titles(
         tmp_path,
         build=BUILD,
         max_page_bytes=3_145_728,
-        validate=lambda path: LuaValidationResult(path, "test"),
         native_catalog=CATALOG,
     )
     assert {path.relative_to(tmp_path / "Erenshor" / "Data").as_posix() for path in paths} == set(modules)
@@ -463,30 +461,6 @@ def test_single_owner_overflow_fails_without_omitting_facts() -> None:
     provenance = Provenance(repo.get_items_for_wiki_generation()[0].stable_key)
     with pytest.raises(ValueError, match="owner cannot fit page budget"):
         generate_items_v2_modules(repo, provenance, build=BUILD, max_page_bytes=10, native_catalog=CATALOG)
-
-
-def test_writer_sizes_final_validated_bytes_and_preserves_fitting_bucket(tmp_path: Path) -> None:
-    repo, provenance, owners = split_fixture()
-    data = build_items_v2_data(repo, provenance, build=BUILD, native_catalog=CATALOG)
-    raw = module_text(data.provenance[item_bucket(owners[0])])
-
-    def compact(text: str) -> str:
-        return "\n".join(line.lstrip() for line in text.splitlines()) + "\n"
-
-    budget = len(compact(raw).encode())
-    assert len(raw.encode()) > budget
-
-    def validate(path: Path) -> LuaValidationResult:
-        path.write_text(compact(path.read_text()))
-        return LuaValidationResult(path, "test-formatter")
-
-    paths = write_items_v2_modules(
-        repo, provenance, tmp_path, build=BUILD, max_page_bytes=budget, validate=validate, native_catalog=CATALOG
-    )
-    relations = [path for path in paths if path.parent.name == "ItemProvenanceV1"]
-    assert len(relations) == 2
-    assert next(path for path in relations if path.stem == item_bucket(owners[0])).read_text() == compact(raw)
-    assert all(path.stat().st_size <= budget for path in relations)
 
 
 def test_native_references_cover_sources_targets_conditions_and_locations_without_rewriting_keys() -> None:

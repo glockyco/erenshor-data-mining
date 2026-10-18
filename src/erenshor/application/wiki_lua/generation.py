@@ -57,7 +57,7 @@ from erenshor.application.wiki_lua.spells import (
 from erenshor.application.wiki_lua.stance_relations import StanceActivationRepository, write_stance_relations_module
 from erenshor.application.wiki_lua.stances import StanceDataRepository, write_stances_module
 from erenshor.application.wiki_lua.treasure import TreasureDataRepository, write_treasure_guardians_module
-from erenshor.application.wiki_lua.validation import LuaValidationResult, validate_lua_module
+from erenshor.application.wiki_lua.validation import validate_lua_modules
 from erenshor.application.wiki_lua.vendor_stock import VendorStockRepository, write_vendor_stock_module
 from erenshor.application.wiki_lua.world_drops import write_world_drops_module
 from erenshor.application.wiki_lua.zone_rosters import ZoneRosterRepository, write_zone_rosters_module
@@ -122,10 +122,9 @@ class WikiSpellCharacterRepository(WikiCharacterRepository, SpellRelationshipCha
 
 @dataclass(frozen=True)
 class LuaDataModuleGenerationResult:
-    """Generated Lua modules, validators, and offline provenance sidecars."""
+    """Generated Lua modules and offline provenance sidecars."""
 
     written_paths: list[Path]
-    validation_tools: dict[Path, str]
     manifest_paths: tuple[Path, ...] = ()
 
 
@@ -133,7 +132,7 @@ class SkillGenerationRepository(SkillModuleRepository, StanceActivationRepositor
     """Skill repository methods needed by all generated Lua data modules."""
 
 
-LuaValidator = Callable[[Path], LuaValidationResult]
+LuaValidator = Callable[[Sequence[Path]], None]
 
 
 class WikiSpellRepository(SpellDataRepository, ClassAbilityRepository, Protocol):
@@ -299,7 +298,7 @@ def generate_lua_data_modules(
     class_display: ClassDisplayNameService,
     max_page_bytes: int,
     lifecycle: ContentLifecycle,
-    validate: LuaValidator = validate_lua_module,
+    validate: LuaValidator = validate_lua_modules,
 ) -> LuaDataModuleGenerationResult:
     """Generate Lua modules after checking that every page fits the wiki limit."""
     items = item_repo.get_items_for_wiki_generation()
@@ -375,7 +374,6 @@ def generate_lua_data_modules(
                 class_display_names=class_display_names,
                 lifecycle=lifecycle,
                 max_page_bytes=max_page_bytes * 3 // 4,
-                validate=validate,
             ),
             *write_characters_modules(character_records, staging_root, max_page_bytes=max_page_bytes),
             write_links_module(link_entries, staging_root),
@@ -412,11 +410,7 @@ def generate_lua_data_modules(
                 reference_catalog=character_catalog,
             ),
         ]
-        validation_tools: dict[Path, str] = {}
-        for path in staged_paths:
-            validation = validate(path)
-            output_path = output_root / path.relative_to(staging_root)
-            validation_tools[output_path] = validation.tool
+        validate(staged_paths)
         for path in staged_paths:
             size = path.stat().st_size
             # Item data leaves one quarter of the host's page limit unused.
@@ -438,8 +432,4 @@ def generate_lua_data_modules(
             manifest_paths.append(output_path)
     _remove_stale_data_modules(output_root, written_paths)
 
-    return LuaDataModuleGenerationResult(
-        written_paths=written_paths,
-        validation_tools=validation_tools,
-        manifest_paths=tuple(manifest_paths),
-    )
+    return LuaDataModuleGenerationResult(written_paths=written_paths, manifest_paths=tuple(manifest_paths))

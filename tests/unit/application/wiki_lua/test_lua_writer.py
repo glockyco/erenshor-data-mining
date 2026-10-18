@@ -21,22 +21,36 @@ def test_serializes_supported_load_data_values_deterministically() -> None:
 
     assert module_text(data) == (
         "return {\n"
-        '  ["alpha"] = {\n'
-        '    ["braces"] = "literal { braces }",\n'
-        '    ["newline"] = "line one\\nline two",\n'
-        '    ["quote"] = "value \\"with\\" quotes",\n'
-        '    ["slash"] = "path\\\\to\\\\icon",\n'
-        '    ["unicode"] = "Café Ω",\n'
-        "  },\n"
-        '  ["list"] = {\n'
-        '    "first",\n'
-        "    2,\n"
-        "    3.5,\n"
-        "    false,\n"
-        "  },\n"
-        '  ["zeta"] = true,\n'
+        '\t["alpha"] = {\n'
+        '\t\t["braces"] = "literal { braces }",\n'
+        '\t\t["newline"] = "line one\\nline two",\n'
+        '\t\t["quote"] = \'value "with" quotes\',\n'
+        '\t\t["slash"] = "path\\\\to\\\\icon",\n'
+        '\t\t["unicode"] = "Café Ω",\n'
+        "\t},\n"
+        '\t["list"] = {\n'
+        '\t\t"first",\n'
+        "\t\t2,\n"
+        "\t\t3.5,\n"
+        "\t\tfalse,\n"
+        "\t},\n"
+        '\t["zeta"] = true,\n'
         "}\n"
     )
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ('say "hi"', "'say \"hi\"'"),
+        ('it\'s "x"', "'it\\'s \"x\"'"),
+        ("'a' \"b\"", '"\'a\' \\"b\\""'),
+        ("it's", '"it\'s"'),
+        ('"a" \'b\' "c"', "'\"a\" \\'b\\' \"c\"'"),
+    ],
+)
+def test_quotes_strings_with_the_quote_that_needs_fewer_escapes(value: str, expected: str) -> None:
+    assert dumps(value) == expected
 
 
 def test_rejects_values_that_mw_load_data_cannot_return() -> None:

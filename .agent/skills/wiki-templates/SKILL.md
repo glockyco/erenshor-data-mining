@@ -102,6 +102,7 @@ Only a human may approve the reviewed digest for live apply or resume. Changed s
 1. Regenerate database-backed Lua data after clean database changes: `uv run erenshor wiki generate-lua`.
    Data modules are written under `variants/<variant>/wiki/lua/`.
    Keep generated values deterministic and compatible with `mw.loadData()`: strings, numbers, booleans, and tables.
+   Generation writes each module's final text itself, sizes pages on those bytes, and compiles every module in one run of Lua 5.1's `luac -p`, which the dev shell provides. A failed compile names the module and line.
 
 2. Edit maintained Lua modules under `wiki/modules/Erenshor/` and templates under `wiki/templates/`.
    For example, `wiki/modules/Erenshor/Link.lua` maps to `Module:Erenshor/Link`.
