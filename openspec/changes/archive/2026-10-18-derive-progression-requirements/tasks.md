@@ -30,5 +30,6 @@
 ## 3. Documentation and integration
 
 - [x] 3.1 `docs: describe quest routes and the requirement graph`: add a paragraph to the README's Concepts section and a step to `.agent/skills/refreshing-game-data/SKILL.md` that reviews changed requirements with `extract changes` and `progression show` after a game update. Verify: `uv run pytest tests/contract/test_document_paths.py` passes.
-- [ ] 3.2 Run `uv run erenshor test ci`. Verify: it passes.
-- [ ] 3.3 Archive with `openspec archive derive-progression-requirements --yes`. Verify: `openspec/specs/quest-routes/spec.md` and `openspec/specs/progression-requirements/spec.md` exist.
+- [x] 3.2 Run `uv run erenshor test ci`. Verify: it passes.
+  - All six leaves pass: dependency state, static (ruff and strict mypy), 4,032 unit tests, contract (161 pytest, 123 CodeFacts, and 14 ExportSurface tests), maps, and 759 mod tests. The first run found that strict mypy failed on the requirement stage, and that the Game Data guide lacked the Game board view. Both were fixed in their own commits before this run.
+- [x] 3.3 Archive with `openspec archive derive-progression-requirements --yes`. Verify: `openspec/specs/quest-routes/spec.md` and `openspec/specs/progression-requirements/spec.md` exist.
