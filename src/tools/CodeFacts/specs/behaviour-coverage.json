@@ -13,10 +13,8 @@
         "GameData.CompletedQuests",
         "GameData.FinishQuest"
       ],
-      "classification": "pending",
-      "tasks": [
-        "3.4"
-      ]
+      "classification": "adapter",
+      "component": "ScriptedActivatorListener bellwain_reveal, processor/gates.py reveal and processor/scripted_events.py torch puzzle completion"
     },
     "AstraListener": {
       "apis": [
@@ -38,10 +36,8 @@
       "apis": [
         "Inventory.HasItem"
       ],
-      "classification": "pending",
-      "tasks": [
-        "3.4"
-      ]
+      "classification": "adapter",
+      "component": "ScriptedActivatorListener bellwain_offering and processor/gates.py offering reveals"
     },
     "BlessingAltar": {
       "apis": [
@@ -110,10 +106,8 @@
       "apis": [
         "GameData.IsQuestDone"
       ],
-      "classification": "pending",
-      "tasks": [
-        "3.2"
-      ]
+      "classification": "adapter",
+      "component": "QuestActivationListener and processor/hierarchy.py activity, processor/barriers.py removals"
     },
     "FernallaFight": {
       "apis": [
@@ -212,10 +206,8 @@
       "apis": [
         "GameData.CompletedQuests"
       ],
-      "classification": "pending",
-      "tasks": [
-        "3.2"
-      ]
+      "classification": "adapter",
+      "component": "ScriptedActivatorListener jaws_statue_startup and processor/hierarchy.py controller enablers"
     },
     "LootTable": {
       "apis": [
@@ -242,10 +234,8 @@
       "apis": [
         "GameData.IsQuestDone"
       ],
-      "classification": "pending",
-      "tasks": [
-        "3.2"
-      ]
+      "classification": "adapter",
+      "component": "QuestActivationListener and processor/hierarchy.py activity, processor/barriers.py removals"
     },
     "NPC": {
       "apis": [
@@ -274,10 +264,8 @@
       "apis": [
         "SpawnPoint.MyNPCAlive"
       ],
-      "classification": "pending",
-      "tasks": [
-        "3.2"
-      ]
+      "classification": "adapter",
+      "component": "ScriptedActivatorListener npc_alive, processor/gates.py reveals and processor/barriers.py removals"
     },
     "NPCDialog": {
       "apis": [
@@ -344,10 +332,8 @@
       "apis": [
         "GameData.CompletedQuests"
       ],
-      "classification": "pending",
-      "tasks": [
-        "3.2"
-      ]
+      "classification": "adapter",
+      "component": "ScriptedActivatorListener piety_guardians, processor/gates.py guardians and processor/barriers.py"
     },
     "PlanarMusicManager": {
       "apis": [
@@ -364,7 +350,7 @@
       ],
       "classification": "pending",
       "tasks": [
-        "3.4"
+        "4.1"
       ]
     },
     "Quest": {
@@ -394,10 +380,8 @@
         "GameData.IsQuestDone",
         "Inventory.HasItem"
       ],
-      "classification": "pending",
-      "tasks": [
-        "3.2"
-      ]
+      "classification": "adapter",
+      "component": "QuestActivationListener and processor/hierarchy.py activity, processor/barriers.py removals"
     },
     "ReliqDisableFiendSpawn": {
       "apis": [
@@ -448,10 +432,8 @@
       "apis": [
         "GameData.IsQuestDone"
       ],
-      "classification": "pending",
-      "tasks": [
-        "3.2"
-      ]
+      "classification": "adapter",
+      "component": "ScriptedActivatorListener shivering_angel and processor/barriers.py moved barriers"
     },
     "ShiveringPhantomWardListener": {
       "apis": [
@@ -474,10 +456,8 @@
         "GameData.CompletedQuests",
         "GameData.FinishQuest"
       ],
-      "classification": "pending",
-      "tasks": [
-        "3.2"
-      ]
+      "classification": "adapter",
+      "component": "ScriptedActivatorListener siv_torch_gaze, processor/barriers.py removals and processor/scripted_events.py"
     },
     "SpawnPoint": {
       "apis": [

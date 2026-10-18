@@ -443,24 +443,6 @@ def test_memory_alternatives_merge_with_quest_activation_without_gating_a_separa
     }
 
 
-def test_angel_quest_uses_only_exported_host_subjects_not_unreviewed_spatial_guards(
-    databases: tuple[sqlite3.Connection, sqlite3.Connection],
-) -> None:
-    raw, conn = databases
-    conn.execute("INSERT INTO zone_lines (stable_key, scene) VALUES ('zoneline:under-angel', 'Scene')")
-    conn.execute("INSERT INTO zone_lines (stable_key, scene) VALUES ('zoneline:nearby', 'Scene')")
-    _source(raw, "angel-controller", "shivering_angel")
-    _target(raw, "angel-controller", "$host", "zone_line", "zoneline:under-angel", mode="reference")
-    _source(raw, "object-only-controller", "shivering_angel")
-    _target(raw, "object-only-controller", "$host", "object", "object:another-angel", mode="reference")
-
-    gates = _scripted_gates(raw, conn)
-
-    assert len(gates) == 1
-    assert gates[0].subject_stable_key == "zoneline:under-angel"
-    assert gates[0].groups == ((Atom("quest_done", "quest:standangel"),),)
-
-
 def test_npc_alive_gates_only_direct_death_reveals_not_barrier_children_or_neighbours(
     databases: tuple[sqlite3.Connection, sqlite3.Connection],
 ) -> None:
@@ -481,7 +463,7 @@ def test_npc_alive_gates_only_direct_death_reveals_not_barrier_children_or_neigh
     assert _groups(gates[0]) == {_encounters("character:boss")}
 
 
-@pytest.mark.parametrize("rule", ["restored_brax", "memory_sphere", "shivering_angel", "npc_alive"])
+@pytest.mark.parametrize("rule", ["restored_brax", "memory_sphere", "npc_alive"])
 def test_disabled_component_does_not_prove_a_gate(
     databases: tuple[sqlite3.Connection, sqlite3.Connection],
     rule: str,

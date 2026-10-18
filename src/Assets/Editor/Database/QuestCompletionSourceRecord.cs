@@ -12,7 +12,6 @@ using SQLite;
 /// - zone: Zone entry via ZoneAnnounce.CompleteQuestOnEnter
 /// - read: Item read via Item.CompleteOnRead
 /// - shout: NPC shout via NPCShoutListener.TriggerQuest
-/// - scripted: Hardcoded in Unity scripts (AngelScript, SivTorchLight, ShiverEvent)
 /// - chain: Only completed via QuestCompleteOtherQuests (no independent method)
 /// </summary>
 [Table("QuestCompletionSources")]
@@ -25,22 +24,22 @@ public class QuestCompletionSourceRecord
     public string QuestStableKey { get; set; } = string.Empty;
 
     /// <summary>
-    /// Completion method: item_turnin, talk, zone, read, shout, scripted, chain
+    /// Completion method: item_turnin, talk, zone, read, shout, death, chain
     /// </summary>
     public string Method { get; set; } = string.Empty;
 
     /// <summary>
-    /// Source entity type: character, zone, item, quest, scripted
+    /// Source entity type: character, zone, item, quest
     /// </summary>
     public string SourceType { get; set; } = string.Empty;
 
     /// <summary>
-    /// Reference to the source entity (nullable for scripted)
+    /// Reference to the source entity
     /// </summary>
     public string? SourceStableKey { get; set; }
 
     /// <summary>
-    /// Human-readable note (especially for scripted completions)
+    /// Human-readable note
     /// </summary>
     public string? Note { get; set; }
 }

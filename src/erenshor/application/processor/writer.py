@@ -251,6 +251,34 @@ CREATE TABLE target_entries (
     PRIMARY KEY (target_stable_key, zone_line_stable_key)
 );
 
+-- One row per record of barriers.toml. Gates that a barrier causes are named
+-- by barrier_key, its first object.
+CREATE TABLE barriers (
+    barrier_key     TEXT PRIMARY KEY NOT NULL,
+    kind            TEXT NOT NULL CHECK (kind IN ('door', 'removed', 'moved', 'guardians')),
+    name            TEXT NOT NULL
+);
+
+-- Classified controllers that finish a quest themselves, such as the gaze
+-- statue of Jaws of Sivakaya. event_key is the controller's exported source key.
+CREATE TABLE scripted_events (
+    event_key           TEXT PRIMARY KEY NOT NULL,
+    quest_stable_key    TEXT NOT NULL REFERENCES quests (stable_key),
+    rule                TEXT NOT NULL,
+    zone_stable_key     TEXT NOT NULL REFERENCES zones (stable_key),
+    note                TEXT NOT NULL
+);
+
+-- When a scripted event can happen: OR of groups, AND within a group.
+CREATE TABLE scripted_event_conditions (
+    event_key           TEXT NOT NULL REFERENCES scripted_events (event_key),
+    group_index         INTEGER NOT NULL,
+    atom_index          INTEGER NOT NULL,
+    atom_kind           TEXT NOT NULL,
+    atom_stable_key     TEXT NOT NULL,
+    PRIMARY KEY (event_key, group_index, atom_index)
+);
+
 CREATE TABLE game_constants (
     key         TEXT PRIMARY KEY NOT NULL,
     value       TEXT,
@@ -1046,7 +1074,7 @@ CREATE TABLE quest_route_conditions (
     gate_key TEXT NOT NULL,
     group_index INTEGER NOT NULL,
     atom_index INTEGER NOT NULL,
-    atom_kind TEXT NOT NULL CHECK (atom_kind IN ('quest_done', 'quest_not_done', 'item_not_owned')),
+    atom_kind TEXT NOT NULL CHECK (atom_kind IN ('quest_done', 'quest_not_done', 'item_not_owned', 'item_held')),
     atom_stable_key TEXT NOT NULL,
     PRIMARY KEY (route_key, gate_key, group_index, atom_index)
 );
@@ -2140,6 +2168,15 @@ class Writer:
 
     def insert_target_entries(self, rows: list[dict[str, object]]) -> int:
         return self._insert("target_entries", rows)
+
+    def insert_barriers(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("barriers", rows)
+
+    def insert_scripted_events(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("scripted_events", rows)
+
+    def insert_scripted_event_conditions(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("scripted_event_conditions", rows)
 
     def insert_game_constants(self, rows: list[dict[str, object]]) -> int:
         return self._insert("game_constants", rows)

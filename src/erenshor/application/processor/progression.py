@@ -107,6 +107,8 @@ _GATE_TREATMENTS = {
     "spawn_stop": "placement",
     "furnishing": "placement",
     "vendor_unlock": "placement",
+    # Barriers other than doors are named by their first object.
+    "object": "barrier",
     "door": "barrier",
     # _ward_gates derives vulnerability gates from character_damage_releases.
     "damage_release": "vulnerability",
@@ -188,15 +190,15 @@ class ProgressionBuilder:
         }
         self.gates: dict[tuple[str, str, str | None], list[dict[str, Any]]] = defaultdict(list)
         self.barriers: dict[str, list[dict[str, Any]]] = {}
-        doors = {row["stable_key"] for row in self.rows("doors")}
+        barrier_keys = {row["barrier_key"] for row in self.rows("barriers")}
         for row in self.rows("gate_conditions"):
             gate_kind = row["gate"].split(":", 1)[0]
             if gate_kind not in _GATE_TREATMENTS:
                 raise _error(row["subject_stable_key"], row["gate"], f"unmapped gate kind {gate_kind!r}")
-            if _GATE_TREATMENTS[gate_kind] == "barrier" and row["gate"] not in doors:
-                raise _error(row["subject_stable_key"], row["gate"], "barrier resolves to no door")
+            if (_GATE_TREATMENTS[gate_kind] == "barrier") != (row["gate"] in barrier_keys):
+                raise _error(row["subject_stable_key"], row["gate"], "barrier gate without its barrier record")
             self.gates[row["subject_kind"], row["subject_stable_key"], row["item_stable_key"]].append(row)
-            if row["gate"] in doors:
+            if row["gate"] in barrier_keys:
                 prior = self.barriers.setdefault(row["gate"], [])
                 atom = {key: row[key] for key in ("gate", "group_index", "atom_kind", "atom_stable_key", "atom_slot")}
                 if atom not in prior:

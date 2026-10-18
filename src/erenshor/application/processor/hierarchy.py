@@ -6,12 +6,12 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from .gates import Atom, Gate, _ordered_groups
+from .gates import CONTROLLER, Atom, Gate, _ordered_groups
 from .planning import _ROOM_SLOTS
 
 if TYPE_CHECKING:
     import sqlite3
-    from collections.abc import Iterable
+    from collections.abc import Callable, Iterable
 
 Groups = tuple[tuple[Atom, ...], ...]
 _TRUE: Groups = ((),)
@@ -23,6 +23,20 @@ class _Effect:
     groups: Groups
     host: str | None = None
     controller: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class Activity:
+    """Resolved scene activity.
+
+    ``gates`` are the subject gates. ``host`` and ``controller`` say when an
+    object is active and when a controller's effects can happen, both before
+    any removal, because a mechanism needs its controller before it acts.
+    """
+
+    gates: list[Gate]
+    host: Callable[[str], Groups]
+    controller: Callable[[str], Groups]
 
 
 def _simplify(groups: Iterable[Iterable[Atom]]) -> Groups:
@@ -66,7 +80,7 @@ def _inverse(groups: Groups, source: str) -> Groups:
     return result
 
 
-def apply_hierarchy_activity(raw: sqlite3.Connection, conn: sqlite3.Connection, gates: list[Gate]) -> list[Gate]:
+def apply_hierarchy_activity(raw: sqlite3.Connection, conn: sqlite3.Connection, gates: list[Gate]) -> Activity:
     """Resolve availability from initial activity, activation effects, and parents.
 
     A least fixed point prevents controllers inside an inactive subtree from
@@ -118,11 +132,13 @@ def apply_hierarchy_activity(raw: sqlite3.Connection, conn: sqlite3.Connection, 
                 components[kind, key] = bool(component)
 
     controllers = {
-        source: (object_key, host)
-        for source, object_key, host in raw.execute(
-            "SELECT SourceKey, ObjectKey, HostCharacterStableKey FROM ScriptedActivators"
+        source: (object_key, bool(enabled))
+        for source, object_key, enabled in raw.execute(
+            "SELECT SourceKey, ObjectKey, ComponentIsEnabled FROM ScriptedActivators"
         )
     }
+    # Effects that enable a controller's disabled behaviour, such as JawsStatueStartup.
+    enablers: dict[str, list[_Effect]] = defaultdict(list)
     dynamic = {
         key: (character, controller, bool(component))
         for key, character, controller, component in raw.execute(
@@ -186,6 +202,12 @@ def apply_hierarchy_activity(raw: sqlite3.Connection, conn: sqlite3.Connection, 
             raise ValueError(f"Stored return controller {source!r} has no hierarchy portal {portal!r}")
         enabled[portal].append(_Effect(_TRUE, host=controllers[source][0]))
     for gate in gates:
+        if gate.subject_kind == CONTROLLER:
+            if gate.subject_stable_key not in controllers:
+                raise ValueError(f"{gate.gate} enables missing controller {gate.subject_stable_key!r}")
+            enabled_by = _Effect(gate.groups, controller=gate.controller_source_key)
+            enablers[gate.subject_stable_key].append(enabled_by)
+            continue
         subject = (gate.subject_kind, gate.subject_stable_key)
         object_key = gate.subject_stable_key if gate.subject_kind == "object" else subjects.get(subject)
         if gate.gate.startswith("activation"):
@@ -267,6 +289,25 @@ def apply_hierarchy_activity(raw: sqlite3.Connection, conn: sqlite3.Connection, 
                 alternatives.extend(placement_groups(placement, current, spawned))
         return _simplify(alternatives)
 
+    def controller_groups(
+        source: str, current: dict[str, Groups], spawned: dict[str, Groups], trail: frozenset[str] = frozenset()
+    ) -> Groups:
+        """When a controller can act: its host is active and its behaviour is enabled."""
+        if source not in controllers:
+            raise ValueError(f"Missing scripted controller {source!r}")
+        object_key, enabled = controllers[source]
+        host = host_groups(object_key, current, spawned)
+        if enabled:
+            return host
+        # A disabled behaviour runs only after an enabler enables it.
+        alternatives = [
+            group
+            for effect in enablers[source]
+            if effect.controller is not None and effect.controller not in trail
+            for group in _and(effect.groups, controller_groups(effect.controller, current, spawned, trail | {source}))
+        ]
+        return _and(host, _simplify(alternatives))
+
     def solve(removals: dict[str, Groups]) -> tuple[dict[str, Groups], dict[str, Groups]]:
         current: dict[str, Groups] = dict.fromkeys(objects, _FALSE)
         spawned: dict[str, Groups] = dict.fromkeys(dynamic, _FALSE)
@@ -279,9 +320,7 @@ def apply_hierarchy_activity(raw: sqlite3.Connection, conn: sqlite3.Connection, 
                     if effect.host is not None:
                         required = host_groups(effect.host, current, spawned)
                     if effect.controller is not None:
-                        if effect.controller not in controllers:
-                            raise ValueError(f"Missing scripted controller {effect.controller!r}")
-                        required = host_groups(controllers[effect.controller][0], current, spawned)
+                        required = controller_groups(effect.controller, current, spawned)
                     alternatives.extend(_and(effect.groups, required))
                 available = _and(_simplify(alternatives), object_conditions[key])
                 available = _and(available, removals.get(key, _TRUE))
@@ -328,4 +367,8 @@ def apply_hierarchy_activity(raw: sqlite3.Connection, conn: sqlite3.Connection, 
             result.append(
                 Gate("spawn_point", key, "activation:controller", groups or ((Atom("never", dynamic[key][0]),),))
             )
-    return result
+    return Activity(
+        result,
+        host=lambda object_key: host_groups(object_key, reachable, reachable_spawns),
+        controller=lambda source: controller_groups(source, reachable, reachable_spawns),
+    )

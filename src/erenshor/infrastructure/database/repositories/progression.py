@@ -48,12 +48,7 @@ class ProgressionRepository:
                     ("class:" + row[0].lower(), row[1] or row[0])
                     for row in connection.execute("SELECT class_name, display_name FROM classes")
                 )
-                names.update(
-                    (row[0], "Door in " + row[1])
-                    for row in connection.execute(
-                        "SELECT d.stable_key,z.display_name FROM doors d JOIN zones z ON z.scene_name=d.scene"
-                    )
-                )
+                names.update((row[0], row[1]) for row in connection.execute("SELECT barrier_key, name FROM barriers"))
                 nodes = {}
                 for row in connection.execute("SELECT * FROM progression_nodes ORDER BY stable_key"):
                     key = row["stable_key"]

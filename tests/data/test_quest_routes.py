@@ -155,19 +155,23 @@ def test_nighthollow_candle_keeps_world_well_and_all_eight_furnished_room_copies
             }, source
 
 
-def test_she_sees_you_records_the_script_and_no_source_character(clean: sqlite3.Connection) -> None:
+def test_she_sees_you_completes_at_the_gaze_statue_after_the_guardian_awakens(clean: sqlite3.Connection) -> None:
     routes = _routes(clean, "quest:jawsseen", "completion")
     assert len(routes) == 1, [dict(route) for route in routes]
     route = routes[0]
     assert (route["method"], route["source_kind"], route["source_stable_key"], route["source_group_key"]) == (
         "scripted",
-        "scripted",
-        None,
+        "zone",
+        "zone:jaws",
         None,
     )
-    assert route["note"] == "SivTorchLight.cs - gaze at torch 800 frames"
+    assert route["note"] == "Stand in the statue's gaze"
     assert route["variant_resource_name"] is None
     assert route["grants_resource_rewards"] == 0
+    conditions = clean.execute(
+        "SELECT atom_kind, atom_stable_key FROM quest_route_conditions WHERE route_key = ?", (route["route_key"],)
+    ).fetchall()
+    assert [tuple(atom) for atom in conditions] == [("quest_done", "quest:jawsentry")]
 
 
 def test_missing_person_talk_does_not_execute_configured_resource_rewards(clean: sqlite3.Connection) -> None:

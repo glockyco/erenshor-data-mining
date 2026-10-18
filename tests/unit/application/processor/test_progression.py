@@ -343,6 +343,7 @@ def test_independent_gate_groups_multiply(conn):
 
 def test_barrier_is_shared_instead_of_copying_keys(conn):
     insert(conn, "doors", stable_key="door:test")
+    insert(conn, "barriers", barrier_key="door:test", kind="door", name="Test door")
     gate(conn, "key_held", "item:key", gate="door:test")
     graph = builder(conn)
     assert needs(graph, "door:test") == {Need("key", "item:key")}

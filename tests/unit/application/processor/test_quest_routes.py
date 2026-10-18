@@ -105,7 +105,6 @@ def routes(writer: Writer) -> list[dict[str, object]]:
         ("completion", "read", "item"),
         ("completion", "death", "character"),
         ("completion", "chain", "quest"),
-        ("completion", "scripted", "scripted"),
         ("completion", "shout", "character"),
     ],
 )
@@ -291,9 +290,45 @@ def test_canonical_item_grants_keep_route_without_resource_reward_leakage(
 
 
 def test_conflicting_native_route_notes_fail_instead_of_overwriting(writer: Writer) -> None:
-    source(writer, "scripted", "scripted", note="First.cs")
-    source(writer, "scripted", "scripted", note="Second.cs")
+    source(writer, "scripted", "scripted", "start", note="First.cs")
+    source(writer, "scripted", "scripted", "start", note="Second.cs")
     with pytest.raises(ValueError, match=r"Quest quest:q: conflicting route"):
+        routes(writer)
+
+
+def test_a_scripted_event_completes_in_its_zone_with_its_conditions(writer: Writer) -> None:
+    writer.conn.execute(
+        "INSERT INTO zones (stable_key, scene_name, zone_name, display_name, image_name, zone_type)"
+        " VALUES ('zone:here', 'Here', 'Here', 'Here', 'Here', 'Dungeon')"
+    )
+    writer.conn.execute(
+        "INSERT INTO scripted_events VALUES ('event:gaze', 'quest:q', 'siv_torch_gaze', 'zone:here', 'Stand here')"
+    )
+    writer.conn.executemany(
+        "INSERT INTO scripted_event_conditions VALUES ('event:gaze', 0, ?, ?, ?)",
+        [(0, "quest_done", "quest:awake"), (1, "item_held", "item:flint")],
+    )
+    [row] = routes(writer)
+
+    assert (row["phase"], row["method"], row["source_kind"], row["source_stable_key"], row["note"]) == (
+        "completion",
+        "scripted",
+        "zone",
+        "zone:here",
+        "Stand here",
+    )
+    conditions = writer.conn.execute(
+        "SELECT gate_key, group_index, atom_index, atom_kind, atom_stable_key FROM quest_route_conditions"
+    ).fetchall()
+    assert [tuple(atom) for atom in conditions] == [
+        ("event", 0, 0, "quest_done", "quest:awake"),
+        ("event", 0, 1, "item_held", "item:flint"),
+    ]
+
+
+def test_an_exported_scripted_completion_fails_because_events_own_them(writer: Writer) -> None:
+    source(writer, "scripted", "scripted")
+    with pytest.raises(ValueError, match="unmapped source kind 'scripted' for completion method scripted"):
         routes(writer)
 
 

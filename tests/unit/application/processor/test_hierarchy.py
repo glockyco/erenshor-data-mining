@@ -125,7 +125,7 @@ def test_an_ancestor_activation_reaches_descendants_but_not_inactive_children(da
     _subject(raw, conn, "character", "character:off", "off")
     _effect(raw, "root", "listener", "quest:ritual")
 
-    gates = apply_hierarchy_activity(raw, conn, [])
+    gates = apply_hierarchy_activity(raw, conn, []).gates
 
     assert _groups(gates, "zone_line", "zoneline:leaf") == {frozenset({Atom("quest_done", "quest:ritual")})}
     assert _groups(gates, "character", "character:off") == {frozenset({Atom("never", "off")})}
@@ -145,7 +145,7 @@ def test_hosted_planning_controller_and_ui_share_the_desks_activation(databases)
 
     gates = apply_hierarchy_activity(
         raw, conn, [Gate("object", "portal", "activation:planning", ((rune,),), controller_source_key="planning")]
-    )
+    ).gates
 
     claim = Atom("quest_done", "quest:claim")
     assert _groups(gates, "zone_line", "zoneline:raid") == {frozenset({claim, rune})}
@@ -166,7 +166,7 @@ def test_furnished_room_descendant_needs_the_furniture_and_claimed_desk_host(dat
     )
     raw.execute("INSERT INTO PlanningTableFurnishings VALUES ('furnishing', 'desk', 'L1', 'StoneRoom')")
 
-    gates = apply_hierarchy_activity(raw, conn, [])
+    gates = apply_hierarchy_activity(raw, conn, []).gates
 
     assert _groups(gates, "character", "character:furnished-vendor") == {
         frozenset({Atom("quest_done", "quest:claim"), Atom("room_furnished", "item:stone-set", "L1")})
@@ -184,7 +184,8 @@ def test_controller_spawn_inherits_the_host_spawn_quest(databases):
     raw.execute("INSERT INTO DynamicCharacterSpawns VALUES ('spawn:phase', 'character:fallen', 'fight', 1)")
     quest = Atom("quest_done", "quest:dyingwish4")
 
-    gates = apply_hierarchy_activity(raw, conn, [Gate("spawn_point", "spawn:twisted", "spawn_start", ((quest,),))])
+    triggers = [Gate("spawn_point", "spawn:twisted", "spawn_start", ((quest,),))]
+    gates = apply_hierarchy_activity(raw, conn, triggers).gates
 
     assert _groups(gates, "spawn_point", "spawn:phase") == {frozenset({quest})}
 
@@ -198,7 +199,7 @@ def test_a_disable_keeps_its_inverse_and_its_controller_host(databases):
     _effect(raw, "target", "listener", "quest:remove", effect="disable")
     _effect(raw, "target", "inactive-listener", "quest:unreachable", effect="disable")
 
-    gates = apply_hierarchy_activity(raw, conn, [])
+    gates = apply_hierarchy_activity(raw, conn, []).gates
 
     assert _groups(gates, "character", "character:target") == {frozenset({Atom("quest_not_done", "quest:remove")})}
 
@@ -209,7 +210,7 @@ def test_a_starting_inactive_placement_without_an_activator_is_never_available(d
     _object(raw, "inactive", active=active)
     _subject(raw, conn, "spawn_point", "spawn:unused", "inactive", component=component)
 
-    gates = apply_hierarchy_activity(raw, conn, [])
+    gates = apply_hierarchy_activity(raw, conn, []).gates
 
     assert _groups(gates, "spawn_point", "spawn:unused") == {frozenset({Atom("never", "inactive")})}
 
@@ -222,7 +223,7 @@ def test_a_stored_return_portal_is_enabled_by_its_listener(databases):
     raw.execute("INSERT INTO ScriptedActivators VALUES ('return', 'hall', NULL, 'reliquary_return_portal', 1)")
     raw.execute("INSERT INTO ScriptedActivatorReferences VALUES ('ref', 'return', 'ReliqPort', 'object', 'portal')")
 
-    assert _groups(apply_hierarchy_activity(raw, conn, []), "zone_line", "zoneline:return") == set()
+    assert _groups(apply_hierarchy_activity(raw, conn, []).gates, "zone_line", "zoneline:return") == set()
 
 
 def test_an_active_subject_does_not_need_an_optional_activator(databases):
@@ -231,7 +232,7 @@ def test_an_active_subject_does_not_need_an_optional_activator(databases):
     _object(raw, "target")
     _subject(raw, conn, "character", "character:target", "target")
     _effect(raw, "target", "listener", "quest:optional")
-    assert apply_hierarchy_activity(raw, conn, []) == []
+    assert apply_hierarchy_activity(raw, conn, []).gates == []
 
 
 def test_an_inactive_controller_cannot_activate_its_own_parent(databases):
@@ -240,7 +241,7 @@ def test_an_inactive_controller_cannot_activate_its_own_parent(databases):
     _object(raw, "listener", parent="root")
     _subject(raw, conn, "character", "character:target", "root")
     _effect(raw, "root", "listener", "quest:cycle")
-    gates = apply_hierarchy_activity(raw, conn, [])
+    gates = apply_hierarchy_activity(raw, conn, []).gates
     assert _groups(gates, "character", "character:target") == {frozenset({Atom("never", "root")})}
 
 
@@ -283,7 +284,7 @@ def test_death_effect_needs_every_member_of_its_exported_set(databases, rule):
         raw.execute("INSERT INTO ScriptedActivatorTargets VALUES ('keeper', 'enable', 'object', 'keeper')")
 
     triggers = _death_trigger_gates(raw, conn, "source", rule)
-    gates = apply_hierarchy_activity(raw, conn, triggers)
+    gates = apply_hierarchy_activity(raw, conn, triggers).gates
 
     assert _groups(gates, "spawn_point", "spawn:born") == {frozenset(Atom("encounter_won", key) for key in victims)}
 
@@ -305,7 +306,35 @@ def test_disabled_character_behaviour_on_an_active_object_is_not_an_inactive_pla
     raw, conn = databases
     _object(raw, "npc")
     _subject(raw, conn, "character", "character:called-externally", "npc", component=False)
-    assert apply_hierarchy_activity(raw, conn, []) == []
+    assert apply_hierarchy_activity(raw, conn, []).gates == []
+
+
+def test_a_disabled_behaviour_acts_once_another_controller_enables_it(databases):
+    raw, conn = databases
+    _object(raw, "statue")
+    _object(raw, "eye", parent="statue")
+    _object(raw, "door-hall", active=False)
+    _subject(raw, conn, "zone_line", "zoneline:inner", "door-hall")
+    raw.executemany(
+        "INSERT INTO ScriptedActivators VALUES (?, ?, NULL, ?, ?)",
+        [("startup", "statue", "startup_rule", 1), ("gaze", "eye", "gaze_rule", 0), ("idle", "eye", "gaze_rule", 0)],
+    )
+    entry = Atom("quest_done", "quest:entry")
+    awake = Atom("quest_done", "quest:awake")
+    activity = apply_hierarchy_activity(
+        raw,
+        conn,
+        [
+            Gate("controller", "gaze", "activation:startup", ((entry,),), controller_source_key="startup"),
+            Gate("object", "door-hall", "activation:gaze", ((awake,),), controller_source_key="gaze"),
+        ],
+    )
+
+    assert activity.controller("gaze") == ((entry,),)
+    assert activity.controller("startup") == ((),)
+    # Without an enabler, a disabled behaviour never acts.
+    assert activity.controller("idle") == ()
+    assert _groups(activity.gates, "zone_line", "zoneline:inner") == {frozenset({awake, entry})}
 
 
 def test_a_listener_can_remove_its_own_host_after_the_quest(databases):
@@ -314,6 +343,6 @@ def test_a_listener_can_remove_its_own_host_after_the_quest(databases):
     _subject(raw, conn, "zone_line", "zoneline:gate", "gate")
     _effect(raw, "gate", "gate", "quest:claim", effect="disable")
 
-    gates = apply_hierarchy_activity(raw, conn, [])
+    gates = apply_hierarchy_activity(raw, conn, []).gates
 
     assert _groups(gates, "zone_line", "zoneline:gate") == {frozenset({Atom("quest_not_done", "quest:claim")})}

@@ -26,6 +26,64 @@
       "keys": ["quest"]
     },
     {
+      "id": "progression.bellwain.finish",
+      "mode": "extract",
+      "type": "AngelScript",
+      "method": "Step3",
+      "matcher": "string_constants",
+      "args": {"invocation": "GameData.FinishQuest", "argument": "0"},
+      "keys": ["quest"]
+    },
+    {
+      "id": "progression.bellwain.flint",
+      "mode": "extract",
+      "type": "PlayerControl",
+      "method": "LeftClick",
+      "matcher": "string_constants",
+      "args": {"invocation": "GameData.ItemDB.GetItemByID", "argument": "0"},
+      "keys": ["item_id"]
+    },
+    {
+      "id": "progression.bellwain.offering",
+      "mode": "assert",
+      "type": "BellsieWineTrigger",
+      "method": "OnTriggerEnter",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (other.transform.name == \"Player\" && GameData.PlayerInv.HasItem (GameData.ItemDB.GetItemByID (IDtoActivate), _remove: true) && !Done) { Done = true; WineOnChair.SetActive (value: true); if (Note != null) { Note.SetActive (value: true); } if (Poof != null) { Poof.SetActive (value: true); } GameData.PlayerAud.PlayOneShot (MySFX, GameData.SFXVol * GameData.MasterVol); } }"
+      }
+    },
+    {
+      "id": "progression.jaws.statue_enable",
+      "mode": "assert",
+      "type": "JawsStatueStartup",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (!Vision.enabled && GameData.CompletedQuests.Contains (StartOnComplete.DBName)) { StatueSpinner.enabled = true; Vision.enabled = true; } }"
+      }
+    },
+    {
+      "id": "progression.siv_torch.quest",
+      "mode": "extract",
+      "type": "SivTorchLight",
+      "method": "Update",
+      "matcher": "string_constants",
+      "args": {"invocation": "GameData.FinishQuest", "argument": "0"},
+      "keys": ["quest"]
+    },
+    {
+      "id": "progression.shivering_angel.quest",
+      "mode": "extract",
+      "type": "ShiveringAngel",
+      "method": "Update",
+      "matcher": "string_constants",
+      "args": {"invocation": "GameData.IsQuestDone", "argument": "0"},
+      "keys": ["quest"]
+    },
+    {
       "id": "progression.astra.death_set",
       "mode": "assert",
       "type": "AstraListener",

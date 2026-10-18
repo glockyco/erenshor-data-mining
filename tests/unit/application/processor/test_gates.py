@@ -8,7 +8,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from erenshor.application.processor.gates import Entry, _entry_rows, process_gates
+from erenshor.application.processor.barriers import Entry, entry_rows
+from erenshor.application.processor.gates import process_gates
 from erenshor.application.processor.writer import Writer
 
 if TYPE_CHECKING:
@@ -169,6 +170,7 @@ def _barriers(tmp_path: Path, body: str) -> Path:
 _COMPLETE = f"""
 [[barriers]]
 kind = "door"
+name = "Ghost door"
 objects = ["{_DOOR}"]
 targets = ["{_GHOST}", "zoneline:island:tomb:808.08:14.08:592.64"]
 reason = "The ghost's crypt."
@@ -176,6 +178,7 @@ check = "navmesh"
 
 [[barriers]]
 kind = "door"
+name = "Keep door"
 objects = ["door:keep:282.83:33.13:272.05"]
 targets = ["spawn:salted:1"]
 reason = "The keep tower."
@@ -187,6 +190,7 @@ def _record(**fields: str) -> str:
     """One [[barriers]] record, a complete door record unless fields override or, when empty, omit a field."""
     body = {
         "kind": '"door"',
+        "name": '"Upper keep door"',
         "objects": '["door:keep:282.83:53.88:272.05"]',
         "targets": "[]",
         "reason": '"Nothing behind it."',
@@ -194,6 +198,17 @@ def _record(**fields: str) -> str:
     }
     body.update(fields)
     return "\n[[barriers]]\n" + "".join(f"{name} = {value}\n" for name, value in body.items() if value)
+
+
+def _removal(raw: sqlite3.Connection, target: str, listener: str, quest: str, *, kind: str = "object") -> None:
+    """A quest listener that disables a target once the quest is done."""
+    target_object = target if kind == "object" else f"object:{target}"
+    for obj in (listener, target_object):
+        raw.execute("INSERT OR IGNORE INTO ObjectHierarchy VALUES (?, NULL, 1, 1)", (obj,))
+    raw.execute(
+        "INSERT INTO QuestActivationEffects VALUES (?, ?, 'disable', ?, 0, 'quest_done', ?, ?, ?, 1)",
+        (kind, target, listener, quest, target_object, listener),
+    )
 
 
 def _gates(writer: Writer) -> dict[tuple[str, str, str | None, str], list[list[tuple[str, str, str | None]]]]:
@@ -238,10 +253,10 @@ def test_every_rule_becomes_a_gate(tmp_path: Path, writer: Writer, raw: sqlite3.
     ]
 
 
-def test_an_unclassified_keyed_door_fails_the_build(tmp_path: Path, writer: Writer, raw: sqlite3.Connection) -> None:
+def test_an_unrecorded_keyed_door_fails_the_build(tmp_path: Path, writer: Writer, raw: sqlite3.Connection) -> None:
     body = _record(objects=f'["{_DOOR}"]')
 
-    with pytest.raises(ValueError, match=r"door:keep:282\.83:33\.13:272\.05 \(Keep, item:key - skeleton key\)"):
+    with pytest.raises(ValueError, match=r"does not record these barriers: door:keep:282\.83:33\.13:272\.05 \(door\)"):
         process_gates(raw, writer, _barriers(tmp_path, body))
 
 
@@ -252,10 +267,74 @@ def test_an_entry_for_a_door_the_build_lacks_fails(tmp_path: Path, writer: Write
         process_gates(raw, writer, _barriers(tmp_path, body))
 
 
-def test_a_door_record_whose_door_needs_no_key_fails(tmp_path: Path, writer: Writer, raw: sqlite3.Connection) -> None:
+def test_a_door_that_needs_no_key_is_no_barrier(tmp_path: Path, writer: Writer, raw: sqlite3.Connection) -> None:
     body = _COMPLETE + _record(objects='["door:tomb:100.00:0.00:0.00"]')
 
-    with pytest.raises(ValueError, match=r"'door:tomb:100\.00:0\.00:0\.00' as a keyed door, but it needs no key"):
+    with pytest.raises(ValueError, match=r"'door:tomb:100\.00:0\.00:0\.00', which no mechanism of this build opens"):
+        process_gates(raw, writer, _barriers(tmp_path, body))
+
+
+def test_a_removed_object_opens_when_its_listener_quest_is_done(
+    tmp_path: Path, writer: Writer, raw: sqlite3.Connection
+) -> None:
+    _removal(raw, "object:tomb:rockfall", "listener:meet", "quest:meet")
+    body = _COMPLETE + _record(
+        kind='"removed"', name='"Rock fall"', objects='["object:tomb:rockfall"]', targets=f'["{_GHOST_SPAWN}"]'
+    )
+    process_gates(raw, writer, _barriers(tmp_path, body))
+
+    assert _gates(writer)[("spawn_point", _GHOST_SPAWN, None, "object:tomb:rockfall")] == [
+        [("quest_done", "quest:meet", None)]
+    ]
+    assert writer.conn.execute("SELECT kind, name FROM barriers WHERE barrier_key = 'object:tomb:rockfall'").fetchone()
+
+
+def test_a_door_that_a_listener_removes_opens_with_its_key_or_the_quest(
+    tmp_path: Path, writer: Writer, raw: sqlite3.Connection
+) -> None:
+    _removal(raw, _DOOR, "listener:ritual", "quest:ritual", kind="door")
+    process_gates(raw, writer, _barriers(tmp_path, _COMPLETE))
+
+    assert _gates(writer)[("character", _GHOST, None, _DOOR)] == [
+        [("key_held", _KEY, None)],
+        [("quest_done", "quest:ritual", None)],
+    ]
+
+
+def test_an_unrecorded_removed_object_fails_the_build(tmp_path: Path, writer: Writer, raw: sqlite3.Connection) -> None:
+    _removal(raw, "object:tomb:rockfall", "listener:meet", "quest:meet")
+
+    with pytest.raises(ValueError, match=re.escape("object:tomb:rockfall (removed)")):
+        process_gates(raw, writer, _barriers(tmp_path, _COMPLETE))
+
+
+def test_a_placement_that_a_listener_removes_is_no_barrier(
+    tmp_path: Path, writer: Writer, raw: sqlite3.Connection
+) -> None:
+    _removal(raw, f"object:{_GHOST}", "listener:meet", "quest:meet")
+    process_gates(raw, writer, _barriers(tmp_path, _COMPLETE))
+
+    assert writer.conn.execute("SELECT COUNT(*) FROM barriers").fetchone()[0] == 2
+
+
+def test_a_record_of_the_wrong_kind_fails(tmp_path: Path, writer: Writer, raw: sqlite3.Connection) -> None:
+    _removal(raw, "object:tomb:rockfall", "listener:meet", "quest:meet")
+    body = _COMPLETE + _record(kind='"moved"', name='"Rock fall"', objects='["object:tomb:rockfall"]')
+
+    with pytest.raises(ValueError, match="records 'object:tomb:rockfall' as moved, but it is removed"):
+        process_gates(raw, writer, _barriers(tmp_path, body))
+
+
+def test_objects_that_open_differently_are_separate_barriers(
+    tmp_path: Path, writer: Writer, raw: sqlite3.Connection
+) -> None:
+    _removal(raw, "object:tomb:rockfall", "listener:meet", "quest:meet")
+    _removal(raw, "object:tomb:field", "listener:ritual", "quest:ritual")
+    body = _COMPLETE + _record(
+        kind='"removed"', name='"Rubble"', objects='["object:tomb:rockfall", "object:tomb:field"]'
+    )
+
+    with pytest.raises(ValueError, match="joins objects that open differently"):
         process_gates(raw, writer, _barriers(tmp_path, body))
 
 
@@ -263,6 +342,7 @@ def test_a_door_record_whose_door_needs_no_key_fails(tmp_path: Path, writer: Wri
     ("fields", "message"),
     [
         ({"kind": ""}, "has kind None"),
+        ({"name": ""}, "needs a name"),
         ({"kind": '"wall"'}, "has kind 'wall'"),
         ({"kind": '["door"]'}, r"has kind \['door'\]"),
         ({"objects": "[]"}, "needs a non-empty list of objects"),
@@ -390,4 +470,45 @@ def test_stored_return_cannot_be_a_fixed_target_entry(writer: Writer) -> None:
         (line,),
     )
     with pytest.raises(ValueError, match="stored return destination"):
-        _entry_rows(writer.conn, [Entry(_GHOST_SPAWN, (line,), "The ledge has one entrance.")])
+        entry_rows(writer.conn, [Entry(_GHOST_SPAWN, (line,), "The ledge has one entrance.")])
+
+
+def test_a_wall_that_an_enabled_script_removes_needs_the_enabler_and_the_script_quest(
+    tmp_path: Path, writer: Writer, raw: sqlite3.Connection
+) -> None:
+    raw.execute("ALTER TABLE ScriptedActivators ADD COLUMN SourceObjectName TEXT")
+    raw.execute("CREATE TABLE code_facts (fact_id TEXT, key TEXT, value TEXT)")
+    raw.execute("INSERT INTO code_facts VALUES ('progression.siv_torch.quest', 'quest', 'RITUAL')")
+    for obj, parent in (
+        ("object:tomb:statue", None),
+        ("object:tomb:eye", "object:tomb:statue"),
+        ("object:tomb:wall", None),
+    ):
+        raw.execute("INSERT INTO ObjectHierarchy VALUES (?, ?, 1, 1)", (obj, parent))
+    raw.executemany(
+        "INSERT INTO ScriptedActivators (SourceKey, RuleId, SourceScene, ComponentIsEnabled, ObjectKey)"
+        " VALUES (?, ?, 'Tomb', ?, ?)",
+        [("startup", "jaws_statue_startup", 1, "object:tomb:statue"), ("gaze", "siv_torch_gaze", 0, "object:tomb:eye")],
+    )
+    raw.executemany(
+        "INSERT INTO ScriptedActivatorReferences VALUES (?, ?, ?, ?, ?)",
+        [
+            ("r1", "startup", "StartOnComplete", "quest", "quest:meet"),
+            ("r2", "startup", "Vision", "controller", "gaze"),
+            ("r3", "gaze", "BreakWall", "object", "object:tomb:wall"),
+        ],
+    )
+    body = _COMPLETE + _record(
+        kind='"removed"', name='"Gaze wall"', objects='["object:tomb:wall"]', targets=f'["{_GHOST_SPAWN}"]'
+    )
+    process_gates(raw, writer, _barriers(tmp_path, body))
+
+    # The gaze behaviour starts disabled, so the wall falls only after the startup quest enables it.
+    assert _gates(writer)[("spawn_point", _GHOST_SPAWN, None, "object:tomb:wall")] == [
+        [("quest_done", "quest:meet", None), ("quest_done", "quest:ritual", None)]
+    ]
+    # The same controller finishes its quest in its zone once it can act.
+    events = writer.conn.execute("SELECT quest_stable_key, zone_stable_key FROM scripted_events")
+    assert [tuple(row) for row in events] == [("quest:ritual", "zone:tomb")]
+    conditions = writer.conn.execute("SELECT atom_kind, atom_stable_key FROM scripted_event_conditions")
+    assert [tuple(row) for row in conditions] == [("quest_done", "quest:meet")]

@@ -6,22 +6,14 @@ a subject is available when every gate on it holds. ``gate_conditions`` stores
 one row per atom, and the guide compiler combines the gates of a subject into
 its condition.
 
-The rules come from the export (quest listener activations, scripted encounters,
-spawn points, furnishings, vendor stock) and from ``barriers.toml``, which
-records each barrier with its kind, its objects, and the targets it guards. The
-first object names the barrier and every gate it causes. A keyed door opens
-when its key is on the keyring or in the inventory (``Door.OpenOrShut``), so
-each guarded target gets a key atom.
-
-``barriers.toml`` also lists entries: targets that only some of the zone lines
-into their scene reach, such as a ledge that one tomb entrance lands on.
-``target_entries`` records those zone lines, so navigation enters there.
+The rules come from the export: quest listener activations, scripted
+encounters, spawn points, furnishings, and vendor stock. Scene activity is then
+resolved over the object hierarchy (``hierarchy.py``), and barriers take their
+opening condition from their exported mechanism (``barriers.py``).
 """
 
 from __future__ import annotations
 
-import math
-import tomllib
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
@@ -48,12 +40,8 @@ _TARGET_TABLES = {
     "spawn_point": ("character_spawns", "spawn_point_stable_key"),
     "item_bag": ("item_bags", "stable_key"),
 }
-# Doors of one doorway stand this close together and share a key. The widest
-# pair, the Braxonian gate, stands 7.9 m apart.
-_DOUBLE_DOOR_DISTANCE = 8.0
-# What a barriers.toml record can be, and how its targets were confirmed.
-_BARRIER_KINDS = frozenset({"door"})
-_BARRIER_CHECKS = frozenset({"navmesh", "render", "unconfirmed"})
+# The subject kind of an effect that enables a controller's disabled behaviour.
+CONTROLLER = "controller"
 
 # ShiverEvent checks quest IDs, while all affected placements come from its
 # exported references. Keepers are conversations, not encounters.
@@ -109,33 +97,12 @@ class Gate:
     controller_source_key: str | None = None
 
 
-@dataclass(frozen=True, slots=True)
-class Barrier:
-    """One reviewed record of barriers.toml: the objects that block access and what they guard."""
-
-    kind: str
-    objects: tuple[str, ...]
-    targets: tuple[str, ...]
-    reason: str
-    check: str
-
-    @property
-    def key(self) -> str:
-        """The stable key that names the barrier and every gate it causes."""
-        return self.objects[0]
-
-
-@dataclass(frozen=True, slots=True)
-class Entry:
-    """One reviewed entry of barriers.toml: the only zone lines that reach a target."""
-
-    target: str
-    via: tuple[str, ...]
-    reason: str
-
-
 def process_gates(raw: sqlite3.Connection, writer: Writer, barriers_path: Path) -> None:
-    """Write ``gate_conditions`` and ``target_entries`` from the export and barriers.toml."""
+    """Write ``gate_conditions``, ``barriers``, scripted events, and ``target_entries``."""
+    from .barriers import entry_rows, load_barriers, load_entries, process_barriers
+    from .hierarchy import apply_hierarchy_activity
+    from .scripted_events import process_scripted_events
+
     conn = writer.conn
     planning = {
         source: _select_planning_portals(raw, conn, source)
@@ -144,9 +111,7 @@ def process_gates(raw: sqlite3.Connection, writer: Writer, barriers_path: Path) 
             " WHERE RuleId = 'planning_portals' AND ComponentIsEnabled = 1 ORDER BY SourceKey"
         )
     }
-    from .hierarchy import apply_hierarchy_activity
-
-    gates = apply_hierarchy_activity(
+    activity = apply_hierarchy_activity(
         raw,
         conn,
         [
@@ -155,9 +120,10 @@ def process_gates(raw: sqlite3.Connection, writer: Writer, barriers_path: Path) 
             *_spawn_gates(conn),
             *_furnishing_gates(conn),
             *_vendor_gates(conn),
-            *_door_gates(conn, load_barriers(barriers_path)),
         ],
     )
+    barrier_gates, barriers = process_barriers(raw, conn, load_barriers(barriers_path), activity)
+    gates = [*activity.gates, *barrier_gates]
     _validate_atoms(conn, gates)
     rows: list[dict[str, object]] = [
         {
@@ -176,6 +142,7 @@ def process_gates(raw: sqlite3.Connection, writer: Writer, barriers_path: Path) 
         for atom in group
     ]
     writer.insert_gate_conditions(rows)
+    writer.insert_barriers(barriers)
     writer.insert_planning_portal_slots(
         [
             {"zone_line_stable_key": selection.line, "slot": selection.slot, "slot_kind": selection.slot_kind}
@@ -183,98 +150,40 @@ def process_gates(raw: sqlite3.Connection, writer: Writer, barriers_path: Path) 
             for selection in selections
         ]
     )
-    logger.info(f"Gate conditions: {len(gates)} gates, {len(rows)} atoms")
+    logger.info(f"Gate conditions: {len(gates)} gates, {len(rows)} atoms, {len(barriers)} barriers")
     _shiver_event_quest_sources(raw, writer)
-    entries = _entry_rows(conn, load_entries(barriers_path))
+    events = process_scripted_events(raw, writer, activity)
+    logger.info(f"Scripted events: {events}")
+    entries = entry_rows(conn, load_entries(barriers_path))
     writer.insert_target_entries(entries)
     logger.info(f"Target entries: {len(entries)} zone lines")
 
 
-def load_barriers(path: Path) -> list[Barrier]:
-    """Read the [[barriers]] of barriers.toml. Raise on a malformed record."""
-    data = tomllib.loads(path.read_text(encoding="utf-8"))
-    barriers: list[Barrier] = []
-    for index, record in enumerate(data.get("barriers", [])):
-        kind = record.get("kind")
-        objects = record.get("objects")
-        targets = record.get("targets")
-        reason = record.get("reason")
-        check = record.get("check")
-        if not isinstance(kind, str) or kind not in _BARRIER_KINDS:
-            raise ValueError(f"{path.name} entry {index} has kind {kind!r}, not one of {sorted(_BARRIER_KINDS)}")
-        if not isinstance(objects, list) or not objects or not all(isinstance(key, str) and key for key in objects):
-            raise ValueError(f"{path.name} entry {index} needs a non-empty list of objects")
-        if not isinstance(targets, list) or not all(isinstance(target, str) for target in targets):
-            raise ValueError(f"{path.name} entry {index} needs a list of guarded targets")
-        if not isinstance(reason, str) or not reason.strip():
-            raise ValueError(f"{path.name} entry {index} needs a reason")
-        if not isinstance(check, str) or check not in _BARRIER_CHECKS:
-            raise ValueError(f"{path.name} entry {index} has check {check!r}, not one of {sorted(_BARRIER_CHECKS)}")
-        unknown = set(record) - {"kind", "objects", "targets", "reason", "check"}
-        if unknown:
-            raise ValueError(f"{path.name} entry {index} has unknown fields {sorted(unknown)}")
-        barriers.append(Barrier(kind, tuple(objects), tuple(targets), reason, check))
-    return barriers
+def _code_fact(raw: sqlite3.Connection, fact_id: str, key: str) -> str:
+    values = raw.execute("SELECT value FROM code_facts WHERE fact_id = ? AND key = ?", (fact_id, key)).fetchall()
+    if len(values) != 1 or not values[0][0]:
+        raise ValueError(f"Missing or ambiguous code fact {fact_id} {key}")
+    return str(values[0][0])
 
 
-def load_entries(path: Path) -> list[Entry]:
-    """Read the [[entries]] of barriers.toml. Raise on a malformed entry."""
-    data = tomllib.loads(path.read_text(encoding="utf-8"))
-    entries: list[Entry] = []
-    for index, entry in enumerate(data.get("entries", [])):
-        target = entry.get("target")
-        via = entry.get("via")
-        reason = entry.get("reason")
-        if not isinstance(target, str) or not target:
-            raise ValueError(f"{path.name} entries {index} needs a target")
-        if not isinstance(via, list) or not via or not all(isinstance(line, str) for line in via):
-            raise ValueError(f"{path.name} entries {index} needs a non-empty list of zone lines")
-        if not isinstance(reason, str) or not reason.strip():
-            raise ValueError(f"{path.name} entries {index} needs a reason")
-        unknown = set(entry) - {"target", "via", "reason"}
-        if unknown:
-            raise ValueError(f"{path.name} entries {index} has unknown fields {sorted(unknown)}")
-        entries.append(Entry(target, tuple(via), reason))
-    return entries
+def _code_fact_quest(raw: sqlite3.Connection, conn: sqlite3.Connection, fact_id: str) -> str:
+    """The quest whose DB name a code fact extracts."""
+    quest = "quest:" + _code_fact(raw, fact_id, "quest").lower()
+    if conn.execute("SELECT 1 FROM quests WHERE stable_key = ?", (quest,)).fetchone() is None:
+        raise ValueError(f"Code fact {fact_id} names {quest!r}, which this build lacks")
+    return quest
 
 
-def _entry_rows(conn: sqlite3.Connection, entries: list[Entry]) -> list[dict[str, object]]:
-    """One row per zone line of an entry, after checking that each line leads into the target's scene."""
-    scene_queries = {
-        "character": "SELECT scene FROM characters WHERE stable_key = ?",
-        "spawn_point": "SELECT scene FROM character_spawns WHERE spawn_point_stable_key = ?",
-        "item_bag": "SELECT scene FROM item_bags WHERE stable_key = ?",
-    }
-    rows: list[dict[str, object]] = []
-    for index, entry in enumerate(entries):
-        kind = _target_kind(entry.target)
-        if kind not in scene_queries:
-            raise ValueError(f"barriers.toml entries {index} targets {entry.target!r}, which is not a placed target")
-        found = conn.execute(scene_queries[kind], (entry.target,)).fetchone()
-        if found is None:
-            raise ValueError(f"barriers.toml entries {index} targets {entry.target!r}, which this build lacks")
-        for line in entry.via:
-            if conn.execute(
-                "SELECT 1 FROM zone_line_destination_contexts WHERE zone_line_stable_key=?", (line,)
-            ).fetchone():
-                raise ValueError(
-                    f"barriers.toml entries {index}: {line!r} has a stored return destination, not a fixed entry"
-                )
-            destination = conn.execute(
-                "SELECT z.scene_name FROM zone_lines_with_zoning_capability l"
-                " JOIN zones z ON z.stable_key = l.destination_zone_stable_key"
-                " WHERE l.stable_key = ?",
-                (line,),
-            ).fetchone()
-            if destination is None:
-                raise ValueError(f"barriers.toml entries {index} names {line!r}, which this build lacks")
-            if destination[0] != found[0]:
-                raise ValueError(
-                    f"barriers.toml entries {index}: {line!r} leads to {destination[0]}, not to {found[0]}"
-                    f" where {entry.target!r} stands"
-                )
-            rows.append({"target_kind": kind, "target_stable_key": entry.target, "zone_line_stable_key": line})
-    return rows
+def _code_fact_item(raw: sqlite3.Connection, conn: sqlite3.Connection, fact_id: str, key: str) -> str:
+    """The item whose game ID a code fact extracts."""
+    return _item_by_id(conn, _code_fact(raw, fact_id, key), fact_id)
+
+
+def _item_by_id(conn: sqlite3.Connection, game_id: str, context: str) -> str:
+    items = conn.execute("SELECT stable_key FROM items WHERE id = ?", (game_id,)).fetchall()
+    if len(items) != 1:
+        raise ValueError(f"Missing or ambiguous item {game_id} for {context}")
+    return str(items[0][0])
 
 
 def _scripted_reference(raw: sqlite3.Connection, source: str, field: str, kind: str) -> str:
@@ -324,7 +233,6 @@ def _scripted_gates(
         *restored,
         "restored_vitheo",
         "memory_sphere",
-        "shivering_angel",
         "npc_alive",
         "npc_shout_essentials",
         "shivering_phantom_wards",
@@ -334,6 +242,8 @@ def _scripted_gates(
         "stowaway_deaths",
         "fernalla_portal_wards",
         "bellwain_reveal",
+        "bellwain_offering",
+        "jaws_statue_startup",
         "morph_trigger",
         "piety_guardians",
     )
@@ -345,14 +255,22 @@ def _scripted_gates(
     ).fetchall()
     gates: list[Gate] = []
     ward_sources: set[str] = set()
+    enabled_later = {
+        key
+        for (key,) in raw.execute(
+            "SELECT ReferenceKey FROM ScriptedActivatorReferences WHERE ReferenceKind = 'controller'"
+        )
+    }
     for source, rule in sources:
         enabled, host, scene, object_name = raw.execute(
             "SELECT ComponentIsEnabled, HostCharacterStableKey, SourceScene, SourceObjectName"
             " FROM ScriptedActivators WHERE SourceKey = ?",
             (source,),
         ).fetchone()
-        # Behaviour.enabled is capability. Initial hierarchy activity is not.
-        if not enabled:
+        # Behaviour.enabled is capability. Initial hierarchy activity is not. A
+        # behaviour that another controller enables acts once it is enabled,
+        # which apply_hierarchy_activity resolves from the enabling effect.
+        if not enabled and source not in enabled_later:
             continue
         if rule in ("shivering_phantom_wards", "reliquary_wards"):
             ward_sources.add(source)
@@ -378,15 +296,27 @@ def _scripted_gates(
             continue
         if rule == "bellwain_reveal":
             # code-fact: progression.bellwain.quest
-            values = raw.execute(
-                "SELECT value FROM code_facts WHERE fact_id = 'progression.bellwain.quest' AND key = 'quest'"
-            ).fetchall()
-            if len(values) != 1:
-                raise ValueError(f"Missing Bellwain activation quest for {source}")
-            quest = "quest:" + str(values[0][0]).lower()
+            quest = _code_fact_quest(raw, conn, "progression.bellwain.quest")
             gates.extend(
                 Gate(kind, key, identity, ((Atom("quest_done", quest),),), controller_source_key=source)
                 for kind, key in _scripted_targets(raw, conn, source, "TheBellwains", "enable", objects=True)
+            )
+            continue
+        if rule == "bellwain_offering":
+            # code-fact: progression.bellwain.offering
+            item = _item_by_id(conn, _scripted_reference(raw, source, "IDtoActivate", "string"), source)
+            gates.extend(
+                Gate(kind, key, identity, ((Atom("item_held", item),),), controller_source_key=source)
+                for field in ("WineOnChair", "Note", "Poof")
+                for kind, key in _scripted_targets(raw, conn, source, field, "enable", objects=True)
+            )
+            continue
+        if rule == "jaws_statue_startup":
+            # code-fact: progression.jaws.statue_enable
+            quest = _scripted_reference(raw, source, "StartOnComplete", "quest")
+            vision = _scripted_reference(raw, source, "Vision", "controller")
+            gates.append(
+                Gate(CONTROLLER, vision, identity, ((Atom("quest_done", quest),),), controller_source_key=source)
             )
             continue
         if rule == "piety_guardians":
@@ -432,9 +362,6 @@ def _scripted_gates(
             # code-fact: guide.gates.memory_exit
             field = "Memory"
             groups = ((Atom("item_held", _scripted_reference(raw, source, "RequiredInInventory", "item")),),)
-        elif rule == "shivering_angel":
-            # code-fact: guide.gates.angel
-            field, groups = "$host", ((Atom("quest_done", "quest:standangel"),),)
         else:
             # code-fact: guide.gates.npc_alive
             # Only DespawnIfAlive subjects appear after the linked death.
@@ -848,61 +775,11 @@ def _vendor_gates(conn: sqlite3.Connection) -> list[Gate]:
     ]
 
 
-def _door_gates(conn: sqlite3.Connection, barriers: list[Barrier]) -> list[Gate]:
-    """A key atom on every target that a keyed door guards."""
-    # code-fact: guide.gates.door_key
-    doors = {
-        key: (scene, (x, y, z), item)
-        for key, scene, x, y, z, item in conn.execute(
-            "SELECT stable_key, scene, x, y, z, key_item_stable_key FROM doors"
-        )
-    }
-    items = {key for (key,) in conn.execute("SELECT stable_key FROM items")}
-    listed: dict[str, int] = {}
-    gates: list[Gate] = []
-    for index, barrier in enumerate(barriers):
-        keys = set()
-        for door in barrier.objects:
-            if door not in doors:
-                raise ValueError(f"barriers.toml entry {index} names {door!r}, which is not a door of this build")
-            if doors[door][2] is None:
-                raise ValueError(f"barriers.toml entry {index} records {door!r} as a keyed door, but it needs no key")
-            if door in listed:
-                raise ValueError(f"barriers.toml lists {door!r} in entries {listed[door]} and {index}")
-            listed[door] = index
-            keys.add(doors[door][2])
-        if len(keys) != 1:
-            raise ValueError(f"barriers.toml entry {index} joins doors with different keys: {sorted(keys)}")
-        first = doors[barrier.key]
-        for door in barrier.objects[1:]:
-            scene, position, _ = doors[door]
-            if scene != first[0] or math.dist(position, first[1]) > _DOUBLE_DOOR_DISTANCE:
-                raise ValueError(f"barriers.toml entry {index} joins doors of different doorways: {barrier.objects}")
-        key = keys.pop()
-        # A key that the clean build excludes cannot be obtained, so the door stays shut.
-        atom = Atom("key_held", key) if key in items else Atom("never", key)
-        for target in barrier.targets:
-            kind = _target_kind(target)
-            _require_target(conn, kind, target, index)
-            gates.append(Gate(kind, target, barrier.key, ((atom,),)))
-    unlisted = sorted(door for door, (_, _, item) in doors.items() if item is not None and door not in listed)
-    if unlisted:
-        details = ", ".join(f"{door} ({doors[door][0]}, {doors[door][2]})" for door in unlisted)
-        raise ValueError(f"barriers.toml does not classify these keyed doors: {details}")
-    return gates
-
-
 def _target_kind(target: str) -> str:
     for prefix, kind in _TARGET_KINDS.items():
         if target.startswith(prefix):
             return kind
     raise ValueError(f"barriers.toml target {target!r} is not a zone line, character, spawn point, or item bag")
-
-
-def _require_target(conn: sqlite3.Connection, kind: str, target: str, index: int) -> None:
-    table, column = _TARGET_TABLES[kind]
-    if conn.execute(f"SELECT 1 FROM {table} WHERE {column} = ? LIMIT 1", (target,)).fetchone() is None:
-        raise ValueError(f"barriers.toml entry {index} targets {target!r}, which this build does not contain")
 
 
 def _validate_atoms(conn: sqlite3.Connection, gates: list[Gate]) -> None:

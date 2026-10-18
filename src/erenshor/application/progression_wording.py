@@ -19,7 +19,7 @@ WORDING = {
     "mechanic:special_world_drop": "World drops",
     "ui:planningtableui": "Planning table",
     "ui:replenishtmoghide": "Cosmetic slot",
-    "barrier:door": "{name}",
+    "barrier": "{name}",
     "account_state:reliquary_claimed:false": "Reliquary not claimed by this account",
     "account_state:reliquary_claimed:true": "Reliquary claimed by this account",
     "world_state:weather:raining:": "Rain in {name}",
@@ -51,8 +51,8 @@ def node_text(node: ProgressionNode, names: Mapping[str, str]) -> str:
     key = node.stable_key
     if key in WORDING:
         return WORDING[key]
-    if node.kind == "barrier" and key.startswith("door:") and node.name != key:
-        return WORDING["barrier:door"].format(name=node.name)
+    if node.kind == "barrier" and node.name != key:
+        return WORDING["barrier"].format(name=node.name)
     if node.kind == "world_state" and key.startswith("world_state:weather:raining:"):
         zone = key.removeprefix("world_state:weather:raining:")
         if zone in names:

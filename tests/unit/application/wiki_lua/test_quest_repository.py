@@ -274,7 +274,7 @@ def test_partial_turnin_route_only_belongs_to_flagged_resources(panel_db: tuple[
     )
 
 
-def test_completion_dialog_gate_and_scripted_notes_are_preserved(panel_db: tuple[Writer, QuestRepository]) -> None:
+def test_completion_dialog_gate_and_scripted_events_are_preserved(panel_db: tuple[Writer, QuestRepository]) -> None:
     writer, repo = panel_db
     writer.insert_quest_variants([_variant("Target")])
     writer.insert_quest_completion_sources(
@@ -286,13 +286,32 @@ def test_completion_dialog_gate_and_scripted_notes_are_preserved(panel_db: tuple
                 "source_stable_key": "character:b",
                 "note": None,
             },
+        ]
+    )
+    writer.conn.execute(
+        "INSERT INTO zones (stable_key, scene_name, zone_name, display_name, image_name, zone_type)"
+        " VALUES ('zone:island', 'Island', 'Island', 'Island', 'Island', 'Outdoor')"
+    )
+    writer.insert_scripted_events(
+        [
             {
+                "event_key": "event:torches",
                 "quest_stable_key": "quest:one",
-                "method": "scripted",
-                "source_type": "scripted",
-                "source_stable_key": None,
+                "rule": "bellwain_reveal",
+                "zone_stable_key": "zone:island",
                 "note": "Event puzzle",
-            },
+            }
+        ]
+    )
+    writer.insert_scripted_event_conditions(
+        [
+            {
+                "event_key": "event:torches",
+                "group_index": 0,
+                "atom_index": 0,
+                "atom_kind": "item_held",
+                "atom_stable_key": "item:flint",
+            }
         ]
     )
     writer.insert_character_dialogs(
@@ -310,7 +329,14 @@ def test_completion_dialog_gate_and_scripted_notes_are_preserved(panel_db: tuple
     completion = [row for row in rows if row["type"] == "completion" and row["method"] == "talk"]
     assert completion[0]["prerequisite"] == "quest:gate"
     assert completion[0]["keywords"] == "light"
-    assert {"type": "completion", "method": "scripted", "note": "Event puzzle"} in rows
+    assert {
+        "type": "completion",
+        "method": "scripted",
+        "source": "zone:island",
+        "sourceKind": "zone",
+        "note": "Event puzzle",
+        "requiredItem": "item:flint",
+    } in rows
 
 
 def test_requirement_provenance_resolves_to_a_real_quest_identity(panel_db: tuple[Writer, QuestRepository]) -> None:
@@ -421,7 +447,7 @@ def test_furniture_completion_requires_the_furnished_room_unless_also_unconditio
         assert {row["room"] for row in routes} == {"L1", "R4"}
 
 
-@pytest.mark.parametrize("method", ["talk", "read", "zone", "death", "shout", "chain", "scripted"])
+@pytest.mark.parametrize("method", ["talk", "read", "zone", "death", "shout", "chain"])
 def test_finishquest_without_turnin_does_not_grant_configured_rewards(
     panel_db: tuple[Writer, QuestRepository], method: str
 ) -> None:
@@ -443,15 +469,10 @@ def test_finishquest_without_turnin_does_not_grant_configured_rewards(
             {
                 "quest_stable_key": "quest:one",
                 "method": method,
-                "source_type": {"read": "item", "zone": "zone", "chain": "quest", "scripted": "scripted"}.get(
-                    method, "character"
+                "source_type": {"read": "item", "zone": "zone", "chain": "quest"}.get(method, "character"),
+                "source_stable_key": {"read": "item:unused", "zone": "zone:here", "chain": "quest:two"}.get(
+                    method, "character:a"
                 ),
-                "source_stable_key": {
-                    "read": "item:unused",
-                    "zone": "zone:here",
-                    "chain": "quest:two",
-                    "scripted": None,
-                }.get(method, "character:a"),
             }
         ]
     )

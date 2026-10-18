@@ -1,12 +1,13 @@
 # Barriers: objects that block access until their mechanism opens them. Every
-# keyed door of the build must appear in one record. A record has a kind, its
-# objects, the targets they guard, a reason, and the check that confirmed the
-# targets (navmesh, render, or unconfirmed). The first object names the barrier
-# and every gate it causes. [[entries]] name targets that only some of the zone
+# object that a mechanism opens must appear in one record. A record has a kind
+# (door, removed, moved, or guardians), a name, its objects, the targets they
+# guard, a reason, and the check that confirmed the targets (navmesh, render, or
+# unconfirmed). The first object names the barrier and every gate it causes. [[entries]] name targets that only some of the zone
 # lines into their scene reach. See README.md (Concepts) for how both are reviewed.
 
 [[barriers]]
 kind = "door"
+name = "Port Azure lighthouse door"
 objects = ["door:azure:40.22:31.09:326.20"]
 targets = ["zoneline:azure:vitheosend:34.86:13.71:315.27"]
 reason = "The Port Azure lighthouse door. The zone line is the hole inside the lighthouse walls that drops into a secluded part of Vitheo's Rest."
@@ -14,6 +15,7 @@ check = "render"
 
 [[barriers]]
 kind = "door"
+name = "Door to Vitheo's Rest"
 objects = [
     "door:azure:193.37:14.34:336.66",
     "door:azure:193.37:14.34:334.34",
@@ -24,6 +26,7 @@ check = "render"
 
 [[barriers]]
 kind = "door"
+name = "Erenshor Keep door"
 objects = ["door:azure:282.83:33.13:272.05"]
 targets = []
 reason = "An Erenshor Keep door, whose key is not obtainable. No target is reached only through it."
@@ -31,6 +34,7 @@ check = "navmesh"
 
 [[barriers]]
 kind = "door"
+name = "Upper Erenshor Keep door"
 objects = ["door:azure:282.83:53.88:272.05"]
 targets = []
 reason = "An upper Erenshor Keep door, whose key is not obtainable. No target is reached only through it."
@@ -38,6 +42,7 @@ check = "navmesh"
 
 [[barriers]]
 kind = "door"
+name = "Portcullis above the Reliquary entrance"
 objects = ["door:azure:283.31:30.45:150.97"]
 targets = ["zoneline:azure:reliquary:343.23:19.47:151.00"]
 reason = "The portcullis of the tower above the Reliquary entrance. The Reliquary zone line lies below the plaza behind it, with no other way down."
@@ -45,6 +50,7 @@ check = "render"
 
 [[barriers]]
 kind = "door"
+name = "Bookcase to Eldoth Molorai's room"
 objects = ["door:azynthiclear:610.49:110.71:493.31"]
 targets = ["character:eldoth molorai"]
 reason = "The bookcase on the top floor of the central building. Eldoth Molorai's room is behind it."
@@ -52,6 +58,7 @@ check = "navmesh"
 
 [[barriers]]
 kind = "door"
+name = "Gate to Fallen Braxonia"
 objects = [
     "door:braxonian:1057.49:89.37:571.76",
     "door:braxonian:1059.53:89.37:579.35",
@@ -62,6 +69,7 @@ check = "unconfirmed"
 
 [[barriers]]
 kind = "door"
+name = "Door to Sableheart's hall"
 objects = ["door:jaws:1641.85:-35.59:-0.65"]
 targets = ["character:sablehart"]
 reason = "The door to Sableheart's hall. Sableheart stands in the closed hall behind it."
@@ -69,6 +77,7 @@ check = "render"
 
 [[barriers]]
 kind = "door"
+name = "Door to the lodgings of Old Krakengard"
 objects = [
     "door:krakengard:428.70:4.05:161.68",
     "door:krakengard:428.70:4.05:164.09",
@@ -109,6 +118,7 @@ check = "navmesh"
 
 [[barriers]]
 kind = "door"
+name = "Door to Overseer Orlok's tower"
 objects = [
     "door:krakengard:442.55:13.80:279.65",
     "door:krakengard:444.95:13.80:279.65",
@@ -131,6 +141,7 @@ check = "navmesh"
 
 [[barriers]]
 kind = "door"
+name = "Side door of Rockshade Hold"
 objects = [
     "door:rockshade:943.65:105.79:634.57",
     "door:rockshade:947.26:105.79:634.57",
@@ -141,6 +152,7 @@ check = "navmesh"
 
 [[barriers]]
 kind = "door"
+name = "Door of the Old Church"
 objects = [
     "door:saltedstrand:662.64:27.49:337.02",
     "door:saltedstrand:662.64:27.49:338.29",
@@ -171,6 +183,7 @@ check = "navmesh"
 
 [[barriers]]
 kind = "door"
+name = "Shivering Step dockhouse door"
 objects = ["door:shiveringstep:719.29:23.41:506.51"]
 targets = ["character:founder:shiveringstep:705.22:21.11:506.71"]
 reason = "The Shivering Step dockhouse door."
@@ -178,6 +191,7 @@ check = "navmesh"
 
 [[barriers]]
 kind = "door"
+name = "Shivering Step lighthouse door"
 objects = ["door:shiveringstep:799.86:21.62:587.79"]
 targets = ["character:sm_prop_furnace_01:shiveringstep:804.54:20.19:592.50"]
 reason = "The Shivering Step lighthouse door. The lighthouse flame stands in the closed room behind it."
@@ -185,6 +199,7 @@ check = "unconfirmed"
 
 [[barriers]]
 kind = "door"
+name = "Ghost door of Shivering Tomb"
 objects = ["door:shiveringtomb:104.27:-0.72:12.71"]
 targets = []
 reason = "The Shivering Tomb copy of the Island Tomb ghost door. No target is reached only through it."
@@ -192,6 +207,7 @@ check = "navmesh"
 
 [[barriers]]
 kind = "door"
+name = "Shadowed Key door to the inner crypt"
 objects = [
     "door:shiveringtomb2:-78.11:-61.28:152.32",
     "door:shiveringtomb2:-75.71:-61.28:152.32",
@@ -225,6 +241,7 @@ check = "navmesh"
 
 [[barriers]]
 kind = "door"
+name = "Second ghost door of Shivering Tomb"
 objects = ["door:shiveringtomb2:114.41:-1.78:-2.48"]
 targets = []
 reason = "The second Shivering Tomb copy of the Island Tomb ghost door. No target is reached only through it."
@@ -232,6 +249,7 @@ check = "navmesh"
 
 [[barriers]]
 kind = "door"
+name = "Crypt door to Shivering Step"
 objects = ["door:stowaway:592.34:41.00:671.24"]
 targets = ["zoneline:stowaway:shiveringstep:592.39:41.07:672.77"]
 reason = "The crypt door. The zone line to Shivering Step stands right behind it."
@@ -239,6 +257,7 @@ check = "unconfirmed"
 
 [[barriers]]
 kind = "door"
+name = "Guard gate above the Docks"
 objects = [
     "door:stowaway:676.47:33.81:426.91",
     "door:stowaway:678.39:33.81:424.99",
@@ -266,6 +285,7 @@ check = "navmesh"
 
 [[barriers]]
 kind = "door"
+name = "Stowaway's Step lighthouse door"
 objects = ["door:stowaway:799.94:21.48:587.86"]
 targets = [
     "zoneline:stowaway:tutorial:808.08:14.08:592.64",
@@ -276,6 +296,7 @@ check = "unconfirmed"
 
 [[barriers]]
 kind = "door"
+name = "Bellwain house study door"
 objects = ["door:summerevent:182.04:12.85:139.84"]
 targets = []
 reason = "A Bellwain house puzzle door (study key). The house has no NavMesh, so containment is not established. The guide does not model the puzzle."
@@ -283,6 +304,7 @@ check = "unconfirmed"
 
 [[barriers]]
 kind = "door"
+name = "Bellwain house bathroom door"
 objects = ["door:summerevent:185.73:12.85:183.50"]
 targets = []
 reason = "A Bellwain house puzzle door (bathroom key). The house has no NavMesh, so containment is not established. The guide does not model the puzzle."
@@ -290,6 +312,7 @@ check = "unconfirmed"
 
 [[barriers]]
 kind = "door"
+name = "Bellwain house bedroom door"
 objects = ["door:summerevent:187.18:12.85:139.86"]
 targets = []
 reason = "A Bellwain house puzzle door (bedroom key). The house has no NavMesh, so containment is not established. The guide does not model the puzzle."
@@ -297,6 +320,7 @@ check = "unconfirmed"
 
 [[barriers]]
 kind = "door"
+name = "Bellwain house door to Bellsie's room"
 objects = ["door:summerevent:187.18:12.85:147.11"]
 targets = []
 reason = "A Bellwain house puzzle door (bellsie's key). The house has no NavMesh, so containment is not established. The guide does not model the puzzle."
@@ -304,6 +328,7 @@ check = "unconfirmed"
 
 [[barriers]]
 kind = "door"
+name = "Bellwain house attic door"
 objects = ["door:summerevent:189.75:18.54:141.16"]
 targets = []
 reason = "A Bellwain house puzzle door (attic key). The house has no NavMesh, so containment is not established. The guide does not model the puzzle."
@@ -311,6 +336,7 @@ check = "unconfirmed"
 
 [[barriers]]
 kind = "door"
+name = "Island Tomb ghost door"
 objects = ["door:tutorial:114.41:-1.78:-2.48"]
 targets = ["spawn:tutorial:138.56:-2.88:-20.52"]
 reason = "The Island Tomb ghost door."
@@ -318,6 +344,7 @@ check = "navmesh"
 
 [[barriers]]
 kind = "door"
+name = "Door to the shrines of Vitheo's Rest"
 objects = [
     "door:vitheosend:285.89:4.06:342.94",
     "door:vitheosend:288.29:4.06:342.94",
@@ -368,6 +395,7 @@ check = "navmesh"
 
 [[barriers]]
 kind = "door"
+name = "Door to the Traitor's Hall"
 objects = [
     "door:vitheosend:285.89:4.06:302.94",
     "door:vitheosend:288.29:4.06:302.94",
@@ -403,6 +431,7 @@ check = "navmesh"
 
 [[barriers]]
 kind = "door"
+name = "Door to Vitheo's tomb"
 objects = [
     "door:vitheosend:292.99:4.06:321.74",
     "door:vitheosend:292.99:4.06:324.14",
@@ -422,6 +451,155 @@ targets = [
 ]
 reason = "The door to Vitheo's tomb."
 check = "navmesh"
+
+[[barriers]]
+kind = "removed"
+name = "Wall behind the gaze statue"
+objects = ["object:jaws:sm_bld_castle_wall_02%20%288%29[2016]"]
+targets = []
+reason = "SivTorchLight removes it once She Sees You is done, after The Guardian Awakens enables the statue. Its targets need the containment check."
+check = "unconfirmed"
+
+[[barriers]]
+kind = "guardians"
+name = "Wards of Sivakaya"
+objects = ["object:jaws:pietytrigger[645]"]
+targets = []
+reason = "Entering the trigger without A Pious Guest calls six Wards of Sivakaya. Its targets need the containment check."
+check = "unconfirmed"
+
+[[barriers]]
+kind = "moved"
+name = "Angel statue of Shivering Step"
+objects = ["object:shiveringstep:sm_prop_statue_angel_01[397]"]
+targets = []
+reason = "ShiveringAngel turns the statue away once Stand, Angel! is done. Its targets need the containment check."
+check = "unconfirmed"
+
+[[barriers]]
+kind = "removed"
+name = "Rock fall in Blooming Sepulcher"
+objects = ["object:bloomingsepulcher:sm_env_rock_cliff_02%20%2835%29[289]"]
+targets = []
+reason = "A quest listener removes it after A Dying Wish, Part 1. Its targets need the containment check."
+check = "unconfirmed"
+
+[[barriers]]
+kind = "removed"
+name = "Second barrier field in Blooming Sepulcher"
+objects = ["object:bloomingsepulcher:entryfield%202[29]"]
+targets = []
+reason = "A quest listener removes it after A Dying Wish, Part 2. Its targets need the containment check."
+check = "unconfirmed"
+
+[[barriers]]
+kind = "removed"
+name = "Third barrier field in Blooming Sepulcher"
+objects = ["object:bloomingsepulcher:entryfield3[28]"]
+targets = []
+reason = "A quest listener removes it after A Dying Wish, Part 3. Its targets need the containment check."
+check = "unconfirmed"
+
+[[barriers]]
+kind = "removed"
+name = "Ward of Brax's Plane of Elements"
+objects = ["object:planeofbrax:ward[64]"]
+targets = []
+reason = "A quest listener removes it after The Flame Warder and The Ice Warder. Its targets need the containment check."
+check = "unconfirmed"
+
+[[barriers]]
+kind = "removed"
+name = "Frost cliff of Brax's Plane of Elements"
+objects = ["object:planeofbrax:frostcliff[633]"]
+targets = []
+reason = "Its NPCAliveListener starts disabled and nothing exported enables it, so the build never opens it. Its targets need the containment check."
+check = "unconfirmed"
+
+[[barriers]]
+kind = "removed"
+name = "Inferno cliff of Brax's Plane of Elements"
+objects = ["object:planeofbrax:infernocliff[557]"]
+targets = []
+reason = "Its NPCAliveListener starts disabled and nothing exported enables it, so the build never opens it. Its targets need the containment check."
+check = "unconfirmed"
+
+[[barriers]]
+kind = "removed"
+name = "Gate of Elementalist Mizuki"
+objects = [
+    "object:planeofbrax:sm_bld_wall_l_gate_01[673]/sm_bld_wall_l_gate_01_door_01[0]",
+]
+targets = []
+reason = "It stands while Elementalist Mizuki lives. Its targets need the containment check."
+check = "unconfirmed"
+
+[[barriers]]
+kind = "removed"
+name = "Barrier of Jinx"
+objects = ["object:planeoffernalla:jinxbarrier[182]"]
+targets = []
+reason = "It stands while Jinx lives. Its targets need the containment check."
+check = "unconfirmed"
+
+[[barriers]]
+kind = "removed"
+name = "Barrier of Nadir"
+objects = ["object:planeofsoluna:barriernadir[95]"]
+targets = []
+reason = "It stands while Nadir lives. Its targets need the containment check."
+check = "unconfirmed"
+
+[[barriers]]
+kind = "removed"
+name = "Barrier of Zenith"
+objects = ["object:planeofsoluna:zenithbarrier[206]"]
+targets = []
+reason = "It stands while Zenith lives. Its targets need the containment check."
+check = "unconfirmed"
+
+[[barriers]]
+kind = "removed"
+name = "Rocks and trees of Mysterious Portal (3)"
+objects = [
+    "object:ripperportal:sm_env_rock_cliff_03%20%2816%29[72]",
+    "object:ripperportal:sm_env_rock_cliff_03%20%2817%29[59]",
+    "object:ripperportal:sm_env_rock_cliff_03%20%2818%29[78]",
+    "object:ripperportal:sm_env_rock_cliff_03%20%2819%29[69]",
+    "object:ripperportal:tff_pine_tree_04c_lod_1%20%281%29[26]",
+    "object:ripperportal:tff_pine_tree_04c_lod_1%20%282%29[18]",
+    "object:ripperportal:tff_pine_tree_04c_lod_1%20%283%29[20]",
+    "object:ripperportal:tff_pine_tree_04c_lod_1%20%284%29[16]",
+]
+targets = []
+reason = "Entering the trigger that appears after Catnip for a statue removes them. Its targets need the containment check."
+check = "unconfirmed"
+
+[[barriers]]
+kind = "removed"
+name = "Vanishing hall of Mysterious Portal (3)"
+objects = [
+    "object:ripperportal:vanishall[19]",
+    "object:ripperportal:vanishall[19]/sm_bld_castle_wall_cut_02%20%2857%29[82]",
+    "object:ripperportal:vanishall[19]/sm_bld_castle_wall_pillars_half_01%20%2831%29[271]",
+    "object:ripperportal:vanishall[19]/sm_bld_wall_door_large_01%20%281%29[115]",
+    "object:ripperportal:vanishall[19]/sm_bld_wall_door_large_01[24]/sm_bld_wall_door_large_01_door_01[0]",
+    "object:ripperportal:vanishall[19]/sm_bld_wall_door_large_01[24]/sm_bld_wall_door_large_01_door_02[1]",
+]
+targets = []
+reason = "Entering the hall's triggers removes its walls. Its targets need the containment check."
+check = "unconfirmed"
+
+[[barriers]]
+kind = "removed"
+name = "Ritual fire and vessel of Stowaway's Step"
+objects = [
+    "object:stowaway:fx_fire_huge_01[1086]",
+    "object:stowaway:sm_env_stone_vessel_01[198]",
+]
+targets = []
+reason = "A quest listener removes them after Completing the Ritual. Its targets need the containment check."
+check = "unconfirmed"
 
 [[entries]]
 target = "character:lighthouse demon:tutorial:-64.96:22.26:149.12"

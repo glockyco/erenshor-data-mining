@@ -168,18 +168,11 @@ def test_completing_ritual_finishes_active_loss_stone(clean: sqlite3.Connection)
     }
 
 
-def test_she_sees_you_has_a_source_free_scripted_event(clean: sqlite3.Connection) -> None:
+def test_she_sees_you_needs_the_awakened_statue_in_jaws(clean: sqlite3.Connection) -> None:
     ways = _ways(clean, "quest:jawsseen")
     assert len(ways) == 1, ways
     needs = next(iter(ways.values()))
-    assert len(needs) == 1
-    assert needs[0]["relation"] == "event"
-    assert needs[0]["need_stable_key"] is None
-    route = clean.execute(
-        "SELECT route_key FROM quest_routes WHERE quest_stable_key = 'quest:jawsseen' AND phase = 'completion'"
-    ).fetchone()
-    assert route is not None
-    assert needs[0]["condition_key"] == f"event:{route[0]}"
+    assert _pairs(needs) == {("event", "zone:jaws"), ("quest done", "quest:jawsentry")}
 
 
 def test_eldrich_crystal_names_the_actual_keeper_copy_and_sanctuary(clean: sqlite3.Connection) -> None:

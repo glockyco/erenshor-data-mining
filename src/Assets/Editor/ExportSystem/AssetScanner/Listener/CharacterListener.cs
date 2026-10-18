@@ -219,12 +219,10 @@ public class CharacterListener : IAssetScanListener<Character>
         "
         );
 
-        // 7. Scripted completions - hardcoded list with notes
-        InsertScriptedCompletion("quest:bellwain", "AngelScript.cs - torch/beam puzzle");
-        InsertScriptedCompletion("quest:jawsseen", "SivTorchLight.cs - gaze at torch 800 frames");
-        InsertScriptedCompletion("quest:shiver-meetall", "ShiverEvent.cs - defeat 4 keepers");
+        // Scripted completions are derived by the clean build from the exported
+        // controllers and the code facts that name their quests.
 
-        // 8. Chain completions - quests only completed via QuestCompleteOtherQuests
+        // 7. Chain completions - quests only completed via QuestCompleteOtherQuests
         // Only insert if the quest has no other completion method
         _db.Execute(
             @"
@@ -236,20 +234,6 @@ public class CharacterListener : IAssetScanListener<Character>
                 SELECT QuestStableKey FROM QuestCompletionSources
             )
         "
-        );
-    }
-
-    private void InsertScriptedCompletion(string questStableKey, string note)
-    {
-        _db.Insert(
-            new QuestCompletionSourceRecord
-            {
-                QuestStableKey = questStableKey,
-                Method = "scripted",
-                SourceType = "scripted",
-                SourceStableKey = null,
-                Note = note,
-            }
         );
     }
 

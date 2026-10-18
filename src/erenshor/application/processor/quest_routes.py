@@ -24,11 +24,14 @@ _METHODS = {
         "read": "item",
         "death": "character",
         "chain": "quest",
-        "scripted": "scripted",
+        # Scripted completions come from scripted_events, in the event's zone.
+        "scripted": "zone",
         "shout": "character",
     },
 }
 _CONDITIONS = {"quest_done", "quest_not_done", "item_not_owned"}
+# A scripted event can also need a carried item, such as Bellwain's flint.
+_EVENT_CONDITIONS = _CONDITIONS | {"item_held"}
 _DIALOG_GATES = {"not_owned", "dialog_prerequisite", "dialog_assignment"}
 
 
@@ -67,6 +70,11 @@ def process_quest_routes(connection: sqlite3.Connection) -> int:
     for atom in _rows(connection, "SELECT * FROM item_acquisition_conditions ORDER BY owner_key, gate_key"):
         if atom["gate_key"] in _DIALOG_GATES:
             dialog_conditions.setdefault(atom["owner_key"], []).append(atom)
+    event_conditions: dict[str, list[dict[str, Any]]] = {}
+    for atom in _rows(
+        connection, "SELECT * FROM scripted_event_conditions ORDER BY event_key, group_index, atom_index"
+    ):
+        event_conditions.setdefault(atom["event_key"], []).append(atom)
     turnin_variants: dict[tuple[str, str], set[str]] = {}
     for manager in _rows(connection, "SELECT * FROM character_quest_manager_quests"):
         turnin_variants.setdefault((manager["quest_stable_key"], manager["character_stable_key"]), set()).add(
@@ -100,7 +108,12 @@ def process_quest_routes(connection: sqlite3.Connection) -> int:
     conditions: dict[str, list[tuple[str, int, int, str, str]]] = {}
 
     def append(
-        record: dict[str, Any], phase: str, *, variant: str | None = None, dialog: dict[str, Any] | None = None
+        record: dict[str, Any],
+        phase: str,
+        *,
+        variant: str | None = None,
+        dialog: dict[str, Any] | None = None,
+        event: str | None = None,
     ) -> None:
         quest, method = record["quest_stable_key"], record["method"]
         source, kind = record["source_stable_key"], record["source_type"]
@@ -152,6 +165,10 @@ def process_quest_routes(connection: sqlite3.Connection) -> int:
                 for atom in dialog_conditions.get(gift["acquisition_key"], []):
                     if atom["predicate"] not in _CONDITIONS:
                         raise ValueError(f"Quest {quest}: unmapped condition {atom['gate_key']}:{atom['predicate']}")
+        for atom in event_conditions.get(event, []) if event else []:
+            if atom["atom_kind"] not in _EVENT_CONDITIONS:
+                raise ValueError(f"Quest {quest}: unmapped event condition {atom['atom_kind']}")
+            atoms.append(("event", atom["group_index"], atom["atom_index"], atom["atom_kind"], atom["atom_stable_key"]))
         if key in routes and (routes[key] != route or conditions[key] != sorted(atoms)):
             raise ValueError(f"Quest {quest}: conflicting route {key}")
         routes[key], conditions[key] = route, sorted(atoms)
@@ -208,6 +225,15 @@ def process_quest_routes(connection: sqlite3.Connection) -> int:
                     append(record, phase, variant=resource)
                 continue
             append(record, phase)
+    for event in _rows(connection, "SELECT * FROM scripted_events ORDER BY event_key"):
+        record = {
+            "quest_stable_key": event["quest_stable_key"],
+            "method": "scripted",
+            "source_type": "zone",
+            "source_stable_key": event["zone_stable_key"],
+            "note": event["note"],
+        }
+        append(record, "completion", event=event["event_key"])
     for key in sorted(routes):
         row = routes[key]
         connection.execute(
