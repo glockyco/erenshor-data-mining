@@ -351,3 +351,21 @@ Game Board Fixture	elem:[data-erenshor-key="item:weap - 39 - reaver's steel"]=Re
 Game Board Fixture	elem:ul.erenshor-game-board-drops=6.86%
 Game Board Fixture	!category:Pages_with_missing_Erenshor_game_board_data
 Game Board Fixture	!category:Pages_with_unresolved_Erenshor_links
+Lua Progression Smoke	text:PASS Erenshor Progression testcases
+Progression Fixture	elem:ol.erenshor-progression-overview
+Progression Fixture	elem:[data-progression-key="quest:catfordeer"]=Playthrough tier 0
+Progression Fixture	elem:[data-progression-key="barrier:fixture-door"]=A locked door
+Progression Fixture	elem:[data-progression-key="zone:PortAzure"]=Playthrough tier 4
+Progression Fixture	elem:.erenshor-progression-legend=playthrough order from a new character's start
+Progression Fixture	elem:.erenshor-progression-ways=Any one of
+Progression Fixture	elem:.erenshor-progression-way=All of
+Progression Fixture	elem:.erenshor-progression-depth-limit=depth limit reached
+Progression Fixture	elem:.erenshor-progression-source-count=2 more sources
+Progression Fixture	elem:.erenshor-progression-source-count=2 gate-free entrances
+Progression Fixture	elem:.erenshor-progression-graph[data-erenshor-progression]
+Progression Fixture	!category:Pages_with_missing_Erenshor_progression_data
+Progression Explorer Fixture	elem:[data-progression-key="zone:fixture-plane1"]
+Progression Explorer Fixture	elem:[data-progression-key="zone:fixture-plane2"]
+Progression Explorer Fixture	elem:[data-progression-key="zone:fixture-plane3"]
+Progression Explorer Fixture	elem:[data-progression-key="zone:fixture-plane4"]
+Progression Explorer Fixture	!elem:[data-progression-key="zone:fixture-rune"]

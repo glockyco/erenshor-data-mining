@@ -4,11 +4,21 @@ local Quality = require("Module:Erenshor/Item/Quality")
 local Icon = require("Module:Erenshor/Icon")
 
 local LinkData
+local PageKeys
 local ItemIndex
 
 local p = {}
 
 local ITEM_SHARDS = {}
+local PAGE_KEY_KINDS = {
+	item = true,
+	ability = true,
+	character = true,
+	quest = true,
+	zone = true,
+	faction = true,
+	class = true,
+}
 
 local UNRESOLVED_CATEGORY = "[[Category:Pages with unresolved Erenshor links]]"
 local MISMATCH_CATEGORY = "[[Category:Pages with mismatched Erenshor link targets]]"
@@ -255,9 +265,25 @@ end
 -- Stable keys of the entities of a kind whose page is the given page, in
 -- catalog order. A data view uses it to find the entity of the page it is on.
 function p.pageKeys(kind, page)
+	if isBlank(page) then
+		return {}
+	end
+	if PageKeys == nil then
+		PageKeys = mw.loadData("Module:Erenshor/Data/PageKeys")
+	end
+	local encoded = PageKeys[normalizePage(page)]
+	if encoded == nil then
+		return {}
+	end
+	kind = tostring(kind or ""):lower()
+	if not PAGE_KEY_KINDS[kind] then
+		return {}
+	end
 	local keys = {}
-	for _, record in ipairs(pageMatches(tostring(kind or ""):lower(), page)) do
-		table.insert(keys, record.key)
+	for _, stableKey in ipairs(mw.text.jsonDecode(encoded)) do
+		if keyPrefixMatches(kind, stableKey) then
+			table.insert(keys, stableKey)
+		end
 	end
 	return keys
 end

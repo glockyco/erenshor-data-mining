@@ -6,7 +6,7 @@ Renders the clean database's requirement graph on the wiki: a target's playthrou
 
 ### Requirement: The data module mirrors the requirement graph
 
-`Module:Erenshor/Data/Progression` SHALL hold every node of the requirement graph that has a way or that a need references, with its kind, tier, milestone flag, and native identity reference, and every way of those nodes with its needs, including a way without needs. Generation SHALL fail and name the node when a need's condition has no wording, when an identity resolves in neither the link catalog nor the native identity catalog, or when the module exceeds its page budget.
+`Module:Erenshor/Data/Progression` SHALL hold every node of the requirement graph that has a way or that a need references, with its kind, tier, milestone flag, native name and page, and every way of those nodes with its needs, including a way without needs. It SHALL use one table per node and escaped JSON strings for ways, preserving first-way selection and every need field, including required character level. The renderer SHALL decode ways lazily. Generation SHALL validate source rows before compaction and fail with the node when a condition has no wording, an identity resolves in neither catalog, or the module exceeds its page budget.
 
 #### Scenario: A raid plane
 
@@ -23,9 +23,29 @@ Renders the clean database's requirement graph on the wiki: a target's playthrou
 - **WHEN** a node has no way and no need references it, such as an item that the game leaves unnamed and unobtainable
 - **THEN** the module leaves it out
 
+#### Scenario: A packed way preserves optional requirements
+
+- **WHEN** a way has a class or level restriction, dialog keywords, quantities, slots, advice, or unconfirmed access
+- **THEN** packing and lazy decoding preserve those requirements without changing first-way selection
+
+### Requirement: Shared page inference uses a complete compact index
+
+`Module:Erenshor/Data/PageKeys` SHALL preserve `Data/Links` page-to-key membership and order, including several identities on one page. Shared `Link.pageKeys` SHALL read this index without loading full link records and SHALL retain its existing page normalization and kind filtering. Generation SHALL fail when any catalog key is absent from its own page, appears under another page, or is duplicated.
+
+#### Scenario: A shared page has several identities
+
+- **WHEN** a page-inferring view requests the keys of a page shared by several entities
+- **THEN** it receives the same keys in the same order as the full link catalog
+
+#### Scenario: Index coverage is incomplete
+
+- **WHEN** a catalog key is removed from its page in the generated index
+- **THEN** generation fails and identifies the missing key and page
+
+
 ### Requirement: A page renders a target's progression as text
 
-`{{Progression graph}}` SHALL take its target from `stablekey`, or else from the one entity whose page is the current page. It SHALL render the milestones of the target's playthrough route in tier order, then each milestone's ways and needs as nested lists, linking each node. A node already shown SHALL be referenced instead of repeated. The rendering SHALL work without JavaScript. A target without data SHALL show a message and join the category `Pages with missing Erenshor progression data`.
+`{{Progression graph}}` SHALL take its target from `stablekey`, or else from the one entity whose page is the current page. It SHALL render the milestones of the target's persisted first-way route in tier order, then each milestone's ways and needs as nested lists, linking each node. A node already shown SHALL be referenced instead of repeated, and nested sources SHALL stop at depth 6. The rendering SHALL work without JavaScript. A target without data SHALL show a message and join the category `Pages with missing Erenshor progression data`. A hidden JSON container SHALL retain the rendered target subgraph and boundary labels for the gadget.
 
 #### Scenario: A zone page
 

@@ -74,7 +74,7 @@ function p.run()
 		"key prefix result follows exact key"
 	)
 
-	local namePrefix = decode({ q = "Flame" })
+	local namePrefix = decode({ q = "Flame B" })
 	assertEqual(namePrefix.results[1].name, "Flame Bolt", "name prefix ranks matching names")
 	assertEqual(#namePrefix.results, 2, "name prefix preserves both duplicate pages")
 

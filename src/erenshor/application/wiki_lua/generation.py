@@ -29,6 +29,7 @@ from erenshor.application.wiki_lua.link_catalog import (
     FactionDataRepository,
     build_link_catalog_entries,
     write_links_module,
+    write_page_keys_module,
 )
 from erenshor.application.wiki_lua.link_catalog import (
     ItemDataRepository as LinkCatalogItemDataRepository,
@@ -152,6 +153,7 @@ TOP_LEVEL_DATA_MODULES: tuple[str, ...] = (
     "ItemsV2.lua",
     "Characters.lua",
     "Links.lua",
+    "PageKeys.lua",
     "Spells.lua",
     "Skills.lua",
     "Stances.lua",
@@ -377,6 +379,7 @@ def generate_lua_data_modules(
             ),
             *write_characters_modules(character_records, staging_root, max_page_bytes=max_page_bytes),
             write_links_module(link_entries, staging_root),
+            write_page_keys_module(link_entries, staging_root),
             write_spells_module(
                 spell_repo,
                 staging_root,

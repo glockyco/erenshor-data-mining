@@ -1,7 +1,7 @@
 {{Item
 |title=Generated Sword Fixture
 |stablekey=item:gen - sword fixture
-|icon=Thorned Branch icon.png
+|icon=Item Picture Fixture icon.png
 |type=Weapon
 |vendorsource=[[Generated Vendor]]
 |source=[[Generated Monster]] (42.0%)

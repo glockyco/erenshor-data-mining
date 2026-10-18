@@ -24,6 +24,7 @@ WORDING = {
     "account_state:reliquary_claimed:false": "Reliquary not claimed by this account",
     "account_state:reliquary_claimed:true": "Reliquary claimed by this account",
     "world_state:weather:raining:": "Rain in {name}",
+    "weather:natural_rain": "Wait for natural rain",
 }
 
 
@@ -33,6 +34,8 @@ class ProgressionWordingError(ValueError):
 
 def condition_text(key: str) -> str:
     """Word a supported condition family and reject unknown keys."""
+    if key == "weather:natural_rain":
+        return WORDING[key]
     for prefix in (
         "event:",
         "release:health_phase_timer:",

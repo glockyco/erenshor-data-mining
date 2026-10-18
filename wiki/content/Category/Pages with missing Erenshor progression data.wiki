@@ -1,0 +1,4 @@
+__HIDDENCAT__
+This hidden maintenance category collects pages where <code><nowiki>{{Progression graph}}</nowiki></code> cannot resolve one entity or finds no progression data.
+
+Pass the intended entity's <code>stablekey</code> when several entities share a page. Report missing game data at [[Erenshor Wiki:Game Data]].

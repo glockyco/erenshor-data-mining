@@ -1,6 +1,6 @@
 {{Item
 |title=Legacy Sword Fixture
-|icon=Thorned Branch icon.png
+|icon=Item Picture Fixture icon.png
 |type=Weapon
 |vendorsource=Legacy Vendor
 |source=Legacy Monster

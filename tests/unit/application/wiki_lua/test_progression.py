@@ -1,12 +1,18 @@
 from __future__ import annotations
 
+import json
 from dataclasses import replace
+from itertools import pairwise
 from pathlib import Path
 
 import pytest
 from tests.unit.application.wiki_lua.fakes import FakeProgressionRepository
 
-from erenshor.application.wiki_lua.progression import build_progression_data, write_progression_module
+from erenshor.application.wiki_lua.progression import (
+    build_progression_data,
+    compact_progression_data,
+    write_progression_module,
+)
 from erenshor.application.wiki_lua.views import ViewDataError
 from erenshor.domain.value_objects.progression import ProgressionNeed, ProgressionNode, ProgressionWay
 
@@ -178,7 +184,125 @@ def test_isolated_nodes_are_omitted_but_referenced_nodes_without_ways_remain(gra
         ProgressionNode("quest:unused", "quest", "", True, None, None),
     )
     data = build_progression_data(graph, {"quest:goal"}, native_catalog=catalog)
+    compact = compact_progression_data(data.rows)
     assert "item:unused" not in data.rows
     assert "quest:unused" not in data.rows
-    assert "item:key" in data.rows
+    assert "item:unused" not in compact
+    assert "quest:unused" not in compact
+    assert compact["item:key"]["ways"] == []
     assert data.omitted_counts == {"item": 1, "quest": 1}
+
+
+def test_compact_node_preserves_first_index_alternatives_and_all_need_fields(graph, catalog):
+    data = build_progression_data(graph, {"quest:goal"}, native_catalog=catalog)
+    compact = compact_progression_data(data.rows)
+    node = compact["quest:goal"]
+    assert node == {
+        "kind": "quest",
+        "tier": 2,
+        "milestone": True,
+        "name": "Goal",
+        "first": 2,
+        "ways": [
+            "[]",
+            json.dumps(
+                [
+                    ["required item", "item:key", 2.5, "L1", "hello", None, True, True],
+                    ["condition", None, None, None, None, data.rows["quest:goal"][-1]["text"]],
+                ],
+                ensure_ascii=False,
+                separators=(",", ":"),
+            ),
+        ],
+    }
+    assert compact["quest_start:quest:goal"]["name"] == "Goal"
+    assert compact["item:key"] == {
+        "kind": "item",
+        "milestone": False,
+        "name": "Key",
+        "page": False,
+        "ways": [],
+    }
+    assert compact["_meta"] == {"defaults": [], "maxDepth": 6}
+
+
+@pytest.mark.parametrize("page", [None, "Goal", "Different article"])
+def test_compact_page_contract_distinguishes_pageless_and_same_name_pages(graph, catalog, page):
+    if page is None:
+        del catalog["quest:goal"]["page"]
+    else:
+        catalog["quest:goal"]["page"] = page
+    data = build_progression_data(graph, {"quest:goal"}, native_catalog=catalog)
+    compact = compact_progression_data(data.rows)
+    for key in ("quest:goal", "quest_start:quest:goal"):
+        node = compact[key]
+        actual = node.get("page", node["name"])
+        assert actual == (False if page is None else page)
+
+
+def test_packed_needs_round_trip_escaped_unicode_and_empty_text(graph, catalog):
+    original = graph.ways["quest:goal"][0].needs[0]
+    need = replace(original, slot="", keywords='say "café" \\ | ; ~')
+    graph.ways["quest:goal"] = (ProgressionWay("complete", (need,)),)
+    data = build_progression_data(graph, {"quest:goal"}, native_catalog=catalog)
+    node = compact_progression_data(data.rows)["quest:goal"]
+    assert json.loads(node["ways"][0]) == [
+        ["required item", "item:key", 2.5, "", 'say "café" \\ | ; ~', None, True, True]
+    ]
+    assert "-- Each way is a JSON string of need arrays." in data.content
+    assert data.module_bytes == len(data.content.encode("utf-8"))
+
+
+def test_compact_keeps_all_sources_and_dependencies_without_depth_projection(graph, catalog):
+    keys = [f"item:chain:{index}" for index in range(9)]
+    for index, key in enumerate(keys):
+        graph.nodes += (ProgressionNode(key, "item", key, False, None, None),)
+        catalog[key] = {"name": key}
+        if index + 1 < len(keys):
+            need = ProgressionNeed("source", keys[index + 1], None, None, None, None, False, False)
+            graph.ways[key] = (ProgressionWay("source", (need,)),)
+        else:
+            graph.ways[key] = ()
+    ways = tuple(
+        ProgressionWay(
+            f"source:{index}",
+            (ProgressionNeed("source", key, None, None, None, None, False, False),),
+        )
+        for index, key in enumerate(keys)
+    )
+    graph.ways["quest:goal"] += ways
+    data = build_progression_data(graph, {"quest:goal"}, native_catalog=catalog)
+    compact = compact_progression_data(data.rows)
+    assert set(compact) == set(data.rows) | {"_meta"}
+    assert len(compact["quest:goal"]["ways"]) == len(graph.ways["quest:goal"])
+    for left, right in pairwise(keys):
+        assert json.loads(compact[left]["ways"][0]) == [["source", right]]
+
+
+def test_default_raid_routes_use_dedicated_planning_slot_needs_not_names(graph, catalog):
+    dedicated = [f"zone:dedicated:{index}" for index in range(4)]
+    for key in [*dedicated, "zone:rune", "zone:ordinary"]:
+        graph.nodes += (ProgressionNode(key, "zone", "Unrelated name", True, None, None),)
+        catalog[key] = {"name": "Unrelated name"}
+        slot = "rune slot" if key == "zone:rune" else "native slot"
+        relation = "zone line" if key == "zone:ordinary" else "planning slot"
+        graph.ways[key] = (
+            ProgressionWay(
+                "planning",
+                (ProgressionNeed(relation, "item:key", None, slot, None, None, False, False),),
+            ),
+        )
+    data = build_progression_data(graph, {"quest:goal"}, native_catalog=catalog)
+    compact = compact_progression_data(data.rows)
+    assert compact["_meta"] == {"defaults": dedicated, "maxDepth": 6}
+    assert all("first" not in compact[key] and "tier" not in compact[key] for key in dedicated)
+
+
+def test_compact_preserves_required_character_level_on_its_need(graph, catalog):
+    original = graph.ways["quest:goal"][0].needs[0]
+    need = replace(original, required_level=8)
+    graph.ways["quest:goal"] = (ProgressionWay("complete", (need,)),)
+    data = build_progression_data(graph, {"quest:goal"}, native_catalog=catalog)
+    assert data.rows["quest:goal"][-1]["required_level"] == 8
+    packed = compact_progression_data(data.rows)["quest:goal"]["ways"][0]
+    assert json.loads(packed) == [["required item", "item:key", 2.5, "L1", "hello", None, True, True, 8]]

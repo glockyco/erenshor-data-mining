@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Sequence
 from pathlib import Path
 
 import pytest
@@ -27,8 +28,10 @@ from tests.unit.application.wiki_lua.fakes import (
 
 from erenshor.application.wiki_lua.generation import (
     LuaDataModuleGenerationResult,
+    LuaValidator,
     build_character_generation_records,
     generate_lua_data_modules,
+    planned_top_level_module_paths,
 )
 from erenshor.domain.value_objects.item_provenance import ItemAcquisition, ItemDisposition, ItemUse, fact_to_dict
 from erenshor.domain.value_objects.progression import ProgressionNode, ProgressionWay
@@ -144,6 +147,7 @@ def _run_generation(
     stance_repo: FakeStanceRepository | None = None,
     character_repo: FakeCharacterRepository | None = None,
     progression_repo: FakeProgressionRepository | None = None,
+    validate: LuaValidator | None = None,
 ) -> LuaDataModuleGenerationResult:
     item_repo = FakeItemRepository(items=[make_item(stable_key=item_key)], stats={}, classes={})
     return generate_lua_data_modules(
@@ -163,7 +167,7 @@ def _run_generation(
         output_root=tmp_path,
         max_page_bytes=max_page_bytes,
         lifecycle=lifecycle if lifecycle is not None else ContentLifecycle({}, {}, {}),
-        validate=lambda paths: None,
+        validate=validate or (lambda paths: None),
     )
 
 
@@ -179,7 +183,9 @@ def test_generation_writes_and_validates_persisted_progression_rows(tmp_path: Pa
     content = path.read_text()
     assert key in content
     assert '["milestone"] = true' in content
-    assert '["first"] = true' in content
+    assert '["first"] = 1' in content
+    assert '["ways"]' in content and '"[]"' in content
+    assert '["type"]' not in content
 
 
 def test_invalid_progression_does_not_replace_previous_modules(tmp_path: Path) -> None:
@@ -206,6 +212,22 @@ def test_generated_modules_are_byte_for_byte_deterministic(tmp_path: Path) -> No
     first_modules = {path.relative_to(first_root): path.read_bytes() for path in first_result.written_paths}
     second_modules = {path.relative_to(second_root): path.read_bytes() for path in second_result.written_paths}
     assert first_modules == second_modules
+
+
+def test_generation_stages_validates_and_manages_page_keys_module(tmp_path: Path) -> None:
+    validated_names: list[str] = []
+
+    def capture_validation(paths: Sequence[Path]) -> None:
+        validated_names.extend(path.name for path in paths)
+
+    result = _run_generation(tmp_path, validate=capture_validation)
+    path = tmp_path / "Erenshor" / "Data" / "PageKeys.lua"
+    assert path in result.written_paths
+    assert path in planned_top_level_module_paths(tmp_path)
+    assert "PageKeys.lua" in validated_names
+    text = path.read_text(encoding="utf-8")
+    assert '["Sword of Flames"]' in text
+    assert "item:sword_of_flames" in text
 
 
 def test_generation_rejects_oversize_module_without_changing_output(tmp_path: Path) -> None:

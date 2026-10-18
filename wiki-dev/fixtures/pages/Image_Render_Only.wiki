@@ -1,6 +1,6 @@
 {{Character
 |name=Image Render Only
-|render=Aged Prism.png
+|render=Item Picture Fixture render.png
 |screenshot=Image Render Missing Screenshot.png
 |imagecaption=
 |type=NPC

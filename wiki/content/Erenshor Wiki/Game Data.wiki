@@ -189,6 +189,8 @@ end
 return p
 </syntaxhighlight>
 
+For identities on the current page, call <code>Link.pageKeys(kind, page)</code>. It reads the compact [[Module:Erenshor/Data/PageKeys]] index without loading the full link catalog.
+
 Your own module is editor-maintained. Do not edit a generated data page to add a missing fact, because the next update replaces it. [[#How to report|Report the missing fact]] so the export and every view can use the correction.
 
 == Images ==
@@ -253,6 +255,8 @@ These hidden categories collect pages that need a fix.
 | [[:Category:Pages with missing Erenshor quest data]] || {{PAGESINCATEGORY:Pages with missing Erenshor quest data}} || <code><nowiki>{{Quest data}}</nowiki></code> finds no quest. Give it the intended quest key, or report the missing data.
 |-
 | [[:Category:Pages with missing Erenshor game board data]] || {{PAGESINCATEGORY:Pages with missing Erenshor game board data}} || <code><nowiki>{{Game board}}</nowiki></code> finds no board boss in the game data. Report the missing data.
+|-
+| [[:Category:Pages with missing Erenshor progression data]] || {{PAGESINCATEGORY:Pages with missing Erenshor progression data}} || <code><nowiki>{{Progression graph}}</nowiki></code> finds several entities or no progression data. Give it the intended <code>stablekey</code>, or report the missing data.
 |}
 
 == Templates that the project maintains ==
@@ -269,7 +273,7 @@ Each of these templates has its documentation on its own page.
 ; Character parts
 : [[Template:TreasureGuardianStats|TreasureGuardianStats]], [[Template:Vendor stock|Vendor stock]]
 ; Data-backed views
-: [[Template:Zone roster|Zone roster]], [[Template:Class abilities|Class abilities]], [[Template:Quest data|Quest data]], [[Template:Game board|Game board]]
+: [[Template:Zone roster|Zone roster]], [[Template:Class abilities|Class abilities]], [[Template:Quest data|Quest data]], [[Template:Game board|Game board]], [[Template:Progression graph|Progression graph]]
 ; Links
 : [[Template:ItemLink|ItemLink]], [[Template:CharacterLink|CharacterLink]], [[Template:AbilityLink|AbilityLink]], [[Template:QuestLink|QuestLink]], [[Template:ZoneLink|ZoneLink]], [[Template:FactionLink|FactionLink]], [[Template:ClassLink|ClassLink]]
 ; Other

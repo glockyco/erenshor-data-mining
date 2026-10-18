@@ -31,23 +31,29 @@ Alternatives considered:
 - A window of the Adventure Guide. Rejected: C# interface work, a mod release, and a reader who has to run the game.
 - A drawn image or Mermaid text on a page. Rejected: wiki.gg has no Mermaid extension, and a picture goes stale with each build and cannot hold the graph.
 
-### D2. The data module
+### D2. The compact data module
 
-The builder reads `ProgressionRepository` and writes, for each node that has a way or that a need references, one `node` row (`kind`, `tier`, `milestone`, and `label`, a native identity reference), one `way` row for each of its ways (`node`, `way`, and `first`, which marks the first way), and one `need` row for each need (`way`, `relation`, `need`, and the optional `quantity`, `slot`, `keywords`, `text`, `advisory`, and `unconfirmed`). A way row keeps a way without needs, such as a start. A node without a way that no need references carries no requirement, so the module leaves it out. The `DataView` declaration checks types, markup, and identities. The builder words each `condition_key` from the wording table that the `erenshor progression` command shares, and fails on a key without wording. Mechanism, barrier, and state nodes take their labels from the same table when no catalog holds them.
+The builder reads `ProgressionRepository` and validates its node, way, and need rows through the declared `DataView` before serializing `Module:Erenshor/Data/Progression`. It retains every node with a way or referenced by a need, including a referenced node without a way. Conditions use the wording table shared with `erenshor progression`, and native identities supply names and optional pages. Generation fails when wording or an identity is missing.
 
-The module carries labels so that the gadget does not need the link catalog. The builder reports the module's size and the size of its JSON next to the page budget. A module above the budget is split into shards under a new title (`adopt-data-backed-wiki` D1).
+The module uses one table per node with its kind, tier, milestone flag, name, optional page, first-way index, and an array of packed way strings. Each way string is a JSON array of positional needs. JSON escaping preserves every optional value without allocating a Lua table for every need during `mw.loadData`. The generated module's header documents the field order, null handling, page sentinel, and first-way index. `_meta` records the default targets from dedicated planning slots and the source-depth limit. This changes representation, not which way the clean build selected.
+
+The builder reports Lua and JSON bytes and rejects a module above the page budget. Source-row validation remains fail-closed before compaction. The module carries every node's label, so the gadget does not need the full link catalog.
 
 ### D3. Levels of detail
 
-- Overview: the milestones of the target's playthrough route, collected through first ways and ordered by tier. Non-milestones on the route contribute their milestone needs, so the overview stays connected.
-- Detail: one milestone's ways, each with all of its needs, alternatives labelled "any one of" and the needs of a way "all of".
-- Sources: the non-milestone needs of a way, such as the droppers of an item, with sources beyond the first four and gate-free entrances of a zone collapsed into counted groups.
+- Overview: milestones in the target's first-way closure, ordered by tier. Non-milestones forward their first-way dependencies.
+- Detail: all ways of each reached milestone and every need on those ways. Alternatives are labelled "any one of" and the needs of a way "all of".
+- Sources: dependencies below overview milestones expand to depth 6, with leaf labels retained at the limit. Sources beyond the first four and gate-free zone entrances appear in counted collapsible groups.
 
 ### D4. The view and the template
 
-`{{Progression graph}}` takes `stablekey`. Without it, the view resolves the current page through `Link.pageKeys` for zones, quests, items, and characters, and shows an error with the keys when more than one entity matches. Without any entity on the page, the view opens on the four raid planes, the zones that a dedicated planning-table slot opens.
+`{{Progression graph}}` takes `stablekey`. Without it, the view resolves the current page through `Link.pageKeys` for zones, quests, items, and characters, and shows an error with the keys when more than one entity matches. Without an entity on the page, it opens on the four raid planes recorded by the data module's dedicated planning-slot defaults.
 
-The view renders a legend, the overview as an ordered list by tier with each milestone linked, each milestone's detail as nested lists below it, and a container with the target's subgraph as JSON (`mw.text.jsonEncode` over plain tables copied from the `mw.loadData` result) for the gadget. A node already shown is referenced, not repeated, and the nested lists stop at a depth of 6. A key without data shows a message and adds `Pages with missing Erenshor progression data`.
+The shared `Link.pageKeys` reads `Module:Erenshor/Data/PageKeys`, a small page-to-keys index generated beside `Data/Links`. It preserves the full catalog's page normalization, key order, and every identity variant without loading its image and entity records. Generation checks that every catalog key appears under its own page.
+
+The view loads the compact progression module and decodes a way only when the text needs it. It renders a legend, the first-way overview as an ordered list by tier with each milestone linked, and each milestone's detail as nested lists. A node already shown is referenced, not repeated, and nested sources stop at depth 6. A key without data shows a message and adds `Pages with missing Erenshor progression data`.
+
+The gadget container holds a hidden `pre` with a nowiki JSON payload, serialized through `mw.text.jsonEncode` from plain copies of the compact records touched by the overview and depth-limited detail, including boundary labels. The payload names its targets and nodes. Keeping JSON in text avoids MediaWiki's large-attribute limit. The text remains visible without the gadget.
 
 ### D5. The explorer gadget
 
@@ -77,6 +83,7 @@ The data, view, and gadget deploy only after the review of `derive-progression-r
 | Artifact | Owner | Written by |
 |---|---|---|
 | `Module:Erenshor/Data/Progression` | bot | `wiki generate-lua` and `wiki deploy-repo-pages --include-generated-data` |
+| `Module:Erenshor/Data/PageKeys` | bot | `wiki generate-lua` and `wiki deploy-repo-pages --include-generated-data` |
 | `Module:Erenshor/Progression`, its testcases, `Template:Progression graph`, the tracking category page | repository | `wiki deploy-repo-pages` with the dependency, render, and drift checks |
 | `MediaWiki:Gadget-progression-graph*` and their definition lines | repository | `wiki deploy-interface` under the interface account |
 | The section of `Erenshor Wiki:Game Data` | repository | `wiki deploy-repo-pages` |
@@ -100,7 +107,7 @@ The data, view, and gadget deploy only after the review of `derive-progression-r
 
 1. Land the data view and the text view, and check them in the local wiki with the real data module.
 2. Land the gadget, and check it in a browser in both themes and with the keyboard.
-3. After D6 holds, deploy after a dry run and approval: the data module, the view module, the template, the category page, the guide section, then the gadget.
+3. After D6 holds, deploy after a dry run and approval: the shared page index before its Link reader, the progression data module, the view module, the template, the category page, the guide section, then the gadget.
 4. The maintainer creates `Progression Graph`. The walkthrough placement follows the review of `publish-wiki-data-views` D5.
 
 Rollback follows D8.
@@ -108,4 +115,4 @@ Rollback follows D8.
 ## Open Questions
 
 - The final title of the explorer page and the pages that place the template. The maintainer decides them at publication. Neither changes the view.
-- Which way the overview follows when the first way is one that the designers did not intend. Chazz Pillot drops Mold: A Strange Figurine every time he dies, so killing him is its first way, ahead of the reward of A Note for C. Pillot, and the overview would skip A Hermit's Request. The ways level shows both. Before the overview lands, it needs a rule that comes from the data, such as ranking a way that kills a friendly NPC after the other ways of its node, and the review of task 2.5 of `derive-progression-requirements` names the cases.
+- How to rank a first way that the designers did not intend. The overview follows the clean build's persisted first way without consumer ranking. Chazz Pillot drops Mold: A Strange Figurine every time he dies, ahead of the reward of A Note for C. Pillot, so that first way skips A Hermit's Request. The ways level shows both. A reviewed ranking rule belongs in the shared graph, such as ranking a friendly NPC's death after other ways. The review of task 2.5 of `derive-progression-requirements` names the cases. The auction-house source of Spell Scroll: Invoke Storm also has tier 0, ahead of Tempestalia, Ring of Storms at tier 6, although Tempestalia is the designed route to Evadne's rain.

@@ -554,6 +554,74 @@ function p.run()
 	assertEqual(sharedPage[2], "character:dire_wolf_young", "second shared page key")
 	assertEqual(#Link.pageKeys("zone", "Dire Wolf"), 0, "page keys of another kind")
 	assertEqual(#Link.pageKeys("item", "No Such Erenshor Page"), 0, "page keys of an unknown page")
+	assertEqual(#Link.pageKeys("unknown", "Abyssal Plate"), 0, "page keys of an unknown kind")
+	assertEqual(#Link.pageKeys(nil, "Abyssal Plate"), 0, "page keys without a kind")
+	assertEqual(#Link.pageKeys("item", nil), 0, "page keys without a page")
+	assertEqual(#Link.pageKeys("item", " \t "), 0, "page keys of a blank page")
+	assertEqual(
+		Link.pageKeys("ITEM", "  abyssal_Plate  ")[1],
+		"item:chest - 38 - abyssal plate",
+		"page keys normalize underscores, whitespace and initial case"
+	)
+	for _, fixture in ipairs({
+		{ page = "Minor Lightning", keys = { "spell:minor_lightning" } },
+		{ page = "Backstab", keys = { "skill:backstab" } },
+		{ page = "Defensive", keys = { "stance:defensive" } },
+		{
+			page = "Stance: Aggressive",
+			keys = { "skill:stance - aggressive", "stance:aggressive" },
+		},
+		{ page = "Flame Bolt", keys = { "spell:flame_bolt", "spell:flame_bolt_greater" } },
+	}) do
+		local actual = Link.pageKeys("ABILITY", fixture.page)
+		assertEqual(#actual, #fixture.keys, "ability page variant count for " .. fixture.page)
+		for index, key in ipairs(fixture.keys) do
+			assertEqual(actual[index], key, "ability page variant order for " .. fixture.page)
+		end
+	end
+
+	local catalog = mw.loadData("Module:Erenshor/Data/Links")
+	local kinds = { unknown = true, spell = true, skill = true, stance = true }
+	for _, record in pairs(catalog.byKey) do
+		kinds[tostring(record.kind):lower()] = true
+	end
+	for page, indexedKeys in pairs(catalog.byPage) do
+		local encoded = mw.loadData("Module:Erenshor/Data/PageKeys")[page]
+		assertEqual(type(encoded), "string", "page index uses JSON strings for " .. page)
+		local fixtureKeys = mw.text.jsonDecode(encoded)
+		local indexedCount = 0
+		for index, key in ipairs(indexedKeys) do
+			indexedCount = index
+			assertEqual(fixtureKeys[index], key, "page index identity order for " .. page)
+		end
+		assertEqual(#fixtureKeys, indexedCount, "page index coverage for " .. page)
+		for kind in pairs(kinds) do
+			local expected = {}
+			for _, key in ipairs(indexedKeys) do
+				local record = catalog.byKey[key]
+				local subtype = tostring(record.subtype or ""):lower()
+				if
+					tostring(record.kind or ""):lower() == kind
+					and (
+						kind ~= "ability"
+						or subtype == "spell"
+						or subtype == "skill"
+						or subtype == "stance"
+					)
+				then
+					table.insert(expected, record.key)
+				end
+			end
+			local actual = Link.pageKeys(kind, page)
+			assertEqual(#actual, #expected, kind .. " page coverage for " .. page)
+			for index, key in ipairs(expected) do
+				assertEqual(actual[index], key, kind .. " page order for " .. page)
+			end
+		end
+	end
+	for page in pairs(mw.loadData("Module:Erenshor/Data/PageKeys")) do
+		assertEqual(type(catalog.byPage[page]), "table", "page index has no extra page " .. page)
+	end
 
 	return "PASS Erenshor Link testcases"
 end

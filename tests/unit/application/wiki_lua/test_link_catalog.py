@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import FrozenInstanceError
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -20,6 +21,9 @@ from erenshor.application.wiki_lua.link_catalog import (
     LinkCatalogEntry,
     build_link_catalog_entries,
     build_links_data,
+    build_page_keys_data,
+    validate_page_keys_coverage,
+    write_page_keys_module,
 )
 
 
@@ -173,3 +177,55 @@ def test_catalog_hash_and_indexes_are_deterministic() -> None:
     assert list(data["byKey"]) == sorted(data["byKey"])
     assert data["entries"] == [entry.primitive() for entry in entries]
     assert data["byPage"]["Shared Page"] == ["faction:followers"]
+
+
+def test_page_keys_preserves_exact_links_page_grouping_order_and_all_variants() -> None:
+    variants = [
+        ("item:z", "item", "weapon"),
+        ("item:a", "item", "armor"),
+        ("spell:z", "ability", "spell"),
+        ("spell:a", "ability", "spell"),
+        ("skill:a", "ability", "skill"),
+        ("stance:a", "ability", "stance"),
+        ("character:a", "character", "Boss"),
+        ("quest:a", "quest", None),
+        ("zone:a", "zone", "Dungeon"),
+        ("faction:a", "faction", None),
+        ("class:a", "class", None),
+    ]
+    entries = [
+        LinkCatalogEntry(key, kind, subtype, str(index), "Shared_Page", None)
+        for index, (key, kind, subtype) in enumerate(variants)
+    ]
+    entries.append(LinkCatalogEntry("item:other", "item", "general", "Other", "Shared Page", None))
+    expected = build_links_data(entries)["byPage"]
+    actual = {page: json.loads(keys) for page, keys in build_page_keys_data(reversed(entries)).items()}
+    assert actual == expected
+    assert actual["Shared_Page"] == sorted(key for key, _, _ in variants)
+    assert actual["Shared Page"] == ["item:other"]
+
+
+@pytest.mark.parametrize(
+    ("by_page", "message"),
+    [
+        ({}, "Missing page index keys"),
+        ({"Wrong": ["item:x"]}, "mismatches page"),
+        ({"Page": ["item:unknown"]}, "Unknown page index key"),
+        ({"Page": ["item:x", "item:x"]}, "Duplicate page index key"),
+    ],
+)
+def test_page_keys_coverage_rejects_invalid_index(by_page: dict[str, list[str]], message: str) -> None:
+    with pytest.raises(ValueError, match=message):
+        validate_page_keys_coverage({"item:x": {"page": "Page"}}, by_page)
+
+
+def test_page_keys_json_escapes_arbitrary_keys_and_output_is_deterministic(tmp_path: Path) -> None:
+    key = 'item:quote"\\newline\n雪'
+    entries = [
+        LinkCatalogEntry(key, "item", "general", "Quoted", "Quoted", None),
+        LinkCatalogEntry("quest:other", "quest", None, "Other", "Other", None),
+    ]
+    assert json.loads(build_page_keys_data(entries)["Quoted"]) == [key]
+    first = write_page_keys_module(entries, tmp_path / "first").read_bytes()
+    second = write_page_keys_module(reversed(entries), tmp_path / "second").read_bytes()
+    assert first == second

@@ -1,0 +1,7 @@
+<includeonly>{{#invoke:Erenshor/Progression|graph}}</includeonly><noinclude>Shows the milestones, alternative ways, and requirements for a target from [[Module:Erenshor/Progression]] and [[Module:Erenshor/Data/Progression]]. Place <code><nowiki>{{Progression graph}}</nowiki></code> on a zone, quest, item, or character page that identifies one entity. On a shared page, pass the intended <code>stablekey</code>.
+
+For example, <code><nowiki>{{Progression graph|stablekey=zone:braxonia}}</nowiki></code> shows the route to Fallen Braxonia. On a page without an entity, the template opens on the four raid planes.
+
+Tiers describe a playthrough order from a new character's start, not level or difficulty advice or your character's progress. The overview follows first ways. Each milestone lists its alternatives as "any one of" and each way's requirements as "all of". Repeated nodes link to their details. Nested sources stop at six levels. Extra sources and gate-free entrances can be expanded.
+
+The text works without JavaScript. Report a missing or incorrect requirement at [[Erenshor Wiki:Game Data]]. Keep handwritten strategy and walkthroughs unchanged.</noinclude>
