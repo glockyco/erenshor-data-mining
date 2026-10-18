@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "types": {
+    "BehaviourFixtures.AllApis": {
+      "classification": "core",
+      "apis": [
+        "AtmosphereColors.SinceRain",
+        "AtmosphereColors.WeightGoal",
+        "AtmosphereColors.isRaining",
+        "Character.Invulnerable",
+        "GameData.AccountClaimedReliquary",
+        "GameData.AssignQuest",
+        "GameData.CompletedQuests",
+        "GameData.FinishQuest",
+        "GameData.HasQuest",
+        "GameData.IsQuestDone",
+        "Inventory.HasCosmetic",
+        "Inventory.HasItem",
+        "SceneChange.ChangeScene",
+        "SceneChange.ChangeSceneSafe"
+      ],
+      "component": "BehaviourCoverageTests.Inventory_resolves_all_apis_and_ignores_unrelated_names_and_wrong_directions"
+    },
+    "BehaviourFixtures.Outer.Nested": {
+      "classification": "core",
+      "apis": [
+        "GameData.IsQuestDone"
+      ],
+      "component": "BehaviourCoverageTests nested type ownership assertion"
+    }
+  }
+}

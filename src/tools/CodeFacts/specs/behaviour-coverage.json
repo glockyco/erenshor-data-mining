@@ -1,0 +1,499 @@
+{
+  "schema": 1,
+  "types": {
+    "ActivateInWeather": {
+      "apis": [
+        "AtmosphereColors.isRaining"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "5.1",
+        "5.2"
+      ]
+    },
+    "AngelScript": {
+      "apis": [
+        "GameData.CompletedQuests",
+        "GameData.FinishQuest"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "3.4"
+      ]
+    },
+    "AtmosphereColors": {
+      "apis": [
+        "AtmosphereColors.SinceRain",
+        "AtmosphereColors.WeightGoal",
+        "AtmosphereColors.isRaining"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "5.1",
+        "5.2"
+      ]
+    },
+    "BellsieWineTrigger": {
+      "apis": [
+        "Inventory.HasItem"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "3.4"
+      ]
+    },
+    "BlessingAltar": {
+      "apis": [
+        "SceneChange.ChangeScene"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "4.1"
+      ]
+    },
+    "CharSelectManager": {
+      "apis": [
+        "GameData.CompletedQuests",
+        "GameData.HasQuest",
+        "SceneChange.ChangeScene"
+      ],
+      "classification": "core",
+      "component": "processor/progression.py START_SCENE_FACTS and progression.start_selection"
+    },
+    "Character": {
+      "apis": [
+        "Character.Invulnerable",
+        "GameData.FinishQuest"
+      ],
+      "classification": "core",
+      "component": "CharacterListener QuestCompletionSources. ClearCharmedNPC resets temporary charm invulnerability, not a progression gate."
+    },
+    "Chessboard": {
+      "apis": [
+        "Inventory.HasItem"
+      ],
+      "classification": "adapter",
+      "component": "ChessboardListener, DynamicSpawnSourceListener, and processor/item_mechanics.py"
+    },
+    "DemonstrationMngr": {
+      "apis": [
+        "GameData.CompletedQuests"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "4.1"
+      ]
+    },
+    "DemonstrationMngrROC": {
+      "apis": [
+        "GameData.CompletedQuests",
+        "SceneChange.ChangeScene"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "4.1"
+      ]
+    },
+    "Door": {
+      "apis": [
+        "Inventory.HasItem"
+      ],
+      "classification": "adapter",
+      "component": "DoorListener and processor/gates.py keyed-door gates"
+    },
+    "DynamicContentManager": {
+      "apis": [
+        "GameData.IsQuestDone"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "2.2",
+        "3.2"
+      ]
+    },
+    "FernallaFightEvent": {
+      "apis": [
+        "Character.Invulnerable"
+      ],
+      "classification": "adapter",
+      "component": "CharacterDamageReleaseListener ExportSpawnHealthPhase and DynamicSpawnSourceListener"
+    },
+    "GameData": {
+      "apis": [
+        "GameData.AssignQuest",
+        "GameData.CompletedQuests",
+        "GameData.HasQuest"
+      ],
+      "classification": "core",
+      "component": "QuestListener, processor/progression.py quest rules, and guide.gates.reliquary_claim_* code facts"
+    },
+    "GameManager": {
+      "apis": [
+        "GameData.AccountClaimedReliquary",
+        "GameData.CompletedQuests",
+        "GameData.HasQuest"
+      ],
+      "classification": "core",
+      "component": "guide.gates.reliquary_claim_saved and guide.gates.reliquary_claim_loaded code facts"
+    },
+    "Inventory": {
+      "apis": [
+        "Inventory.HasCosmetic"
+      ],
+      "classification": "core",
+      "component": "CosmeticItemListener and processor/cosmetics.py"
+    },
+    "ItemBag": {
+      "apis": [
+        "Inventory.HasItem"
+      ],
+      "classification": "core",
+      "component": "ItemBagListener, items.is_unique, and item_bag.unique_initialization code fact"
+    },
+    "ItemIcon": {
+      "apis": [
+        "GameData.AssignQuest",
+        "GameData.CompletedQuests",
+        "GameData.FinishQuest"
+      ],
+      "classification": "core",
+      "component": "ItemListener AssignQuestOnReadStableKey and CompleteOnReadStableKey, CharacterListener quest sources"
+    },
+    "JailTimer": {
+      "apis": [
+        "SceneChange.ChangeScene"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "4.1"
+      ]
+    },
+    "JawsStatueStartup": {
+      "apis": [
+        "GameData.CompletedQuests"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "3.2"
+      ]
+    },
+    "LootTable": {
+      "apis": [
+        "Inventory.HasItem"
+      ],
+      "classification": "core",
+      "component": "LootTableListener and processor/item_provenance_coverage.py unique-item replacement rules"
+    },
+    "MalarothFeed": {
+      "apis": [
+        "Inventory.HasItem"
+      ],
+      "classification": "adapter",
+      "component": "DynamicSpawnSourceListener dynamic-spawn-catalog.toml Malaroth and Demented item triggers"
+    },
+    "MemorySphere": {
+      "apis": [
+        "Inventory.HasItem"
+      ],
+      "classification": "adapter",
+      "component": "ScriptedActivatorListener memory_sphere and processor/gates.py memory_sphere"
+    },
+    "MultiQuestListener": {
+      "apis": [
+        "GameData.IsQuestDone"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "2.2",
+        "3.2"
+      ]
+    },
+    "NPC": {
+      "apis": [
+        "GameData.CompletedQuests",
+        "GameData.HasQuest"
+      ],
+      "classification": "excluded",
+      "reason": "Start and QuestMarkerListener use quest state only to create or hide QuestMarker. Neither changes quest availability or world activation."
+    },
+    "NPCAggroArea": {
+      "apis": [
+        "Inventory.HasCosmetic"
+      ],
+      "classification": "excluded",
+      "reason": "OnTriggerEnter uses HasCosmetic(MoloraiMask) only to select SimPlayer whispers through LoadResponse, not to change aggro or content availability."
+    },
+    "NPCDialog": {
+      "apis": [
+        "GameData.AssignQuest",
+        "GameData.CompletedQuests",
+        "GameData.FinishQuest",
+        "GameData.IsQuestDone",
+        "Inventory.HasItem"
+      ],
+      "classification": "core",
+      "component": "CharacterListener CharacterDialogs and processor/progression.py dialog rules"
+    },
+    "NPCDialogManager": {
+      "apis": [
+        "GameData.CompletedQuests",
+        "GameData.HasQuest"
+      ],
+      "classification": "core",
+      "component": "CharacterListener CharacterDialogs.RequiredQuestStableKey and processor/progression.py dialog rules"
+    },
+    "NPCInvuln": {
+      "apis": [
+        "Character.Invulnerable"
+      ],
+      "classification": "adapter",
+      "component": "CharacterDamageReleaseListener ExportProtector and processor/combat_eligibility.py"
+    },
+    "NPCPhaseShiftManager": {
+      "apis": [
+        "Character.Invulnerable"
+      ],
+      "classification": "adapter",
+      "component": "CharacterDamageReleaseListener ExportHealthPhase and processor/combat_eligibility.py"
+    },
+    "NPCShoutListener": {
+      "apis": [
+        "GameData.FinishQuest"
+      ],
+      "classification": "adapter",
+      "component": "CharacterListener ShoutTriggerQuestStableKey and ScriptedActivatorListener npc_shout_essentials"
+    },
+    "PhantomFightEvent": {
+      "apis": [
+        "Character.Invulnerable"
+      ],
+      "classification": "adapter",
+      "component": "CharacterDamageReleaseListener ExportCombatWards and processor/combat_eligibility.py"
+    },
+    "PietyTrigger": {
+      "apis": [
+        "GameData.CompletedQuests"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "3.2"
+      ]
+    },
+    "PlayerControl": {
+      "apis": [
+        "GameData.CompletedQuests",
+        "Inventory.HasItem",
+        "SceneChange.ChangeScene"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "3.4"
+      ]
+    },
+    "Quest": {
+      "apis": [
+        "GameData.CompletedQuests"
+      ],
+      "classification": "core",
+      "component": "QuestListener repeatable and processor/progression.py quest rules"
+    },
+    "QuestLog": {
+      "apis": [
+        "GameData.CompletedQuests",
+        "GameData.HasQuest"
+      ],
+      "classification": "excluded",
+      "reason": "LoadQuests reads quest lists to populate journal text. DownArrow uses their counts only to paginate the journal."
+    },
+    "QuestRecipe": {
+      "apis": [
+        "GameData.IsQuestDone"
+      ],
+      "classification": "excluded",
+      "reason": "Start only sets this component's DisableQuest flag. No other shipped script references QuestRecipe, so this flag cannot gate a quest through a script consumer."
+    },
+    "QuestSpawnListener": {
+      "apis": [
+        "GameData.IsQuestDone",
+        "Inventory.HasItem"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "2.2",
+        "3.2"
+      ]
+    },
+    "ReliqDisableFiendSpawn": {
+      "apis": [
+        "GameData.AccountClaimedReliquary",
+        "GameData.FinishQuest",
+        "GameData.IsQuestDone"
+      ],
+      "classification": "adapter",
+      "component": "ScriptedActivatorListener reliquary_account_claim and processor/encounters.py"
+    },
+    "ReliquaryFiend": {
+      "apis": [
+        "Character.Invulnerable",
+        "GameData.FinishQuest"
+      ],
+      "classification": "adapter",
+      "component": "ScriptedActivatorListener reliquary_wards and processor/combat_eligibility.py"
+    },
+    "Respawn": {
+      "apis": [
+        "SceneChange.ChangeScene"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "4.1"
+      ]
+    },
+    "RunWindow": {
+      "apis": [
+        "SceneChange.ChangeScene"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "4.1"
+      ]
+    },
+    "ShiverEvent": {
+      "apis": [
+        "GameData.AssignQuest",
+        "GameData.CompletedQuests",
+        "GameData.FinishQuest"
+      ],
+      "classification": "adapter",
+      "component": "ScriptedActivatorListener shiver_event, CharacterListener quest sources, and processor/gates.py _shiver_event_gates"
+    },
+    "ShiveringAngel": {
+      "apis": [
+        "GameData.IsQuestDone"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "3.2"
+      ]
+    },
+    "ShiveringPhantomWardListener": {
+      "apis": [
+        "Character.Invulnerable"
+      ],
+      "classification": "adapter",
+      "component": "ScriptedActivatorListener shivering_phantom_wards and processor/combat_eligibility.py"
+    },
+    "SimPlayerMngr": {
+      "apis": [
+        "SceneChange.ChangeScene"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "4.1"
+      ]
+    },
+    "SivTorchLight": {
+      "apis": [
+        "GameData.CompletedQuests",
+        "GameData.FinishQuest"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "3.2"
+      ]
+    },
+    "SpawnPoint": {
+      "apis": [
+        "GameData.CompletedQuests",
+        "GameData.IsQuestDone"
+      ],
+      "classification": "core",
+      "component": "SpawnPointListener and processor/gates.py spawn quest gates"
+    },
+    "SpellVessel": {
+      "apis": [
+        "AtmosphereColors.SinceRain",
+        "AtmosphereColors.WeightGoal",
+        "SceneChange.ChangeScene"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "4.1",
+        "5.1"
+      ]
+    },
+    "SprinklesEvent": {
+      "apis": [
+        "Character.Invulnerable"
+      ],
+      "classification": "adapter",
+      "component": "CharacterDamageReleaseListener ExportEmptyWards and DynamicSpawnSourceListener"
+    },
+    "TextTrigger": {
+      "apis": [
+        "GameData.CompletedQuests"
+      ],
+      "classification": "excluded",
+      "reason": "TriggerPopup uses RequireQuest only to gate tutorial text, UI restoration, EndTut, and a bind point in the current scene. It neither enables content nor opens a route to a new scene."
+    },
+    "TradeWindow": {
+      "apis": [
+        "Character.Invulnerable",
+        "GameData.AssignQuest",
+        "GameData.FinishQuest",
+        "GameData.HasQuest"
+      ],
+      "classification": "core",
+      "component": "QuestListener, CharacterListener quest sources, and CharacterDamageReleaseListener quest releases"
+    },
+    "TypeText": {
+      "apis": [
+        "AtmosphereColors.WeightGoal",
+        "Character.Invulnerable",
+        "SceneChange.ChangeSceneSafe"
+      ],
+      "classification": "excluded",
+      "reason": "The /raining, /thunder, /bluesky, /toscene, and /invinci branches all require GameData.PlayerControl.dev before changing the listed progression state."
+    },
+    "VendorWindow": {
+      "apis": [
+        "GameData.IsQuestDone"
+      ],
+      "classification": "core",
+      "component": "QuestListener UnlockItemForVendorStableKey and processor/progression.py vendor rules"
+    },
+    "VithArena": {
+      "apis": [
+        "Inventory.HasItem"
+      ],
+      "classification": "adapter",
+      "component": "VithArenaListener, DynamicSpawnSourceListener, and processor/gates.py restored_vitheo"
+    },
+    "WeatherTrend": {
+      "apis": [
+        "AtmosphereColors.WeightGoal"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "5.1",
+        "5.2"
+      ]
+    },
+    "ZoneAnnounce": {
+      "apis": [
+        "GameData.AssignQuest",
+        "GameData.FinishQuest",
+        "Inventory.HasCosmetic"
+      ],
+      "classification": "core",
+      "component": "ZoneAnnounceListener quest entry fields and processor/zone_wide_spawns.py"
+    },
+    "Zoneline": {
+      "apis": [
+        "SceneChange.ChangeScene"
+      ],
+      "classification": "core",
+      "component": "ZoneLineListener and processor/gates.py zone line gates"
+    }
+  }
+}

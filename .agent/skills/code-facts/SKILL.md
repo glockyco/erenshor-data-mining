@@ -18,6 +18,15 @@ Run `uv run erenshor -V {v} extract code-facts` after export and before the clea
 
 The registry also lists deferred facts. Check it before adding a spec. `tests/contract/tools/test_code_facts_coverage.py` checks tags in `src/erenshor/`, `wiki/modules/`, and the C# export under `src/Assets/Editor/`: each tag must name a spec, and each `assert` spec needs a tagged consumer there.
 
+## When behaviour coverage fails
+
+The run lists each script type whose code reads or writes one of the progression-state APIs declared in `src/tools/CodeFacts/BehaviourCoverage.cs`, and checks each against `src/tools/CodeFacts/specs/behaviour-coverage.json`. It fails on an unlisted type, a stale entry, a changed set of APIs, and a `pending` entry without a task.
+
+1. Open the named type in the freshly ripped scripts and compare it with the preceding build's backed-up scripts.
+2. Find what models its effect. An export listener or processor rule makes it `adapter`, and a core pipeline component makes it `core`, each with that component named. Make it `excluded` only when its code shows that it cannot gate progression, and put that code evidence into the reason. Otherwise make it `pending` with the task of an open OpenSpec change that will model it. Never exclude a type because its feature is out of a change's scope.
+3. Record the entry with its exact set of APIs, then rerun `uv run erenshor -V {v} extract code-facts`.
+4. When a review finds a gate that the inventory missed, add the API that reveals it to the declared list in `BehaviourCoverage.cs` in the same commit, and classify the types that it adds.
+
 ## Failure recovery
 
 - If `extract build` reports missing code-facts tables, rerun `extract code-facts` after the latest export. Export replaces the raw database.
