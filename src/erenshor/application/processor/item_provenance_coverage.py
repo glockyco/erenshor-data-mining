@@ -70,6 +70,7 @@ class _Coverage:
         self.direct_counts: dict[str, int] = {}
         self.unsupported_native_tables: list[str] = []
         self.direct_exclusions: list[dict[str, object]] = []
+        self._placements: dict[str, tuple[dict[str, Any], ...]] = {}
 
     def rows(self, table: str) -> list[dict[str, Any]]:
         if table not in self.tables:
@@ -236,6 +237,8 @@ class _Coverage:
         return tuple(atoms)
 
     def placements(self, copy: str) -> tuple[dict[str, Any], ...]:
+        if copy in self._placements:
+            return self._placements[copy]
         locations = []
         for row in self.rows("character_spawns"):
             if row["character_stable_key"] != copy:
@@ -268,9 +271,11 @@ class _Coverage:
                 key = row["treasure_location_stable_key"]
                 locations.append(self.location(row, key, "possible_treasure", key))
                 locations[-1]["source_copy_stable_key"] = copy
-        return tuple(locations) or (
+        result = tuple(locations) or (
             asdict(ProvenanceLocation(_key("unlocated", copy), "unlocated", source_copy_stable_key=copy)),
         )
+        self._placements[copy] = result
+        return result
 
     def required_facts(self, *fact_ids: str) -> tuple[InputIdentity, ...]:
         facts = {(row["fact_id"], row["key"]): row["value"] for row in self.rows("code_facts")}

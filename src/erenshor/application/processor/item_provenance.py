@@ -17,7 +17,7 @@ from erenshor.domain.value_objects.item_provenance import (
     ProvenanceCondition,
     ProvenanceEvidence,
     ProvenanceLocation,
-    fact_to_dict,
+    fact_from_dict,
 )
 
 # code-fact: treasure.chest_break_roll
@@ -55,6 +55,7 @@ class ProvenanceBuilder:
         self._zones = {str(row["scene_name"]): str(row["stable_key"]) for row in self.rows("zones")}
         self._items = {str(row["stable_key"]): row for row in self.rows("items")}
         self._facts = {(str(row["fact_id"]), str(row["key"])): str(row["value"]) for row in self.rows("code_facts")}
+        self._character_locations: dict[str, tuple[ProvenanceLocation, ...]] = {}
 
     def rows(self, table: str) -> list[dict[str, Any]]:
         if table not in self.tables:
@@ -161,6 +162,8 @@ class ProvenanceBuilder:
         return tuple(result)
 
     def character_locations(self, copy: str) -> tuple[ProvenanceLocation, ...]:
+        if copy in self._character_locations:
+            return self._character_locations[copy]
         locations = []
         for row in self.rows("character_spawns"):
             if row["character_stable_key"] != copy:
@@ -200,9 +203,11 @@ class ProvenanceBuilder:
             if row["chest_character_stable_key"] == copy:
                 key = str(row["treasure_location_stable_key"])
                 locations.append(self._location(row, key, "possible_treasure", key))
-        return tuple(locations) or (
+        result = tuple(locations) or (
             ProvenanceLocation(identity("unlocated", copy), "unlocated", source_copy_stable_key=copy),
         )
+        self._character_locations[copy] = result
+        return result
 
     @staticmethod
     def conditional_quantity(distributions: tuple[str | None, ...]) -> tuple[int, int] | None:
@@ -1784,12 +1789,12 @@ class ProvenanceBuilder:
             columns = [field.name for field in fields(cls) if field.name not in ("conditions", "locations", "evidence")]
             for fact in facts:
                 owner = fact.acquisition_key if isinstance(fact, ItemAcquisition) else fact.use_key
-                data = fact_to_dict(fact)
+                data = asdict(fact)
+                fact_from_dict(data)
                 self._insert(table, {column: data[column] for column in columns})
-                for condition in fact.conditions:
-                    self._insert(f"item_{family}_conditions", {"owner_key": owner, **asdict(condition)})
-                for location in fact.locations:
-                    location_data = asdict(location)
+                for condition in data["conditions"]:
+                    self._insert(f"item_{family}_conditions", {"owner_key": owner, **condition})
+                for location_data in data["locations"]:
                     location_data["conditions"] = _json(location_data["conditions"])
                     location_data["entry_zone_line_keys"] = _json(location_data["entry_zone_line_keys"])
                     self._insert(f"item_{family}_locations", {"owner_key": owner, **location_data})
