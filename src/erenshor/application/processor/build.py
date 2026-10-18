@@ -53,6 +53,7 @@ from .knowledge_base import process_knowledge_base
 from .mapping import load_mapping, validate_character_name_overrides
 from .navigation_contexts import process_zone_line_destinations
 from .pictures import process_pictures
+from .progression import process_progression
 from .quest_routes import process_quest_routes
 from .special_world_drops import process_common_world_items, process_special_world_drops
 from .treasure import process_treasure
@@ -215,6 +216,9 @@ def build(
         logger.info("Selecting canonical quest routes...")
         route_count = process_quest_routes(writer.conn)
         logger.info(f"Quest routes: {route_count} rows")
+
+        logger.info("Deriving progression requirements and playthrough tiers...")
+        process_progression(writer.conn)
 
         logger.info("Finalising clean DB (VACUUM + ANALYZE)...")
         writer.finalize()

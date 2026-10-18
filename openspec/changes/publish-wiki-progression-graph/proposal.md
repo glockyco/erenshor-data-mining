@@ -7,7 +7,7 @@ Players learn what unlocks the raids from the hand-written page [Raid Unlocking 
 ## What Changes
 
 - A generated wiki view of the requirement graph: the bot-owned data module `Module:Erenshor/Data/Progression`, a repository module that renders a target's progression as text, and the template `{{Progression graph}}`.
-- The view shows three levels of detail: the milestones on the target's playthrough route, ordered by tier from a new character in Stowaway's Step, then each milestone's alternative ways, then the sources behind them. Quests are the spine. Keys, runes, gated areas, barriers, bosses that must die, and world states stay visible as milestones.
+- The view shows three levels of detail: the milestones on the target's playthrough route, ordered by tier from a new character's start, then each milestone's alternative ways, then the sources behind them. Quests are the spine. Keys, runes, gated areas, barriers, bosses that must die, and world states stay visible as milestones.
 - A repository gadget draws the milestone graph on pages that place the template: tiers as columns, search over every node, needs and unlocks of any node, nodes that expand to their ways and sources, filters for quests only and areas only, and links to each node's page. Without JavaScript the page keeps the text.
 - The template renders its own legend and says that tiers are a playthrough order from a new character, not advice about a save.
 - A main-namespace page `Progression Graph`, which people own like every article, places the template without a target and opens the explorer.

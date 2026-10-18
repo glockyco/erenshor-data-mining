@@ -8,7 +8,7 @@ No output says what a zone, quest, item, or character copy needs as a whole. A g
 
 - The clean build derives each quest's routes once. A start route is a dialog with its keyword, a read item, the completion of another quest, a zone entry, a partial turn-in, or a script. A completion route is a turn-in, a talk, a read, a death, a zone entry, a shout, a chain, or a script. Each route keeps its exact source copy, its resource variant, and its conditions. The quest panel reads these routes instead of deriving its own.
 - The clean build derives one requirement graph from the canonical facts. Its nodes are zones, quests, items, character copies, barriers, game mechanisms, and world or account states. Each node lists alternative ways, and every need of a way is required.
-- The clean build gives each node a playthrough tier: the number of progression steps on the earliest route from a new character in Stowaway's Step, with the way that achieves it.
+- The clean build gives each node a playthrough tier: the number of progression steps on the earliest route from a new character's start, in Stowaway's Step or at the alternate start in Willowwatch Ridge, with the way that achieves it.
 - The build fails on a fact that the graph cannot represent and names it.
 - `erenshor progression show` prints a node's ways and the milestone chain of a target, for review.
 - The graph lives in clean tables, so `extract changes` reports changed requirements and tiers between game builds without new code.

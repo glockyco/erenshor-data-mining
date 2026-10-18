@@ -39,7 +39,7 @@ Renders the clean database's requirement graph on the wiki: a target's playthrou
 
 ### Requirement: Tiers are labeled as a playthrough order
 
-Every rendering of tiers SHALL say that a tier is a step of a playthrough from a new character in Stowaway's Step, and SHALL NOT present a tier as what a reader can do with their own character.
+Every rendering of tiers SHALL say that a tier is a step of a playthrough from a new character's start, and SHALL NOT present a tier as what a reader can do with their own character.
 
 #### Scenario: The legend
 

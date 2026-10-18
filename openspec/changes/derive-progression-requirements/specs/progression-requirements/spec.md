@@ -115,22 +115,23 @@ The graph SHALL leave out zone lines whose destination is saved state, inactive 
 
 ### Requirement: Nodes have a playthrough tier
 
-Each node SHALL carry the tier of its earliest way from a new character in Stowaway's Step, counting the milestones on that way, and SHALL name the way that achieves it. Negative conditions and the initial account state SHALL hold at the start. Each need of a milestone's first way SHALL have a lower tier than the milestone, and each need of any other node's first way no higher a tier than that node. A node that no way reaches SHALL have no tier.
+Each node SHALL carry the tier of its earliest way from a new character's start, counting the milestones on that way, and SHALL name the way that achieves it. The starts SHALL be the scenes that the game offers a new character: Stowaway's Step, and the alternate start in Willowwatch Ridge. Negative conditions and the initial account state SHALL hold at the start. Each need of a milestone's first way SHALL have a lower tier than the milestone, and each need of any other node's first way no higher a tier than that node. A node that no way reaches SHALL have no tier.
 
-#### Scenario: The start
+#### Scenario: The starts
 
-- **WHEN** reading Stowaway's Step
-- **THEN** its tier is 0
+- **WHEN** reading Stowaway's Step and Willowwatch Ridge
+- **THEN** both have tier 0, each through the start that places a new character there
 
-#### Scenario: A raid plane's first way
+#### Scenario: A ritual portal's first way
 
-- **WHEN** reading Brax's Plane of Elements
-- **THEN** it has a tier, and its first way needs Rune of Elements in the planning table's slot for that portal
+- **WHEN** reading Mysterious Portal (1)
+- **THEN** it has a tier above the tier of The Duskenlight Ritual, and its first way needs that quest done
 
-#### Scenario: An unreachable node
+#### Scenario: A need without a producer
 
-- **WHEN** no way reaches a node from the start
-- **THEN** the node has no tier
+- **WHEN** a release needs a world state that no recorded fact produces, as rain in Braxonian Desert does until its weather mechanism is modeled
+- **THEN** the release's world state, the kill ways that need it, and every node that only those ways reach have no tier
+- **AND** no producer is invented for the world state
 
 ### Requirement: Milestones mark progression steps
 
@@ -163,7 +164,12 @@ The clean build SHALL fail and name the node and the fact when it meets an acqui
 
 `erenshor progression show <stable key>` SHALL print the node's tier and ways with their needs and names, and the milestones of its first way in tier order.
 
-#### Scenario: A raid plane
+#### Scenario: A ritual portal
 
-- **WHEN** a reviewer runs `erenshor progression show zone:planeofbrax`
-- **THEN** the output lists its way and the milestones of its first way from Stowaway's Step to Rune of Elements, each with its tier
+- **WHEN** a reviewer runs `erenshor progression show zone:duskenportal`
+- **THEN** the output lists its way and the milestones of its first way from a start to The Duskenlight Ritual, each with its tier
+
+#### Scenario: A node without a tier
+
+- **WHEN** a reviewer runs `erenshor progression show zone:planeofbrax` while rain in Braxonian Desert has no producer
+- **THEN** the output lists the plane's way and says that no way reaches it from the start

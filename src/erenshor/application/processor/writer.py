@@ -1014,6 +1014,44 @@ CREATE TABLE quest_route_conditions (
     PRIMARY KEY (route_key, gate_key, group_index, atom_index)
 );
 
+CREATE TABLE progression_nodes (
+    stable_key TEXT PRIMARY KEY NOT NULL,
+    kind TEXT NOT NULL CHECK (kind IN (
+        'zone', 'quest', 'quest_start', 'item', 'character', 'barrier',
+        'mechanism', 'class', 'world_state', 'account_state'
+    )),
+    is_milestone INTEGER NOT NULL CHECK (is_milestone IN (0, 1)),
+    tier INTEGER CHECK (tier >= 0),
+    first_way_key TEXT,
+    CHECK ((tier IS NULL) = (first_way_key IS NULL))
+);
+CREATE TABLE progression_ways (
+    node_stable_key TEXT NOT NULL REFERENCES progression_nodes(stable_key),
+    way_key TEXT NOT NULL,
+    PRIMARY KEY (node_stable_key, way_key)
+);
+CREATE TABLE progression_needs (
+    node_stable_key TEXT NOT NULL,
+    way_key TEXT NOT NULL,
+    need_index INTEGER NOT NULL CHECK (need_index >= 0),
+    relation TEXT NOT NULL,
+    need_stable_key TEXT REFERENCES progression_nodes(stable_key),
+    quantity REAL,
+    slot TEXT,
+    keywords TEXT,
+    condition_key TEXT,
+    advisory INTEGER NOT NULL CHECK (advisory IN (0, 1)),
+    unconfirmed INTEGER NOT NULL CHECK (unconfirmed IN (0, 1)),
+    PRIMARY KEY (node_stable_key, way_key, need_index),
+    FOREIGN KEY (node_stable_key, way_key) REFERENCES progression_ways(node_stable_key, way_key),
+    CHECK (need_stable_key IS NOT NULL OR condition_key IS NOT NULL)
+);
+CREATE INDEX progression_needs_target_idx ON progression_needs(need_stable_key);
+CREATE TABLE progression_meta (
+    contract_version INTEGER NOT NULL,
+    game_build_id TEXT NOT NULL
+);
+
 -- Prefab defaults of explicitly referenced authored sims. No world-NPC semantics.
 CREATE TABLE authored_sims (
     stable_key                  TEXT PRIMARY KEY NOT NULL,

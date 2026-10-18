@@ -59,9 +59,9 @@ Alternative considered: compute the graph in each consumer from a shared Python 
 | `item` | item key | its acquisitions that a player can use |
 | `character` | exact copy key | its placements |
 | `barrier` | the gate name, which is the door or barrier key | its opening condition groups |
-| `mechanism` | the acquisition's source key, such as `mechanic:auction_house`, or a key for a source without one | none needed |
+| `mechanism` | the acquisition's source key, such as `mechanic:auction_house`, or a key for a source without one | its access, such as the broker copies of the auction house, or one way without needs when the mechanism has no place |
 | `class` | class key | none needed, as a new character's choice |
-| `world_state`, `account_state` | typed state keys | the producers that the clean database records |
+| `world_state`, `account_state` | a typed state key that includes its value, such as `account_state:reliquary_claimed:true` or `world_state:weather:raining:<zone>` | the producers that the clean database records, and one way without needs for a value that holds at the start |
 
 A quest start is its own node so that a quest with several starts and several completions does not multiply into their product.
 
@@ -85,9 +85,12 @@ A quest start is its own node so that a quest with several starts and several co
 | `mold`, `material` | the template and each material with its quantity | acquisition `crafting`, uses `crafting_material` |
 | `mined in`, `fished in`, `found in` | the zone of the location | acquisitions `mining`, `fishing`, `fishing_bonus`, `item_bag` |
 | `contained in` | the containing item | acquisition `item_drop` |
+| `created by` | the item whose spell creates this item | acquisition `spell_created` |
+| `converted from` | the item that the conversion consumes | acquisition `item_conversion` |
 | `from` | a mechanism or class node | acquisitions `auction_house`, `special_world_drop`, `common_world_item`, `starting_class`, `ui_grant` |
-| `started`, `start` | the quest start node, or the start route's source | quest routes |
-| `turn in to`, `talk to`, `read`, `defeat`, `enter`, `hear`, `after` | the completion route's source, with keywords | quest routes |
+| `started` | the quest's own start node | quest routes with a start |
+| `talk to`, `read`, `after`, `enter`, `turn in to`, `defeat`, `hear`, `event` | a start or completion route's source, with keywords: dialog and talk `talk to`, item read and read `read`, quest chain and chain `after`, zone entry and zone `enter`, partial and full turn-in `turn in to`, death `defeat`, shout `hear`, script `event` | quest routes |
+| `in zone` (zone use) | the zone where an item must be used | the `zone_use` condition of an acquisition or use |
 | `required item` | an item with its quantity | the route's resource variant |
 | `release` | the item, copy, or state that makes a copy vulnerable | `character_damage_releases` |
 | `condition`, `event` | no node, a `condition_key` | releases and scripted routes without a node |
@@ -95,6 +98,8 @@ A quest start is its own node so that a quest with several starts and several co
 An acquisition condition becomes a need when its phase is `availability` and its predicate is one of the gate atoms above. The operation inputs of a turn-in are the quest's own required items. Predicates of quantity, rolls, class, level window, time of day, and ownership limits describe a source, not a progression step, and the item pages show them.
 
 Gates on one subject multiply out into ways. A subject whose gates yield more than 32 ways fails the build, so that a reviewer sees a combinatorial gate instead of a silent cut. The planning table's interchangeable rune slots (`planning_portal_slots.slot_kind = 'rune'`) collapse into one need per rune.
+
+Each kind of gate in `gate_conditions`, read from its name, has one treatment in one table: availability of its subject, a barrier node, or a vulnerability that joins the kill ways of D6. The `damage_release` gates that `_ward_gates` derives from `character_damage_releases` are vulnerability, so a copy's placement ways ignore them and its kill ways take the release branches. A gate kind that the table does not list fails the build.
 
 ### D5. Quests follow their intended route
 
@@ -116,7 +121,9 @@ A zone line is left out when `zone_line_destination_contexts` marks it a saved r
 
 ### D8. Playthrough tiers
 
-Tiers are a least fixpoint: a node's tier is the lowest, over its ways, of the highest tier among the way's needs, plus one when the node is a milestone. The start holds Stowaway's Step, where `CharSelectManager` places a new character (`CharSelectManager.cs`, line 1147), and every class with its starting items. Negative conditions and the initial account state hold at the start (`GameData.AccountClaimedReliquary` starts false, `GameData.cs`, line 430). An item once obtained stays available, and quantities do not change tiers. Ties pick the lowest `way_key`, so the result is deterministic. The fixpoint terminates because tiers only fall and are bounded below.
+Tiers are a least fixpoint: a node's tier is the lowest, over its ways, of the highest tier among the way's needs, plus one when the node is a milestone. The start holds the two scenes that the game offers a new character, each read from an extract code fact: the scene of a fresh save slot, which `CharSelectManager.Awake` creates with `new SaveGameData(i, "", "Stowaway")` and `Play` loads, and the alternate start, which `PlayAlternate` loads with `ChangeScene("Willowwatch", ...)`. An assert fact pins `DetermineStart`, which offers both to every new character outside the demo. Each start is a mechanism node with one way without needs, and the zone of its scene needs it. The start also holds every class with its starting items. Negative conditions and the initial account state hold at the start (`GameData.AccountClaimedReliquary` starts false, `GameData.cs`, line 430). An item once obtained stays available, and quantities do not change tiers.
+
+The first way minimizes the tier, then a derivation depth, then `way_key`. The depth is 0 at the start and for needs that hold at the start, and a way's depth is one more than the highest depth among its needs. Without the depth, equal-tier nodes that are not milestones, such as two zones that connect both ways, could name each other as first ways and never reach the start. Both measures are a maximum plus one, so the fixpoint converges (Knuth's generalization of Dijkstra's algorithm) and depth grows along every first way. The build checks that each node with a tier reaches the start through first ways without revisiting a node.
 
 The tier is a playthrough order under these rules, the same idea as a randomizer's spheres. It is not a claim about what a player can do with their save, because a later step can close a way that a negative condition guards. The requirement and the README say so.
 

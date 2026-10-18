@@ -9,6 +9,45 @@
   ],
   "facts": [
     {
+      "id": "progression.new_character_scene",
+      "mode": "extract",
+      "type": "CharSelectManager",
+      "method": "Awake",
+      "matcher": "string_constants",
+      "args": {
+        "creation": "SaveGameData",
+        "argument": "2"
+      },
+      "keys": [
+        "string"
+      ]
+    },
+    {
+      "id": "progression.alternate_start_scene",
+      "mode": "extract",
+      "type": "CharSelectManager",
+      "method": "PlayAlternate",
+      "matcher": "string_constants",
+      "args": {
+        "invocation": "SceneChanger.ChangeScene",
+        "argument": "0"
+      },
+      "keys": [
+        "string"
+      ]
+    },
+    {
+      "id": "progression.start_selection",
+      "mode": "assert",
+      "type": "CharSelectManager",
+      "method": "DetermineStart",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (GameData.CurrentCharacterSlot.currentPos == new Vector3 (831.25f, 16.46f, 472.7f) && !GameData.GM.DemoBuild) { STARTSELECT.SetActive (value: true); } else { Play (); }"
+      }
+    },
+    {
       "id": "loot.host_eligibility",
       "mode": "assert",
       "type": "LootTable",

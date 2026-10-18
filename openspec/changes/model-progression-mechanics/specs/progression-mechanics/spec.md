@@ -99,6 +99,11 @@ The clean database SHALL record each scene's limits on natural weather and each 
 - **THEN** it needs Invoke Storm cast there, which Tempestalia, Ring of Storms casts and Spell Scroll: Invoke Storm teaches
 - **AND** natural weather is not a way
 
+#### Scenario: The raid planes become reachable
+
+- **WHEN** the clean build runs with the weather facts recorded
+- **THEN** each of the four raid planes has a playthrough tier in the requirement graph
+
 ### Requirement: Consumers add no gates of their own
 
 Every gate that a consumer applies SHALL come from the clean database. The Adventure Guide's overrides SHALL hold only wording.
