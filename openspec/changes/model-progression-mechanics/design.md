@@ -114,15 +114,13 @@ Item actions keep the class and level checks that make them executable. Teaching
 
 When a general rule covers a branch of `_scripted_gates`, the branch goes in the same slice: `shivering_angel` with D4 and the host part of the planning portals with D3. A literal quest key in Python goes when its code fact delivers it. Each slice compares the rebuilt clean database with the previous build through `extract changes`, and every changed gate must be an intended one.
 
-### D8. Coordination with `model-guide-gates` and the Adventure Guide tab
+### D8. Coordination with `model-guide-gates`
 
-Behaviour coverage (D1) touches only the code-facts tool and starts at once. Everything else starts after a handoff that the maintainer confirms with both tabs:
+The guide session ended, and its consumer branch landed on main in `e8ff3731b`. Tasks 4.1, 4.2, 5.1, 5.2, and 6.1 of `model-guide-gates` moved here with their requirements (task 0.1). Its inactive-placement audit and inventory, scene proofs, proposals, and door reviews were inputs, reviewed one unit per commit and not merged as they were. `model-guide-gates` keeps navigation, its runtime budgets, and its UI.
 
-1. The guide tab lands its consumer branch. Tasks 4.1, 4.2, 5.1, 5.2, and 6.1 of `model-guide-gates` move here with their requirements. The guide tab keeps navigation, its runtime budgets, and its UI.
-2. The guide tab hands over its inactive-placement audit and inventory, its scene proofs, its proposals for inactive placements, zone line usability, and activation damage, and its door reviews. Its uncommitted producer edits are reviewed and re-applied here, one unit per commit, not merged as they are.
-3. The game stays with the guide tab. Each in-game check here starts after the guide tab hands over the runtime slot, and ends with the normal shutdown and cleanup.
-4. After each mechanism lands, a guide change deletes the override that it covers and regenerates `quest-guide.json` in the guide tab.
-5. When `model-guide-gates` archives, the shared requirements of `guide-gate-data` move into `progression-mechanics`, so the shared data has one spec.
+1. This change's work, the guide changes it needs, and the in-game checks run on main in one session.
+2. After each mechanism lands, a guide change deletes the override that it covers and regenerates `quest-guide.json`.
+3. When `model-guide-gates` archives, the shared requirements of `guide-gate-data` move into `progression-mechanics`, so the shared data has one spec.
 
 ### D9. In-game checks
 
@@ -136,7 +134,7 @@ Each mechanism kind gets one check through HotRepl that sets its trigger and obs
 | Behaviour catalog and code facts | repository | `extract code-facts` checks them |
 | `barriers.toml`, `mapping.json` | repository | reviewed commits, checked by `extract build` |
 | `gate_conditions`, `travel_routes`, the world state tables | clean build | `extract build` |
-| Gates in `quest_guides/graph_overrides.toml` | Adventure Guide tab | guide changes remove them |
+| Gates in `quest_guides/graph_overrides.toml` | `model-guide-gates` | guide changes remove them |
 
 The export fails with status 3 on an unclassified field, the code-facts run on an unclassified behaviour, and the clean build on a barrier, travel, or world state contract violation, each naming the type, barrier, or target. A failed step leaves the published clean database unchanged.
 

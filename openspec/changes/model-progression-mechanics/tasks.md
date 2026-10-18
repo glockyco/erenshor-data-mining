@@ -1,11 +1,11 @@
 ## Shared resources
 
-Each Unity export, code-facts run, and clean build of the main variant runs in an owned worktree with its own database clones. A game session starts only after the Adventure Guide tab hands over the runtime slot, keeps sound off, uses a dedicated character slot, leaves the player's saves unchanged, and ends through the normal shutdown with no game process left.
+Unity exports, code-facts runs, and clean builds of the main variant run in the main checkout. A game session keeps sound off, uses a dedicated character slot, leaves the player's saves unchanged, and ends through the normal shutdown with no game process left.
 
 ## 0. Handoff (design D8)
 
 - [x] 0.1 Confirm the handoff with the maintainer and the Adventure Guide tab: tasks 4.1, 4.2, 5.1, 5.2, and 6.1 of `model-guide-gates` move here, and the guide tab's audit, inventory, scene proofs, proposals, and door reviews are its inputs. Record below the handed-over files and the commit at which the guide's consumer branch landed. Verify: both changes name one owner for each moved task.
-  - The maintainer confirmed that the guide session is no longer active and that this change owns the moved tasks. The guide's inputs are read from `/tmp/erenshor-guide/` (inactive-placement audit and inventory, scene proofs, the proposals in `inactive-placement-proposal/`, `physical-usability-proposal/`, and `producer-activation-damage/`, the door reviews, and the portal receptacle proof). Its consumer branch `guide-final-host-verified` has not landed, so shared producer files are changed here and its uncommitted edits are reviewed unit by unit, never merged.
+  - The maintainer confirmed that the guide session is no longer active and that this change owns the moved tasks. Its inputs were the guide session's inactive-placement audit and inventory, scene proofs, its proposals for inactive placements, physical usability, and activation damage, the door reviews, and the portal receptacle proof. Its consumer branch `guide-final-host-verified` landed in `e8ff3731b`.
 
 ## 1. Behaviour coverage (design D1)
 
@@ -70,7 +70,7 @@ Each Unity export, code-facts run, and clean build of the main variant runs in a
 ## 8. Cleanup
 
 - [ ] 8.1 `refactor(pipeline): retire the gate branches that general rules cover`: remove each branch of D7 that a landed rule covers. Verify: `extract changes` against the previous build shows no unintended gate change, and the processor tests pass.
-- [ ] 8.2 Give the Adventure Guide tab the overrides that the clean database now covers, each with its clean gate: the Jaws entrance, Vessel Siraethe, Shivering Tomb (2), and the planning desk. Verify: after the guide change lands, `quest_guides/graph_overrides.toml` holds no gate.
+- [ ] 8.2 `refactor(guide): drop the overrides that the clean database covers`: remove the gates of the Jaws entrance, Vessel Siraethe, Shivering Tomb (2), and the planning desk from `quest_guides/graph_overrides.toml`, each after its clean gate lands. Verify: `quest_guides/graph_overrides.toml` holds no gate, and the guide tests pass.
 - [ ] 8.3 `docs: describe progression mechanics`: update the README's Gates concept and the `unity-export-system`, `code-facts`, and `refreshing-game-data` skills with hierarchy activity, death triggers, barriers, travel, world state, faction standing, and how to classify a new script after a game update. Verify: `uv run pytest tests/contract/test_document_paths.py` passes.
 
 ## 9. Integration

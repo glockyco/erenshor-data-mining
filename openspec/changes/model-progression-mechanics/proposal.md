@@ -52,4 +52,4 @@ The requirements of `guide-gate-data` that describe shared clean-build data move
 - Readers of zone line usability: the map query in `src/maps/src/lib/database.base.ts` and the wiki zone connections.
 - Guide: the gates of `quest_guides/graph_overrides.toml`, removed in a guide change, and the way rank that the guide export carries to its sources.
 - Documentation: the README's Gates concept and the `unity-export-system`, `code-facts`, and `refreshing-game-data` skills.
-- Shared resources: Unity exports, code-facts runs, clean builds, and game sessions for the in-game checks, each coordinated with the Adventure Guide tab.
+- Shared resources: Unity exports, code-facts runs, clean builds, and game sessions for the in-game checks, all run from the main checkout.
