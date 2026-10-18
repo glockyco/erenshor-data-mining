@@ -1,0 +1,18 @@
+## 1. Canonical quest routes (one commit each, design D1)
+
+- [ ] 1.1 `feat(pipeline): derive canonical quest routes`: add `quest_routes` and `quest_route_conditions` to `writer.py` and a route stage after item provenance that maps every method and source kind of the source tables, records each route's own conditions and whether it executes the resource's rewards, and fails on an unmapped method, source kind, or condition. Move the execution rules of `get_quest_panel_rows` into the stage with their code evidence. Add unit tests for each method, each moved rule, and each failure. Verify: the tests pass, and after `extract build` on the owned clean database each start and completion route that the quest panel shows matches exactly one route row.
+- [ ] 1.2 `refactor(wiki): read quest panel routes from the canonical routes`: make `QuestRepository.get_quest_panel_rows` take sources, conditions, and rewards from the routes, and delete the derivation that the stage now owns. Verify: `Module:Erenshor/Data/Quests` is byte-identical before and after on the same clean database, the quest panel tests pass, and the three reviewed quest scenarios of `publish-wiki-data-views` still hold in the local wiki.
+
+## 2. Requirement graph (one commit each, design D2 to D12)
+
+- [ ] 2.1 `feat(pipeline): derive the requirement graph`: add the `progression_*` tables and a stage after the route stage that builds nodes, ways, and needs with the relations of D4, quest start nodes, release joins, barrier nodes, the exclusions of D7, the expansion limit, and the checks of D10. Add unit tests for each relation family, each release mechanism, the rune slot collapse, each exclusion, and each failure. Verify: the tests pass, and every failure names the node, the way, and the fact.
+- [ ] 2.2 `feat(pipeline): order the requirement graph as a playthrough`: compute milestones (D9), then tiers and first ways (D8). Add unit tests for alternatives, joint needs, a cycle, a negative condition, an unreachable node, a tie, and the tier invariant. Verify: the tests pass, and two builds of the same database write identical tables.
+- [ ] 2.3 `feat(cli): inspect the requirement graph`: add `ProgressionRepository` with its version check and `erenshor progression show <key>` with `--gaps`, following `skill://cli-commands`. Verify: the command tests pass, and `erenshor progression show zone:planeofbrax` prints its way and first-way milestones with tiers.
+- [ ] 2.4 `test(data): check the requirement scenarios on the main build`: add data tests for every scenario of the `progression-requirements` and `quest-routes` specs that names game content. Verify: the data tests pass against the owned clean database.
+- [ ] 2.5 Review the milestone chains of the four raid planes and Secluded Sanctuary with `progression show`, and record each wrong or missing step below with the task of `model-progression-mechanics` that closes it. Verify: every recorded gap names its task, and no gap is fixed by a consumer.
+
+## 3. Documentation and integration
+
+- [ ] 3.1 `docs: describe quest routes and the requirement graph`: add a paragraph to the README's Concepts section and a step to `.agent/skills/refreshing-game-data/SKILL.md` that reviews changed requirements with `extract changes` and `progression show` after a game update. Verify: `uv run pytest tests/contract/test_document_paths.py` passes.
+- [ ] 3.2 Run `uv run erenshor test ci`. Verify: it passes.
+- [ ] 3.3 Archive with `openspec archive derive-progression-requirements --yes`. Verify: `openspec/specs/quest-routes/spec.md` and `openspec/specs/progression-requirements/spec.md` exist.
