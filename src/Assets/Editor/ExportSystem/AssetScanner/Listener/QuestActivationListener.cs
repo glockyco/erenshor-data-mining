@@ -40,6 +40,9 @@ public sealed class QuestActivationListener : IAssetScanListener<GameObject>
             return;
 
         // code-fact: guide.gates.quest_activation
+        // code-fact: ui.planning_access_quest
+        // code-fact: ui.planning_access_alternative_quest
+        // code-fact: ui.planning_access_item
         var singles = go.GetComponents<QuestSpawnListener>();
         for (int index = 0; index < singles.Length; index++)
         {
@@ -163,6 +166,8 @@ public sealed class QuestActivationListener : IAssetScanListener<GameObject>
                         {
                             RecordKey = recordKey,
                             ListenerKey = listenerKey,
+                            ListenerObjectKey = _targets.Hierarchy.Capture(listener.gameObject),
+                            ListenerComponentIsEnabled = listener.enabled,
                             Script = script,
                             Scene = subject.Scene,
                             ListenerIsEnabled = listener.isActiveAndEnabled,

@@ -311,7 +311,7 @@ def test_source_projections_require_supported_canonical_schema(tmp_path: Path, v
             "final_acquisition",
             "current",
             25,
-            (ProvenanceCondition("level", 0, 0, "actor_level", minimum=20, maximum=10),),
+            (ProvenanceCondition("level", 0, 0, "actor_level", actor="player", minimum=20, maximum=10),),
             (),
             False,
         ),
@@ -377,9 +377,9 @@ def test_obtainability_and_teaching_share_canonical_player_access(
                 "former_pages": "[]",
             },
         )
+    canonical_writer.conn.execute("DROP VIEW vendor_offers")
     for table in (
         "loot_drops",
-        "vendor_offers",
         "quest_variants",
         "character_dialogs",
         "water_fishables",

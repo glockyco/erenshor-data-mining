@@ -78,7 +78,7 @@ def graph_path(cli_context: CLIContext) -> Path:
             ("quest:negative", "negative", 0, "quest not done", "quest:gap", None, None, None, 0, 0),
         ):
             connection.execute(
-                "INSERT INTO progression_needs VALUES (?,?,?,?,?,?,?,?,NULL,?,?)",
+                "INSERT INTO progression_needs VALUES (?,?,?,?,?,?,?,?,NULL,?,?,NULL)",
                 (node, way, index, relation, need, quantity, slot, keywords, advisory, unconfirmed),
             )
     return path
@@ -192,6 +192,21 @@ def test_show_prints_ways_metadata_and_ordered_first_way_milestones(cli_context,
         < result.output.index("tier 2: Secret Garden")
     )
     assert "not a save-state assessment" in result.output
+
+
+def test_learning_level_round_trips_and_prints_without_becoming_a_tier(cli_context, graph_path):
+    with closing(sqlite3.connect(graph_path)) as connection, connection:
+        connection.execute(
+            "UPDATE progression_needs SET required_level=8 WHERE node_stable_key='zone:goal' AND need_index=1"
+        )
+    with DatabaseConnection(graph_path, read_only=True) as database:
+        repository = ProgressionRepository(database)
+        assert repository.get_ways("zone:goal")[0].needs[1].required_level == 8
+        assert repository.get_node("zone:goal").tier == 2
+    result = runner.invoke(app, ["show", "zone:goal"], obj=cli_context)
+    assert result.exit_code == 0, result.output
+    assert "level 8" in result.output
+    assert "Tier 2." in result.output
 
 
 def test_show_unreachable_node_prints_its_way_and_missing_producer(cli_context, graph_path):

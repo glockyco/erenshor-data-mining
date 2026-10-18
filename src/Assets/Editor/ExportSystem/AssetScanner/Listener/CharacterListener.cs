@@ -10,6 +10,7 @@ public class CharacterListener : IAssetScanListener<Character>
 {
     private readonly SQLiteConnection _db;
     private readonly CharacterStableKeyResolver _characterKeyResolver;
+    private readonly ObjectHierarchyCollector _hierarchy;
     private readonly List<CharacterRecord> _characterRecords = new();
     private readonly List<CharacterDialogRecord> _characterDialogRecords = new();
     private readonly List<CharacterAttackSkillRecord> _characterAttackSkillRecords = new();
@@ -32,10 +33,15 @@ public class CharacterListener : IAssetScanListener<Character>
     private readonly HashSet<(string, string, string)> _seenQuestCharacterRoles = new(); // (QuestStableKey, CharacterStableKey, Role)
     private readonly List<CharacterAEEventRecord> _characterAEEventRecords = new();
 
-    public CharacterListener(SQLiteConnection db, CharacterStableKeyResolver characterKeyResolver)
+    public CharacterListener(
+        SQLiteConnection db,
+        CharacterStableKeyResolver characterKeyResolver,
+        ObjectHierarchyCollector hierarchy
+    )
     {
         _db = db;
         _characterKeyResolver = characterKeyResolver;
+        _hierarchy = hierarchy;
     }
 
     public void OnScanFinished()
@@ -688,6 +694,8 @@ public class CharacterListener : IAssetScanListener<Character>
         var record = new CharacterRecord
         {
             StableKey = stableKey,
+            ObjectKey = _hierarchy.Capture(character.gameObject),
+            ComponentIsEnabled = character.enabled,
             Scene = character.gameObject.scene.name,
             X =
                 character.gameObject.scene.name != null

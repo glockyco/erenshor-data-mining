@@ -8,6 +8,7 @@ public class UiItemSourceRecord
 {
     [PrimaryKey]
     public string StableKey { get; set; } = string.Empty;
+    public string ObjectKey { get; set; } = string.Empty;
     public string ComponentType { get; set; } = string.Empty;
     public string Scene { get; set; } = string.Empty;
     public string HierarchyPath { get; set; } = string.Empty;
@@ -37,6 +38,7 @@ public class UiItemAccessTargetRecord
 {
     [PrimaryKey]
     public string StableKey { get; set; } = string.Empty;
+    public string ObjectKey { get; set; } = string.Empty;
     public string Scene { get; set; } = string.Empty;
     public string HierarchyPath { get; set; } = string.Empty;
     public string Tag { get; set; } = string.Empty;
@@ -45,27 +47,4 @@ public class UiItemAccessTargetRecord
     public float X { get; set; }
     public float Y { get; set; }
     public float Z { get; set; }
-}
-
-/// <summary>One native QuestSpawnListener route that enables a UI access target.</summary>
-[Table("UiItemAccessActivations")]
-public class UiItemAccessActivationRecord
-{
-    [PrimaryKey]
-    public string StableKey { get; set; } = string.Empty;
-
-    [ForeignKey(typeof(UiItemAccessTargetRecord), "StableKey")]
-    public string TargetStableKey { get; set; } = string.Empty;
-    public string ActivatorStableKey { get; set; } = string.Empty;
-    public string Scene { get; set; } = string.Empty;
-    public string HierarchyPath { get; set; } = string.Empty;
-
-    [ForeignKey(typeof(QuestRecord), "StableKey")]
-    public string? QuestStableKey { get; set; }
-
-    [ForeignKey(typeof(QuestRecord), "StableKey")]
-    public string? AlternativeQuestStableKey { get; set; }
-
-    [ForeignKey(typeof(ItemRecord), "StableKey")]
-    public string? ItemStableKey { get; set; }
 }

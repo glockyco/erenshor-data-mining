@@ -40,6 +40,37 @@ PRAGMA foreign_keys = ON;
 -- World / placement tables
 -- -------------------------------------------------------------------------
 
+CREATE TABLE weather_trends (
+    stable_key TEXT PRIMARY KEY NOT NULL,
+    scene TEXT NOT NULL,
+    is_enabled INTEGER NOT NULL CHECK (is_enabled IN (0, 1)),
+    max_natural_cloudy REAL NOT NULL,
+    max_natural_rainy REAL NOT NULL
+);
+
+CREATE TABLE world_states (
+    stable_key TEXT PRIMARY KEY NOT NULL,
+    state TEXT NOT NULL CHECK (state IN ('raining')),
+    zone_stable_key TEXT NOT NULL REFERENCES zones(stable_key),
+    uses_sun INTEGER NOT NULL CHECK (uses_sun IN (0, 1)),
+    natural_rain_can_start INTEGER NOT NULL CHECK (natural_rain_can_start IN (0, 1))
+);
+
+CREATE TABLE world_state_producers (
+    state_stable_key TEXT NOT NULL REFERENCES world_states(stable_key),
+    mechanism TEXT NOT NULL CHECK (mechanism IN ('natural_weather', 'spell')),
+    spell_stable_key TEXT REFERENCES spells(stable_key),
+    UNIQUE (state_stable_key, mechanism, spell_stable_key),
+    CHECK ((mechanism = 'spell') = (spell_stable_key IS NOT NULL))
+);
+
+CREATE TABLE weather_spell_effects (
+    spell_stable_key TEXT PRIMARY KEY NOT NULL REFERENCES spells(stable_key),
+    weight_goal REAL NOT NULL,
+    since_rain REAL,
+    cloud_amount REAL NOT NULL
+);
+
 CREATE TABLE teleports (
     stable_key                  TEXT PRIMARY KEY NOT NULL,
     scene                       TEXT,
@@ -157,7 +188,8 @@ CREATE TABLE zone_lines (
     landing_position_x          REAL,
     landing_position_y          REAL,
     landing_position_z          REAL,
-    remove_party                INTEGER
+    remove_party                INTEGER,
+    use_sun_in_new_zone          INTEGER
 );
 
 CREATE TABLE zone_line_destination_contexts (
@@ -189,7 +221,8 @@ CREATE VIEW zone_lines_with_zoning_capability AS
 -- vendor_item subject, and atom_slot the room slot of a room_furnished atom.
 CREATE TABLE gate_conditions (
     subject_kind            TEXT NOT NULL CHECK (subject_kind IN (
-                                'zone_line', 'character', 'spawn_point', 'vendor_item', 'item_bag'
+                                'zone_line', 'character', 'spawn_point', 'vendor_item', 'item_bag',
+                                'ui_item_access_target', 'door'
                             )),
     subject_stable_key      TEXT NOT NULL,
     item_stable_key         TEXT,
@@ -197,11 +230,15 @@ CREATE TABLE gate_conditions (
     group_index             INTEGER NOT NULL,
     atom_kind               TEXT NOT NULL CHECK (atom_kind IN (
                                 'quest_done', 'quest_not_done', 'item_held', 'key_held', 'room_furnished',
-                                'planning_slot_item', 'encounter_won', 'never'
+                                'planning_slot_item', 'encounter_won', 'world_state', 'never'
                             )),
     atom_stable_key         TEXT NOT NULL,
     atom_slot               TEXT,
-    UNIQUE (subject_kind, subject_stable_key, item_stable_key, gate, group_index, atom_kind, atom_stable_key, atom_slot)
+    atom_quantity           INTEGER CHECK (
+                                atom_quantity IS NULL OR (atom_kind = 'encounter_won' AND atom_quantity > 0)
+                            ),
+    UNIQUE (subject_kind, subject_stable_key, item_stable_key, gate, group_index,
+            atom_kind, atom_stable_key, atom_slot, atom_quantity)
 );
 
 -- Zone lines through which alone a target can be reached, from the reviewed
@@ -1018,7 +1055,7 @@ CREATE TABLE progression_nodes (
     stable_key TEXT PRIMARY KEY NOT NULL,
     kind TEXT NOT NULL CHECK (kind IN (
         'zone', 'quest', 'quest_start', 'item', 'character', 'barrier',
-        'mechanism', 'class', 'world_state', 'account_state'
+        'mechanism', 'class', 'spell', 'world_state', 'account_state'
     )),
     is_milestone INTEGER NOT NULL CHECK (is_milestone IN (0, 1)),
     tier INTEGER CHECK (tier >= 0),
@@ -1042,6 +1079,7 @@ CREATE TABLE progression_needs (
     condition_key TEXT,
     advisory INTEGER NOT NULL CHECK (advisory IN (0, 1)),
     unconfirmed INTEGER NOT NULL CHECK (unconfirmed IN (0, 1)),
+    required_level INTEGER CHECK (required_level >= 0),
     PRIMARY KEY (node_stable_key, way_key, need_index),
     FOREIGN KEY (node_stable_key, way_key) REFERENCES progression_ways(node_stable_key, way_key),
     CHECK (need_stable_key IS NOT NULL OR condition_key IS NOT NULL)
@@ -1824,16 +1862,6 @@ CREATE TABLE ui_item_access_targets (
     x REAL NOT NULL,
     y REAL NOT NULL,
     z REAL NOT NULL
-);
-CREATE TABLE ui_item_access_activations (
-    stable_key TEXT PRIMARY KEY NOT NULL,
-    target_stable_key TEXT NOT NULL REFERENCES ui_item_access_targets(stable_key),
-    activator_stable_key TEXT NOT NULL,
-    scene TEXT NOT NULL,
-    hierarchy_path TEXT NOT NULL,
-    quest_stable_key TEXT REFERENCES quests(stable_key),
-    alternative_quest_stable_key TEXT REFERENCES quests(stable_key),
-    item_stable_key TEXT REFERENCES items(stable_key)
 );
 
 CREATE TABLE item_access_observations (

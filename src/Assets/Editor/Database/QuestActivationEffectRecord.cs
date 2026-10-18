@@ -13,6 +13,8 @@ public sealed class QuestActivationEffectRecord
     [PrimaryKey]
     public string RecordKey { get; set; } = "";
     public string ListenerKey { get; set; } = "";
+    public string ListenerObjectKey { get; set; } = "";
+    public bool ListenerComponentIsEnabled { get; set; }
     public string Script { get; set; } = "";
     public string Scene { get; set; } = "";
     public bool ListenerIsEnabled { get; set; }

@@ -45,20 +45,6 @@ _TABLES = (
             ("Z", "z"),
         ),
     ),
-    (
-        "UiItemAccessActivations",
-        "ui_item_access_activations",
-        (
-            ("StableKey", "stable_key"),
-            ("TargetStableKey", "target_stable_key"),
-            ("ActivatorStableKey", "activator_stable_key"),
-            ("Scene", "scene"),
-            ("HierarchyPath", "hierarchy_path"),
-            ("QuestStableKey", "quest_stable_key"),
-            ("AlternativeQuestStableKey", "alternative_quest_stable_key"),
-            ("ItemStableKey", "item_stable_key"),
-        ),
-    ),
 )
 
 _REQUIRED_FACTS = frozenset(

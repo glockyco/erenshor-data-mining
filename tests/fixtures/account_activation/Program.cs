@@ -190,10 +190,28 @@ internal static class Program
                     : field.FieldType == typeof(bool) ? false
                     : field.FieldType == typeof(List<GameObject>)
                         ? new List<GameObject> { target, target }
+                    : field.FieldType == typeof(List<SpawnPoint>) ? new List<SpawnPoint> { spawn }
                     : throw new InvalidOperationException(
                         "Unexpected typed fixture field: " + field
                     );
                 field.SetValue(controller, value);
+            }
+            if (controller is AstraListener astra)
+                astra.Dragon = target;
+            if (controller is StowawayPortal)
+            {
+                spawn.NPCSpecificObject = host;
+                spawn.CommonSpawns.Add(target);
+                target.Add(new SkeletonCheckin());
+                host.scene.Roots.Add(target);
+                var keeper = Host("keeper-prefab", targets);
+                keeper.Add(new Character { FixtureKey = "character:fixture:keeper" });
+                keeper.Add(new SkeletonCheckin { Keeper = true });
+                spawn.RareSpawns.Add(keeper);
+                var unrelated = Host("unrelated-checkin-spawn", targets);
+                var unrelatedSpawn = Spawn(unrelated, "spawn:fixture:unrelated-checkin", targets);
+                unrelatedSpawn.CommonSpawns.Add(target);
+                host.scene.Roots.Add(unrelated);
             }
             listener.OnAssetFound(controller);
         }

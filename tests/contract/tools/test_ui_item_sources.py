@@ -34,6 +34,7 @@ def test_native_ui_sources_preserve_serialized_identity_and_access(
 
     hide = forward["ReplenishTMOGHide"]
     assert hide["StableKey"] == "ui:loadscene:ui[0]/hide[0]:replenishtmoghide:0"
+    assert hide["ObjectKey"] == "object:loadscene:ui[0]/hide[0]"
     assert hide["Scene"] == "LoadScene"
     assert hide["HierarchyPath"] == "UI[0]/Hide[0]"
     assert hide["IconHierarchyPath"] == hide["HierarchyPath"]
@@ -44,6 +45,7 @@ def test_native_ui_sources_preserve_serialized_identity_and_access(
     assert hide["ReplenishSourceKey"] == "ui:loadscene:manager[0]:misc:0"
 
     portal = forward["PlanningTableUI"]
+    assert portal["ObjectKey"] == "object:loadscene:ui[0]/planning[1]"
     assert portal["Slot"] == "Portal"
     assert portal["IconHierarchyPath"] == "UI[0]/Planning[1]/Portal[0]"
     assert portal["SerializedItemStableKey"] == "item:native portal gift"
@@ -60,20 +62,28 @@ def test_native_ui_sources_preserve_serialized_identity_and_access(
     access = payload["access"]
     targets = {row["StableKey"]: row for row in access["targets"]}
     assert len(targets) == 2
-    assert len(access["activations"]) == 1
-    activation = access["activations"][0]
-    desk = targets[activation["TargetStableKey"]]
+    hierarchy = {row["ObjectKey"]: row for row in access["hierarchy"]}
+    assert len(hierarchy) == 4
+    desk = next(row for row in targets.values() if row["HierarchyPath"] == "Rooms[0]/Desk[0]")
     assert desk["Scene"] == "Reliquary"
     assert desk["HierarchyPath"] == "Rooms[0]/Desk[0]"
     assert desk["Tag"] == "PlanningDesk"
     assert desk["ActiveSelf"] is True
     assert desk["ActiveInHierarchy"] is False
     assert (desk["X"], desk["Y"], desk["Z"]) == (11, 12, 13)
-    assert activation["ActivatorStableKey"] == "ui:reliquary:questtrigger[0]:questspawnlistener:0"
-    assert activation["QuestStableKey"] == "quest:nativeclaim"
-    assert activation["AlternativeQuestStableKey"] == "quest:nativealternative"
-    assert activation["ItemStableKey"] == "item:native possession key"
-    assert "BlockedDesk" not in desk["HierarchyPath"]
+    assert desk["ObjectKey"] == "object:reliquary:rooms[0]/desk[0]"
+    parent = hierarchy[desk["ObjectKey"]]["ParentObjectKey"]
+    assert parent == "object:reliquary:rooms[0]"
+    assert hierarchy[parent]["ParentObjectKey"] is None
+    assert hierarchy[parent]["ActiveSelf"] is False
+    blocked = next(row for row in targets.values() if "BlockedDesk" in row["HierarchyPath"])
+    assert blocked["ActiveSelf"] is True
+    assert blocked["ActiveInHierarchy"] is False
+    disabled = hierarchy[blocked["ObjectKey"]]["ParentObjectKey"]
+    assert hierarchy[disabled]["ActiveSelf"] is False
+    assert hierarchy[disabled]["ParentObjectKey"] == parent
+    assert {row["Scene"] for row in hierarchy.values()} == {"Reliquary"}
+    assert all(row["IsSceneObject"] for row in hierarchy.values())
 
     failures = payload["failures"]
     assert failures["missing_icon"].endswith("has no MyIcon icon")

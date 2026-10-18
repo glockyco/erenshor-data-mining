@@ -17,4 +17,6 @@ public class CharacterChainedSpawnRecord
 
     [Indexed(Name = "CharacterChainedSpawns_Primary_IDX", Order = 3, Unique = true)]
     public string SourceScript { get; set; } = string.Empty;
+    public string ControllerObjectKey { get; set; } = string.Empty;
+    public bool ControllerComponentIsEnabled { get; set; }
 }

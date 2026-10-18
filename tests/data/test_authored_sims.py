@@ -39,7 +39,7 @@ def _guid(meta: Path) -> str:
 
 def test_authored_sim_reference_set_and_defaults_match_sources(main_raw_db: Path, main_clean_db: Path) -> None:
     variant = load_config().variants["main"]
-    project = variant.resolved_unity_project(_ROOT)
+    project = variant.resolved_unity_project(_ROOT) / "ExportedProject"
     assets = project / "Assets"
     scene_path = assets / "Scenes" / "LoadScene.unity"
     scene_guid = _guid(scene_path.with_suffix(".unity.meta"))

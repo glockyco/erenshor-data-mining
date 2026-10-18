@@ -9,6 +9,7 @@ public class ZoneLineRecord
 
     [PrimaryKey]
     public string StableKey { get; set; } = string.Empty;
+    public string ObjectKey { get; set; } = string.Empty;
 
     public string Scene { get; set; } = string.Empty;
     public float X { get; set; }
@@ -28,4 +29,5 @@ public class ZoneLineRecord
     public float LandingPositionY { get; set; }
     public float LandingPositionZ { get; set; }
     public bool RemoveParty { get; set; }
+    public bool UseSunInNewZone { get; set; }
 }

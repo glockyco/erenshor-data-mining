@@ -9,6 +9,191 @@
   ],
   "facts": [
     {
+      "id": "progression.item_action_guards",
+      "mode": "assert",
+      "type": "ItemIcon",
+      "method": "OnPointerUp",
+      "matcher": "item_action_guards",
+      "args": {}
+    },
+    {
+      "id": "progression.bellwain.quest",
+      "mode": "extract",
+      "type": "AngelScript",
+      "method": "Start",
+      "matcher": "string_constants",
+      "args": {"invocation": "GameData.CompletedQuests.Contains", "argument": "0"},
+      "keys": ["quest"]
+    },
+    {
+      "id": "progression.astra.death_set",
+      "mode": "assert",
+      "type": "AstraListener",
+      "method": "AllStarsDead",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "ForeachStatement",
+        "shape": "foreach (SpawnPoint starSpawn in StarSpawns) { if (starSpawn.MyNPCAlive) { return false; } }"
+      }
+    },
+    {
+      "id": "progression.astra.spawn_guard",
+      "mode": "assert",
+      "type": "AstraListener",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (!AstraCanSpawn || !AllStarsDead ()) { return; }"
+      }
+    },
+    {
+      "id": "progression.astra.spawn",
+      "mode": "assert",
+      "type": "AstraListener",
+      "method": "Update",
+      "matcher": "statement_shape",
+      "args": {"statement": "Astra = Object.Instantiate (Dragon, transform.position, transform.rotation);"}
+    },
+    {
+      "id": "progression.stowaway.checkin_binding",
+      "mode": "assert",
+      "type": "SkeletonCheckin",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "MethodDeclaration",
+        "shape": "private void Start () { myNPC = GetComponent<NPC> (); myChar = GetComponent<Character> (); PortalEventManager = myNPC.GetSpawnPoint ().NPCSpecificObject.GetComponent<StowawayPortal> (); if (!Keeper) { PortalEventManager.CheckIn (myChar); } if (Keeper) { PortalEventManager.KeeperCheckIn (myChar); } }"
+      }
+    },
+    {
+      "id": "progression.stowaway.checkin_set",
+      "mode": "assert",
+      "type": "StowawayPortal",
+      "method": "CheckIn",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "MethodDeclaration",
+        "shape": "public void CheckIn (Character _skel) { if (!Skeletons.Contains (_skel)) { Skeletons.Add (_skel); } if (Skeletons.Count == 4) { AllCheckedIn = true; } }"
+      }
+    },
+    {
+      "id": "progression.stowaway.death_set",
+      "mode": "assert",
+      "type": "StowawayPortal",
+      "method": "CountLiving",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "MethodDeclaration",
+        "shape": "private int CountLiving () { int num = 0; foreach (Character skeleton in Skeletons) { if ((bool)skeleton && skeleton.Alive) { num++; } } return num; }"
+      }
+    },
+    {
+      "id": "progression.stowaway.activation",
+      "mode": "assert",
+      "type": "StowawayPortal",
+      "method": "PhaseOneMechanics",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "ignore_social_logs": "true",
+        "shape": "if (num == 0 && !spawnPhaseTwo) { spawnPhaseTwo = true; KeeperSpawn.SetActive (value: true); }"
+      }
+    },
+    {
+      "id": "weather.rain_start",
+      "mode": "extract",
+      "type": "AtmosphereColors",
+      "method": "Update",
+      "matcher": "weather_rain_start",
+      "args": {},
+      "keys": ["threshold"]
+    },
+    {
+      "id": "weather.rain_stop",
+      "mode": "assert",
+      "type": "AtmosphereColors",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "ignore_social_logs": "true",
+        "shape": "if ((isRaining && ColorWeight < 0.15f) || !Sun.enabled) { SinceRain = Random.Range (5000, 12800); if (Sun.enabled) { } isRaining = false; if (Rain.activeSelf) { Rain.SetActive (value: false); } }"
+      }
+    },
+    {
+      "id": "weather.weight_follows_goal",
+      "mode": "assert",
+      "type": "AtmosphereColors",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (ColorWeight != WeightGoal) { ColorWeight = Mathf.Lerp (ColorWeight, WeightGoal, Time.deltaTime); }"
+      }
+    },
+    {
+      "id": "weather.trend_start",
+      "mode": "assert",
+      "type": "WeatherTrend",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "MethodDeclaration",
+        "shape": "private void Start () { if (GameData.Atmos.Cloudiness > MaxNaturalCloudy) { GameData.Atmos.Cloudiness = MaxNaturalCloudy; } if (GameData.Atmos.WeightGoal > MaxNaturalRainy) { GameData.Atmos.WeightGoal = MaxNaturalRainy; } }"
+      }
+    },
+    {
+      "id": "weather.trend_pull",
+      "mode": "assert",
+      "type": "WeatherTrend",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "MethodDeclaration",
+        "shape": "private void Update () { if (MaxNaturalCloudy > 0f && GameData.Atmos.Cloudiness > MaxNaturalCloudy) { GameData.Atmos.Cloudiness -= 0.02f * Time.deltaTime; } if (MaxNaturalRainy > 0f && GameData.Atmos.WeightGoal > MaxNaturalRainy) { GameData.Atmos.WeightGoal -= 0.01f * Time.deltaTime; } }"
+      }
+    },
+    {
+      "id": "weather.invoke_storm",
+      "mode": "extract",
+      "type": "SpellVessel",
+      "method": "DoMiscSpells",
+      "matcher": "weather_spell",
+      "args": {"case": "Invoke Storm", "switch": "spell.SpellName"},
+      "keys": ["spell_name", "weight_goal", "since_rain", "cloud_amount"]
+    },
+    {
+      "id": "weather.dissipate_storm",
+      "mode": "extract",
+      "type": "SpellVessel",
+      "method": "DoMiscSpells",
+      "matcher": "weather_spell",
+      "args": {"case": "Dissipate Storm", "switch": "spell.SpellName"},
+      "keys": ["spell_name", "weight_goal", "cloud_amount"]
+    },
+    {
+      "id": "weather.scene_sun",
+      "mode": "assert",
+      "type": "SceneChange",
+      "method": "ChangeScene",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (useSun) { Sun.GetComponentInChildren<Light> ().enabled = true; Sun.GetComponent<AtmosphereColors> ().ForceColors (); } else { Sun.GetComponentInChildren<Light> ().enabled = false; }"
+      }
+    },
+    {
+      "id": "weather.zone_line_sun",
+      "mode": "assert",
+      "type": "Zoneline",
+      "method": "FixedUpdate",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "GameData.SceneChange.ChangeScene (DestinationZone, LandingPosition, UseSunInNewZone, yRot);"
+      }
+    },
+    {
       "id": "progression.new_character_scene",
       "mode": "extract",
       "type": "CharSelectManager",

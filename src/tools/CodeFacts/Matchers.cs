@@ -48,6 +48,9 @@ internal static class Runner
                     "branch_shape" => Matchers.BranchShape(scope, fact),
                     "nested_branch_split" => Matchers.NestedBranchSplit(scope, fact),
                     "switch_item_grant" => Matchers.SwitchItemGrant(scope, fact),
+                    "weather_rain_start" => Matchers.WeatherRainStart(scope, fact),
+                    "weather_spell" => Matchers.WeatherSpell(scope, fact),
+                    "item_action_guards" => Matchers.ItemActionGuards(scope, fact),
                     _ => throw new InvalidDataException($"unknown matcher '{fact.Matcher}'"),
                 };
                 result.Facts.Add(
@@ -117,6 +120,193 @@ internal static class Runner
 
 internal static class Matchers
 {
+    public static Dictionary<string, string> WeatherRainStart(
+        EntityDeclaration scope,
+        FactSpec fact
+    )
+    {
+        var starts = scope
+            .Descendants.OfType<IfElseStatement>()
+            .Where(node =>
+                node.TrueStatement.Descendants.OfType<AssignmentExpression>()
+                    .Any(assignment =>
+                        Normalize(assignment.Left.ToString()) == "isRaining"
+                        && assignment.Right is PrimitiveExpression { Value: true }
+                    )
+            )
+            .ToList();
+        if (starts.Count != 1)
+            throw new InvalidDataException("weather_rain_start needs exactly one rain start");
+        var comparisons = starts[0]
+            .Condition.DescendantsAndSelf.OfType<BinaryOperatorExpression>()
+            .Where(node =>
+                Normalize(node.Left!.ToString()) == "ColorWeight"
+                && node.Operator == BinaryOperatorType.GreaterThan
+            )
+            .ToList();
+        if (
+            comparisons.Count != 1
+            || comparisons[0].Right is not PrimitiveExpression { Value: float or double }
+            || FloatLiteralOf(comparisons[0].Right) is not string threshold
+        )
+            throw new InvalidDataException("weather_rain_start needs one literal threshold");
+        var condition = starts[0].Condition.Clone();
+        condition
+            .DescendantsAndSelf.OfType<BinaryOperatorExpression>()
+            .Single(node => Normalize(node.Left!.ToString()) == "ColorWeight")
+            .Right!.ReplaceWith(new IdentifierExpression("threshold"));
+        if (
+            Normalize(condition.ToString())
+            != Normalize("!isRaining && ColorWeight > threshold && Sun.enabled && SinceRain <= 0f")
+        )
+            throw new InvalidDataException(
+                $"weather_rain_start condition changed: {starts[0].Condition}"
+            );
+        return new() { ["threshold"] = threshold };
+    }
+
+    public static Dictionary<string, string> WeatherSpell(EntityDeclaration scope, FactSpec fact)
+    {
+        var sections = scope
+            .Descendants.OfType<SwitchSection>()
+            .Where(section =>
+                section.CaseLabels.Any(label =>
+                    label.Expression is PrimitiveExpression { Value: string name }
+                    && name == fact.Args["case"]
+                )
+            )
+            .ToList();
+        if (sections.Count != 1 || sections[0].CaseLabels.Count != 1)
+            throw new InvalidDataException("weather_spell needs exactly one unshared case");
+        var section = sections[0];
+        if (
+            section.Parent is not SwitchStatement statementSwitch
+            || Normalize(statementSwitch.Expression.ToString()) != Normalize(fact.Args["switch"])
+            || scope is not MethodDeclaration method
+            || statementSwitch.Parent != method.Body
+        )
+            throw new InvalidDataException("weather_spell needs a direct switch on the spell name");
+        var values = new Dictionary<string, string>
+        {
+            ["spell_name"] = (string)
+                ((PrimitiveExpression)section.CaseLabels.Single().Expression!).Value!,
+        };
+        var allowed = new Dictionary<string, string>
+        {
+            ["GameData.Atmos.WeightGoal"] = "weight_goal",
+            ["GameData.Atmos.SinceRain"] = "since_rain",
+            ["GameData.Atmos.CloudAmt"] = "cloud_amount",
+        };
+        foreach (var statement in section.Statements)
+        {
+            if (statement is BreakStatement)
+                continue;
+            if (
+                statement is ExpressionStatement { Expression: InvocationExpression call }
+                && Normalize(call.Target.ToString()) == "UpdateSocialLog.LogAdd"
+            )
+                continue;
+            if (
+                statement is not ExpressionStatement { Expression: AssignmentExpression assignment }
+                || assignment.Operator != AssignmentOperatorType.Assign
+                || !allowed.TryGetValue(Normalize(assignment.Left.ToString()), out var key)
+                || assignment.Right is not PrimitiveExpression { Value: float or double }
+                || FloatLiteralOf(assignment.Right) is not string value
+                || !values.TryAdd(key, value)
+            )
+                throw new InvalidDataException($"weather_spell unexpected effect: {statement}");
+        }
+        var expected =
+            fact.Args["case"] == "Invoke Storm"
+                ? new[] { "spell_name", "weight_goal", "since_rain", "cloud_amount" }
+                : new[] { "spell_name", "weight_goal", "cloud_amount" };
+        if (!values.Keys.ToHashSet().SetEquals(expected))
+            throw new InvalidDataException("weather_spell effects changed");
+        return values;
+    }
+
+    public static Dictionary<string, string> ItemActionGuards(
+        EntityDeclaration scope,
+        FactSpec fact
+    )
+    {
+        IfElseStatement Guard(string condition)
+        {
+            var guards = scope
+                .Descendants.OfType<IfElseStatement>()
+                .Where(node => Normalize(node.Condition.ToString()) == Normalize(condition))
+                .ToList();
+            if (guards.Count != 1)
+                throw new InvalidDataException($"item_action_guards needs one guard: {condition}");
+            return guards[0];
+        }
+        void Within(AstNode node, IfElseStatement guard)
+        {
+            if (!guard.TrueStatement.DescendantsAndSelf.Contains(node))
+                throw new InvalidDataException(
+                    $"item_action_guards moved an action outside {guard.Condition}"
+                );
+        }
+        var classes = Guard(
+            "MyItem.Classes.Contains (GameData.PlayerStats.CharacterClass) || MyItem.Classes.Count == 0"
+        );
+        var teaching = Guard("MyItem.TeachSpell != null && !VendorSlot && !LootSlot");
+        var level = Guard(
+            "MyItem.TeachSpell.RequiredLevel <= GameData.PlayerControl.Myself.MyStats.Level"
+        );
+        var learned = scope
+            .Descendants.OfType<InvocationExpression>()
+            .Where(node =>
+                Normalize(node.ToString())
+                == Normalize(
+                    "GameData.PlayerControl.GetComponent<CastSpell> ().KnownSpells.Add (MyItem.TeachSpell)"
+                )
+            )
+            .ToList();
+        if (learned.Count != 1)
+            throw new InvalidDataException("item_action_guards needs one spell-learning operation");
+        Within(learned[0], classes);
+        Within(learned[0], teaching);
+        Within(learned[0], level);
+        foreach (
+            string target in new[]
+            {
+                "equipmentSlot.MyItem",
+                "equipmentSlot2.MyItem",
+                "GameData.PlayerInv.AuraSlot.MyItem",
+            }
+        )
+        {
+            var equips = scope
+                .Descendants.OfType<AssignmentExpression>()
+                .Where(node =>
+                    Normalize(node.Left.ToString()) == Normalize(target)
+                    && Normalize(node.Right.ToString()) == "MyItem"
+                )
+                .ToList();
+            if (equips.Count != 1)
+                throw new InvalidDataException(
+                    $"item_action_guards needs one equip operation: {target}"
+                );
+            Within(equips[0], classes);
+        }
+        var click = Guard(
+            "MyItem.RequiredSlot == Item.SlotType.General || MyItem.Classes.Contains (GameData.PlayerStats.CharacterClass)"
+        );
+        var equipped = Guard(
+            "!MyItem.MustBeEquippedToClick || ThisSlotType != Item.SlotType.General"
+        );
+        var effects = scope
+            .Descendants.OfType<InvocationExpression>()
+            .Where(node => Normalize(node.ToString()) == Normalize("UseConsumable ()"))
+            .ToList();
+        if (effects.Count != 1)
+            throw new InvalidDataException("item_action_guards needs one click-use operation");
+        Within(effects[0], click);
+        Within(effects[0], equipped);
+        return new();
+    }
+
     /// Binds the unique `if` whose then-branch references args["member"] in an
     /// Add(...) call and whose condition compares a float literal (optionally
     /// `* expr`). Emits rate (literal as invariant string) and min_level
@@ -309,7 +499,7 @@ internal static class Matchers
                 throw new InvalidDataException(
                     "string_constants argument needs exactly one matching call with a string literal at the requested zero-based position"
                 );
-            return new() { ["string"] = value };
+            return new() { [fact.Keys?.SingleOrDefault() ?? "string"] = value };
         }
         AstNode search = scope;
         if (fact.Args.TryGetValue("guard_assignment", out string? guard))

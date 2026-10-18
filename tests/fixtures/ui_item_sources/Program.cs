@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Text.Json;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 // Execute the production listener and key generator without loading Unity or the game.
 namespace SQLite
@@ -34,15 +35,20 @@ namespace UnityEngine
     public class Object
     {
         public string name;
+
+        public int GetInstanceID() =>
+            System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(this);
     }
 
     public class Component : Object
     {
         public GameObject gameObject;
         public Transform transform => gameObject.transform;
+
+        public T GetComponent<T>() => gameObject.GetComponent<T>();
     }
 
-    public class Transform : Component
+    public class Transform : Component, IEnumerable<Transform>
     {
         public Transform parent;
         public List<Transform> children = new();
@@ -52,6 +58,14 @@ namespace UnityEngine
         public int GetSiblingIndex() => parent == null ? RootIndex : parent.children.IndexOf(this);
 
         public bool CompareTag(string tag) => gameObject.CompareTag(tag);
+
+        public int childCount => children.Count;
+
+        public Transform GetChild(int index) => children[index];
+
+        public IEnumerator<Transform> GetEnumerator() => children.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     public class Vector3
@@ -61,9 +75,25 @@ namespace UnityEngine
             z;
     }
 
-    public class Scene
+    public class Behaviour : Component
     {
-        public string name;
+        public bool enabled = true;
+        public bool isActiveAndEnabled => enabled && gameObject.activeInHierarchy;
+    }
+
+    public class Renderer : Component
+    {
+        public Bounds bounds = new();
+    }
+
+    public class Bounds
+    {
+        public Vector3 center = new();
+    }
+
+    public static class Debug
+    {
+        public static void LogWarning(string message) => Console.Error.WriteLine(message);
     }
 
     public class GameObject : Object
@@ -101,6 +131,8 @@ namespace UnityEngine
 
         public T[] GetComponents<T>() => _components.OfType<T>().ToArray();
 
+        public T GetComponent<T>() => _components.OfType<T>().FirstOrDefault();
+
         public Component[] GetComponents(Type type) =>
             _components.Where(type.IsInstanceOfType).ToArray();
 
@@ -116,6 +148,59 @@ namespace UnityEngine
             return result.ToArray();
         }
     }
+}
+
+namespace UnityEngine.SceneManagement
+{
+    public class Scene
+    {
+        public string name;
+        public int handle;
+
+        public bool IsValid() => !string.IsNullOrEmpty(name);
+
+        public GameObject[] GetRootGameObjects() => throw new NotSupportedException();
+    }
+}
+
+namespace UnityEditor
+{
+    public static class PrefabUtility
+    {
+        public static bool IsPartOfPrefabAsset(GameObject target) => false;
+    }
+
+    public static class AssetDatabase
+    {
+        public static string GetAssetPath(GameObject target) => throw new NotSupportedException();
+
+        public static string AssetPathToGUID(string path) => throw new NotSupportedException();
+    }
+}
+
+public class SpawnPoint : Behaviour { }
+
+public class ItemBag : Behaviour { }
+
+public class Door : Behaviour { }
+
+public class Zoneline : Behaviour { }
+
+public class SpawnPointTrigger : Behaviour
+{
+    public GameObject Alt;
+    public List<GameObject> Spawnables;
+    public List<GameObject> SpawnSpots;
+}
+
+public class CharacterStableKeyResolver
+{
+    public string GetStableKey(Character target) => throw new NotSupportedException();
+}
+
+public class ZoneLineStableKeyResolver
+{
+    public string GetStableKey(Zoneline target) => throw new NotSupportedException();
 }
 
 public interface IAssetScanListener<T> { }
@@ -174,14 +259,6 @@ public class PlanningTableUI : Component
     public ItemIcon Portal;
 }
 
-public class QuestSpawnListener : Component
-{
-    public Quest Quest,
-        ActiveQuest;
-    public Item item;
-    public List<GameObject> EnableOnQuestComplete = new();
-}
-
 public class ItemIcon : Component
 {
     public Item MyItem;
@@ -201,7 +278,8 @@ class Program
     static object Sources(bool reverse, bool nullPortal)
     {
         var db = new SQLite.SQLiteConnection();
-        var listener = new UiItemSourceListener(db);
+        var hierarchy = new ObjectHierarchyCollector(db);
+        var listener = new UiItemSourceListener(db, hierarchy);
         var root = new GameObject("UI");
         var hide = new GameObject("Hide", parent: root);
         var hideIcon = hide.Add(
@@ -234,7 +312,8 @@ class Program
     static object Access()
     {
         var db = new SQLite.SQLiteConnection();
-        var listener = new UiItemSourceListener(db);
+        var hierarchy = new ObjectHierarchyCollector(db);
+        var listener = new UiItemSourceListener(db, hierarchy);
         var enabled = new GameObject("Rooms", "Reliquary") { activeSelf = false };
         var desk = new GameObject("Desk", "Reliquary", enabled) { tag = "PlanningDesk" };
         desk.transform.position = new Vector3
@@ -245,31 +324,22 @@ class Program
         };
         var disabled = new GameObject("Disabled", "Reliquary", enabled) { activeSelf = false };
         var blocked = new GameObject("BlockedDesk", "Reliquary", disabled) { tag = "PlanningDesk" };
-        var trigger = new GameObject("QuestTrigger", "Reliquary");
-        trigger.Add(
-            new QuestSpawnListener
-            {
-                Quest = new Quest("NATIVECLAIM"),
-                ActiveQuest = new Quest("NATIVEALTERNATIVE"),
-                item = new Item("native possession key"),
-                EnableOnQuestComplete = new() { enabled, enabled },
-            }
-        );
         listener.OnScanStarted();
-        foreach (var asset in new[] { desk, blocked, trigger })
+        foreach (var asset in new[] { desk, blocked })
             listener.OnAssetFound(asset);
         listener.OnScanFinished();
+        hierarchy.OnScanFinished();
         return new
         {
             targets = db.Rows<UiItemAccessTargetRecord>(),
-            activations = db.Rows<UiItemAccessActivationRecord>(),
+            hierarchy = db.Rows<ObjectHierarchyRecord>(),
         };
     }
 
     static object Unrelated()
     {
         var db = new SQLite.SQLiteConnection();
-        var listener = new UiItemSourceListener(db);
+        var listener = new UiItemSourceListener(db, new ObjectHierarchyCollector(db));
         var gear = new GameObject("StoredGear");
         gear.Add(new ItemIcon { MyItem = new Item("arbitrary stored equipment") });
         var misc = new GameObject("UnrelatedManager", "OtherScene");
@@ -284,7 +354,7 @@ class Program
     static string Failure(string scenario)
     {
         var db = new SQLite.SQLiteConnection();
-        var listener = new UiItemSourceListener(db);
+        var listener = new UiItemSourceListener(db, new ObjectHierarchyCollector(db));
         var hide = new GameObject("Hide");
         var icon = hide.Add(new ItemIcon());
         hide.Add(new ReplenishTMOGHide { MyIcon = scenario == "missing_icon" ? null : icon });

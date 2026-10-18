@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-PROGRESSION_SCHEMA_VERSION = 1
+PROGRESSION_SCHEMA_VERSION = 2
 
 
 @dataclass(frozen=True)
@@ -27,6 +27,7 @@ class ProgressionNeed:
     condition_key: str | None
     advisory: bool
     unconfirmed: bool
+    required_level: int | None = None
 
 
 @dataclass(frozen=True)

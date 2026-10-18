@@ -14,50 +14,71 @@ schema_version = 1
 script = "Chessboard"
 fields = ["PeonNPC"]
 position_field = "SpawnLoc"
+include_host_position = true
 trigger_item_field = "Peon"
 trigger_mode = "proximity_auto_consume"
+event_display_name = "game board"
+include_host_bounds = true
 
 [[allowed]]
 script = "Chessboard"
 fields = ["EmberNPC"]
 position_field = "SpawnLoc"
+include_host_position = true
 trigger_item_field = "Ember"
 trigger_mode = "proximity_auto_consume"
+event_display_name = "game board"
+include_host_bounds = true
 
 [[allowed]]
 script = "Chessboard"
 fields = ["BlazeNPC"]
 position_field = "SpawnLoc"
+include_host_position = true
 trigger_item_field = "Blaze"
 trigger_mode = "proximity_auto_consume"
+event_display_name = "game board"
+include_host_bounds = true
 
 [[allowed]]
 script = "Chessboard"
 fields = ["MonarchNPC"]
 position_field = "SpawnLoc"
+include_host_position = true
 trigger_item_field = "Monarch"
 trigger_mode = "proximity_auto_consume"
+event_display_name = "game board"
+include_host_bounds = true
 
 [[allowed]]
 script = "Chessboard"
 fields = ["KingsmanNPC"]
 position_field = "SpawnLoc"
+include_host_position = true
 trigger_item_field = "Kingsman"
 trigger_mode = "proximity_auto_consume"
+event_display_name = "game board"
+include_host_bounds = true
 
 [[allowed]]
 script = "Chessboard"
 fields = ["CandlekeeperNPC"]
 position_field = "SpawnLoc"
+include_host_position = true
 trigger_item_field = "Candlekeeper"
 trigger_mode = "proximity_auto_consume"
+event_display_name = "game board"
+include_host_bounds = true
 
 [[allowed]]
 script = "Chessboard"
 fields = ["FacelessDuel", "FacelessArc", "FacelessPal", "FacelessDru", "FacelessStorm", "FacelessReaver"]
 position_field = "SpawnLoc"
+include_host_position = true
 trigger_item_field = "Faceless"
 trigger_mode = "proximity_auto_consume"
+event_display_name = "game board"
+include_host_bounds = true
 
 [[allowed]]
 script = "Constellation"
@@ -186,8 +207,8 @@ reason = "Host character, placed via SpawnPoint; not a dynamic spawn."
 
 [[denied]]
 script = "StowawayPortal"
-fields = ["Keeper", "Skeletons", "KeeperSpawn"]
-reason = "Keeper is placed via SpawnPoint; Skeletons is a runtime-populated List<Character> accumulator (Add at runtime, not serialized prefabs); KeeperSpawn is a position marker."
+fields = ["Keeper", "Skeletons"]
+reason = "Keeper and Skeletons are runtime-populated character caches. KeeperSpawn activation and SkeletonCheckin bindings are exported separately."
 
 # --- Captured separately: zone-wide random spawners, not fixed placements ---
 
@@ -586,3 +607,13 @@ reason = "Room and statue hierarchies are exported by PlanningTableListener with
 script = "ReliqPortalListener"
 fields = ["ReliqZL", "ReliqPort"]
 rule = "reliquary_return_portal"
+
+[[activation]]
+script = "AstraListener"
+fields = ["StarSpawns"]
+rule = "astra_deaths"
+
+[[activation]]
+script = "StowawayPortal"
+fields = ["KeeperSpawn"]
+rule = "stowaway_deaths"

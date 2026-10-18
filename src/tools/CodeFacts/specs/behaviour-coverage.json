@@ -5,11 +5,8 @@
       "apis": [
         "AtmosphereColors.isRaining"
       ],
-      "classification": "pending",
-      "tasks": [
-        "5.1",
-        "5.2"
-      ]
+      "classification": "adapter",
+      "component": "CharacterDamageReleaseListener ExportWeather and processor/weather.py scene world states"
     },
     "AngelScript": {
       "apis": [
@@ -25,10 +22,8 @@
       "apis": [
         "SpawnPoint.MyNPCAlive"
       ],
-      "classification": "pending",
-      "tasks": [
-        "2.4"
-      ]
+      "classification": "adapter",
+      "component": "ScriptedActivatorListener astra_deaths, DynamicSpawnSourceListener, and processor hierarchy death gates"
     },
     "AtmosphereColors": {
       "apis": [
@@ -36,11 +31,8 @@
         "AtmosphereColors.WeightGoal",
         "AtmosphereColors.isRaining"
       ],
-      "classification": "pending",
-      "tasks": [
-        "5.1",
-        "5.2"
-      ]
+      "classification": "core",
+      "component": "weather.rain_start, weather.rain_stop, weather.weight_follows_goal and processor/weather.py"
     },
     "BellsieWineTrigger": {
       "apis": [
@@ -120,7 +112,6 @@
       ],
       "classification": "pending",
       "tasks": [
-        "2.2",
         "3.2"
       ]
     },
@@ -136,10 +127,8 @@
         "Character.Invulnerable",
         "SpawnPoint.MyNPCAlive"
       ],
-      "classification": "pending",
-      "tasks": [
-        "2.2"
-      ]
+      "classification": "adapter",
+      "component": "DynamicSpawnSourceListener controller hierarchy and CharacterDamageReleaseListener Fernalla fight phases"
     },
     "GameData": {
       "apis": [
@@ -208,7 +197,7 @@
         "GameData.FinishQuest"
       ],
       "classification": "core",
-      "component": "ItemListener AssignQuestOnReadStableKey and CompleteOnReadStableKey, CharacterListener quest sources"
+      "component": "ItemListener read-quest fields, CharacterListener quest sources, progression.item_action_guards and processor/progression.py item_action"
     },
     "JailTimer": {
       "apis": [
@@ -255,7 +244,6 @@
       ],
       "classification": "pending",
       "tasks": [
-        "2.2",
         "3.2"
       ]
     },
@@ -288,7 +276,6 @@
       ],
       "classification": "pending",
       "tasks": [
-        "2.2",
         "3.2"
       ]
     },
@@ -409,7 +396,6 @@
       ],
       "classification": "pending",
       "tasks": [
-        "2.2",
         "3.2"
       ]
     },
@@ -517,8 +503,7 @@
       ],
       "classification": "pending",
       "tasks": [
-        "4.1",
-        "5.1"
+        "4.1"
       ]
     },
     "SprinklesEvent": {
@@ -573,11 +558,8 @@
       "apis": [
         "AtmosphereColors.WeightGoal"
       ],
-      "classification": "pending",
-      "tasks": [
-        "5.1",
-        "5.2"
-      ]
+      "classification": "adapter",
+      "component": "WeatherTrendListener, weather.trend_start, weather.trend_pull and processor/weather.py"
     },
     "ZoneAnnounce": {
       "apis": [

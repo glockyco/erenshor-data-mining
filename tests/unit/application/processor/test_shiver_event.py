@@ -94,16 +94,54 @@ def event(tmp_path: Path) -> Writer:
     raw = sqlite3.connect(":memory:")
     raw.executescript(
         """
+        CREATE TABLE ObjectHierarchy (
+            ObjectKey TEXT PRIMARY KEY, ParentObjectKey TEXT, ActiveSelf INTEGER, IsSceneObject INTEGER
+        );
+        INSERT INTO ObjectHierarchy VALUES ('object:event', NULL, 1, 1);
         CREATE TABLE QuestActivationEffects (
             TargetKind TEXT, TargetStableKey TEXT, Effect TEXT, ListenerKey TEXT,
-            GroupIndex INTEGER, AtomKind TEXT, AtomStableKey TEXT
+            GroupIndex INTEGER, AtomKind TEXT, AtomStableKey TEXT,
+            TargetObjectKey TEXT, ListenerObjectKey TEXT, ListenerComponentIsEnabled INTEGER
         );
-        CREATE TABLE ScriptedActivators (SourceKey TEXT, RuleId TEXT, SourceScene TEXT, ComponentIsEnabled INTEGER);
+        CREATE TABLE ScriptedActivators (
+            SourceKey TEXT, RuleId TEXT, SourceScene TEXT, ComponentIsEnabled INTEGER,
+            ObjectKey TEXT, HostCharacterStableKey TEXT
+        );
         CREATE TABLE ScriptedActivatorReferences (ReferenceId TEXT, SourceKey TEXT, Field TEXT);
         CREATE TABLE ScriptedActivatorTargets (ReferenceId TEXT, ResolutionMode TEXT, Kind TEXT, Key TEXT);
-        INSERT INTO ScriptedActivators VALUES ('source:event', 'shiver_event', 'EventScene', 1);
+        INSERT INTO ScriptedActivators VALUES (
+            'source:event', 'shiver_event', 'EventScene', 1, 'object:event', NULL
+        );
+        CREATE TABLE DynamicCharacterSpawns (
+            Key TEXT, CharacterStableKey TEXT, ControllerObjectKey TEXT, ControllerComponentIsEnabled INTEGER
+        );
+        CREATE TABLE CharacterChainedSpawns (
+            ParentStableKey TEXT, ChildStableKey TEXT, SourceScript TEXT,
+            ControllerObjectKey TEXT, ControllerComponentIsEnabled INTEGER
+        );
+        CREATE TABLE PlanningTableFurnishings (
+            ObjectKey TEXT, ControllerObjectKey TEXT, Slot TEXT, Furnishing TEXT
+        );
         """
     )
+    for table in (
+        "Characters",
+        "SpawnPoints",
+        "SpawnPointTriggers",
+        "ZoneLines",
+        "ItemBags",
+        "Doors",
+        "UiItemAccessTargets",
+    ):
+        raw.execute(f"CREATE TABLE {table} (StableKey TEXT, ObjectKey TEXT, ComponentIsEnabled INTEGER)")
+    raw.execute("ALTER TABLE SpawnPoints ADD COLUMN IsDirectlyPlaced INTEGER DEFAULT 0")
+    for table, keys in (("Characters", characters), ("SpawnPointTriggers", (_TRIGGER,))):
+        for key in keys:
+            raw.execute(
+                "INSERT INTO ObjectHierarchy VALUES (?, 'object:event', 1, 1)",
+                (f"object:{key}",),
+            )
+            raw.execute(f"INSERT INTO {table} VALUES (?, ?, 1)", (key, f"object:{key}"))
     targets = [
         ("FirstKio", "character", _FIRST),
         ("Kio", "character", _KIO),

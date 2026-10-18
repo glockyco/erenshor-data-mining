@@ -30,7 +30,8 @@ def databases(writer: Writer) -> Iterator[tuple[sqlite3.Connection, sqlite3.Conn
         """
         CREATE TABLE ScriptedActivators (
             SourceKey TEXT PRIMARY KEY, RuleId TEXT, ComponentIsEnabled INTEGER,
-            IsEnabled INTEGER, HostCharacterStableKey TEXT, SourceScene TEXT, SourceObjectName TEXT
+            IsEnabled INTEGER, HostCharacterStableKey TEXT, SourceScene TEXT, SourceObjectName TEXT,
+            ObjectKey TEXT
         );
         CREATE TABLE ScriptedActivatorReferences (
             ReferenceId TEXT PRIMARY KEY, SourceKey TEXT, Field TEXT, ReferenceKind TEXT,
@@ -49,10 +50,35 @@ def databases(writer: Writer) -> Iterator[tuple[sqlite3.Connection, sqlite3.Conn
         CREATE TABLE ArenaRoundEnemies (ArenaRoundStableKey TEXT, EnemyCharacterStableKey TEXT);
         CREATE TABLE QuestActivationEffects (
             TargetKind TEXT, TargetStableKey TEXT, Effect TEXT, ListenerKey TEXT,
-            GroupIndex INTEGER, AtomKind TEXT, AtomStableKey TEXT
+            GroupIndex INTEGER, AtomKind TEXT, AtomStableKey TEXT,
+            TargetObjectKey TEXT, ListenerObjectKey TEXT, ListenerComponentIsEnabled INTEGER
+        );
+        CREATE TABLE ObjectHierarchy (
+            ObjectKey TEXT PRIMARY KEY, ParentObjectKey TEXT, ActiveSelf INTEGER, IsSceneObject INTEGER
+        );
+        CREATE TABLE DynamicCharacterSpawns (
+            Key TEXT, CharacterStableKey TEXT, ControllerObjectKey TEXT, ControllerComponentIsEnabled INTEGER
+        );
+        CREATE TABLE CharacterChainedSpawns (
+            ParentStableKey TEXT, ChildStableKey TEXT, SourceScript TEXT,
+            ControllerObjectKey TEXT, ControllerComponentIsEnabled INTEGER
+        );
+        CREATE TABLE PlanningTableFurnishings (
+            ObjectKey TEXT, ControllerObjectKey TEXT, Slot TEXT, Furnishing TEXT
         );
         """
     )
+    for table in (
+        "Characters",
+        "SpawnPoints",
+        "SpawnPointTriggers",
+        "ZoneLines",
+        "ItemBags",
+        "Doors",
+        "UiItemAccessTargets",
+    ):
+        raw.execute(f"CREATE TABLE {table} (StableKey TEXT, ObjectKey TEXT, ComponentIsEnabled INTEGER)")
+    raw.execute("ALTER TABLE SpawnPoints ADD COLUMN IsDirectlyPlaced INTEGER DEFAULT 0")
     yield raw, writer.conn
     raw.close()
 
@@ -69,9 +95,10 @@ def _source(
     object_name: str = "Controller",
 ) -> None:
     raw.execute(
-        "INSERT INTO ScriptedActivators VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (source, rule, int(enabled), int(active), host, scene, object_name),
+        "INSERT INTO ScriptedActivators VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        (source, rule, int(enabled), int(active), host, scene, object_name, f"object:{source}"),
     )
+    raw.execute("INSERT INTO ObjectHierarchy VALUES (?, NULL, 1, ?)", (f"object:{source}", int(scene is not None)))
 
 
 def _reference(
@@ -322,7 +349,7 @@ def test_repeated_ward_archetype_keeps_all_required_spawn_selectors_in_gate_iden
     gates = _scripted_gates(raw, conn)
 
     assert len(gates) == 1
-    assert _groups(gates[0]) == {_encounters("character:ward")}
+    assert _groups(gates[0]) == {frozenset({Atom("encounter_won", "character:ward", quantity=4)})}
     assert all(ward in gates[0].gate for ward in wards)
 
 
@@ -374,6 +401,11 @@ def test_memory_alternatives_merge_with_quest_activation_without_gating_a_separa
     raw, conn = databases
     for key in ("character:memory:scene:1", "character:memory:scene:2", "character:inactive child"):
         _character(conn, key)
+        raw.execute("INSERT INTO Characters VALUES (?, ?, 1)", (key, f"object:{key}"))
+        raw.execute(
+            "INSERT INTO ObjectHierarchy VALUES (?, NULL, ?, 1)",
+            (f"object:{key}", int(key != "character:memory:scene:1")),
+        )
     conn.execute(
         "INSERT INTO quests (stable_key, db_name, display_name, image_name)"
         " VALUES ('quest:alternative', 'alternative', 'Alternative', 'alternative')"
@@ -388,8 +420,10 @@ def test_memory_alternatives_merge_with_quest_activation_without_gating_a_separa
         _target(raw, source, "Memory", "character", "character:inactive child", mode="disable")
     raw.execute(
         "INSERT INTO QuestActivationEffects VALUES"
-        " ('character', 'character:memory:scene:1', 'enable', 'quest-listener', 0, 'quest_done', 'quest:alternative')"
+        " ('character', 'character:memory:scene:1', 'enable', 'quest-listener', 0, 'quest_done', 'quest:alternative',"
+        " 'object:character:memory:scene:1', 'object:quest-listener', 1)"
     )
+    raw.execute("INSERT INTO ObjectHierarchy VALUES ('object:quest-listener', NULL, 1, 1)")
     barriers = tmp_path / "barriers.toml"
     barriers.write_text("", encoding="utf-8")
 

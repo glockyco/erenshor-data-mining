@@ -102,7 +102,7 @@ Unity, images, wiki, and backups may remain symlinks when used only as read inpu
 | --- | --- |
 | `erenshor extract packages` | Restores the Unity editor packages, once per checkout. |
 | `erenshor extract rip` / `export` / `code-facts` / `build` | Runs the pipeline steps above. |
-| `erenshor extract changes` | Compares the clean database with the previous backed-up build. Review its report after every data change. |
+| `erenshor extract changes` | Compares the clean database with a backed-up build or saved clean database. Review its report after every data change. |
 | `erenshor wiki fetch` / `generate` | Fetches live articles and merges regenerated data into them. |
 | `erenshor wiki generate-lua` / `deploy-repo-pages` | Generates the Lua data modules and deploys repository-owned modules and templates with revision guards and rollback data. |
 | `erenshor sheets deploy` | Publishes the sheet queries. |

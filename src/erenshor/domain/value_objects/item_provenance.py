@@ -245,6 +245,7 @@ CONDITION_PREDICATES = (
     "actor_level",
     "actor_class",
     "account_state",
+    "world_state",
     "time_of_day",
     "zone_use",
     "quality",
@@ -292,6 +293,7 @@ def condition_from_dict(value: object) -> ProvenanceCondition:
             "item_held",
             "item_not_owned",
             "encounter_won",
+            "world_state",
             "actor_class",
             "zone_use",
         )

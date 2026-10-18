@@ -58,6 +58,7 @@ from .quest_routes import process_quest_routes
 from .special_world_drops import process_common_world_items, process_special_world_drops
 from .treasure import process_treasure
 from .ui_items import process_ui_items
+from .weather import process_weather
 from .writer import Writer
 from .zone_wide_spawns import process_zone_wide_spawns
 
@@ -150,6 +151,9 @@ def build(
         logger.info("Processing spells...")
         process_spells(raw, writer, mapping)
 
+        logger.info("Processing scene weather and world state...")
+        process_weather(raw, writer.conn)
+
         logger.info("Processing skills...")
         stance_images = process_skills(raw, writer, mapping)
 
@@ -170,6 +174,9 @@ def build(
 
         logger.info("Processing stored return destinations...")
         process_zone_line_destinations(raw, writer)
+
+        logger.info("Processing native UI item sources...")
+        process_ui_items(raw, writer.conn)
 
         logger.info("Processing gates...")
         process_gates(raw, writer, barriers_path)
@@ -200,9 +207,6 @@ def build(
 
         writer.insert_ae_event_mutations(AE_EVENT_MUTATIONS)
         logger.info(f"AE event mutations: {len(AE_EVENT_MUTATIONS)} rows")
-
-        logger.info("Processing native UI item sources...")
-        process_ui_items(raw, writer.conn)
 
         logger.info("Selecting canonical item provenance...")
         provenance_report = process_item_provenance(

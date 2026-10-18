@@ -81,6 +81,9 @@ def conn() -> Iterator[sqlite3.Connection]:
     ):
         insert(connection, "code_facts", fact_id=fact, key="string", value=scene, value_type="text")
     insert(connection, "code_facts", fact_id="progression.start_selection", key="ok", value="true", value_type="bool")
+    insert(
+        connection, "code_facts", fact_id="progression.item_action_guards", key="ok", value="true", value_type="bool"
+    )
     insert(connection, "code_facts_meta", game_build_id="123")
     insert(connection, "quest_variants", resource_name="Resource", quest_stable_key="quest:q")
     insert(
@@ -510,6 +513,22 @@ def release(conn: sqlite3.Connection, mechanism: str, condition_kind: str, key: 
     ],
 )
 def test_release_mechanisms_join_kills_not_meetings(conn, mechanism, kind, key, expected):
+    if mechanism == "npc_protector_weather":
+        insert(
+            conn,
+            "world_states",
+            stable_key="world_state:weather:raining:zone:start",
+            state="raining",
+            zone_stable_key="zone:start",
+            uses_sun=1,
+            natural_rain_can_start=1,
+        )
+        insert(
+            conn,
+            "world_state_producers",
+            state_stable_key="world_state:weather:raining:zone:start",
+            mechanism="natural_weather",
+        )
     release(conn, mechanism, kind, key)
     acquisition(conn, "character_drop", "character:copy")
     route(conn, "death", "character", "character:copy")
@@ -518,7 +537,7 @@ def test_release_mechanisms_join_kills_not_meetings(conn, mechanism, kind, key, 
     assert expected in needs(graph, "quest:q")
     assert expected not in needs(graph, "character:copy")
     if mechanism == "npc_protector_weather":
-        assert not graph.ways.get(expected.need_stable_key)
+        assert Need("natural weather", condition_key="weather:natural_rain") in needs(graph, expected.need_stable_key)
 
 
 @pytest.mark.parametrize("mechanism", ["npc_protector_null", "npc_protector_inactive"])
@@ -820,3 +839,122 @@ def test_zone_use_requires_a_real_zone_node(conn):
     condition(conn, "zone_use", "zone:missing")
     with pytest.raises(ValueError, match="need resolves to no node: zone:missing"):
         builder(conn)
+
+
+def test_rain_release_needs_spell_from_casting_item_or_teaching_scroll(conn):
+    state = "world_state:weather:raining:zone:start"
+    insert(conn, "classes", class_name="Druid")
+    conn.execute("UPDATE code_facts SET value='Fighter,Druid' WHERE fact_id='progression.playable_classes'")
+    insert(conn, "item_classes", item_stable_key="item:key", class_name="Fighter")
+    insert(conn, "item_classes", item_stable_key="item:key", class_name="Druid")
+    insert(conn, "item_classes", item_stable_key="item:rune", class_name="Druid")
+    insert(
+        conn,
+        "world_states",
+        stable_key=state,
+        state="raining",
+        zone_stable_key="zone:start",
+        uses_sun=1,
+        natural_rain_can_start=0,
+    )
+    insert(
+        conn,
+        "spells",
+        stable_key="spell:storm",
+        spell_name="Invoke Storm",
+        display_name="Invoke Storm",
+        image_name="Invoke Storm",
+        required_level=8,
+    )
+    insert(
+        conn, "weather_spell_effects", spell_stable_key="spell:storm", weight_goal=0.9, since_rain=-1, cloud_amount=0.4
+    )
+    insert(conn, "world_state_producers", state_stable_key=state, mechanism="spell", spell_stable_key="spell:storm")
+    conn.execute(
+        "UPDATE items SET item_effect_on_click_stable_key='spell:storm',required_slot='Ring'"
+        " WHERE stable_key='item:key'"
+    )
+    conn.execute("UPDATE items SET teach_spell_stable_key='spell:storm' WHERE stable_key='item:rune'")
+    acquisition(conn, "starting_class", "class:fighter", item_stable_key="item:key")
+    release(conn, "npc_protector_weather", "state", "raining")
+    acquisition(conn, "character_drop", "character:copy", acquisition_key="key")
+    graph = builder(conn)
+    assert needs(graph, state) == {Need("in zone", "zone:start"), Need("cast", "spell:storm")}
+    assert set(graph.ways["spell:storm"].values()) == {
+        (Need("casts", "item:key"),),
+        canonical_way([Need("teaches", "item:rune", required_level=8), Need("class", "class:druid")]),
+    }
+    assert Need("release", state) in needs(graph, "item:result")
+    assert state in graph.milestones
+    assert graph.tiers["item:result"] >= graph.tiers[state] > graph.tiers["spell:storm"]
+    conn.execute("UPDATE spells SET required_level=80 WHERE stable_key='spell:storm'")
+    higher_level = builder(conn)
+    assert higher_level.tiers == graph.tiers
+    assert Need("teaches", "item:rune", required_level=80) in needs(higher_level, "spell:storm")
+
+
+def test_unknown_world_state_fails_closed(conn):
+    gate(conn, "world_state", "world_state:weather:raining:zone:missing")
+    with pytest.raises(ValueError, match="unmapped world state"):
+        builder(conn)
+
+
+@pytest.mark.parametrize(
+    "relation,slot,classes,expected",
+    [
+        ("teaches", "General", (), {None}),
+        ("teaches", "General", ("Druid",), {"class:druid"}),
+        ("equipped", "Ring", (), {None}),
+        ("equipped", "Ring", ("Druid",), {"class:druid"}),
+        ("casts", "General", ("Druid",), {None}),
+        ("casts", "Ring", (), set()),
+        ("casts", "Ring", ("Druid",), {"class:druid"}),
+        ("casts", "Ring", ("Druid", "Fighter"), {None}),
+    ],
+)
+def test_item_action_class_rules(conn, relation, slot, classes, expected):
+    insert(conn, "classes", class_name="Druid")
+    conn.execute("UPDATE code_facts SET value='Fighter,Druid' WHERE fact_id='progression.playable_classes'")
+    conn.execute("UPDATE items SET required_slot=? WHERE stable_key='item:key'", (slot,))
+    for name in classes:
+        insert(conn, "item_classes", item_stable_key="item:key", class_name=name)
+    graph = ProgressionBuilder(conn)
+    graph.build_nodes()
+    item = next(row for row in graph.rows("items") if row["stable_key"] == "item:key")
+    ways = graph.item_action(item, relation)
+    assert {next((need.need_stable_key for need in way if need.relation == "class"), None) for way in ways} == expected
+
+
+def test_click_that_requires_equipping_keeps_that_need(conn):
+    conn.execute("UPDATE items SET required_slot='Ring',must_be_equipped_to_click=1 WHERE stable_key='item:key'")
+    insert(conn, "item_classes", item_stable_key="item:key", class_name="Fighter")
+    graph = ProgressionBuilder(conn)
+    graph.build_nodes()
+    item = next(row for row in graph.rows("items") if row["stable_key"] == "item:key")
+    assert graph.item_action(item, "casts") == [
+        canonical_way([Need("casts", "item:key"), Need("equipped", "item:key")])
+    ]
+
+
+@pytest.mark.parametrize("provenance", [False, True])
+def test_death_sets_need_consumptive_release_items_for_every_distinct_copy(conn, provenance):
+    release(conn, "trade_turn_in", "quest_variant", "Resource")
+    if provenance:
+        acquisition(conn, "character_drop", "character:other")
+        condition(conn, "encounter_won", "character:copy", minimum=3)
+        target = "item:result"
+    else:
+        gate(
+            conn,
+            "encounter_won",
+            "character:copy",
+            subject_stable_key="character:other",
+            atom_quantity=3,
+        )
+        target = "character:other"
+
+    required = needs(builder(conn), target)
+
+    assert Need("defeated", "character:copy", quantity=3, advisory=True) in required
+    assert Need("release", "item:input", quantity=6, slot="0") in required
+    assert Need("release", "item:material", quantity=9, slot="1") in required

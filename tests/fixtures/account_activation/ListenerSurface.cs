@@ -88,6 +88,10 @@ namespace UnityEngine
         public string name = "Reliquary";
         public bool Valid = true;
 
+        public List<GameObject> Roots { get; } = new();
+
+        public GameObject[] GetRootGameObjects() => Roots.ToArray();
+
         public bool IsValid() => Valid;
     }
 
@@ -124,6 +128,19 @@ namespace UnityEngine
 
         public T GetComponent<T>()
             where T : Component => _components.OfType<T>().FirstOrDefault();
+
+        public T[] GetComponentsInChildren<T>(bool includeInactive)
+            where T : Component =>
+            (includeInactive || activeInHierarchy)
+                ? _components
+                    .OfType<T>()
+                    .Concat(
+                        _children.SelectMany(child =>
+                            child.GetComponentsInChildren<T>(includeInactive)
+                        )
+                    )
+                    .ToArray()
+                : Array.Empty<T>();
 
         public T GetComponentInChildren<T>(bool includeInactive)
             where T : Component
@@ -180,6 +197,9 @@ public sealed class Character : MonoBehaviour
 public sealed class SpawnPoint : MonoBehaviour
 {
     public bool canSpawn = true;
+    public GameObject NPCSpecificObject;
+    public List<GameObject> CommonSpawns = new(),
+        RareSpawns = new();
 }
 
 public sealed class Zoneline : MonoBehaviour
@@ -203,6 +223,7 @@ public sealed class ActivationTarget
 {
     public string Kind { get; set; }
     public string Key { get; set; }
+    public string ObjectKey { get; set; }
     public string Scene { get; set; }
     public string ObjectName { get; set; }
     public bool IsEnabled { get; set; }
@@ -215,6 +236,7 @@ public sealed class ActivationTargetResolver
     public Dictionary<GameObject, ActivationTarget[]> Subjects { get; } = new();
     public List<SpawnPoint> SpawnRequests { get; } = new();
     public List<(GameObject Host, bool Enabling)> ResolveRequests { get; } = new();
+    public ObjectHierarchyCollector Hierarchy { get; } = new();
 
     public static string ObjectKey(GameObject host) =>
         host.FixtureObjectKey
@@ -231,8 +253,15 @@ public sealed class ActivationTargetResolver
     public IEnumerable<ActivationTarget> Resolve(GameObject host, bool enabling)
     {
         ResolveRequests.Add((host, enabling));
+        foreach (var subject in Subjects[host])
+            subject.ObjectKey ??= ObjectKey(host);
         return Subjects[host];
     }
+}
+
+public sealed class ObjectHierarchyCollector
+{
+    public string Capture(GameObject host) => ActivationTargetResolver.ObjectKey(host);
 }
 
 // Public fields retain the exact types required by the closed production constructor contract.
@@ -349,4 +378,20 @@ public sealed class ReliqPortalListener : MonoBehaviour
 {
     public Zoneline ReliqZL;
     public GameObject ReliqPort;
+}
+
+public sealed class AstraListener : MonoBehaviour
+{
+    public List<SpawnPoint> StarSpawns = new();
+    public GameObject Dragon;
+}
+
+public sealed class StowawayPortal : MonoBehaviour
+{
+    public GameObject KeeperSpawn;
+}
+
+public sealed class SkeletonCheckin : MonoBehaviour
+{
+    public bool Keeper;
 }

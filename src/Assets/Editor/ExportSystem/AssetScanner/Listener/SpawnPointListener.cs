@@ -112,6 +112,8 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         return new SpawnPointRecord
         {
             StableKey = stableKey,
+            ObjectKey = _activationTargets.Hierarchy.Capture(spawnPoint.gameObject),
+            ComponentIsEnabled = spawnPoint.enabled,
             Scene = scene,
             X = x,
             Y = y,

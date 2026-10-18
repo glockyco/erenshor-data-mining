@@ -93,6 +93,7 @@ class ProvenanceBuilder:
                     str(row["atom_stable_key"]),
                     row["atom_slot"],
                     scope=scope,
+                    minimum=row["atom_quantity"],
                 )
             )
         return tuple(result)
@@ -1086,7 +1087,6 @@ class ProvenanceBuilder:
             if len(builds) == 1 and row["assembly_sha256"] == builds[0]["assembly_sha256"]
         }
         targets = self.rows("ui_item_access_targets")
-        activations = self.rows("ui_item_access_activations")
         for row in self.rows("ui_item_sources"):
             source, component, slot = str(row["stable_key"]), str(row["component_type"]), str(row["slot"])
             if component == "ReplenishTMOGHide":
@@ -1105,31 +1105,8 @@ class ProvenanceBuilder:
                     if target["tag"] != "PlanningDesk":
                         continue
                     target_key = str(target["stable_key"])
-                    location_conditions: list[ProvenanceCondition] = []
-                    if not target["active_in_hierarchy"]:
-                        group = 0
-                        for activation in activations:
-                            if activation["target_stable_key"] != target_key:
-                                continue
-                            for column, predicate in (
-                                ("quest_stable_key", "quest_done"),
-                                ("alternative_quest_stable_key", "quest_done"),
-                                ("item_stable_key", "item_held"),
-                            ):
-                                if activation[column]:
-                                    location_conditions.append(
-                                        ProvenanceCondition(
-                                            "ui_access", group, 0, predicate, str(activation[column]), scope=target_key
-                                        )
-                                    )
-                                    group += 1
-                        if not location_conditions:
-                            location_conditions.append(
-                                ProvenanceCondition("ui_access", 0, 0, "never", scope=target_key)
-                            )
-                    possible.append(
-                        self._location(target, target_key, "interaction", target_key, tuple(location_conditions))
-                    )
+                    location_conditions = self.gate_conditions("ui_item_access_target", target_key, scope=target_key)
+                    possible.append(self._location(target, target_key, "interaction", target_key, location_conditions))
                 locations = tuple(possible) or (ProvenanceLocation(identity("ui_unlocated", source), "unlocated"),)
             else:
                 raise ValueError(f"Unsupported native item UI component {component!r}")
@@ -1139,11 +1116,6 @@ class ProvenanceBuilder:
                 for location in locations:
                     if location.relation == "interaction":
                         native_evidence.append(self.evidence("ui_item_access_targets", location.location_key))
-                        native_evidence.extend(
-                            self.evidence("ui_item_access_activations", activation["stable_key"])
-                            for activation in activations
-                            if activation["target_stable_key"] == location.location_key
-                        )
             if not item:
                 self.input_exclusions[(evidence.input_relation, evidence.input_primary_key)] = "empty_native_ui_slot"
                 continue
@@ -1756,7 +1728,6 @@ class ProvenanceBuilder:
                 )
         for table, reason in (
             ("ui_item_access_targets", "unused_native_ui_target"),
-            ("ui_item_access_activations", "unused_native_ui_activation"),
             ("item_access_observations", "unused_access_observation"),
         ):
             for row in self.rows(table):

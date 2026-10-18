@@ -150,6 +150,7 @@ def test_nighthollow_candle_keeps_world_well_and_all_eight_furnished_room_copies
             ).fetchall()
             assert {tuple(row) for row in needs} == {
                 ("in zone", "zone:reliquary", None),
+                ("quest done", "quest:claimreliquary", None),
                 ("room furnished", "item:furniture - brax well", slot),
             }, source
 

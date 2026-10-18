@@ -153,6 +153,7 @@ class _Coverage:
                     atom_index=indices[group],
                     reference_slot=row["atom_slot"],
                     scope=scope,
+                    minimum=row["atom_quantity"],
                 )
             )
             indices[group] += 1
@@ -1060,8 +1061,6 @@ class _Coverage:
                 observations[row["component_type"], row["slot"]] = origin
         for row in self.rows("ui_item_access_targets"):
             support[self.origin("ui_item_access_targets", row["stable_key"])] = "unused_native_ui_target"
-        for row in self.rows("ui_item_access_activations"):
-            support[self.origin("ui_item_access_activations", row["stable_key"])] = "unused_native_ui_activation"
         consumed: set[InputIdentity] = set()
         for row in self.rows("ui_item_sources"):
             source, slot, component = row["stable_key"], str(row["slot"]), row["component_type"]
@@ -1082,29 +1081,8 @@ class _Coverage:
                     if target["tag"] != "PlanningDesk":
                         continue
                     key = target["stable_key"]
-                    location_conditions: list[dict[str, Any]] = []
-                    if not target["active_in_hierarchy"]:
-                        for activation in self.rows("ui_item_access_activations"):
-                            if activation["target_stable_key"] != key:
-                                continue
-                            for column, predicate in (
-                                ("quest_stable_key", "quest_done"),
-                                ("alternative_quest_stable_key", "quest_done"),
-                                ("item_stable_key", "item_held"),
-                            ):
-                                if activation[column]:
-                                    location_conditions.append(
-                                        self.condition(
-                                            "ui_access",
-                                            predicate,
-                                            activation[column],
-                                            group_index=len(location_conditions),
-                                            scope=key,
-                                        )
-                                    )
-                        if not location_conditions:
-                            location_conditions.append(self.condition("ui_access", "never", scope=key))
-                    possible.append(self.location(target, key, "interaction", key, tuple(location_conditions)))
+                    location_conditions = self.gates("ui_item_access_target", key, scope=key)
+                    possible.append(self.location(target, key, "interaction", key, location_conditions))
                 locations = tuple(possible) or (asdict(ProvenanceLocation(_key("ui_unlocated", source), "unlocated")),)
             else:
                 raise ValueError(f"Unsupported native item UI component {component!r}")
@@ -1118,11 +1096,6 @@ class _Coverage:
                         continue
                     key = location["location_key"]
                     origins.append(self.origin("ui_item_access_targets", key))
-                    origins.extend(
-                        self.origin("ui_item_access_activations", activation["stable_key"])
-                        for activation in self.rows("ui_item_access_activations")
-                        if activation["target_stable_key"] == key
-                    )
             observation = observations.get((component, slot))
             if observation is not None:
                 origins.append(observation)

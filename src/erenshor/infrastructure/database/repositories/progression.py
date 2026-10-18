@@ -41,7 +41,7 @@ class ProgressionRepository:
             with self.db.connect() as connection:
                 names = {
                     row[0]: row[1]
-                    for table in ("zones", "quests", "items", "characters")
+                    for table in ("zones", "quests", "items", "characters", "spells")
                     for row in connection.execute(f"SELECT stable_key, display_name FROM {table}")
                 }
                 names.update(
@@ -84,6 +84,7 @@ class ProgressionRepository:
                             row["condition_key"],
                             bool(row["advisory"]),
                             bool(row["unconfirmed"]),
+                            row["required_level"],
                         )
                     )
                 ways: dict[str, list[ProgressionWay]] = defaultdict(list)

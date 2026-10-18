@@ -46,6 +46,8 @@ def _need(repository: ProgressionRepository, need: ProgressionNeed) -> str:
         details.append(f"slot {need.slot}")
     if need.keywords is not None:
         details.append(f"keywords {need.keywords!r}")
+    if need.required_level is not None:
+        details.append(f"level {need.required_level}")
     if need.advisory:
         details.append("advisory")
     if need.unconfirmed:

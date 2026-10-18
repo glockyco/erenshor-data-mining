@@ -31,7 +31,12 @@ public sealed class ExportListenerRegistrationContext
         CharacterKeyResolver = new CharacterStableKeyResolver();
         ZoneLineKeyResolver = new ZoneLineStableKeyResolver();
         MiningNodeKeyResolver = new MiningNodeStableKeyResolver();
-        ActivationTargets = new ActivationTargetResolver(CharacterKeyResolver, ZoneLineKeyResolver);
+        ObjectHierarchy = new ObjectHierarchyCollector(database);
+        ActivationTargets = new ActivationTargetResolver(
+            CharacterKeyResolver,
+            ZoneLineKeyResolver,
+            ObjectHierarchy
+        );
     }
 
     public AssetScanner Scanner { get; }
@@ -40,6 +45,7 @@ public sealed class ExportListenerRegistrationContext
     public ZoneLineStableKeyResolver ZoneLineKeyResolver { get; }
     public MiningNodeStableKeyResolver MiningNodeKeyResolver { get; }
     public ActivationTargetResolver ActivationTargets { get; }
+    public ObjectHierarchyCollector ObjectHierarchy { get; }
 
     /// <summary>
     /// The dynamic-spawn listener created by the spawnpoints registration action.
@@ -120,6 +126,13 @@ public static class ExportListenerRegistry
         new List<ExportListenerDefinition>
         {
             new(
+                "objecthierarchy",
+                "Object Hierarchy",
+                ExportScanChannel.Null,
+                Array.Empty<string>(),
+                context => context.RegisterNullListener(context.ObjectHierarchy)
+            ),
+            new(
                 "gameconstants",
                 "Game Constants",
                 ExportScanChannel.Component,
@@ -127,6 +140,16 @@ public static class ExportListenerRegistry
                 context =>
                     context.RegisterComponentListener<GameManager>(
                         new GameConstantListener(context.Database)
+                    )
+            ),
+            new(
+                "weathertrends",
+                "Weather Trends",
+                ExportScanChannel.Component,
+                Array.Empty<string>(),
+                context =>
+                    context.RegisterComponentListener<WeatherTrend>(
+                        new WeatherTrendListener(context.Database)
                     )
             ),
             new(
@@ -156,7 +179,7 @@ public static class ExportListenerRegistry
                 "questactivations",
                 "Quest Activations",
                 ExportScanChannel.GameObject,
-                Array.Empty<string>(),
+                new[] { "objecthierarchy" },
                 context =>
                     context.RegisterGameObjectListener(
                         new QuestActivationListener(context.Database, context.ActivationTargets)
@@ -286,7 +309,7 @@ public static class ExportListenerRegistry
                 "doors",
                 "Doors",
                 ExportScanChannel.Component,
-                Array.Empty<string>(),
+                new[] { "objecthierarchy" },
                 context =>
                     context.RegisterComponentListener(
                         new DoorListener(context.Database, context.ActivationTargets)
@@ -311,7 +334,7 @@ public static class ExportListenerRegistry
                 "itembags",
                 "Item Bags",
                 ExportScanChannel.Component,
-                Array.Empty<string>(),
+                new[] { "objecthierarchy" },
                 context =>
                     context.RegisterComponentListener(
                         new ItemBagListener(context.Database, context.ActivationTargets)
@@ -354,10 +377,14 @@ public static class ExportListenerRegistry
                 "planningtable",
                 "Planning Table",
                 ExportScanChannel.Component,
-                Array.Empty<string>(),
+                new[] { "objecthierarchy" },
                 context =>
                     context.RegisterComponentListener(
-                        new PlanningTableListener(context.Database, context.CharacterKeyResolver)
+                        new PlanningTableListener(
+                            context.Database,
+                            context.CharacterKeyResolver,
+                            context.ObjectHierarchy
+                        )
                     )
             ),
             new(
@@ -380,9 +407,11 @@ public static class ExportListenerRegistry
                 "uiitemsources",
                 "Native UI Item Sources",
                 ExportScanChannel.GameObject,
-                new[] { "items", "quests" },
+                new[] { "items", "quests", "objecthierarchy" },
                 context =>
-                    context.RegisterGameObjectListener(new UiItemSourceListener(context.Database))
+                    context.RegisterGameObjectListener(
+                        new UiItemSourceListener(context.Database, context.ObjectHierarchy)
+                    )
             ),
             new(
                 "itemdrops",
@@ -442,7 +471,7 @@ public static class ExportListenerRegistry
                 "spawnpoints",
                 "Spawn Points",
                 ExportScanChannel.Component,
-                Array.Empty<string>(),
+                new[] { "objecthierarchy" },
                 context =>
                 {
                     // Registration order is significant: classic spawn points and
@@ -479,7 +508,8 @@ public static class ExportListenerRegistry
                     context.DynamicSpawnListener = new DynamicSpawnSourceListener(
                         context.Database,
                         context.CharacterKeyResolver,
-                        catalog
+                        catalog,
+                        context.ObjectHierarchy
                     );
                     context.RegisterComponentListener(context.DynamicSpawnListener);
                     context.RegisterComponentListener(
@@ -527,10 +557,14 @@ public static class ExportListenerRegistry
                 "zonelines",
                 "Zone Lines",
                 ExportScanChannel.Component,
-                Array.Empty<string>(),
+                new[] { "objecthierarchy" },
                 context =>
                     context.RegisterComponentListener(
-                        new ZoneLineListener(context.Database, context.ZoneLineKeyResolver)
+                        new ZoneLineListener(
+                            context.Database,
+                            context.ZoneLineKeyResolver,
+                            context.ObjectHierarchy
+                        )
                     )
             ),
             new(
@@ -540,7 +574,11 @@ public static class ExportListenerRegistry
                 new[] { "spawnpoints" },
                 context =>
                     context.RegisterComponentListener(
-                        new CharacterListener(context.Database, context.CharacterKeyResolver)
+                        new CharacterListener(
+                            context.Database,
+                            context.CharacterKeyResolver,
+                            context.ObjectHierarchy
+                        )
                     )
             ),
             new(

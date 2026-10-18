@@ -11,6 +11,7 @@ public sealed class ActivationTarget
 {
     public string Kind { get; set; } = "";
     public string Key { get; set; } = "";
+    public string ObjectKey { get; set; } = "";
     public string Scene { get; set; } = "";
     public string ObjectName { get; set; } = "";
     public bool IsEnabled { get; set; }
@@ -21,22 +22,26 @@ public sealed class ActivationTargetResolver
     private readonly CharacterStableKeyResolver _characterKeys;
     private readonly ZoneLineStableKeyResolver _zoneLineKeys;
     private readonly DuplicateKeyTracker _placementKeys = new("ActivationTargetResolver");
+    public ObjectHierarchyCollector Hierarchy { get; }
     private readonly Dictionary<int, string> _keys = new();
     private readonly Dictionary<(int trigger, int index), string> _triggerKeys = new();
     private readonly HashSet<int> _seededScenes = new();
 
     public ActivationTargetResolver(
         CharacterStableKeyResolver characterKeys,
-        ZoneLineStableKeyResolver zoneLineKeys
+        ZoneLineStableKeyResolver zoneLineKeys,
+        ObjectHierarchyCollector hierarchy
     )
     {
         _characterKeys = characterKeys;
         _zoneLineKeys = zoneLineKeys;
+        Hierarchy = hierarchy;
     }
 
     public static string ObjectKey(GameObject target)
     {
-        RequireScene(target);
+        if (target == null)
+            throw new ArgumentNullException(nameof(target));
         var path = new Stack<string>();
         for (var current = target.transform; current != null; current = current.parent)
             path.Push(
@@ -45,10 +50,17 @@ public sealed class ActivationTargetResolver
                     + current.GetSiblingIndex().ToString(CultureInfo.InvariantCulture)
                     + "]"
             );
-        return "object:"
-            + Uri.EscapeDataString(target.scene.name.Normalize().ToLowerInvariant())
-            + ":"
-            + string.Join("/", path);
+        if (target.scene.IsValid() && !PrefabUtility.IsPartOfPrefabAsset(target))
+            return "object:"
+                + Uri.EscapeDataString(target.scene.name.Normalize().ToLowerInvariant())
+                + ":"
+                + string.Join("/", path);
+        string guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(target));
+        if (string.IsNullOrEmpty(guid))
+            throw new InvalidOperationException(
+                "Object hierarchy keys require a scene or asset identity"
+            );
+        return "prefab-object:" + guid + ":" + string.Join("/", path);
     }
 
     public string GetStableKey(SpawnPoint target) => PlacementKey(target);
@@ -73,6 +85,7 @@ public sealed class ActivationTargetResolver
     public IEnumerable<ActivationTarget> Resolve(GameObject target, bool enabling)
     {
         RequireScene(target);
+        Hierarchy.Capture(target);
         yield return Subject("object", ObjectKey(target), target, target.activeInHierarchy);
         var stack = new Stack<Transform>();
         stack.Push(target.transform);
@@ -142,11 +155,12 @@ public sealed class ActivationTargetResolver
         }
     }
 
-    private static ActivationTarget Subject(string kind, string key, GameObject go, bool enabled) =>
+    private ActivationTarget Subject(string kind, string key, GameObject go, bool enabled) =>
         new()
         {
             Kind = kind,
             Key = key,
+            ObjectKey = Hierarchy.Capture(go),
             Scene = go.scene.name,
             ObjectName = go.name,
             IsEnabled = enabled,

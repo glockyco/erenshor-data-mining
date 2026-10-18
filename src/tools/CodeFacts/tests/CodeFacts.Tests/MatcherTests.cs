@@ -514,6 +514,20 @@ public sealed class MatcherTests
     }
 
     [Fact]
+    public void StringConstants_uses_the_declared_call_argument_key()
+    {
+        var fact = Fact(
+            "fixture.named_argument",
+            "extract",
+            "InvokeString",
+            "string_constants",
+            new() { ["invocation"] = "Drops.Add", ["argument"] = "0" },
+            ["quest"]
+        );
+        Assert.Equal("called", Matchers.StringConstants(Method("InvokeString"), fact)["quest"]);
+    }
+
+    [Fact]
     public void IntExpression_top_level_ignores_nested_level_thresholds()
     {
         var method = Method("LevelCap");

@@ -446,6 +446,9 @@ def _clean_db(path: Path, build_id: str, item_level: int) -> Path:
             INSERT INTO code_facts_meta VALUES ('{build_id}');
             CREATE TABLE items (stable_key TEXT PRIMARY KEY, item_level INTEGER);
             INSERT INTO items VALUES ('item:sword', {item_level});
+            CREATE TABLE characters (stable_key TEXT PRIMARY KEY);
+            CREATE TABLE quests (stable_key TEXT PRIMARY KEY);
+            CREATE TABLE zones (stable_key TEXT PRIMARY KEY);
             """
         )
     return path
@@ -525,6 +528,60 @@ def test_changes_without_an_earlier_build(cli_context: CLIContext, tmp_path: Pat
 
     assert result.exit_code == 1
     assert "No earlier build is backed up" in result.output
+
+
+def test_changes_compare_a_same_build_clean_snapshot(cli_context: CLIContext, tmp_path: Path) -> None:
+    context, _ = _changes_context(cli_context, tmp_path)
+    baseline = _clean_db(tmp_path / "before.sqlite", "300", item_level=5)
+
+    result = CliRunner().invoke(extract.app, ["changes", "--baseline", str(baseline)], obj=context)
+
+    assert result.exit_code == 0, result.output
+    assert "main build 300 snapshot before.sqlite" in result.stdout
+    assert "item_level: 5" in result.stdout
+    assert "12" in result.stdout
+
+
+def test_changes_baseline_and_since_are_mutually_exclusive(cli_context: CLIContext, tmp_path: Path) -> None:
+    context, _ = _changes_context(cli_context, tmp_path)
+    baseline = _clean_db(tmp_path / "before.sqlite", "300", item_level=5)
+
+    result = CliRunner().invoke(extract.app, ["changes", "--baseline", str(baseline), "--since", "100"], obj=context)
+
+    assert result.exit_code == 2
+    assert "--baseline and --since are mutually exclusive" in result.output
+
+
+def test_changes_baseline_names_a_missing_database(
+    cli_context: CLIContext, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    context, _ = _changes_context(cli_context, tmp_path)
+    baseline = tmp_path / "missing.sqlite"
+    monkeypatch.chdir(tmp_path)
+
+    result = CliRunner().invoke(extract.app, ["changes", "--baseline", baseline.name], obj=context)
+
+    assert result.exit_code == 2
+    assert "missing.sqlite" in result.output
+    assert "does not exist" in result.output
+    assert not baseline.exists()
+
+
+def test_changes_baseline_rejects_a_raw_database(cli_context: CLIContext, tmp_path: Path) -> None:
+    context, _ = _changes_context(cli_context, tmp_path)
+    baseline = tmp_path / "raw.sqlite"
+    with closing(sqlite3.connect(baseline)) as connection, connection:
+        connection.executescript(
+            "CREATE TABLE code_facts_meta (game_build_id TEXT);"
+            "INSERT INTO code_facts_meta VALUES ('300');"
+            "CREATE TABLE Items (StableKey TEXT);"
+        )
+
+    result = CliRunner().invoke(extract.app, ["changes", "--baseline", str(baseline)], obj=context)
+
+    assert result.exit_code == 1
+    assert "Baseline is not a clean database" in result.output
+    assert "raw.sqlite" in result.output
 
 
 @pytest.mark.parametrize("setting", ["database", "images_output", "backups"])

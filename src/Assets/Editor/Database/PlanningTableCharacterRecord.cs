@@ -15,6 +15,7 @@ public class PlanningTableCharacterRecord
     [PrimaryKey]
     [ForeignKey(typeof(CharacterRecord), "StableKey")]
     public string CharacterStableKey { get; set; } = string.Empty;
+    public string ObjectKey { get; set; } = string.Empty;
 
     public string Scene { get; set; } = string.Empty;
 

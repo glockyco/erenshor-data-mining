@@ -18,7 +18,9 @@ BATCH = REPO_ROOT / "src" / "Assets" / "Editor" / "ExportBatch.cs"
 EDITOR = REPO_ROOT / "src" / "Assets" / "Editor" / "ExportSystem" / "AssetScanner" / "AssetScannerExporterWindow.cs"
 
 EXPECTED_KEYS = {
+    "objecthierarchy",
     "gameconstants",
+    "weathertrends",
     "teleportlocs",
     "secretpassages",
     "wishingwells",

@@ -45,16 +45,6 @@ _RAW_COLUMNS = {
         "Y",
         "Z",
     ),
-    "UiItemAccessActivations": (
-        "StableKey",
-        "TargetStableKey",
-        "ActivatorStableKey",
-        "Scene",
-        "HierarchyPath",
-        "QuestStableKey",
-        "AlternativeQuestStableKey",
-        "ItemStableKey",
-    ),
 }
 _FACTS = (
     "ui.misc_reference",
@@ -152,26 +142,11 @@ def test_ui_references_and_access_copy_losslessly(tmp_path: Path) -> None:
     raw.executemany("INSERT INTO UiItemSources VALUES (" + ",".join("?" * 18) + ")", sources)
     target = ("ui:desk", "Reliquary", "Rooms/Desk", "PlanningDesk", 0, 0, 1.25, 2.5, 3.75)
     raw.execute("INSERT INTO UiItemAccessTargets VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", target)
-    activation = (
-        "ui:activation",
-        "ui:desk",
-        "ui:trigger",
-        "Reliquary",
-        "Trigger",
-        "quest:claim",
-        "quest:other",
-        "item:key",
-    )
-    raw.execute("INSERT INTO UiItemAccessActivations VALUES (?, ?, ?, ?, ?, ?, ?, ?)", activation)
     writer = Writer(tmp_path / "clean.sqlite")
     writer.create_schema()
     writer.conn.executemany(
         "INSERT INTO items (stable_key, display_name, image_name) VALUES (?, ?, '')",
-        [(key, key) for key in ("item:serialized seed", "item:replenished", "item:portal gift", "item:key")],
-    )
-    writer.conn.executemany(
-        "INSERT INTO quests (stable_key, display_name, image_name) VALUES (?, ?, '')",
-        [(key, key) for key in ("quest:claim", "quest:other")],
+        [(key, key) for key in ("item:serialized seed", "item:replenished", "item:portal gift")],
     )
 
     process_ui_items(raw, writer.conn)
@@ -180,7 +155,6 @@ def test_ui_references_and_access_copy_losslessly(tmp_path: Path) -> None:
         sources, key=lambda row: row[0]
     )
     assert tuple(writer.conn.execute("SELECT * FROM ui_item_access_targets").fetchone()) == target
-    assert tuple(writer.conn.execute("SELECT * FROM ui_item_access_activations").fetchone()) == activation
     assert writer.conn.execute("SELECT COUNT(*) FROM item_acquisitions").fetchone()[0] == 0
 
 

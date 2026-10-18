@@ -9,6 +9,8 @@ public class ItemBagRecord
 
     [PrimaryKey]
     public string StableKey { get; set; } = string.Empty;
+    public string ObjectKey { get; set; } = string.Empty;
+    public bool ComponentIsEnabled { get; set; }
 
     public string Scene { get; set; } = string.Empty;
     public float X { get; set; }

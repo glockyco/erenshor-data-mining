@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import math
 import tomllib
-from collections import defaultdict
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -91,6 +91,7 @@ class Atom:
     kind: str
     stable_key: str
     slot: str | None = None
+    quantity: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -100,6 +101,7 @@ class Gate:
     gate: str
     groups: tuple[tuple[Atom, ...], ...]
     item_stable_key: str | None = None
+    controller_source_key: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -130,32 +132,19 @@ def process_gates(raw: sqlite3.Connection, writer: Writer, barriers_path: Path) 
             " WHERE RuleId = 'planning_portals' AND ComponentIsEnabled = 1 ORDER BY SourceKey"
         )
     }
-    controlled_lines = {selection.line for selections in planning.values() for selection in selections}
-    gates = _merge_activation_gates(
+    from .hierarchy import apply_hierarchy_activity
+
+    gates = apply_hierarchy_activity(
+        raw,
+        conn,
         [
-            *(
-                Gate(gate.subject_kind, gate.subject_stable_key, gate.gate, groups, gate.item_stable_key)
-                for gate in _activation_gates(raw, conn)
-                if (
-                    groups := tuple(
-                        group
-                        for group in gate.groups
-                        if not (
-                            gate.gate == "activation"
-                            and gate.subject_kind == "zone_line"
-                            and gate.subject_stable_key in controlled_lines
-                            and all(atom.kind == "quest_done" for atom in group)
-                        )
-                    )
-                )
-            ),
             *_shiver_event_gates(raw, conn),
             *_scripted_gates(raw, conn, planning),
             *_spawn_gates(conn),
             *_furnishing_gates(conn),
             *_vendor_gates(conn),
             *_door_gates(conn, load_barriers(barriers_path)),
-        ]
+        ],
     )
     _validate_atoms(conn, gates)
     rows: list[dict[str, object]] = [
@@ -168,6 +157,7 @@ def process_gates(raw: sqlite3.Connection, writer: Writer, barriers_path: Path) 
             "atom_kind": atom.kind,
             "atom_stable_key": atom.stable_key,
             "atom_slot": atom.slot,
+            "atom_quantity": atom.quantity,
         }
         for gate in gates
         for index, group in enumerate(gate.groups)
@@ -269,72 +259,6 @@ def _entry_rows(conn: sqlite3.Connection, entries: list[Entry]) -> list[dict[str
     return rows
 
 
-def _activation_gates(raw: sqlite3.Connection, conn: sqlite3.Connection) -> list[Gate]:
-    """Listener effects on placements. Alternative activators are OR groups.
-
-    A removal is an independent requirement that its trigger has not fired.
-    This preserves the game's disable-after-enable precedence.
-    """
-    # code-fact: guide.gates.quest_activation
-    enables: dict[tuple[str, str], dict[tuple[str, int], set[Atom]]] = defaultdict(lambda: defaultdict(set))
-    disables: dict[tuple[str, str], dict[tuple[str, int], set[Atom]]] = defaultdict(lambda: defaultdict(set))
-    for kind, subject, effect, listener, group, atom_kind, ref in raw.execute(
-        "SELECT TargetKind, TargetStableKey, Effect, ListenerKey, GroupIndex, AtomKind, AtomStableKey"
-        " FROM QuestActivationEffects ORDER BY TargetKind, TargetStableKey, ListenerKey, GroupIndex"
-    ):
-        if kind not in _TARGET_TABLES:
-            # Object and door effects are facts for reviewed barrier containment.
-            continue
-        table, column = _TARGET_TABLES[kind]
-        if conn.execute(f"SELECT 1 FROM {table} WHERE {column} = ?", (subject,)).fetchone() is None:
-            # Mapping intentionally excludes some scene subjects.
-            continue
-        if atom_kind not in ("quest_done", "item_held"):
-            raise ValueError(f"{listener} has unknown activation atom {atom_kind!r}")
-        if effect not in ("enable", "disable"):
-            raise ValueError(f"{listener} has unknown activation effect {effect!r}")
-        atom = Atom(atom_kind, ref)
-        destination = enables if effect == "enable" else disables
-        destination[(kind, subject)][(listener, group)].add(atom)
-    gates = [
-        Gate(kind, subject, "activation", _ordered_groups(groups.values()))
-        for (kind, subject), groups in sorted(enables.items())
-    ]
-    for (kind, subject), groups in sorted(disables.items()):
-        for (listener, group), atoms in sorted(groups.items()):
-            if any(atom.kind != "quest_done" for atom in atoms):
-                raise ValueError(f"{listener} disables {subject} with an item condition that has no inverse atom")
-            # NOT(A AND B) is (NOT A) OR (NOT B).
-            inverse = ((Atom("quest_not_done", atom.stable_key),) for atom in sorted(atoms, key=_atom_order))
-            gates.append(Gate(kind, subject, f"removal:{listener}:{group}", tuple(inverse)))
-    return gates
-
-
-def _merge_activation_gates(gates: list[Gate]) -> list[Gate]:
-    """Enabling the same placement through different controllers is an OR."""
-    activations: dict[tuple[str, str], list[set[Atom]]] = defaultdict(list)
-    identities: dict[tuple[str, str], set[str]] = defaultdict(set)
-    result = []
-    for gate in gates:
-        if gate.gate == "activation" or gate.gate.startswith("activation:"):
-            subject = (gate.subject_kind, gate.subject_stable_key)
-            activations[subject].extend(set(group) for group in gate.groups)
-            if gate.gate != "activation":
-                identities[subject].update(gate.gate.removeprefix("activation:").split("|"))
-        else:
-            result.append(gate)
-    result.extend(
-        Gate(
-            kind,
-            key,
-            "activation" + (":" + "|".join(sorted(identities[(kind, key)])) if identities[(kind, key)] else ""),
-            _ordered_groups(groups),
-        )
-        for (kind, key), groups in sorted(activations.items())
-    )
-    return result
-
-
 def _scripted_reference(raw: sqlite3.Connection, source: str, field: str, kind: str) -> str:
     refs = raw.execute(
         "SELECT ReferenceKind, ReferenceKey FROM ScriptedActivatorReferences WHERE SourceKey = ? AND Field = ?",
@@ -346,7 +270,7 @@ def _scripted_reference(raw: sqlite3.Connection, source: str, field: str, kind: 
 
 
 def _scripted_targets(
-    raw: sqlite3.Connection, conn: sqlite3.Connection, source: str, field: str, mode: str
+    raw: sqlite3.Connection, conn: sqlite3.Connection, source: str, field: str, mode: str, *, objects: bool = False
 ) -> list[tuple[str, str]]:
     targets = []
     for kind, key in raw.execute(
@@ -355,6 +279,9 @@ def _scripted_targets(
         " WHERE r.SourceKey = ? AND r.Field = ? AND t.ResolutionMode = ? ORDER BY t.Kind, t.Key",
         (source, field, mode),
     ):
+        if kind == "object" and objects:
+            targets.append((kind, key))
+            continue
         if kind not in _TARGET_TABLES:
             # An object reference proves identity, not what lies behind it.
             continue
@@ -385,6 +312,12 @@ def _scripted_gates(
         "shivering_phantom_wards",
         "reliquary_wards",
         "planning_portals",
+        "astra_deaths",
+        "stowaway_deaths",
+        "fernalla_portal_wards",
+        "bellwain_reveal",
+        "morph_trigger",
+        "piety_guardians",
     )
     sources = raw.execute(
         "SELECT SourceKey, RuleId FROM ScriptedActivators WHERE RuleId IN ("
@@ -408,12 +341,43 @@ def _scripted_gates(
             continue
         if rule == "planning_portals":
             selections = planning[source] if planning is not None else _select_planning_portals(raw, conn, source)
-            gates.extend(_planning_portal_gates(source, selections))
+            gates.extend(_planning_portal_gates(raw, source, selections))
             continue
         if rule == "npc_shout_essentials":
             gates.extend(_shout_essential_gates(raw, conn, source, host))
             continue
         identity = f"activation:{source}"
+        if rule in {"astra_deaths", "stowaway_deaths"}:
+            gates.extend(_death_trigger_gates(raw, conn, source, rule))
+            continue
+        if rule in {"fernalla_portal_wards", "morph_trigger"}:
+            fields = ("Ward1", "Ward2", "Ward3") if rule == "fernalla_portal_wards" else ("Enable",)
+            gates.extend(
+                Gate(kind, key, identity, ((),), controller_source_key=source)
+                for field in fields
+                for kind, key in _scripted_targets(raw, conn, source, field, "enable", objects=True)
+            )
+            continue
+        if rule == "bellwain_reveal":
+            # code-fact: progression.bellwain.quest
+            values = raw.execute(
+                "SELECT value FROM code_facts WHERE fact_id = 'progression.bellwain.quest' AND key = 'quest'"
+            ).fetchall()
+            if len(values) != 1:
+                raise ValueError(f"Missing Bellwain activation quest for {source}")
+            quest = "quest:" + str(values[0][0]).lower()
+            gates.extend(
+                Gate(kind, key, identity, ((Atom("quest_done", quest),),), controller_source_key=source)
+                for kind, key in _scripted_targets(raw, conn, source, "TheBellwains", "enable", objects=True)
+            )
+            continue
+        if rule == "piety_guardians":
+            quest = _scripted_reference(raw, source, "RequiredQuest", "quest")
+            gates.extend(
+                Gate(kind, key, identity, ((Atom("quest_not_done", quest),),), controller_source_key=source)
+                for kind, key in _scripted_targets(raw, conn, source, "Guardians", "enable", objects=True)
+            )
+            continue
         if rule in restored:
             # code-fact: guide.gates.fernalla_reset
             # code-fact: guide.gates.fernalla_reveal
@@ -458,21 +422,69 @@ def _scripted_gates(
             # Only DespawnIfAlive subjects appear after the linked death.
             # SpawnIfAlive barriers need reviewed spatial guards, not guesses
             # about their children or nearby placements.
-            targets = _scripted_targets(raw, conn, source, "DespawnIfAlive", "enable")
+            targets = _scripted_targets(raw, conn, source, "DespawnIfAlive", "enable", objects=True)
             if not targets:
                 continue
             spawn = _scripted_reference(raw, source, "SpawnPoint", "spawn_point")
             groups = _spawn_encounter_groups(raw, conn, [spawn])
             for kind, key in targets:
-                gates.append(Gate(kind, key, identity + ":" + spawn, groups))
+                gates.append(Gate(kind, key, identity + ":" + spawn, groups, controller_source_key=source))
             continue
         mode = "reference" if field == "$host" else "enable"
         gates.extend(
-            Gate(kind, key, identity, groups) for kind, key in _scripted_targets(raw, conn, source, field, mode)
+            Gate(kind, key, identity, groups, controller_source_key=source)
+            for kind, key in _scripted_targets(raw, conn, source, field, mode, objects=field != "$host")
         )
     if ward_sources:
         gates.extend(_ward_gates(raw, conn, ward_sources))
-    return _merge_activation_gates(gates)
+    return gates
+
+
+def _death_trigger_gates(raw: sqlite3.Connection, conn: sqlite3.Connection, source: str, rule: str) -> list[Gate]:
+    if rule == "astra_deaths":
+        # code-fact: progression.astra.death_set
+        spawns = [
+            key
+            for (key,) in raw.execute(
+                "SELECT ReferenceKey FROM ScriptedActivatorReferences"
+                " WHERE SourceKey = ? AND Field = 'StarSpawns' AND ReferenceKind = 'spawn_point'"
+                " ORDER BY ReferenceKey",
+                (source,),
+            )
+        ]
+        if not spawns:
+            raise ValueError(f"Missing death trigger spawns for {source}")
+        groups = _spawn_encounter_groups(raw, conn, spawns)
+        character = _scripted_reference(raw, source, "Dragon", "character")
+        targets = [
+            ("spawn_point", key)
+            for (key,) in raw.execute(
+                "SELECT d.Key FROM DynamicCharacterSpawns d JOIN ScriptedActivators a"
+                " ON a.ObjectKey = d.ControllerObjectKey"
+                " WHERE a.SourceKey = ? AND d.CharacterStableKey = ? ORDER BY d.Key",
+                (source, character),
+            )
+            if conn.execute("SELECT 1 FROM character_spawns WHERE spawn_point_stable_key = ?", (key,)).fetchone()
+        ]
+        if not targets:
+            raise ValueError(f"Missing dynamic death-trigger spawn for {source}")
+    else:
+        # code-fact: progression.stowaway.death_set
+        characters = {
+            Atom("encounter_won", key)
+            for (key,) in raw.execute(
+                "SELECT ReferenceKey FROM ScriptedActivatorReferences WHERE SourceKey = ?"
+                " AND Field = '$checkin_character' AND ReferenceKind = 'character'",
+                (source,),
+            )
+        }
+        if not characters:
+            raise ValueError(f"Missing checked-in death trigger characters for {source}")
+        groups = _ordered_groups([characters])
+        targets = _scripted_targets(raw, conn, source, "KeeperSpawn", "enable", objects=True)
+        if not targets:
+            raise ValueError(f"Missing keeper activation target for {source}")
+    return [Gate(kind, key, f"activation:{source}", groups, controller_source_key=source) for kind, key in targets]
 
 
 def _select_planning_portals(
@@ -517,17 +529,20 @@ def _select_planning_portals(
     return tuple(selections)
 
 
-def _planning_portal_gates(source: str, selections: tuple[PlanningPortalSelection, ...]) -> list[Gate]:
+def _planning_portal_gates(
+    raw: sqlite3.Connection, source: str, selections: tuple[PlanningPortalSelection, ...]
+) -> list[Gate]:
     by_line: dict[str, list[PlanningPortalSelection]] = defaultdict(list)
     for selection in selections:
         by_line[selection.line].append(selection)
     fields = [field for field, _, _ in _PLANAR_PORTALS] + [field for field, _ in _RUNE_PORTALS]
     return [
         Gate(
-            "zone_line",
-            line,
+            "object",
+            _scripted_reference(raw, source, field, "object"),
             f"activation:planning_slot:{source}:{field}",
             tuple((Atom("planning_slot_item", selection.item_stable_key, selection.slot),) for selection in slots),
+            controller_source_key=source,
         )
         for field, (line, slots) in zip(fields, by_line.items(), strict=True)
     ]
@@ -626,8 +641,8 @@ def _spawn_encounter_groups(
     raw: sqlite3.Connection, conn: sqlite3.Connection, spawns: list[str]
 ) -> tuple[tuple[Atom, ...], ...]:
     """AND required spawn points, OR each point's exported character choices."""
-    groups: list[set[Atom]] = [set()]
-    for spawn in spawns:
+    groups: list[Counter[str]] = [Counter()]
+    for spawn in sorted(set(spawns)):
         characters = [
             key
             for (key,) in raw.execute(
@@ -639,8 +654,16 @@ def _spawn_encounter_groups(
         ]
         if not characters:
             raise ValueError(f"No guide character candidates for required encounter spawn {spawn!r}")
-        groups = [group | {Atom("encounter_won", character)} for group in groups for character in characters]
-    return _ordered_groups(groups)
+        groups = [group + Counter({character: 1}) for group in groups for character in characters]
+    return _ordered_groups(
+        [
+            {
+                Atom("encounter_won", character, quantity=count if count > 1 else None)
+                for character, count in group.items()
+            }
+            for group in groups
+        ]
+    )
 
 
 def _shiver_event_gates(raw: sqlite3.Connection, conn: sqlite3.Connection) -> list[Gate]:
@@ -668,10 +691,16 @@ def _shiver_event_gates(raw: sqlite3.Connection, conn: sqlite3.Connection) -> li
         " FROM ScriptedActivators a"
         " JOIN ScriptedActivatorReferences r ON r.SourceKey = a.SourceKey"
         " JOIN ScriptedActivatorTargets t ON t.ReferenceId = r.ReferenceId"
-        " WHERE a.RuleId = 'shiver_event' ORDER BY 1, 2, 3, 4, 5"
+        " WHERE a.RuleId = 'shiver_event' AND a.ComponentIsEnabled = 1 ORDER BY 1, 2, 3, 4, 5"
     ):
         rule = rules.get(field)
-        if rule is None or mode != rule[1] or kind not in _TARGET_TABLES:
+        if rule is None or mode != rule[1]:
+            continue
+        if kind == "object":
+            identity = f"activation:{source}:{field}" if mode == "enable" else f"shiver_event:{source}:{field}"
+            gates.append(Gate(kind, key, identity, rule[0], controller_source_key=source))
+            continue
+        if kind not in _TARGET_TABLES:
             continue
         table, column = _TARGET_TABLES[kind]
         if conn.execute(f"SELECT 1 FROM {table} WHERE {column} = ?", (key,)).fetchone() is not None:
@@ -871,6 +900,8 @@ def _validate_atoms(conn: sqlite3.Connection, gates: list[Gate]) -> None:
     for gate in gates:
         for group in gate.groups:
             for atom in group:
+                if atom.quantity is not None and (atom.kind != "encounter_won" or atom.quantity < 1):
+                    raise ValueError(f"{gate.gate} has an invalid defeat quantity {atom.quantity!r}")
                 if atom.kind == "planning_slot_item" and atom.slot not in _PLANNING_SLOTS:
                     raise ValueError(f"{gate.gate} names unknown stored planning slot {atom.slot!r}")
                 if atom.kind in known and atom.stable_key not in known[atom.kind]:
@@ -879,8 +910,8 @@ def _validate_atoms(conn: sqlite3.Connection, gates: list[Gate]) -> None:
                     )
 
 
-def _atom_order(atom: Atom) -> tuple[str, str, str]:
-    return (atom.kind, atom.stable_key, atom.slot or "")
+def _atom_order(atom: Atom) -> tuple[str, str, str, int]:
+    return (atom.kind, atom.stable_key, atom.slot or "", atom.quantity or 1)
 
 
 def _ordered_groups(groups: Iterable[set[Atom]]) -> tuple[tuple[Atom, ...], ...]:

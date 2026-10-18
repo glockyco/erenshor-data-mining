@@ -18,5 +18,21 @@
             Include="../../../src/Assets/Editor/StableKeyGenerator.cs"
             Link="StableKeyGenerator.cs"
         />
+        <Compile
+            Include="../../../src/Assets/Editor/ExportSystem/ObjectHierarchyCollector.cs"
+            Link="ObjectHierarchyCollector.cs"
+        />
+        <Compile
+            Include="../../../src/Assets/Editor/Database/ObjectHierarchyRecord.cs"
+            Link="ObjectHierarchyRecord.cs"
+        />
+        <Compile
+            Include="../../../src/Assets/Editor/ExportSystem/ActivationTargetResolver.cs"
+            Link="ActivationTargetResolver.cs"
+        />
+        <Compile
+            Include="../../../src/Assets/Editor/ExportSystem/DuplicateKeyTracker.cs"
+            Link="DuplicateKeyTracker.cs"
+        />
     </ItemGroup>
 </Project>

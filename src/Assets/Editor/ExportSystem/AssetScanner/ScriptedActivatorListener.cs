@@ -137,6 +137,7 @@ public sealed class ScriptedActivatorListener : IAssetScanListener<MonoBehaviour
         ),
         // code-fact: guide.gates.bellwain_start
         // code-fact: guide.gates.bellwain_reveal
+        // code-fact: progression.bellwain.quest
         [typeof(AngelScript)] = (
             "bellwain_reveal",
             new() { ["TheBellwains"] = typeof(GameObject) }
@@ -168,6 +169,21 @@ public sealed class ScriptedActivatorListener : IAssetScanListener<MonoBehaviour
         [typeof(ReliqPortalListener)] = (
             "reliquary_return_portal",
             new() { ["ReliqZL"] = typeof(Zoneline), ["ReliqPort"] = typeof(GameObject) }
+        ),
+        // code-fact: progression.astra.death_set
+        // code-fact: progression.astra.spawn_guard
+        // code-fact: progression.astra.spawn
+        [typeof(AstraListener)] = (
+            "astra_deaths",
+            new() { ["StarSpawns"] = typeof(List<SpawnPoint>) }
+        ),
+        // code-fact: progression.stowaway.checkin_binding
+        // code-fact: progression.stowaway.checkin_set
+        // code-fact: progression.stowaway.death_set
+        // code-fact: progression.stowaway.activation
+        [typeof(StowawayPortal)] = (
+            "stowaway_deaths",
+            new() { ["KeeperSpawn"] = typeof(GameObject) }
         ),
     };
 
@@ -250,6 +266,7 @@ public sealed class ScriptedActivatorListener : IAssetScanListener<MonoBehaviour
                 SourceKey = sourceKey,
                 RuleId = entry.Rule,
                 Script = entry.Script,
+                ObjectKey = _targets.Hierarchy.Capture(host),
                 SourceScene = placed ? host.scene.name : null,
                 SourceObjectName = host.name,
                 X = placed ? position.x : (float?)null,
@@ -292,6 +309,59 @@ public sealed class ScriptedActivatorListener : IAssetScanListener<MonoBehaviour
         }
         if (asset is ReliqPortalListener portal)
             AddReference(sourceKey, "$portal_active_self", 0, portal.ReliqPort.activeSelf, placed);
+        if (asset is AstraListener astra)
+        {
+            var spawnedCharacter =
+                astra.Dragon == null ? null : astra.Dragon.GetComponent<Character>();
+            if (spawnedCharacter == null)
+                throw new InvalidOperationException(
+                    $"Death trigger has no Character prefab: {sourceKey}"
+                );
+            AddReference(sourceKey, nameof(AstraListener.Dragon), 0, spawnedCharacter, placed);
+        }
+        if (asset is StowawayPortal stowaway)
+            AddStowawayCheckins(sourceKey, stowaway);
+    }
+
+    private void AddStowawayCheckins(string sourceKey, StowawayPortal controller)
+    {
+        int index = 0;
+        foreach (var root in controller.gameObject.scene.GetRootGameObjects())
+        {
+            foreach (var spawnPoint in root.GetComponentsInChildren<SpawnPoint>(true))
+            {
+                if (spawnPoint.NPCSpecificObject != controller.gameObject)
+                    continue;
+                AddCheckins(spawnPoint.CommonSpawns, spawnPoint);
+                AddCheckins(spawnPoint.RareSpawns, spawnPoint);
+            }
+        }
+        if (index == 0)
+            throw new InvalidOperationException(
+                $"Death trigger has no SkeletonCheckin bindings: {sourceKey}"
+            );
+
+        void AddCheckins(List<GameObject> prefabs, SpawnPoint spawnPoint)
+        {
+            if (prefabs == null)
+                return;
+            foreach (var prefab in prefabs)
+            {
+                if (prefab == null)
+                    continue;
+                var checkin = prefab.GetComponent<SkeletonCheckin>();
+                if (checkin == null || checkin.Keeper)
+                    continue;
+                var character = prefab.GetComponent<Character>();
+                if (character == null)
+                    throw new InvalidOperationException(
+                        $"SkeletonCheckin has no Character: {sourceKey}"
+                    );
+                AddReference(sourceKey, "$checkin_character", index, character, true);
+                AddReference(sourceKey, "$checkin_spawn_point", index, spawnPoint, true);
+                index++;
+            }
+        }
     }
 
     private void AddReference(
@@ -386,6 +456,7 @@ public sealed class ScriptedActivatorListener : IAssetScanListener<MonoBehaviour
                 ResolutionMode = mode,
                 Kind = subject.Kind,
                 Key = subject.Key,
+                ObjectKey = subject.ObjectKey,
                 Scene = subject.Scene,
                 ObjectName = subject.ObjectName,
                 IsEnabled = subject.IsEnabled,

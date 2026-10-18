@@ -52,6 +52,8 @@ public class ItemBagListener : IAssetScanListener<ItemBag>
         var itemBag = new ItemBagRecord
         {
             StableKey = stableKey,
+            ObjectKey = _activationTargets.Hierarchy.Capture(asset.gameObject),
+            ComponentIsEnabled = asset.enabled,
             Scene = scene,
             X = x,
             Y = y,

@@ -85,28 +85,74 @@ def writer(tmp_path: Path) -> Writer:
 
 
 @pytest.fixture
-def raw() -> sqlite3.Connection:
+def raw(writer: Writer) -> sqlite3.Connection:
     conn = sqlite3.connect(":memory:")
-    conn.execute(
-        "CREATE TABLE QuestActivationEffects (TargetKind TEXT, TargetStableKey TEXT, Effect TEXT,"
-        " ListenerKey TEXT, GroupIndex INTEGER, AtomKind TEXT, AtomStableKey TEXT)"
-    )
     conn.executescript(
         """
-        CREATE TABLE ScriptedActivators (SourceKey TEXT, RuleId TEXT, SourceScene TEXT, ComponentIsEnabled INTEGER);
+        CREATE TABLE ObjectHierarchy (
+            ObjectKey TEXT PRIMARY KEY, ParentObjectKey TEXT, ActiveSelf INTEGER, IsSceneObject INTEGER
+        );
+        CREATE TABLE QuestActivationEffects (
+            TargetKind TEXT, TargetStableKey TEXT, Effect TEXT, ListenerKey TEXT,
+            GroupIndex INTEGER, AtomKind TEXT, AtomStableKey TEXT,
+            TargetObjectKey TEXT, ListenerObjectKey TEXT, ListenerComponentIsEnabled INTEGER
+        );
+        CREATE TABLE ScriptedActivators (
+            SourceKey TEXT, RuleId TEXT, SourceScene TEXT, ComponentIsEnabled INTEGER,
+            ObjectKey TEXT, HostCharacterStableKey TEXT
+        );
         CREATE TABLE ScriptedActivatorReferences (ReferenceId TEXT, SourceKey TEXT, Field TEXT);
         CREATE TABLE ScriptedActivatorTargets (
             ReferenceId TEXT, ResolutionMode TEXT, Kind TEXT, Key TEXT
         );
+        CREATE TABLE DynamicCharacterSpawns (
+            Key TEXT, CharacterStableKey TEXT, ControllerObjectKey TEXT, ControllerComponentIsEnabled INTEGER
+        );
+        CREATE TABLE CharacterChainedSpawns (
+            ParentStableKey TEXT, ChildStableKey TEXT, SourceScript TEXT,
+            ControllerObjectKey TEXT, ControllerComponentIsEnabled INTEGER
+        );
+        CREATE TABLE PlanningTableFurnishings (
+            ObjectKey TEXT, ControllerObjectKey TEXT, Slot TEXT, Furnishing TEXT
+        );
         """
     )
+    for raw_table, clean_table, column in (
+        ("Characters", "characters", "stable_key"),
+        ("SpawnPoints", "character_spawns", "spawn_point_stable_key"),
+        ("SpawnPointTriggers", "character_spawns", "spawn_point_stable_key"),
+        ("ZoneLines", "zone_lines", "stable_key"),
+        ("ItemBags", "item_bags", "stable_key"),
+        ("Doors", "doors", "stable_key"),
+        ("UiItemAccessTargets", "ui_item_access_targets", "stable_key"),
+    ):
+        conn.execute(f"CREATE TABLE {raw_table} (StableKey TEXT, ObjectKey TEXT, ComponentIsEnabled INTEGER)")
+        if raw_table == "SpawnPointTriggers":
+            continue
+        for (key,) in writer.conn.execute(f"SELECT DISTINCT {column} FROM {clean_table} WHERE {column} IS NOT NULL"):
+            conn.execute(f"INSERT INTO {raw_table} VALUES (?, ?, 1)", (key, f"object:{key}"))
+            active = key not in {"character:lucian", "zoneline:island:tomb:808.08:14.08:592.64"}
+            conn.execute("INSERT INTO ObjectHierarchy VALUES (?, NULL, ?, 1)", (f"object:{key}", int(active)))
+    conn.execute("ALTER TABLE SpawnPoints ADD COLUMN IsDirectlyPlaced INTEGER DEFAULT 0")
+    for listener in (
+        "listener:meet",
+        "listener:ritual",
+        "listener:two",
+        "listener:missing",
+        "listener:quest",
+        "listener:item",
+    ):
+        conn.execute("INSERT INTO ObjectHierarchy VALUES (?, NULL, 1, 1)", (listener,))
     conn.executemany(
-        "INSERT INTO QuestActivationEffects VALUES (?, ?, 'enable', ?, ?, 'quest_done', ?)",
+        "INSERT INTO QuestActivationEffects VALUES (?, ?, 'enable', ?, ?, 'quest_done', ?, ?, ?, 1)",
         [
-            ("zone_line", "zoneline:island:tomb:808.08:14.08:592.64", "listener:meet", 0, "quest:meet"),
-            ("zone_line", "zoneline:island:tomb:808.08:14.08:592.64", "listener:ritual", 0, "quest:ritual"),
-            ("character", "character:lucian", "listener:two", 0, "quest:meet"),
-            ("character", "character:lucian", "listener:two", 0, "quest:ritual"),
+            (kind, key, listener, group, quest, f"object:{key}", listener)
+            for kind, key, listener, group, quest in (
+                ("zone_line", "zoneline:island:tomb:808.08:14.08:592.64", "listener:meet", 0, "quest:meet"),
+                ("zone_line", "zoneline:island:tomb:808.08:14.08:592.64", "listener:ritual", 0, "quest:ritual"),
+                ("character", "character:lucian", "listener:two", 0, "quest:meet"),
+                ("character", "character:lucian", "listener:two", 0, "quest:ritual"),
+            )
         ],
     )
     return conn
@@ -147,12 +193,12 @@ def test_every_rule_becomes_a_gate(tmp_path: Path, writer: Writer, raw: sqlite3.
 
     line = "zoneline:island:tomb:808.08:14.08:592.64"
     # Two listeners are alternatives: one group each.
-    assert gates[("zone_line", line, None, "activation")] == [
+    assert gates[("zone_line", line, None, f"activation:object:{line}")] == [
         [("quest_done", "quest:meet", None)],
         [("quest_done", "quest:ritual", None)],
     ]
     # One listener that needs two quests is one group.
-    assert gates[("character", "character:lucian", None, "activation")] == [
+    assert gates[("character", "character:lucian", None, "activation:object:character:lucian")] == [
         [("quest_done", "quest:meet", None), ("quest_done", "quest:ritual", None)]
     ]
     assert gates[("spawn_point", "spawn:salted:1", None, "spawn_start")] == [[("quest_done", "quest:angler", None)]]
@@ -197,7 +243,8 @@ def test_a_guard_the_build_lacks_fails(tmp_path: Path, writer: Writer, raw: sqli
 def test_a_listener_quest_the_build_lacks_fails(tmp_path: Path, writer: Writer, raw: sqlite3.Connection) -> None:
     raw.execute(
         "INSERT INTO QuestActivationEffects VALUES"
-        " ('character', 'character:lucian', 'enable', 'listener:missing', 0, 'quest_done', 'quest:gone')"
+        " ('character', 'character:lucian', 'enable', 'listener:missing', 0, 'quest_done', 'quest:gone',"
+        " 'object:character:lucian', 'listener:missing', 1)"
     )
 
     with pytest.raises(ValueError, match="'quest:gone'"):
@@ -243,42 +290,46 @@ reason = "Wrong scene."
 def test_item_and_quest_activators_are_alternatives_on_the_placement(
     tmp_path: Path, writer: Writer, raw: sqlite3.Connection
 ) -> None:
+    raw.execute("UPDATE ObjectHierarchy SET ActiveSelf=0 WHERE ObjectKey=?", (f"object:{_GHOST_SPAWN}",))
     raw.executemany(
-        "INSERT INTO QuestActivationEffects VALUES ('spawn_point', ?, 'enable', ?, 0, ?, ?)",
+        "INSERT INTO QuestActivationEffects VALUES ('spawn_point', ?, 'enable', ?, 0, ?, ?, ?, ?, 1)",
         [
-            (_GHOST_SPAWN, "listener:quest", "quest_done", "quest:meet"),
-            (_GHOST_SPAWN, "listener:item", "item_held", _KEY),
+            (_GHOST_SPAWN, listener, kind, key, f"object:{_GHOST_SPAWN}", listener)
+            for listener, kind, key in (
+                ("listener:quest", "quest_done", "quest:meet"),
+                ("listener:item", "item_held", _KEY),
+            )
         ],
     )
     process_gates(raw, writer, _barriers(tmp_path, _COMPLETE))
 
-    assert _gates(writer)[("spawn_point", _GHOST_SPAWN, None, "activation")] == [
+    assert _gates(writer)[("spawn_point", _GHOST_SPAWN, None, f"activation:object:{_GHOST_SPAWN}")] == [
         [("item_held", _KEY, None)],
         [("quest_done", "quest:meet", None)],
     ]
-    assert ("character", _GHOST, None, "activation") not in _gates(writer)
+    assert not any(
+        kind == "character" and key == _GHOST and gate.startswith("activation") for kind, key, _, gate in _gates(writer)
+    )
 
 
-def test_disable_after_enable_is_an_independent_negative_gate(
+def test_disable_after_enable_makes_the_same_quest_state_unavailable(
     tmp_path: Path, writer: Writer, raw: sqlite3.Connection
 ) -> None:
     raw.execute(
         "INSERT INTO QuestActivationEffects VALUES"
-        " ('character', 'character:lucian', 'disable', 'listener:two', 0, 'quest_done', 'quest:meet')"
+        " ('character', 'character:lucian', 'disable', 'listener:two', 0, 'quest_done', 'quest:meet',"
+        " 'object:character:lucian', 'listener:two', 1)"
     )
     raw.execute(
         "INSERT INTO QuestActivationEffects VALUES"
-        " ('character', 'character:lucian', 'disable', 'listener:two', 0, 'quest_done', 'quest:ritual')"
+        " ('character', 'character:lucian', 'disable', 'listener:two', 0, 'quest_done', 'quest:ritual',"
+        " 'object:character:lucian', 'listener:two', 1)"
     )
     process_gates(raw, writer, _barriers(tmp_path, _COMPLETE))
     gates = _gates(writer)
 
-    assert gates[("character", "character:lucian", None, "activation")] == [
-        [("quest_done", "quest:meet", None), ("quest_done", "quest:ritual", None)]
-    ]
-    assert gates[("character", "character:lucian", None, "removal:listener:two:0")] == [
-        [("quest_not_done", "quest:meet", None)],
-        [("quest_not_done", "quest:ritual", None)],
+    assert gates[("character", "character:lucian", None, "activation:object:character:lucian")] == [
+        [("never", "object:character:lucian", None)]
     ]
 
 

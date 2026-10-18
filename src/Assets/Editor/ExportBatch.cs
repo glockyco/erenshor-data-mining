@@ -534,7 +534,7 @@ public static class ExportBatch
 
         // Query Characters table for non-prefab characters with coordinates
         var directlyPlacedCharacters = db.Query<CharacterRecord>(
-            "SELECT StableKey, Scene, X, Y, Z, IsEnabled FROM Characters WHERE IsPrefab = 0 AND Scene IS NOT NULL AND X IS NOT NULL AND Y IS NOT NULL AND Z IS NOT NULL"
+            "SELECT StableKey, ObjectKey, ComponentIsEnabled, Scene, X, Y, Z, IsEnabled FROM Characters WHERE IsPrefab = 0 AND Scene IS NOT NULL AND X IS NOT NULL AND Y IS NOT NULL AND Z IS NOT NULL"
         );
 
         Log(
@@ -574,6 +574,8 @@ public static class ExportBatch
             var spawnPointRecord = new SpawnPointRecord
             {
                 StableKey = stableKey,
+                ObjectKey = character.ObjectKey,
+                ComponentIsEnabled = character.ComponentIsEnabled,
                 Scene = scene,
                 X = x,
                 Y = y,

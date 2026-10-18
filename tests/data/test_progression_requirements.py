@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import json
 import sqlite3
 from collections.abc import Iterator
-from itertools import pairwise
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -57,6 +57,7 @@ def test_plane_of_elements_uses_its_dedicated_planning_slot(clean: sqlite3.Conne
     assert _pairs(needs) == {
         ("zone line", "zone:reliquary"),
         ("planning slot", "item:gen - raid rune of brax"),
+        ("quest done", "quest:claimreliquary"),
     }
     slot = next(need["slot"] for need in needs if need["relation"] == "planning slot")
     recorded_slots = clean.execute(
@@ -124,7 +125,11 @@ def test_rune_of_sands_has_one_way_not_six_interchangeable_slots(clean: sqlite3.
     origin = ("zone line", "zone:reliquary")
     ways = [needs for needs in _ways(clean, "zone:braxonian").values() if origin in _pairs(needs)]
     assert len(ways) == 1, ways
-    assert _pairs(ways[0]) == {origin, ("planning slot", "item:gen - rune of sands")}
+    assert _pairs(ways[0]) == {
+        origin,
+        ("planning slot", "item:gen - rune of sands"),
+        ("quest done", "quest:claimreliquary"),
+    }
     assert next(need["slot"] for need in ways[0] if need["relation"] == "planning slot") == "rune slot"
 
 
@@ -187,7 +192,10 @@ def test_eldrich_crystal_names_the_actual_keeper_copy_and_sanctuary(clean: sqlit
     assert _pairs(drops[0]) == {("drops", "character:azynthian keeper")}
     placements = _ways(clean, "character:azynthian keeper")
     assert len(placements) == 1, placements
-    assert _pairs(next(iter(placements.values()))) == {("in zone", "zone:stowawayportal")}
+    assert _pairs(next(iter(placements.values()))) == {
+        ("in zone", "zone:stowawayportal"),
+        *(("defeated", f"character:shadow of {god}") for god in ("brax", "fernalla", "soluna", "vitheo")),
+    }
     assert {
         row[0]
         for row in clean.execute(
@@ -226,16 +234,30 @@ def test_stardust_kill_requires_lost_faith_but_turnin_does_not(clean: sqlite3.Co
         assert not any(need["relation"] == "release" for need in needs)
 
 
-def test_evadne_rain_release_has_no_invented_producer_or_reachable_dependents(clean: sqlite3.Connection) -> None:
+def test_evadne_rain_release_needs_invoke_storm_from_ring_or_scroll(clean: sqlite3.Connection) -> None:
     rain = "world_state:weather:raining:zone:braxonian"
+    spell = "spell:dru - invoke storm"
     key = "item:key -  ancient braxonian key"
     ways = _ways(clean, key)
     assert len(ways) == 1, ways
     assert _pairs(next(iter(ways.values()))) == {("drops", "character:evadne"), ("release", rain)}
-    assert not _ways(clean, rain), "Rain has no recorded weather producer on the shipping main build"
-    for dependent in (rain, key, "zone:braxonia", "item:gen - raid rune of brax", "zone:planeofbrax"):
+    weather = _ways(clean, rain)
+    assert len(weather) == 1, weather
+    assert _pairs(next(iter(weather.values()))) == {("in zone", "zone:braxonian"), ("cast", spell)}
+    spell_ways = list(_ways(clean, spell).values())
+    assert {frozenset(_pairs(needs)) for needs in spell_ways} == {
+        frozenset({("casts", "item:ring - 20 - tempestalia")}),
+        frozenset({("teaches", "item:spell scroll - invoke storm"), ("class", "class:druid")}),
+    }
+    assert {
+        (need["relation"], need["required_level"])
+        for needs in spell_ways
+        for need in needs
+        if need["relation"] in {"casts", "teaches"}
+    } == {("casts", None), ("teaches", 8)}
+    for dependent in (rain, key):
         node = _node(clean, dependent)
-        assert node["tier"] is None and node["first_way_key"] is None, dict(node)
+        assert node["tier"] is not None and node["first_way_key"] is not None, dict(node)
 
 
 def test_saved_return_is_excluded_but_rune_of_hills_planning_portal_remains(clean: sqlite3.Connection) -> None:
@@ -248,7 +270,11 @@ def test_saved_return_is_excluded_but_rune_of_hills_planning_portal_remains(clea
     origin = ("zone line", "zone:reliquary")
     from_hall = [needs for needs in _ways(clean, "zone:hidden").values() if origin in _pairs(needs)]
     assert len(from_hall) == 1, from_hall
-    assert _pairs(from_hall[0]) == {origin, ("planning slot", "item:gen - rune of the hills")}
+    assert _pairs(from_hall[0]) == {
+        origin,
+        ("planning slot", "item:gen - rune of the hills"),
+        ("quest done", "quest:claimreliquary"),
+    }
     assert next(need["slot"] for need in from_hall[0] if need["relation"] == "planning slot") == "rune slot"
 
 
@@ -307,30 +333,20 @@ def test_cli_dusken_portal_prints_named_needs_and_tier_ordered_first_way(main_cl
         assert lines == [f"tier {node.tier}: {node.name} [{node.stable_key}]" for node in milestones]
 
 
-def test_cli_plane_explains_its_unreachable_way_and_rain_gap(main_clean_db: Path) -> None:
-    result = _show(main_clean_db, "zone:planeofbrax")
+def test_cli_key_names_evadne_rain_and_storm_sources(main_clean_db: Path) -> None:
+    result = _show(main_clean_db, "item:key -  ancient braxonian key")
     assert result.exit_code == 0, result.output
-    assert "Brax's Plane of Elements [zone:planeofbrax]" in result.output
-    assert "Tier unreachable" in result.output
-    assert "Ways (1)" in result.output
-    assert "Rune of Elements [item:gen - raid rune of brax]" in result.output
-    assert "Reliquary Hall [zone:reliquary]" in result.output
-    assert "No way reaches it from a start." in result.output
-    assert "Rain in Braxonian Desert [world_state:weather:raining:zone:braxonian]" in result.output
-    assert "no recorded way" in result.output
-    with DatabaseConnection(main_clean_db, read_only=True) as database:
-        repository = ProgressionRepository(database)
-        chain = repository.unreachable_chain("zone:planeofbrax")
-        assert chain[0].stable_key == "zone:planeofbrax"
-        assert chain[-1].stable_key == "world_state:weather:raining:zone:braxonian"
-        assert all(node.tier is None for node in chain)
-        assert repository.first_way_milestones("zone:planeofbrax") == ()
-        for source, target in pairwise(chain):
-            assert any(
-                need.need_stable_key == target.stable_key
-                for way in repository.get_ways(source.stable_key)
-                for need in way.needs
-            ), (source.stable_key, target.stable_key)
+    assert "drops Evadne the Corrupted [character:evadne]" in result.output
+    assert "release Rain in Braxonian Desert [world_state:weather:raining:zone:braxonian]" in result.output
+    rain = _show(main_clean_db, "world_state:weather:raining:zone:braxonian")
+    assert rain.exit_code == 0, rain.output
+    assert "cast Invoke Storm [spell:dru - invoke storm]" in rain.output
+    assert "natural weather" not in rain.output
+    spell = _show(main_clean_db, "spell:dru - invoke storm")
+    assert spell.exit_code == 0, spell.output
+    assert "casts Tempestalia, Ring of Storms [item:ring - 20 - tempestalia]" in spell.output
+    assert "teaches Spell Scroll: Invoke Storm [item:spell scroll - invoke storm] (level 8)" in spell.output
+    assert "class Druid [class:druid]" in spell.output
 
 
 def test_cli_gaps_reports_the_persisted_unreachable_nodes(main_clean_db: Path, clean: sqlite3.Connection) -> None:
@@ -343,7 +359,7 @@ def test_cli_gaps_reports_the_persisted_unreachable_nodes(main_clean_db: Path, c
         SELECT 1 FROM progression_ways w WHERE w.node_stable_key = n.stable_key)"""
         )
     }
-    assert "world_state:weather:raining:zone:braxonian" in expected
+    assert "world_state:weather:raining:zone:braxonian" not in expected
     assert f"Gaps ({len(expected)} nodes)" in result.output
     with DatabaseConnection(main_clean_db, read_only=True) as database:
         repository = ProgressionRepository(database)
@@ -401,6 +417,7 @@ def test_repository_named_content_matches_persisted_facts(main_clean_db: Path, c
                         need.condition_key,
                         need.advisory,
                         need.unconfirmed,
+                        need.required_level,
                     )
                     for need in way.needs
                 ] == [
@@ -413,6 +430,7 @@ def test_repository_named_content_matches_persisted_facts(main_clean_db: Path, c
                         need["condition_key"],
                         bool(need["advisory"]),
                         bool(need["unconfirmed"]),
+                        need["required_level"],
                     )
                     for need in sql_ways[way.way_key]
                 ], (key, way.way_key)
@@ -434,3 +452,108 @@ def test_repository_named_content_matches_persisted_facts(main_clean_db: Path, c
         assert [(node.stable_key, node.tier) for node in repository.first_way_milestones("zone:duskenportal")] == [
             tuple(row) for row in expected
         ]
+
+
+def test_exported_weather_limits_keep_four_scenes_from_natural_rain(clean: sqlite3.Connection) -> None:
+    trends = clean.execute(
+        "SELECT scene,max_natural_rainy FROM weather_trends WHERE is_enabled=1 ORDER BY scene"
+    ).fetchall()
+    assert dict(trends) == pytest.approx(
+        {
+            "AzynthiClear": 0.5,
+            "Braxonian": 0.15,
+            "Krakengard": 0.3,
+            "Underspine": 0.35,
+        }
+    )
+    for scene, _ in trends:
+        state = clean.execute(
+            "SELECT s.stable_key,s.uses_sun,s.natural_rain_can_start FROM world_states s"
+            " JOIN zones z ON z.stable_key=s.zone_stable_key WHERE z.scene_name=?",
+            (scene,),
+        ).fetchone()
+        assert state is not None, scene
+        assert tuple(state)[1:] == (1, 0), scene
+        producers = clean.execute(
+            "SELECT mechanism,spell_stable_key FROM world_state_producers WHERE state_stable_key=?", (state[0],)
+        ).fetchall()
+        assert [tuple(row) for row in producers] == [("spell", "spell:dru - invoke storm")]
+
+
+def test_fallen_fernalla_rune_phase_needs_a_dying_wish_part_four(clean: sqlite3.Connection) -> None:
+    phase = _ways(clean, "character:final fernalla 1")
+    assert phase
+    assert all(("quest done", "quest:sepulcher4") in _pairs(way) for way in phase.values())
+
+
+def test_astra_needs_all_nine_stardust_and_their_nine_release_items(clean: sqlite3.Connection) -> None:
+    ways = _ways(clean, "character:astral_ guardian of stars")
+    assert len(ways) == 1
+    needs = next(iter(ways.values()))
+    quantities = {(need["relation"], need["need_stable_key"]): need["quantity"] for need in needs}
+    assert quantities["defeated", "character:stardust"] == 9
+    assert quantities["release", "item:gen - lost faith"] == 9
+
+
+def test_freed_spirit_of_raval_needs_ravals_defeat(clean: sqlite3.Connection) -> None:
+    ways = _ways(clean, "character:freed spirit of raval")
+    assert ways
+    assert all(("defeated", "character:raval") in _pairs(way) for way in ways.values())
+
+
+def test_all_forty_planning_slot_roles_need_the_claimed_desk(clean: sqlite3.Connection) -> None:
+    roles = clean.execute("SELECT zone_line_stable_key, slot FROM planning_portal_slots").fetchall()
+    assert len(roles) == 40
+    for line in {row[0] for row in roles}:
+        groups = clean.execute(
+            "SELECT group_index, MAX(atom_kind='quest_done' AND atom_stable_key='quest:claimreliquary')"
+            " FROM gate_conditions WHERE subject_kind='zone_line' AND subject_stable_key=?"
+            " AND gate LIKE 'activation:%' GROUP BY gate, group_index",
+            (line,),
+        ).fetchall()
+        assert groups and all(row[1] for row in groups), line
+
+
+def test_every_exported_subject_and_controller_names_its_complete_hierarchy(main_raw_db: Path) -> None:
+    with sqlite3.connect(f"{main_raw_db.as_uri()}?mode=ro", uri=True) as raw:
+        for table, column in (
+            ("Characters", "ObjectKey"),
+            ("SpawnPoints", "ObjectKey"),
+            ("SpawnPointTriggers", "ObjectKey"),
+            ("ZoneLines", "ObjectKey"),
+            ("ItemBags", "ObjectKey"),
+            ("Doors", "ObjectKey"),
+            ("UiItemAccessTargets", "ObjectKey"),
+            ("ScriptedActivators", "ObjectKey"),
+            ("DynamicCharacterSpawns", "ControllerObjectKey"),
+            ("CharacterChainedSpawns", "ControllerObjectKey"),
+        ):
+            total, missing = raw.execute(
+                f"SELECT COUNT(*),SUM(h.ObjectKey IS NULL) FROM {table} s"
+                f" LEFT JOIN ObjectHierarchy h ON h.ObjectKey=s.{column}"
+            ).fetchone()
+            assert total > 0 and missing == 0, table
+        assert (
+            raw.execute(
+                "SELECT COUNT(*) FROM ObjectHierarchy h LEFT JOIN ObjectHierarchy p ON p.ObjectKey=h.ParentObjectKey"
+                " WHERE h.ParentObjectKey IS NOT NULL AND p.ObjectKey IS NULL"
+            ).fetchone()[0]
+            == 0
+        )
+        assert raw.execute(
+            "SELECT SourceObjectName FROM ScriptedActivators WHERE Script='PlanningTable'"
+        ).fetchall() == [("PlanningDesk",)]
+
+
+def test_box_of_portals_keeps_the_claimed_desks_shared_gate(clean: sqlite3.Connection) -> None:
+    locations = clean.execute(
+        "SELECT locations.conditions FROM item_acquisition_locations locations"
+        " JOIN item_acquisitions source ON source.acquisition_key=locations.owner_key"
+        " WHERE source.item_stable_key='item:gen - box of portals' AND source.kind='ui_grant'"
+    ).fetchall()
+    assert locations
+    for location in locations:
+        assert any(
+            atom["predicate"] == "quest_done" and atom["reference_stable_key"] == "quest:claimreliquary"
+            for atom in json.loads(location[0])
+        )

@@ -76,9 +76,27 @@
     "ReliqDisableFiendSpawn",
     "FernallaPortalBoss",
     "AngelScript",
-    "ReliqPortalListener"
+    "WeatherTrend",
+    "ReliqPortalListener",
+    "AstraListener",
+    "StowawayPortal",
+    "SkeletonCheckin"
   ],
   "fields": {
+    "WeatherTrend": {
+      "MaxNaturalCloudy": {
+        "by": "WeatherTrendListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Single"
+      },
+      "MaxNaturalRainy": {
+        "by": "WeatherTrendListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Single"
+      }
+    },
     "AchievementTrigger": {
       "AchievementName": {
         "by": "AchievementTriggerListener",
@@ -5333,9 +5351,9 @@
         "type": "UnityEngine.UI.Image"
       },
       "UseSunInNewZone": {
-        "by": null,
-        "reason": "zone-line visual/demo/runtime transition fields not exported; exporter records location, destination, landing position, display text, and remove-party flag",
-        "status": "ignored",
+        "by": "ZoneLineListener",
+        "reason": null,
+        "status": "captured",
         "type": "System.Boolean"
       },
       "yRot": {
@@ -9586,6 +9604,132 @@
         "reason": null,
         "status": "captured",
         "type": "UnityEngine.GameObject"
+      }
+    },
+    "AstraListener": {
+      "Astra": {
+        "by": null,
+        "reason": "Runtime cache assigned from the instantiated Dragon.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "StarSpawns": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<SpawnPoint>"
+      },
+      "SpawnLoc": {
+        "by": null,
+        "reason": "Unused by the shipped spawn implementation, which instantiates at the controller transform.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "SpawnDel": {
+        "by": null,
+        "reason": "Runtime delay between the defeated set and its spawn.",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "Beam": {
+        "by": null,
+        "reason": "Presentation effect toggled during the spawn delay.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Dragon": {
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "AstraCanSpawn": {
+        "by": null,
+        "reason": "Runtime cycle state set when all StarSpawns are alive.",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "MyAud": {
+        "by": null,
+        "reason": "Presentation audio source.",
+        "status": "ignored",
+        "type": "UnityEngine.AudioSource"
+      },
+      "Begin": {
+        "by": null,
+        "reason": "Presentation audio clip.",
+        "status": "ignored",
+        "type": "UnityEngine.AudioClip"
+      },
+      "Spawn": {
+        "by": null,
+        "reason": "Presentation audio clip.",
+        "status": "ignored",
+        "type": "UnityEngine.AudioClip"
+      },
+      "SpawnText": {
+        "by": null,
+        "reason": "Presentation message.",
+        "status": "ignored",
+        "type": "System.String"
+      },
+      "AlertMsg": {
+        "by": null,
+        "reason": "Presentation message.",
+        "status": "ignored",
+        "type": "System.String"
+      }
+    },
+    "StowawayPortal": {
+      "Skeletons": {
+        "by": null,
+        "reason": "Runtime check-in accumulator. ScriptedActivatorListener derives its characters from SpawnPoint.NPCSpecificObject and SkeletonCheckin.",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<Character>"
+      },
+      "AllCheckedIn": {
+        "by": null,
+        "reason": "Runtime flag set once four distinct characters check in.",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "KeeperSpawn": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "Keeper": {
+        "by": null,
+        "reason": "Runtime keeper check-in cache.",
+        "status": "ignored",
+        "type": "Character"
+      },
+      "SpawnPointsForAdds": {
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<UnityEngine.Transform>"
+      },
+      "KeeperSac": {
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "EventSpawnsToReset": {
+        "by": null,
+        "reason": "Start only changes these spawn points' respawn delay.",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<SpawnPoint>"
+      }
+    },
+    "SkeletonCheckin": {
+      "Keeper": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Boolean"
       }
     }
   }

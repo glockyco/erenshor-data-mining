@@ -15,16 +15,19 @@ public class PlanningTableListener : IAssetScanListener<PlanningTable>
 {
     private readonly SQLiteConnection _db;
     private readonly CharacterStableKeyResolver _characterKeyResolver;
+    private readonly ObjectHierarchyCollector _hierarchy;
     private readonly Dictionary<string, PlanningTableCharacterRecord> _records = new();
     private readonly List<PlanningTableFurnishingRecord> _furnishings = new();
 
     public PlanningTableListener(
         SQLiteConnection db,
-        CharacterStableKeyResolver characterKeyResolver
+        CharacterStableKeyResolver characterKeyResolver,
+        ObjectHierarchyCollector hierarchy
     )
     {
         _db = db;
         _characterKeyResolver = characterKeyResolver;
+        _hierarchy = hierarchy;
     }
 
     public void OnScanStarted()
@@ -96,6 +99,8 @@ public class PlanningTableListener : IAssetScanListener<PlanningTable>
                         Scene = scene,
                         Slot = slotName,
                         Furnishing = furnishing.name,
+                        ObjectKey = _hierarchy.Capture(furnishing.gameObject),
+                        ControllerObjectKey = _hierarchy.Capture(asset.gameObject),
                         RendererCount = furnishing.GetComponentsInChildren<Renderer>(true).Length,
                     }
                 );
@@ -119,6 +124,7 @@ public class PlanningTableListener : IAssetScanListener<PlanningTable>
         _records[characterKey] = new PlanningTableCharacterRecord
         {
             CharacterStableKey = characterKey,
+            ObjectKey = _hierarchy.Capture(character.gameObject),
             Scene = scene,
             Slot = slot,
             Furnishing = furnishing,

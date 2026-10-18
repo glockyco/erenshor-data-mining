@@ -9,6 +9,7 @@ public sealed class ScriptedActivatorRecord
     public string SourceKey { get; set; } = "";
     public string RuleId { get; set; } = "";
     public string Script { get; set; } = "";
+    public string ObjectKey { get; set; } = "";
     public string? SourceScene { get; set; }
     public string SourceObjectName { get; set; } = "";
     public float? X { get; set; }
@@ -41,6 +42,7 @@ public sealed class ScriptedActivatorTargetRecord
     public string ResolutionMode { get; set; } = "";
     public string Kind { get; set; } = "";
     public string Key { get; set; } = "";
+    public string ObjectKey { get; set; } = "";
     public string Scene { get; set; } = "";
     public string ObjectName { get; set; } = "";
     public bool IsEnabled { get; set; }

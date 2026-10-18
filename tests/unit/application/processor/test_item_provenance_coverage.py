@@ -522,17 +522,17 @@ def native_inputs(tmp_path: Path) -> Iterator[sqlite3.Connection]:
         y=9,
         z=10,
     )
-    _insert(
-        connection,
-        "ui_item_access_activations",
-        stable_key="activation:one",
-        target_stable_key="desk:one",
-        activator_stable_key="activator:one",
-        scene="One",
-        hierarchy_path="Activator",
-        quest_stable_key="quest:one",
-        item_stable_key="item:material",
-    )
+    for group, predicate, reference in ((0, "quest_done", "quest:one"), (1, "item_held", "item:material")):
+        _insert(
+            connection,
+            "gate_conditions",
+            subject_kind="ui_item_access_target",
+            subject_stable_key="desk:one",
+            gate="activation",
+            group_index=group,
+            atom_kind=predicate,
+            atom_stable_key=reference,
+        )
     yield connection
     connection.close()
 
@@ -580,7 +580,6 @@ def test_all_native_families_have_identity_and_dimension_coverage(
         "quest_variants": 2,
         "special_world_drops": 1,
         "spell_created_items": 1,
-        "ui_item_access_activations": 1,
         "ui_item_access_targets": 1,
         "ui_item_sources": 3,
         "vendor_offers": 2,
@@ -618,6 +617,7 @@ def test_all_native_families_have_identity_and_dimension_coverage(
         ("UPDATE item_acquisition_locations SET x=x+1 WHERE relation='fixed'", "locations"),
         ("UPDATE item_acquisition_locations SET entry_zone_line_keys='[]' WHERE relation='spawn'", "locations"),
         ("UPDATE item_acquisition_locations SET conditions='[]' WHERE relation='spawn'", "locations"),
+        ("UPDATE item_acquisition_locations SET conditions='[]' WHERE location_key='desk:one'", "locations"),
         ("UPDATE item_acquisition_locations SET player_level_min=NULL WHERE relation='possible_treasure'", "locations"),
         ("UPDATE item_acquisition_locations SET source_copy_stable_key=NULL WHERE relation='interaction'", "locations"),
     ],
@@ -881,6 +881,103 @@ def test_use_condition_and_location_coverage_is_independent(
         validate_item_provenance(connection, exclusions, require_all_native_tables=False)
 
 
+@pytest.mark.parametrize("active_in_hierarchy", [0, 1])
+def test_box_of_portals_keeps_shared_quest_gate(native_inputs: sqlite3.Connection, active_in_hierarchy: int) -> None:
+    native_inputs.execute("UPDATE items SET display_name='Box of Portals' WHERE stable_key='item:reward'")
+    native_inputs.execute("UPDATE ui_item_access_targets SET active_in_hierarchy=?", (active_in_hierarchy,))
+    native_inputs.execute("DELETE FROM gate_conditions WHERE subject_kind='ui_item_access_target'")
+    _insert(
+        native_inputs,
+        "gate_conditions",
+        subject_kind="ui_item_access_target",
+        subject_stable_key="desk:one",
+        gate="activation",
+        group_index=0,
+        atom_kind="quest_done",
+        atom_stable_key="quest:one",
+    )
+    builder = ProvenanceBuilder(native_inputs)
+    builder.ui_grants()
+    box = next(fact for fact in builder.acquisitions if fact.source_stable_key == "ui:planning")
+    assert box.item_stable_key == "item:reward"
+    assert len(box.locations) == 1
+    location = box.locations[0]
+    assert location.location_key == "desk:one"
+    assert [(atom.predicate, atom.reference_stable_key, atom.scope) for atom in location.conditions] == [
+        ("quest_done", "quest:one", "desk:one")
+    ]
+    assert {(row.input_relation, row.input_primary_key) for row in box.evidence} == {
+        ("ui_item_sources", '["ui:planning"]'),
+        ("ui_item_access_targets", '["desk:one"]'),
+    }
+
+
+def test_ui_access_preserves_shared_gate_alternatives_and_impossibility(native_inputs: sqlite3.Connection) -> None:
+    builder = ProvenanceBuilder(native_inputs)
+    builder.ui_grants()
+    box = next(fact for fact in builder.acquisitions if fact.source_stable_key == "ui:planning")
+    assert sorted(
+        (atom.group_index, atom.predicate, atom.reference_stable_key) for atom in box.locations[0].conditions
+    ) == [
+        (0, "quest_done", "quest:one"),
+        (1, "item_held", "item:material"),
+    ]
+    native_inputs.execute("DELETE FROM gate_conditions WHERE subject_kind='ui_item_access_target'")
+    _insert(
+        native_inputs,
+        "gate_conditions",
+        subject_kind="ui_item_access_target",
+        subject_stable_key="desk:one",
+        gate="activation",
+        group_index=0,
+        atom_kind="never",
+        atom_stable_key="desk:one",
+    )
+    builder = ProvenanceBuilder(native_inputs)
+    builder.ui_grants()
+    box = next(fact for fact in builder.acquisitions if fact.source_stable_key == "ui:planning")
+    assert not conditions_satisfiable(box.locations[0].conditions)
+
+
+def test_ui_location_preserves_repeated_defeat_quantity_and_coverage(native_inputs: sqlite3.Connection) -> None:
+    _insert(
+        native_inputs,
+        "gate_conditions",
+        subject_kind="ui_item_access_target",
+        subject_stable_key="desk:one",
+        gate="ward_deaths",
+        group_index=0,
+        atom_kind="encounter_won",
+        atom_stable_key="character:a",
+        atom_quantity=9,
+    )
+    builder = ProvenanceBuilder(native_inputs)
+    builder.select()
+    builder.account_support_inputs()
+    builder.persist()
+    native_inputs.execute(
+        "INSERT INTO item_dispositions (item_stable_key, disposition, current_pages, former_pages) "
+        "SELECT stable_key, 'current', json_array(wiki_page_name), '[]' FROM items"
+    )
+    validate_item_provenance(native_inputs, builder.input_exclusions, require_all_native_tables=False)
+    owner, encoded = native_inputs.execute(
+        "SELECT owner_key, conditions FROM item_acquisition_locations WHERE location_key='desk:one'"
+    ).fetchone()
+    conditions = json.loads(encoded)
+    defeats = [condition for condition in conditions if condition["predicate"] == "encounter_won"]
+    assert len(defeats) == 1
+    assert defeats[0]["reference_stable_key"] == "character:a"
+    assert defeats[0]["scope"] == "desk:one"
+    assert defeats[0]["minimum"] == 9
+    defeats[0]["minimum"] = 1
+    native_inputs.execute(
+        "UPDATE item_acquisition_locations SET conditions=? WHERE owner_key=? AND location_key='desk:one'",
+        (json.dumps(conditions), owner),
+    )
+    with pytest.raises(ValueError, match="locations"):
+        validate_item_provenance(native_inputs, builder.input_exclusions, require_all_native_tables=False)
+
+
 @pytest.mark.parametrize("assembly", ["fixture-assembly", "old-assembly"])
 def test_verified_ui_access_requires_matching_durable_receipt(
     native_inputs: sqlite3.Connection,
@@ -935,13 +1032,13 @@ def test_unused_native_ui_locations_have_explicit_exclusion_outcomes(native_inpu
     )
     _insert(
         native_inputs,
-        "ui_item_access_activations",
-        stable_key="activation:unused",
-        target_stable_key="desk:unused",
-        activator_stable_key="activator:unused",
-        scene="One",
-        hierarchy_path="OtherActivator",
-        quest_stable_key="quest:one",
+        "gate_conditions",
+        subject_kind="ui_item_access_target",
+        subject_stable_key="desk:unused",
+        gate="activation",
+        group_index=0,
+        atom_kind="quest_done",
+        atom_stable_key="quest:one",
     )
     builder = ProvenanceBuilder(native_inputs)
     builder.select()
@@ -953,10 +1050,14 @@ def test_unused_native_ui_locations_have_explicit_exclusion_outcomes(native_inpu
     )
     audit = validate_item_provenance(native_inputs, builder.input_exclusions, require_all_native_tables=False)
     assert audit["input_counts"]["ui_item_access_targets"] == 2
-    assert audit["input_counts"]["ui_item_access_activations"] == 2
     assert builder.input_exclusions["ui_item_access_targets", '["desk:unused"]'] == "unused_native_ui_target"
     assert (
-        builder.input_exclusions["ui_item_access_activations", '["activation:unused"]'] == "unused_native_ui_activation"
+        native_inputs.execute(
+            "SELECT COUNT(*) FROM item_provenance_evidence "
+            "WHERE input_relation='ui_item_access_targets' AND input_primary_key=?",
+            ('["desk:unused"]',),
+        ).fetchone()[0]
+        == 0
     )
     builder.input_exclusions.pop(("ui_item_access_targets", '["desk:unused"]'))
     with pytest.raises(ValueError, match="exclusions"):
@@ -997,7 +1098,6 @@ def test_validator_does_not_require_a_connection_row_factory(
         "auction_house_items",
         "ui_item_sources",
         "ui_item_access_targets",
-        "ui_item_access_activations",
         "items",
         "item_classes",
         "code_facts",

@@ -46,12 +46,18 @@ def _assert_complete_catalog(payload: dict[str, Any]) -> None:
         synthetic = {"$host", "$host_spawn_point"} if name == "ReliqDisableFiendSpawn" else {"$host"}
         if name == "ReliqPortalListener":
             synthetic.add("$portal_active_self")
+        if name == "AstraListener":
+            synthetic.add("Dragon")
+        if name == "StowawayPortal":
+            synthetic.update({"$checkin_character", "$checkin_spawn_point"})
         assert fields == set(entry["fields"]) | synthetic
         for reference in configured:
             assert reference["ReferenceId"] == (
                 f"{source['SourceKey']}:field:{reference['Field']}:{reference['ReferenceIndex']}"
             )
             assert reference["ReferenceKind"] not in {"null", "empty_collection"}
+        host = next(row for row in configured if row["Field"] == "$host")
+        assert source["ObjectKey"] == host["ReferenceKey"]
         for field in entry["fields"]:
             indexes = [row["ReferenceIndex"] for row in configured if row["Field"] == field]
             assert indexes in ([0], [0, 1])
@@ -75,6 +81,43 @@ def _assert_complete_catalog(payload: dict[str, Any]) -> None:
         "quest:fixture:required"
     )
     assert next(row for row in references if row["Field"] == "ward1")["ReferenceKey"] == ("character:fixture:ward")
+    astra = {row["Field"]: row for row in references if row["SourceKey"] == sources["AstraListener"]["SourceKey"]}
+    assert (astra["StarSpawns"]["ReferenceKind"], astra["StarSpawns"]["ReferenceKey"]) == (
+        "spawn_point",
+        "spawn:fixture:configured-target",
+    )
+    assert (astra["Dragon"]["ReferenceKind"], astra["Dragon"]["ReferenceKey"]) == (
+        "character",
+        "character:fixture:ward",
+    )
+    stowaway = {row["Field"]: row for row in references if row["SourceKey"] == sources["StowawayPortal"]["SourceKey"]}
+    assert (stowaway["KeeperSpawn"]["ReferenceKind"], stowaway["KeeperSpawn"]["ReferenceKey"]) == (
+        "object",
+        "object:reliquary:configured-target[0]",
+    )
+    assert (stowaway["$checkin_character"]["ReferenceKind"], stowaway["$checkin_character"]["ReferenceKey"]) == (
+        "character",
+        "character:fixture:ward",
+    )
+    assert (
+        stowaway["$checkin_spawn_point"]["ReferenceKind"],
+        stowaway["$checkin_spawn_point"]["ReferenceKey"],
+    ) == ("spawn_point", "spawn:fixture:configured-target")
+    assert stowaway["$checkin_character"]["ReferenceIndex"] == stowaway["$checkin_spawn_point"]["ReferenceIndex"] == 0
+    assert [
+        row
+        for row in references
+        if row["SourceKey"] == sources["StowawayPortal"]["SourceKey"] and row["Field"] == "$checkin_character"
+    ] == [stowaway["$checkin_character"]]
+    enabled_objects = [
+        row
+        for row in targets
+        if row["ReferenceId"] == stowaway["KeeperSpawn"]["ReferenceId"]
+        and row["ResolutionMode"] == "enable"
+        and row["Kind"] == "object"
+    ]
+    assert len(enabled_objects) == 1
+    assert enabled_objects[0]["ObjectKey"] == stowaway["KeeperSpawn"]["ReferenceKey"]
 
 
 def _assert_account_bindings(case: dict[str, Any]) -> None:
@@ -102,6 +145,7 @@ def _assert_account_bindings(case: dict[str, Any]) -> None:
         source = sources[source_key]
         assert source["RuleId"] == "reliquary_account_claim"
         assert source["Script"] == "ReliqDisableFiendSpawn"
+        assert source["ObjectKey"] == fixture["objectKey"]
         assert source["SourceScene"] == "Reliquary"
         assert source["SourceObjectName"] == "Spawn Point"
         assert (source["X"], source["Y"], source["Z"]) == (11 + index, 22, 33)
@@ -139,6 +183,7 @@ def _assert_account_bindings(case: dict[str, Any]) -> None:
                 assert target["TargetId"] == f"{reference_id}:reference:{target['Kind']}:{target['Key']}"
                 assert target["ResolutionMode"] == "reference"
                 assert target["Scene"] == "Reliquary"
+                assert target["ObjectKey"] == fixture["objectKey"]
                 assert target["ObjectName"] == "Spawn Point"
                 assert target["IsEnabled"] is fixture["spawnEffectiveActive"]
     assert case["resolveRequests"] == [

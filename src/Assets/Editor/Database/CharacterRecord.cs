@@ -9,6 +9,8 @@ public class CharacterRecord
 
     [PrimaryKey]
     public string StableKey { get; set; } = string.Empty; // Stable identifier: "character:object_name" or "character:object_name:scene:x:y:z"
+    public string ObjectKey { get; set; } = string.Empty;
+    public bool ComponentIsEnabled { get; set; }
 
     public string? Scene { get; set; }
     public float? X { get; set; }

@@ -167,14 +167,19 @@ def test_character_page_loot_excludes_swap_only_rows_and_retains_combined_rows(m
             assert (item in edges_by_character[character]) == bool(own_drop), (character, item)
 
 
-def test_common_pool_named_drops_preserve_native_copy_dimensions(main_clean_db: Path) -> None:
-    with sqlite3.connect(main_clean_db) as clean, DatabaseConnection(main_clean_db, read_only=True) as db:
+def test_common_pool_named_drops_preserve_native_copy_dimensions(main_raw_db: Path, main_clean_db: Path) -> None:
+    with (
+        sqlite3.connect(main_raw_db) as raw,
+        sqlite3.connect(main_clean_db) as clean,
+        DatabaseConnection(main_clean_db, read_only=True) as db,
+    ):
         items_repo = ItemRepository(db)
         provenance = ItemProvenanceRepository(db)
         pool = {row[0] for row in clean.execute("SELECT item_stable_key FROM common_world_items")}
         items = [item for item in items_repo.get_items_for_wiki_generation() if item.stable_key in pool]
         assert {item.stable_key for item in items} == pool
         compared = 0
+        excluded_compared = 0
         for item in items:
             rows = clean.execute(
                 f"""SELECT ld.character_stable_key, s.group_key, ld.drop_probability,
@@ -189,7 +194,33 @@ def test_common_pool_named_drops_preserve_native_copy_dimensions(main_clean_db: 
             facts = [fact for fact in provenance.get_acquisitions(item.stable_key) if fact.kind == "character_drop"]
             by_copy = {fact.source_copy_stable_key: fact for fact in facts}
             assert len(by_copy) == len(facts)
-            assert set(by_copy) == {row[0] for row in rows}, item.stable_key
+            clean_copies = {
+                row[0]
+                for row in clean.execute(
+                    "SELECT character_stable_key FROM loot_drops WHERE item_stable_key = ?", (item.stable_key,)
+                )
+            }
+            # Excluded serialized copies remain facts, not player acquisition paths.
+            excluded = {
+                copy: (chance, expected, distribution)
+                for copy, chance, expected, distribution in raw.execute(
+                    """SELECT CharacterStableKey, DropProbability, ExpectedPerKill, DropCountDistribution
+                       FROM LootDrops WHERE ItemStableKey = ?""",
+                    (item.stable_key,),
+                )
+                if copy not in clean_copies
+            }
+            assert set(by_copy) == {row[0] for row in rows} | set(excluded), item.stable_key
+            for copy, (chance, expected, distribution) in excluded.items():
+                fact = by_copy[copy]
+                assert fact.player_access_state == "non_acquirable"
+                assert any(atom.predicate == "never" for atom in fact.conditions)
+                assert fact.probability_min == chance
+                assert fact.probability_max == chance
+                assert fact.expected_quantity == expected
+                assert fact.count_distribution == distribution
+                assert any(evidence.input_relation == "raw.LootDrops" for evidence in fact.evidence)
+                excluded_compared += 1
             for copy, group, chance, expected, distribution, guaranteed, rolls in rows:
                 fact = by_copy[copy]
                 assert fact.source_stable_key == group
@@ -206,3 +237,4 @@ def test_common_pool_named_drops_preserve_native_copy_dimensions(main_clean_db: 
                 assert fact.evidence
                 compared += 1
         assert compared > 0
+        assert excluded_compared > 0

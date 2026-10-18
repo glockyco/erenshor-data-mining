@@ -71,6 +71,7 @@ _ATOM_RELATIONS = {
     "encounter_won": "defeated",
     "account_state": "state",
     "zone_use": "in zone",
+    "world_state": "state",
 }
 _SOURCE_PROPERTIES = frozenset(
     {
@@ -144,6 +145,7 @@ class Need:
     condition_key: str | None = None
     advisory: bool = False
     unconfirmed: bool = False
+    required_level: int | None = None
 
 
 Way = tuple[Need, ...]
@@ -261,7 +263,14 @@ class ProgressionBuilder:
         return sorted(result, key=way_key)
 
     def atom(
-        self, node: str, kind: str, key: str | None, slot: str | None, fact: str, value: str | None = None
+        self,
+        node: str,
+        kind: str,
+        key: str | None,
+        slot: str | None,
+        fact: str,
+        value: str | None = None,
+        quantity: float | None = None,
     ) -> list[Way]:
         if kind == "never":
             return []
@@ -276,13 +285,32 @@ class ProgressionBuilder:
             self.node(key, "account_state")
             if value == "false":
                 self.add(key, (), fact)
+        if kind == "world_state" and key not in {row["stable_key"] for row in self.rows("world_states")}:
+            raise _error(node, fact, f"unmapped world state {key!r}")
         if kind == "planning_slot_item" and self.slots.get((node, slot)) == "rune":
             slot = "rune slot"
-        need = Need(_ATOM_RELATIONS[kind], key, slot=slot, advisory=kind == "encounter_won")
+        if quantity is not None and (kind != "encounter_won" or quantity < 1 or int(quantity) != quantity):
+            raise _error(node, fact, f"invalid defeat quantity {quantity!r}")
+        need = Need(_ATOM_RELATIONS[kind], key, quantity=quantity, slot=slot, advisory=kind == "encounter_won")
         if kind == "encounter_won":
             if key not in self.characters:
                 raise _error(node, fact, f"need resolves to no character: {key}")
-            return [canonical_way((need, *release)) for release in self.kill_needs(str(key))]
+            count = quantity or 1
+            return [
+                canonical_way(
+                    (
+                        need,
+                        *(
+                            replace(requirement, quantity=(requirement.quantity or 1) * count)
+                            if count > 1
+                            and (requirement.quantity is not None or requirement.need_stable_key in self.characters)
+                            else requirement
+                            for requirement in release
+                        ),
+                    )
+                )
+                for release in self.kill_needs(str(key))
+            ]
         return [(need,)]
 
     def conditions(self, node: str, atoms: list[dict[str, Any]], fact: str, provenance: bool = False) -> list[Way]:
@@ -316,6 +344,11 @@ class ProgressionBuilder:
                             atom.get("reference_slot") if provenance else atom.get("atom_slot"),
                             f"{fact}, gate {gate}",
                             atom.get("value"),
+                            (
+                                atom.get("minimum")
+                                if provenance and atom["predicate"] == "encounter_won"
+                                else atom.get("atom_quantity")
+                            ),
                         ),
                         gate,
                     )
@@ -356,16 +389,19 @@ class ProgressionBuilder:
                 states = {atom["condition_stable_key"] for atom in atoms if atom["condition_kind"] == "state"}
                 if states != {"raining"}:
                     raise _error(character, fact, f"unmapped weather states {sorted(states)}")
+                spawns = {atom["condition_stable_key"] for atom in atoms if atom["condition_kind"] == "spawn_point"}
                 zones = {
                     placement["zone_stable_key"]
                     for placement in self.placements[character]
-                    if placement["zone_stable_key"]
+                    if placement["zone_stable_key"] and (not spawns or placement["spawn_point_stable_key"] in spawns)
                 }
+                if len(zones) != 1:
+                    raise _error(character, fact, f"weather release needs one bound scene, found {sorted(zones)}")
                 branch = []
                 for zone in sorted(zones):
                     key = f"world_state:weather:raining:{zone}"
-                    self.node(key, "world_state")
-                    branch.append((Need("release", key),))
+                    for way in self.atom(character, "world_state", key, None, fact):
+                        branch.append(tuple(replace(need, relation="release") for need in way))
             elif mechanism in {"shivering_phantom_wards", "combat_ward_cycle", "reliquary_wards"}:
                 for atom in atoms:
                     kind, key = atom["condition_kind"], atom["condition_stable_key"]
@@ -397,6 +433,10 @@ class ProgressionBuilder:
         for table, kind in (("zones", "zone"), ("quests", "quest"), ("items", "item"), ("characters", "character")):
             for row in self.rows(table):
                 self.node(row["stable_key"], kind)
+        for row in self.rows("world_states"):
+            self.node(row["stable_key"], "world_state")
+        for row in self.rows("weather_spell_effects"):
+            self.node(row["spell_stable_key"], "spell")
         # code-fact: progression.playable_classes
         facts = [
             row["value"]
@@ -643,6 +683,71 @@ class ProgressionBuilder:
                     f"quest_complete_other_quests {variant}",
                 )
 
+    def item_action(self, item: dict[str, Any], relation: str, required_level: int | None = None) -> list[Way]:
+        # code-fact: progression.item_action_guards
+        if not any(
+            row["fact_id"] == "progression.item_action_guards" and row["key"] == "ok" and row["value"] == "true"
+            for row in self.rows("code_facts")
+        ):
+            raise _error(item["stable_key"], "progression.item_action_guards", "missing verified item action rules")
+        if relation not in {"casts", "teaches", "equipped"}:
+            raise _error(item["stable_key"], "item action", f"unmapped item action {relation!r}")
+        if required_level is not None and (type(required_level) is not int or required_level < 0):
+            raise _error(item["stable_key"], "spells.required_level", "invalid spell learning level")
+        playable = {key for key, kind in self.kinds.items() if kind == "class"}
+        allowed = {
+            "class:" + row["class_name"].lower()
+            for row in self.rows("item_classes")
+            if row["item_stable_key"] == item["stable_key"]
+        }
+        known = {"class:" + row["class_name"].lower() for row in self.rows("classes")}
+        if not allowed <= known:
+            raise _error(item["stable_key"], "item_classes", f"unknown allowed classes {sorted(allowed - known)}")
+        if relation == "casts":
+            # General-slot click effects bypass class membership. Other click
+            # effects require membership even when the class list is empty.
+            if item["required_slot"] == "General":
+                allowed = playable
+        elif not allowed:
+            allowed = playable
+        allowed &= playable
+        base = [Need(relation, item["stable_key"], required_level=required_level)]
+        if relation == "casts" and item["must_be_equipped_to_click"]:
+            base.append(Need("equipped", item["stable_key"]))
+        if allowed == playable:
+            return [canonical_way(base)]
+        return [canonical_way((*base, Need("class", key))) for key in sorted(allowed)]
+
+    def build_weather(self) -> None:
+        states = {row["stable_key"]: row for row in self.rows("world_states")}
+        for row in self.rows("world_state_producers"):
+            state = states[row["state_stable_key"]]
+            needs = [Need("in zone", state["zone_stable_key"])]
+            if row["mechanism"] == "spell":
+                needs.append(Need("cast", row["spell_stable_key"]))
+            elif row["mechanism"] == "natural_weather":
+                needs.append(Need("natural weather", condition_key="weather:natural_rain"))
+            else:
+                raise _error(state["stable_key"], "world_state_producers", "unmapped weather producer")
+            self.add(state["stable_key"], needs, "world_state_producers")
+        spells = {
+            row["stable_key"]: row
+            for row in self.rows("spells")
+            if row["stable_key"] in {effect["spell_stable_key"] for effect in self.rows("weather_spell_effects")}
+        }
+        for item in self.rows("items"):
+            for column, relation in (
+                ("item_effect_on_click_stable_key", "casts"),
+                ("teach_spell_stable_key", "teaches"),
+            ):
+                if item[column] in spells:
+                    spell = spells[item[column]]
+                    level = spell["required_level"] if relation == "teaches" else None
+                    if relation == "teaches" and level is None:
+                        raise _error(item[column], "spells.required_level", "missing spell learning level")
+                    for way in self.item_action(item, relation, level):
+                        self.add(item[column], way, f"items.{column}")
+
     def build_states(self) -> None:
         members = self.index("encounter_placements", "encounter_key")
         guards = self.index("encounter_event_conditions", "encounter_key")
@@ -702,7 +807,7 @@ class ProgressionBuilder:
             if need.relation in _GATE_RELATIONS and self.kinds.get(need.need_stable_key or "") == "item"
         }
         for node, kind in self.kinds.items():
-            if kind in {"quest", "barrier"} or (kind in {"zone", "character"} and node in gated):
+            if kind in {"quest", "barrier", "world_state"} or (kind in {"zone", "character"} and node in gated):
                 self.milestones.add(node)
             elif kind == "item":
                 ways = self.ways.get(node, {})
@@ -803,6 +908,7 @@ class ProgressionBuilder:
     def build(self) -> None:
         self.build_nodes()
         self.build_zones()
+        self.build_weather()
         self.build_characters()
         self.build_items()
         self.build_quests()
@@ -829,7 +935,7 @@ class ProgressionBuilder:
             [(node, key) for node, ways in sorted(self.ways.items()) for key in sorted(ways)],
         )
         conn.executemany(
-            "INSERT INTO progression_needs VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            "INSERT INTO progression_needs VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
             [
                 (
                     node,
@@ -843,6 +949,7 @@ class ProgressionBuilder:
                     need.condition_key,
                     int(need.advisory),
                     int(need.unconfirmed),
+                    need.required_level,
                 )
                 for node, ways in sorted(self.ways.items())
                 for key, way in sorted(ways.items())

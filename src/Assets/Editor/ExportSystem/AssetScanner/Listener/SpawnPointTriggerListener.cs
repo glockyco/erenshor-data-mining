@@ -61,6 +61,8 @@ public class SpawnPointTriggerListener : IAssetScanListener<SpawnPointTrigger>
                 new SpawnPointTriggerRecord
                 {
                     StableKey = stableKey,
+                    ObjectKey = _activationTargets.Hierarchy.Capture(asset.gameObject),
+                    ComponentIsEnabled = asset.enabled,
                     Scene = scene,
                     X = position.x,
                     Y = position.y,

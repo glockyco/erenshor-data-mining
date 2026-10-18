@@ -50,6 +50,8 @@ public class PlanningTableFurnishingRecord
 
     [Indexed(Name = "PlanningTableFurnishings_Primary_IDX", Order = 3, Unique = true)]
     public string Furnishing { get; set; } = string.Empty;
+    public string ObjectKey { get; set; } = string.Empty;
+    public string ControllerObjectKey { get; set; } = string.Empty;
 
     /// <summary>The renderers under the furnishing, active or not.</summary>
     public int RendererCount { get; set; }

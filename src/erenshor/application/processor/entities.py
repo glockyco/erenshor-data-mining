@@ -166,7 +166,11 @@ def process_world_tables(raw: sqlite3.Connection, writer: Writer) -> None:
             writer.insert_achievement_triggers,
             {"AchievementName": "achievement_name"},
         ),
-        ("SELECT * FROM Doors", writer.insert_doors, {"KeyItemStableKey": "key_item_stable_key"}),
+        (
+            "SELECT StableKey, Scene, X, Y, Z, KeyItemStableKey FROM Doors",
+            writer.insert_doors,
+            {"KeyItemStableKey": "key_item_stable_key"},
+        ),
         ("SELECT * FROM Forges", writer.insert_forges, {}),
         ("SELECT * FROM TreasureLocations", writer.insert_treasure_locations, {}),
         ("SELECT * FROM Waters", writer.insert_waters, {}),
@@ -193,8 +197,8 @@ def process_world_tables(raw: sqlite3.Connection, writer: Writer) -> None:
         n = insert_fn(rows)
         logger.debug(f"  {table_name}: {n} rows")
 
-    # ItemBags: rename ItemStableKey only
-    rows = _rows(raw, "SELECT * FROM ItemBags")
+    # Object activity is projected into common gates, not copied as a second rule.
+    rows = _rows(raw, "SELECT StableKey, Scene, X, Y, Z, ItemStableKey, Respawns, RespawnTimer FROM ItemBags")
     rows = _rename_cols(rows, {"ItemStableKey": "item_stable_key"})
     writer.insert_item_bags(rows)
 
@@ -223,7 +227,12 @@ def process_world_tables(raw: sqlite3.Connection, writer: Writer) -> None:
     _process_spell_created_items(raw, writer)
 
     # ZoneLines
-    rows = _rows(raw, "SELECT * FROM ZoneLines")
+    rows = _rows(
+        raw,
+        "SELECT StableKey, Scene, X, Y, Z, IsEnabled, ObjectIsActive, ComponentIsEnabled,"
+        " ColliderIsTrigger, HasEnabledTrigger, DisplayText, DestinationZoneStableKey,"
+        " LandingPositionX, LandingPositionY, LandingPositionZ, RemoveParty, UseSunInNewZone FROM ZoneLines",
+    )
     rows = _rename_cols(
         rows,
         {

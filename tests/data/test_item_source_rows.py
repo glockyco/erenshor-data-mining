@@ -34,6 +34,12 @@ def _native_loot_omissions(connection: sqlite3.Connection) -> dict[tuple[str, st
                         SELECT 1 FROM character_fact_sources copy
                         WHERE copy.member_stable_key = source.CharacterStableKey
                     ) THEN 'unencountered_copy'
+                    WHEN EXISTS (
+                        SELECT 1 FROM character_fact_sources copy
+                        JOIN characters clean_host ON clean_host.stable_key=copy.member_stable_key
+                        WHERE copy.member_stable_key=source.CharacterStableKey
+                          AND clean_host.can_be_damaged=0 AND clean_host.treasure_chest=0
+                    ) THEN 'loot_host_undamageable'
                 END
             FROM native.LootTableSources source
             LEFT JOIN native.Characters host ON host.StableKey = source.CharacterStableKey
@@ -74,6 +80,18 @@ def _expected_omissions(connection: sqlite3.Connection) -> dict[tuple[str, str],
             """
             SELECT character_stable_key, item_stable_key FROM loot_drops
             WHERE character_stable_key NOT IN (SELECT member_stable_key FROM character_fact_sources)
+        """,
+        ),
+        (
+            "loot_drops",
+            "loot_host_undamageable",
+            """
+            SELECT loot.character_stable_key, loot.item_stable_key FROM loot_drops loot
+            JOIN characters host ON host.stable_key=loot.character_stable_key
+            WHERE loot.is_common_world_item=1 AND host.can_be_damaged=0 AND host.treasure_chest=0
+              AND loot.is_common=0 AND loot.is_uncommon=0 AND loot.is_rare=0 AND loot.is_legendary=0
+              AND loot.is_ultra_rare=0 AND loot.is_guaranteed=0 AND loot.is_actual=0
+              AND loot.character_stable_key IN (SELECT member_stable_key FROM character_fact_sources)
         """,
         ),
         (
@@ -193,7 +211,6 @@ def _expected_omissions(connection: sqlite3.Connection) -> dict[tuple[str, str],
             omissions[relation, primary] = reason
     for relation, columns, reason in (
         ("ui_item_access_targets", "stable_key", "unused_native_ui_target"),
-        ("ui_item_access_activations", "stable_key", "unused_native_ui_activation"),
         ("item_access_observations", "component_type, slot, assembly_sha256", "unused_access_observation"),
     ):
         for row in connection.execute(f"SELECT {columns} FROM {relation}"):
@@ -244,7 +261,6 @@ def test_every_populated_native_family_has_canonical_coverage(main_clean_db: Pat
             "auction_house_items": "1",
             "ui_item_sources": "1",
             "ui_item_access_targets": "1",
-            "ui_item_access_activations": "1",
             "item_access_observations": "1",
             "items": "required_slot NOT IN ('General', 'Aura')",
             "item_classes": "1",

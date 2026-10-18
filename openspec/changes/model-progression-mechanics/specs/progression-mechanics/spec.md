@@ -123,6 +123,17 @@ The clean database SHALL record each scene's limits on natural weather and each 
 - **WHEN** the clean build runs with the weather facts recorded
 - **THEN** each of the four raid planes has a playthrough tier in the requirement graph
 
+### Requirement: Item actions preserve their class and learning level requirements
+
+A teaching way SHALL need an allowed learner class through a class node and SHALL record the spell's required learning level on its teaching need. Item use and equip needs SHALL preserve the corresponding item-class restrictions. An action that admits every playable class SHALL remain unrestricted. Required level SHALL NOT change the playthrough tier.
+
+#### Scenario: Learning Invoke Storm
+
+- **WHEN** reading the ways to Invoke Storm
+- **THEN** Spell Scroll: Invoke Storm needs Druid and records required level 8
+- **AND** Tempestalia, Ring of Storms remains usable by every playable class
+
+
 ### Requirement: Gates can need a faction standing
 
 The clean database SHALL record the rules by which a world faction's standing blocks an NPC's dialog, and a gate SHALL be able to need a standing with a faction. A dialog route or relation with an NPC SHALL need the standing that those rules require, and the standing SHALL need a recorded source that produces it.

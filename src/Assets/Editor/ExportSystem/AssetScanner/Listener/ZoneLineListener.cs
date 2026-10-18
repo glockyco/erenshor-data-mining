@@ -8,11 +8,17 @@ public class ZoneLineListener : IAssetScanListener<Zoneline>
     private readonly SQLiteConnection _db;
     private readonly List<ZoneLineRecord> _records = new();
     private readonly ZoneLineStableKeyResolver _keyResolver;
+    private readonly ObjectHierarchyCollector _hierarchy;
 
-    public ZoneLineListener(SQLiteConnection db, ZoneLineStableKeyResolver keyResolver)
+    public ZoneLineListener(
+        SQLiteConnection db,
+        ZoneLineStableKeyResolver keyResolver,
+        ObjectHierarchyCollector hierarchy
+    )
     {
         _db = db;
         _keyResolver = keyResolver;
+        _hierarchy = hierarchy;
     }
 
     public void OnScanStarted()
@@ -50,6 +56,7 @@ public class ZoneLineListener : IAssetScanListener<Zoneline>
         return new ZoneLineRecord
         {
             StableKey = stableKey,
+            ObjectKey = _hierarchy.Capture(zoneLine.gameObject),
             Scene = sourceScene,
             X = zoneLine.transform.position.x,
             Y = zoneLine.transform.position.y,
@@ -71,6 +78,7 @@ public class ZoneLineListener : IAssetScanListener<Zoneline>
             LandingPositionY = zoneLine.LandingPosition.y,
             LandingPositionZ = zoneLine.LandingPosition.z,
             RemoveParty = zoneLine.RemoveParty,
+            UseSunInNewZone = zoneLine.UseSunInNewZone,
         };
     }
 }

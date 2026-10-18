@@ -56,6 +56,8 @@ public class DoorListener : IAssetScanListener<Door>
         return new DoorRecord
         {
             StableKey = stableKey,
+            ObjectKey = _activationTargets.Hierarchy.Capture(door.gameObject),
+            ComponentIsEnabled = door.enabled,
             Scene = scene,
             X = x,
             Y = y,

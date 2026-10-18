@@ -15,6 +15,8 @@ public class DynamicCharacterSpawnRecord
     public float Y { get; set; }
     public float Z { get; set; }
     public string SourceScript { get; set; } = string.Empty;
+    public string ControllerObjectKey { get; set; } = string.Empty;
+    public bool ControllerComponentIsEnabled { get; set; }
     public float? EventX { get; set; }
     public float? EventY { get; set; }
     public float? EventZ { get; set; }

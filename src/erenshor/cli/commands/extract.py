@@ -12,7 +12,7 @@ import json
 import sqlite3
 import subprocess
 from collections.abc import Iterator
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 from datetime import UTC
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
@@ -270,24 +270,47 @@ def changes(
         "--since",
         help="Backed-up build to compare against (default: the newest earlier build)",
     ),
+    baseline: Path | None = typer.Option(
+        None,
+        "--baseline",
+        exists=True,
+        dir_okay=False,
+        readable=True,
+        resolve_path=True,
+        help="Compare against a saved clean database. Cannot be used with --since.",
+    ),
     output: Path | None = typer.Option(None, "--output", "-o", help="Write the report to this Markdown file"),
     print_report: bool = typer.Option(
         False, "--print", help="Print the report to stdout when --output is also supplied"
     ),
     limit: int = typer.Option(50, "--limit", min=0, help="Rows listed per table and category (0 lists all)"),
 ) -> None:
-    """Report what changed in the clean database since an earlier game build."""
+    """Report changes since an earlier build or a saved clean database."""
     cli_ctx: CLIContext = ctx.obj
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     current_db = variant_config.resolved_database(cli_ctx.repo_root)
+    if baseline is not None and since is not None:
+        raise typer.BadParameter("--baseline and --since are mutually exclusive")
     try:
         current_build = recorded_build_id(current_db)
-        old_build, old_db = BackupService().baseline_clean_database(
-            variant_config.resolved_backups(cli_ctx.repo_root), current_build, since
-        )
+        if baseline is not None:
+            try:
+                old_build = recorded_build_id(baseline)
+                with closing(sqlite3.connect(f"{baseline.as_uri()}?mode=ro", uri=True)) as connection:
+                    for table in ("items", "characters", "quests", "zones"):
+                        connection.execute(f"SELECT stable_key FROM {table} LIMIT 0")
+            except (ValueError, sqlite3.Error) as error:
+                raise ValueError(f"Baseline is not a clean database: {baseline}. {error}") from error
+            old_db = baseline
+            old_label = f"{cli_ctx.variant} build {old_build} snapshot {baseline.name}"
+        else:
+            old_build, old_db = BackupService().baseline_clean_database(
+                variant_config.resolved_backups(cli_ctx.repo_root), current_build, since
+            )
+            old_label = f"{cli_ctx.variant} build {old_build}"
         report = render_report(
             diff_databases(old_db, current_db),
-            f"{cli_ctx.variant} build {old_build}",
+            old_label,
             f"{cli_ctx.variant} build {current_build}",
             limit=limit,
         )

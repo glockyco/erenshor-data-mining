@@ -9,22 +9,22 @@ using UnityEngine;
 public class UiItemSourceListener : IAssetScanListener<GameObject>
 {
     private readonly SQLiteConnection _db;
+    private readonly ObjectHierarchyCollector _hierarchy;
     private readonly Dictionary<string, UiItemSourceRecord> _sources = new();
     private readonly Dictionary<string, UiItemAccessTargetRecord> _targets = new();
-    private readonly Dictionary<string, UiItemAccessActivationRecord> _activations = new();
     private readonly Dictionary<string, List<(string SourceKey, string? ItemKey)>> _hideItems =
         new();
 
-    public UiItemSourceListener(SQLiteConnection db)
+    public UiItemSourceListener(SQLiteConnection db, ObjectHierarchyCollector hierarchy)
     {
         _db = db;
+        _hierarchy = hierarchy;
     }
 
     public void OnScanStarted()
     {
         _sources.Clear();
         _targets.Clear();
-        _activations.Clear();
         _hideItems.Clear();
     }
 
@@ -60,8 +60,6 @@ public class UiItemSourceListener : IAssetScanListener<GameObject>
         // code-fact: ui.planning_desk_open
         if (asset.CompareTag("PlanningDesk"))
             AddTarget(asset);
-        foreach (var activator in asset.GetComponents<QuestSpawnListener>())
-            AddActivations(activator);
     }
 
     public void OnScanFinished()
@@ -85,15 +83,12 @@ public class UiItemSourceListener : IAssetScanListener<GameObject>
 
         _db.CreateTable<UiItemSourceRecord>();
         _db.CreateTable<UiItemAccessTargetRecord>();
-        _db.CreateTable<UiItemAccessActivationRecord>();
         _db.RunInTransaction(() =>
         {
-            _db.DeleteAll<UiItemAccessActivationRecord>();
             _db.DeleteAll<UiItemAccessTargetRecord>();
             _db.DeleteAll<UiItemSourceRecord>();
             _db.InsertAll(_sources.Values);
             _db.InsertAll(_targets.Values);
-            _db.InsertAll(_activations.Values);
         });
     }
 
@@ -107,6 +102,7 @@ public class UiItemSourceListener : IAssetScanListener<GameObject>
             new UiItemSourceRecord
             {
                 StableKey = key,
+                ObjectKey = _hierarchy.Capture(source.gameObject),
                 ComponentType = source.GetType().Name,
                 Scene = source.gameObject.scene.name,
                 HierarchyPath = HierarchyPath(source.transform),
@@ -145,6 +141,7 @@ public class UiItemSourceListener : IAssetScanListener<GameObject>
                 new UiItemAccessTargetRecord
                 {
                     StableKey = key,
+                    ObjectKey = _hierarchy.Capture(target),
                     Scene = target.scene.name,
                     HierarchyPath = HierarchyPath(target.transform),
                     Tag = target.tag,
@@ -157,58 +154,6 @@ public class UiItemSourceListener : IAssetScanListener<GameObject>
             );
         }
         return key;
-    }
-
-    private void AddActivations(QuestSpawnListener activator)
-    {
-        if (activator.EnableOnQuestComplete == null)
-            return;
-        foreach (var enabled in activator.EnableOnQuestComplete)
-        {
-            if (enabled == null)
-                continue;
-            foreach (var child in enabled.GetComponentsInChildren<Transform>(true))
-            {
-                if (!child.CompareTag("PlanningDesk"))
-                    continue;
-                if (child.gameObject != enabled && !ActiveUnder(child, enabled.transform))
-                    continue;
-                var targetKey = AddTarget(child.gameObject);
-                var activatorKey = ComponentKey(activator);
-                var key = $"{activatorKey}:{targetKey}";
-                // code-fact: ui.planning_access_quest
-                // code-fact: ui.planning_access_alternative_quest
-                // code-fact: ui.planning_access_item
-                _activations[key] = new UiItemAccessActivationRecord
-                {
-                    StableKey = key,
-                    TargetStableKey = targetKey,
-                    ActivatorStableKey = activatorKey,
-                    Scene = activator.gameObject.scene.name,
-                    HierarchyPath = HierarchyPath(activator.transform),
-                    QuestStableKey =
-                        activator.Quest == null
-                            ? null
-                            : StableKeyGenerator.ForQuest(activator.Quest),
-                    AlternativeQuestStableKey =
-                        activator.ActiveQuest == null
-                            ? null
-                            : StableKeyGenerator.ForQuest(activator.ActiveQuest),
-                    ItemStableKey =
-                        activator.item == null ? null : StableKeyGenerator.ForItem(activator.item),
-                };
-            }
-        }
-    }
-
-    private static bool ActiveUnder(Transform child, Transform enabled)
-    {
-        for (var current = child; current != enabled; current = current.parent)
-        {
-            if (!current.gameObject.activeSelf)
-                return false;
-        }
-        return true;
     }
 
     private static string ComponentKey(Component component) =>

@@ -19,6 +19,7 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
     private readonly SQLiteConnection _db;
     private readonly CharacterStableKeyResolver _characterKeyResolver;
     private readonly DynamicSpawnCatalog _catalog;
+    private readonly ObjectHierarchyCollector _hierarchy;
     private readonly DynamicSpawnErrorEnvelope _envelope = new();
     private readonly List<DynamicCharacterSpawnRecord> _spawnRecords = new();
     private readonly List<CharacterChainedSpawnRecord> _chainedRecords = new();
@@ -45,12 +46,14 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
     public DynamicSpawnSourceListener(
         SQLiteConnection db,
         CharacterStableKeyResolver characterKeyResolver,
-        DynamicSpawnCatalog catalog
+        DynamicSpawnCatalog catalog,
+        ObjectHierarchyCollector hierarchy
     )
     {
         _db = db;
         _characterKeyResolver = characterKeyResolver;
         _catalog = catalog;
+        _hierarchy = hierarchy;
     }
 
     public void OnAssetFound(MonoBehaviour comp)
@@ -135,6 +138,8 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                             ParentStableKey = parentKey,
                             ChildStableKey = childKey,
                             SourceScript = scriptName,
+                            ControllerObjectKey = _hierarchy.Capture(comp.gameObject),
+                            ControllerComponentIsEnabled = comp.enabled,
                         }
                     );
                 }
@@ -150,7 +155,8 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                         hostScene,
                         scriptName,
                         eventPosition,
-                        triggerMetadata
+                        triggerMetadata,
+                        comp
                     );
             }
             else if (entry.PositionStrategy == VitheoFightPositionStrategy)
@@ -165,7 +171,8 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                             hostScene,
                             scriptName,
                             eventPosition,
-                            triggerMetadata
+                            triggerMetadata,
+                            comp
                         );
                 }
             }
@@ -182,7 +189,8 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                             hostScene,
                             scriptName,
                             eventPosition,
-                            triggerMetadata
+                            triggerMetadata,
+                            comp
                         );
                 }
             }
@@ -370,7 +378,8 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
         string hostScene,
         string scriptName,
         Vector3? eventPosition,
-        TriggerMetadata triggerMetadata
+        TriggerMetadata triggerMetadata,
+        MonoBehaviour controller
     )
     {
         var childKey = _characterKeyResolver.GetStableKey(character);
@@ -378,6 +387,7 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
         var key = eventPosition.HasValue
             ? $"{childKey}|{hostScene}|{pos.x}|{pos.y}|{pos.z}|{scriptName}|event:{eventPosition.Value.x}|{eventPosition.Value.y}|{eventPosition.Value.z}"
             : $"{childKey}|{hostScene}|{pos.x}|{pos.y}|{pos.z}|{scriptName}";
+        string controllerObjectKey = _hierarchy.Capture(controller.gameObject);
         _spawnRecords.Add(
             new DynamicCharacterSpawnRecord
             {
@@ -388,6 +398,8 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                 Y = pos.y,
                 Z = pos.z,
                 SourceScript = scriptName,
+                ControllerObjectKey = controllerObjectKey,
+                ControllerComponentIsEnabled = controller.enabled,
                 EventX = eventPosition?.x,
                 EventY = eventPosition?.y,
                 EventZ = eventPosition?.z,
