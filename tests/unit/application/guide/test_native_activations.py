@@ -74,7 +74,7 @@ def native():
     for index in range(12):
         item = f"item:piece{min(index, 6)}"
         node(item, NodeType.ITEM)
-        spawn(f"character:piece{index}", "Chessboard", "BoardScene", item)
+        spawn(f"character:piece{index}", "Chessboard", "BoardScene", item, ("Board", 11, 12, 13, 14, 15, 16, 1, 1, 1))
     yield conn, graph, spawn
     conn.close()
 
@@ -112,8 +112,9 @@ def test_trigger_offerings_group_by_controller_site_and_random_choice(native):
     feed = payload["_activations"]["activation:MalarothFeed:FeedScene:1.00:2.00:3.00"]
     assert len(feed["offerings"]) == 2
     assert feed["site"]["bounds"]["center"] == {"x": 4, "y": 5, "z": 6}
-    board = payload["_activations"]["activation:Chessboard:BoardScene"]
-    assert board["site"] is None and board["display_name"] is None
+    board = payload["_activations"]["activation:Chessboard:BoardScene:11.00:12.00:13.00"]
+    assert board["display_name"] == "Board"
+    assert board["site"]["bounds"]["center"] == {"x": 14, "y": 15, "z": 16}
     assert len(board["offerings"]) == 7
     [random] = [offer for offer in board["offerings"] if offer["random"]]
     assert len(random["spawns"]) == 6
@@ -135,15 +136,19 @@ def test_activation_character_without_placement_fails(native):
         _payload(native)
 
 
-def test_mixed_sited_and_site_less_controller_fails(native):
+@pytest.mark.parametrize(
+    "missing",
+    [
+        "event_x = NULL, event_y = NULL, event_z = NULL, trigger_bounds_center_x = NULL, "
+        "trigger_bounds_center_y = NULL, trigger_bounds_center_z = NULL, trigger_bounds_extents_x = NULL, "
+        "trigger_bounds_extents_y = NULL, trigger_bounds_extents_z = NULL",
+        "event_display_name = NULL",
+    ],
+)
+def test_controller_without_exported_site_or_name_fails(native, missing):
     conn, _, _ = native
-    conn.execute(
-        "UPDATE character_spawns SET event_x = 1, event_y = 2, event_z = 3, "
-        "trigger_bounds_center_x = 1, trigger_bounds_center_y = 2, trigger_bounds_center_z = 3, "
-        "trigger_bounds_extents_x = 1, trigger_bounds_extents_y = 1, trigger_bounds_extents_z = 1 "
-        "WHERE character_stable_key = 'character:piece0'"
-    )
-    with pytest.raises(ValueError, match="mixes sited and site-less"):
+    conn.execute(f"UPDATE character_spawns SET {missing} WHERE character_stable_key = 'character:piece0'")
+    with pytest.raises(ValueError, match="has no exported site or display name"):
         _payload(native)
 
 
@@ -194,10 +199,11 @@ def test_shipped_resource_has_exact_native_controller_coverage():
                 assert placement["activations"]
                 counts[placement["source_script"]] += 1
     assert counts == {"VithArena": 20, "MalarothFeed": 2, "Chessboard": 12}
-    board = controllers["activation:Chessboard:Braxonian"]
+    [board] = [controller for controller in controllers.values() if controller["script"] == "Chessboard"]
     [random] = [offer for offer in board["offerings"] if offer["random"]]
     assert len(random["spawns"]) == 6
-    assert board["site"] is None
+    assert board["display_name"] == "game board"
+    assert board["site"]["bounds"]["extents"]["x"] > 0
     arena_key = "activation:VithArena:PlaneOfVitheo:ARENA EVENT"
     arena = controllers[arena_key]
     assert arena["offerings"][3]["spawns"] == [{"character": "character:wandering champion", "quantity": 2}]

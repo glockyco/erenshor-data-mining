@@ -10,11 +10,11 @@ public sealed class OfferingActivation
     [JsonProperty("scene")]
     public string Scene { get; set; } = "";
 
-    [JsonProperty("display_name")]
-    public string? DisplayName { get; set; }
+    [JsonProperty("display_name"), JsonRequired]
+    public string DisplayName { get; set; } = "";
 
-    [JsonProperty("site")]
-    public ActivationSite? Site { get; set; }
+    [JsonProperty("site"), JsonRequired]
+    public ActivationSite Site { get; set; } = null!;
 
     [JsonProperty("offerings")]
     public List<Offering> Offerings { get; set; } = new();
@@ -165,20 +165,20 @@ public sealed partial class GuideData
                 string.IsNullOrWhiteSpace(key)
                 || string.IsNullOrWhiteSpace(activation.Script)
                 || string.IsNullOrWhiteSpace(activation.Scene)
+                || string.IsNullOrWhiteSpace(activation.DisplayName)
                 || activation.Offerings.Count == 0
             )
                 throw new InvalidDataException($"Invalid activation {key}");
+            var site = activation.Site;
             if (
-                activation.Site is { } site
-                && (
-                    !Finite(site)
-                    || site.Bounds == null
-                    || !Finite(site.Bounds.Center)
-                    || !Finite(site.Bounds.Extents)
-                    || site.Bounds.Extents.X < 0
-                    || site.Bounds.Extents.Y < 0
-                    || site.Bounds.Extents.Z < 0
-                )
+                site == null
+                || !Finite(site)
+                || site.Bounds == null
+                || !Finite(site.Bounds.Center)
+                || !Finite(site.Bounds.Extents)
+                || site.Bounds.Extents.X < 0
+                || site.Bounds.Extents.Y < 0
+                || site.Bounds.Extents.Z < 0
             )
                 throw new InvalidDataException($"Invalid activation site {key}");
             foreach (var offering in activation.Offerings)
@@ -239,10 +239,7 @@ public sealed partial class GuideData
                 )
                     throw new InvalidDataException($"Activation role mismatch for {character}");
                 bound.Add((reference.Key, reference.Offering, reference.Role, character));
-                reference.Instruction =
-                    activation.DisplayName != null
-                        ? $"Bring {offering.ItemName} to {activation.DisplayName}."
-                        : $"Bring {offering.ItemName} to where {Name(character)} appears.";
+                reference.Instruction = $"Bring {offering.ItemName} to {activation.DisplayName}.";
                 if (offering.Random)
                     reference.Instruction += " A random opponent appears.";
                 reference.WarningInstruction = reference.Instruction + "\n" + offering.Warning;

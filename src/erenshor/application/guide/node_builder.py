@@ -412,8 +412,8 @@ def _add_native_activations(conn: sqlite3.Connection, graph: EntityGraph) -> Non
             key = f"activation:VithArena:{scene}:{object_name}"
             site = _activation_site(group[0])
             display = group[0]["event_display_name"]
-            if site is None:
-                raise ValueError(f"native arena {key!r} has no site")
+            if site is None or not display:
+                raise ValueError(f"native arena {key!r} has no exported site or display name")
             offers = []
             for row in group:
                 if _activation_site(row) != site or row["event_display_name"] != display:
@@ -430,8 +430,7 @@ def _add_native_activations(conn: sqlite3.Connection, graph: EntityGraph) -> Non
                 )
             controllers[key] = Activation("VithArena", scene, display, site, tuple(offers))
 
-    trigger_groups: dict[tuple[str, str, ActivationSite | None], list[sqlite3.Row]] = {}
-    sited: dict[tuple[str, str], set[bool]] = {}
+    trigger_groups: dict[tuple[str, str, ActivationSite], list[sqlite3.Row]] = {}
     for row in rows:
         script, scene = row["source_script"], row["scene"]
         if not scene:
@@ -452,14 +451,12 @@ def _add_native_activations(conn: sqlite3.Connection, graph: EntityGraph) -> Non
                 bind(row, key, index, role)
         else:
             site = _activation_site(row)
-            sited.setdefault((script, scene), set()).add(site is not None)
+            if site is None or not row["event_display_name"]:
+                placement = row["spawn_point_stable_key"]
+                raise ValueError(f"native controller placement {placement!r} has no exported site or display name")
             trigger_groups.setdefault((script, scene, site), []).append(row)
-    if any(len(values) > 1 for values in sited.values()):
-        raise ValueError("native controller mixes sited and site-less placements")
     for (script, scene, site), group in trigger_groups.items():
-        key = f"activation:{script}:{scene}"
-        if site is not None:
-            key += f":{site.x:.2f}:{site.y:.2f}:{site.z:.2f}"
+        key = f"activation:{script}:{scene}:{site.x:.2f}:{site.y:.2f}:{site.z:.2f}"
         if key in controllers:
             raise ValueError(f"ambiguous native activation site identity {key!r}")
         if len({row["event_display_name"] for row in group}) != 1:
@@ -493,7 +490,7 @@ def _add_native_activations(conn: sqlite3.Connection, graph: EntityGraph) -> Non
             Node(
                 key,
                 NodeType.LOCATION,
-                controller.display_name or controller.script,
+                controller.display_name,
                 scene=controller.scene,
                 activation=controller,
             )

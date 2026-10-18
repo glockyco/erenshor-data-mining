@@ -143,7 +143,7 @@ The guide records each controller once as an activation with its exact identity,
 
 No offering becomes a quest, a gate condition or persisted cycle state. Native quests, item sources, kill targets and encounter requirements reach these placements through their normal identities. Runtime resolution reads observable state in this order: a live spawned target, live precursors of a reward, the offering held, then the offering item's own acquisition. Another carried offering of the same controller can be consumed first, so guidance asks the player to carry only the intended one. Live entity tracking covers a reload during a fight. Obtainability of a spawned placement includes obtaining its offering item.
 
-The chessboard placements carry exact trigger items, but its trigger site and display name are not exported. Until the native export records them, chessboard guidance names the item and navigates to the actual exported spawn position without calling that position the trigger.
+Every controller site comes from the export. The chessboard site is the `Chess` host transform and trigger bounds, and its display name repeats the shipped chat wording "game board". A controller without an exported site or display name fails generation.
 
 ## Risks / Trade-offs
 

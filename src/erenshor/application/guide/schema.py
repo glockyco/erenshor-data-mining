@@ -223,8 +223,8 @@ class ActivationOffering:
 class Activation:
     script: str
     scene: str
-    display_name: str | None
-    site: ActivationSite | None
+    display_name: str
+    site: ActivationSite
     offerings: tuple[ActivationOffering, ...]
 
 

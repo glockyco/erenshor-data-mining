@@ -328,7 +328,7 @@ MorphTrigger entry activation, PietyTrigger activation-time quest guards and Fer
 
 ### Requirement: Native offering controllers are placement activations
 
-The guide SHALL represent each native carried-item offering controller as one activation with its exact identity, scene, exported site, offerings, spawned characters with counts, reward containers and random-outcome flag. Every placement that a controller spawns SHALL reference its offerings and role. Unbound or ambiguous controller placements SHALL fail generation. Offerings SHALL NOT become synthetic quests, gate atoms or persisted workflow state. `quest-guide.json` SHALL contain native quests only.
+The guide SHALL represent each native carried-item offering controller as one activation with its exact identity, scene, exported site, display name, offerings, spawned characters with counts, reward containers and random-outcome flag. Every placement that a controller spawns SHALL reference its offerings and role. Unbound or ambiguous controller placements and controllers without an exported site or display name SHALL fail generation. Offerings SHALL NOT become synthetic quests, gate atoms or persisted workflow state. `quest-guide.json` SHALL contain native quests only.
 
 #### Scenario: Arena reward chest
 

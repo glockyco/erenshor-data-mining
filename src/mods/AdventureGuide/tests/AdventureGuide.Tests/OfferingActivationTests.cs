@@ -39,6 +39,8 @@ public sealed class OfferingActivationTests
     [InlineData("character")]
     [InlineData("item")]
     [InlineData("site")]
+    [InlineData("no-site")]
+    [InlineData("no-name")]
     [InlineData("unbound")]
     public void Invalid_activation_contract_fails_load(string defect)
     {
@@ -63,7 +65,13 @@ public sealed class OfferingActivationTests
                 wrapper.GateItems!.Clear();
                 break;
             case "site":
-                activation.Site!.Bounds.Center.X = float.NaN;
+                activation.Site.Bounds.Center.X = float.NaN;
+                break;
+            case "no-site":
+                activation.Site = null!;
+                break;
+            case "no-name":
+                activation.DisplayName = "";
                 break;
             case "unbound":
                 wrapper.CharacterSpawns.Remove("character:enemy");
@@ -108,27 +116,6 @@ public sealed class OfferingActivationTests
         live.Clear();
         held.Clear();
         Assert.Equal(offering.ItemStableKey, Resolve().MissingItem);
-    }
-
-    [Fact]
-    public void Siteless_activation_uses_placement_without_claiming_it_is_a_trigger()
-    {
-        var wrapper = Fixture();
-        wrapper.Activations!["activation:test"].Site = null;
-        wrapper.Activations["activation:test"].DisplayName = null;
-        var data = GuideData.FromWrapper(wrapper);
-        var spawn = data.CharacterSpawns["character:chest"][0];
-        var endpoint = OfferingNavigation.Resolve(
-            data,
-            spawn,
-            spawn.Activations![0],
-            "character:chest",
-            "A",
-            _ => 1,
-            _ => false
-        );
-        Assert.Equal(spawn.X, endpoint.X);
-        Assert.StartsWith("Bring Fee to where chest appears.", endpoint.Instruction);
     }
 
     [Fact]
@@ -226,19 +213,22 @@ public sealed class OfferingActivationTests
         "quest:stowawayritualcomplete",
         "item:gen - demented brain",
         "character:demented malaroth",
-        "Malaroth"
+        "Malaroth",
+        "Bring Odd Malaroth Feed to Malaroth feeding site."
     )]
     [InlineData(
         "quest:sivakayanore",
         "item:ore - sivakayan ore",
         "character:candlekeeper",
-        "Braxonian"
+        "Braxonian",
+        "Bring A Strange Figurine to game board."
     )]
-    public void Shipped_drop_sources_follow_their_actual_offering_and_site_fallback(
+    public void Shipped_drop_sources_follow_their_actual_offering_and_site(
         string questKey,
         string itemKey,
         string character,
-        string scene
+        string scene,
+        string instruction
     )
     {
         var data = ShippingData();
@@ -268,18 +258,11 @@ public sealed class OfferingActivationTests
         facts.Inventory[offering.ItemStableKey] = 1;
         var prepared = Resolve();
         Assert.True(prepared.CanNavigate, prepared.DisplayText);
-        Assert.Equal(activation.Site?.Bounds.Center.X ?? spawn.X, prepared.Activation!.Value.X);
-        Assert.Equal(activation.Site?.Bounds.Center.Y ?? spawn.Y, prepared.Activation.Value.Y);
-        Assert.Equal(activation.Site?.Bounds.Center.Z ?? spawn.Z, prepared.Activation.Value.Z);
+        Assert.Equal(activation.Site.Bounds.Center.X, prepared.Activation!.Value.X);
+        Assert.Equal(activation.Site.Bounds.Center.Y, prepared.Activation.Value.Y);
+        Assert.Equal(activation.Site.Bounds.Center.Z, prepared.Activation.Value.Z);
         Assert.Equal(itemKey, prepared.Step.TargetKey);
-        Assert.Contains(offering.ItemName, prepared.Message);
-        if (activation.Site == null)
-        {
-            Assert.Contains("to where Candlekeeper appears.", prepared.Message);
-            Assert.DoesNotContain("trigger", prepared.Message);
-        }
-        else
-            Assert.Equal("Bring Odd Malaroth Feed to Malaroth feeding site.", prepared.Message);
+        Assert.Equal(instruction, prepared.Message);
         live.Add(character);
         facts.Inventory.Clear();
         Assert.Equal(character, Resolve().Activation!.Value.LiveCharacter);
@@ -289,7 +272,7 @@ public sealed class OfferingActivationTests
     public void Shipped_faceless_offering_keeps_all_random_outcomes_and_preparation()
     {
         var data = ShippingData();
-        var activation = data.Activations["activation:Chessboard:Braxonian"];
+        var activation = Assert.Single(data.Activations.Values, a => a.Script == "Chessboard");
         var random = Assert.Single(activation.Offerings, offering => offering.Random);
         Assert.Equal(6, random.Spawns.Count);
         foreach (var member in random.Spawns)
@@ -302,11 +285,14 @@ public sealed class OfferingActivationTests
                 reference,
                 member.Character,
                 "Braxonian",
-                _ => 1,
+                key => key == random.ItemStableKey ? 1 : 0,
                 _ => false
             );
-            Assert.Contains("A random opponent appears.", endpoint.Instruction);
-            Assert.Equal(spawn.X, endpoint.X);
+            Assert.Equal(
+                "Bring The Faceless to game board. A random opponent appears.",
+                endpoint.Instruction
+            );
+            Assert.Equal(activation.Site.Bounds.Center.X, endpoint.X);
         }
     }
 

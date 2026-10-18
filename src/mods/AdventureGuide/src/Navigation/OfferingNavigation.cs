@@ -72,14 +72,14 @@ internal static class OfferingNavigation
                 competing = true;
                 break;
             }
-        var position = activation.Site?.Bounds.Center;
+        var position = activation.Site.Bounds.Center;
         return new OfferingEndpoint(
             null,
             countItem(offering.ItemStableKey) > 0 ? null : offering.ItemStableKey,
             competing ? reference.WarningInstruction : reference.Instruction,
-            position?.X ?? spawn.X,
-            position?.Y ?? spawn.Y,
-            position?.Z ?? spawn.Z,
+            position.X,
+            position.Y,
+            position.Z,
             competing ? offering.Warning : null
         );
     }
