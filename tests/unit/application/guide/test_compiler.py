@@ -1102,3 +1102,59 @@ def test_item_use_unknown_source_and_cycle_have_no_obtainability_level() -> None
     graph.add_edge(Edge(b.key, a.key, EdgeType.CREATES_ITEM))
     graph.build_indexes()
     assert _item_obtainability_level(a.key, ctx, set()) is None
+
+
+@pytest.mark.parametrize(
+    ("action", "groups", "common_level", "expected"),
+    [
+        (EdgeType.STEP_TRAVEL, ("completion:test", "completion:test"), None, 4),
+        (EdgeType.STEP_GO_TO, ("completion:test", "completion:test"), None, 4),
+        (EdgeType.STEP_KILL, ("completion:test", "completion:test"), None, 4),
+        (EdgeType.STEP_TALK, ("completion:test", "completion:test"), None, 4),
+        (EdgeType.STEP_SHOUT, ("completion:test", "completion:test"), None, 4),
+        (EdgeType.STEP_READ, ("completion:test", "completion:test"), None, 4),
+        (EdgeType.STEP_TRAVEL, (None, None), None, 24),
+        (EdgeType.STEP_GO_TO, (None, None), None, 24),
+        (EdgeType.STEP_KILL, (None, None), None, 24),
+        (EdgeType.STEP_TALK, (None, None), None, 24),
+        (EdgeType.STEP_SHOUT, (None, None), None, 24),
+        (EdgeType.STEP_READ, (None, None), None, 4),
+        (EdgeType.STEP_TRAVEL, ("completion:test", "completion:test"), 12, 12),
+        (EdgeType.STEP_KILL, ("completion:test", "completion:test"), 12, 12),
+        (EdgeType.STEP_TRAVEL, ("completion:first", "completion:second"), None, 24),
+    ],
+)
+def test_quest_levels_preserve_required_steps_and_explicit_alternatives(
+    action: EdgeType, groups: tuple[str | None, str | None], common_level: int | None, expected: int
+) -> None:
+    from erenshor.application.guide.graph_validation import _estimate_quest_level
+
+    quest = quest_node("quest:choices", "CHOICES")
+    zones = [Node(f"zone:{name}", NodeType.ZONE, name) for name in ("easy", "hard", "common")]
+    characters = [Node(f"character:{name}", NodeType.CHARACTER, name) for name in ("easy", "hard", "common")]
+    items = [item_node(f"item:{name}") for name in ("easy", "hard")]
+    locations = [
+        Node(f"location:{name}", NodeType.LOCATION, name, zone_key=f"zone:{name}") for name in ("easy", "hard")
+    ]
+    targets = {
+        EdgeType.STEP_TRAVEL: zones,
+        EdgeType.STEP_GO_TO: locations,
+        EdgeType.STEP_KILL: characters,
+        EdgeType.STEP_TALK: characters,
+        EdgeType.STEP_SHOUT: characters,
+        EdgeType.STEP_READ: items,
+    }[action]
+    edges = [
+        Edge(characters[0].key, items[0].key, EdgeType.DROPS_ITEM),
+        Edge(characters[1].key, items[1].key, EdgeType.DROPS_ITEM),
+        Edge(quest.key, targets[0].key, action, group=groups[0]),
+        Edge(quest.key, targets[1].key, action, group=groups[1]),
+    ]
+    if common_level is not None:
+        edges.append(Edge(quest.key, characters[2].key, EdgeType.STEP_KILL))
+    graph = build_graph(quest, *zones, *characters, *items, *locations, edges=edges)
+    zone_levels = {"zone:easy": 4, "zone:hard": 24, "zone:common": common_level or 1}
+    character_levels = {"character:easy": 4, "character:hard": 24, "character:common": common_level or 1}
+    character_zones = {character.key: zone.key for character, zone in zip(characters, zones, strict=True)}
+
+    assert _estimate_quest_level(quest, graph, zone_levels, character_levels, character_zones, {}, {}) == expected

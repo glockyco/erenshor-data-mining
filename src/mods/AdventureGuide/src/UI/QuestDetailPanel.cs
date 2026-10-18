@@ -154,11 +154,11 @@ public sealed class QuestDetailPanel
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
         ImGui.TextUnformatted(_levelZoneLine);
 
-        // Tooltip: show all steps with their levels, mark the driving step
+        // Show step levels without treating alternative completions as mandatory.
         if (ImGui.IsItemHovered() && quest.Steps is { Count: > 0 })
         {
             ImGui.BeginTooltip();
-            ImGui.TextUnformatted("Quest level: hardest step");
+            ImGui.TextUnformatted("Quest level: easiest complete path");
             ImGui.Separator();
             int? questLvl = quest.LevelEstimate?.Recommended;
             foreach (var step in quest.Steps)

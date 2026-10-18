@@ -341,3 +341,18 @@ CanonicalSources SHALL own common DDL and source hooks. ExportBundleIntegrator S
 - **WHEN** a complete isolated fixture is built with common producer APIs
 - **THEN** the actual guide writer output loads through the C# parser/evaluator with false availability, true outcome and exact support identities intact
 - **AND** handwritten JSON alone does not establish the integration proof
+
+### Requirement: Quest level estimates preserve complete alternatives
+
+The recommended quest level SHALL use the minimum known level within each explicit alternative step group and the maximum across independently required steps and requirements. Native item variants SHALL remain OR alternatives of complete AND bundles. Unknown levels SHALL NOT count as zero. Each alternative SHALL retain its own step estimate and route.
+
+#### Scenario: Alternative destinations have different levels
+
+- **WHEN** The Island Tomb completes by entering either level-4 Island Tomb or level-24 Shivering Tomb (2), with no higher shared requirement
+- **THEN** its recommended quest level is 4
+- **AND** both destinations retain their own estimates and navigation identities
+
+#### Scenario: A shared requirement is harder than the easier alternative
+
+- **WHEN** either completion alternative is valid but an independent required step has level 12
+- **THEN** the quest estimate includes that shared requirement rather than reporting only the easier alternative

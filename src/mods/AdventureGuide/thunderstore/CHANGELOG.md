@@ -28,6 +28,7 @@
 - Resume the recipe after gathering a chosen ingredient.
 - Keep recipe ingredient markers and tracker order accurate until the full amount is gathered.
 - Show repeated navigation instructions only once.
+- Estimate quest levels from the easier complete alternative without skipping required steps.
 
 ## v2026.1008.0
 

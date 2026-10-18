@@ -192,6 +192,9 @@ A checked task proves its named behavior and checks, not newer shared-data integ
   - Both native loaders build without warnings or errors. Actual BepInEx reproduced the duplicate for both portal kinds. The corrected native Lunaris Guide and tracker show each instruction once while the underlying prerequisite and next-action fields remain unchanged. Distinct Ghostly Key and mining instructions remain separate.
   - Ordinary-rune proof selects the exact native portal through the existing PinZoneLine API. It does not establish a single-entry panel button. Both cases use native inventory controls without slot or account mutation, and all five item controls were restored.
 
+- [ ] 10.10 Estimate quest levels from complete alternatives while retaining independent required steps, native item bundles and each destination's own route. Verify The Island Tomb's level-4 versus level-24 choice through actual owned generation and the native Guide.
+  - All 204 Guide Python unit cases and 744 Guide host cases pass. Both native loader builds report zero warnings and errors. Actual generation from the approved readonly owned input changes The Island Tomb from 24 to 4 while retaining destination levels 4 and 24. Canonical source facts, conditions, routes and destination contexts are unchanged. Receipt: `/tmp/erenshor-guide/interactive-review111/evidence/alternative-level-generation112.json`. The running user-review build is unchanged and native display proof remains pending.
+
 ## 8. Close-out
 
 Release planning, packaging dry runs, and publishing are outside this change's assignment.
