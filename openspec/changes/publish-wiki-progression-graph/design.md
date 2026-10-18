@@ -108,3 +108,4 @@ Rollback follows D8.
 ## Open Questions
 
 - The final title of the explorer page and the pages that place the template. The maintainer decides them at publication. Neither changes the view.
+- Which way the overview follows when the first way is one that the designers did not intend. Chazz Pillot drops Mold: A Strange Figurine every time he dies, so killing him is its first way, ahead of the reward of A Note for C. Pillot, and the overview would skip A Hermit's Request. The ways level shows both. Before the overview lands, it needs a rule that comes from the data, such as ranking a way that kills a friendly NPC after the other ways of its node, and the review of task 2.5 of `derive-progression-requirements` names the cases.
