@@ -634,3 +634,8 @@ rule = "jaws_statue_startup"
 script = "BellsieWineTrigger"
 fields = ["IDtoActivate", "WineOnChair", "Note", "Poof"]
 rule = "bellwain_offering"
+
+[[activation]]
+script = "RewardListener"
+fields = ["FrostCliff", "InfernoCliff"]
+rule = "twin_giants"

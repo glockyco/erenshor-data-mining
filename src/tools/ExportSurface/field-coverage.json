@@ -82,7 +82,8 @@
     "StowawayPortal",
     "SkeletonCheckin",
     "JawsStatueStartup",
-    "BellsieWineTrigger"
+    "BellsieWineTrigger",
+    "RewardListener"
   ],
   "fields": {
     "WeatherTrend": {
@@ -9780,6 +9781,74 @@
         "type": "UnityEngine.GameObject"
       },
       "WineOnChair": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      }
+    },
+    "RewardListener": {
+      "Frost": {
+        "by": null,
+        "reason": "Runtime check-in of the Frost twin. ScriptedActivatorListener derives the twins from SpawnPoint.NPCSpecificObject and InfernoTwins.",
+        "status": "ignored",
+        "type": "Character"
+      },
+      "Inferno": {
+        "by": null,
+        "reason": "Runtime check-in of the Inferno twin. ScriptedActivatorListener derives the twins from SpawnPoint.NPCSpecificObject and InfernoTwins.",
+        "status": "ignored",
+        "type": "Character"
+      },
+      "Chest": {
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "ChestSpawn": {
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "ChestGiven": {
+        "by": null,
+        "reason": "Runtime flag that limits the chest to one per kill of both twins.",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "RageLevel": {
+        "by": null,
+        "reason": "Runtime combat scaling from the twins' health difference.",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "AngerLines": {
+        "by": null,
+        "reason": "Combat shouts.",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "FrostBeam": {
+        "by": null,
+        "reason": "Effect shown while both twins live.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "InfernoBeam": {
+        "by": null,
+        "reason": "Effect shown while both twins live.",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "InfernoCliff": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "FrostCliff": {
         "by": "ScriptedActivatorListener",
         "reason": null,
         "status": "captured",

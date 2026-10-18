@@ -512,3 +512,41 @@ def test_a_wall_that_an_enabled_script_removes_needs_the_enabler_and_the_script_
     assert [tuple(row) for row in events] == [("quest:ritual", "zone:tomb")]
     conditions = writer.conn.execute("SELECT atom_kind, atom_stable_key FROM scripted_event_conditions")
     assert [tuple(row) for row in conditions] == [("quest_done", "quest:meet")]
+
+
+def test_cliffs_of_the_twin_giants_open_only_once_both_twins_are_dead(
+    tmp_path: Path, writer: Writer, raw: sqlite3.Connection
+) -> None:
+    raw.execute("CREATE TABLE SpawnPointCharacters (SpawnPointStableKey TEXT, CharacterStableKey TEXT)")
+    raw.executemany(
+        "INSERT INTO SpawnPointCharacters VALUES (?, ?)",
+        [(_GHOST_SPAWN, _GHOST), ("spawn:salted:1", "character:bassle")],
+    )
+    for obj in ("object:plane:bridge", "object:plane:frostcliff", "object:plane:infernocliff"):
+        raw.execute("INSERT INTO ObjectHierarchy VALUES (?, NULL, 1, 1)", (obj,))
+    raw.execute(
+        "INSERT INTO ScriptedActivators (SourceKey, RuleId, SourceScene, ComponentIsEnabled, ObjectKey)"
+        " VALUES ('bridge', 'twin_giants', 'Tomb', 1, 'object:plane:bridge')"
+    )
+    raw.executemany(
+        "INSERT INTO ScriptedActivatorReferences VALUES (?, 'bridge', ?, ?, ?)",
+        [
+            ("r1", "FrostCliff", "object", "object:plane:frostcliff"),
+            ("r2", "InfernoCliff", "object", "object:plane:infernocliff"),
+            ("r3", "$checkin_spawn_point", "spawn_point", _GHOST_SPAWN),
+            ("r4", "$checkin_spawn_point", "spawn_point", "spawn:salted:1"),
+        ],
+    )
+    body = _COMPLETE + _record(
+        kind='"removed"',
+        name='"Frost cliff"',
+        objects='["object:plane:frostcliff"]',
+        targets='["zoneline:island:tomb:808.08:14.08:592.64"]',
+    )
+    body += _record(kind='"removed"', name='"Inferno cliff"', objects='["object:plane:infernocliff"]')
+    process_gates(raw, writer, _barriers(tmp_path, body))
+
+    # Either twin alive keeps both cliffs, so one group needs both deaths.
+    assert _gates(writer)[
+        ("zone_line", "zoneline:island:tomb:808.08:14.08:592.64", None, "object:plane:frostcliff")
+    ] == [[("encounter_won", "character:bassle", None), ("encounter_won", _GHOST, None)]]

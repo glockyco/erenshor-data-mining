@@ -218,6 +218,21 @@ internal static class Program
                 unrelatedSpawn.CommonSpawns.Add(target);
                 host.scene.Roots.Add(unrelated);
             }
+            if (controller is RewardListener)
+            {
+                var twinHost = Host("twin-spawn", targets);
+                var twinSpawn = Spawn(twinHost, "spawn:fixture:twin", targets);
+                twinSpawn.NPCSpecificObject = host;
+                var twin = Host("twin-prefab", targets);
+                twin.Add(new Character { FixtureKey = "character:fixture:twin" });
+                twin.Add(new InfernoTwins());
+                twinSpawn.CommonSpawns.Add(twin);
+                // A spawn on the same point that is no twin does not check in.
+                var bystander = Host("bystander-prefab", targets);
+                bystander.Add(new Character { FixtureKey = "character:fixture:bystander" });
+                twinSpawn.RareSpawns.Add(bystander);
+                host.scene.Roots.Add(twinHost);
+            }
             listener.OnAssetFound(controller);
         }
         listener.OnScanFinished();

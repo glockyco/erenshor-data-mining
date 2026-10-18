@@ -156,8 +156,8 @@ def _mechanisms(raw: sqlite3.Connection, conn: sqlite3.Connection, activity: Act
         add(target, "removed", _and((tuple(sorted(atoms, key=_atom_order)),), activity.host(host)))
 
     for source, rule in raw.execute(
-        "SELECT SourceKey, RuleId FROM ScriptedActivators WHERE RuleId IN"
-        " ('siv_torch_gaze', 'npc_alive', 'morph_trigger', 'shivering_angel', 'piety_guardians') ORDER BY SourceKey"
+        "SELECT SourceKey, RuleId FROM ScriptedActivators WHERE RuleId IN ('siv_torch_gaze', 'npc_alive',"
+        " 'morph_trigger', 'shivering_angel', 'piety_guardians', 'twin_giants') ORDER BY SourceKey"
     ):
         capability = activity.controller(source)
         if rule == "siv_torch_gaze":
@@ -173,6 +173,26 @@ def _mechanisms(raw: sqlite3.Connection, conn: sqlite3.Connection, activity: Act
             opening = _and(_spawn_encounter_groups(raw, conn, [spawn]), capability)
             for obj in _objects(raw, source, "SpawnIfAlive"):
                 add(obj, "removed", opening)
+        elif rule == "twin_giants":
+            # code-fact: progression.twins.checkin_binding
+            # code-fact: progression.twins.cliffs
+            # Both cliffs stand while either twin that checked in lives.
+            spawns = sorted(
+                {
+                    str(key)
+                    for (key,) in raw.execute(
+                        "SELECT ReferenceKey FROM ScriptedActivatorReferences WHERE SourceKey = ?"
+                        " AND Field = '$checkin_spawn_point' AND ReferenceKind = 'spawn_point'",
+                        (source,),
+                    )
+                }
+            )
+            if not spawns:
+                raise ValueError(f"Missing checked-in twin spawn points for {source}")
+            opening = _and(_spawn_encounter_groups(raw, conn, spawns), capability)
+            for field in ("FrostCliff", "InfernoCliff"):
+                for obj in _objects(raw, source, field):
+                    add(obj, "removed", opening)
         elif rule == "morph_trigger":
             # Entering the trigger disables these objects after enabling its Enable list.
             for obj in _objects(raw, source, "Disable"):
@@ -183,11 +203,13 @@ def _mechanisms(raw: sqlite3.Connection, conn: sqlite3.Connection, activity: Act
             quest = _code_fact_quest(raw, conn, "progression.shivering_angel.quest")
             opening = _and(((Atom("quest_done", quest),),), capability)
             add(_scripted_reference(raw, source, "$host", "object"), "moved", opening)
-        else:
+        elif rule == "piety_guardians":
             quest = _scripted_reference(raw, source, "RequiredQuest", "quest")
             # The trigger calls its guardians only while the quest is not done.
             opening = _and(((Atom("quest_done", quest),),), capability)
             add(_scripted_reference(raw, source, "$host", "object"), "guardians", opening)
+        else:
+            raise ValueError(f"unhandled barrier rule {rule!r} for {source}")
     return {identity: {kind: tuple(groups) for kind, groups in kinds.items()} for identity, kinds in found.items()}
 
 

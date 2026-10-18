@@ -409,3 +409,11 @@ public sealed class SkeletonCheckin : MonoBehaviour
 {
     public bool Keeper;
 }
+
+public sealed class RewardListener : MonoBehaviour
+{
+    public GameObject FrostCliff,
+        InfernoCliff;
+}
+
+public sealed class InfernoTwins : MonoBehaviour { }

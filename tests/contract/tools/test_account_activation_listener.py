@@ -48,7 +48,7 @@ def _assert_complete_catalog(payload: dict[str, Any]) -> None:
             synthetic.add("$portal_active_self")
         if name == "AstraListener":
             synthetic.add("Dragon")
-        if name == "StowawayPortal":
+        if name in {"StowawayPortal", "RewardListener"}:
             synthetic.update({"$checkin_character", "$checkin_spawn_point"})
         assert fields == set(entry["fields"]) | synthetic
         for reference in configured:
@@ -124,6 +124,16 @@ def _assert_complete_catalog(payload: dict[str, Any]) -> None:
     ]
     assert len(enabled_objects) == 1
     assert enabled_objects[0]["ObjectKey"] == stowaway["KeeperSpawn"]["ReferenceKey"]
+    # Only characters whose prefab checks in with this controller join its death set.
+    twins = [
+        (row["Field"], row["ReferenceIndex"], row["ReferenceKey"])
+        for row in references
+        if row["SourceKey"] == sources["RewardListener"]["SourceKey"] and row["Field"].startswith("$checkin")
+    ]
+    assert sorted(twins) == [
+        ("$checkin_character", 0, "character:fixture:twin"),
+        ("$checkin_spawn_point", 0, "spawn:fixture:twin"),
+    ]
 
 
 def _assert_account_bindings(case: dict[str, Any]) -> None:

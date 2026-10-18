@@ -185,6 +185,13 @@ public sealed class ScriptedActivatorListener : IAssetScanListener<MonoBehaviour
             "stowaway_deaths",
             new() { ["KeeperSpawn"] = typeof(GameObject) }
         ),
+        // Both cliffs stand while either checked-in twin lives.
+        // code-fact: progression.twins.checkin_binding
+        // code-fact: progression.twins.cliffs
+        [typeof(RewardListener)] = (
+            "twin_giants",
+            new() { ["FrostCliff"] = typeof(GameObject), ["InfernoCliff"] = typeof(GameObject) }
+        ),
         // Enables its gaze statue's SivTorchLight once StartOnComplete is done.
         // code-fact: progression.jaws.statue_enable
         [typeof(JawsStatueStartup)] = (
@@ -358,11 +365,24 @@ public sealed class ScriptedActivatorListener : IAssetScanListener<MonoBehaviour
                 );
             AddReference(sourceKey, nameof(AstraListener.Dragon), 0, spawnedCharacter, placed);
         }
-        if (asset is StowawayPortal stowaway)
-            AddStowawayCheckins(sourceKey, stowaway);
+        if (asset is StowawayPortal)
+            // Keepers check in for the portal itself, not for the death set.
+            AddCheckins(
+                sourceKey,
+                asset,
+                prefab => prefab.GetComponent<SkeletonCheckin>() is { Keeper: false }
+            );
+        if (asset is RewardListener)
+            AddCheckins(sourceKey, asset, prefab => prefab.GetComponent<InfernoTwins>() != null);
     }
 
-    private void AddStowawayCheckins(string sourceKey, StowawayPortal controller)
+    // A spawned character checks in with the controller that its spawn point's
+    // NPCSpecificObject holds, so the death set comes from those spawn points.
+    private void AddCheckins(
+        string sourceKey,
+        MonoBehaviour controller,
+        Func<GameObject, bool> checksIn
+    )
     {
         int index = 0;
         foreach (var root in controller.gameObject.scene.GetRootGameObjects())
@@ -371,30 +391,27 @@ public sealed class ScriptedActivatorListener : IAssetScanListener<MonoBehaviour
             {
                 if (spawnPoint.NPCSpecificObject != controller.gameObject)
                     continue;
-                AddCheckins(spawnPoint.CommonSpawns, spawnPoint);
-                AddCheckins(spawnPoint.RareSpawns, spawnPoint);
+                Add(spawnPoint.CommonSpawns, spawnPoint);
+                Add(spawnPoint.RareSpawns, spawnPoint);
             }
         }
         if (index == 0)
             throw new InvalidOperationException(
-                $"Death trigger has no SkeletonCheckin bindings: {sourceKey}"
+                $"Death trigger has no check-in bindings: {sourceKey}"
             );
 
-        void AddCheckins(List<GameObject> prefabs, SpawnPoint spawnPoint)
+        void Add(List<GameObject> prefabs, SpawnPoint spawnPoint)
         {
             if (prefabs == null)
                 return;
             foreach (var prefab in prefabs)
             {
-                if (prefab == null)
-                    continue;
-                var checkin = prefab.GetComponent<SkeletonCheckin>();
-                if (checkin == null || checkin.Keeper)
+                if (prefab == null || !checksIn(prefab))
                     continue;
                 var character = prefab.GetComponent<Character>();
                 if (character == null)
                     throw new InvalidOperationException(
-                        $"SkeletonCheckin has no Character: {sourceKey}"
+                        $"Checked-in prefab has no Character: {sourceKey}"
                     );
                 AddReference(sourceKey, "$checkin_character", index, character, true);
                 AddReference(sourceKey, "$checkin_spawn_point", index, spawnPoint, true);

@@ -159,6 +159,28 @@
       }
     },
     {
+      "id": "progression.twins.checkin_binding",
+      "mode": "assert",
+      "type": "InfernoTwins",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "MethodDeclaration",
+        "shape": "private void Start () { MySpawnPoint = GetComponent<NPC> ().GetSpawnPoint (); MySpawnPoint.NPCSpecificObject.GetComponent<RewardListener> ().CheckIn (MyChar); }"
+      }
+    },
+    {
+      "id": "progression.twins.cliffs",
+      "mode": "assert",
+      "type": "RewardListener",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if ((!Frost || !Frost.Alive) && (!Inferno || !Inferno.Alive)) { InfernoCliff.SetActive (value: false); FrostCliff.SetActive (value: false); } else { InfernoCliff.SetActive (value: true); FrostCliff.SetActive (value: true); }"
+      }
+    },
+    {
       "id": "weather.rain_start",
       "mode": "extract",
       "type": "AtmosphereColors",

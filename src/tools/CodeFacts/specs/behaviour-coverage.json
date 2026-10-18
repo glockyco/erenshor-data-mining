@@ -328,10 +328,8 @@
       "apis": [
         "Character.Alive"
       ],
-      "classification": "pending",
-      "tasks": [
-        "3.3"
-      ]
+      "classification": "excluded",
+      "reason": "Update runs the twins' energy attacks while both live and are engaged. Its Start check-in with RewardListener is the progression.twins.checkin_binding code fact that ScriptedActivatorListener twin_giants exports."
     },
     "InfernoTwinsSpawnPoints": {
       "apis": [
@@ -654,10 +652,8 @@
       "apis": [
         "Character.Alive"
       ],
-      "classification": "pending",
-      "tasks": [
-        "3.3"
-      ]
+      "classification": "adapter",
+      "component": "ScriptedActivatorListener twin_giants check-ins and processor/barriers.py cliff removals"
     },
     "RunWindow": {
       "apis": [
