@@ -2,37 +2,18 @@
 
 ## v2026.1017.0
 
-- Lead the arrow to what unlocks a locked quest target, such as a key, an item, another quest, or a furnished Reliquary room, and show the steps on the way.
-- Treat targets behind locked doors as reachable only once you hold the key or have it on your keyring.
-- Reach targets that only one entrance leads to, such as Occuphage through the Stowaway's Step lighthouse.
-- List Bread, Water, Brackfruit Juice, Luminstone, Citrine Stone, and Star Stone as one source from any enemy with common drops instead of hundreds of enemies.
-- Reduce memory use while navigating and updating quest markers.
-- Show compact source choices with fishing hours, local chances and combat preparation.
-- Keep a chosen source while following its prerequisites.
-- Show the dialogue keyword when an NPC hands over an item.
-- Check stored portal stones and runes, and show where to place them on the planning table.
-- Follow crafting recipes to missing ingredients without losing the original quest.
-- Skip the Reliquary claiming fight on accounts that already claimed it.
-- Take the active Reliquary return portal back to the current character's saved destination.
-- Close the guide with Escape without opening the game menu.
-- Count repeated quest items together and keep alternative turn-ins separate.
-- Keep item-read quest guidance working with alternative turn-ins.
-- Keep navigation guidance in the tracker while browsing other quests.
-- Keep the original quest visible while following its prerequisites.
-- Keep source actions, locations, levels and chances compact.
-- Group repeated sources without hiding their access requirements.
-- Fix Guide loading on Lunaris.
-- Clarify which mold a crafting source uses.
-- Show repeated recipe ingredients with their total quantity.
-- Avoid repeating item-use instructions beside their chances.
-- Resume the recipe after gathering a chosen ingredient.
-- Keep recipe ingredient markers and tracker order accurate until the full amount is gathered.
-- Show repeated navigation instructions only once.
-- Estimate quest levels from the easier complete alternative without skipping required steps.
-- Keep encounter requirements visible when navigating to a prerequisite fight.
-- Keep locked-door and quest requirements on item source locations.
-- Explain which fee, feed or figurine summons arena fights, Malaroth feeding-site bosses and chessboard pieces, and lead the arrow there.
-- Remove the separate arena round and Malaroth feeding-site entries from the quest list.
+- When a quest target is locked, point the arrow at what you need first, such as a key, another quest or a boss.
+- Show which fee, feed or figurine summons arena fights, Malaroth bosses and chessboard pieces.
+- Lead the arrow to where you use a fee, feed or figurine.
+- Lead you to missing crafting ingredients, then back to the recipe.
+- Show what an enemy needs before you can hurt it, such as rain for Evadne.
+- Stop sending you to the Reliquary fight on accounts that already claimed it.
+- Only route you through a locked door once you have its key.
+- Only route you through a planning table portal once its stone or rune is in place.
+- Use the Stowaway's Step lighthouse entrance to reach Occuphage.
+- Base quest levels on the easiest way to finish, so The Island Tomb shows level 4 instead of 24.
+- Show the hours when a fish can be caught.
+- Show the keyword to say when an NPC hands you an item.
 
 ## v2026.1008.0
 
