@@ -86,7 +86,7 @@ A barrier is an object that blocks access until its mechanism opens it:
 
 A `guardians` barrier is advisory, as the guide's requirement "Transient activation stays advice" already states for `PietyTrigger`. The trigger stops calling its guardians once the quest is done, but guardians that it already called stay, so the need tells a player what to do first and does not claim that the game removes them.
 
-The opening condition comes from the export and code facts, never from the review. `barriers.toml` records, for each barrier, its key, kind, guarded targets, a reason, and the in-game check that confirmed the targets. Keyed door entries move to this form in the same commit. Each gate that a barrier causes is named by the barrier's key, as door gates already are, so readers can treat a barrier as one thing.
+The opening condition comes from the export and code facts, never from the review. `barriers.toml` records, for each barrier, its kind, its objects, the first of which names the barrier, the guarded targets, a reason, and the check that confirmed the targets: `navmesh` or `render`, or `unconfirmed` until an in-game check confirms them. Keyed door entries move to this form in the same commit. Each gate that a barrier causes is named by the barrier's key, as door gates already are, so readers can treat a barrier as one thing.
 
 The clean build fails on a barrier without a record, on a record whose barrier or target the build lacks, and on a record whose kind no longer matches the mechanism. A barrier that guards nothing a player needs has an empty target list and a reason.
 

@@ -1,62 +1,79 @@
-# Keyed doors and the targets each one guards. Every keyed door of the build must
-# appear here once. [[entries]] name targets that only some of the zone lines
-# into their scene reach. See README.md (Concepts) for how entries are reviewed.
+# Barriers: objects that block access until their mechanism opens them. Every
+# keyed door of the build must appear in one record. A record has a kind, its
+# objects, the targets they guard, a reason, and the check that confirmed the
+# targets (navmesh, render, or unconfirmed). The first object names the barrier
+# and every gate it causes. [[entries]] name targets that only some of the zone
+# lines into their scene reach. See README.md (Concepts) for how both are reviewed.
 
 [[barriers]]
-doors = ["door:azure:40.22:31.09:326.20"]
-guards = [
-    "zoneline:azure:vitheosend:34.86:13.71:315.27",
+kind = "door"
+objects = ["door:azure:40.22:31.09:326.20"]
+targets = ["zoneline:azure:vitheosend:34.86:13.71:315.27"]
+reason = "The Port Azure lighthouse door. The zone line is the hole inside the lighthouse walls that drops into a secluded part of Vitheo's Rest."
+check = "render"
+
+[[barriers]]
+kind = "door"
+objects = [
+    "door:azure:193.37:14.34:336.66",
+    "door:azure:193.37:14.34:334.34",
 ]
-reason = "The Port Azure lighthouse door. The zone line is the hole inside the lighthouse that drops into a secluded part of Vitheo's Rest. A plan render shows it within the lighthouse walls."
+targets = ["zoneline:azure:vitheosend:207.39:14.95:333.52"]
+reason = "The door to Vitheo's Rest. The zone line is in the closed chamber behind it. The Aquilamar camp west of the door is outside."
+check = "render"
 
 [[barriers]]
-doors = ["door:azure:193.37:14.34:336.66", "door:azure:193.37:14.34:334.34"]
-guards = [
-    "zoneline:azure:vitheosend:207.39:14.95:333.52",
+kind = "door"
+objects = ["door:azure:282.83:33.13:272.05"]
+targets = []
+reason = "An Erenshor Keep door, whose key is not obtainable. No target is reached only through it."
+check = "navmesh"
+
+[[barriers]]
+kind = "door"
+objects = ["door:azure:282.83:53.88:272.05"]
+targets = []
+reason = "An upper Erenshor Keep door, whose key is not obtainable. No target is reached only through it."
+check = "navmesh"
+
+[[barriers]]
+kind = "door"
+objects = ["door:azure:283.31:30.45:150.97"]
+targets = ["zoneline:azure:reliquary:343.23:19.47:151.00"]
+reason = "The portcullis of the tower above the Reliquary entrance. The Reliquary zone line lies below the plaza behind it, with no other way down."
+check = "render"
+
+[[barriers]]
+kind = "door"
+objects = ["door:azynthiclear:610.49:110.71:493.31"]
+targets = ["character:eldoth molorai"]
+reason = "The bookcase on the top floor of the central building. Eldoth Molorai's room is behind it."
+check = "navmesh"
+
+[[barriers]]
+kind = "door"
+objects = [
+    "door:braxonian:1057.49:89.37:571.76",
+    "door:braxonian:1059.53:89.37:579.35",
 ]
-reason = "The door to Vitheo's Rest. A plan render shows the zone line in the closed chamber behind it. The Aquilamar camp west of the door is outside."
-
-[[barriers]]
-doors = ["door:azure:282.83:33.13:272.05"]
-guards = []
-reason = "An Erenshor Keep door. The NavMesh check finds no target that only this door reaches, and its key is not obtainable."
-
-[[barriers]]
-doors = ["door:azure:282.83:53.88:272.05"]
-guards = []
-reason = "An upper Erenshor Keep door. The NavMesh check finds no target that only this door reaches, and its key is not obtainable."
-
-[[barriers]]
-doors = ["door:azure:283.31:30.45:150.97"]
-guards = [
-    "zoneline:azure:reliquary:343.23:19.47:151.00",
-]
-reason = "The portcullis of the tower above the Reliquary entrance. The Reliquary zone line lies below the plaza behind it, and renders show no other way down."
-
-[[barriers]]
-doors = ["door:azynthiclear:610.49:110.71:493.31"]
-guards = [
-    "character:eldoth molorai",
-]
-reason = "The bookcase on the top floor of the central building. Eldoth Molorai's room is behind it, and the NavMesh from the scene entry reaches the bookcase but not his spawn."
-
-[[barriers]]
-doors = ["door:braxonian:1057.49:89.37:571.76", "door:braxonian:1059.53:89.37:579.35"]
-guards = [
-    "zoneline:braxonian:braxonia:1120.23:92.99:568.02",
-]
+targets = ["zoneline:braxonian:braxonia:1120.23:92.99:568.02"]
 reason = "The gate behind Evadne the Corrupted, who drops its key. The zone line to Fallen Braxonia lies past it."
+check = "unconfirmed"
 
 [[barriers]]
-doors = ["door:jaws:1641.85:-35.59:-0.65"]
-guards = [
-    "character:sablehart",
+kind = "door"
+objects = ["door:jaws:1641.85:-35.59:-0.65"]
+targets = ["character:sablehart"]
+reason = "The door to Sableheart's hall. Sableheart stands in the closed hall behind it."
+check = "render"
+
+[[barriers]]
+kind = "door"
+objects = [
+    "door:krakengard:428.70:4.05:161.68",
+    "door:krakengard:428.70:4.05:164.09",
 ]
-reason = "The door to Sableheart's hall. A plan render shows Sableheart in the closed hall behind it."
-
-[[barriers]]
-doors = ["door:krakengard:428.70:4.05:161.68", "door:krakengard:428.70:4.05:164.09"]
-guards = [
+targets = [
     "spawn:krakengard:545.95:10.05:185.32",
     "spawn:krakengard:588.15:10.05:161.33",
     "spawn:krakengard:583.24:10.05:161.81",
@@ -87,11 +104,16 @@ guards = [
     "spawn:krakengard:594.14:10.05:200.47",
     "spawn:krakengard:500.05:10.05:153.26",
 ]
-reason = "The door to the lodgings of Old Krakengard. A NavMesh path from the scene entry reaches these targets with the door open and not with the door blocked."
+reason = "The door to the lodgings of Old Krakengard."
+check = "navmesh"
 
 [[barriers]]
-doors = ["door:krakengard:442.55:13.80:279.65", "door:krakengard:444.95:13.80:279.65"]
-guards = [
+kind = "door"
+objects = [
+    "door:krakengard:442.55:13.80:279.65",
+    "door:krakengard:444.95:13.80:279.65",
+]
+targets = [
     "spawn:krakengard:362.87:9.80:304.18",
     "spawn:krakengard:434.46:9.86:299.88",
     "spawn:krakengard:434.46:9.86:309.88",
@@ -104,16 +126,26 @@ guards = [
     "spawn:krakengard:403.43:9.86:299.64",
     "spawn:krakengard:352.23:9.80:304.00",
 ]
-reason = "The door to Overseer Orlok's tower. A NavMesh path from the scene entry reaches these targets with the door open and not with the door blocked."
+reason = "The door to Overseer Orlok's tower."
+check = "navmesh"
 
 [[barriers]]
-doors = ["door:rockshade:943.65:105.79:634.57", "door:rockshade:947.26:105.79:634.57"]
-guards = []
-reason = "The side door inside the entrance of Rockshade Hold. The NavMesh check from the scene entry finds no target that only this door reaches."
+kind = "door"
+objects = [
+    "door:rockshade:943.65:105.79:634.57",
+    "door:rockshade:947.26:105.79:634.57",
+]
+targets = []
+reason = "The side door inside the entrance of Rockshade Hold. No target is reached only through it."
+check = "navmesh"
 
 [[barriers]]
-doors = ["door:saltedstrand:662.64:27.49:337.02", "door:saltedstrand:662.64:27.49:338.29"]
-guards = [
+kind = "door"
+objects = [
+    "door:saltedstrand:662.64:27.49:337.02",
+    "door:saltedstrand:662.64:27.49:338.29",
+]
+targets = [
     "spawn:saltedstrand:740.17:25.37:338.07",
     "spawn:saltedstrand:710.30:25.37:334.85",
     "spawn:saltedstrand:726.25:25.37:337.43",
@@ -134,30 +166,37 @@ guards = [
     "spawn:saltedstrand:729.54:25.37:304.61",
     "spawn:saltedstrand:815.44:24.83:337.96",
 ]
-reason = "The door of the Old Church. A NavMesh path from the scene entry reaches these targets with the door open and not with the door blocked."
+reason = "The door of the Old Church."
+check = "navmesh"
 
 [[barriers]]
-doors = ["door:shiveringstep:719.29:23.41:506.51"]
-guards = [
-    "character:founder:shiveringstep:705.22:21.11:506.71",
-]
-reason = "The Shivering Step dockhouse door. A NavMesh path from the scene entry reaches these targets with the door open and not with the door blocked."
+kind = "door"
+objects = ["door:shiveringstep:719.29:23.41:506.51"]
+targets = ["character:founder:shiveringstep:705.22:21.11:506.71"]
+reason = "The Shivering Step dockhouse door."
+check = "navmesh"
 
 [[barriers]]
-doors = ["door:shiveringstep:799.86:21.62:587.79"]
-guards = [
-    "character:sm_prop_furnace_01:shiveringstep:804.54:20.19:592.50",
-]
+kind = "door"
+objects = ["door:shiveringstep:799.86:21.62:587.79"]
+targets = ["character:sm_prop_furnace_01:shiveringstep:804.54:20.19:592.50"]
 reason = "The Shivering Step lighthouse door. The lighthouse flame stands in the closed room behind it."
+check = "unconfirmed"
 
 [[barriers]]
-doors = ["door:shiveringtomb:104.27:-0.72:12.71"]
-guards = []
-reason = "The Shivering Tomb copy of the Island Tomb ghost door. The NavMesh check finds no target that only this door reaches."
+kind = "door"
+objects = ["door:shiveringtomb:104.27:-0.72:12.71"]
+targets = []
+reason = "The Shivering Tomb copy of the Island Tomb ghost door. No target is reached only through it."
+check = "navmesh"
 
 [[barriers]]
-doors = ["door:shiveringtomb2:-78.11:-61.28:152.32", "door:shiveringtomb2:-75.71:-61.28:152.32"]
-guards = [
+kind = "door"
+objects = [
+    "door:shiveringtomb2:-78.11:-61.28:152.32",
+    "door:shiveringtomb2:-75.71:-61.28:152.32",
+]
+targets = [
     "spawn:shiveringtomb2:-69.56:-65.10:206.18",
     "spawn:shiveringtomb2:-85.81:-65.10:206.18",
     "spawn:shiveringtomb2:-112.23:-68.35:219.34",
@@ -181,23 +220,30 @@ guards = [
     "spawn:shiveringtomb2:-134.42:-68.44:336.38",
     "spawn:shiveringtomb2:-76.96:-68.40:284.89",
 ]
-reason = "The Shadowed Key door to the inner crypt. A NavMesh path from the scene entry reaches these targets with the door open and not with the door blocked."
+reason = "The Shadowed Key door to the inner crypt."
+check = "navmesh"
 
 [[barriers]]
-doors = ["door:shiveringtomb2:114.41:-1.78:-2.48"]
-guards = []
-reason = "The second Shivering Tomb copy of the Island Tomb ghost door. The NavMesh check finds no target that only this door reaches."
+kind = "door"
+objects = ["door:shiveringtomb2:114.41:-1.78:-2.48"]
+targets = []
+reason = "The second Shivering Tomb copy of the Island Tomb ghost door. No target is reached only through it."
+check = "navmesh"
 
 [[barriers]]
-doors = ["door:stowaway:592.34:41.00:671.24"]
-guards = [
-    "zoneline:stowaway:shiveringstep:592.39:41.07:672.77",
-]
+kind = "door"
+objects = ["door:stowaway:592.34:41.00:671.24"]
+targets = ["zoneline:stowaway:shiveringstep:592.39:41.07:672.77"]
 reason = "The crypt door. The zone line to Shivering Step stands right behind it."
+check = "unconfirmed"
 
 [[barriers]]
-doors = ["door:stowaway:676.47:33.81:426.91", "door:stowaway:678.39:33.81:424.99"]
-guards = [
+kind = "door"
+objects = [
+    "door:stowaway:676.47:33.81:426.91",
+    "door:stowaway:678.39:33.81:424.99",
+]
+targets = [
     "spawn:stowaway:458.61:69.62:593.09",
     "spawn:stowaway:344.77:76.84:598.53",
     "spawn:stowaway:311.21:46.91:480.95",
@@ -215,51 +261,68 @@ guards = [
     "spawn:stowaway:676.61:24.05:387.84",
     "spawn:stowaway:573.72:72.11:456.07",
 ]
-reason = "The guard gate from the Docks up the hill. Every character starts on the Docks. A NavMesh path from the Docks reaches these targets with the door open and not with the door blocked."
+reason = "The guard gate from the Docks up the hill. Every character starts on the Docks, so its check starts there."
+check = "navmesh"
 
 [[barriers]]
-doors = ["door:stowaway:799.94:21.48:587.86"]
-guards = [
+kind = "door"
+objects = ["door:stowaway:799.94:21.48:587.86"]
+targets = [
     "zoneline:stowaway:tutorial:808.08:14.08:592.64",
     "character:lighthouse demon:tutorial:-64.96:22.26:149.12",
 ]
 reason = "The Stowaway's Step lighthouse door. The zone line inside leads to the Island Tomb ledge of Occuphage, which the NavMesh from the other two tomb entrances does not reach."
+check = "unconfirmed"
 
 [[barriers]]
-doors = ["door:summerevent:182.04:12.85:139.84"]
-guards = []
+kind = "door"
+objects = ["door:summerevent:182.04:12.85:139.84"]
+targets = []
 reason = "A Bellwain house puzzle door (study key). The house has no NavMesh, so containment is not established. The guide does not model the puzzle."
+check = "unconfirmed"
 
 [[barriers]]
-doors = ["door:summerevent:185.73:12.85:183.50"]
-guards = []
+kind = "door"
+objects = ["door:summerevent:185.73:12.85:183.50"]
+targets = []
 reason = "A Bellwain house puzzle door (bathroom key). The house has no NavMesh, so containment is not established. The guide does not model the puzzle."
+check = "unconfirmed"
 
 [[barriers]]
-doors = ["door:summerevent:187.18:12.85:139.86"]
-guards = []
+kind = "door"
+objects = ["door:summerevent:187.18:12.85:139.86"]
+targets = []
 reason = "A Bellwain house puzzle door (bedroom key). The house has no NavMesh, so containment is not established. The guide does not model the puzzle."
+check = "unconfirmed"
 
 [[barriers]]
-doors = ["door:summerevent:187.18:12.85:147.11"]
-guards = []
+kind = "door"
+objects = ["door:summerevent:187.18:12.85:147.11"]
+targets = []
 reason = "A Bellwain house puzzle door (bellsie's key). The house has no NavMesh, so containment is not established. The guide does not model the puzzle."
+check = "unconfirmed"
 
 [[barriers]]
-doors = ["door:summerevent:189.75:18.54:141.16"]
-guards = []
+kind = "door"
+objects = ["door:summerevent:189.75:18.54:141.16"]
+targets = []
 reason = "A Bellwain house puzzle door (attic key). The house has no NavMesh, so containment is not established. The guide does not model the puzzle."
+check = "unconfirmed"
 
 [[barriers]]
-doors = ["door:tutorial:114.41:-1.78:-2.48"]
-guards = [
-    "spawn:tutorial:138.56:-2.88:-20.52",
+kind = "door"
+objects = ["door:tutorial:114.41:-1.78:-2.48"]
+targets = ["spawn:tutorial:138.56:-2.88:-20.52"]
+reason = "The Island Tomb ghost door."
+check = "navmesh"
+
+[[barriers]]
+kind = "door"
+objects = [
+    "door:vitheosend:285.89:4.06:342.94",
+    "door:vitheosend:288.29:4.06:342.94",
 ]
-reason = "The Island Tomb ghost door. A NavMesh path from the scene entry reaches these targets with the door open and not with the door blocked."
-
-[[barriers]]
-doors = ["door:vitheosend:285.89:4.06:342.94", "door:vitheosend:288.29:4.06:342.94"]
-guards = [
+targets = [
     "spawn:vitheosend:489.41:-11.43:492.57",
     "spawn:vitheosend:433.17:-28.93:401.96",
     "spawn:vitheosend:310.05:-28.93:402.33",
@@ -300,11 +363,16 @@ guards = [
     "spawn:vitheosend:289.48:0.57:357.55",
     "spawn:vitheosend:286.86:0.57:379.04",
 ]
-reason = "The door to the shrines of Vitheo's Rest. A NavMesh path from the scene entry reaches these targets with the door open and not with the door blocked."
+reason = "The door to the shrines of Vitheo's Rest."
+check = "navmesh"
 
 [[barriers]]
-doors = ["door:vitheosend:285.89:4.06:302.94", "door:vitheosend:288.29:4.06:302.94"]
-guards = [
+kind = "door"
+objects = [
+    "door:vitheosend:285.89:4.06:302.94",
+    "door:vitheosend:288.29:4.06:302.94",
+]
+targets = [
     "spawn:vitheosend:247.10:0.57:107.50",
     "spawn:vitheosend:331.02:0.57:123.29",
     "spawn:vitheosend:268.89:0.57:239.56",
@@ -330,11 +398,16 @@ guards = [
     "spawn:vitheosend:246.80:0.52:101.17",
     "spawn:vitheosend:329.05:0.52:105.67",
 ]
-reason = "The door to the Traitor's Hall of Vitheo's Rest. A NavMesh path from the scene entry reaches these targets with the door open and not with the door blocked."
+reason = "The door to the Traitor's Hall of Vitheo's Rest."
+check = "navmesh"
 
 [[barriers]]
-doors = ["door:vitheosend:292.99:4.06:321.74", "door:vitheosend:292.99:4.06:324.14"]
-guards = [
+kind = "door"
+objects = [
+    "door:vitheosend:292.99:4.06:321.74",
+    "door:vitheosend:292.99:4.06:324.14",
+]
+targets = [
     "spawn:vitheosend:451.19:10.32:323.02",
     "spawn:vitheosend:402.13:10.32:318.04",
     "spawn:vitheosend:346.38:0.61:317.95",
@@ -347,7 +420,8 @@ guards = [
     "spawn:vitheosend:324.86:0.61:327.16",
     "spawn:vitheosend:458.45:14.75:323.47",
 ]
-reason = "The door to Vitheo's tomb. A NavMesh path from the scene entry reaches these targets with the door open and not with the door blocked."
+reason = "The door to Vitheo's tomb."
+check = "navmesh"
 
 [[entries]]
 target = "character:lighthouse demon:tutorial:-64.96:22.26:149.12"

@@ -168,15 +168,32 @@ def _barriers(tmp_path: Path, body: str) -> Path:
 
 _COMPLETE = f"""
 [[barriers]]
-doors = ["{_DOOR}"]
-guards = ["{_GHOST}", "zoneline:island:tomb:808.08:14.08:592.64"]
+kind = "door"
+objects = ["{_DOOR}"]
+targets = ["{_GHOST}", "zoneline:island:tomb:808.08:14.08:592.64"]
 reason = "The ghost's crypt."
+check = "navmesh"
 
 [[barriers]]
-doors = ["door:keep:282.83:33.13:272.05"]
-guards = ["spawn:salted:1"]
+kind = "door"
+objects = ["door:keep:282.83:33.13:272.05"]
+targets = ["spawn:salted:1"]
 reason = "The keep tower."
+check = "render"
 """
+
+
+def _record(**fields: str) -> str:
+    """One [[barriers]] record, a complete door record unless fields override or, when empty, omit a field."""
+    body = {
+        "kind": '"door"',
+        "objects": '["door:keep:282.83:53.88:272.05"]',
+        "targets": "[]",
+        "reason": '"Nothing behind it."',
+        "check": '"navmesh"',
+    }
+    body.update(fields)
+    return "\n[[barriers]]\n" + "".join(f"{name} = {value}\n" for name, value in body.items() if value)
 
 
 def _gates(writer: Writer) -> dict[tuple[str, str, str | None, str], list[list[tuple[str, str, str | None]]]]:
@@ -222,20 +239,50 @@ def test_every_rule_becomes_a_gate(tmp_path: Path, writer: Writer, raw: sqlite3.
 
 
 def test_an_unclassified_keyed_door_fails_the_build(tmp_path: Path, writer: Writer, raw: sqlite3.Connection) -> None:
-    body = f'[[barriers]]\ndoors = ["{_DOOR}"]\nguards = []\nreason = "Nothing behind it."\n'
+    body = _record(objects=f'["{_DOOR}"]')
 
     with pytest.raises(ValueError, match=r"door:keep:282\.83:33\.13:272\.05 \(Keep, item:key - skeleton key\)"):
         process_gates(raw, writer, _barriers(tmp_path, body))
 
 
 def test_an_entry_for_a_door_the_build_lacks_fails(tmp_path: Path, writer: Writer, raw: sqlite3.Connection) -> None:
-    body = _COMPLETE + '\n[[barriers]]\ndoors = ["door:gone:1.00:2.00:3.00"]\nguards = []\nreason = "Removed."\n'
+    body = _COMPLETE + _record(objects='["door:gone:1.00:2.00:3.00"]')
 
     with pytest.raises(ValueError, match=re.escape("door:gone:1.00:2.00:3.00")):
         process_gates(raw, writer, _barriers(tmp_path, body))
 
 
-def test_a_guard_the_build_lacks_fails(tmp_path: Path, writer: Writer, raw: sqlite3.Connection) -> None:
+def test_a_door_record_whose_door_needs_no_key_fails(tmp_path: Path, writer: Writer, raw: sqlite3.Connection) -> None:
+    body = _COMPLETE + _record(objects='["door:tomb:100.00:0.00:0.00"]')
+
+    with pytest.raises(ValueError, match=r"'door:tomb:100\.00:0\.00:0\.00' as a keyed door, but it needs no key"):
+        process_gates(raw, writer, _barriers(tmp_path, body))
+
+
+@pytest.mark.parametrize(
+    ("fields", "message"),
+    [
+        ({"kind": ""}, "has kind None"),
+        ({"kind": '"wall"'}, "has kind 'wall'"),
+        ({"kind": '["door"]'}, r"has kind \['door'\]"),
+        ({"objects": "[]"}, "needs a non-empty list of objects"),
+        ({"targets": ""}, "needs a list of guarded targets"),
+        ({"reason": '" "'}, "needs a reason"),
+        ({"check": ""}, "has check None"),
+        ({"check": '"wiki"'}, "has check 'wiki'"),
+        ({"guards": "[]"}, r"has unknown fields \['guards'\]"),
+    ],
+)
+def test_a_malformed_record_fails(
+    tmp_path: Path, writer: Writer, raw: sqlite3.Connection, fields: dict[str, str], message: str
+) -> None:
+    body = _COMPLETE + _record(**fields)
+
+    with pytest.raises(ValueError, match=rf"barriers\.toml entry 2 {message}"):
+        process_gates(raw, writer, _barriers(tmp_path, body))
+
+
+def test_a_target_the_build_lacks_fails(tmp_path: Path, writer: Writer, raw: sqlite3.Connection) -> None:
     body = _COMPLETE.replace(_GHOST, "character:missing")
 
     with pytest.raises(ValueError, match="character:missing"):

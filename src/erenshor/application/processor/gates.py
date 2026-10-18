@@ -7,9 +7,11 @@ one row per atom, and the guide compiler combines the gates of a subject into
 its condition.
 
 The rules come from the export (quest listener activations, scripted encounters,
-spawn points, furnishings, vendor stock) and from ``barriers.toml``, which states what each
-keyed door guards. A keyed door opens when its key is on the keyring or in
-the inventory (``Door.OpenOrShut``), so each guarded target gets a key atom.
+spawn points, furnishings, vendor stock) and from ``barriers.toml``, which
+records each barrier with its kind, its objects, and the targets it guards. The
+first object names the barrier and every gate it causes. A keyed door opens
+when its key is on the keyring or in the inventory (``Door.OpenOrShut``), so
+each guarded target gets a key atom.
 
 ``barriers.toml`` also lists entries: targets that only some of the zone lines
 into their scene reach, such as a ledge that one tomb entrance lands on.
@@ -49,6 +51,9 @@ _TARGET_TABLES = {
 # Doors of one doorway stand this close together and share a key. The widest
 # pair, the Braxonian gate, stands 7.9 m apart.
 _DOUBLE_DOOR_DISTANCE = 8.0
+# What a barriers.toml record can be, and how its targets were confirmed.
+_BARRIER_KINDS = frozenset({"door"})
+_BARRIER_CHECKS = frozenset({"navmesh", "render", "unconfirmed"})
 
 # ShiverEvent checks quest IDs, while all affected placements come from its
 # exported references. Keepers are conversations, not encounters.
@@ -106,11 +111,18 @@ class Gate:
 
 @dataclass(frozen=True, slots=True)
 class Barrier:
-    """One reviewed entry of barriers.toml: a doorway and what it guards."""
+    """One reviewed record of barriers.toml: the objects that block access and what they guard."""
 
-    doors: tuple[str, ...]
-    guards: tuple[str, ...]
+    kind: str
+    objects: tuple[str, ...]
+    targets: tuple[str, ...]
     reason: str
+    check: str
+
+    @property
+    def key(self) -> str:
+        """The stable key that names the barrier and every gate it causes."""
+        return self.objects[0]
 
 
 @dataclass(frozen=True, slots=True)
@@ -179,23 +191,29 @@ def process_gates(raw: sqlite3.Connection, writer: Writer, barriers_path: Path) 
 
 
 def load_barriers(path: Path) -> list[Barrier]:
-    """Read barriers.toml. Raise on a malformed entry."""
+    """Read the [[barriers]] of barriers.toml. Raise on a malformed record."""
     data = tomllib.loads(path.read_text(encoding="utf-8"))
     barriers: list[Barrier] = []
-    for index, entry in enumerate(data.get("barriers", [])):
-        doors = entry.get("doors")
-        guards = entry.get("guards")
-        reason = entry.get("reason")
-        if not isinstance(doors, list) or not doors or not all(isinstance(door, str) for door in doors):
-            raise ValueError(f"{path.name} entry {index} needs a non-empty list of doors")
-        if not isinstance(guards, list) or not all(isinstance(guard, str) for guard in guards):
+    for index, record in enumerate(data.get("barriers", [])):
+        kind = record.get("kind")
+        objects = record.get("objects")
+        targets = record.get("targets")
+        reason = record.get("reason")
+        check = record.get("check")
+        if not isinstance(kind, str) or kind not in _BARRIER_KINDS:
+            raise ValueError(f"{path.name} entry {index} has kind {kind!r}, not one of {sorted(_BARRIER_KINDS)}")
+        if not isinstance(objects, list) or not objects or not all(isinstance(key, str) and key for key in objects):
+            raise ValueError(f"{path.name} entry {index} needs a non-empty list of objects")
+        if not isinstance(targets, list) or not all(isinstance(target, str) for target in targets):
             raise ValueError(f"{path.name} entry {index} needs a list of guarded targets")
         if not isinstance(reason, str) or not reason.strip():
             raise ValueError(f"{path.name} entry {index} needs a reason")
-        unknown = set(entry) - {"doors", "guards", "reason"}
+        if not isinstance(check, str) or check not in _BARRIER_CHECKS:
+            raise ValueError(f"{path.name} entry {index} has check {check!r}, not one of {sorted(_BARRIER_CHECKS)}")
+        unknown = set(record) - {"kind", "objects", "targets", "reason", "check"}
         if unknown:
             raise ValueError(f"{path.name} entry {index} has unknown fields {sorted(unknown)}")
-        barriers.append(Barrier(tuple(doors), tuple(guards), reason))
+        barriers.append(Barrier(kind, tuple(objects), tuple(targets), reason, check))
     return barriers
 
 
@@ -836,7 +854,7 @@ def _door_gates(conn: sqlite3.Connection, barriers: list[Barrier]) -> list[Gate]
     doors = {
         key: (scene, (x, y, z), item)
         for key, scene, x, y, z, item in conn.execute(
-            "SELECT stable_key, scene, x, y, z, key_item_stable_key FROM doors WHERE key_item_stable_key IS NOT NULL"
+            "SELECT stable_key, scene, x, y, z, key_item_stable_key FROM doors"
         )
     }
     items = {key for (key,) in conn.execute("SELECT stable_key FROM items")}
@@ -844,28 +862,30 @@ def _door_gates(conn: sqlite3.Connection, barriers: list[Barrier]) -> list[Gate]
     gates: list[Gate] = []
     for index, barrier in enumerate(barriers):
         keys = set()
-        for door in barrier.doors:
+        for door in barrier.objects:
             if door not in doors:
-                raise ValueError(f"barriers.toml entry {index} names {door!r}, which is not a keyed door of this build")
+                raise ValueError(f"barriers.toml entry {index} names {door!r}, which is not a door of this build")
+            if doors[door][2] is None:
+                raise ValueError(f"barriers.toml entry {index} records {door!r} as a keyed door, but it needs no key")
             if door in listed:
                 raise ValueError(f"barriers.toml lists {door!r} in entries {listed[door]} and {index}")
             listed[door] = index
             keys.add(doors[door][2])
         if len(keys) != 1:
             raise ValueError(f"barriers.toml entry {index} joins doors with different keys: {sorted(keys)}")
-        first = doors[barrier.doors[0]]
-        for door in barrier.doors[1:]:
+        first = doors[barrier.key]
+        for door in barrier.objects[1:]:
             scene, position, _ = doors[door]
             if scene != first[0] or math.dist(position, first[1]) > _DOUBLE_DOOR_DISTANCE:
-                raise ValueError(f"barriers.toml entry {index} joins doors of different doorways: {barrier.doors}")
+                raise ValueError(f"barriers.toml entry {index} joins doors of different doorways: {barrier.objects}")
         key = keys.pop()
         # A key that the clean build excludes cannot be obtained, so the door stays shut.
         atom = Atom("key_held", key) if key in items else Atom("never", key)
-        for target in barrier.guards:
+        for target in barrier.targets:
             kind = _target_kind(target)
             _require_target(conn, kind, target, index)
-            gates.append(Gate(kind, target, barrier.doors[0], ((atom,),)))
-    unlisted = sorted(set(doors) - set(listed))
+            gates.append(Gate(kind, target, barrier.key, ((atom,),)))
+    unlisted = sorted(door for door, (_, _, item) in doors.items() if item is not None and door not in listed)
     if unlisted:
         details = ", ".join(f"{door} ({doors[door][0]}, {doors[door][2]})" for door in unlisted)
         raise ValueError(f"barriers.toml does not classify these keyed doors: {details}")
@@ -882,7 +902,7 @@ def _target_kind(target: str) -> str:
 def _require_target(conn: sqlite3.Connection, kind: str, target: str, index: int) -> None:
     table, column = _TARGET_TABLES[kind]
     if conn.execute(f"SELECT 1 FROM {table} WHERE {column} = ? LIMIT 1", (target,)).fetchone() is None:
-        raise ValueError(f"barriers.toml entry {index} guards {target!r}, which this build does not contain")
+        raise ValueError(f"barriers.toml entry {index} targets {target!r}, which this build does not contain")
 
 
 def _validate_atoms(conn: sqlite3.Connection, gates: list[Gate]) -> None:
