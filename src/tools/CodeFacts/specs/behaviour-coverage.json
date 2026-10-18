@@ -1,6 +1,27 @@
 {
   "schema": 1,
   "types": {
+    "AEEvent": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update disables the area effect once its owner dies, and TriggerAE skips dead players. Alive only stops and targets combat damage."
+    },
+    "AEEvent2": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update disables the area effect once its owner dies. Alive only stops combat damage."
+    },
+    "AEManaDrainEvent": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update disables the mana drain once its owner dies and drains only living players in range."
+    },
     "ActivateInWeather": {
       "apis": [
         "AtmosphereColors.isRaining"
@@ -15,6 +36,20 @@
       ],
       "classification": "adapter",
       "component": "ScriptedActivatorListener bellwain_reveal, processor/gates.py reveal and processor/scripted_events.py torch puzzle completion"
+    },
+    "ArborScript": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "CheckIn binds Arbor while its spawn point's NPC lives, and the fight spawns saplings at health thresholds. The saplings are combat adds in the dynamic spawn catalog."
+    },
+    "AstraBreathScriot": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update disables the breath attack once Astra dies."
     },
     "AstraListener": {
       "apis": [
@@ -48,6 +83,20 @@
         "4.1"
       ]
     },
+    "BraxFightEvent": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "adapter",
+      "component": "ScriptedActivatorListener restored_brax and processor/gates.py restored_brax"
+    },
+    "CastSpell": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "The StartSpell methods cast only while the caster lives."
+    },
     "CharSelectManager": {
       "apis": [
         "GameData.CompletedQuests",
@@ -59,6 +108,7 @@
     },
     "Character": {
       "apis": [
+        "Character.Alive",
         "Character.Invulnerable",
         "GameData.FinishQuest",
         "WorldFaction.FactionValue"
@@ -69,12 +119,62 @@
         "6.3"
       ]
     },
+    "CharacterCollector": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "OnTriggerEnter collects living nearby characters for targeting."
+    },
     "Chessboard": {
       "apis": [
+        "Character.Alive",
         "Inventory.HasItem"
       ],
       "classification": "adapter",
       "component": "ChessboardListener, DynamicSpawnSourceListener, and processor/item_mechanics.py"
+    },
+    "ClearAggroOnDistance": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update clears aggro, or kills a configured NPC, once its living owner strays too far from its aggro target. It leashes combat and unlocks nothing."
+    },
+    "Constellation": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update spawns a random add while its owner lives and its timer runs, then destroys itself. The adds are combat spawns in the dynamic spawn catalog."
+    },
+    "DPSCheckAEEvent": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update raises area damage ticks only while its living owner is engaged."
+    },
+    "DPSCheckArmorPen": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update raises armor penetration only while its living owner is engaged."
+    },
+    "DPSCheckAttackAbility": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update raises attack ability only while its living owner is engaged."
+    },
+    "DeathTouch": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update picks a living aggro target for an instant-kill attack while its owner lives and is engaged."
     },
     "DemonstrationMngr": {
       "apis": [
@@ -95,6 +195,13 @@
         "4.1"
       ]
     },
+    "DmgEventArea": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update stops damaging entities that died and destroys itself when its time ends."
+    },
     "Door": {
       "apis": [
         "Inventory.HasItem"
@@ -109,6 +216,27 @@
       "classification": "adapter",
       "component": "QuestActivationListener and processor/hierarchy.py activity, processor/barriers.py removals"
     },
+    "EnsureAddTracked": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update reports a living, idle add to the raid manager during a raid."
+    },
+    "FaithEvent": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update runs the fight while Faith lives and is engaged and resets it once Faith dies or leaves combat. Its heal adds are combat spawns in the dynamic spawn catalog."
+    },
+    "FernHighPriest": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update casts on living players only while the priest lives and is engaged."
+    },
     "FernallaFight": {
       "apis": [
         "SpawnPoint.MyNPCAlive"
@@ -118,11 +246,26 @@
     },
     "FernallaFightEvent": {
       "apis": [
+        "Character.Alive",
         "Character.Invulnerable",
         "SpawnPoint.MyNPCAlive"
       ],
       "classification": "adapter",
       "component": "DynamicSpawnSourceListener controller hierarchy and CharacterDamageReleaseListener Fernalla fight phases"
+    },
+    "FernallaPortalEvent": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update replaces dead members of its guard group with new Knights, Arcanists, and Hounds. They are combat spawns in the dynamic spawn catalog."
+    },
+    "FernallaPortalShouts": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update shouts only while StopIfDead lives. Shouts are chat text."
     },
     "GameData": {
       "apis": [
@@ -135,6 +278,7 @@
     },
     "GameManager": {
       "apis": [
+        "Character.Alive",
         "GameData.AccountClaimedReliquary",
         "GameData.CompletedQuests",
         "GameData.HasQuest"
@@ -152,6 +296,13 @@
         "6.3"
       ]
     },
+    "GraceEvent": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update runs the fight while Grace lives and resets it once Grace dies."
+    },
     "HardSetStats": {
       "apis": [
         "SpawnPoint.MyNPCAlive"
@@ -159,8 +310,32 @@
       "classification": "excluded",
       "reason": "Only the Eldoth Molorai prefab binds this script. Update counts living wards to scale HP, damage, and level and restore HP out of combat. It does not set invulnerability, activate content, or prevent damage while wards live."
     },
+    "HonsusScript": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update moves a living, damaged Honsus between its navigation points during the fight."
+    },
+    "InfernoEnergy": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update moves an energy orb and damages a living enemy near its destination while its owner lives."
+    },
+    "InfernoTwins": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "3.3"
+      ]
+    },
     "InfernoTwinsSpawnPoints": {
       "apis": [
+        "Character.Alive",
         "SpawnPoint.MyNPCAlive"
       ],
       "classification": "excluded",
@@ -186,6 +361,7 @@
     },
     "ItemIcon": {
       "apis": [
+        "Character.Alive",
         "GameData.AssignQuest",
         "GameData.CompletedQuests",
         "GameData.FinishQuest"
@@ -218,6 +394,7 @@
     },
     "MalarothFeed": {
       "apis": [
+        "Character.Alive",
         "Inventory.HasItem"
       ],
       "classification": "adapter",
@@ -230,6 +407,13 @@
       "classification": "adapter",
       "component": "ScriptedActivatorListener memory_sphere and processor/gates.py memory_sphere"
     },
+    "MizukiEvent": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "CheckIn holds Mizuki's spawn point while she lives, and CheckWinCond kills her shadows and releases the spawn point once she dies. The gate she guards opens through NPCAliveListener npc_alive."
+    },
     "MultiQuestListener": {
       "apis": [
         "GameData.IsQuestDone"
@@ -239,6 +423,7 @@
     },
     "NPC": {
       "apis": [
+        "Character.Alive",
         "GameData.CompletedQuests",
         "GameData.HasQuest",
         "WorldFaction.FactionValue"
@@ -251,6 +436,7 @@
     },
     "NPCAggroArea": {
       "apis": [
+        "Character.Alive",
         "Inventory.HasCosmetic",
         "WorldFaction.FactionValue"
       ],
@@ -299,6 +485,13 @@
         "6.3"
       ]
     },
+    "NPCFightEvent": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "FixedUpdate spawns adds while the NPC lives and is engaged, spawns its SpawnOnDeath objects once it dies, and regenerates while it lives. These are combat spawns in the dynamic spawn catalog."
+    },
     "NPCInvuln": {
       "apis": [
         "Character.Invulnerable"
@@ -315,14 +508,30 @@
     },
     "NPCShoutListener": {
       "apis": [
+        "Character.Alive",
         "GameData.FinishQuest",
         "SpawnPoint.MyNPCAlive"
       ],
       "classification": "adapter",
       "component": "CharacterListener ShoutTriggerQuestStableKey and ScriptedActivatorListener npc_shout_essentials"
     },
+    "NPCSpawnEnvDmg": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update spawns environmental damage while the NPC lives and is engaged."
+    },
+    "NamePlate": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "DoTarget shows the target indicator on a living targeted NPC."
+    },
     "PhantomFightEvent": {
       "apis": [
+        "Character.Alive",
         "Character.Invulnerable"
       ],
       "classification": "adapter",
@@ -342,8 +551,16 @@
       "classification": "excluded",
       "reason": "MonitorMidBosses and MonitorBigBoss use living, engaged spawns only to select BossEngaged and MinibossEngaged. Update consumes these flags to change audio clips and fades, not content availability."
     },
+    "PlayerCombat": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "FindNearestLootable picks dead characters to loot, and DoAuto attacks only while the player lives."
+    },
     "PlayerControl": {
       "apis": [
+        "Character.Alive",
         "GameData.CompletedQuests",
         "Inventory.HasItem",
         "SceneChange.ChangeScene"
@@ -352,6 +569,13 @@
       "tasks": [
         "4.1"
       ]
+    },
+    "PlayerRaidCard": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "DoBattleRezIcon and DoBattleRez offer and perform battle resurrection of dead raid members."
     },
     "Quest": {
       "apis": [
@@ -383,6 +607,20 @@
       "classification": "adapter",
       "component": "QuestActivationListener and processor/hierarchy.py activity, processor/barriers.py removals"
     },
+    "RaidManager": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update and the group target helpers drop dead targets and adds from raid assignments."
+    },
+    "RaidMemberSlot": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "DoBattleRezIcon and DoBattleRez offer and perform battle resurrection of dead raid members."
+    },
     "ReliqDisableFiendSpawn": {
       "apis": [
         "GameData.AccountClaimedReliquary",
@@ -394,6 +632,7 @@
     },
     "ReliquaryFiend": {
       "apis": [
+        "Character.Alive",
         "Character.Invulnerable",
         "GameData.FinishQuest",
         "SpawnPoint.MyNPCAlive"
@@ -403,6 +642,7 @@
     },
     "Respawn": {
       "apis": [
+        "Character.Alive",
         "SceneChange.ChangeScene"
       ],
       "classification": "pending",
@@ -410,14 +650,31 @@
         "4.1"
       ]
     },
+    "RewardListener": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "pending",
+      "tasks": [
+        "3.3"
+      ]
+    },
     "RunWindow": {
       "apis": [
+        "Character.Alive",
         "SceneChange.ChangeScene"
       ],
       "classification": "pending",
       "tasks": [
         "4.1"
       ]
+    },
+    "SableheartEvent": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update disables the fight script once Sableheart dies."
     },
     "ShiverEvent": {
       "apis": [
@@ -437,10 +694,32 @@
     },
     "ShiveringPhantomWardListener": {
       "apis": [
+        "Character.Alive",
         "Character.Invulnerable"
       ],
       "classification": "adapter",
       "component": "ScriptedActivatorListener shivering_phantom_wards and processor/combat_eligibility.py"
+    },
+    "ShoutTrigger": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "OnTriggerEnter shouts once while the shouter lives, and Update rearms it once the shouter dies. Shouts are chat text."
+    },
+    "SimPlayer": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Simulated players use Alive for revival, grouping, pulling, and targeting."
+    },
+    "SimPlayerGrouping": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Group commands and dismissal check whether the player and members live."
     },
     "SimPlayerMngr": {
       "apis": [
@@ -451,6 +730,13 @@
         "4.1"
       ]
     },
+    "SiraetheEvent": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update spawns Siraethe's wards at her event points while she lives and is engaged. The wards are combat spawns in the dynamic spawn catalog."
+    },
     "SivTorchLight": {
       "apis": [
         "GameData.CompletedQuests",
@@ -459,8 +745,16 @@
       "classification": "adapter",
       "component": "ScriptedActivatorListener siv_torch_gaze, processor/barriers.py removals and processor/scripted_events.py"
     },
+    "SolunaFight": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "adapter",
+      "component": "ScriptedActivatorListener restored_soluna and processor/gates.py restored_soluna"
+    },
     "SpawnPoint": {
       "apis": [
+        "Character.Alive",
         "GameData.CompletedQuests",
         "GameData.IsQuestDone"
       ],
@@ -478,6 +772,7 @@
       "apis": [
         "AtmosphereColors.SinceRain",
         "AtmosphereColors.WeightGoal",
+        "Character.Alive",
         "SceneChange.ChangeScene",
         "SpawnPoint.MyNPCAlive"
       ],
@@ -486,12 +781,41 @@
         "4.1"
       ]
     },
+    "SpiderEvent": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update starts the spider fight once a spider dies or engages and wakes the living spiders."
+    },
     "SprinklesEvent": {
       "apis": [
+        "Character.Alive",
         "Character.Invulnerable"
       ],
       "classification": "adapter",
       "component": "CharacterDamageReleaseListener ExportEmptyWards and DynamicSpawnSourceListener"
+    },
+    "Stats": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update ticks stats and AddStatusEffect applies effects only to living characters."
+    },
+    "StowawayPortal": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "adapter",
+      "component": "ScriptedActivatorListener stowaway_deaths check-ins and processor/gates.py death-trigger gates"
+    },
+    "TargetTracker": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update and OnTriggerEnter track living nearby targets."
     },
     "TextTrigger": {
       "apis": [
@@ -499,6 +823,13 @@
       ],
       "classification": "excluded",
       "reason": "TriggerPopup uses RequireQuest only to gate tutorial text, UI restoration, EndTut, and a bind point in the current scene. It neither enables content nor opens a route to a new scene."
+    },
+    "TrackEngagedTargets": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "TrackTargets lists living engaged enemies for the group display."
     },
     "TradeWindow": {
       "apis": [
@@ -520,6 +851,13 @@
       "classification": "excluded",
       "reason": "The /raining, /thunder, /bluesky, /toscene, /invinci, and /killall branches all require GameData.PlayerControl.dev before reading or changing the listed progression state."
     },
+    "UseSkill": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "DoSkill and DoSkillNoChecks use skills only while the user lives and on living enemies."
+    },
     "VendorWindow": {
       "apis": [
         "GameData.IsQuestDone"
@@ -529,10 +867,25 @@
     },
     "VithArena": {
       "apis": [
+        "Character.Alive",
         "Inventory.HasItem"
       ],
       "classification": "adapter",
       "component": "VithArenaListener, DynamicSpawnSourceListener, processor/gates.py restored_vitheo, and the arena rounds of processor/progression.py"
+    },
+    "VitheoFight": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update ends the fight, its music, and its spawning once Vitheo dies. CheckIn hides RestoredVitheo, which VithArena reveals through restored_vitheo."
+    },
+    "WaveEvent": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update ends the wave event with a shout once its boss dies."
     },
     "WeatherTrend": {
       "apis": [
@@ -540,6 +893,13 @@
       ],
       "classification": "adapter",
       "component": "WeatherTrendListener, weather.trend_start, weather.trend_pull and processor/weather.py"
+    },
+    "ZenithNadirScript": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "BossBarrier closes the arena only while a twin has an aggro target and opens again when the fight ends or both twins and Syzygy die. It gates no access before the fight. The chest and constellation adds are combat spawns in the dynamic spawn catalog."
     },
     "ZoneAnnounce": {
       "apis": [

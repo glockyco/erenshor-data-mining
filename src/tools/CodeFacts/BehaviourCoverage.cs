@@ -33,6 +33,7 @@ internal static class BehaviourCoverage
         ["GameData.AccountClaimedReliquary"] = false,
         ["AtmosphereColors.isRaining"] = false,
         ["SpawnPoint.MyNPCAlive"] = false,
+        ["Character.Alive"] = false,
         ["WorldFaction.FactionValue"] = false,
         ["SceneChange.ChangeScene"] = true,
         ["SceneChange.ChangeSceneSafe"] = true,
