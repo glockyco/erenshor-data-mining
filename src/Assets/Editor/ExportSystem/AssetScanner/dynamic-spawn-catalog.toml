@@ -624,3 +624,13 @@ rule = "astra_deaths"
 script = "StowawayPortal"
 fields = ["KeeperSpawn"]
 rule = "stowaway_deaths"
+
+[[activation]]
+script = "JawsStatueStartup"
+fields = ["StartOnComplete", "Vision"]
+rule = "jaws_statue_startup"
+
+[[activation]]
+script = "BellsieWineTrigger"
+fields = ["IDtoActivate", "WineOnChair", "Note", "Poof"]
+rule = "bellwain_offering"

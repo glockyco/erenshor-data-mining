@@ -344,6 +344,20 @@ public sealed class NPCShoutListener : MonoBehaviour
     public bool UseEssentialSpawnsToBlockThisInstance;
 }
 
+public sealed class JawsStatueStartup : MonoBehaviour
+{
+    public Quest StartOnComplete;
+    public SivTorchLight Vision;
+}
+
+public sealed class BellsieWineTrigger : MonoBehaviour
+{
+    public string IDtoActivate;
+    public GameObject WineOnChair,
+        Note,
+        Poof;
+}
+
 public sealed class ReliquaryFiend : MonoBehaviour { }
 
 public sealed class ReliqDisableFiendSpawn : MonoBehaviour { }

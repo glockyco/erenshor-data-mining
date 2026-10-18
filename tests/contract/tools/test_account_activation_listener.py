@@ -69,7 +69,13 @@ def _assert_complete_catalog(payload: dict[str, Any]) -> None:
         "item",
         "quest",
         "bool",
+        "controller",
+        "string",
     }
+    # A controller reference is the referenced controller's own source key.
+    vision = next(row for row in references if row["Field"] == "Vision")
+    assert vision["ReferenceKey"] == sources["SivTorchLight"]["SourceKey"]
+    assert next(row for row in references if row["Field"] == "IDtoActivate")["ReferenceKey"] == "38656873"
     boolean = next(row for row in references if row["Field"] == "UseEssentialSpawnsToBlockThisInstance")
     assert boolean["ReferenceKind"] == "bool"
     assert boolean["BoolValue"] is False

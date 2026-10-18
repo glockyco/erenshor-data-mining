@@ -185,7 +185,43 @@ public sealed class ScriptedActivatorListener : IAssetScanListener<MonoBehaviour
             "stowaway_deaths",
             new() { ["KeeperSpawn"] = typeof(GameObject) }
         ),
+        // Enables its gaze statue's SivTorchLight once StartOnComplete is done.
+        // code-fact: progression.jaws.statue_enable
+        [typeof(JawsStatueStartup)] = (
+            "jaws_statue_startup",
+            new() { ["StartOnComplete"] = typeof(Quest), ["Vision"] = typeof(SivTorchLight) }
+        ),
+        // Consumes the carried item whose ID it names and enables its objects.
+        // code-fact: progression.bellwain.offering
+        [typeof(BellsieWineTrigger)] = (
+            "bellwain_offering",
+            new()
+            {
+                ["IDtoActivate"] = typeof(string),
+                ["WineOnChair"] = typeof(GameObject),
+                ["Note"] = typeof(GameObject),
+                ["Poof"] = typeof(GameObject),
+            }
+        ),
     };
+
+    // Fields that the shipped code checks for null before it uses them.
+    private static readonly HashSet<(Type type, string field)> OptionalFields = new()
+    {
+        (typeof(BellsieWineTrigger), "Note"),
+        (typeof(BellsieWineTrigger), "Poof"),
+    };
+
+    private static string PlacedSourceKey(MonoBehaviour controller, string script)
+    {
+        var host = controller.gameObject;
+        int index = Array.IndexOf(host.GetComponents(controller.GetType()), controller);
+        return ActivationTargetResolver.ObjectKey(host)
+            + ":script:"
+            + script
+            + ":"
+            + index.ToString(CultureInfo.InvariantCulture);
+    }
 
     public ScriptedActivatorListener(
         SQLiteConnection db,
@@ -251,14 +287,15 @@ public sealed class ScriptedActivatorListener : IAssetScanListener<MonoBehaviour
                 $"Activation controller {entry.Script} requires a host Character on {host.name}"
             );
         var characterKey = character != null ? _characterKeys.GetStableKey(character) : null;
-        var components = host.GetComponents(asset.GetType());
-        int componentIndex = Array.IndexOf(components, asset);
-        var sourceKey =
-            (placed ? ActivationTargetResolver.ObjectKey(host) : characterKey!)
-            + ":script:"
-            + entry.Script
-            + ":"
-            + componentIndex.ToString(CultureInfo.InvariantCulture);
+        var sourceKey = placed
+            ? PlacedSourceKey(asset, entry.Script)
+            : characterKey
+                + ":script:"
+                + entry.Script
+                + ":"
+                + Array
+                    .IndexOf(host.GetComponents(asset.GetType()), asset)
+                    .ToString(CultureInfo.InvariantCulture);
         var position = host.transform.position;
         _sources.Add(
             new ScriptedActivatorRecord
@@ -299,7 +336,9 @@ public sealed class ScriptedActivatorListener : IAssetScanListener<MonoBehaviour
             }
             else
             {
-                bool optional = asset is NPCShoutListener or ShiveringPhantomWardListener;
+                bool optional =
+                    asset is NPCShoutListener or ShiveringPhantomWardListener
+                    || OptionalFields.Contains((asset.GetType(), name));
                 if (!optional && (value == null || value is UnityEngine.Object obj && obj == null))
                     throw new InvalidOperationException(
                         $"Missing configured activation reference: {entry.Script}.{name} on {sourceKey}"
@@ -424,6 +463,25 @@ public sealed class ScriptedActivatorListener : IAssetScanListener<MonoBehaviour
                 record.ReferenceKind = "object";
                 record.ReferenceKey = ActivationTargetResolver.ObjectKey(go);
                 sceneTarget = go;
+                break;
+            // A catalogued controller is referenced by its own source key, so its
+            // rule and capability stay with its exported record.
+            case MonoBehaviour controller
+                when _catalog.TryGetValue(controller.GetType(), out var controllerEntry):
+                if (
+                    !controller.gameObject.scene.IsValid()
+                    || PrefabUtility.IsPartOfPrefabAsset(controller.gameObject)
+                )
+                    throw new InvalidOperationException(
+                        $"Controller reference must be placed: {referenceId}"
+                    );
+                record.ReferenceKind = "controller";
+                record.ReferenceKey = PlacedSourceKey(controller, controllerEntry.Script);
+                break;
+            // Serialized identifiers, such as an item ID, are resolved by the clean build.
+            case string text:
+                record.ReferenceKind = "string";
+                record.ReferenceKey = text;
                 break;
             case null:
                 break;

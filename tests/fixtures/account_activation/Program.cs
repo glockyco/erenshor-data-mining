@@ -156,6 +156,7 @@ internal static class Program
             .ToArray();
         var item = new Item { FixtureKey = "item:fixture:required" };
         var quest = new Quest { FixtureKey = "quest:fixture:required" };
+        var controllers = new Dictionary<Type, MonoBehaviour>();
         foreach (var entry in catalog.Activations)
         {
             var type =
@@ -173,6 +174,7 @@ internal static class Program
             if (type == typeof(ReliqDisableFiendSpawn))
                 Spawn(host, "spawn:fixture:catalog-account-host", targets);
             var controller = host.Add((MonoBehaviour)Activator.CreateInstance(type));
+            controllers[type] = controller;
             foreach (var name in entry.Fields)
             {
                 var field =
@@ -188,6 +190,9 @@ internal static class Program
                     : field.FieldType == typeof(Item) ? item
                     : field.FieldType == typeof(Quest) ? quest
                     : field.FieldType == typeof(bool) ? false
+                    : field.FieldType == typeof(string) ? "38656873"
+                    // A controller reference names a controller that an earlier catalog entry placed.
+                    : controllers.TryGetValue(field.FieldType, out var referenced) ? referenced
                     : field.FieldType == typeof(List<GameObject>)
                         ? new List<GameObject> { target, target }
                     : field.FieldType == typeof(List<SpawnPoint>) ? new List<SpawnPoint> { spawn }

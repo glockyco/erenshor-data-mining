@@ -80,7 +80,9 @@
     "ReliqPortalListener",
     "AstraListener",
     "StowawayPortal",
-    "SkeletonCheckin"
+    "SkeletonCheckin",
+    "JawsStatueStartup",
+    "BellsieWineTrigger"
   ],
   "fields": {
     "WeatherTrend": {
@@ -9730,6 +9732,58 @@
         "reason": null,
         "status": "captured",
         "type": "System.Boolean"
+      }
+    },
+    "JawsStatueStartup": {
+      "StartOnComplete": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Quest"
+      },
+      "StatueSpinner": {
+        "by": null,
+        "reason": "Turns the statue for presentation. The enable of Vision is the gate.",
+        "status": "ignored",
+        "type": "SimpleRotate"
+      },
+      "Vision": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "SivTorchLight"
+      }
+    },
+    "BellsieWineTrigger": {
+      "IDtoActivate": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.String"
+      },
+      "MySFX": {
+        "by": null,
+        "reason": "Sound played on activation.",
+        "status": "ignored",
+        "type": "UnityEngine.AudioClip"
+      },
+      "Note": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "Poof": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
+      },
+      "WineOnChair": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.GameObject"
       }
     }
   }
