@@ -174,6 +174,23 @@ def test_she_sees_you_completes_at_the_gaze_statue_after_the_guardian_awakens(cl
     assert [tuple(atom) for atom in conditions] == [("quest_done", "quest:jawsentry")]
 
 
+def test_meet_shivering_step_completes_in_the_zone_after_all_four_keepers(clean: sqlite3.Connection) -> None:
+    routes = _routes(clean, "quest:shiver-meetall", "completion")
+    assert len(routes) == 1, [dict(route) for route in routes]
+    route = routes[0]
+    assert (route["method"], route["source_kind"], route["source_stable_key"]) == (
+        "scripted",
+        "zone",
+        "zone:shiveringstep",
+    )
+    conditions = clean.execute(
+        "SELECT atom_kind, atom_stable_key FROM quest_route_conditions WHERE route_key = ?", (route["route_key"],)
+    ).fetchall()
+    assert sorted(tuple(atom) for atom in conditions) == [
+        ("quest_done", f"quest:shiver-{keeper}") for keeper in ("curator", "gatekeeper", "harbinger", "watchman")
+    ]
+
+
 def test_missing_person_talk_does_not_execute_configured_resource_rewards(clean: sqlite3.Connection) -> None:
     routes = _routes(clean, "quest:missingpersonkrakengard", "completion")
     assert len(routes) == 1, [dict(route) for route in routes]
