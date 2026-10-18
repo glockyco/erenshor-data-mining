@@ -160,7 +160,7 @@ The guide SHALL preserve common `encounter_placements`, `encounter_conditions`, 
 
 ### Requirement: Quest guide data carries the conditions
 
-`quest-guide.json` SHALL use schema 8 and carry conditions and subject references, gate-item metadata, common encounter rows, canonical source facts and destination contexts. Python emission, C# validation/DTOs, real fixtures and generated data SHALL migrate atomically without a schema-7 shim. Missing common tables or invalid references SHALL fail rather than become empty defaults. The compiler SHALL combine gates once and omit none. Guide commands SHALL write no output besides `quest-guide.json`. Production regeneration SHALL wait for coherent refreshed common data.
+`quest-guide.json` SHALL carry the schema version that the mod reads, and conditions and subject references, gate-item metadata, common encounter rows, canonical source facts, the way rank of each acquisition, and destination contexts. The mod SHALL reject any other version. A schema change SHALL migrate Python emission, C# validation/DTOs, real fixtures and generated data atomically, without a shim for the previous version. Missing common tables or invalid references SHALL fail rather than become empty defaults. The compiler SHALL combine gates once and omit none. Guide commands SHALL write no output besides `quest-guide.json`. Production regeneration SHALL wait for coherent refreshed common data.
 
 #### Scenario: A door gate reaches the mod
 
