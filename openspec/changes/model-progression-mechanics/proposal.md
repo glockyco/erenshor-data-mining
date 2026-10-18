@@ -1,21 +1,25 @@
 ## Why
 
-The clean database records most gates, but four kinds of game logic reach consumers only through the Adventure Guide's hand-written overrides in `quest_guides/graph_overrides.toml`, or not at all:
+The clean database records most gates, but several kinds of game logic reach consumers only through the Adventure Guide's hand-written overrides in `quest_guides/graph_overrides.toml`, or not at all:
 
-- A controller's effects ignore whether its host is active. `QuestSpawnListener` enables `PlanningDesk` after Claiming the Reliquary, and `PlanningDesk` hosts the `PlanningTable` that opens the Reliquary portals. The clean build drops effects on plain objects, 104 of the 150 exported quest-listener effects, and never applies a host's activation to the controllers it hosts.
+- A controller's effects ignore whether its host is active. `QuestSpawnListener` enables `PlanningDesk` after Claiming the Reliquary, and `PlanningDesk` hosts the `PlanningTable` that opens the Reliquary portals. The clean build drops effects on plain objects, 104 of the 150 exported quest-listener effects, and never applies a host's activation to the controllers it hosts or to the characters they spawn. The last phase of the Fallen Fernalla fight, which drops the Inert Rune of Fernalla, is available without the quest that starts the fight.
+- The clean build ignores that a spawn point starts disabled. 248 spawn points start disabled with no exported effect that enables them, among them the Azynthian Keeper's, which `StowawayPortal` enables after the four Shadows die.
+- Spawns that follow deaths have no trigger. `AstraListener` spawns Astra, Rogue of the Stars after every Stardust dies, and the Freed Spirit of Raval after Raval dies, but the export records both spawns without a condition.
 - Barriers other than keyed doors have no record of what they guard: the angel statue that `ShiveringAngel` turns after Stand, Angel!, the wall in Jaws of Sivakaya that `SivTorchLight` removes after She Sees You, and the six Wards of Piety, level 99 and impossible to damage, that `PietyTrigger` calls when a player enters without A Pious Guest.
-- Travel and world state that only code expresses: the Dimensional Rift between the two Azynthi's Garden scenes, and rain, which `WeatherTrend` keeps from starting in Braxonian Desert and Invoke Storm forces.
+- Travel, world state, and faction standing that only code expresses: the Dimensional Rift between the two Azynthi's Garden scenes, rain, which `WeatherTrend` keeps from starting in Braxonian Desert and Invoke Storm forces, and faction standing, which decides whether an NPC talks. The Arcane Headmaster gives the Loss Stone only while the Pupil's Pin is equipped, because `Inventory` sets his faction below zero otherwise.
 - Nothing fails when a script that gates progression is not classified. `JawsStatueStartup` enables the gaze statue after The Guardian Awakens, and `BellsieWineTrigger` takes an item and enables objects on Bellwain Island. Neither is exported, and every build passes.
 
 The overrides approximate these mechanisms. They gate the Jaws entrance instead of the wall inside, and they state A Pious Guest as a spawn condition of Vessel Siraethe. Any game update can add another such script without a failing check.
 
 ## What Changes
 
-- Behaviour coverage: the code-facts run lists every script type that reads quest, item, account, or weather state, or that changes scenes, quests, invulnerability, or weather. Each type is classified by the component that models it, or excluded with a reason. An unclassified type fails the run.
-- Hierarchy activity: an object's activation applies to everything under it and to every controller it hosts. This replaces the separate export of UI item access, and gives each inactive placement the activation that enables it or none.
+- Behaviour coverage: the code-facts run lists every script type that reads quest, item, account, weather, spawn death, or faction state, or that changes scenes, quests, invulnerability, weather, or faction standing. Each type is classified by the component that models it, excluded with a reason, or pending with the task that will model it. An unclassified type fails the run.
+- Hierarchy activity: an object's activation applies to everything under it, to every controller it hosts, and to the characters those controllers spawn. This replaces the separate export of UI item access, and gives each placement that starts inactive, a spawn point or a placed copy, the activation that enables it or a gate that never holds.
+- Death triggers: the spawns and activations that follow deaths need a defeat of each character whose death triggers them.
 - Barriers: each object that blocks access gets its opening condition from its mechanism, and `barriers.toml` records what each barrier guards, with a reason and an in-game check. Keyed doors become one kind of barrier. Gates keep the barrier's identity.
 - Travel: zone lines, teleport items, and scene switches by spell become one set of travel facts with their conditions.
 - World state: each scene's weather limits and the spells that change the weather become facts, and a gate can need a world state.
+- Faction standing: the rules by which a world faction's standing blocks an NPC's dialog become code facts, and a gate can need a standing with a faction.
 - Hand-coded literals, such as `"STANDANGEL"`, `"JAWSSEEN"`, and spell names, come from code facts that extract them, so a changed literal fails the run instead of drifting.
 - The rule-specific branches of `gates.py` that these rules cover go, with their literal quest keys.
 - The open producer tasks of `model-guide-gates` move here after a handoff: inactive placements (its task group 4), unusable zone lines (5), and removed barriers (6.1), with the guide's pending producer proposals and evidence as inputs.
@@ -33,7 +37,7 @@ Migration boundary: each mechanism lands with its consumers unchanged. The requi
 
 ### Modified Capabilities
 
-None. The requirements of `guide-gate-data` that describe shared clean-build data move into `progression-mechanics` when `model-guide-gates` archives (task 7.1).
+None. The requirements of `guide-gate-data` that describe shared clean-build data move into `progression-mechanics` when `model-guide-gates` archives (task 8.1).
 
 ## Impact
 

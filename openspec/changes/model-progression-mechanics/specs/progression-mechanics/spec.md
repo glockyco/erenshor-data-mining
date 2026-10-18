@@ -29,17 +29,36 @@ A quest, item, scene, or spell name that a classified script hard-codes SHALL re
 
 ### Requirement: An object's activation reaches what it contains and hosts
 
-A subject SHALL be available only while its object and every ancestor are active, and a controller's effect only while the controller's host is active. Initial activity SHALL come from the export. An activation effect on an object SHALL apply to its whole subtree. A subject that starts inactive without a recorded activation SHALL be unavailable.
+A subject SHALL be available only while its object and every ancestor are active, and a controller's effect only while the controller's host is active. The characters that a controller spawns SHALL be such effects. Initial activity SHALL come from the export. An activation effect on an object SHALL apply to its whole subtree. A subject that starts inactive without a recorded activation SHALL be unavailable, whether it is a spawn point or a placed copy.
 
 #### Scenario: The planning portals
 
 - **WHEN** reading the zone line that the planning table opens for Rune of Elements
 - **THEN** it needs Claiming the Reliquary done as well as the rune in its slot
 
+#### Scenario: The last phase of a fight
+
+- **WHEN** reading the Fallen Fernalla that drops the Inert Rune of Fernalla
+- **THEN** it needs Twisted Fernalla's spawn point, and so A Dying Wish, Part 4
+
 #### Scenario: An inactive placement
 
-- **WHEN** a character copy starts inactive and no effect activates it
+- **WHEN** a spawn point or a character copy starts inactive and no effect activates it
 - **THEN** its placement has a gate that never holds
+
+### Requirement: Effects that follow deaths need those deaths
+
+A spawn or an activation that a controller performs once a set of characters is dead SHALL need a defeat of each character of that set. The export SHALL record the set with the effect.
+
+#### Scenario: Astra, Rogue of the Stars
+
+- **WHEN** reading the ways to Heart of Astra
+- **THEN** Astra, Rogue of the Stars needs every Stardust defeated
+
+#### Scenario: The Azynthian Keeper
+
+- **WHEN** reading the ways to Eldrich Crystal
+- **THEN** the Azynthian Keeper needs the four Shadows of Secluded Sanctuary defeated
 
 ### Requirement: Barriers take their opening condition from their mechanism
 
@@ -103,6 +122,20 @@ The clean database SHALL record each scene's limits on natural weather and each 
 
 - **WHEN** the clean build runs with the weather facts recorded
 - **THEN** each of the four raid planes has a playthrough tier in the requirement graph
+
+### Requirement: Gates can need a faction standing
+
+The clean database SHALL record the rules by which a world faction's standing blocks an NPC's dialog, and a gate SHALL be able to need a standing with a faction. A dialog route or relation with an NPC SHALL need the standing that those rules require, and the standing SHALL need a recorded source that produces it.
+
+#### Scenario: The Loss Stone
+
+- **WHEN** reading the ways to the Loss Stone
+- **THEN** the Arcane Headmaster's dialog needs the Pupil's Pin equipped
+
+#### Scenario: A faction that starts below zero
+
+- **WHEN** an NPC's faction starts below zero and the rules block its dialog
+- **THEN** its dialog routes need a standing that a recorded quest or kill raises
 
 ### Requirement: Consumers add no gates of their own
 

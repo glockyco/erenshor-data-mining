@@ -18,6 +18,10 @@ How the overrides and the gaps map to mechanisms:
 | The Dimensional Rift | `SpellVessel` switches between `Azynthi` and `AzynthiClear` for the spell (`SpellVessel.cs`, lines 2261 to 2275), and the Azynthian Riftstone casts it. Nothing exports it. | Travel |
 | Rain for Evadne the Corrupted | `WeatherTrend` on the root object `Environmental` of Braxonian Desert caps the rain weight at 0.15 (`WeatherTrend.cs`, lines 15 to 29). Rain starts only above 0.55 in a scene that uses the sun (`AtmosphereColors.cs`, line 414). Invoke Storm sets the weight to 0.9 and clears the rain timer (`SpellVessel.cs`, lines 2158 to 2163). Four scenes have such a cap: Azynthi's Garden (0.5), Braxonian Desert (0.15), Old Krakengard (0.3), and Underspine Hollow (0.35). | World state |
 | `BellsieWineTrigger` on Bellwain Island | Takes an item and enables objects (`BellsieWineTrigger.cs`, lines 19 to 29). Nothing exports or classifies it. | Behaviour coverage |
+| The Inert Rune of Fernalla needs A Dying Wish, Part 4 | `FernallaFightEvent` runs the fight on Twisted Fernalla's spawn point, which spawns only after A Dying Wish, Part 4. Its last phase spawns the Fallen Fernalla that drops the rune (`FernallaFightEvent.cs`, lines 204 to 283). The export records the phase spawn without its host. | Hierarchy activity |
+| The Azynthian Keeper needs the four Shadows | `StowawayPortal` enables `KeeperSpawn`, the Keeper's spawn point, which starts disabled, once the four Shadows that check in through `SkeletonCheckin` are dead (`StowawayPortal.cs`, lines 146 to 207). The spawn catalog denies `KeeperSpawn` as a position marker. The clean build ignores that a spawn point starts disabled, here and at 247 other spawn points with no exported effect that enables them. | Hierarchy activity, death triggers |
+| Astra and the Freed Spirit of Raval need deaths | `AstraListener` spawns its prefab once the NPCs of all its `StarSpawns` are dead: Astra, Rogue of the Stars after the Stardust, the Freed Spirit of Raval after Raval, and Ancient Canine in Azynthi's Garden (`AstraListener.cs`, lines 40 to 107). The export records each spawn without its trigger, and the inventory missed the type, because `SpawnPoint.MyNPCAlive` was not in its API set. | Death triggers, behaviour coverage |
+| The Loss Stone needs the Pupil's Pin | The Arcane Headmaster belongs to `AncientSchool`, which `Inventory` sets to 10 while the Pupil's Pin is in the charm slot and to -10 otherwise (`Inventory.cs`, lines 756 to 762). A hail gets "..." below zero (`NPCDialogManager.cs`, line 133). An NPC at zero or below aggroes the player (`NPCAggroArea.cs`, line 166), and an NPC with an aggro target answers no keyword (`NPCDialogManager.cs`, line 191). Eight world factions start below zero, and the 11 Aquilimar NPCs all have dialog. | Faction standing |
 
 The Adventure Guide tab holds the open producer tasks of `model-guide-gates`: inactive placements (4.1 and 4.2), unusable zone lines (5.1 and 5.2), and removed barriers (6.1). It has an audit of 45 inactive character copies with the scripts that activate them, and uncommitted proposals for inactive placements, zone line usability, and activation damage. `model-guide-gates` lists travel that is not a zone line and weather as non-goals.
 
@@ -37,7 +41,7 @@ The Adventure Guide tab holds the open producer tasks of `model-guide-gates`: in
 
 ### D1. Behaviour coverage in the code-facts run
 
-`CodeFacts` gains an inventory mode. It decompiles every type of `Assembly-CSharp` and lists each type whose code reads `GameData.IsQuestDone`, `GameData.CompletedQuests`, `GameData.HasQuest`, `Inventory.HasItem`, `Inventory.HasCosmetic`, `GameData.AccountClaimedReliquary`, or `AtmosphereColors.isRaining`, or writes through `SceneChange.ChangeScene`, `SceneChange.ChangeSceneSafe`, `GameData.FinishQuest`, `GameData.AssignQuest`, `Character.Invulnerable`, `AtmosphereColors.WeightGoal`, or `AtmosphereColors.SinceRain`. It resolves symbols through the decompiler's type system, not text.
+`CodeFacts` gains an inventory mode. It decompiles every type of `Assembly-CSharp` and lists each type whose code reads `GameData.IsQuestDone`, `GameData.CompletedQuests`, `GameData.HasQuest`, `Inventory.HasItem`, `Inventory.HasCosmetic`, `GameData.AccountClaimedReliquary`, `AtmosphereColors.isRaining`, `SpawnPoint.MyNPCAlive`, or `WorldFaction.FactionValue`, or writes through `SceneChange.ChangeScene`, `SceneChange.ChangeSceneSafe`, `GameData.FinishQuest`, `GameData.AssignQuest`, `Character.Invulnerable`, `AtmosphereColors.WeightGoal`, `AtmosphereColors.SinceRain`, or `NPCFaction.Value`. It resolves symbols through the decompiler's type system, not text.
 
 A catalog in `src/tools/CodeFacts/specs/` holds one entry for each listed type: `adapter` with the export adapter or processor rule that models it, `core` with the component of the pipeline that models it, `excluded` with a reason, such as a tutorial popup, or `pending` with the task of this change that will model it. Each entry records the state APIs that the type uses. The run fails on an unlisted type, on a stale entry, on a `pending` entry without a task, and on a type whose set of state APIs changed, because a new read or write can be a new gate. A `pending` entry is a visible, tracked gap, not an exception: the change cannot archive while one remains.
 
@@ -52,15 +56,18 @@ Alternatives considered:
 
 The export keeps its contracts and adds:
 
-- An `ObjectHierarchy` record for each object that is a subject, hosts a classified controller, or is an ancestor of one: its key, its parent, its scene, and whether it is active in the scene file. Subject records name their object.
+- An `ObjectHierarchy` record for each object that is a subject, hosts a classified controller, or is an ancestor of one: its key, its parent, its scene, and whether it is active in the scene file. Subject records name their object, and each dynamic spawn names the object of the controller that spawns it.
 - Adapters, or rules for exported ones, for the types that D1 classifies and nothing models: `JawsStatueStartup` (enables a controller after a quest), `PietyTrigger` (calls guardians unless a quest is done), and `SivTorchLight` (removes an object after a quest). The Bellwain Island scripts that gate its quests, `BellsieWineTrigger`, the item-gated torch action of `PlayerControl`, and the Bellwain group of `AngelScript`, get their effects recorded the same way (task 3.4).
 - The missing references of classified types that the guide's inactive-placement audit found: the wards of `FernallaPortalBoss`, the Bellwains of `AngelScript`, and the portal identities of `PlanningTable`.
+- The trigger sets of the effects that follow deaths: the `StarSpawns` of `AstraListener`, and the characters that check in to `StowawayPortal` through `SkeletonCheckin` with the `KeeperSpawn` that their deaths enable.
 
 ### D3. Hierarchy activity
 
-An object is available when it is active in the scene file or an activation effect enables it, it has not been disabled, and its parent is available. A subject is available when its object is. A controller's effects need its host to be available. Disable effects keep their inverse conditions.
+An object is available when it is active in the scene file or an activation effect enables it, it has not been disabled, and its parent is available. A subject is available when its object is. A controller's effects need its host to be available, and the characters that a controller spawns are such effects: the last phase of the Fallen Fernalla fight needs Twisted Fernalla's spawn point. Disable effects keep their inverse conditions.
 
-This rule replaces `UiItemSourceListener`'s separate activation export (`UiItemAccessActivations`) and the processor path that reads it, because the Box of Portals inherits `PlanningDesk`'s activation like the portals do. A placement that starts inactive, itself or through an ancestor, and that no effect enables gets a gate that never holds. This is task 4.2 of `model-guide-gates`, with the guide's audit of 45 copies as input.
+This rule replaces `UiItemSourceListener`'s separate activation export (`UiItemAccessActivations`) and the processor path that reads it, because the Box of Portals inherits `PlanningDesk`'s activation like the portals do. A placement that starts inactive, itself or through an ancestor, and that no effect enables gets a gate that never holds. This covers spawn points as well as placed copies: the guide's audit of 45 copies is one input, and the 248 spawn points that start disabled with no exported effect that enables them are audited the same way. Each audited placement gets its activator exported or the gate that never holds. This is task 4.2 of `model-guide-gates`, widened to spawn points.
+
+An effect can follow deaths. `AstraListener` spawns its prefab once the NPCs of all its `StarSpawns` are dead, and `StowawayPortal` enables `KeeperSpawn` once the characters that check in through `SkeletonCheckin` are dead. The export records each such trigger set with the effect, and the clean build gives the spawned or enabled subject a `defeated` need for each character of the set. The dynamic spawn catalog classifies `KeeperSpawn` as an activation, not a position marker.
 
 ### D4. Barriers
 
@@ -111,7 +118,7 @@ Behaviour coverage (D1) touches only the code-facts tool and starts at once. Eve
 
 ### D9. In-game checks
 
-Each mechanism kind gets one check through HotRepl that sets its trigger and observes its effect: a barrier closed and open, a controller's host disabled and enabled, the Dimensional Rift switching scenes, and Invoke Storm starting rain in Braxonian Desert while Evadne the Corrupted becomes vulnerable. Each barrier record gets a containment check: a NavMesh path from each entrance landing to each guarded target fails while the barrier stands and succeeds after it opens, as the door reviews did. Checks run on a dedicated character slot, with sound off, leave the player's saves unchanged, and end with the normal shutdown. Their evidence stays in the variant's storage.
+Each mechanism kind gets one check through HotRepl that sets its trigger and observes its effect: a barrier closed and open, a controller's host disabled and enabled, a spawn that follows deaths, the Dimensional Rift switching scenes, Invoke Storm starting rain in Braxonian Desert while Evadne the Corrupted becomes vulnerable, and the Arcane Headmaster's dialog with and without the Pupil's Pin. Each barrier record gets a containment check: a NavMesh path from each entrance landing to each guarded target fails while the barrier stands and succeeds after it opens, as the door reviews did. Checks run on a dedicated character slot, with sound off, leave the player's saves unchanged, and end with the normal shutdown. Their evidence stays in the variant's storage.
 
 ### D10. Owners, failure handling, grouping, and rollback
 
@@ -127,6 +134,12 @@ The export fails with status 3 on an unclassified field, the code-facts run on a
 
 Each mechanism is one slice: its export or code facts, its processor rule, its tests, its in-game check, and a review of the requirement graph's raid chains, then the guide's override removal. A slice rolls back by reverting its commits and rebuilding. The backup keeps the previous clean database.
 
+### D11. Faction standing
+
+A world faction's standing decides whether its NPCs talk. A hail gets "..." below zero (`NPCDialogManager.GenericHail`). An NPC at zero or below aggroes the player (`NPCAggroArea`), and an NPC with an aggro target answers no keyword (`NPCDialogManager.ParseText`). Standings start at each faction's default, and quest rewards and kill modifiers change them, which the export already records (`factions`, `quest_faction_affects`, `character_faction_modifiers`). `Inventory` overrides `AncientSchool` from the charm slot: 10 while the Pupil's Pin is equipped, -10 otherwise.
+
+Code facts pin the hail threshold, the aggro threshold, the keyword rule, and the Pupil's Pin rule with its item and values. A new gate atom kind names a standing with a faction that the rules require, such as `faction_standing:ancientschool:non_negative`. Its producers are the repeatable sources that raise the faction from its default and, for `AncientSchool`, the equipped Pupil's Pin. A dialog route or relation with an NPC of a world faction needs the standing that the rules require for that interaction. Which interactions a standing blocks comes from the in-game check (D9) before the rule lands, because `never_aggro` and aggro range decide whether keyword dialog is reachable at all.
+
 ## Risks / Trade-offs
 
 - The API set could miss a gate. The requirement graph's chain reviews and the guide's runtime checks find misses, and each miss widens the set with its evidence.
@@ -139,7 +152,7 @@ Each mechanism is one slice: its export or code facts, its processor rule, its t
 
 1. Handoff (D8).
 2. Behaviour coverage (D1): classify the listed types and record the list of mechanisms that need work.
-3. Hierarchy activity (D3), barriers (D4), travel and usability (D5), and world state (D6), each with its slice of D2 and D7, its in-game check, and a review of the raid chains.
+3. Hierarchy activity and death triggers (D3), barriers (D4), travel and usability (D5), world state (D6), and faction standing (D11), each with its slice of D2 and D7, its in-game check, and a review of the raid chains.
 4. The guide removes its covered overrides, and the specs are reconciled.
 
 Rollback follows D10.
