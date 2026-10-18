@@ -64,6 +64,7 @@ return {
 	["Name Collision Fixture"] = '["item:name-collision"]',
 	["Nightmare Crystal"] = '["item:gen - nightmare crystal"]',
 	["Normal"] = '["stance:normal"]',
+	["Overview Shared Zone"] = '["zone:overview-shared-one","zone:overview-shared-two"]',
 	["Paladin"] = '["class:paladin"]',
 	["Peon"] = '["character:peon"]',
 	["Peon (Game Piece)"] = '["item:quest - game piece peon"]',

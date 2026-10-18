@@ -62,6 +62,7 @@ from erenshor.application.wiki_lua.validation import validate_lua_modules
 from erenshor.application.wiki_lua.vendor_stock import VendorStockRepository, write_vendor_stock_module
 from erenshor.application.wiki_lua.world_drops import write_world_drops_module
 from erenshor.application.wiki_lua.zone_rosters import ZoneRosterRepository, write_zone_rosters_module
+from erenshor.application.wiki_lua.zones import ZoneOverviewRepository, write_zones_module
 from erenshor.domain.value_objects.item_provenance import fact_to_dict
 
 if TYPE_CHECKING:
@@ -104,8 +105,8 @@ class WikiQuestRepository(LinkCatalogQuestRepository, QuestPanelRepository, Prot
     """Quest repository contract for links and quest panels."""
 
 
-class WikiZoneRepository(LinkCatalogZoneRepository, Protocol):
-    """Zone repository contract for semantic links."""
+class WikiZoneRepository(LinkCatalogZoneRepository, ZoneOverviewRepository, Protocol):
+    """Zone metadata, hostile populations and conditional exits needed by generated wiki data."""
 
 
 class WikiSpellItemRepository(
@@ -168,6 +169,7 @@ TOP_LEVEL_DATA_MODULES: tuple[str, ...] = (
     "Quests.lua",
     "Progression.lua",
     "GameBoard.lua",
+    "Zones.lua",
 )
 
 
@@ -412,6 +414,7 @@ def generate_lua_data_modules(
                 staging_root,
                 reference_catalog=character_catalog,
             ),
+            write_zones_module(zone_repo, known_keys, staging_root, native_catalog=character_catalog),
         ]
         validate(staged_paths)
         for path in staged_paths:

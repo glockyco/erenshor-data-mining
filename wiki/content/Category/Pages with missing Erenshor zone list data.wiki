@@ -1,0 +1,4 @@
+__HIDDENCAT__
+Pages where the zone overview has no generated data or a zone summary is missing.
+
+Report the missing zone data at [[Erenshor Wiki:Game Data]].

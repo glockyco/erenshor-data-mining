@@ -1,0 +1,4 @@
+__HIDDENCAT__
+Pages where the quest overview cannot find its generated data or the requested quest.
+
+Check an explicit <code>stablekey</code> with the link picker. Report missing quest data at [[Erenshor Wiki:Game Data]].

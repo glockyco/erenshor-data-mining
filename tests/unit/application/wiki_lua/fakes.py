@@ -356,6 +356,12 @@ class FakeZoneRepository:
     def get_zone_connections(self, scene_name: str) -> list[str]:
         return self._connections.get(scene_name, [])
 
+    def get_zone_overview_spawns(self) -> list[dict[str, object]]:
+        return []
+
+    def get_zone_overview_connections(self) -> list[dict[str, object]]:
+        return []
+
 
 def make_faction(**overrides: object) -> object:
     values: dict[str, object] = {

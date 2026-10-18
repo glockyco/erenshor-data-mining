@@ -1,0 +1,7 @@
+<includeonly>{{#invoke:Erenshor/ZoneList|list}}</includeonly><noinclude>
+Shows zones, their public types, hostile level ranges, possible median ranges and connections. Conditional connections may require unlocks and do not describe the current player's access.
+
+Use <code><nowiki>{{Zone list}}</nowiki></code> for the overview. Add editor-written notes with zone page titles as parameter names, for example <code><nowiki>{{Zone list|Stowaway's Step=''Available in the demo''|Island Tomb=''Available in the demo''}}</nowiki></code>. Notes may contain wikitext. A note for a page shared by several zones appears on every corresponding row. Unknown targets show an error and join [[:Category:Pages with unknown Erenshor zone notes]]. Rename the parameter to an exact zone page title or remove it.
+
+Level statistics do not include NPCs, chests, friendly characters, permanently undamageable actors or player-scaling levels. Each deduplicated hostile character contributes one possible interval across its placements. The median cell bounds the median of these intervals, not the level of a typical spawn. Spawn frequency does not weight it. The generated [[Module:Erenshor/Data/Zones]] header describes the full data contract.
+</noinclude>

@@ -1,0 +1,117 @@
+-- Dedicated consumer boundary cases. Named real quests remain in Data/Quests.
+local byKey = mw.loadData("Module:Erenshor/Data/Links").byKey
+local function ref(key)
+	local row = assert(byKey[key])
+	return { key = key, name = row.name, page = row.page }
+end
+
+return {
+	["quest:shared-line-a"] = {
+		{
+			type = "variant",
+			variant = "A",
+			experience = 25,
+			gold = 2,
+			repeatable = true,
+			oncePerSpawn = false,
+			partialAssigns = false,
+			killsHolder = false,
+			dropsInvulnerability = false,
+			rewardMethod = "item_turnin",
+			item = ref("item:healing_draught"),
+			quantity = 1,
+		},
+		{
+			type = "variant",
+			variant = "B",
+			experience = 75,
+			gold = 4,
+			repeatable = false,
+			oncePerSpawn = false,
+			partialAssigns = false,
+			killsHolder = false,
+			dropsInvulnerability = false,
+			rewardMethod = "item_turnin",
+			item = ref("item:ember_longsword"),
+			quantity = 2,
+		},
+		{
+			type = "required",
+			variant = "A",
+			item = ref("item:healing_draught"),
+			quantity = 1,
+			requiredSlot = 0,
+		},
+		{
+			type = "required",
+			variant = "A",
+			item = ref("item:healing_draught"),
+			quantity = 1,
+			requiredSlot = 1,
+		},
+		{
+			type = "required",
+			variant = "A",
+			item = ref("item:healing_draught"),
+			quantity = 1,
+			requiredSlot = 2,
+		},
+		{
+			type = "required",
+			variant = "A",
+			item = ref("item:healing_draught"),
+			quantity = 1,
+			requiredSlot = 3,
+		},
+		{
+			type = "required",
+			variant = "B",
+			item = ref("item:healing_draught"),
+			quantity = 2,
+			requiredSlot = 0,
+		},
+		{
+			type = "required",
+			variant = "B",
+			item = ref("item:ember_longsword"),
+			quantity = 3,
+			requiredSlot = 1,
+		},
+		{
+			type = "acquisition",
+			variant = "A",
+			method = "dialog",
+			sourceKind = "character",
+			source = ref("character:captain_rowan"),
+			prerequisite = { key = "quest:pageless", name = "Native prerequisite" },
+			keywords = "help",
+			notOwnedItem = ref("item:healing_draught"),
+			blockedByQuest = ref("quest:magical_sword"),
+		},
+		{
+			type = "acquisition",
+			variant = "B",
+			method = "dialog",
+			sourceKind = "character",
+			source = ref("character:captain_rowan"),
+			furniture = ref("item:healing_draught"),
+			room = "L1",
+		},
+		{
+			type = "completion",
+			method = "item_turnin",
+			sourceKind = "character",
+			source = ref("character:captain_rowan"),
+		},
+		{
+			type = "completion",
+			method = "talk",
+			variant = "A",
+			sourceKind = "character",
+			source = { key = "character:pageless", name = "Native speaker" },
+			keywords = "gift",
+			item = ref("item:ember_longsword"),
+			quantity = 3,
+		},
+	},
+}

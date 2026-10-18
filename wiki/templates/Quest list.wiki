@@ -1,0 +1,7 @@
+<includeonly>{{#invoke:Erenshor/QuestList|list}}</includeonly><noinclude>
+Shows quests from [[Module:Erenshor/Data/Quests]], with their start routes, required items and executed completion rewards.
+
+Use <code><nowiki>{{Quest list}}</nowiki></code> for every generated quest. Use <code><nowiki>{{Quest list|stablekey=quest:goodsoil}}</nowiki></code> for one quest. The [[Template:Quest data|quest panel]] gives the detailed faction and completion effects.
+
+Options are alternatives. All required items within one option are needed. Repeated slots for the same item are added only within that option. A dialog gift is shown with its own completion route, not combined with a different turn-in reward. Sources without articles remain plain text. Editorial group headings and strategy stay outside the view.
+</noinclude>

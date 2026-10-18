@@ -1,0 +1,4 @@
+__HIDDENCAT__
+Pages where [[Template:Zone list]] has a note parameter that does not name a zone page in the overview.
+
+Rename the parameter to the exact zone page title shown in the overview, or remove the note. A page shared by several zones applies the note to all its rows.

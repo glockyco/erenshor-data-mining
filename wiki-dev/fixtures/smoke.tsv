@@ -369,3 +369,22 @@ Progression Explorer Fixture	elem:[data-progression-key="zone:fixture-plane2"]
 Progression Explorer Fixture	elem:[data-progression-key="zone:fixture-plane3"]
 Progression Explorer Fixture	elem:[data-progression-key="zone:fixture-plane4"]
 Progression Explorer Fixture	!elem:[data-progression-key="zone:fixture-rune"]
+Lua ZoneList Smoke	text:PASS Erenshor ZoneList testcases
+Lua QuestList Smoke	text:PASS Erenshor QuestList testcases
+Zone List Fixture	elem:table.erenshor-zone-list
+Zone List Fixture	elem:.erenshor-zone-median=5.5 to 6.5
+Zone List Fixture	elem:.erenshor-zone-notes=Editor-owned note
+Zone List Fixture	elem:[data-erenshor-zone-conditional="true"]=(conditional)
+Zone List Fixture	text:No hostiles
+Zone List Fixture	text:Stored return destination
+Zone List Unknown Note Fixture	text:Unknown zone note target: Misspelled Zone
+Zone List Unknown Note Fixture	category:Pages_with_unknown_Erenshor_zone_notes
+Quest List Fixture	elem:table.erenshor-quest-list
+Quest List Fixture	elem:[data-erenshor-key="quest:goodsoil"]
+Quest List Fixture	elem:[data-erenshor-key="character:guard captain azure"]
+Quest List Goodsoil Fixture	elem:.erenshor-quest-outcomes=No experience, gold, or item reward.
+Quest List Outcomes Fixture	elem:.erenshor-quest-required=4 x
+Quest List Outcomes Fixture	elem:.erenshor-quest-required=and 3 x
+Quest List Outcomes Fixture	elem:.erenshor-quest-outcome=25 experience, 2 gold, 1 x
+Quest List Outcomes Fixture	elem:.erenshor-quest-outcome=Talk to Native speaker
+Quest List Outcomes Fixture	elem:.erenshor-quest-outcome=75 experience, 4 gold, 2 x

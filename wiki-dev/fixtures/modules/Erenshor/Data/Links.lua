@@ -873,6 +873,18 @@ return {
 			["page"] = "Port Azure",
 			["subtype"] = "Zone",
 		},
+		["zone:overview-shared-one"] = {
+			["key"] = "zone:overview-shared-one",
+			["kind"] = "zone",
+			["name"] = "Overview Shared Zone I",
+			["page"] = "Overview Shared Zone",
+		},
+		["zone:overview-shared-two"] = {
+			["key"] = "zone:overview-shared-two",
+			["kind"] = "zone",
+			["name"] = "Overview Shared Zone II",
+			["page"] = "Overview Shared Zone",
+		},
 		["zone:saltedstrand"] = {
 			["key"] = "zone:saltedstrand",
 			["kind"] = "zone",
@@ -1080,6 +1092,10 @@ return {
 		["Normal"] = {
 			"stance:normal",
 		},
+		["Overview Shared Zone"] = {
+			"zone:overview-shared-one",
+			"zone:overview-shared-two",
+		},
 		["Paladin"] = {
 			"class:paladin",
 		},
@@ -1217,7 +1233,7 @@ return {
 			"class:duelist",
 		},
 	},
-	["catalogSha256"] = "4d9f5fea1f6eb77dd6108e7d423b6ff6e956e0258c59d8eef28d2b9f729167ed",
+	["catalogSha256"] = "5b3387c2445f6ba77cd0c7ede2e35e94413d6e879bbde672133d69c783e784c9",
 	["entries"] = {
 		{
 			["key"] = "quest:catfordeer",
@@ -1753,6 +1769,18 @@ return {
 			["name"] = "Normal",
 			["page"] = "Normal",
 			["subtype"] = "stance",
+		},
+		{
+			["key"] = "zone:overview-shared-one",
+			["kind"] = "zone",
+			["name"] = "Overview Shared Zone I",
+			["page"] = "Overview Shared Zone",
+		},
+		{
+			["key"] = "zone:overview-shared-two",
+			["kind"] = "zone",
+			["name"] = "Overview Shared Zone II",
+			["page"] = "Overview Shared Zone",
 		},
 		{
 			["key"] = "class:paladin",
