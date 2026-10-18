@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from .graph import EntityGraph
 
 # Steps that fight their character target; see _interaction_level.
-_COMBAT_ACTIONS = frozenset({"kill", "loot"})
+_COMBAT_ACTIONS = frozenset({"kill"})
 _BACKGROUND_SOURCE_TYPES = frozenset({"world_drop", "common_world_item", "fishing_bonus", "treasure_chest"})
 # Sources whose character is only reached, never fought; see _interaction_level.
 _INTERACTION_SOURCE_TYPES = frozenset({"vendor", "dialog_give"})
@@ -977,7 +977,6 @@ def _steps(
         EdgeType.STEP_TURN_IN: "turn_in",
         EdgeType.STEP_BUY: "buy",
         EdgeType.STEP_KILL: "kill",
-        EdgeType.STEP_LOOT: "loot",
         EdgeType.STEP_TRAVEL: "travel",
         EdgeType.STEP_SHOUT: "shout",
         EdgeType.STEP_READ: "read",
@@ -1068,8 +1067,6 @@ def _step_value(
     elif action == "kill":
         quantity_prefix = f"{quantity}x " if quantity is not None and quantity > 1 else ""
         description = f"Defeat {quantity_prefix}{target.display_name}."
-    elif action == "loot":
-        description = f"Loot {target.display_name}."
     elif action == "travel":
         description = f"Travel to {target.display_name}."
     elif action == "shout":

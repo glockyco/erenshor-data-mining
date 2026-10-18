@@ -803,21 +803,18 @@ def _arena_step_graph() -> EntityGraph:
     fee = item_node("item:vith-coin", "Vith Coin")
     completer = character_node("char:arena-master", "Arena Master")
     enemy = character_node("char:arena-enemy", "Arena Wave Enemy")
-    chest = character_node("char:arena-chest", "Arena Reward Chest")
     return build_graph(
         quest,
         token,
         fee,
         completer,
         enemy,
-        chest,
         edges=[
             Edge(source=quest.key, target=token.key, type=EdgeType.REQUIRES_ITEM, quantity=1),
             Edge(source=quest.key, target=completer.key, type=EdgeType.COMPLETED_BY, note="item_turnin"),
             Edge(source=quest.key, target=completer.key, type=EdgeType.STEP_TURN_IN, ordinal=20),
             Edge(source=quest.key, target=fee.key, type=EdgeType.STEP_BUY, ordinal=25, quantity=1),
             Edge(source=quest.key, target=enemy.key, type=EdgeType.STEP_KILL, ordinal=30, quantity=3),
-            Edge(source=quest.key, target=chest.key, type=EdgeType.STEP_LOOT, ordinal=40),
         ],
     )
 
@@ -841,7 +838,6 @@ def test_build_mod_guide_emits_arena_steps_in_ordinal_order_and_dedupes_turn_in(
         ("turn_in", "char:arena-master"),
         ("buy", "item:vith-coin"),
         ("kill", "char:arena-enemy"),
-        ("loot", "char:arena-chest"),
     ]
     turn_in = steps[1]
     assert "quantity" not in turn_in
@@ -851,9 +847,6 @@ def test_build_mod_guide_emits_arena_steps_in_ordinal_order_and_dedupes_turn_in(
     kill = steps[3]
     assert kill["quantity"] == 3
     assert kill["description"] == "Defeat 3x Arena Wave Enemy."
-    loot = steps[4]
-    assert "quantity" not in loot
-    assert loot["description"] == "Loot Arena Reward Chest."
     assert sum(step["action"] == "turn_in" for step in steps) == 1
 
 

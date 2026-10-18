@@ -21,16 +21,7 @@ public static class CorpsePriorityPolicy
             || step.Action == "turn_in"
         )
             return;
-        if (step.Action == "loot")
-        {
-            if (quest != null)
-                foreach (var item in StepProgress.MissingRequirements(quest, countItem))
-                {
-                    output.Add(item.ItemName);
-                    ItemSourcePolicy.AddUsedItems(item.Sources, countItem, output);
-                }
-        }
-        else if (step.TargetType == "item" && step.TargetName != null)
+        if (step.TargetType == "item" && step.TargetName != null)
         {
             output.Add(step.TargetName);
             if (quest != null)

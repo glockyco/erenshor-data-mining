@@ -118,7 +118,6 @@ class EdgeType(str, Enum):
     # -- World object edges --
     REMOVES_INVULNERABILITY = "removes_invulnerability"
     STEP_TURN_IN = "step_turn_in"
-    STEP_LOOT = "step_loot"
     STEP_BUY = "step_buy"
     CREATES_ITEM = "creates_item"
 

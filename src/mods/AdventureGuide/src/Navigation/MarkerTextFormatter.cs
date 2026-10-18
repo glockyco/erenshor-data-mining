@@ -40,7 +40,6 @@ public static class MarkerTextFormatter
             "talk" => "Talk to",
             "turn_in" => "Turn in",
             "buy" => "Buy",
-            "loot" => "Loot",
             "shout" when step.Keyword != null => $"Shout '{step.Keyword}'",
             "shout" => "Shout near",
             "kill" when step.Quantity > 1 => $"Kill ({step.Quantity})",

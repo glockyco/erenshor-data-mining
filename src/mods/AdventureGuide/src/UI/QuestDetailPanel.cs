@@ -1218,7 +1218,7 @@ public sealed class QuestDetailPanel
             )
                 display.Text += $"  \u00b7  {factors[0].Name}";
             if (
-                step.Action is "kill" or "loot"
+                step.Action is "kill"
                 && step.LevelEstimate?.Recommended is int level
                 && level != quest.LevelEstimate?.Recommended
             )
