@@ -5,7 +5,7 @@ See `proposal.md` for the motivation. The state on 2026-10-18, from the shipped 
 - The export walks prefabs and scenes and hands each component to listeners. `DynamicSpawnSourceListener` classifies every serialized field of a script against `dynamic-spawn-catalog.toml` as `allowed`, `denied`, or `activation`, and the export fails on an unclassified field that resolves to a `Character`. `ScriptedActivatorListener` exports the controllers of 19 classified script types with typed field contracts. `QuestActivationListener` exports the enable and disable effects of `QuestSpawnListener`, `MultiQuestListener`, and `DynamicContentManager` into `QuestActivationEffects`. Subject rows (`ZoneLines`, `SpawnPoints`, `Characters`, `ItemBags`, `Doors`) carry no object hierarchy.
 - `gates.py` turns these into `gate_conditions`. `_activation_gates` skips effects on plain objects ("Object and door effects are facts for reviewed barrier containment"), which are 104 of the 150 rows of `QuestActivationEffects`. `_scripted_gates` skips disabled controllers and branches on eleven rule IDs. The `shivering_angel` branch and the Shivering Step event rule hold literal quest keys in Python. `barriers.toml` records keyed doors and their guarded targets, and the build fails on an unknown or unlisted door.
 - `CodeFacts` decompiles the shipped assembly with `ICSharpCode.Decompiler` and checks hand-chosen methods, with `assert` facts for shapes and `extract` facts for values. No fact lists the scripts that gate progression.
-- 37 script types read quest, item, account, or weather state, and 34 change scenes, quests, invulnerability, or weather. Together that is 60 types, of which the spawn and activation catalogs name 23. Most of the rest are core systems with their own export, such as `TradeWindow`, `Door`, and `ZoneAnnounce`.
+- A planning grep found about 60 script types that read quest, item, account, or weather state, or change scenes, quests, invulnerability, or weather. The semantic inventory of D1, which resolves symbols, lists 58 in build 24405256, and the spawn and activation catalogs name fewer than half of them. Most of the rest are core systems with their own export, such as `TradeWindow`, `Door`, and `ZoneAnnounce`.
 
 How the overrides and the gaps map to mechanisms:
 
@@ -39,7 +39,7 @@ The Adventure Guide tab holds the open producer tasks of `model-guide-gates`: in
 
 `CodeFacts` gains an inventory mode. It decompiles every type of `Assembly-CSharp` and lists each type whose code reads `GameData.IsQuestDone`, `GameData.CompletedQuests`, `GameData.HasQuest`, `Inventory.HasItem`, `Inventory.HasCosmetic`, `GameData.AccountClaimedReliquary`, or `AtmosphereColors.isRaining`, or writes through `SceneChange.ChangeScene`, `SceneChange.ChangeSceneSafe`, `GameData.FinishQuest`, `GameData.AssignQuest`, `Character.Invulnerable`, `AtmosphereColors.WeightGoal`, or `AtmosphereColors.SinceRain`. It resolves symbols through the decompiler's type system, not text.
 
-A catalog in `src/tools/CodeFacts/specs/` holds one entry for each listed type: `adapter` with the export adapter or processor rule that models it, `core` with the component of the pipeline that models it, or `excluded` with a reason, such as a tutorial popup. Each entry records the state APIs that the type uses. The run fails on an unlisted type, on a stale entry, and on a type whose set of state APIs changed, because a new read or write can be a new gate.
+A catalog in `src/tools/CodeFacts/specs/` holds one entry for each listed type: `adapter` with the export adapter or processor rule that models it, `core` with the component of the pipeline that models it, `excluded` with a reason, such as a tutorial popup, or `pending` with the task of this change that will model it. Each entry records the state APIs that the type uses. The run fails on an unlisted type, on a stale entry, on a `pending` entry without a task, and on a type whose set of state APIs changed, because a new read or write can be a new gate. A `pending` entry is a visible, tracked gap, not an exception: the change cannot archive while one remains.
 
 The API set is a starting set. When a review finds a gate that the inventory missed, the API that reveals it joins the set in the same commit, with the miss as evidence.
 
@@ -53,7 +53,7 @@ Alternatives considered:
 The export keeps its contracts and adds:
 
 - An `ObjectHierarchy` record for each object that is a subject, hosts a classified controller, or is an ancestor of one: its key, its parent, its scene, and whether it is active in the scene file. Subject records name their object.
-- Adapters, or rules for exported ones, for the types that D1 classifies and nothing models: `JawsStatueStartup` (enables a controller after a quest), `PietyTrigger` (calls guardians unless a quest is done), `SivTorchLight` (removes an object after a quest), and `BellsieWineTrigger` once its review decides what its objects are.
+- Adapters, or rules for exported ones, for the types that D1 classifies and nothing models: `JawsStatueStartup` (enables a controller after a quest), `PietyTrigger` (calls guardians unless a quest is done), and `SivTorchLight` (removes an object after a quest). The Bellwain Island scripts that gate its quests, `BellsieWineTrigger`, the item-gated torch action of `PlayerControl`, and the Bellwain group of `AngelScript`, get their effects recorded the same way (task 3.4).
 - The missing references of classified types that the guide's inactive-placement audit found: the wards of `FernallaPortalBoss`, the Bellwains of `AngelScript`, and the portal identities of `PlanningTable`.
 
 ### D3. Hierarchy activity
@@ -72,6 +72,8 @@ A barrier is an object that blocks access until its mechanism opens it:
 | `removed` | the quest, death, or effect that disables the object | `BreakWall` after She Sees You, quest-listener removals in Blooming Sepulcher and Vitheo's Rest, `SpawnIfAlive` objects while their boss lives |
 | `moved` | the condition under which a script moves the object away | the angel statue after Stand, Angel! |
 | `guardians` | the condition under which a trigger does not call its guardians | the Wards of Piety until A Pious Guest |
+
+A `guardians` barrier is advisory, as the guide's requirement "Transient activation stays advice" already states for `PietyTrigger`. The trigger stops calling its guardians once the quest is done, but guardians that it already called stay, so the need tells a player what to do first and does not claim that the game removes them.
 
 The opening condition comes from the export and code facts, never from the review. `barriers.toml` records, for each barrier, its key, kind, guarded targets, a reason, and the in-game check that confirmed the targets. Keyed door entries move to this form in the same commit. Each gate that a barrier causes is named by the barrier's key, as door gates already are, so readers can treat a barrier as one thing.
 
@@ -99,7 +101,7 @@ When a general rule covers a branch of `_scripted_gates`, the branch goes in the
 
 ### D8. Coordination with `model-guide-gates` and the Adventure Guide tab
 
-This change starts after a handoff that the maintainer confirms with both tabs:
+Behaviour coverage (D1) touches only the code-facts tool and starts at once. Everything else starts after a handoff that the maintainer confirms with both tabs:
 
 1. The guide tab lands its consumer branch. Tasks 4.1, 4.2, 5.1, 5.2, and 6.1 of `model-guide-gates` move here with their requirements. The guide tab keeps navigation, its runtime budgets, and its UI.
 2. The guide tab hands over its inactive-placement audit and inventory, its scene proofs, its proposals for inactive placements, zone line usability, and activation damage, and its door reviews. Its uncommitted producer edits are reviewed and re-applied here, one unit per commit, not merged as they are.
@@ -136,7 +138,7 @@ Each mechanism is one slice: its export or code facts, its processor rule, its t
 ## Migration Plan
 
 1. Handoff (D8).
-2. Behaviour coverage (D1): classify the 60 types and record the list of mechanisms that need work.
+2. Behaviour coverage (D1): classify the listed types and record the list of mechanisms that need work.
 3. Hierarchy activity (D3), barriers (D4), travel and usability (D5), and world state (D6), each with its slice of D2 and D7, its in-game check, and a review of the raid chains.
 4. The guide removes its covered overrides, and the specs are reconciled.
 

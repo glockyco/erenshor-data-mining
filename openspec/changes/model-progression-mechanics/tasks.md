@@ -8,8 +8,8 @@ Each Unity export, code-facts run, and clean build of the main variant runs in a
 
 ## 1. Behaviour coverage (design D1)
 
-- [ ] 1.1 `feat(tools): list the scripts that read or change progression state`: add the inventory mode and the catalog format to `src/tools/CodeFacts/`, failing on an unlisted type, a stale entry, and a changed set of state APIs. Add tests with fixture types for each failure. Verify: the tests pass, and the run on build 24405256 lists the 60 types.
-- [ ] 1.2 `feat(tools): classify every progression script`: add a catalog entry for each listed type with the component that models it or a reason. Record below each type that still needs an adapter or a rule, with the task that adds it. Verify: `uv run erenshor extract code-facts` passes, and deleting any entry makes it fail.
+- [ ] 1.1 `feat(tools): list the scripts that read or change progression state`: add the inventory mode and the catalog format to `src/tools/CodeFacts/`, failing on an unlisted type, a stale entry, and a changed set of state APIs. Add tests with fixture types for each failure. Verify: the tests pass, and the run on build 24405256 lists every type that uses a declared state API.
+- [ ] 1.2 `feat(tools): classify every progression script`: add a catalog entry for each listed type with the component that models it, a reason for an exclusion, or `pending` with the task of this change that will model it. Read each type's code before classifying it. Verify: `uv run erenshor extract code-facts` passes, deleting any entry makes it fail, and every `pending` entry names an open task of this change.
 
 ## 2. Hierarchy activity (design D2 and D3)
 
@@ -23,6 +23,7 @@ Each Unity export, code-facts run, and clean build of the main variant runs in a
 - [ ] 3.1 `feat(pipeline): record barriers beyond keyed doors`: give `barriers.toml` the barrier form with kind, targets, reason, and check, move the keyed door entries into it, and add the build checks. Verify: `extract changes` shows no changed door gate, and the unit tests show each check failing on its case.
 - [ ] 3.2 `feat(export): export the barrier mechanisms`: export `BreakWall` of `SivTorchLight` with the enable of `JawsStatueStartup`, the host of `ShiveringAngel`, the guardians of `PietyTrigger`, the `SpawnIfAlive` objects of `NPCAliveListener`, and the removals of the quest listeners. Extract `STANDANGEL` and `JAWSSEEN` with code facts, and drop the literal from the `shivering_angel` branch. Verify: each barrier has its opening condition, the code-facts run passes, and the unit tests pass.
 - [ ] 3.3 Check the containment of each barrier in the game with NavMesh paths from each entrance landing, and record each barrier in `barriers.toml` with its targets, reason, and check, including the Blooming Sepulcher barriers and the Vitheo's Rest doors of task 6.1 of `model-guide-gates`. Verify: `extract build` passes, and `erenshor progression show character:siraethe` shows the gaze wall and the Wards of Piety, and the zone line into Shivering Tomb (2) shows the angel statue.
+- [ ] 3.4 `feat(pipeline): model the Bellwain Island scripts that gate its quests`: read `BellsieWineTrigger`, the item-gated torch action of `PlayerControl`, and the Bellwain group of `AngelScript`, record each effect as an activation or a barrier with its trigger, and check one of them in the game. Verify: the behaviour catalog has no `pending` entry for task 3.4, and `erenshor progression show quest:bellwain` shows the puzzle's steps as needs.
 
 ## 4. Travel (design D5)
 
@@ -46,4 +47,4 @@ Each Unity export, code-facts run, and clean build of the main variant runs in a
 
 - [ ] 7.1 After `model-guide-gates` archives, move the shared requirements of `guide-gate-data` into `progression-mechanics` with a delta that removes them there and adds them here. Verify: `openspec validate --specs` passes.
 - [ ] 7.2 Run `uv run erenshor test ci`. Verify: it passes.
-- [ ] 7.3 Archive with `openspec archive model-progression-mechanics --yes`. Verify: `openspec/specs/progression-mechanics/spec.md` exists.
+- [ ] 7.3 Archive with `openspec archive model-progression-mechanics --yes`. Verify: the behaviour catalog has no `pending` entry, and `openspec/specs/progression-mechanics/spec.md` exists.

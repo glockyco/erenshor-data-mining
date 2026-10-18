@@ -21,7 +21,7 @@ The overrides approximate these mechanisms. They gate the Jaws entrance instead 
 - The open producer tasks of `model-guide-gates` move here after a handoff: inactive placements (its task group 4), unusable zone lines (5), and removed barriers (6.1), with the guide's pending producer proposals and evidence as inputs.
 - The guide's overrides lose their gates in a guide change once the clean database holds them.
 
-Non-goals: solving the Bellwain Isle puzzle or the Chessboard offering workflow beyond classifying their scripts, evaluating a player's save, and guide navigation.
+Non-goals: the Chessboard offering workflow beyond classifying its scripts, evaluating a player's save, and guide navigation.
 
 Migration boundary: each mechanism lands with its consumers unchanged. The requirement graph of `derive-progression-requirements` shows its effect, and the guide removes an override only after the clean database covers it.
 
