@@ -107,7 +107,9 @@ def event(tmp_path: Path) -> Writer:
             SourceKey TEXT, RuleId TEXT, SourceScene TEXT, ComponentIsEnabled INTEGER,
             ObjectKey TEXT, HostCharacterStableKey TEXT
         );
-        CREATE TABLE ScriptedActivatorReferences (ReferenceId TEXT, SourceKey TEXT, Field TEXT);
+        CREATE TABLE ScriptedActivatorReferences (
+            ReferenceId TEXT, SourceKey TEXT, Field TEXT, ReferenceKind TEXT, ReferenceKey TEXT
+        );
         CREATE TABLE ScriptedActivatorTargets (ReferenceId TEXT, ResolutionMode TEXT, Kind TEXT, Key TEXT);
         INSERT INTO ScriptedActivators VALUES (
             'source:event', 'shiver_event', 'EventScene', 1, 'object:event', NULL
@@ -153,7 +155,10 @@ def event(tmp_path: Path) -> Writer:
     ]
     for index, (field, kind, key) in enumerate(targets):
         ref = f"ref:{index}"
-        raw.execute("INSERT INTO ScriptedActivatorReferences VALUES (?, 'source:event', ?)", (ref, field))
+        raw.execute(
+            "INSERT INTO ScriptedActivatorReferences (ReferenceId, SourceKey, Field) VALUES (?, 'source:event', ?)",
+            (ref, field),
+        )
         raw.executemany(
             "INSERT INTO ScriptedActivatorTargets VALUES (?, ?, ?, ?)",
             [(ref, mode, kind, key) for mode in ("enable", "disable")],

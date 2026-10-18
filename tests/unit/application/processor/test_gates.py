@@ -101,7 +101,9 @@ def raw(writer: Writer) -> sqlite3.Connection:
             SourceKey TEXT, RuleId TEXT, SourceScene TEXT, ComponentIsEnabled INTEGER,
             ObjectKey TEXT, HostCharacterStableKey TEXT
         );
-        CREATE TABLE ScriptedActivatorReferences (ReferenceId TEXT, SourceKey TEXT, Field TEXT);
+        CREATE TABLE ScriptedActivatorReferences (
+            ReferenceId TEXT, SourceKey TEXT, Field TEXT, ReferenceKind TEXT, ReferenceKey TEXT
+        );
         CREATE TABLE ScriptedActivatorTargets (
             ReferenceId TEXT, ResolutionMode TEXT, Kind TEXT, Key TEXT
         );
