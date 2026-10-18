@@ -66,6 +66,15 @@ def conn() -> Iterator[sqlite3.Connection]:
             is_directly_placed=1,
         )
     insert(connection, "classes", class_name="Fighter")
+    insert(connection, "classes", class_name="Default")
+    insert(
+        connection,
+        "code_facts",
+        fact_id="progression.playable_classes",
+        key="strings",
+        value="Fighter",
+        value_type="text",
+    )
     for fact, scene in (
         ("progression.new_character_scene", "Start"),
         ("progression.alternate_start_scene", "Other"),
@@ -778,6 +787,22 @@ def test_each_start_fact_requires_an_existing_zone(conn, fact, failure):
 def test_both_starts_require_verified_selection_semantics(conn):
     conn.execute("UPDATE code_facts SET value='false' WHERE fact_id='progression.start_selection'")
     with pytest.raises(ValueError, match="missing verified new-character start selection"):
+        builder(conn)
+
+
+def test_only_playable_classes_are_choices_of_a_new_character(conn):
+    graph = builder(conn)
+    assert list(graph.ways["class:fighter"].values()) == [()]
+    assert "class:default" not in graph.kinds
+
+
+@pytest.mark.parametrize("failure", ["missing", "unknown class"])
+def test_playable_classes_require_their_fact_and_class_rows(conn, failure):
+    if failure == "missing":
+        conn.execute("DELETE FROM code_facts WHERE fact_id='progression.playable_classes'")
+    else:
+        conn.execute("UPDATE code_facts SET value='Fighter,Ranger' WHERE fact_id='progression.playable_classes'")
+    with pytest.raises(ValueError, match=r"progression\.playable_classes"):
         builder(conn)
 
 

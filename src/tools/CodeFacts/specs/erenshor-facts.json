@@ -48,6 +48,19 @@
       }
     },
     {
+      "id": "progression.playable_classes",
+      "mode": "extract",
+      "type": "CharSelectManager",
+      "method": "Play",
+      "matcher": "string_constants",
+      "args": {
+        "switch": "GameData.CurrentCharacterSlot.CharClass"
+      },
+      "keys": [
+        "strings"
+      ]
+    },
+    {
       "id": "loot.host_eligibility",
       "mode": "assert",
       "type": "LootTable",

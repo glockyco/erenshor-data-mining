@@ -397,8 +397,19 @@ class ProgressionBuilder:
         for table, kind in (("zones", "zone"), ("quests", "quest"), ("items", "item"), ("characters", "character")):
             for row in self.rows(table):
                 self.node(row["stable_key"], kind)
-        for row in self.rows("classes"):
-            key = "class:" + row["class_name"].lower()
+        # code-fact: progression.playable_classes
+        facts = [
+            row["value"]
+            for row in self.rows("code_facts")
+            if row["fact_id"] == "progression.playable_classes" and row["key"] == "strings"
+        ]
+        if len(facts) != 1 or not facts[0]:
+            raise _error("class", "progression.playable_classes", "expected the classes a new character can be")
+        known = {row["class_name"] for row in self.rows("classes")}
+        for name in facts[0].split(","):
+            if name not in known:
+                raise _error("class", "progression.playable_classes", f"playable class without a class row: {name}")
+            key = "class:" + name.lower()
             self.node(key, "class")
             self.add(key, (), "classes")
         for key in self.barriers:
