@@ -34,7 +34,6 @@ ACQUISITION_RELATIONS = {
     "item_drop": "contained in",
     "spell_created": "created by",
     "item_conversion": "converted from",
-    "auction_house": "from",
     "special_world_drop": "from",
     "common_world_item": "from",
     "starting_class": "from",
@@ -617,18 +616,12 @@ class ProgressionBuilder:
         atoms = [asdict(condition_from_dict(atom)) for atom in json.loads(location["conditions"])]
         return self.conditions(node, atoms, fact, provenance=True)
 
-    def mechanism(self, key: str, locations: list[dict[str, Any]], fact: str, broker: bool = False) -> None:
+    def mechanism(self, key: str, locations: list[dict[str, Any]], fact: str) -> None:
         self.node(key, "mechanism")
         if not locations:
-            if not broker:
-                self.add(key, (), fact)
+            self.add(key, (), fact)
             return
         for location in locations:
-            if broker:
-                copy = location["source_copy_stable_key"]
-                if copy:
-                    self.add(key, [Need("talk to", copy)], fact)
-                continue
             base = [Need("in zone", location["zone_stable_key"])] if location["zone_stable_key"] else []
             for way in self.location_conditions(key, location, fact):
                 self.add(key, [*base, *way], fact)
@@ -637,9 +630,12 @@ class ProgressionBuilder:
         materials = self.index("item_uses", "target_stable_key")
         for acquisition in self.rows("item_acquisitions"):
             node, fact, kind = acquisition["item_stable_key"], acquisition["acquisition_key"], acquisition["kind"]
-            if kind not in {*ACQUISITION_RELATIONS, "internal_equipment"}:
+            if kind not in {*ACQUISITION_RELATIONS, "internal_equipment", "auction_house"}:
                 raise _error(node, fact, f"unmapped acquisition kind {kind!r}")
             if acquisition["player_access_state"] not in {"verified_player", "unconfirmed_player"}:
+                continue
+            # Simulated players list random stock, so no player can plan a step on it.
+            if kind == "auction_house":
                 continue
             if kind == "internal_equipment":
                 raise _error(node, fact, "internal equipment cannot be a player acquisition")
@@ -673,9 +669,9 @@ class ProgressionBuilder:
                             )
                         )
                 bases = [tuple(needs)]
-            elif kind in {"common_world_item", "special_world_drop", "auction_house", "ui_grant"}:
+            elif kind in {"common_world_item", "special_world_drop", "ui_grant"}:
                 source = source or "mechanic:" + kind
-                self.mechanism(source, locations, fact, broker=kind == "auction_house")
+                self.mechanism(source, locations, fact)
                 bases = [(Need(relation, source),)]
             else:
                 bases = [(Need(relation, source),)]

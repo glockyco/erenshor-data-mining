@@ -217,18 +217,23 @@ def needs(graph: ProgressionBuilder, node: str) -> set[Need]:
         ("common_world_item", None),
         ("special_world_drop", None),
         ("ui_grant", "ui:grant"),
-        ("auction_house", "mechanic:auction_house"),
     ],
 )
 def test_every_player_acquisition_kind(conn, kind, source):
     acquisition(conn, kind, source)
-    location(conn, source_copy_stable_key="character:copy" if kind == "auction_house" else None)
+    location(conn)
     graph = builder(conn)
     assert any(need.relation == ACQUISITION_RELATIONS[kind] for need in needs(graph, "item:result"))
-    if kind == "auction_house":
-        assert Need("talk to", "character:copy") in needs(graph, source)
     if kind in {"common_world_item", "special_world_drop", "ui_grant"}:
         assert graph.kinds[source or "mechanic:" + kind] == "mechanism"
+
+
+def test_the_auction_house_is_no_way_to_an_item(conn):
+    acquisition(conn, "auction_house", "mechanic:auction_house")
+    location(conn, source_copy_stable_key="character:copy")
+    graph = builder(conn)
+    assert not needs(graph, "item:result")
+    assert "mechanic:auction_house" not in graph.kinds
 
 
 def test_crafting_preserves_material_quantities(conn):

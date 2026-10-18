@@ -14,3 +14,17 @@ Each way whose needs all have a tier SHALL carry its tier and depth, ordered as 
 
 - **WHEN** a way needs a node without a tier
 - **THEN** the way has no rank
+
+### Requirement: Random listings are no way
+
+The requirement graph SHALL NOT give an item a way through the Auction House, because simulated players list random stock that no player can plan on. Reference views that list where an item can appear MAY still show the Auction House.
+
+#### Scenario: An item the Auction House also lists
+
+- **WHEN** reading the ways to Remnants of a Daydream
+- **THEN** every way is a drop in Mysterious Portal (2) and none names the Auction House
+
+#### Scenario: An item only the Auction House lists
+
+- **WHEN** an item's only player acquisition is an Auction House listing
+- **THEN** the item has no way and no tier

@@ -15,7 +15,6 @@ WORDING = {
     "release:combat_empty_wards:": "Becomes vulnerable in combat when no wards remain",
     "mechanic:new_character_start": "New character start",
     "mechanic:alternate_start": "Alternate start",
-    "mechanic:auction_house": "Auction house",
     "mechanic:common_world_item": "Common world items",
     "mechanic:special_world_drop": "World drops",
     "ui:planningtableui": "Planning table",
