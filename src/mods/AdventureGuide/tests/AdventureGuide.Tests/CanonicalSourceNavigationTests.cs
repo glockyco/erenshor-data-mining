@@ -732,4 +732,28 @@ public sealed class CanonicalSourceNavigationTests
         Assert.Equal(8, usedOre.Step.Quantity);
         Assert.Same(recipe, selection.Choice.Primary);
     }
+
+    [Fact]
+    public void Canonical_source_locations_keep_their_exported_placement_gates()
+    {
+        using var stream = typeof(GuideData).Assembly.GetManifestResourceStream(
+            "AdventureGuide.quest-guide.json"
+        );
+        Assert.NotNull(stream);
+        using var reader = new StreamReader(stream);
+        var data = GuideData.Parse(reader.ReadToEnd());
+        var location = data.SourceFacts[
+                "acquisition:[\"character_drop\",\"character:acceptor\",\"item:gen - cod - pg 3\"]"
+            ]
+            .Locations.Single();
+        var spawn = location.Spawn!;
+        Assert.Equal("spawn:saltedstrand:740.17:25.37:338.07", spawn.StableKey);
+        Assert.NotNull(spawn.Condition);
+
+        var facts = new GateTestFacts();
+        var gates = new GateConditions(data, facts);
+        Assert.False(gates.IsAvailable(spawn.Condition));
+        facts.Keyring.Add(data.GateItems["item:key - old church key"].GameId);
+        Assert.True(gates.IsAvailable(spawn.Condition));
+    }
 }

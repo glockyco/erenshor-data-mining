@@ -30,6 +30,7 @@
 - Show repeated navigation instructions only once.
 - Estimate quest levels from the easier complete alternative without skipping required steps.
 - Keep encounter requirements visible when navigating to a prerequisite fight.
+- Keep locked-door and quest requirements on item source locations.
 
 ## v2026.1008.0
 

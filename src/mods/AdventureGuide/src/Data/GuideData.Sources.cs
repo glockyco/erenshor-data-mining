@@ -271,11 +271,13 @@ public sealed partial class GuideData
                         entries!.Add(index);
                     }
                     SpawnPoint? original = null;
-                    if (location.PlacementKey != null)
-                        placements.TryGetValue(location.PlacementKey, out original);
+                    string? coordinateKey = location.CoordinateStableKey ?? location.PlacementKey;
+                    if (coordinateKey != null)
+                        placements.TryGetValue(coordinateKey, out original);
                     location.Spawn = new SpawnPoint
                     {
-                        StableKey = location.PlacementKey ?? location.LocationKey,
+                        StableKey =
+                            original?.StableKey ?? location.PlacementKey ?? location.LocationKey,
                         Scene = location.Scene,
                         X = location.X.Value,
                         Y = location.Y.Value,
