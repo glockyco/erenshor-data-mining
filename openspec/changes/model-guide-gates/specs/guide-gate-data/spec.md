@@ -326,6 +326,26 @@ MorphTrigger entry activation, PietyTrigger activation-time quest guards and Fer
 - **THEN** the guide does not infer despawn from that completion
 - **AND** transient instructions remain distinct from live-entity withholding
 
+### Requirement: Native offering controllers are placement activations
+
+The guide SHALL represent each native carried-item offering controller as one activation with its exact identity, scene, exported site, offerings, spawned characters with counts, reward containers and random-outcome flag. Every placement that a controller spawns SHALL reference its offerings and role. Unbound or ambiguous controller placements SHALL fail generation. Offerings SHALL NOT become synthetic quests, gate atoms or persisted workflow state. `quest-guide.json` SHALL contain native quests only.
+
+#### Scenario: Arena reward chest
+
+- **WHEN** the clean build has eight arena rounds
+- **THEN** each round's chest placement references that round's offering as its reward, with the round's fee and enemies
+- **AND** no arena entry appears among the quests
+
+#### Scenario: One feeding site with two offerings
+
+- **WHEN** Odd Malaroth Feed and Malaroth Feed spawn different characters at the Malaroth feeding site
+- **THEN** both offerings belong to one activation with one site
+
+#### Scenario: A random chessboard outcome
+
+- **WHEN** The Faceless figurine spawns one of six characters
+- **THEN** each of those placements references the same random-outcome offering
+
 ### Requirement: Common output gates production integration
 
 CanonicalSources SHALL own common DDL and source hooks. ExportBundleIntegrator SHALL own additive native refresh and its frozen receipt. WikiOverviews/DataZones SHALL own generic encounter/navigation projections and the guide SHALL own its consumer. Production cutover SHALL require refreshed activator/suppressor records, startup bool, resolved audited loot bindings and coherent common schema. Source packets or acknowledgements SHALL NOT substitute for exported records. Worktree-owned databases and writable inputs SHALL isolate announced rebuilds from shared main data.

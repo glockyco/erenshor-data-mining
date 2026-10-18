@@ -60,7 +60,7 @@ CanonicalSources owns common DDL and source hooks. The clean build writes `gate_
 
 ### D4. The compiler derives conditions once and only `quest-guide.json` is written
 
-The compiler combines gates once and the writer emits embedded schema 8 with no schema-7 compatibility path. Typed common source facts live once in `_source_facts`, indexed by acquisition key, while source trees retain acquisition and actual location references. The canonical adapter uses `ItemProvenanceRepository.iter_acquisitions/iter_uses` and shared eligibility rather than independently selecting source families. It preserves item variants, source copies, material slots, operation IDs, quantity and probability semantics, phaseful conditions and guide-only authored workflows. No-location sources gain no fabricated character or position. Missing common schema, references or unknown actionable kinds fail before replacing the artifact.
+The compiler combines gates once and the writer emits embedded schema 8 with no schema-7 compatibility path. Typed common source facts live once in `_source_facts`, indexed by acquisition key, while source trees retain acquisition and actual location references. The canonical adapter uses `ItemProvenanceRepository.iter_acquisitions/iter_uses` and shared eligibility rather than independently selecting source families. It preserves item variants, source copies, material slots, operation IDs, quantity and probability semantics and phaseful conditions. No-location sources gain no fabricated character or position. Missing common schema, references or unknown actionable kinds fail before replacing the artifact.
 
 `guide compile`, `json_writer.py`, and `quest_guides/guide.json` are removed, with their tests and the documentation that names them. The compiled data stays as the in-memory input of `mod_writer`.
 
@@ -134,6 +134,16 @@ Host checks require an explicit parent runtime-slot handoff. Use a uniquely name
 | 5 | A Dying Wish parts one to three route to the barrier's quest before the deeper section. |
 | 6 | Restored Fernalla, Warded Shadow, and A Strange Hermit show their encounter requirement and stay navigable. |
 | All | The BepInEx build runs every check. The Lunaris build loads, navigates a gated quest, and quits cleanly. |
+
+### D13. Native offering activations replace synthetic workflow quests
+
+`VithArena`, `MalarothFeed` and `Chessboard` share one native mechanism. Entering the controller's trigger while none of its spawned characters is alive consumes the first matching carried offering and spawns that offering's characters. The arena then spawns the round's reward chest once those characters die, and its eighth round also reveals restored Vitheo. The chessboard's Faceless offering spawns one of six characters at random.
+
+The guide records each controller once as an activation with its exact identity, scene, site, display name and offerings. Each offering has its item, spawned characters with counts, an optional reward container and whether its outcome is one random member. Each spawned placement references the offerings that create it and its role, spawned or reward. Arena rounds bind through `arena_rounds` and `arena_round_enemies`. Trigger placements bind through their exported trigger item, script and site. A controller placement that cannot be bound exactly fails generation.
+
+No offering becomes a quest, a gate condition or persisted cycle state. Native quests, item sources, kill targets and encounter requirements reach these placements through their normal identities. Runtime resolution reads observable state in this order: a live spawned target, live precursors of a reward, the offering held, then the offering item's own acquisition. Another carried offering of the same controller can be consumed first, so guidance asks the player to carry only the intended one. Live entity tracking covers a reload during a fight. Obtainability of a spawned placement includes obtaining its offering item.
+
+The chessboard placements carry exact trigger items, but its trigger site and display name are not exported. Until the native export records them, chessboard guidance names the item and navigates to the actual exported spawn position without calling that position the trigger.
 
 ## Risks / Trade-offs
 

@@ -14,6 +14,7 @@ A checked task proves its named behavior and checks, not newer shared-data integ
 | Ten planning portals | Ten-route and stored-slot consumer verified | Native producer certified | Common ten-route/forty-binding generation verified | Representative ordinary-rune and dedicated-slot instructions observed under 10.9 |
 | Account claim and saved return | Schema-8 consumer implemented | Native producer certified | Coherent generation and pure-state transitions verified | Fresh account and actual native saved returns observed, live claim remains sandbox-blocked |
 | Performance | Existing lookup/rebuild fixes retained | Not applicable | Final observations integrated | Final matched CPU/heap and actual repaint protocol recorded under 9.6 |
+| Native offering activations | Pending | Arena and feeding facts exported, chessboard site missing | Pending | Pending |
 
 ## 0. Remove the unused dense guide
 
@@ -197,6 +198,10 @@ A checked task proves its named behavior and checks, not newer shared-data integ
 
 - [ ] 10.11 Preserve original encounter advice and quest context when its NAV action is selected. Resolve the fight as combat, retain its real prerequisites across refreshes and show the selected focus without implying completion. Verify Eldoth Molorai for The Riftstone independently of formatting.
   - The reported before/after screenshots establish the native loss. The existing override retains only advisory presentation links, not cached availability. All 745 Guide host cases pass, including actual-resource Eldoth focus before keys, after the Ghostly Key, locally after the Intricate Key and with an unreachable scene. Both loader builds report zero warnings and errors, and repository static checks pass. Native display and click acceptance remain pending while the user reviews the unchanged build.
+
+- [ ] 10.12 `feat(guide): model native offering activations`: emit one activation per controller from exact arena and trigger facts, bind every spawned placement, include offering obtainability in levels and consume activations in sources, targets, markers and requirement navigation. Verify generation, cross-language loading, the arena, feeding-site and chessboard cases, and the native Guide.
+- [ ] 10.13 `refactor(guide): remove synthetic workflow quests`: delete guide-only workflow quests and locations, their flags, cycle state, recovery storage, UI and diagnostics. Verify that only native quests remain, that a reload during a fight resumes from live state and that every caller migrates.
+  - The chessboard's trigger site and display name are not exported. Its guidance uses exact trigger items and actual spawn positions until an owner-approved native refresh records the board trigger.
 
 ## 8. Close-out
 

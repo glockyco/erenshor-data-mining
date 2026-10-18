@@ -49,6 +49,21 @@ Navigation, world markers, and source lists SHALL NOT present a target whose con
 - **WHEN** all four Shivering Step keeper quests are complete
 - **THEN** no world marker points at the keepers or the first Kio
 
+### Requirement: Offering-spawned targets lead through their activation
+
+A target, source or encounter requirement whose placement is offering-spawned SHALL resolve from observable state. A live spawned target SHALL be navigated directly. A reward SHALL lead to its live precursors before it exists. Otherwise navigation SHALL lead to the controller site when the offering is held, and to the offering item's acquisition when it is not, preserving the original goal. Guidance SHALL warn when another offering of the same controller is carried. A reload or scene change SHALL resume from live state without an unverifiable workflow warning.
+
+#### Scenario: Registering an arena rank
+
+- **WHEN** Vitheo's Arena II needs Vithean Arena Fee (2) and the player chooses the round 1 chest source without Vithean Arena Fee (1)
+- **THEN** navigation leads to a source of Vithean Arena Fee (1)
+- **AND** with that fee held, it leads to Vitheo's arena, then the round 1 enemies, then the chest
+
+#### Scenario: Two offerings carried
+
+- **WHEN** the player carries Odd Malaroth Feed while seeking Shivunax
+- **THEN** guidance warns that another carried offering can be used instead
+
 ### Requirement: Navigation leads to what satisfies a gate
 
 When the navigation target or a hop of its route is gated by an observable atom, AdventureGuide SHALL navigate to what satisfies it: the sources of a missing item or key, the current step of a missing quest, or the Reliquary planning table for a missing furnishing. Among the groups of a condition it SHALL choose the group with the fewest unmet atoms, and among equal groups the one whose first requirement is nearest by route. When the requirement is gated itself, it SHALL repeat this choice and SHALL stop with an explanation, without navigation, when no requirement can be reached. The quest panel and tracker SHALL show the next action and immediate unmet requirement on their existing surfaces, with advisory encounter navigation where applicable. Full chains SHALL remain inspectable through diagnostics. No separate guidance HUD or explanation tree SHALL be required.

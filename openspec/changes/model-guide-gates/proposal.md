@@ -20,7 +20,8 @@ The gate kinds, highest player impact first:
 - Export every activation effect of the quest listeners in both directions with its trigger (quest, active quest, held item), the usability of each zone line component, and the serialized targets of the scripted activators. Pin the hand-encoded rules of those scripts and the door key rule as code facts.
 - Give each reviewed fact one home. Corrections of exported rows, such as zone lines that players cannot reach, go into `mapping.json` with a reason. Which targets a keyed door or a removable barrier guards goes into a new reviewed file, `barriers.toml`, that the clean build reads and checks for completeness. The door and item curation of `quest_guides/graph_overrides.toml` moves to its proper home, and the Shivering Step overrides give way to the event rule.
 - Model the Shivering Step event from its rules. Meet Shivering Step is acquired on zone entry and completed by the four keeper quests.
-- Consume canonical acquisitions and uses through the shared repository and eligibility contract, preserving acquisition/location identity, variants, material slots, phaseful conditions and exact local probabilities. Keep guide-only authored workflows and presentation notes.
+- Consume canonical acquisitions and uses through the shared repository and eligibility contract, preserving acquisition/location identity, variants, material slots, phaseful conditions and exact local probabilities. Keep reviewed presentation notes.
+- Model the native carried-item offering controllers, the Vitheo arena, the Malaroth feeding site and the Braxonian chessboard, as activations of the exact placements they spawn. Sources, kill targets and encounter requirements lead through the offering, and the quest list holds native quests only. Synthetic guide-only workflow quests are removed.
 - Navigate a selected crafted source through its missing ingredients, including crafted keys. Preserve the original goal and recipe choice while accounting for repeated material slots and quantities.
 - Project the Reliquary account claim and character completion through explicitly guarded initialization implications without mutating game state. Preserve exact root and four support placements, account-claim purpose and the post-completion player-home role.
 - Derive all ten PlanningTable portals from one immutable reference selection. Four dedicated slots retain their actual destinations and six rune slots are interchangeable. Resolve the physical saved-character return through common destination contexts and typed live state, never a fixed Hidden fallback.
@@ -33,7 +34,7 @@ Non-goals, each recorded as an issue in the format of issue #282:
 
 - Navigating several quests at once. It becomes its own OpenSpec change after this one lands, with budgets measured on the current navigation first.
 - Travel that is not a physical zone line: teleport items and spells, the Azynthian Riftstone, movable teleport endpoints and the Box of Portals return. Actual planning-table portal zone lines, their initialization and the saved-character physical return are included.
-- The Bellwain Isle puzzle, the Chessboard offering workflow, secret passages, and forced travel. The zone-wide spectre spawner keeps issue #282.
+- The Bellwain Isle puzzle, secret passages, and forced travel. The zone-wide spectre spawner keeps issue #282.
 - Weather as a condition. Evadne keeps a plain explanation of the rain requirement.
 
 ## Capabilities
