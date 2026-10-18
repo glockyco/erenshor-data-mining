@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-PROGRESSION_SCHEMA_VERSION = 2
+PROGRESSION_SCHEMA_VERSION = 3
 
 
 @dataclass(frozen=True)

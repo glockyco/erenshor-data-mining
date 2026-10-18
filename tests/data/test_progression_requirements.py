@@ -557,3 +557,36 @@ def test_box_of_portals_keeps_the_claimed_desks_shared_gate(clean: sqlite3.Conne
             atom["predicate"] == "quest_done" and atom["reference_stable_key"] == "quest:claimreliquary"
             for atom in json.loads(location[0])
         )
+
+
+def test_first_ways_have_their_nodes_tier_and_the_lowest_rank(clean: sqlite3.Connection) -> None:
+    misranked = clean.execute(
+        "SELECT n.stable_key FROM progression_nodes n"
+        " JOIN progression_ways first ON first.node_stable_key=n.stable_key AND first.way_key=n.first_way_key"
+        " WHERE first.tier IS NOT n.tier OR EXISTS (SELECT 1 FROM progression_ways other"
+        " WHERE other.node_stable_key=n.stable_key AND other.way_key != first.way_key"
+        " AND (other.tier, other.depth, other.way_key) < (first.tier, first.depth, first.way_key))"
+    ).fetchall()
+    assert misranked == []
+
+
+def test_the_arena_fee_trade_ranks_before_the_round_8_chest_and_the_buy_back(clean: sqlite3.Connection) -> None:
+    rows = clean.execute(
+        "SELECT f.fact FROM progression_ways w JOIN progression_way_facts f USING (node_stable_key, way_key)"
+        " WHERE w.node_stable_key='item:quest - vithean arena token 1' ORDER BY w.tier, w.depth, w.way_key"
+    ).fetchall()
+    kinds = [json.loads(row[0].removeprefix("acquisition:"))[0:2] for row in rows]
+    assert kinds == [
+        ["quest_reward", "ArenaToken"],
+        ["vendor", "character:master of arms:planeofvitheo:463.87:25.16:417.06"],
+        ["character_drop", "character:arenachest 8"],
+    ]
+
+
+def test_a_way_that_needs_an_unreached_node_has_no_rank(clean: sqlite3.Connection) -> None:
+    rows = clean.execute(
+        "SELECT w.tier, w.depth, EXISTS (SELECT 1 FROM progression_needs p JOIN progression_nodes target"
+        " ON target.stable_key=p.need_stable_key WHERE p.node_stable_key=w.node_stable_key AND p.way_key=w.way_key"
+        " AND p.relation != 'quest not done' AND target.tier IS NULL) FROM progression_ways w"
+    ).fetchall()
+    assert rows and all((tier is None) == bool(unreached) for tier, _depth, unreached in rows)

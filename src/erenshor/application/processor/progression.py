@@ -173,6 +173,8 @@ class ProgressionBuilder:
         self.tiers: dict[str, int] = {}
         self.depths: dict[str, int] = {}
         self.first: dict[str, str] = {}
+        self.ranks: dict[tuple[str, str], tuple[int, int]] = {}
+        self.facts: dict[tuple[str, str], set[str]] = defaultdict(set)
         self.scenes = {row["scene_name"]: row["stable_key"] for row in self.rows("zones")}
         self.characters = {row["stable_key"]: row for row in self.rows("characters")}
         self.placements: dict[str, list[dict[str, Any]]] = defaultdict(list)
@@ -255,6 +257,7 @@ class ProgressionBuilder:
         if key in self.ways[node] and self.ways[node][key] != way:
             raise _error(node, fact, "way digest collision", key)
         self.ways[node][key] = way
+        self.facts[node, key].add(fact)
 
     def product(self, node: str, left: list[Way], right: list[Way], fact: str) -> list[Way]:
         result = {canonical_way((*a, *b)) for a in left for b in right}
@@ -877,17 +880,31 @@ class ProgressionBuilder:
             return 0
         return self.tiers.get(need.need_stable_key)
 
+    def way_tier(self, node: str, way: Way) -> int | None:
+        tiers = [self.need_tier(need) for need in way]
+        if any(tier is None for tier in tiers):
+            return None
+        return max((tier for tier in tiers if tier is not None), default=0) + int(node in self.milestones)
+
+    def way_depth(self, way: Way) -> int | None:
+        depths = [
+            0
+            if need.need_stable_key is None or need.relation == "quest not done"
+            else self.depths.get(need.need_stable_key)
+            for need in way
+        ]
+        if any(depth is None for depth in depths):
+            return None
+        return 1 + max((depth for depth in depths if depth is not None), default=-1)
+
     def order(self) -> None:
         changed = True
         while changed:
             changed = False
             for node, ways in sorted(self.ways.items()):
                 for way in ways.values():
-                    costs = [self.need_tier(need) for need in way]
-                    if any(cost is None for cost in costs):
-                        continue
-                    tier = max((cost for cost in costs if cost is not None), default=0) + int(node in self.milestones)
-                    if node not in self.tiers or tier < self.tiers[node]:
+                    tier = self.way_tier(node, way)
+                    if tier is not None and (node not in self.tiers or tier < self.tiers[node]):
                         self.tiers[node] = tier
                         changed = True
         # Stabilize tiers before minimizing depth, so a falling tier cannot leave a stale depth.
@@ -898,26 +915,30 @@ class ProgressionBuilder:
                 if node not in self.tiers:
                     continue
                 for key, way in sorted(ways.items()):
-                    costs = [self.need_tier(need) for need in way]
-                    if any(cost is None for cost in costs):
+                    if self.way_tier(node, way) != self.tiers[node]:
                         continue
-                    tier = max((cost for cost in costs if cost is not None), default=0) + int(node in self.milestones)
-                    if tier != self.tiers[node]:
+                    depth = self.way_depth(way)
+                    if depth is None:
                         continue
-                    depths = [
-                        0
-                        if need.need_stable_key is None or need.relation == "quest not done"
-                        else self.depths.get(need.need_stable_key)
-                        for need in way
-                    ]
-                    if any(depth is None for depth in depths):
-                        continue
-                    depth = 1 + max((value for value in depths if value is not None), default=-1)
                     if node not in self.depths or (depth, key) < (self.depths[node], self.first[node]):
                         self.depths[node], self.first[node] = depth, key
                         changed = True
         self.check_tiers()
         self.check_first_ways()
+        self.rank_ways()
+
+    def rank_ways(self) -> None:
+        """Give each usable way the tier and depth by which first ways are chosen."""
+        for node, ways in self.ways.items():
+            for key, way in ways.items():
+                tier = self.way_tier(node, way)
+                depth = self.way_depth(way)
+                if tier is not None and depth is not None:
+                    self.ranks[node, key] = (tier, depth)
+        for node, first in self.first.items():
+            lowest = min((self.ranks[node, key], key) for key in self.ways[node] if (node, key) in self.ranks)
+            if lowest != ((self.tiers[node], self.depths[node]), first):
+                raise _error(node, "way rank", f"first way does not have the lowest rank {lowest}", first)
 
     def check_tiers(self) -> None:
         for node, tier in self.tiers.items():
@@ -969,7 +990,13 @@ class ProgressionBuilder:
         if len(builds) != 1 or not builds[0]["game_build_id"]:
             raise _error("metadata", "code_facts_meta", "expected one nonempty build id")
         conn = self.connection
-        for table in ("progression_needs", "progression_ways", "progression_nodes", "progression_meta"):
+        for table in (
+            "progression_way_facts",
+            "progression_needs",
+            "progression_ways",
+            "progression_nodes",
+            "progression_meta",
+        ):
             conn.execute(f"DELETE FROM {table}")
         conn.executemany(
             "INSERT INTO progression_nodes VALUES (?,?,?,?,?)",
@@ -979,8 +1006,21 @@ class ProgressionBuilder:
             ],
         )
         conn.executemany(
-            "INSERT INTO progression_ways VALUES (?,?)",
-            [(node, key) for node, ways in sorted(self.ways.items()) for key in sorted(ways)],
+            "INSERT INTO progression_ways VALUES (?,?,?,?)",
+            [
+                (node, key, *self.ranks.get((node, key), (None, None)))
+                for node, ways in sorted(self.ways.items())
+                for key in sorted(ways)
+            ],
+        )
+        conn.executemany(
+            "INSERT INTO progression_way_facts VALUES (?,?,?)",
+            [
+                (node, key, fact)
+                for node, ways in sorted(self.ways.items())
+                for key in sorted(ways)
+                for fact in sorted(self.facts[node, key])
+            ],
         )
         conn.executemany(
             "INSERT INTO progression_needs VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",

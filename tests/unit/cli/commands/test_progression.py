@@ -68,7 +68,7 @@ def graph_path(cli_context: CLIContext) -> Path:
             ("zone:blocked", "blocked"),
             ("quest:negative", "negative"),
         ):
-            connection.execute("INSERT INTO progression_ways VALUES (?,?)", (node, key))
+            connection.execute("INSERT INTO progression_ways (node_stable_key, way_key) VALUES (?,?)", (node, key))
         for node, way, index, relation, need, quantity, slot, keywords, advisory, unconfirmed in (
             ("zone:start", "start", 0, "from", "mechanic:new_character_start", None, None, None, 0, 0),
             ("quest:gate", "quest", 0, "enter", "zone:start", None, None, None, 0, 0),

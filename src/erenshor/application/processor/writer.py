@@ -1062,11 +1062,25 @@ CREATE TABLE progression_nodes (
     first_way_key TEXT,
     CHECK ((tier IS NULL) = (first_way_key IS NULL))
 );
+-- tier and depth rank a way as first ways are chosen. A way with a need
+-- that has no tier has neither.
 CREATE TABLE progression_ways (
     node_stable_key TEXT NOT NULL REFERENCES progression_nodes(stable_key),
     way_key TEXT NOT NULL,
-    PRIMARY KEY (node_stable_key, way_key)
+    tier INTEGER CHECK (tier >= 0),
+    depth INTEGER CHECK (depth >= 0),
+    PRIMARY KEY (node_stable_key, way_key),
+    CHECK ((tier IS NULL) = (depth IS NULL))
 );
+-- The clean facts that produced a way, such as an item acquisition key.
+CREATE TABLE progression_way_facts (
+    node_stable_key TEXT NOT NULL,
+    way_key TEXT NOT NULL,
+    fact TEXT NOT NULL,
+    PRIMARY KEY (node_stable_key, way_key, fact),
+    FOREIGN KEY (node_stable_key, way_key) REFERENCES progression_ways(node_stable_key, way_key)
+);
+CREATE INDEX progression_way_facts_fact_idx ON progression_way_facts(fact);
 CREATE TABLE progression_needs (
     node_stable_key TEXT NOT NULL,
     way_key TEXT NOT NULL,

@@ -62,7 +62,8 @@ Each Unity export, code-facts run, and clean build of the main variant runs in a
 
 ## 7. Way ranks (design D13)
 
-- [ ] 7.1 `feat(pipeline): store the rank and facts of each way`: store each usable way's tier and depth in `progression_ways`, add `progression_way_facts` with the clean facts of each way, and raise the progression contract version. Add unit tests for a way whose need has no tier and for one way from two facts. Verify: the first way of every node with a tier has its node's tier and the lowest rank, and the scenarios of the `progression-requirements` delta hold on build 24405256.
+- [x] 7.1 `feat(pipeline): store the rank and facts of each way`: store each usable way's tier and depth in `progression_ways`, add `progression_way_facts` with the clean facts of each way, and raise the progression contract version. Add unit tests for a way whose need has no tier and for one way from two facts. Verify: the first way of every node with a tier has its node's tier and the lowest rank, and the scenarios of the `progression-requirements` delta hold on build 24405256.
+  - 7,970 of 8,304 ways have a rank, and 23,091 facts name their ways. Nodes and needs are unchanged. The build and a data test check that each first way has its node's tier and the lowest rank. Vithean Arena Fee (1) ranks the An Arena Token trade at tier 29, the buy-back at 31, and the round 8 chest at 39.
 - [ ] 7.2 `fix(guide): rank sources that need something by their way rank`: carry the lowest rank of each acquisition's ways to its guide sources, prefer the lower rank among candidates with an unmet requirement, and stop failing a reward whose proxy scene has no route. Verify: the mod tests pass with the regenerated guide data, including `Shipped_arena_chest_source_transitions_from_fee_to_site_to_enemy_to_chest`.
 
 ## 8. Cleanup

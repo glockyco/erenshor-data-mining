@@ -764,10 +764,30 @@ def test_tiers_alternatives_joint_needs_cycles_negatives_and_ties(conn):
         graph.check_tiers()
 
 
+def test_ways_rank_as_first_ways_are_chosen_and_keep_every_fact(conn):
+    graph = ProgressionBuilder(conn)
+    for key in ("start", "a", "gap", "target"):
+        graph.node(key, "class")
+    graph.add("start", (), "fixture")
+    graph.add("a", [Need("held", "start")], "fixture")
+    direct, longer, blocked = ([Need("held", "start")], [Need("held", "a")], [Need("held", "gap")])
+    graph.add("target", direct, "first fact")
+    graph.add("target", direct, "second fact")
+    graph.add("target", longer, "fixture")
+    graph.add("target", blocked, "fixture")
+    graph.mark_milestones()
+    graph.order()
+    first, slower, unreachable = (way_key(canonical_way(way)) for way in (direct, longer, blocked))
+
+    assert graph.ranks["target", first] == (0, 1) < graph.ranks["target", slower] == (0, 2)
+    assert ("target", unreachable) not in graph.ranks
+    assert graph.facts["target", first] == {"first fact", "second fact"}
+
+
 def test_build_rows_are_identical_and_keep_unchanged_way_identity(conn):
     zone_line(conn)
     process_progression(conn)
-    tables = ("progression_nodes", "progression_ways", "progression_needs", "progression_meta")
+    tables = ("progression_nodes", "progression_ways", "progression_way_facts", "progression_needs", "progression_meta")
     before = {table: conn.execute(f"SELECT * FROM {table} ORDER BY 1,2").fetchall() for table in tables}
     process_progression(conn)
     assert before == {table: conn.execute(f"SELECT * FROM {table} ORDER BY 1,2").fetchall() for table in tables}
