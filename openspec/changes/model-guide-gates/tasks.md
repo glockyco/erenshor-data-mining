@@ -13,7 +13,7 @@ A checked task proves its named behavior and checks, not newer shared-data integ
 | Compact sources and preparation | Compact rows, semantic grouping and independent tracker implemented | Canonical source and use evidence retained | Integrated generated resource | Both loader UI checked, remaining nested workflows tracked by U1b |
 | Ten planning portals | Ten-route and stored-slot consumer verified | Native producer certified | Common ten-route/forty-binding generation verified | Actual instructions pending |
 | Account claim and saved return | Schema-8 consumer implemented | Native producer certified | Coherent generation and pure-state transitions verified | Fresh false account and absent return observed, positive native transitions pending |
-| Performance | Existing lookup/rebuild fixes retained | Not applicable | Final observations integrated | Current samples scoped below, exact final protocol still pending |
+| Performance | Existing lookup/rebuild fixes retained | Not applicable | Final observations integrated | Final matched CPU/heap and actual repaint protocol recorded under 9.6 |
 
 ## 0. Remove the unused dense guide
 
@@ -28,10 +28,10 @@ A checked task proves its named behavior and checks, not newer shared-data integ
     | Measurement | Stowaway's Step | Shivering Step |
     | --- | --- | --- |
     | Tick, 600 calls | avg 0.04, min 0.03, max 0.28 ms | avg 0.02, min 0.01, max 0.28 ms |
-    | Managed allocation per tick (`GC.GetTotalMemory` over 600 ticks) | 0 B | 0 B |
+    | Net managed-heap growth (`GC.GetTotalMemory` over 600 ticks) | 0 B | 0 B |
     | Inventory change, 10 events | avg 2.0, min 1.2, max 4.8 ms | avg 1.8, min 1.3, max 3.9 ms |
     | Quest completion, 10 events | avg 3.2, min 1.4, max 6.7 ms | avg 2.8, min 1.4, max 10.2 ms |
-    | Scene load, 5 repeats after a warm-up | avg 15.9, min 12.5, max 23.4 ms | avg 16.9, min 13.3, max 22.2 ms |
+    | Scene handler plus tick, 5 repeats after a warm-up | avg 15.9, min 12.5, max 23.4 ms | avg 16.9, min 13.3, max 22.2 ms |
 
     The slowest quest completion (10.2 ms) already exceeds the absolute 8 ms the spec named, so the event budget is now relative to the baseline. These first numbers are not comparable with the slice 1 results under 1.4: the navigated quest and the tracked set were not fixed, and `GC.GetAllocatedBytesForCurrentThread` always returns 0 under the game's Mono runtime.
 - [x] 1.2 `feat(pipeline): record gates as conditions in the clean database`: add `gate_conditions` to `writer.py` and derive it from the existing quest unlocks of zone lines and characters, quest-started and quest-stopped spawn points, Reliquary furnishings, vendor stock unlocks, item bag unlocks, and keyed doors through `barriers.toml`. Add `barriers.toml` with an entry for every keyed door, moving the door and item edges out of `graph_overrides.toml`, and fail the build on a missing or stale entry. Drop `zone_line_quest_unlocks` and `character_quest_unlocks`. Document `barriers.toml` in the README's concepts. Add unit tests for each atom source and both completeness failures. Verify: the tests pass, and after a clean build (announced in the status) the slice 1 scenarios of `guide-gate-data` hold in SQL.
@@ -40,18 +40,18 @@ A checked task proves its named behavior and checks, not newer shared-data integ
   - Done. The regenerated `quest-guide.json` gives Founder the Dockhouse Key, Ghost of Wyland Sercher the Ghostly Key, and the Duskenlight Coast line to the Jaws of Sivakaya a candle group and a She Sees You group. The contract test passes.
 - [x] 1.4 `feat(adventure-guide): lead navigation to what unlocks a gate`: add requirement selection and chains (design D7) to navigation, the navigation display, the detail panel, and the tracker, and `DumpGate` with the chain in `DumpNav`. Update `skill://runtime-eval`. Add tests on the real data for the lighthouse key, the Jaws alternatives, and a chain of two requirements. Verify: tests pass, the slice 1 checks of design D12 pass in the game with screenshots, and the budgets hold.
   - Done. Requirement chains, entrance routing for placements with `entries`, door zones in key requirements, and a keyring event that re-resolves navigation. The slice 1 checks of design D12 pass in the game on Gatetest: Whispers of Wyland without the Ghostly Key names the key and stops, because the key is crafted, and with the key on the keyring it navigates to the ghost. Occuphage from Blacksalt Strand routes through Stowaway's Step to the lighthouse line, and without the key the chain leads to Garrey Ambrose. The Shivering Step crypt from Stowaway's Step leads to the Crypt Keeper. A Reliquary vendor appears when its room holds the set, and Bassle Wavebreak is available after The Angler's Ring. The Lunaris build loads, navigates Occuphage with the same chain, and quits after the save.
-  - Budgets, both builds measured the same way in one session: twelve fixed tracked quests, Alice Hewer's Necklace navigated, one untimed warm-up event, then ten timed events of a patch handler plus one tick. Allocation is `GC.GetTotalMemory` over 600 ticks.
+  - Budgets, both builds measured the same way in one session: twelve fixed tracked quests, Alice Hewer's Necklace navigated, one untimed warm-up event, then ten timed events of a patch handler plus one tick. The heap measurement is net `GC.GetTotalMemory` growth over 600 ticks, not exact allocation.
 
     | Measurement | Stowaway's Step, main / this change | Shivering Step, main / this change |
     | --- | --- | --- |
     | Tick avg | 0.027 / 0.022 to 0.024 ms | 0.012 / 0.009 to 0.010 ms |
-    | Allocation per tick | 0 / 0 B | 0 / 0 B |
+    | Net managed-heap growth over hot ticks | 0 / 0 B | 0 / 0 B |
     | Inventory change avg, max | 1.15, 1.47 / 1.14 to 1.43, 1.43 to 1.66 ms | 1.09, 1.48 / 1.30 to 1.34, 1.75 to 2.66 ms |
     | Keyring change avg | 0.07 / 0.85 to 1.01 ms | 0.06 / 0.90 to 0.95 ms |
     | Quest completion avg, max | 1.09, 1.33 / 1.29 to 1.32, 1.69 to 2.51 ms | 1.06, 1.32 / 1.18 to 1.19, 1.42 to 1.63 ms |
-    | Scene load avg | 11.5 / 9.6 to 10.4 ms | 8.0 / 7.3 to 7.8 ms |
+    | Scene handler plus tick avg | 11.5 / 9.6 to 10.4 ms | 8.0 / 7.3 to 7.8 ms |
 
-    An inventory event allocates about 25 KB on this change against 1 to 2.5 KB on main. Navigating cross-zone to Ghost of Wyland Sercher from Stowaway's Step, an inventory event costs 1.3 ms against 5.7 ms on main, because a state change that leaves the route and its zone lines unchanged keeps the waypoint instead of recomputing NavMesh paths to every line.
+    The inventory-event net-heap sample grew about 25 KB on this change against 1 to 2.5 KB on main. Navigating cross-zone to Ghost of Wyland Sercher from Stowaway's Step, an inventory event costs 1.3 ms against 5.7 ms on main, because a state change that leaves the route and its zone lines unchanged keeps the waypoint instead of recomputing NavMesh paths to every line.
 - [x] 1.5 `fix(guide): list the common world item swap as one world-drop source`: after the clean build of `adopt-data-backed-wiki` task 5.44, a `loot_drops` row with `is_common_world_item = 1` and no other drop flag comes only from the swap of `GameManager.CommonWorldItems`. Turn those rows into one background source per item, like the special world drops, instead of a drop edge from every character, and keep rows that also carry their own drop flag as character drops. Add unit tests for both kinds of row. Verify: tests pass, and the regenerated `quest-guide.json` lists Bread, Water, Brackfruit Juice, Luminstone, Citrine Stone, and Star Stone with one swap source each and no swap-only character drops. This lands before the first regeneration of `quest-guide.json` from that build.
   - Done. Each of the six items has one `common_world_item` source, "Any enemy with common drops", with the chance range over placed characters (Bread 0.92-8.12%). Bread drops from 334 sources to 42 droppers that have their own flag plus that one source.
 
@@ -138,8 +138,25 @@ A checked task proves its named behavior and checks, not newer shared-data integ
   - The producer-backed verification covers destination changes, invalid state, static preservation and no Hidden fallback. The Guide compiler now recognizes the validated native stored-return initializer without bypassing explicit gates or unrelated inactive closures. Actual native relic casting recorded the origin and landing without direct field projection. The Guide cached that exact physical return line, real input crossed its active trigger, and the native landing matched exactly. Account claim remained false, sound remained 0, and temporary task damage protection was restored. Receipts are `native-physical-return-cache99.json`, `native-normal-saved-return99.json` and `native-return-protection-cleanup99.json` in the host evidence directory. This proves the native effect and return, not inventory ownership or ordinary access to the relic.
 - [ ] 9.5 Replace independent guide item-source selection with the canonical acquisition/use repository. Preserve acquisition/location IDs, repeated native slots, exact variants, quantities, local phaseful probabilities and outcome quality. Keep initialization/outcome annotations out of current availability. Navigate a chosen crafting recipe through missing ingredients, preserving the original goal and cumulative requirements for repeated material slots. Verify the cross-language contract, negative cases and offline coverage for every represented or explicitly excluded input. Remove superseded selectors and preserve authored content.
   - The canonical consumer, coverage and generated data are integrated. Later native bundle correction 216046538 retains slot-level use evidence while grouping repeated quantities within variants. Item-read correction 00072545d restores a non-variant read step without weakening exact collect-variant matching. Semantic source grouping a5398f42b preserves original endpoints rather than changing producer eligibility.
-- [ ] 9.6 Repeat fixed-cohort CPU/heap and real repaint measurements after all new observations. Verify relative budgets, positive heap control, zero avoidable hot growth, actual patch-plus-tick and scene-handler costs. Record authorized BepInEx and explicitly enabled Lunaris navigation/Escape/normal-quit proof, then remove only task-owned save/profile state and verify original save/account preservation.
-  - Current evidence is under `/tmp/erenshor-guide/final-host-acceptance/evidence/`. The closed-guide, open-picker and event receipts from sample 93 establish observed CPU costs only. Real-frame heap windows included collections or whole-game growth, so they are not zero-allocation proof. The cohort receipt does not establish the navigated step precisely enough for a final same-state comparison. Repeat the exact protocol before claiming final relative-budget acceptance.
+- [x] 9.6 Repeat fixed-cohort CPU/heap and real repaint measurements after all new observations. Verify relative budgets, positive heap control, zero avoidable hot growth, actual patch-plus-tick and scene-handler costs. Record authorized BepInEx and explicitly enabled Lunaris navigation/Escape/normal-quit proof, then remove only task-owned save/profile state and verify original save/account preservation.
+  - Final matched BepInEx runs compare Main 4bb25b98d with candidate 162f6660b. Both restore the same two task checkpoint files, twelve tracked quests and Alice's Necklace step 2. Each scene uses 50 untimed hot calls, 600 measured calls, ten native inventory-plus-tick events, four ten-event native quest sequences, three five-event scene-handler sequences and 240 actual tick/repaint callbacks. Stowaway additionally has a visually confirmed open-picker sample.
+  - Full averages, minima, maxima, heap deltas, exact artifact hashes and all sequence results are in `/tmp/erenshor-guide/final-host-acceptance/evidence/performance-final-pair110.json`. The earlier 102/103 raw receipts remain alongside it. First and warmed sequences are separate, not substituted for each other.
+
+    | Mean cost in ms | Stowaway baseline | Stowaway candidate | Shivering baseline | Shivering candidate |
+    | --- | --- | --- | --- | --- |
+    | Hot tick | 0.0235 | 0.0225 | 0.0077 | 0.0052 |
+    | Actual closed-guide tick | 0.1559 | 0.1678 | 0.0651 | 0.0493 |
+    | Actual closed-guide repaint | 0.7187 | 0.6968 | 0.6323 | 0.3915 |
+    | Actual open-picker repaint | 1.9640 | 1.9366 | Not sampled | Not sampled |
+    | Native inventory event plus tick | 4.7359 | 4.1370 | 4.7711 | 3.5494 |
+    | Native quest event, first sequence | 10.0727 | 8.0881 | 7.3397 | 4.8329 |
+    | Native quest event, warmed sequence means | 7.2544 / 6.8403 / 8.0516 | 6.7058 / 6.4497 / 6.5542 | 7.3152 / 8.6673 / 7.3883 | 4.7263 / 4.8470 / 4.7638 |
+    | Scene handler plus tick, first sequence | 18.8880 | 16.6520 | 14.6660 | 9.1027 |
+    | Scene handler plus tick, warmed sequence means | 16.4529 / 17.5418 | 18.4733 / 18.6953 | 14.0729 / 13.1765 | 9.0978 / 9.2914 |
+
+  - Observed CPU deltas meet the declared relative budgets. Both scenes' hot loops show zero net managed-heap growth and no generation-0 collection. The retained 4 MiB positive control grows the measured heap in both processes. The thread-allocation counter still returns zero for that control and is unusable. Whole-game frame heap deltas are retained in the receipt and are not exact Guide allocation. NPC simulation was not byte-identical, and this pair does not establish a statistical speedup. Scene-handler timing is not whole-scene-load timing.
+  - Actual BepInEx and explicitly enabled Lunaris preserve navigation, consume Escape before the native menu and accept real input. Both follow native Save and Exit, saved Menu and regular QuitGame. BepInEx exits 0. Lunaris then fails in its bridge cleanup and only the exact recorded process is recovered.
+  - `/tmp/erenshor-guide/final-host-acceptance/evidence/cleanup-receipt110.json` records all 469 original primary save hashes, original config/plugin/loader restoration, all 30 task-save copies removed and no remaining game/debugger process. Sound stays 0. Unrelated rotating history is preserved but not claimed byte-identical. Only the proven task-slot preference was deleted because its original selection baseline was not recorded. The runtime lease is released.
 
 ## 10. Independent consumer and UI corrections
 
