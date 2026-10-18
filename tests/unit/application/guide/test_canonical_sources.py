@@ -112,7 +112,6 @@ def test_noncombat_actor_copy_is_preserved_without_a_combat_node(tmp_path, kind)
         ("fishing_bonus", None, "fishing_bonus"),
         ("starting_class", None, "starting_class"),
         ("ui_grant", None, "ui_grant"),
-        ("auction_house", None, "auction_house"),
     ],
 )
 def test_canonical_families_keep_actual_location_and_normalize_facts_once(tmp_path, kind, source, expected):
@@ -166,6 +165,15 @@ def test_canonical_families_keep_actual_location_and_normalize_facts_once(tmp_pa
     }
     assert "evidence" not in json.dumps(payload)
     assert payload["_item_uses"]["required"]["material_slot"] == 3
+
+
+def test_the_auction_house_is_never_a_guide_source(tmp_path):
+    graph = _graph()
+    fact = ItemAcquisition("listed", "item:result", "auction_house", "mechanic:auction_house")
+    load_canonical_sources(tmp_path, graph, [fact], [_required()])
+    assert graph.source_exclusions["listed"] == "auction_house_random_stock"
+    [main] = [quest for quest in _payload(graph)["quests"] if quest["db_name"] == "MAIN"]
+    assert not main["required_items"][0].get("sources")
 
 
 def test_repeated_recipe_slots_mold_and_requested_output_quality_are_traversable(tmp_path):

@@ -41,7 +41,6 @@ EXPLANATORY_KINDS = frozenset(
         "special_world_drop",
         "fishing_bonus",
         "starting_class",
-        "auction_house",
         "ui_grant",
     }
 )
@@ -143,6 +142,10 @@ def add_canonical_sources(repository: ItemProvenanceRepository, conn: sqlite3.Co
     for fact in acquisitions:
         if not is_actionable_acquisition(fact):
             graph.source_exclusions[fact.acquisition_key] = "not_actionable_canonical_acquisition"
+            continue
+        # Simulated players list random stock, so the guide never sends a player to it.
+        if fact.kind == "auction_house":
+            graph.source_exclusions[fact.acquisition_key] = "auction_house_random_stock"
             continue
         if fact.kind not in _SOURCE_EDGES and fact.kind not in EXPLANATORY_KINDS:
             raise ValueError(f"unsupported canonical acquisition kind: {fact.kind}")

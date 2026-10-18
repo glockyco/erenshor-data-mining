@@ -1337,7 +1337,6 @@ def _canonical_item_sources(
         "special_world_drop": "world_drop",
         "fishing_bonus": "fishing_bonus",
         "starting_class": "starting_class",
-        "auction_house": "auction_house",
         "ui_grant": "ui_grant",
     }
     names = {
@@ -1345,7 +1344,6 @@ def _canonical_item_sources(
         "special_world_drop": "Any enemy",
         "fishing_bonus": "Any fishing catch",
         "starting_class": "Starting equipment",
-        "auction_house": "Auction house",
         "ui_grant": "Native interface",
     }
     for fact in sorted(compiled.acquisitions_by_item.get(item_key, ()), key=lambda fact: fact.acquisition_key):

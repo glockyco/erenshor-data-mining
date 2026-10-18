@@ -642,7 +642,6 @@ public sealed partial class GuideData
                 or "special_world_drop"
                 or "fishing_bonus"
                 or "starting_class"
-                or "auction_house"
                 or "ui_grant";
 
     private static bool Finite(double value) => !double.IsNaN(value) && !double.IsInfinity(value);

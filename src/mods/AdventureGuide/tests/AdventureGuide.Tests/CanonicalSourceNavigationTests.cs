@@ -561,7 +561,6 @@ public sealed class CanonicalSourceNavigationTests
 
     [Theory]
     [InlineData("ui_grant")]
-    [InlineData("auction_house")]
     public void Located_native_actions_navigate_to_the_real_endpoint_without_a_character_family(
         string kind
     )

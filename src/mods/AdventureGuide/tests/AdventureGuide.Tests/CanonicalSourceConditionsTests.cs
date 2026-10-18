@@ -93,7 +93,7 @@ public sealed class CanonicalSourceConditionsTests
     {
         var source = new ItemSource
         {
-            Type = "auction_house",
+            Type = "ui_grant",
             AcquisitionKey = "acq",
             LocationKey = "loc",
         };
