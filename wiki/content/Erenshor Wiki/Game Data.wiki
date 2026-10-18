@@ -166,9 +166,13 @@ Place a view template on a page to show a list from the game data. It changes af
 | [[Template:Game board|Game board]] || [[Module:Erenshor/Data/GameBoard]] || The Braxonian Game Board's bosses, pieces, levels, and drops
 |-
 | [[Template:World drops|World drops]] || [[Module:Erenshor/Data/WorldDrops]] || Special world drop rolls on eligible loot-bearing kills
+|-
+| [[Template:Zone list|Zone list]] || [[Module:Erenshor/Data/Zones]] || Every zone's type, hostile levels, and exits, with a notes column that editors fill in
+|-
+| [[Template:Quest list|Quest list]] || [[Module:Erenshor/Data/Quests]] || Every quest's starts, required items, and rewards
 |}
 
-For example, write <code><nowiki>{{Zone roster}}</nowiki></code> on a zone page, or <code><nowiki>{{Class abilities|stablekey=class:druid}}</nowiki></code> to select a class explicitly. An entity-specific view without a key uses the entity of its kind on the current page. If several entities share that page, give the template the intended <code>stablekey</code>. Use <code><nowiki>{{Game board}}</nowiki></code> for the board's boss table.
+For example, write <code><nowiki>{{Zone roster}}</nowiki></code> on a zone page, or <code><nowiki>{{Class abilities|stablekey=class:druid}}</nowiki></code> to select a class explicitly. An entity-specific view without a key uses the entity of its kind on the current page. If several entities share that page, give the template the intended <code>stablekey</code>. Use <code><nowiki>{{Game board}}</nowiki></code> for the board's boss table. Give <code><nowiki>{{Zone list}}</nowiki></code> one note per zone, named by the zone's page, such as <code><nowiki>{{Zone list|Port Azure=Starting city}}</nowiki></code>.
 
 Spawn chances are chances per eligible spawn roll, not the chance of meeting a character anywhere in a zone. Scripted encounters do not imply a fixed spawn position. Furniture-only rows require the named set to be placed.
 
@@ -257,6 +261,12 @@ These hidden categories collect pages that need a fix.
 | [[:Category:Pages with missing Erenshor game board data]] || {{PAGESINCATEGORY:Pages with missing Erenshor game board data}} || <code><nowiki>{{Game board}}</nowiki></code> finds no board boss in the game data. Report the missing data.
 |-
 | [[:Category:Pages with missing Erenshor progression data]] || {{PAGESINCATEGORY:Pages with missing Erenshor progression data}} || <code><nowiki>{{Progression graph}}</nowiki></code> finds several entities or no progression data. Give it the intended <code>stablekey</code>, or report the missing data.
+|-
+| [[:Category:Pages with missing Erenshor zone list data]] || {{PAGESINCATEGORY:Pages with missing Erenshor zone list data}} || <code><nowiki>{{Zone list}}</nowiki></code> finds no zone in the game data. Report the missing data.
+|-
+| [[:Category:Pages with unknown Erenshor zone notes]] || {{PAGESINCATEGORY:Pages with unknown Erenshor zone notes}} || A note of <code><nowiki>{{Zone list}}</nowiki></code> names no zone page. Correct the zone's page title in the note.
+|-
+| [[:Category:Pages with missing Erenshor quest list data]] || {{PAGESINCATEGORY:Pages with missing Erenshor quest list data}} || <code><nowiki>{{Quest list}}</nowiki></code> finds no quest in the game data. Report the missing data.
 |}
 
 == Templates that the project maintains ==
@@ -273,7 +283,7 @@ Each of these templates has its documentation on its own page.
 ; Character parts
 : [[Template:TreasureGuardianStats|TreasureGuardianStats]], [[Template:Vendor stock|Vendor stock]]
 ; Data-backed views
-: [[Template:Zone roster|Zone roster]], [[Template:Class abilities|Class abilities]], [[Template:Quest data|Quest data]], [[Template:Game board|Game board]], [[Template:Progression graph|Progression graph]]
+: [[Template:Zone roster|Zone roster]], [[Template:Class abilities|Class abilities]], [[Template:Quest data|Quest data]], [[Template:Game board|Game board]], [[Template:Progression graph|Progression graph]], [[Template:Zone list|Zone list]], [[Template:Quest list|Quest list]]
 ; Links
 : [[Template:ItemLink|ItemLink]], [[Template:CharacterLink|CharacterLink]], [[Template:AbilityLink|AbilityLink]], [[Template:QuestLink|QuestLink]], [[Template:ZoneLink|ZoneLink]], [[Template:FactionLink|FactionLink]], [[Template:ClassLink|ClassLink]]
 ; Other

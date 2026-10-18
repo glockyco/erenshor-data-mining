@@ -359,13 +359,13 @@ class TestWikiGenerateCommand:
             "StanceRelations.lua",
             "EntityLifecycle.lua",
             "Quests.lua",
+            "Zones.lua",
         ):
             assert module in result.output
         wiki_root = cli_context.config.variants["main"].resolved_wiki(cli_context.repo_root)
         assert str(wiki_root / "lua/Erenshor/Data/Items.lua") in result.output
         assert str(wiki_root / "lua/Erenshor/Data/Items") in result.output
         assert str(wiki_root / "lua/Erenshor/Data/Links.lua") in result.output
-        assert "Zones.lua" not in result.output
 
 
 class TestWikiLinkAuditCommand:
