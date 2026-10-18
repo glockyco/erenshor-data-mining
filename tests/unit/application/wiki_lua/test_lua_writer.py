@@ -47,10 +47,19 @@ def test_serializes_supported_load_data_values_deterministically() -> None:
         ("'a' \"b\"", '"\'a\' \\"b\\""'),
         ("it's", '"it\'s"'),
         ('"a" \'b\' "c"', "'\"a\" \\'b\\' \"c\"'"),
+        ("", '""'),
+        ("plain ' apostrophe", '"plain \' apostrophe"'),
+        ("line\r\n\t\\", '"line\\r\\n\\t\\\\"'),
     ],
 )
 def test_quotes_strings_with_the_quote_that_needs_fewer_escapes(value: str, expected: str) -> None:
     assert dumps(value) == expected
+
+
+def test_repeated_escaped_mapping_keys_keep_their_quoted_spelling() -> None:
+    assert dumps([{'a"b': "one"}, {'a"b': "two"}]) == (
+        '{\n\t{\n\t\t[\'a"b\'] = "one",\n\t},\n\t{\n\t\t[\'a"b\'] = "two",\n\t},\n}'
+    )
 
 
 def test_rejects_values_that_mw_load_data_cannot_return() -> None:

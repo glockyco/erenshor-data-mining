@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import math
+import re
 from collections.abc import Mapping, Sequence
 from typing import Any
+
+_NEEDS_ESCAPE = re.compile(r'["\\\n\r\t]')
 
 
 class LuaSerializationError(TypeError):
@@ -18,10 +21,12 @@ def module_text(value: object) -> str:
 
 def dumps(value: object) -> str:
     """Serialize a value to deterministic Lua source."""
-    return _serialize(value, depth=0)
+    return _serialize(value, depth=0, quoted_keys={})
 
 
-def _serialize(value: object, depth: int) -> str:
+def _serialize(value: object, depth: int, quoted_keys: dict[str, str]) -> str:
+    if isinstance(value, str):
+        return _quote(value)
     if value is None:
         serialized = "nil"
     elif isinstance(value, bool):
@@ -32,18 +37,16 @@ def _serialize(value: object, depth: int) -> str:
         if not math.isfinite(value):
             raise LuaSerializationError(f"cannot serialize non-finite number: {value!r}")
         serialized = repr(value)
-    elif isinstance(value, str):
-        serialized = _quote(value)
     elif isinstance(value, Mapping):
-        serialized = _serialize_mapping(value, depth)
+        serialized = _serialize_mapping(value, depth, quoted_keys)
     elif isinstance(value, Sequence) and not isinstance(value, (bytes, bytearray, str)):
-        serialized = _serialize_sequence(value, depth)
+        serialized = _serialize_sequence(value, depth, quoted_keys)
     else:
         raise LuaSerializationError(f"unsupported value for Lua serialization: {type(value).__name__}")
     return serialized
 
 
-def _serialize_mapping(value: Mapping[Any, Any], depth: int) -> str:
+def _serialize_mapping(value: Mapping[Any, Any], depth: int, quoted_keys: dict[str, str]) -> str:
     items: list[tuple[str, object]] = []
     for key, item in value.items():
         if not isinstance(key, str):
@@ -58,12 +61,16 @@ def _serialize_mapping(value: Mapping[Any, Any], depth: int) -> str:
     child = "\t" * (depth + 1)
     lines = ["{"]
     for key, item in sorted(items, key=lambda entry: entry[0]):
-        lines.append(f"{child}[{_quote(key)}] = {_serialize(item, depth + 1)},")
+        quoted_key = quoted_keys.get(key)
+        if quoted_key is None:
+            quoted_key = _quote(key)
+            quoted_keys[key] = quoted_key
+        lines.append(f"{child}[{quoted_key}] = {_serialize(item, depth + 1, quoted_keys)},")
     lines.append(f"{current}}}")
     return "\n".join(lines)
 
 
-def _serialize_sequence(value: Sequence[object], depth: int) -> str:
+def _serialize_sequence(value: Sequence[object], depth: int, quoted_keys: dict[str, str]) -> str:
     if not value:
         return "{}"
 
@@ -73,12 +80,14 @@ def _serialize_sequence(value: Sequence[object], depth: int) -> str:
     for item in value:
         if item is None:
             raise LuaSerializationError("cannot serialize nil list item")
-        lines.append(f"{child}{_serialize(item, depth + 1)},")
+        lines.append(f"{child}{_serialize(item, depth + 1, quoted_keys)},")
     lines.append(f"{current}}}")
     return "\n".join(lines)
 
 
 def _quote(value: str) -> str:
+    if _NEEDS_ESCAPE.search(value) is None:
+        return f'"{value}"'
     # Use the quote that needs fewer escapes. StyLua applies the same rule, so
     # generated modules read like the formatted ones that people maintain.
     quote = "'" if value.count('"') > value.count("'") else '"'
