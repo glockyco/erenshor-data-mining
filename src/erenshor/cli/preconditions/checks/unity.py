@@ -114,13 +114,16 @@ def editor_scripts_linked(context: dict[str, Any]) -> PreconditionResult:
     source_editor_dir = Path(context["editor_scripts_dir"])
 
     editor_dir = unity_dir / "ExportedProject" / "Assets" / "Editor"
+    # Only `extract rip` links the Editor scripts. A worktree that shares
+    # another checkout's Unity project gets that checkout's link.
+    relink = "Run 'erenshor extract rip' in the checkout that owns the Unity project to relink it"
 
     if not editor_dir.exists():
         return PreconditionResult(
             passed=False,
             check_name="editor_scripts_linked",
             message="Editor scripts not linked",
-            detail=f"Missing: {editor_dir}\nRun 'erenshor symlink create' to create symlink",
+            detail=f"Missing: {editor_dir}\n{relink}",
         )
 
     # Check if it's a symlink
@@ -132,7 +135,7 @@ def editor_scripts_linked(context: dict[str, Any]) -> PreconditionResult:
             detail=(
                 f"Expected symlink to: {source_editor_dir}\n"
                 f"Found regular directory: {editor_dir}\n"
-                "Manually remove and run 'erenshor symlink create'"
+                f"Remove it, then: {relink}"
             ),
         )
 
@@ -144,14 +147,14 @@ def editor_scripts_linked(context: dict[str, Any]) -> PreconditionResult:
                 passed=False,
                 check_name="editor_scripts_linked",
                 message="Editor symlink points to wrong location",
-                detail=f"Expected: {source_editor_dir}\nActual: {link_target}\nRun 'erenshor symlink create' to fix",
+                detail=f"Expected: {source_editor_dir}\nActual: {link_target}\n{relink}",
             )
     except (OSError, RuntimeError) as e:
         return PreconditionResult(
             passed=False,
             check_name="editor_scripts_linked",
             message="Editor symlink is broken",
-            detail=f"Error resolving symlink: {e}\nRun 'erenshor symlink create' to fix",
+            detail=f"Error resolving symlink: {e}\n{relink}",
         )
 
     return PreconditionResult(
