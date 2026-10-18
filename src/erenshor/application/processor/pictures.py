@@ -23,13 +23,14 @@ from __future__ import annotations
 import hashlib
 import json
 import sqlite3
+from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from erenshor.application.pictures import identify
+from erenshor.application.pictures import identify_file
 from erenshor.domain.value_objects.capture_approval import APPROVAL_FILE, Approval, ApprovedImage
 from erenshor.domain.value_objects.wiki_filename import (
     Body,
@@ -40,6 +41,8 @@ from erenshor.domain.value_objects.wiki_filename import (
 )
 
 if TYPE_CHECKING:
+    from erenshor.application.pictures import PictureIdentity
+
     from .writer import Writer
 
 __all__ = [
@@ -73,9 +76,10 @@ class _Picture:
 class _Catalog:
     """The pictures of one build, keyed by pixel hash."""
 
-    def __init__(self) -> None:
+    def __init__(self, identities: dict[Path, Future[PictureIdentity]]) -> None:
         self.pictures: dict[str, _Picture] = {}
         self._by_source: dict[str, str] = {}
+        self._identities = identities
 
     def add(
         self,
@@ -90,7 +94,7 @@ class _Catalog:
         known = self._by_source.get(source)
         if known is not None:
             return known
-        identity = identify(path.read_bytes())
+        identity = self._identities[path].result()
         picture = self.pictures.get(identity.pixel_hash)
         if picture is None:
             picture = _Picture(kind, identity.width, identity.height, {}, capture_preset, approved_build)
@@ -118,27 +122,58 @@ def process_pictures(raw: sqlite3.Connection, writer: Writer, export_dir: Path, 
             wiki file title would name two pictures, or an item has both a
             plain render and a render of one body.
     """
-    catalog = _Catalog()
     conn = writer.conn
-
-    icon_links: dict[str, list[tuple[str, str]]] = {}
+    icon_sources: dict[str, list[tuple[str, str]] | sqlite3.Error] = {}
     for table, raw_table, column in _ICON_TABLES:
-        keys = {str(row[0]) for row in conn.execute(f"SELECT stable_key FROM {table}")}
-        links = icon_links.setdefault(table, [])
-        for stable_key, texture in raw.execute(
-            f"SELECT StableKey, {column} FROM {raw_table} WHERE {column} IS NOT NULL"
-        ):
-            if stable_key not in keys:
+        try:
+            keys = {str(row[0]) for row in conn.execute(f"SELECT stable_key FROM {table}")}
+            icon_sources[table] = [
+                (stable_key, texture)
+                for stable_key, texture in raw.execute(
+                    f"SELECT StableKey, {column} FROM {raw_table} WHERE {column} IS NOT NULL"
+                )
+                if stable_key in keys
+            ]
+        except sqlite3.Error as error:
+            icon_sources[table] = error
+            break
+
+    paths = dict.fromkeys(
+        export_dir / texture
+        for sources in icon_sources.values()
+        if not isinstance(sources, sqlite3.Error)
+        for _, texture in sources
+    )
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        approvals = {
+            directory: executor.submit(_load_approval, directory)
+            for directory in (images_dir / CAPTURES_DIRECTORY, images_dir / ITEM_CAPTURES_DIRECTORY)
+        }
+        for directory, pending in approvals.items():
+            try:
+                approved = pending.result()
+            except Exception:
+                # Replay approval errors at their original point in the catalog flow.
                 continue
+            paths.update((directory / "approved" / image.png, None) for image in approved)
+        identities = {path: executor.submit(identify_file, path) for path in paths}
+
+    catalog = _Catalog(identities)
+    icon_links: dict[str, list[tuple[str, str]]] = {}
+    for table, sources in icon_sources.items():
+        if isinstance(sources, sqlite3.Error):
+            raise sources
+        links = icon_links.setdefault(table, [])
+        for stable_key, texture in sources:
             path = export_dir / texture
             if not path.is_file():
                 raise FileNotFoundError(f"{stable_key}: icon texture {texture} is missing from the export")
             links.append((catalog.add(texture, path, "icon"), stable_key))
 
-    approval = _load_approval(images_dir / CAPTURES_DIRECTORY)
+    approval = approvals[images_dir / CAPTURES_DIRECTORY].result()
     renders = _add_renders(catalog, images_dir / CAPTURES_DIRECTORY, approval)
     paged_renders = frozenset(image.subject for image in approval if image.pages)
-    item_approval = _load_approval(images_dir / ITEM_CAPTURES_DIRECTORY)
+    item_approval = approvals[images_dir / ITEM_CAPTURES_DIRECTORY].result()
     item_renders = _add_renders(catalog, images_dir / ITEM_CAPTURES_DIRECTORY, item_approval)
 
     # The entity tables reference the pictures, so the pictures go in first.

@@ -9,7 +9,7 @@ import sqlite3
 from pathlib import Path
 
 import pytest
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
 from erenshor.application.pictures import identify
 from erenshor.application.processor.pictures import process_pictures, prune_catalog
@@ -114,6 +114,35 @@ def test_a_missing_texture_fails_and_names_the_entity_and_the_texture(tmp_path: 
     build.item("item:thorned branch", "Thorned Branch", "Assets/Texture2D/4_8.png")
 
     with pytest.raises(FileNotFoundError, match=r"item:thorned branch: icon texture Assets/Texture2D/4_8\.png"):
+        build.run()
+
+
+def test_icon_errors_precede_later_approval_errors(tmp_path: Path) -> None:
+    build = _Build(tmp_path)
+    build.item("item:branch", "Branch", "Assets/Texture2D/missing.png")
+    captures = build.images / "model-captures"
+    captures.mkdir(parents=True)
+    (captures / "approved.json").write_text("invalid JSON")
+
+    with pytest.raises(FileNotFoundError, match=r"item:branch: icon texture Assets/Texture2D/missing\.png"):
+        build.run()
+
+
+def test_icon_errors_precede_later_source_query_errors(tmp_path: Path) -> None:
+    build = _Build(tmp_path)
+    build.item("item:branch", "Branch", "Assets/Texture2D/missing.png")
+    build.raw.execute("DROP TABLE Spells")
+
+    with pytest.raises(FileNotFoundError, match=r"item:branch: icon texture Assets/Texture2D/missing\.png"):
+        build.run()
+
+
+def test_icon_decode_errors_precede_later_missing_textures(tmp_path: Path) -> None:
+    build = _Build(tmp_path)
+    build.item("item:broken", "Broken", build.texture("Assets/Texture2D/broken.png", b"invalid PNG"))
+    build.item("item:missing", "Missing", "Assets/Texture2D/missing.png")
+
+    with pytest.raises(UnidentifiedImageError):
         build.run()
 
 
@@ -367,11 +396,14 @@ def test_an_item_render_and_a_character_render_of_one_title_and_other_pixels_fai
         build.run()
 
 
-def test_an_approved_copy_that_changed_fails_the_build_and_names_the_subject(tmp_path: Path) -> None:
+@pytest.mark.parametrize("replacement", [_png((0, 0, 0, 255)), b"invalid PNG"])
+def test_an_approved_copy_that_changed_fails_the_build_and_names_the_subject(
+    tmp_path: Path, replacement: bytes
+) -> None:
     build = _Build(tmp_path)
     _character(build, "character:faith", "Faith", "Faith")
     _approve(build, "Faith", _png((255, 255, 255, 255)))
-    (build.images / "model-captures" / "approved" / "Faith.png").write_bytes(_png((0, 0, 0, 255)))
+    (build.images / "model-captures" / "approved" / "Faith.png").write_bytes(replacement)
 
     with pytest.raises(ValueError, match=r"approved capture of Faith changed after its approval"):
         build.run()
