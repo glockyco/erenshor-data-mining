@@ -173,6 +173,18 @@ def apply_hierarchy_activity(raw: sqlite3.Connection, conn: sqlite3.Connection, 
             enabled[object_key].append(
                 _Effect(((Atom("room_furnished", furnishings[furnishing], slot),),), host=controller)
             )
+    # code-fact: guide.gates.reliquary_return_portal
+    # A stored-return listener enables its portal whenever the character has a
+    # saved return. That state lives in the line's destination context, so the
+    # portal itself needs only its controller's host.
+    for source, portal in raw.execute(
+        "SELECT a.SourceKey, r.ReferenceKey FROM ScriptedActivators a"
+        " JOIN ScriptedActivatorReferences r ON r.SourceKey = a.SourceKey AND r.Field = 'ReliqPort'"
+        " WHERE a.RuleId = 'reliquary_return_portal' AND a.ComponentIsEnabled = 1"
+    ):
+        if portal not in objects or source not in controllers:
+            raise ValueError(f"Stored return controller {source!r} has no hierarchy portal {portal!r}")
+        enabled[portal].append(_Effect(_TRUE, host=controllers[source][0]))
     for gate in gates:
         subject = (gate.subject_kind, gate.subject_stable_key)
         object_key = gate.subject_stable_key if gate.subject_kind == "object" else subjects.get(subject)

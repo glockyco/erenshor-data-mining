@@ -23,7 +23,8 @@ def databases(tmp_path: Path) -> Iterator[tuple[sqlite3.Connection, sqlite3.Conn
         """
         CREATE TABLE ObjectHierarchy (ObjectKey TEXT PRIMARY KEY, ParentObjectKey TEXT,
             ActiveSelf INTEGER, IsSceneObject INTEGER);
-        CREATE TABLE ScriptedActivators (SourceKey TEXT, ObjectKey TEXT, HostCharacterStableKey TEXT);
+        CREATE TABLE ScriptedActivators (SourceKey TEXT, ObjectKey TEXT, HostCharacterStableKey TEXT,
+            RuleId TEXT, ComponentIsEnabled INTEGER DEFAULT 1);
         CREATE TABLE DynamicCharacterSpawns (Key TEXT, CharacterStableKey TEXT,
             ControllerObjectKey TEXT, ControllerComponentIsEnabled INTEGER);
         CREATE TABLE CharacterChainedSpawns (ParentStableKey TEXT, ChildStableKey TEXT, SourceScript TEXT,
@@ -139,7 +140,7 @@ def test_hosted_planning_controller_and_ui_share_the_desks_activation(databases)
     _subject(raw, conn, "zone_line", "zoneline:raid", "line")
     _subject(raw, conn, "ui_item_access_target", "desk:access", "desk")
     _effect(raw, "desk", "listener", "quest:claim")
-    raw.execute("INSERT INTO ScriptedActivators VALUES ('planning', 'desk', NULL)")
+    raw.execute("INSERT INTO ScriptedActivators VALUES ('planning', 'desk', NULL, NULL, 1)")
     rune = Atom("planning_slot_item", "item:rune", "PlanarFern")
 
     gates = apply_hierarchy_activity(
@@ -213,6 +214,17 @@ def test_a_starting_inactive_placement_without_an_activator_is_never_available(d
     assert _groups(gates, "spawn_point", "spawn:unused") == {frozenset({Atom("never", "inactive")})}
 
 
+def test_a_stored_return_portal_is_enabled_by_its_listener(databases):
+    raw, conn = databases
+    _object(raw, "hall")
+    _object(raw, "portal", active=False)
+    _subject(raw, conn, "zone_line", "zoneline:return", "portal")
+    raw.execute("INSERT INTO ScriptedActivators VALUES ('return', 'hall', NULL, 'reliquary_return_portal', 1)")
+    raw.execute("INSERT INTO ScriptedActivatorReferences VALUES ('ref', 'return', 'ReliqPort', 'object', 'portal')")
+
+    assert _groups(apply_hierarchy_activity(raw, conn, []), "zone_line", "zoneline:return") == set()
+
+
 def test_an_active_subject_does_not_need_an_optional_activator(databases):
     raw, conn = databases
     _object(raw, "listener")
@@ -236,7 +248,7 @@ def test_an_inactive_controller_cannot_activate_its_own_parent(databases):
 def test_death_effect_needs_every_member_of_its_exported_set(databases, rule):
     raw, conn = databases
     _object(raw, "controller")
-    raw.execute("INSERT INTO ScriptedActivators VALUES ('source', 'controller', NULL)")
+    raw.execute("INSERT INTO ScriptedActivators VALUES ('source', 'controller', NULL, NULL, 1)")
     victims = ["character:first", "character:second"]
     for index, character in enumerate(victims):
         _object(raw, "victim" + str(index), scene=False)
