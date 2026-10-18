@@ -262,7 +262,14 @@ return {
 			source = reference("character:captain_rowan"),
 			sourceKind = "character",
 		},
-		{ type = "completion", method = "scripted", note = "Puzzle solved" },
+		{
+			type = "completion",
+			method = "scripted",
+			source = reference("zone:PortAzure"),
+			sourceKind = "zone",
+			note = "Puzzle solved",
+			requiredItem = reference("item:healing_draught"),
+		},
 	},
 	["quest:shared-line-b"] = {
 		{

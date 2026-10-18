@@ -43,6 +43,12 @@ QUESTS = DataView(
             optional=True,
         ),
         ViewField(
+            "requiredItem",
+            "reference",
+            "A scripted event of this route acts only while the item is carried.",
+            optional=True,
+        ),
+        ViewField(
             "furniture",
             "reference",
             "Furniture that must be placed in the source's room for this route.",
@@ -127,6 +133,7 @@ _REFERENCE_KINDS = {
     "prerequisite": "quest",
     "notOwnedItem": "item",
     "blockedByQuest": "quest",
+    "requiredItem": "item",
     "furniture": "item",
     "item": "item",
     "nextQuest": "quest",

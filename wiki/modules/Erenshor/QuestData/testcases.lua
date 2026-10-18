@@ -24,6 +24,7 @@ function p.run()
 		prerequisite = "quest",
 		notOwnedItem = "item",
 		blockedByQuest = "quest",
+		requiredItem = "item",
 		furniture = "item",
 		item = "item",
 		nextQuest = "quest",
@@ -143,7 +144,9 @@ function p.run()
 	absent(variants, "ShiverEvent.cs", "script filenames stay internal")
 	absent(variants, "Variant A", "resource identifiers stay internal")
 	absent(variants, "The export", "no implementation disclaimer")
-	contains(variants, "Puzzle solved", "scripted completion note")
+	contains(variants, "Event in ", "located scripted completion")
+	contains(variants, ": Puzzle solved", "scripted completion note follows its place")
+	contains(variants, 'data-erenshor-quest-condition="carried"', "carried item condition")
 	contains(variants, 'data-erenshor-key="zone:PortAzure"', "semantic zone source")
 	for _, method in ipairs({
 		"item_read",

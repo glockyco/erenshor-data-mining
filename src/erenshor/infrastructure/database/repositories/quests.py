@@ -262,7 +262,12 @@ class QuestRepository(BaseRepository[Quest]):
             )
             placements.setdefault(str(placement["character_stable_key"]), []).append(qualifier)
         conditions: dict[str, dict[str, object]] = {}
-        fields = {"quest_done": "prerequisite", "quest_not_done": "blockedByQuest", "item_not_owned": "notOwnedItem"}
+        fields = {
+            "quest_done": "prerequisite",
+            "quest_not_done": "blockedByQuest",
+            "item_not_owned": "notOwnedItem",
+            "item_held": "requiredItem",
+        }
         for atom in self._execute_raw(
             "SELECT * FROM quest_route_conditions ORDER BY route_key, gate_key, group_index, atom_index", ()
         ):

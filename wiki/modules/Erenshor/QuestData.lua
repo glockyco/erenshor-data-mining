@@ -67,12 +67,24 @@ local function route(row, data)
 		shout = "Shout to ",
 	}
 	local text = (methods[row.method] or "Event: ") .. (source or "")
+	local note = row.note and string.gsub(row.note, "^[%w_]+%.cs %- ", "") or nil
+	if row.method == "scripted" and source then
+		-- A located event leads with what happens there, then its conditions.
+		text = "Event in " .. source .. (note and (": " .. Format.escape(note)) or "")
+		note = nil
+	end
 	if row.keywords then
 		local label = string.find(row.keywords, ",", 1, true) and "keywords" or "keyword"
 		text = text .. " (" .. label .. ': "' .. Format.escape(row.keywords) .. '")'
 	end
 	if row.prerequisite then
 		text = text .. ". Requires completion of " .. entity("quest", row.prerequisite)
+	end
+	if row.requiredItem then
+		text = text
+			.. ' (<span data-erenshor-quest-condition="carried">carrying '
+			.. entity("item", row.requiredItem)
+			.. "</span>)"
 	end
 	if row.notOwnedItem then
 		text = text
@@ -111,8 +123,7 @@ local function route(row, data)
 	if row.furniture then
 		text = text .. " (requires " .. entity("item", row.furniture) .. ")"
 	end
-	if row.note then
-		local note = string.gsub(row.note, "^[%w_]+%.cs %- ", "")
+	if note then
 		text = text .. " (" .. Format.escape(note) .. ")"
 	end
 	return '<span data-erenshor-quest-route="'
@@ -135,6 +146,7 @@ local ROUTE_FIELDS = {
 	"note",
 	"notOwnedItem",
 	"blockedByQuest",
+	"requiredItem",
 	"item",
 	"quantity",
 }
