@@ -175,6 +175,36 @@ def test_she_sees_you_needs_the_awakened_statue_in_jaws(clean: sqlite3.Connectio
     assert _pairs(needs) == {("event", "zone:jaws"), ("quest done", "quest:jawsentry")}
 
 
+def test_siraethe_waits_behind_the_gaze_wall_and_the_wards_of_sivakaya(clean: sqlite3.Connection) -> None:
+    ways = _ways(clean, "character:siraethe")
+    assert len(ways) == 1, ways
+    assert _pairs(next(iter(ways.values()))) == {
+        ("barrier", "object:jaws:pietytrigger[645]"),
+        ("barrier", "object:jaws:sm_bld_castle_wall_02%20%288%29[2016]"),
+        ("in zone", "zone:jaws"),
+    }
+
+
+def test_shivering_tomb_two_opens_behind_the_angel_statue(clean: sqlite3.Connection) -> None:
+    ways = _ways(clean, "zone:shiveringtomb2")
+    assert len(ways) == 1, ways
+    assert _pairs(next(iter(ways.values()))) == {
+        ("barrier", "object:shiveringstep:sm_prop_statue_angel_01[397]"),
+        ("zone line", "zone:shiveringstep"),
+    }
+    assert _node(clean, "zone:shiveringtomb2")["tier"] is not None
+
+
+def test_both_twin_giants_must_die_to_open_the_cliffs_of_the_plane_of_elements(clean: sqlite3.Connection) -> None:
+    for cliff in ("object:planeofbrax:frostcliff[633]", "object:planeofbrax:infernocliff[557]"):
+        ways = _ways(clean, cliff)
+        assert len(ways) == 1, ways
+        assert _pairs(next(iter(ways.values()))) == {
+            ("defeated", "character:frost"),
+            ("defeated", "character:inferno"),
+        }
+
+
 def test_eldrich_crystal_names_the_actual_keeper_copy_and_sanctuary(clean: sqlite3.Connection) -> None:
     drops = [
         needs

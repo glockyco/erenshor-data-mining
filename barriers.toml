@@ -252,8 +252,8 @@ kind = "door"
 name = "Crypt door to Shivering Step"
 objects = ["door:stowaway:592.34:41.00:671.24"]
 targets = ["zoneline:stowaway:shiveringstep:592.39:41.07:672.77"]
-reason = "The crypt door. The zone line to Shivering Step stands right behind it."
-check = "unconfirmed"
+reason = "The crypt door to Shivering Step. The zone line is behind it."
+check = "navmesh"
 
 [[barriers]]
 kind = "door"
@@ -456,73 +456,510 @@ check = "navmesh"
 kind = "removed"
 name = "Wall behind the gaze statue"
 objects = ["object:jaws:sm_bld_castle_wall_02%20%288%29[2016]"]
-targets = []
-reason = "SivTorchLight removes it once She Sees You is done, after The Guardian Awakens enables the statue. Its targets need the containment check."
-check = "unconfirmed"
+targets = [
+    "spawn:chained:SiraetheEvent:1581.6300048828125:-19.762025833129883:109.58999633789062",
+    "spawn:jaws:1165.12:0.40:110.25",
+    "spawn:jaws:1212.16:-9.51:110.09",
+    "spawn:jaws:1214.91:-9.51:101.58",
+    "spawn:jaws:1215.39:-9.51:118.92",
+    "spawn:jaws:1246.55:-19.51:149.93",
+    "spawn:jaws:1246.64:-19.51:70.23",
+    "spawn:jaws:1259.09:-19.51:110.07",
+    "spawn:jaws:1259.26:-19.51:114.51",
+    "spawn:jaws:1259.43:-19.51:105.41",
+    "spawn:jaws:1260.29:-19.51:149.42",
+    "spawn:jaws:1260.51:-19.51:70.19",
+    "spawn:jaws:1297.62:-19.51:165.04",
+    "spawn:jaws:1298.42:-19.51:177.99",
+    "spawn:jaws:1298.42:-19.51:44.13",
+    "spawn:jaws:1308.41:-19.51:50.09",
+    "spawn:jaws:1308.43:-19.51:177.95",
+    "spawn:jaws:1308.43:-19.51:44.26",
+    "spawn:jaws:1332.47:-19.51:50.14",
+    "spawn:jaws:1332.56:-19.51:60.14",
+    "spawn:jaws:1332.60:-19.51:170.08",
+    "spawn:jaws:1332.61:-19.51:160.14",
+    "spawn:jaws:1337.74:-19.51:95.15",
+    "spawn:jaws:1338.84:-19.51:125.13",
+    "spawn:jaws:1343.36:-19.51:183.19",
+    "spawn:jaws:1386.70:-19.51:34.95",
+    "spawn:jaws:1392.25:-19.51:185.60",
+    "spawn:jaws:1393.33:-19.51:29.74",
+    "spawn:jaws:1393.40:-19.51:39.17",
+    "spawn:jaws:1398.88:-19.51:180.38",
+    "spawn:jaws:1398.94:-19.51:189.82",
+    "spawn:jaws:1400.38:-19.51:34.50",
+    "spawn:jaws:1405.93:-19.51:185.15",
+    "spawn:jaws:1407.73:-9.46:109.21",
+    "spawn:jaws:1443.31:-19.51:35.04",
+    "spawn:jaws:1443.34:-19.51:110.09",
+    "spawn:jaws:1446.02:-19.51:106.28",
+    "spawn:jaws:1446.31:-19.51:114.02",
+    "spawn:jaws:1450.96:-18.28:109.78",
+    "spawn:jaws:1450.96:-18.28:122.28",
+    "spawn:jaws:1450.96:-18.28:97.03",
+    "spawn:jaws:1461.71:-18.28:109.78",
+    "spawn:jaws:1476.30:-19.51:156.34",
+    "spawn:jaws:1478.39:-19.51:64.13",
+    "spawn:jaws:1478.96:-18.28:109.78",
+    "spawn:jaws:1478.96:-18.28:122.28",
+    "spawn:jaws:1478.96:-18.28:97.03",
+    "spawn:jaws:1480.40:-19.51:156.04",
+    "spawn:jaws:1482.46:-19.51:64.30",
+    "spawn:jaws:1484.37:-19.51:158.04",
+    "spawn:jaws:1484.44:-19.51:60.29",
+    "spawn:jaws:1486.20:-19.51:106.13",
+    "spawn:jaws:1486.50:-19.51:114.37",
+    "spawn:jaws:1516.40:-19.51:100.12",
+    "spawn:jaws:1516.42:-19.51:119.93",
+    "spawn:jaws:1532.84:-23.26:109.83",
+    "spawn:jaws:1535.08:-23.26:132.58",
+    "spawn:jaws:1535.33:-23.26:121.81",
+    "spawn:jaws:1540.93:-23.26:87.59",
+    "spawn:jaws:1543.81:-23.26:131.76",
+    "spawn:jaws:1548.56:-23.26:97.72",
+    "spawn:jaws:1551.20:-23.26:87.96",
+    "spawn:jaws:1553.89:-23.26:104.00",
+    "spawn:jaws:1569.98:-23.26:155.60",
+    "spawn:jaws:1580.67:-23.26:150.83",
+    "spawn:jaws:1581.63:-19.76:109.59",
+    "spawn:jaws:1605.14:-19.76:125.48",
+    "spawn:jaws:1605.72:-23.26:160.67",
+    "spawn:jaws:1611.17:-19.76:119.25",
+    "spawn:jaws:1611.39:-19.76:125.25",
+    "spawn:jaws:1612.05:-23.26:154.32",
+    "spawn:jaws:1615.58:-23.26:161.43",
+    "spawn:jaws:1617.39:-19.76:106.92",
+    "spawn:jaws:1724.54:-40.06:-1.62",
+]
+reason = "SivTorchLight removes it once She Sees You is done, after The Guardian Awakens enables the statue. It closes the castle beyond the entrance yard."
+check = "navmesh"
 
 [[barriers]]
 kind = "guardians"
 name = "Wards of Sivakaya"
 objects = ["object:jaws:pietytrigger[645]"]
-targets = []
-reason = "Entering the trigger without A Pious Guest calls six Wards of Sivakaya. Its targets need the containment check."
-check = "unconfirmed"
+targets = [
+    "spawn:chained:SiraetheEvent:1581.6300048828125:-19.762025833129883:109.58999633789062",
+    "spawn:jaws:1476.30:-19.51:156.34",
+    "spawn:jaws:1478.39:-19.51:64.13",
+    "spawn:jaws:1478.96:-18.28:109.78",
+    "spawn:jaws:1478.96:-18.28:122.28",
+    "spawn:jaws:1478.96:-18.28:97.03",
+    "spawn:jaws:1480.40:-19.51:156.04",
+    "spawn:jaws:1482.46:-19.51:64.30",
+    "spawn:jaws:1484.37:-19.51:158.04",
+    "spawn:jaws:1484.44:-19.51:60.29",
+    "spawn:jaws:1486.20:-19.51:106.13",
+    "spawn:jaws:1486.50:-19.51:114.37",
+    "spawn:jaws:1516.40:-19.51:100.12",
+    "spawn:jaws:1516.42:-19.51:119.93",
+    "spawn:jaws:1532.84:-23.26:109.83",
+    "spawn:jaws:1535.08:-23.26:132.58",
+    "spawn:jaws:1535.33:-23.26:121.81",
+    "spawn:jaws:1540.93:-23.26:87.59",
+    "spawn:jaws:1543.81:-23.26:131.76",
+    "spawn:jaws:1548.56:-23.26:97.72",
+    "spawn:jaws:1551.20:-23.26:87.96",
+    "spawn:jaws:1553.89:-23.26:104.00",
+    "spawn:jaws:1569.98:-23.26:155.60",
+    "spawn:jaws:1580.67:-23.26:150.83",
+    "spawn:jaws:1581.63:-19.76:109.59",
+    "spawn:jaws:1605.14:-19.76:125.48",
+    "spawn:jaws:1605.72:-23.26:160.67",
+    "spawn:jaws:1611.17:-19.76:119.25",
+    "spawn:jaws:1611.39:-19.76:125.25",
+    "spawn:jaws:1612.05:-23.26:154.32",
+    "spawn:jaws:1615.58:-23.26:161.43",
+    "spawn:jaws:1617.39:-19.76:106.92",
+    "spawn:jaws:1724.54:-40.06:-1.62",
+]
+reason = "Entering the trigger without A Pious Guest calls six Wards of Sivakaya. The trigger spans the way into the inner sanctum, where Siraethe waits."
+check = "navmesh"
 
 [[barriers]]
 kind = "moved"
 name = "Angel statue of Shivering Step"
 objects = ["object:shiveringstep:sm_prop_statue_angel_01[397]"]
-targets = []
-reason = "ShiveringAngel turns the statue away once Stand, Angel! is done. Its targets need the containment check."
-check = "unconfirmed"
+targets = [
+    "zoneline:shiveringstep:shiveringtomb2:809.72:19.36:645.26",
+    "zoneline:shiveringstep:tutorial:809.72:19.36:645.26",
+]
+reason = "ShiveringAngel turns the statue away once Stand, Angel! is done. It stands over the way down to the zone lines into Shivering Tomb (2) and the Island Tomb."
+check = "navmesh"
 
 [[barriers]]
 kind = "removed"
 name = "Rock fall in Blooming Sepulcher"
 objects = ["object:bloomingsepulcher:sm_env_rock_cliff_02%20%2835%29[289]"]
-targets = []
-reason = "A quest listener removes it after A Dying Wish, Part 1. Its targets need the containment check."
-check = "unconfirmed"
+targets = [
+    "spawn:bloomingsepulcher:109.19:358.04:345.41",
+    "spawn:bloomingsepulcher:110.44:357.28:331.65",
+    "spawn:bloomingsepulcher:125.55:357.51:345.35",
+    "spawn:bloomingsepulcher:163.33:357.05:262.32",
+    "spawn:bloomingsepulcher:177.23:357.05:270.84",
+    "spawn:bloomingsepulcher:211.31:356.87:234.49",
+    "spawn:bloomingsepulcher:218.16:356.62:220.36",
+    "spawn:bloomingsepulcher:230.15:356.37:242.48",
+    "spawn:bloomingsepulcher:234.13:369.80:784.38",
+    "spawn:bloomingsepulcher:242.00:355.64:201.93",
+    "spawn:bloomingsepulcher:243.72:375.26:848.65",
+    "spawn:bloomingsepulcher:243.89:365.14:713.28",
+    "spawn:bloomingsepulcher:252.12:366.30:784.86",
+    "spawn:bloomingsepulcher:256.30:355.67:228.30",
+    "spawn:bloomingsepulcher:258.35:355.57:209.00",
+    "spawn:bloomingsepulcher:258.64:357.81:367.44",
+    "spawn:bloomingsepulcher:259.42:365.26:737.58",
+    "spawn:bloomingsepulcher:266.05:365.26:768.03",
+    "spawn:bloomingsepulcher:276.58:358.56:362.94",
+    "spawn:bloomingsepulcher:287.20:357.48:349.38",
+    "spawn:bloomingsepulcher:327.77:355.52:512.97",
+    "spawn:bloomingsepulcher:329.43:357.68:457.80",
+    "spawn:bloomingsepulcher:335.23:360.31:637.30",
+    "spawn:bloomingsepulcher:341.18:355.52:505.70",
+    "spawn:bloomingsepulcher:344.00:360.39:646.55",
+    "spawn:bloomingsepulcher:352.94:360.31:655.99",
+    "spawn:bloomingsepulcher:353.30:357.40:457.91",
+    "spawn:bloomingsepulcher:358.20:355.30:501.62",
+    "spawn:bloomingsepulcher:359.18:352.17:203.57",
+    "spawn:bloomingsepulcher:366.91:356.00:564.89",
+    "spawn:bloomingsepulcher:368.38:355.60:545.11",
+    "spawn:bloomingsepulcher:370.64:351.20:218.20",
+    "spawn:bloomingsepulcher:383.16:350.07:187.75",
+    "spawn:bloomingsepulcher:387.05:355.72:559.93",
+    "spawn:bloomingsepulcher:388.96:354.66:207.59",
+    "spawn:bloomingsepulcher:461.63:355.27:628.36",
+    "spawn:bloomingsepulcher:469.03:355.38:636.17",
+    "spawn:bloomingsepulcher:484.09:355.38:621.89",
+    "spawn:bloomingsepulcher:513.53:355.49:692.62",
+    "spawn:bloomingsepulcher:518.12:355.49:682.74",
+    "spawn:bloomingsepulcher:528.91:355.27:684.28",
+    "spawn:bloomingsepulcher:531.41:355.07:450.42",
+    "spawn:bloomingsepulcher:533.64:355.36:764.14",
+    "spawn:bloomingsepulcher:541.16:355.77:541.62",
+    "spawn:bloomingsepulcher:541.22:355.31:452.34",
+    "spawn:bloomingsepulcher:546.12:355.01:407.94",
+    "spawn:bloomingsepulcher:549.41:355.01:392.07",
+    "spawn:bloomingsepulcher:569.51:356.47:367.81",
+    "spawn:bloomingsepulcher:576.63:356.47:371.46",
+    "spawn:bloomingsepulcher:581.70:355.71:605.40",
+    "spawn:bloomingsepulcher:612.14:355.39:306.57",
+    "spawn:bloomingsepulcher:620.71:355.98:712.63",
+    "spawn:bloomingsepulcher:629.45:355.98:712.86",
+    "spawn:bloomingsepulcher:633.51:254.64:503.05",
+    "spawn:bloomingsepulcher:634.75:254.88:526.59",
+    "spawn:bloomingsepulcher:634.86:356.04:656.50",
+    "spawn:bloomingsepulcher:646.61:254.26:447.34",
+    "spawn:bloomingsepulcher:649.31:253.67:469.12",
+    "spawn:bloomingsepulcher:653.23:254.99:562.98",
+    "spawn:bloomingsepulcher:654.74:356.34:247.25",
+    "spawn:bloomingsepulcher:655.00:253.66:540.58",
+    "spawn:bloomingsepulcher:661.13:255.31:356.03",
+    "spawn:bloomingsepulcher:673.39:356.34:273.87",
+    "spawn:bloomingsepulcher:675.15:355.96:253.65",
+    "spawn:bloomingsepulcher:679.18:259.76:871.73",
+    "spawn:bloomingsepulcher:679.75:254.83:597.46",
+    "spawn:bloomingsepulcher:680.22:259.76:879.19",
+    "spawn:bloomingsepulcher:680.28:259.76:862.83",
+    "spawn:bloomingsepulcher:682.85:259.76:885.43",
+    "spawn:bloomingsepulcher:683.70:259.76:854.60",
+    "spawn:bloomingsepulcher:686.55:259.76:891.65",
+    "spawn:bloomingsepulcher:688.96:259.75:870.12",
+    "spawn:bloomingsepulcher:689.73:259.76:849.08",
+    "spawn:bloomingsepulcher:690.63:254.14:419.82",
+    "spawn:bloomingsepulcher:693.07:253.80:427.96",
+    "spawn:bloomingsepulcher:693.88:259.76:896.72",
+    "spawn:bloomingsepulcher:695.76:259.76:845.02",
+    "spawn:bloomingsepulcher:700.64:259.76:899.91",
+    "spawn:bloomingsepulcher:702.83:259.76:842.44",
+    "spawn:bloomingsepulcher:707.89:259.76:901.92",
+    "spawn:bloomingsepulcher:710.63:259.76:841.23",
+    "spawn:bloomingsepulcher:715.16:259.76:902.12",
+    "spawn:bloomingsepulcher:717.84:259.76:842.14",
+    "spawn:bloomingsepulcher:722.20:355.23:176.22",
+    "spawn:bloomingsepulcher:723.28:259.76:901.12",
+    "spawn:bloomingsepulcher:724.86:259.76:844.87",
+    "spawn:bloomingsepulcher:729.68:253.67:590.63",
+    "spawn:bloomingsepulcher:730.84:259.76:896.41",
+    "spawn:bloomingsepulcher:731.40:355.23:183.93",
+    "spawn:bloomingsepulcher:731.47:259.76:848.67",
+    "spawn:bloomingsepulcher:735.74:259.76:853.55",
+    "spawn:bloomingsepulcher:736.90:259.76:889.80",
+    "spawn:bloomingsepulcher:737.12:254.79:442.82",
+    "spawn:bloomingsepulcher:739.45:259.76:860.92",
+    "spawn:bloomingsepulcher:740.39:259.76:883.13",
+    "spawn:bloomingsepulcher:741.87:259.76:876.52",
+    "spawn:bloomingsepulcher:742.47:259.76:869.30",
+    "spawn:bloomingsepulcher:743.42:254.56:462.17",
+    "spawn:bloomingsepulcher:750.49:254.83:602.91",
+    "spawn:bloomingsepulcher:758.42:254.02:538.22",
+    "spawn:bloomingsepulcher:762.30:254.99:485.61",
+    "spawn:bloomingsepulcher:763.82:356.57:107.32",
+    "spawn:bloomingsepulcher:767.10:254.90:515.99",
+    "spawn:bloomingsepulcher:770.28:356.57:116.53",
+    "spawn:bloomingsepulcher:773.63:255.23:553.16",
+    "spawn:bloomingsepulcher:785.24:319.51:378.48",
+    "spawn:bloomingsepulcher:788.35:254.99:837.27",
+    "spawn:bloomingsepulcher:827.45:349.39:89.07",
+    "spawn:bloomingsepulcher:830.36:349.39:72.57",
+    "spawn:bloomingsepulcher:861.84:319.23:308.84",
+    "spawn:bloomingsepulcher:863.69:348.94:104.65",
+    "spawn:bloomingsepulcher:866.51:318.90:298.63",
+    "spawn:bloomingsepulcher:871.73:318.90:312.96",
+    "spawn:bloomingsepulcher:873.15:348.94:108.60",
+    "spawn:bloomingsepulcher:875.34:318.83:301.57",
+    "spawn:bloomingsepulcher:880.65:348.69:110.68",
+    "spawn:bloomingsepulcher:889.37:318.52:364.33",
+    "spawn:bloomingsepulcher:896.22:318.52:379.09",
+    "spawn:bloomingsepulcher:899.52:318.52:360.38",
+    "spawn:bloomingsepulcher:900.77:284.44:497.40",
+    "spawn:bloomingsepulcher:907.73:326.93:200.16",
+    "spawn:bloomingsepulcher:915.33:284.44:509.61",
+    "spawn:bloomingsepulcher:925.71:327.32:203.32",
+    "spawn:bloomingsepulcher:935.41:302.77:411.30",
+    "spawn:bloomingsepulcher:952.32:302.77:405.14",
+    "spawn:chained:NPCFightEvent:533.6414794921875:355.3555603027344:764.1406860351562",
+    "spawn:chained:NPCFightEvent:785.239990234375:319.510009765625:378.4800109863281",
+    "zoneline:bloomingsepulcher:vitheosend:240.74:377.79:856.04",
+    "zoneline:bloomingsepulcher:vitheosend:240.74:377.79:857.67",
+    "zoneline:bloomingsepulcher:vitheosend:651.48:262.32:317.87",
+]
+reason = "A quest listener removes it after A Dying Wish, Part 1. It cuts the Fernalla Field entrance off from the sepulcher. The Vitheo's End lines land past it, but they open only after A Portal to Vitheo's Rest, whose Remnant stands behind it."
+check = "navmesh"
 
 [[barriers]]
 kind = "removed"
 name = "Second barrier field in Blooming Sepulcher"
 objects = ["object:bloomingsepulcher:entryfield%202[29]"]
-targets = []
-reason = "A quest listener removes it after A Dying Wish, Part 2. Its targets need the containment check."
-check = "unconfirmed"
+targets = [
+    "spawn:bloomingsepulcher:531.41:355.07:450.42",
+    "spawn:bloomingsepulcher:541.16:355.77:541.62",
+    "spawn:bloomingsepulcher:541.22:355.31:452.34",
+    "spawn:bloomingsepulcher:546.12:355.01:407.94",
+    "spawn:bloomingsepulcher:549.41:355.01:392.07",
+    "spawn:bloomingsepulcher:569.51:356.47:367.81",
+    "spawn:bloomingsepulcher:576.63:356.47:371.46",
+    "spawn:bloomingsepulcher:581.70:355.71:605.40",
+    "spawn:bloomingsepulcher:612.14:355.39:306.57",
+    "spawn:bloomingsepulcher:620.71:355.98:712.63",
+    "spawn:bloomingsepulcher:629.45:355.98:712.86",
+    "spawn:bloomingsepulcher:633.51:254.64:503.05",
+    "spawn:bloomingsepulcher:634.75:254.88:526.59",
+    "spawn:bloomingsepulcher:634.86:356.04:656.50",
+    "spawn:bloomingsepulcher:646.61:254.26:447.34",
+    "spawn:bloomingsepulcher:649.31:253.67:469.12",
+    "spawn:bloomingsepulcher:653.23:254.99:562.98",
+    "spawn:bloomingsepulcher:654.74:356.34:247.25",
+    "spawn:bloomingsepulcher:655.00:253.66:540.58",
+    "spawn:bloomingsepulcher:661.13:255.31:356.03",
+    "spawn:bloomingsepulcher:673.39:356.34:273.87",
+    "spawn:bloomingsepulcher:675.15:355.96:253.65",
+    "spawn:bloomingsepulcher:679.18:259.76:871.73",
+    "spawn:bloomingsepulcher:679.75:254.83:597.46",
+    "spawn:bloomingsepulcher:680.22:259.76:879.19",
+    "spawn:bloomingsepulcher:680.28:259.76:862.83",
+    "spawn:bloomingsepulcher:682.85:259.76:885.43",
+    "spawn:bloomingsepulcher:683.70:259.76:854.60",
+    "spawn:bloomingsepulcher:686.55:259.76:891.65",
+    "spawn:bloomingsepulcher:688.96:259.75:870.12",
+    "spawn:bloomingsepulcher:689.73:259.76:849.08",
+    "spawn:bloomingsepulcher:690.63:254.14:419.82",
+    "spawn:bloomingsepulcher:693.07:253.80:427.96",
+    "spawn:bloomingsepulcher:693.88:259.76:896.72",
+    "spawn:bloomingsepulcher:695.76:259.76:845.02",
+    "spawn:bloomingsepulcher:700.64:259.76:899.91",
+    "spawn:bloomingsepulcher:702.83:259.76:842.44",
+    "spawn:bloomingsepulcher:707.89:259.76:901.92",
+    "spawn:bloomingsepulcher:710.63:259.76:841.23",
+    "spawn:bloomingsepulcher:715.16:259.76:902.12",
+    "spawn:bloomingsepulcher:717.84:259.76:842.14",
+    "spawn:bloomingsepulcher:722.20:355.23:176.22",
+    "spawn:bloomingsepulcher:723.28:259.76:901.12",
+    "spawn:bloomingsepulcher:724.86:259.76:844.87",
+    "spawn:bloomingsepulcher:729.68:253.67:590.63",
+    "spawn:bloomingsepulcher:730.84:259.76:896.41",
+    "spawn:bloomingsepulcher:731.40:355.23:183.93",
+    "spawn:bloomingsepulcher:731.47:259.76:848.67",
+    "spawn:bloomingsepulcher:735.74:259.76:853.55",
+    "spawn:bloomingsepulcher:736.90:259.76:889.80",
+    "spawn:bloomingsepulcher:737.12:254.79:442.82",
+    "spawn:bloomingsepulcher:739.45:259.76:860.92",
+    "spawn:bloomingsepulcher:740.39:259.76:883.13",
+    "spawn:bloomingsepulcher:741.87:259.76:876.52",
+    "spawn:bloomingsepulcher:742.47:259.76:869.30",
+    "spawn:bloomingsepulcher:743.42:254.56:462.17",
+    "spawn:bloomingsepulcher:750.49:254.83:602.91",
+    "spawn:bloomingsepulcher:758.42:254.02:538.22",
+    "spawn:bloomingsepulcher:762.30:254.99:485.61",
+    "spawn:bloomingsepulcher:763.82:356.57:107.32",
+    "spawn:bloomingsepulcher:767.10:254.90:515.99",
+    "spawn:bloomingsepulcher:770.28:356.57:116.53",
+    "spawn:bloomingsepulcher:773.63:255.23:553.16",
+    "spawn:bloomingsepulcher:785.24:319.51:378.48",
+    "spawn:bloomingsepulcher:788.35:254.99:837.27",
+    "spawn:bloomingsepulcher:827.45:349.39:89.07",
+    "spawn:bloomingsepulcher:830.36:349.39:72.57",
+    "spawn:bloomingsepulcher:861.84:319.23:308.84",
+    "spawn:bloomingsepulcher:863.69:348.94:104.65",
+    "spawn:bloomingsepulcher:866.51:318.90:298.63",
+    "spawn:bloomingsepulcher:871.73:318.90:312.96",
+    "spawn:bloomingsepulcher:873.15:348.94:108.60",
+    "spawn:bloomingsepulcher:875.34:318.83:301.57",
+    "spawn:bloomingsepulcher:880.65:348.69:110.68",
+    "spawn:bloomingsepulcher:889.37:318.52:364.33",
+    "spawn:bloomingsepulcher:896.22:318.52:379.09",
+    "spawn:bloomingsepulcher:899.52:318.52:360.38",
+    "spawn:bloomingsepulcher:900.77:284.44:497.40",
+    "spawn:bloomingsepulcher:907.73:326.93:200.16",
+    "spawn:bloomingsepulcher:915.33:284.44:509.61",
+    "spawn:bloomingsepulcher:925.71:327.32:203.32",
+    "spawn:bloomingsepulcher:935.41:302.77:411.30",
+    "spawn:bloomingsepulcher:952.32:302.77:405.14",
+    "spawn:chained:NPCFightEvent:785.239990234375:319.510009765625:378.4800109863281",
+    "zoneline:bloomingsepulcher:vitheosend:651.48:262.32:317.87",
+]
+reason = "A quest listener removes it after A Dying Wish, Part 2. It closes the halls beyond the first chamber."
+check = "navmesh"
 
 [[barriers]]
 kind = "removed"
 name = "Third barrier field in Blooming Sepulcher"
 objects = ["object:bloomingsepulcher:entryfield3[28]"]
-targets = []
-reason = "A quest listener removes it after A Dying Wish, Part 3. Its targets need the containment check."
-check = "unconfirmed"
+targets = [
+    "spawn:bloomingsepulcher:679.18:259.76:871.73",
+    "spawn:bloomingsepulcher:680.22:259.76:879.19",
+    "spawn:bloomingsepulcher:680.28:259.76:862.83",
+    "spawn:bloomingsepulcher:682.85:259.76:885.43",
+    "spawn:bloomingsepulcher:683.70:259.76:854.60",
+    "spawn:bloomingsepulcher:686.55:259.76:891.65",
+    "spawn:bloomingsepulcher:688.96:259.75:870.12",
+    "spawn:bloomingsepulcher:689.73:259.76:849.08",
+    "spawn:bloomingsepulcher:693.88:259.76:896.72",
+    "spawn:bloomingsepulcher:695.76:259.76:845.02",
+    "spawn:bloomingsepulcher:700.64:259.76:899.91",
+    "spawn:bloomingsepulcher:702.83:259.76:842.44",
+    "spawn:bloomingsepulcher:707.89:259.76:901.92",
+    "spawn:bloomingsepulcher:710.63:259.76:841.23",
+    "spawn:bloomingsepulcher:715.16:259.76:902.12",
+    "spawn:bloomingsepulcher:717.84:259.76:842.14",
+    "spawn:bloomingsepulcher:723.28:259.76:901.12",
+    "spawn:bloomingsepulcher:724.86:259.76:844.87",
+    "spawn:bloomingsepulcher:730.84:259.76:896.41",
+    "spawn:bloomingsepulcher:731.47:259.76:848.67",
+    "spawn:bloomingsepulcher:735.74:259.76:853.55",
+    "spawn:bloomingsepulcher:736.90:259.76:889.80",
+    "spawn:bloomingsepulcher:739.45:259.76:860.92",
+    "spawn:bloomingsepulcher:740.39:259.76:883.13",
+    "spawn:bloomingsepulcher:741.87:259.76:876.52",
+    "spawn:bloomingsepulcher:742.47:259.76:869.30",
+    "spawn:bloomingsepulcher:788.35:254.99:837.27",
+]
+reason = "A quest listener removes it after A Dying Wish, Part 3. It closes Fernalla's arena."
+check = "navmesh"
 
 [[barriers]]
 kind = "removed"
 name = "Ward of Brax's Plane of Elements"
 objects = ["object:planeofbrax:ward[64]"]
-targets = []
-reason = "A quest listener removes it after The Flame Warder and The Ice Warder. Its targets need the containment check."
-check = "unconfirmed"
+targets = [
+    "spawn:chained:NPCFightEvent:2521.863525390625:75.55045318603516:381.2583923339844",
+    "spawn:chained:NPCFightEvent:2522.36083984375:75.55045318603516:425.3265686035156",
+    "spawn:planeofbrax:1704.07:0.33:452.72",
+    "spawn:planeofbrax:1707.73:1.24:466.80",
+    "spawn:planeofbrax:1708.47:1.24:436.31",
+    "spawn:planeofbrax:1922.81:55.06:431.20",
+    "spawn:planeofbrax:1923.62:55.06:452.68",
+    "spawn:planeofbrax:1988.01:55.15:361.20",
+    "spawn:planeofbrax:1992.90:55.29:438.50",
+    "spawn:planeofbrax:1993.17:55.42:345.74",
+    "spawn:planeofbrax:2002.20:55.60:506.40",
+    "spawn:planeofbrax:2012.81:55.15:506.27",
+    "spawn:planeofbrax:2058.54:55.78:362.44",
+    "spawn:planeofbrax:2059.65:56.32:391.92",
+    "spawn:planeofbrax:2075.34:55.15:516.89",
+    "spawn:planeofbrax:2102.99:55.24:504.33",
+    "spawn:planeofbrax:2104.04:55.51:317.89",
+    "spawn:planeofbrax:2121.67:55.15:318.03",
+    "spawn:planeofbrax:2160.64:55.71:487.11",
+    "spawn:planeofbrax:2160.80:55.74:259.20",
+    "spawn:planeofbrax:2174.67:55.15:402.50",
+    "spawn:planeofbrax:2327.69:75.09:393.45",
+    "spawn:planeofbrax:2328.10:75.09:404.44",
+    "spawn:planeofbrax:2328.55:75.09:416.18",
+    "spawn:planeofbrax:2410.96:75.09:390.24",
+    "spawn:planeofbrax:2411.46:75.09:403.48",
+    "spawn:planeofbrax:2411.91:75.09:415.47",
+    "spawn:planeofbrax:2475.93:75.76:335.52",
+    "spawn:planeofbrax:2476.39:75.76:473.10",
+    "spawn:planeofbrax:2521.86:75.55:381.26",
+    "spawn:planeofbrax:2530.06:75.55:404.02",
+    "spawn:planeofbrax:2540.41:75.76:472.43",
+    "spawn:planeofbrax:2541.17:75.76:334.05",
+    "spawn:planeofbrax:2543.61:75.50:404.12",
+]
+reason = "A quest listener removes it after The Flame Warder and The Ice Warder. It closes the way to Elementalist Mizuki and Brax."
+check = "navmesh"
 
 [[barriers]]
 kind = "removed"
 name = "Frost cliff of Brax's Plane of Elements"
 objects = ["object:planeofbrax:frostcliff[633]"]
-targets = []
-reason = "Its NPCAliveListener starts disabled and nothing exported enables it, so the build never opens it. Its targets need the containment check."
-check = "unconfirmed"
+targets = [
+    "spawn:chained:NPCFightEvent:295.0187072753906:59.720001220703125:775.558837890625",
+    "spawn:planeofbrax:1081.96:60.70:716.27",
+    "spawn:planeofbrax:1097.48:59.98:794.28",
+    "spawn:planeofbrax:1164.24:57.11:698.64",
+    "spawn:planeofbrax:295.02:59.72:775.56",
+    "spawn:planeofbrax:493.28:60.13:787.38",
+    "spawn:planeofbrax:493.35:60.81:757.76",
+    "spawn:planeofbrax:493.95:56.89:671.44",
+    "spawn:planeofbrax:511.56:56.80:884.69",
+    "spawn:planeofbrax:535.94:56.54:682.86",
+    "spawn:planeofbrax:594.94:58.18:805.66",
+    "spawn:planeofbrax:703.37:60.31:793.15",
+    "spawn:planeofbrax:709.28:58.92:691.78",
+    "spawn:planeofbrax:720.48:58.47:685.54",
+    "spawn:planeofbrax:725.86:59.15:806.18",
+    "spawn:planeofbrax:730.73:61.28:775.01",
+    "spawn:planeofbrax:863.14:59.20:751.23",
+    "spawn:planeofbrax:873.71:60.20:871.68",
+    "spawn:planeofbrax:973.36:58.57:741.02",
+    "spawn:planeofbrax:989.99:58.82:789.52",
+]
+reason = "RewardListener removes both cliffs while Frost and Inferno, the twin giants on the bridge, are both dead. The NPCAliveListener of Frost's spawn point starts disabled and never acts. It closes the frost wing."
+check = "navmesh"
 
 [[barriers]]
 kind = "removed"
 name = "Inferno cliff of Brax's Plane of Elements"
 objects = ["object:planeofbrax:infernocliff[557]"]
-targets = []
-reason = "Its NPCAliveListener starts disabled and nothing exported enables it, so the build never opens it. Its targets need the containment check."
-check = "unconfirmed"
+targets = [
+    "spawn:chained:NPCFightEvent:258.94000244140625:55.86395263671875:179.98606872558594",
+    "spawn:planeofbrax:1049.62:58.61:270.67",
+    "spawn:planeofbrax:1064.42:58.59:279.03",
+    "spawn:planeofbrax:1072.78:56.88:105.58",
+    "spawn:planeofbrax:1090.44:58.30:201.68",
+    "spawn:planeofbrax:1096.16:63.34:139.80",
+    "spawn:planeofbrax:1178.23:57.88:201.29",
+    "spawn:planeofbrax:258.94:55.86:179.99",
+    "spawn:planeofbrax:435.85:58.42:192.44",
+    "spawn:planeofbrax:446.11:57.57:148.21",
+    "spawn:planeofbrax:456.50:59.29:212.01",
+    "spawn:planeofbrax:488.76:57.57:161.92",
+    "spawn:planeofbrax:490.10:57.57:175.93",
+    "spawn:planeofbrax:548.23:59.74:139.09",
+    "spawn:planeofbrax:552.30:60.40:237.80",
+    "spawn:planeofbrax:599.15:61.20:253.99",
+    "spawn:planeofbrax:622.11:57.38:97.61",
+    "spawn:planeofbrax:622.73:57.60:168.53",
+    "spawn:planeofbrax:623.41:57.60:186.52",
+    "spawn:planeofbrax:817.22:59.55:176.65",
+    "spawn:planeofbrax:904.42:57.46:167.07",
+    "spawn:planeofbrax:905.20:57.51:187.56",
+    "spawn:planeofbrax:956.54:57.18:218.16",
+]
+reason = "RewardListener removes both cliffs while Frost and Inferno, the twin giants on the bridge, are both dead. The NPCAliveListener of Inferno's spawn point starts disabled and never acts. It closes the fire wing."
+check = "navmesh"
 
 [[barriers]]
 kind = "removed"
@@ -530,33 +967,74 @@ name = "Gate of Elementalist Mizuki"
 objects = [
     "object:planeofbrax:sm_bld_wall_l_gate_01[673]/sm_bld_wall_l_gate_01_door_01[0]",
 ]
-targets = []
-reason = "It stands while Elementalist Mizuki lives. Its targets need the containment check."
-check = "unconfirmed"
+targets = [
+    "spawn:chained:NPCFightEvent:2521.863525390625:75.55045318603516:381.2583923339844",
+    "spawn:chained:NPCFightEvent:2522.36083984375:75.55045318603516:425.3265686035156",
+    "spawn:planeofbrax:2327.69:75.09:393.45",
+    "spawn:planeofbrax:2328.10:75.09:404.44",
+    "spawn:planeofbrax:2328.55:75.09:416.18",
+    "spawn:planeofbrax:2410.96:75.09:390.24",
+    "spawn:planeofbrax:2411.46:75.09:403.48",
+    "spawn:planeofbrax:2411.91:75.09:415.47",
+    "spawn:planeofbrax:2475.93:75.76:335.52",
+    "spawn:planeofbrax:2476.39:75.76:473.10",
+    "spawn:planeofbrax:2521.86:75.55:381.26",
+    "spawn:planeofbrax:2530.06:75.55:404.02",
+    "spawn:planeofbrax:2540.41:75.76:472.43",
+    "spawn:planeofbrax:2541.17:75.76:334.05",
+    "spawn:planeofbrax:2543.61:75.50:404.12",
+]
+reason = "It stands while Elementalist Mizuki lives. It closes the way to Brax."
+check = "navmesh"
 
 [[barriers]]
 kind = "removed"
 name = "Barrier of Jinx"
 objects = ["object:planeoffernalla:jinxbarrier[182]"]
-targets = []
-reason = "It stands while Jinx lives. Its targets need the containment check."
-check = "unconfirmed"
+targets = [
+    "spawn:chained:NPCFightEvent:1724.5999755859375:3.180000066757202:444.9800109863281",
+    "spawn:planeoffernalla:1000.20:22.04:692.51",
+    "spawn:planeoffernalla:1005.72:25.90:1015.23",
+    "spawn:planeoffernalla:1066.58:22.04:602.29",
+    "spawn:planeoffernalla:1105.02:22.04:816.09",
+    "spawn:planeoffernalla:1121.82:22.04:446.81",
+    "spawn:planeoffernalla:1128.42:22.04:777.07",
+    "spawn:planeoffernalla:1137.20:22.04:492.19",
+    "spawn:planeoffernalla:1154.26:22.04:426.67",
+    "spawn:planeoffernalla:1154.76:22.04:596.29",
+    "spawn:planeoffernalla:1454.42:0.10:374.31",
+    "spawn:planeoffernalla:1465.05:0.10:482.53",
+    "spawn:planeoffernalla:1465.61:0.85:546.50",
+    "spawn:planeoffernalla:1558.82:2.32:429.28",
+    "spawn:planeoffernalla:1578.55:1.95:519.90",
+    "spawn:planeoffernalla:1676.17:0.10:810.58",
+    "spawn:planeoffernalla:1697.19:0.10:630.92",
+    "spawn:planeoffernalla:1724.60:3.18:444.98",
+    "spawn:planeoffernalla:1823.49:0.10:788.46",
+    "spawn:planeoffernalla:905.15:22.82:897.31",
+    "spawn:planeoffernalla:951.71:23.21:969.43",
+    "spawn:planeoffernalla:976.24:26.28:1029.73",
+    "spawn:planeoffernalla:981.34:22.04:722.29",
+    "spawn:planeoffernalla:996.89:22.50:936.95",
+]
+reason = "It stands while Jinx lives. It closes the area behind Jinx."
+check = "navmesh"
 
 [[barriers]]
 kind = "removed"
 name = "Barrier of Nadir"
 objects = ["object:planeofsoluna:barriernadir[95]"]
 targets = []
-reason = "It stands while Nadir lives. Its targets need the containment check."
-check = "unconfirmed"
+reason = "It stands while Nadir lives. NavMesh paths reach every target with it standing, so it guards nothing."
+check = "navmesh"
 
 [[barriers]]
 kind = "removed"
 name = "Barrier of Zenith"
 objects = ["object:planeofsoluna:zenithbarrier[206]"]
 targets = []
-reason = "It stands while Zenith lives. Its targets need the containment check."
-check = "unconfirmed"
+reason = "It stands while Zenith lives. NavMesh paths reach every target with it standing, so it guards nothing."
+check = "navmesh"
 
 [[barriers]]
 kind = "removed"
@@ -571,9 +1049,56 @@ objects = [
     "object:ripperportal:tff_pine_tree_04c_lod_1%20%283%29[20]",
     "object:ripperportal:tff_pine_tree_04c_lod_1%20%284%29[16]",
 ]
-targets = []
-reason = "Entering the trigger that appears after Catnip for a statue removes them. Its targets need the containment check."
-check = "unconfirmed"
+targets = [
+    "spawn:ripperportal:115.37:1.17:645.21",
+    "spawn:ripperportal:126.39:3.31:582.79",
+    "spawn:ripperportal:142.73:0.72:551.87",
+    "spawn:ripperportal:143.68:0.47:515.39",
+    "spawn:ripperportal:154.05:0.22:693.06",
+    "spawn:ripperportal:171.50:3.79:583.93",
+    "spawn:ripperportal:198.53:1.00:575.02",
+    "spawn:ripperportal:206.05:0.34:456.79",
+    "spawn:ripperportal:215.32:0.00:433.54",
+    "spawn:ripperportal:218.63:0.08:487.03",
+    "spawn:ripperportal:218.64:0.00:430.43",
+    "spawn:ripperportal:219.72:0.00:436.41",
+    "spawn:ripperportal:219.94:0.05:587.34",
+    "spawn:ripperportal:238.86:0.05:570.32",
+    "spawn:ripperportal:271.18:0.00:430.42",
+    "spawn:ripperportal:271.59:0.00:436.70",
+    "spawn:ripperportal:281.51:0.53:315.44",
+    "spawn:ripperportal:286.06:0.05:548.37",
+    "spawn:ripperportal:299.10:1.11:580.09",
+    "spawn:ripperportal:301.20:0.05:433.77",
+    "spawn:ripperportal:310.66:1.75:589.99",
+    "spawn:ripperportal:311.21:0.48:461.58",
+    "spawn:ripperportal:314.86:0.10:459.64",
+    "spawn:ripperportal:325.57:1.33:739.40",
+    "spawn:ripperportal:330.21:0.00:436.74",
+    "spawn:ripperportal:331.21:0.00:430.46",
+    "spawn:ripperportal:332.30:0.28:757.54",
+    "spawn:ripperportal:339.55:-0.02:748.79",
+    "spawn:ripperportal:339.55:0.17:757.54",
+    "spawn:ripperportal:345.60:2.20:515.85",
+    "spawn:ripperportal:368.18:0.00:433.52",
+    "spawn:ripperportal:371.69:0.67:480.35",
+    "spawn:ripperportal:374.43:2.30:570.18",
+    "spawn:ripperportal:375.74:3.23:595.26",
+    "spawn:ripperportal:392.79:2.67:597.31",
+    "spawn:ripperportal:409.08:0.00:433.71",
+    "spawn:ripperportal:411.60:1.07:613.54",
+    "spawn:ripperportal:412.13:1.23:570.30",
+    "spawn:ripperportal:429.76:1.87:512.17",
+    "spawn:ripperportal:437.39:1.41:467.35",
+    "spawn:ripperportal:663.80:9.40:313.60",
+    "spawn:ripperportal:94.10:0.40:532.54",
+    "zoneline:ripperportal:fernallafield:96.02:4.55:433.34",
+    "zoneline:ripperportal:ripper:671.85:11.19:402.36",
+    "zoneline:ripperportal:ripper:671.85:11.19:402.36:1",
+    "zoneline:ripperportal:ripper:96.02:4.55:433.34",
+]
+reason = "Entering the trigger that appears after Catnip removes them. They enclose the arrival area."
+check = "navmesh"
 
 [[barriers]]
 kind = "removed"
@@ -586,9 +1111,54 @@ objects = [
     "object:ripperportal:vanishall[19]/sm_bld_wall_door_large_01[24]/sm_bld_wall_door_large_01_door_01[0]",
     "object:ripperportal:vanishall[19]/sm_bld_wall_door_large_01[24]/sm_bld_wall_door_large_01_door_02[1]",
 ]
-targets = []
-reason = "Entering the hall's triggers removes its walls. Its targets need the containment check."
-check = "unconfirmed"
+targets = [
+    "spawn:ripperportal:115.37:1.17:645.21",
+    "spawn:ripperportal:126.39:3.31:582.79",
+    "spawn:ripperportal:142.73:0.72:551.87",
+    "spawn:ripperportal:143.68:0.47:515.39",
+    "spawn:ripperportal:154.05:0.22:693.06",
+    "spawn:ripperportal:171.50:3.79:583.93",
+    "spawn:ripperportal:198.53:1.00:575.02",
+    "spawn:ripperportal:206.05:0.34:456.79",
+    "spawn:ripperportal:215.32:0.00:433.54",
+    "spawn:ripperportal:218.63:0.08:487.03",
+    "spawn:ripperportal:218.64:0.00:430.43",
+    "spawn:ripperportal:219.72:0.00:436.41",
+    "spawn:ripperportal:219.94:0.05:587.34",
+    "spawn:ripperportal:238.86:0.05:570.32",
+    "spawn:ripperportal:271.18:0.00:430.42",
+    "spawn:ripperportal:271.59:0.00:436.70",
+    "spawn:ripperportal:281.51:0.53:315.44",
+    "spawn:ripperportal:286.06:0.05:548.37",
+    "spawn:ripperportal:299.10:1.11:580.09",
+    "spawn:ripperportal:301.20:0.05:433.77",
+    "spawn:ripperportal:310.66:1.75:589.99",
+    "spawn:ripperportal:311.21:0.48:461.58",
+    "spawn:ripperportal:314.86:0.10:459.64",
+    "spawn:ripperportal:325.57:1.33:739.40",
+    "spawn:ripperportal:330.21:0.00:436.74",
+    "spawn:ripperportal:331.21:0.00:430.46",
+    "spawn:ripperportal:332.30:0.28:757.54",
+    "spawn:ripperportal:339.55:-0.02:748.79",
+    "spawn:ripperportal:339.55:0.17:757.54",
+    "spawn:ripperportal:345.60:2.20:515.85",
+    "spawn:ripperportal:368.18:0.00:433.52",
+    "spawn:ripperportal:371.69:0.67:480.35",
+    "spawn:ripperportal:374.43:2.30:570.18",
+    "spawn:ripperportal:375.74:3.23:595.26",
+    "spawn:ripperportal:392.79:2.67:597.31",
+    "spawn:ripperportal:409.08:0.00:433.71",
+    "spawn:ripperportal:411.60:1.07:613.54",
+    "spawn:ripperportal:412.13:1.23:570.30",
+    "spawn:ripperportal:429.76:1.87:512.17",
+    "spawn:ripperportal:437.39:1.41:467.35",
+    "spawn:ripperportal:663.80:9.40:313.60",
+    "spawn:ripperportal:94.10:0.40:532.54",
+    "zoneline:ripperportal:ripper:671.85:11.19:402.36",
+    "zoneline:ripperportal:ripper:671.85:11.19:402.36:1",
+]
+reason = "Its triggers remove its walls as the player walks through, so its gates need nothing."
+check = "navmesh"
 
 [[barriers]]
 kind = "removed"
@@ -598,8 +1168,8 @@ objects = [
     "object:stowaway:sm_env_stone_vessel_01[198]",
 ]
 targets = []
-reason = "A quest listener removes them after Completing the Ritual. Its targets need the containment check."
-check = "unconfirmed"
+reason = "A quest listener removes them after Completing the Ritual. The fire has no collider and NavMesh paths pass the vessel, so they guard nothing."
+check = "navmesh"
 
 [[entries]]
 target = "character:lighthouse demon:tutorial:-64.96:22.26:149.12"
