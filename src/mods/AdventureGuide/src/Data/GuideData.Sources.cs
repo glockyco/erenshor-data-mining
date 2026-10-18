@@ -8,6 +8,8 @@ public sealed partial class GuideData
         new Dictionary<string, SourceFact>(StringComparer.Ordinal);
     public IReadOnlyDictionary<string, ItemUseFact> ItemUses { get; private set; } =
         new Dictionary<string, ItemUseFact>(StringComparer.Ordinal);
+    public IReadOnlyDictionary<string, SourceRank> SourceRanks { get; private set; } =
+        new Dictionary<string, SourceRank>(StringComparer.Ordinal);
     private IReadOnlyDictionary<string, string> _questStateKeys = new Dictionary<string, string>(
         StringComparer.Ordinal
     );
@@ -231,6 +233,10 @@ public sealed partial class GuideData
     {
         SourceFacts = wrapper.SourceFacts!;
         ItemUses = wrapper.ItemUses!;
+        SourceRanks = wrapper.SourceRanks!;
+        foreach (var pair in SourceRanks)
+            if (!SourceFacts.ContainsKey(pair.Key) || pair.Value.Tier < 0 || pair.Value.Depth < 0)
+                throw new InvalidDataException($"Invalid source rank: {pair.Key}");
         _questStateKeys = wrapper.QuestStateKeys!;
         var lines = new Dictionary<string, int>(StringComparer.Ordinal);
         for (int index = 0; index < ZoneLines.Count; index++)
@@ -330,6 +336,9 @@ public sealed partial class GuideData
                         $"Missing or non-actionable source acquisition: {source.AcquisitionKey}"
                     );
                 source.CanonicalFact = fact;
+                source.Rank = SourceRanks.TryGetValue(source.AcquisitionKey, out var rank)
+                    ? rank
+                    : null;
                 if (source.LocationKey != null)
                 {
                     if (!fact.LocationsByKey.TryGetValue(source.LocationKey, out var location))
@@ -660,6 +669,9 @@ internal sealed partial class GuideWrapper
 {
     [JsonProperty("_source_facts"), JsonRequired]
     public Dictionary<string, SourceFact> SourceFacts { get; set; } = new(StringComparer.Ordinal);
+
+    [JsonProperty("_source_ranks"), JsonRequired]
+    public Dictionary<string, SourceRank> SourceRanks { get; set; } = new(StringComparer.Ordinal);
 
     [JsonProperty("_item_uses"), JsonRequired]
     public Dictionary<string, ItemUseFact> ItemUses { get; set; } = new(StringComparer.Ordinal);

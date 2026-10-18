@@ -175,11 +175,14 @@ public sealed partial class GuideData
     internal bool ShouldStubUnknownQuest(string dbName) =>
         !_byDBName.ContainsKey(dbName) && !_excludedQuests.Contains(dbName);
 
+    /// <summary>The quest-guide.json schema version that this build reads.</summary>
+    internal const int SchemaVersion = 9;
+
     internal static void ValidateWrapper(GuideWrapper wrapper)
     {
-        if (wrapper.Version != 8)
+        if (wrapper.Version != SchemaVersion)
             throw new InvalidDataException(
-                $"Unsupported quest guide schema version {wrapper.Version}. Expected 8"
+                $"Unsupported quest guide schema version {wrapper.Version}. Expected {SchemaVersion}"
             );
         if (wrapper.Quests == null)
             throw new InvalidDataException("Quest guide has no quests collection");

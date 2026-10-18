@@ -160,7 +160,7 @@ def test_canonical_families_keep_actual_location_and_normalize_facts_once(tmp_pa
     )
     assert row["entry_zone_line_keys"] == ["line:actual"]
     assert "provenance" not in row and "uses" not in row
-    assert payload["_version"] == 8
+    assert payload["_version"] == 9
     assert payload["_source_facts"]["actual"] == {
         key: json.loads(json.dumps(value)) for key, value in asdict(fact).items() if key != "evidence"
     }
@@ -520,3 +520,25 @@ def test_quest_counts_cannot_silently_default_or_truncate(tmp_path, quantity, ki
     load_canonical_sources(tmp_path, graph, [], [required])
     with pytest.raises(ValueError, match="integer quantity"):
         _payload(graph)
+
+
+def test_each_source_carries_the_lowest_rank_of_its_acquisitions_ways_to_its_item(tmp_path):
+    graph = _graph()
+    ranked = ItemAcquisition("ranked", "item:result", "ui_grant", None)
+    unranked = ItemAcquisition("unranked", "item:result", "ui_grant", None)
+    ways = [
+        ("item:result", "slow", 5, 9, "ranked"),
+        ("item:result", "early", 4, 12, "ranked"),
+        ("item:result", "blocked", None, None, "unranked"),
+        ("item:other", "elsewhere", 0, 0, "unranked"),
+    ]
+    sql = "".join(
+        f"INSERT OR IGNORE INTO progression_nodes VALUES ('{node}','item',0,NULL,NULL);"
+        f"INSERT INTO progression_ways VALUES ('{node}','{way}',{tier if tier is not None else 'NULL'},"
+        f"{depth if depth is not None else 'NULL'});"
+        f"INSERT INTO progression_way_facts VALUES ('{node}','{way}','{fact}');"
+        for node, way, tier, depth, fact in ways
+    )
+    load_canonical_sources(tmp_path, graph, [ranked, unranked], [_required()], raw_outcomes_sql=sql)
+
+    assert _payload(graph)["_source_ranks"] == {"ranked": {"tier": 4, "depth": 12}}

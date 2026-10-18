@@ -10,7 +10,7 @@ public sealed class NavigationSceneTests
         var data = GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 8,
+                Version = GuideData.SchemaVersion,
                 Encounters = TestData.EmptyEncounters(),
                 Quests = [],
                 CharacterSpawns = new Dictionary<string, List<SpawnPoint>>

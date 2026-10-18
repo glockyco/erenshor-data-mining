@@ -30,7 +30,7 @@ public sealed class CanonicalSourceNavigationTests
     private static GuideWrapper Wrapper(QuestEntry quest) =>
         new()
         {
-            Version = 8,
+            Version = GuideData.SchemaVersion,
             Quests = [quest],
             ZoneLineDestinationContexts = new(),
             Encounters = new()

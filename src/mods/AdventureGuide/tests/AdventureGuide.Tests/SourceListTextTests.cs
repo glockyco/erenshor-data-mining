@@ -9,10 +9,10 @@ public sealed class SourceListTextTests
     {
         var data = GuideData.Parse(
             $$"""
-            {"_version":8,
+            {"_version":9,
              "_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},
              "_zone_line_destination_contexts":{},
-             "_source_facts":{}, "_item_uses":{}, "_quest_state_keys":{}, "quests":[{
+             "_source_facts":{}, "_source_ranks":{}, "_item_uses":{}, "_quest_state_keys":{}, "quests":[{
               "stable_key":"quest:source","db_name":"Source","display_name":"Source",
               "steps":[{"order":1,"action":"collect","description":"Collect an item.",
                 "target_type":"item","target_key":"item:test","target_name":"Item",

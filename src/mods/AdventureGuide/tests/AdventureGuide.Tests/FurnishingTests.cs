@@ -93,7 +93,7 @@ public sealed class FurnishingTests
         var data = GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 8,
+                Version = GuideData.SchemaVersion,
                 Encounters = TestData.EmptyEncounters(),
                 Quests = [],
                 Conditions =
@@ -138,7 +138,7 @@ public sealed class FurnishingTests
         var data = GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 8,
+                Version = GuideData.SchemaVersion,
                 Encounters = TestData.EmptyEncounters(),
                 Quests = [],
                 Conditions =
@@ -221,7 +221,7 @@ public sealed class FurnishingTests
     {
         var wrapper = new GuideWrapper
         {
-            Version = 8,
+            Version = GuideData.SchemaVersion,
             Encounters = TestData.EmptyEncounters(),
             Quests = [],
             Conditions =

@@ -46,7 +46,7 @@ public sealed class SourceNavigationSelectionTests
         var data = GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 8,
+                Version = GuideData.SchemaVersion,
                 Encounters = TestData.EmptyEncounters(),
                 Quests = [],
                 Conditions = conditions,

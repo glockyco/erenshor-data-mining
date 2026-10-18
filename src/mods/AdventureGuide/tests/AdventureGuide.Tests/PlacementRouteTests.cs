@@ -21,7 +21,7 @@ public sealed class PlacementRouteTests
     ) =>
         new()
         {
-            Version = 8,
+            Version = GuideData.SchemaVersion,
             Encounters = TestData.EmptyEncounters(),
             Quests = [],
             Conditions = conditions ?? [],

@@ -49,6 +49,7 @@ class EntityGraph:
         "quest_uses",
         "source_exclusions",
         "source_facts",
+        "source_ranks",
         "source_uses",
         "zone_line_destination_contexts",
     )
@@ -66,6 +67,8 @@ class EntityGraph:
         self._entries: dict[str, list[str]] = defaultdict(list)
         self.source_facts: dict[str, ItemAcquisition | ItemUse] = {}
         self.source_exclusions: dict[str, str] = {}
+        # The lowest progression rank (tier, depth) of each acquisition's ways to its item.
+        self.source_ranks: dict[str, tuple[int, int]] = {}
         self.source_uses: dict[str, list[ItemUse]] = {}
         self.quest_uses: dict[tuple[str, str], list[ItemUse]] = {}
         self.encounters: dict[str, list[dict[str, object]]] = {

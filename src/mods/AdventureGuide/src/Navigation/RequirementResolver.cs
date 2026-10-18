@@ -766,7 +766,12 @@ public sealed class RequirementResolver
             return;
         if (route == null)
         {
-            candidate.Failure ??= "No route reaches this requirement.";
+            // A reward's scene is only the first source of its quest's current step.
+            // Following the reward resolves that step's own sources and routes.
+            if (candidate.RewardQuest != null)
+                candidate.Hops = int.MaxValue;
+            else
+                candidate.Failure ??= "No route reaches this requirement.";
             return;
         }
         candidate.Hops = route.Path.Count - 1;
@@ -866,12 +871,30 @@ public sealed class RequirementResolver
             return candidate.Missing == null;
         if (candidate.Missing != null && best.Missing != null)
         {
+            // The progression build orders ways that still need something, so a
+            // way that comes later, such as a buy-back after the quest that takes
+            // the item, never leads before an earlier one.
+            int order = CompareRank(WayRank(candidate), WayRank(best));
+            if (order != 0)
+                return order < 0;
             if (candidate.Missing.Missing != best.Missing.Missing)
                 return candidate.Missing.Missing < best.Missing.Missing;
             if (candidate.Missing.Cost != best.Missing.Cost)
                 return candidate.Missing.Cost < best.Missing.Cost;
         }
         return candidate.Hops < best.Hops;
+    }
+
+    private static SourceRank? WayRank(Candidate candidate) =>
+        candidate.SourceChain.Count > 0 ? candidate.SourceChain[0].Rank : null;
+
+    /// <summary>Orders ranked ways by tier, then depth, and after them unranked ways.</summary>
+    private static int CompareRank(SourceRank? left, SourceRank? right)
+    {
+        if (left == null || right == null)
+            return (left == null).CompareTo(right == null);
+        int tier = left.Tier.CompareTo(right.Tier);
+        return tier != 0 ? tier : left.Depth.CompareTo(right.Depth);
     }
 
     private int RequirementCost(GateAtom atom, QuestEntry owner, ZoneGraph.RouteLookup routes)

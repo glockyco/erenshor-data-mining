@@ -282,6 +282,10 @@ public sealed class ItemSource
     [JsonIgnore]
     internal SourceFact? CanonicalFact { get; set; }
 
+    /// <summary>Progression rank of this acquisition, when the progression build reaches it.</summary>
+    [JsonIgnore]
+    internal SourceRank? Rank { get; set; }
+
     [JsonIgnore]
     internal SourceLocation? CanonicalLocation { get; set; }
 

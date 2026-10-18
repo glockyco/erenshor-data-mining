@@ -8,7 +8,7 @@ internal static class TestData
         GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 8,
+                Version = GuideData.SchemaVersion,
                 Encounters = EmptyEncounters(),
                 Quests = [.. quests],
             }
@@ -37,7 +37,7 @@ internal static class TestData
         };
         var wrapper = new GuideWrapper
         {
-            Version = 8,
+            Version = GuideData.SchemaVersion,
             Encounters = EmptyEncounters(),
             ZoneLineDestinationContexts = [],
             Quests = [quest],

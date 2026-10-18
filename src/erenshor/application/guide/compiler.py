@@ -183,6 +183,7 @@ class CompiledData:
     # Index by kind, subject key and spawn point or vendor item.
     condition_by_subject: dict[tuple[SubjectKind, str, str | None], int] = field(default_factory=dict)
     source_facts: dict[str, ItemAcquisition | ItemUse] = field(default_factory=dict)
+    source_ranks: dict[str, tuple[int, int]] = field(default_factory=dict)
     source_uses: dict[str, list[ItemUse]] = field(default_factory=dict)
     quest_uses: dict[tuple[str, str], list[ItemUse]] = field(default_factory=dict)
     encounters: dict[str, list[dict[str, object]]] = field(default_factory=dict)
@@ -214,6 +215,7 @@ def compile_graph(graph: EntityGraph) -> CompiledData:
 
     compiled = CompiledData()
     compiled.source_facts = graph.source_facts
+    compiled.source_ranks = graph.source_ranks
     compiled.source_uses = graph.source_uses
     compiled.quest_uses = graph.quest_uses
     compiled.encounters = graph.encounters

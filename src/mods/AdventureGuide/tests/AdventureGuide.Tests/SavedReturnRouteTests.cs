@@ -46,7 +46,7 @@ public sealed class SavedReturnRouteTests
     private static GuideWrapper Wrapper(bool locked = false) =>
         new()
         {
-            Version = 8,
+            Version = GuideData.SchemaVersion,
             Quests = [],
             Encounters = new()
             {

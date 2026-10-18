@@ -16,6 +16,7 @@
 - Show the keyword to say when an NPC hands you an item.
 - Show when several enemies must all be defeated together, such as the nine Stardust before Astra appears.
 - Show each furnished Reliquary room source with only the room it needs.
+- Pick the earliest way to get an item when every source needs something first, such as the Planar Stone trade for the first arena fee.
 
 ## v2026.1008.0
 

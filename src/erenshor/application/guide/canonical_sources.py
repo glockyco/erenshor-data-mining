@@ -130,6 +130,16 @@ def add_canonical_sources(repository: ItemProvenanceRepository, conn: sqlite3.Co
         if key in graph.source_facts:
             raise ValueError(f"Duplicate canonical fact: {key}")
         graph.source_facts[key] = fact
+    # An acquisition can produce several ways to its item, one per release or gate branch.
+    for key, tier, depth in conn.execute(
+        "SELECT f.fact, w.tier, w.depth FROM progression_way_facts f"
+        " JOIN progression_ways w USING (node_stable_key, way_key)"
+        " JOIN item_acquisitions a ON a.acquisition_key = f.fact AND a.item_stable_key = f.node_stable_key"
+        " WHERE w.tier IS NOT NULL"
+    ):
+        rank = (tier, depth)
+        if key not in graph.source_ranks or rank < graph.source_ranks[key]:
+            graph.source_ranks[key] = rank
     for fact in acquisitions:
         if not is_actionable_acquisition(fact):
             graph.source_exclusions[fact.acquisition_key] = "not_actionable_canonical_acquisition"

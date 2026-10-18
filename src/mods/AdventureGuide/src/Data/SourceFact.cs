@@ -197,6 +197,19 @@ public sealed class SourceFact
         new(StringComparer.Ordinal);
 }
 
+/// <summary>
+/// The progression build's order of an acquisition's earliest way to its item.
+/// Lower tiers come first, then lower depths, as first ways are chosen.
+/// </summary>
+public sealed class SourceRank
+{
+    [JsonProperty("tier"), JsonRequired]
+    public int Tier { get; set; }
+
+    [JsonProperty("depth"), JsonRequired]
+    public int Depth { get; set; }
+}
+
 public sealed class ItemUseFact
 {
     [JsonProperty("use_key")]

@@ -250,7 +250,7 @@ public sealed class RequirementResolverTests
         ]);
         var wrapper = new GuideWrapper
         {
-            Version = 8,
+            Version = GuideData.SchemaVersion,
             Encounters = TestData.EmptyEncounters(),
             Quests = [quest],
         };
@@ -331,7 +331,7 @@ public sealed class RequirementResolverTests
         GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 8,
+                Version = GuideData.SchemaVersion,
                 Encounters = TestData.EmptyEncounters(),
                 Quests = quests ?? [],
                 Conditions = conditions,

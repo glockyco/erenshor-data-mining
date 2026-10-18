@@ -59,7 +59,7 @@ public sealed class GateConditionsTests
             ? "Place Portal stone in a rune slot on your planning table."
             : "Place Portal stone in the planning-table slot for Test destination.";
         string json = """
-            {"_version":8,"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},"_source_facts":{},"_item_uses":{},"_quest_state_keys":{},"quests":[],"_conditions":[[[{"kind":"planning_slot_item","ref":"item:key","slot":"SLOT","instruction":INSTRUCTION}]]],
+            {"_version":9,"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},"_source_facts":{},"_source_ranks":{},"_item_uses":{},"_quest_state_keys":{},"quests":[],"_conditions":[[[{"kind":"planning_slot_item","ref":"item:key","slot":"SLOT","instruction":INSTRUCTION}]]],
              "_zone_line_destination_contexts":{},
              "_gate_items":{"item:key":{"name":"Portal stone","game_id":"134379"}}}
             """.Replace("SLOT", slot).Replace(
@@ -114,7 +114,7 @@ public sealed class GateConditionsTests
     public void Stored_portal_item_rejects_missing_instruction(string? instruction)
     {
         string json = """
-            {"_version":8,"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},"_source_facts":{},"_item_uses":{},"_quest_state_keys":{},"quests":[],"_conditions":[[[{"kind":"planning_slot_item","ref":"item:key","slot":"Rune1","instruction":INSTRUCTION}]]],
+            {"_version":9,"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},"_source_facts":{},"_source_ranks":{},"_item_uses":{},"_quest_state_keys":{},"quests":[],"_conditions":[[[{"kind":"planning_slot_item","ref":"item:key","slot":"Rune1","instruction":INSTRUCTION}]]],
              "_zone_line_destination_contexts":{},
              "_gate_items":{"item:key":{"name":"Portal stone","game_id":"2096280"}}}
             """.Replace("INSTRUCTION", Newtonsoft.Json.JsonConvert.SerializeObject(instruction));
@@ -125,7 +125,7 @@ public sealed class GateConditionsTests
     public void Stored_portal_item_rejects_absent_instruction_property()
     {
         const string json = """
-            {"_version":8,"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},"_source_facts":{},"_item_uses":{},"_quest_state_keys":{},"quests":[],"_conditions":[[[{"kind":"planning_slot_item","ref":"item:key","slot":"Rune1"}]]],
+            {"_version":9,"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},"_source_facts":{},"_source_ranks":{},"_item_uses":{},"_quest_state_keys":{},"quests":[],"_conditions":[[[{"kind":"planning_slot_item","ref":"item:key","slot":"Rune1"}]]],
              "_zone_line_destination_contexts":{},
              "_gate_items":{"item:key":{"name":"Portal stone","game_id":"2096280"}}}
             """;
@@ -210,7 +210,7 @@ public sealed class GateConditionsTests
         GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 8,
+                Version = GuideData.SchemaVersion,
                 Encounters = TestData.EmptyEncounters(),
                 Quests = [],
                 Conditions = conditions,
@@ -305,7 +305,7 @@ public sealed class GateConditionsTests
     {
         string property = quantity.HasValue ? ",\"quantity\":" + quantity.Value : "";
         string json = """
-            {"_version":8,"_zone_line_destination_contexts":{},"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},"_source_facts":{},"_item_uses":{},"_quest_state_keys":{},"quests":[],
+            {"_version":9,"_zone_line_destination_contexts":{},"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},"_source_facts":{},"_source_ranks":{},"_item_uses":{},"_quest_state_keys":{},"quests":[],
              "_conditions":[[[{"kind":"encounter_won","ref":"REFERENCE"QUANTITY}]]]}
             """.Replace("QUANTITY", property).Replace("REFERENCE", reference);
         var data = GuideData.Parse(json);
@@ -536,7 +536,7 @@ public sealed class GateConditionsTests
     {
         var wrapper = new GuideWrapper
         {
-            Version = 8,
+            Version = GuideData.SchemaVersion,
             Encounters = TestData.EmptyEncounters(),
             Quests = [],
             Conditions =
@@ -584,7 +584,7 @@ public sealed class GateConditionsTests
     {
         var wrapper = new GuideWrapper
         {
-            Version = 8,
+            Version = GuideData.SchemaVersion,
             Encounters = TestData.EmptyEncounters(),
             Quests = [],
             Conditions =

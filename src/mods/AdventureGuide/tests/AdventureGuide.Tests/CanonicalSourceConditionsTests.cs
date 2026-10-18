@@ -294,7 +294,7 @@ public sealed class CanonicalSourceConditionsTests
         var data = GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 8,
+                Version = GuideData.SchemaVersion,
                 Quests = new()
                 {
                     new QuestEntry

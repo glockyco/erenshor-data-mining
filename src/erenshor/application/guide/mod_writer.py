@@ -65,7 +65,7 @@ def build_mod_guide(
     zone_lines = _ordered_zone_lines(nodes)
     line_index = {line.key: index for index, line in enumerate(zone_lines)}
     result: dict[str, Any] = {
-        "_version": 8,
+        "_version": 9,
         "_zone_lookup": _zone_lookup(nodes),
         "_conditions": [_condition_payload(graph, condition) for condition in compiled.conditions],
         "_gate_items": _gate_items(graph, nodes, compiled, compiled_nodes, reward_by_item),
@@ -1507,6 +1507,11 @@ def _normalize_source_tables(result: dict[str, Any], compiled: CompiledData) -> 
         for key in sorted(use_keys)
     }
     result["_source_facts"] = facts
+    result["_source_ranks"] = {
+        key: {"tier": compiled.source_ranks[key][0], "depth": compiled.source_ranks[key][1]}
+        for key in facts
+        if key in compiled.source_ranks
+    }
     result["_item_uses"] = uses
 
 

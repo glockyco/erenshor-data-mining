@@ -399,7 +399,7 @@ public sealed class EncounterProjectionTests : IDisposable
     private static GuideWrapper Wrapper() =>
         new()
         {
-            Version = 8,
+            Version = GuideData.SchemaVersion,
             ZoneLineDestinationContexts = [],
             Quests = [Quest(ClaimQuest, "CLAIM")],
             Conditions =

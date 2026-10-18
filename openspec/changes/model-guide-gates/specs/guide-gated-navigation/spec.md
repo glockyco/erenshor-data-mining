@@ -66,7 +66,7 @@ A target, source or encounter requirement whose placement is offering-spawned SH
 
 ### Requirement: Navigation leads to what satisfies a gate
 
-When the navigation target or a hop of its route is gated by an observable atom, AdventureGuide SHALL navigate to what satisfies it: the sources of a missing item or key, the current step of a missing quest, or the Reliquary planning table for a missing furnishing. Among the groups of a condition it SHALL choose the group with the fewest unmet atoms, and among equal groups the one whose first requirement is nearest by route. When the requirement is gated itself, it SHALL repeat this choice and SHALL stop with an explanation, without navigation, when no requirement can be reached. The quest panel and tracker SHALL show the next action and immediate unmet requirement on their existing surfaces, with advisory encounter navigation where applicable. Full chains SHALL remain inspectable through diagnostics. No separate guidance HUD or explanation tree SHALL be required.
+When the navigation target or a hop of its route is gated by an observable atom, AdventureGuide SHALL navigate to what satisfies it: the sources of a missing item or key, the current step of a missing quest, or the Reliquary planning table for a missing furnishing. Among the groups of a condition it SHALL choose the group with the fewest unmet atoms, and among equal groups the one whose first requirement is nearest by route. Among item sources that each need something first, it SHALL prefer the source whose acquisition the progression build ranks earliest, so that a way which comes later, such as a buy-back after the quest that takes the item, never leads first. A quest reward SHALL NOT fail because the first source of its quest's current step has no route, because following the reward resolves that step's own sources. When the requirement is gated itself, it SHALL repeat this choice and SHALL stop with an explanation, without navigation, when no requirement can be reached. The quest panel and tracker SHALL show the next action and immediate unmet requirement on their existing surfaces, with advisory encounter navigation where applicable. Full chains SHALL remain inspectable through diagnostics. No separate guidance HUD or explanation tree SHALL be required.
 
 #### Scenario: Island Tomb through the lighthouse
 
@@ -77,6 +77,12 @@ When the navigation target or a hop of its route is gated by an observable atom,
 
 - **WHEN** the player navigates to a Jaws of Sivakaya target from the Duskenlight Coast without the Nighthollow Candle and without She Sees You
 - **THEN** navigation leads to the requirement of the group with fewer unmet atoms and names the other group as an alternative
+
+#### Scenario: The first arena fee
+
+- **WHEN** the player needs Vithean Arena Fee (1) and holds no fee
+- **THEN** navigation leads to the Planar Stone trade of An Arena Token
+- **AND** not to the round 8 chest or the Master of Battle's buy-back
 
 ### Requirement: Source guidance prioritizes the player's next action
 

@@ -309,7 +309,7 @@ public sealed class OfferingActivationTests
     internal static GuideWrapper Fixture() =>
         new()
         {
-            Version = 8,
+            Version = GuideData.SchemaVersion,
             Encounters = TestData.EmptyEncounters(),
             Quests = [],
             ZoneLookup = new()

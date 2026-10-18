@@ -24,7 +24,7 @@ public sealed class GuideContractTests
     {
         var wrapper = new GuideWrapper
         {
-            Version = 8,
+            Version = GuideData.SchemaVersion,
             Encounters = TestData.EmptyEncounters(),
             Quests =
             [
@@ -43,7 +43,7 @@ public sealed class GuideContractTests
         var data = GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 8,
+                Version = GuideData.SchemaVersion,
                 Encounters = TestData.EmptyEncounters(),
                 Quests = [OrdinaryQuest("quest:known", "KnownDB")],
                 ExcludedQuests = ["PlaceholderDB"],
@@ -61,7 +61,7 @@ public sealed class GuideContractTests
     {
         var wrapper = new GuideWrapper
         {
-            Version = 8,
+            Version = GuideData.SchemaVersion,
             Encounters = TestData.EmptyEncounters(),
             Quests = [OrdinaryQuest("quest:known", "KnownDB")],
             ExcludedQuests = ["KnownDB"],
@@ -95,7 +95,7 @@ public sealed class GuideContractTests
         ];
         var wrapper = new GuideWrapper
         {
-            Version = 8,
+            Version = GuideData.SchemaVersion,
             Encounters = TestData.EmptyEncounters(),
             Conditions =
             [
@@ -117,9 +117,9 @@ public sealed class GuideContractTests
     {
         const string json = """
             {
-              "_version": 8,
+              "_version": 9,
               "_encounters": {"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},
-              "_source_facts": {}, "_item_uses": {}, "_quest_state_keys": {},
+              "_source_facts": {}, "_source_ranks": {}, "_item_uses": {}, "_quest_state_keys": {},
               "_conditions": [
                 [[{"kind": "unknown_kind", "ref": "GateQuest"}]]
               ],
@@ -133,6 +133,8 @@ public sealed class GuideContractTests
     [Theory]
     [InlineData("_source_facts", false)]
     [InlineData("_source_facts", true)]
+    [InlineData("_source_ranks", false)]
+    [InlineData("_source_ranks", true)]
     [InlineData("_item_uses", false)]
     [InlineData("_item_uses", true)]
     [InlineData("_quest_state_keys", false)]
@@ -155,6 +157,19 @@ public sealed class GuideContractTests
         Assert.Throws<Newtonsoft.Json.JsonSerializationException>(() =>
             GuideData.Parse(payload.ToString())
         );
+    }
+
+    [Fact]
+    public void Loading_rejects_a_rank_for_an_unknown_acquisition()
+    {
+        var payload = Newtonsoft.Json.Linq.JObject.FromObject(
+            TestData.NativeRequirements(("item:runner", null, [4]))
+        );
+        payload["_source_ranks"] = Newtonsoft.Json.Linq.JObject.Parse(
+            """{"acquisition:unknown": {"tier": 1, "depth": 1}}"""
+        );
+
+        Assert.Throws<InvalidDataException>(() => GuideData.Parse(payload.ToString()));
     }
 
     [Fact]
@@ -344,7 +359,7 @@ public sealed class GuideContractTests
         var data = GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 8,
+                Version = GuideData.SchemaVersion,
                 Encounters = TestData.EmptyEncounters(),
                 Quests = [quest],
             }

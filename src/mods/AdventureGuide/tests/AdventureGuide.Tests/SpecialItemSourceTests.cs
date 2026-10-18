@@ -98,7 +98,7 @@ public sealed class SpecialItemSourceTests
         GuideData.ValidateWrapper(
             new GuideWrapper
             {
-                Version = 8,
+                Version = GuideData.SchemaVersion,
                 Encounters = TestData.EmptyEncounters(),
                 Quests = [Quest([source])],
             }
@@ -198,7 +198,7 @@ public sealed class SpecialItemSourceTests
             GuideData.ValidateWrapper(
                 new GuideWrapper
                 {
-                    Version = 8,
+                    Version = GuideData.SchemaVersion,
                     Encounters = TestData.EmptyEncounters(),
                     Quests = [quest],
                 }
@@ -230,7 +230,7 @@ public sealed class SpecialItemSourceTests
         var data = GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 8,
+                Version = GuideData.SchemaVersion,
                 Encounters = TestData.EmptyEncounters(),
                 Quests = [Quest([])],
                 CharacterSpawns = new Dictionary<string, List<SpawnPoint>>
@@ -317,7 +317,7 @@ public sealed class SpecialItemSourceTests
         var data = GuideData.FromWrapper(
             new GuideWrapper
             {
-                Version = 8,
+                Version = GuideData.SchemaVersion,
                 Encounters = TestData.EmptyEncounters(),
                 Quests = [quest],
             }
