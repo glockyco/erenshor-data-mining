@@ -35,5 +35,7 @@ if [ "${#files[@]}" -eq 0 ]; then
 fi
 
 cd "$repo_root"
-dotnet tool restore --verbosity quiet
-dotnet csharpier format "${files[@]}"
+# The hook wraps this script in `bash`, which the wrapper finds on any PATH, so
+# dotnet itself must be the command that the wrapper probes.
+scripts/with-dev-env.sh dotnet tool restore --verbosity quiet
+scripts/with-dev-env.sh dotnet csharpier format "${files[@]}"
