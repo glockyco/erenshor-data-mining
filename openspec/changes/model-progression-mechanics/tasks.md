@@ -27,6 +27,8 @@ Each Unity export, code-facts run, and clean build of the main variant runs in a
 - [x] 2.4 `feat(export): record the spawns and activations that follow deaths`: export the trigger sets of `AstraListener` (`StarSpawns`) and `StowawayPortal` (the characters that check in through `SkeletonCheckin`, and `KeeperSpawn` as an activation in the dynamic spawn catalog), and give each spawned or enabled subject a `defeated` need for each character of its set. Add unit tests. Verify: Astra, Rogue of the Stars needs every Stardust defeated, the Freed Spirit of Raval needs Raval defeated, the Azynthian Keeper needs the four Shadows defeated, and the behaviour catalog has no `pending` entry for 2.4.
   - Astra needs all 9 Stardust defeated together and 9 Lost Faith, the Freed Spirit of Raval needs Raval, and the Azynthian Keeper the four Shadows. A defeat quantity counts distinct copies of a death set.
 - [ ] 2.5 Check hierarchy activity in the game on a quest-enabled object outside account state, such as the Duskenlight ritual portal before and after The Duskenlight Ritual, and one death trigger, such as the Freed Spirit of Raval after Raval dies. Verify: each object, zone line, and spawn becomes active exactly when its gate says, and the evidence is recorded below.
+- [ ] 2.6 `feat(pipeline): model the Vitheo arena rounds`: read `arena_rounds` and `arena_round_enemies` in the progression build, give each fighter one way per round that needs the round's coin, and give each award chest its round's coin and a defeat of each fighter of the round with its count (design D12). Classify `VithArena` by the progression build in the behaviour catalog. Add unit tests. Verify: `erenshor progression show "item:quest - vithean arena token 1"` has the An Arena Token way as its first way, the round 8 chest needs Vithean Arena Fee (8) and Vitheo the Tactician defeated, and each tier that `extract changes` reports as changed belongs to an arena node or to a node that only the arena reaches.
+- [ ] 2.7 `feat(pipeline): let summoned characters need their summoner`: read each script of `character_chained_spawns` and each fight controller that spawns adds after a check-in, such as `VitheoFight`, and give each summoned character a need of its summoner with any further condition of its summon. Add the adds that a round waits for to the round's death set (design D12). Add unit tests. Verify: no chained child's first way ignores its summoner, the adds of Honsus need Honsus, and the treasure guardians need their chest.
 
 ## 3. Barriers (design D4)
 
@@ -57,14 +59,18 @@ Each Unity export, code-facts run, and clean build of the main variant runs in a
 - [ ] 6.2 Check in the game which interactions a standing below zero blocks: the Arcane Headmaster's hail and keywords with and without the Pupil's Pin, and an Aquilimar NPC with dialog at the starting standing. Verify: the evidence is recorded below, and the game exits normally.
 - [ ] 6.3 `feat(pipeline): let gates need a faction standing`: add the standing atom, its producers (the repeatable quests and kills that raise a faction from its default, and the equipped Pupil's Pin for `AncientSchool`), and the needs of the interactions that 6.2 found blocked. Add unit tests. Verify: `erenshor progression show "item:quest - loss stone"` shows the Pupil's Pin, every quest route of an NPC whose faction starts below zero shows the standing it needs or the evidence of 6.2 that none is needed, and the behaviour catalog has no `pending` entry for section 6.
 
-## 7. Cleanup
+## 7. Repeat ways (design D13)
 
-- [ ] 7.1 `refactor(pipeline): retire the gate branches that general rules cover`: remove each branch of D7 that a landed rule covers. Verify: `extract changes` against the previous build shows no unintended gate change, and the processor tests pass.
-- [ ] 7.2 Give the Adventure Guide tab the overrides that the clean database now covers, each with its clean gate: the Jaws entrance, Vessel Siraethe, Shivering Tomb (2), and the planning desk. Verify: after the guide change lands, `quest_guides/graph_overrides.toml` holds no gate.
-- [ ] 7.3 `docs: describe progression mechanics`: update the README's Gates concept and the `unity-export-system`, `code-facts`, and `refreshing-game-data` skills with hierarchy activity, death triggers, barriers, travel, world state, faction standing, and how to classify a new script after a game update. Verify: `uv run pytest tests/contract/test_document_paths.py` passes.
+- [ ] 7.1 `feat(pipeline): mark ways that repeat their node`: compute the nodes that every way of reaching a node passes through, mark each repeating way in `progression_ways`, record the clean facts of each way in `progression_way_facts`, fail the build when a first way repeats, and raise the progression contract version. Add unit tests for a ring with an exit, a buy-back after its turn-in, and a slower way that does not pass through its node. Verify: the scenarios of the `progression-requirements` delta hold on build 24405256, and `erenshor wiki generate-lua` passes.
 
-## 8. Integration
+## 8. Cleanup
 
-- [ ] 8.1 After `model-guide-gates` archives, move the shared requirements of `guide-gate-data` into `progression-mechanics` with a delta that removes them there and adds them here. Verify: `openspec validate --specs` passes.
-- [ ] 8.2 Run `uv run erenshor test ci`. Verify: it passes.
-- [ ] 8.3 Archive with `openspec archive model-progression-mechanics --yes`. Verify: the behaviour catalog has no `pending` entry, and `openspec/specs/progression-mechanics/spec.md` exists.
+- [ ] 8.1 `refactor(pipeline): retire the gate branches that general rules cover`: remove each branch of D7 that a landed rule covers. Verify: `extract changes` against the previous build shows no unintended gate change, and the processor tests pass.
+- [ ] 8.2 Give the Adventure Guide tab the overrides that the clean database now covers, each with its clean gate: the Jaws entrance, Vessel Siraethe, Shivering Tomb (2), and the planning desk. Verify: after the guide change lands, `quest_guides/graph_overrides.toml` holds no gate.
+- [ ] 8.3 `docs: describe progression mechanics`: update the README's Gates concept and the `unity-export-system`, `code-facts`, and `refreshing-game-data` skills with hierarchy activity, death triggers, barriers, travel, world state, faction standing, and how to classify a new script after a game update. Verify: `uv run pytest tests/contract/test_document_paths.py` passes.
+
+## 9. Integration
+
+- [ ] 9.1 After `model-guide-gates` archives, move the shared requirements of `guide-gate-data` into `progression-mechanics` with a delta that removes them there and adds them here. Verify: `openspec validate --specs` passes.
+- [ ] 9.2 Run `uv run erenshor test ci`. Verify: it passes.
+- [ ] 9.3 Archive with `openspec archive model-progression-mechanics --yes`. Verify: the behaviour catalog has no `pending` entry, and `openspec/specs/progression-mechanics/spec.md` exists.

@@ -60,6 +60,20 @@ A spawn or an activation that a controller performs once a set of characters is 
 - **WHEN** reading the ways to Eldrich Crystal
 - **THEN** the Azynthian Keeper needs the four Shadows of Secluded Sanctuary defeated
 
+### Requirement: Spawns that a round or a summoner releases need what releases them
+
+A character that an arena round spawns SHALL need that round's coin, once for each round it fights in. A round's award chest SHALL need the round's coin and a defeat of each fighter of the round. A character that another character summons SHALL need its summoner.
+
+#### Scenario: The round 8 chest
+
+- **WHEN** reading the ways to Vithean Chest (Round 8)
+- **THEN** it needs Vithean Arena Fee (8) and Vitheo the Tactician defeated
+
+#### Scenario: A summoned add
+
+- **WHEN** reading the ways to a character that Honsus summons
+- **THEN** the way through Honsus's summon needs Honsus
+
 ### Requirement: Barriers take their opening condition from their mechanism
 
 Each object that blocks access SHALL be a barrier whose opening condition comes from its mechanism: a keyed door, an object that a quest listener or another classified script removes or moves, or guardians that a trigger calls. Each gate that a barrier causes SHALL be named by the barrier's key.

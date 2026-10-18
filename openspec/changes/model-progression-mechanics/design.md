@@ -148,6 +148,18 @@ A world faction's standing decides whether its NPCs talk. A hail gets "..." belo
 
 Code facts pin the hail threshold, the aggro threshold, the keyword rule, and the Pupil's Pin rule with its item and values. A new gate atom kind names a standing with a faction that the rules require, such as `faction_standing:ancientschool:non_negative`. Its producers are the repeatable sources that raise the faction from its default and, for `AncientSchool`, the equipped Pupil's Pin. A dialog route or relation with an NPC of a world faction needs the standing that the rules require for that interaction. Which interactions a standing blocks comes from the in-game check (D9) before the rule lands, because `never_aggro` and aggro range decide whether keyword dialog is reachable at all.
 
+### D12. Spawns that rounds and summoners release
+
+`VithArena` runs eight rounds. Entering its trigger consumes the first coin the player carries, from `Coin1` to `Coin8`, and spawns that round's fight list (`CheckForGamepiece`, `SpawnPiece`). Once every fighter it spawned is dead, together with every add that Honsus or the Vitheo fight reports through `ReportNewSpawn`, `Update` instantiates the round's award chest. The export records the rounds in `arena_rounds` and `arena_round_enemies`. A fighter needs the coin of each round it fights in, as one way per round, and an award chest needs its round's coin and a defeat of each fighter of the round, counted as a death set (D3). The coin pins the round, because fighters such as the Expert Gladiator fight in two rounds.
+
+A character that another character summons is present only while its summoner is. `character_chained_spawns` records each summoner and its child, and the clean build expands the child's placements from the summoner's. The child's way needs its summoner, and the adds that a round waits for join the round's death set. Each summoning script is read before its children get the need, and a summon with further conditions gets those too.
+
+### D13. Repeat ways
+
+A way repeats its node when one of its needs can only be reached through the node. The round 8 chest's way to Vithean Arena Fee (1) is one: the chest needs Vithean Arena Fee (8), and every way to that fee passes through Vithean Arena Fee (1). The Master of Battle's buy-back of a fee is another, because it needs the turn-in quest that takes the fee. Such a way is real for a player who has been through the node, but it never explains how to reach the node.
+
+For each node with a tier, the build computes the nodes that every way of reaching it passes through, over the needs that tiers count. This is the greatest fixpoint in which a node passes through itself and through what all its usable ways pass through, and a way passes through what any of its needs passes through. A way repeats when its node is among the nodes that one of its needs passes through. A first way never repeats, because first-way depths decrease, and the build fails if one does. The build stores the mark with the way, and with each way the clean facts that produced it, so that a consumer can match its own sources by acquisition key. The guide stops offering a repeat source as a navigation target while that source's needs are unmet.
+
 ## Risks / Trade-offs
 
 - The API set could miss a gate. The requirement graph's chain reviews and the guide's runtime checks find misses, and each miss widens the set with its evidence.
