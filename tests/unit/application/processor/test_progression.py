@@ -958,3 +958,67 @@ def test_death_sets_need_consumptive_release_items_for_every_distinct_copy(conn,
     assert Need("defeated", "character:copy", quantity=3, advisory=True) in required
     assert Need("release", "item:input", quantity=6, slot="0") in required
     assert Need("release", "item:material", quantity=9, slot="1") in required
+
+
+def arena_round(
+    conn: sqlite3.Connection, index: int, coin: str, chest: str, *fighters: str, arena: str | None = "ARENA"
+) -> None:
+    key = f"arenaround:{arena}:{index}"
+    insert(
+        conn,
+        "arena_rounds",
+        stable_key=key,
+        scene="Start",
+        arena_object_name=arena,
+        round_index=index,
+        coin_item_stable_key=coin,
+        award_chest_character_stable_key=chest,
+    )
+    for sequence, fighter in enumerate(fighters):
+        insert(
+            conn,
+            "arena_round_enemies",
+            arena_round_stable_key=key,
+            sequence_index=sequence,
+            enemy_character_stable_key=fighter,
+        )
+
+
+def test_arena_fighters_need_their_round_and_chests_wait_for_its_fighters(conn):
+    conn.execute("UPDATE character_spawns SET source_script='VithArena'")
+    arena_round(conn, 1, "item:input", "character:other", "character:copy")
+    arena_round(conn, 2, "item:key", "character:ward", "character:copy", "character:copy")
+    graph = builder(conn)
+    place = Need("in zone", "zone:start")
+
+    assert set(graph.ways["character:copy"].values()) == {
+        canonical_way((Need("summoned with", "item:input"), place)),
+        canonical_way((Need("summoned with", "item:key"), place)),
+    }
+    assert set(graph.ways["character:other"].values()) == {
+        canonical_way((Need("summoned with", "item:input"), Need("defeated", "character:copy", advisory=True), place))
+    }
+    assert set(graph.ways["character:ward"].values()) == {
+        canonical_way(
+            (Need("summoned with", "item:key"), Need("defeated", "character:copy", quantity=2, advisory=True), place)
+        )
+    }
+
+
+@pytest.mark.parametrize(
+    "failure,message",
+    [
+        ("unbound", "arena placement belongs to no round"),
+        ("anonymous", "arena round has no scene or arena identity"),
+        ("ambiguous", "placement is ambiguous between arenas"),
+    ],
+)
+def test_arena_placements_bind_to_rounds_of_one_arena(conn, failure, message):
+    conn.execute("UPDATE character_spawns SET source_script='VithArena' WHERE character_stable_key='character:ward'")
+    arena_round(
+        conn, 1, "item:input", "character:other", "character:copy", arena=None if failure == "anonymous" else "ARENA"
+    )
+    if failure == "ambiguous":
+        arena_round(conn, 1, "item:key", "character:ward", "character:copy", arena="OTHER")
+    with pytest.raises(ValueError, match=message):
+        builder(conn)

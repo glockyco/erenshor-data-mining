@@ -507,10 +507,52 @@ class ProgressionBuilder:
             self.add(mechanism, (), fact)
             self.add(self.scenes[facts[0]["value"]], [Need("from", mechanism)], fact)
 
+    def arena_releases(self) -> dict[tuple[str, str], list[Way]]:
+        """Return, per scene and character, the ways that Vitheo's arena releases it.
+
+        A round's coin starts the round and spawns its fighters. The round's award
+        chest follows once every fighter of the round is dead.
+        """
+        # code-fact: guide.gates.vitheo_reveal
+        rounds = {row["stable_key"]: row for row in self.rows("arena_rounds")}
+        fighters: dict[str, Counter[str]] = defaultdict(Counter)
+        for row in self.rows("arena_round_enemies"):
+            key = row["arena_round_stable_key"]
+            if key not in rounds:
+                raise _error(row["enemy_character_stable_key"], f"arena_round_enemies {key}", "enemy of no arena round")
+            fighters[key][row["enemy_character_stable_key"]] += 1
+        releases: dict[tuple[str, str], list[Way]] = defaultdict(list)
+        arenas: dict[tuple[str, str], set[str]] = defaultdict(set)
+        for key, row in sorted(rounds.items()):
+            fact = f"arena_rounds {key}"
+            chest = row["award_chest_character_stable_key"]
+            if not row["scene"] or not row["arena_object_name"]:
+                raise _error(chest, fact, "arena round has no scene or arena identity")
+            if not fighters[key]:
+                raise _error(chest, fact, "arena round has no fighters")
+            coin = (Need("summoned with", row["coin_item_stable_key"]),)
+            ways = [coin]
+            for fighter, count in sorted(fighters[key].items()):
+                releases[row["scene"], fighter].append(coin)
+                arenas[row["scene"], fighter].add(row["arena_object_name"])
+                defeat = self.atom(
+                    chest, "encounter_won", fighter, None, fact, quantity=float(count) if count > 1 else None
+                )
+                ways = self.product(chest, ways, defeat, fact)
+            releases[row["scene"], chest].extend(ways)
+            arenas[row["scene"], chest].add(row["arena_object_name"])
+        for (scene, character), names in arenas.items():
+            if len(names) > 1:
+                raise _error(
+                    character, f"arena_rounds {scene}", f"placement is ambiguous between arenas {sorted(names)}"
+                )
+        return releases
+
     def build_characters(self) -> None:
         stops = self.index("spawn_point_stop_quests", "spawn_point_stable_key")
         encounter_members = self.index("encounter_placements", "member_spawn_stable_key")
         encounter_conditions = self.index("encounter_conditions", "encounter_key")
+        arena = self.arena_releases()
         for character, placements in sorted(self.placements.items()):
             for placement in placements:
                 spawn = placement["spawn_point_stable_key"]
@@ -543,7 +585,13 @@ class ProgressionBuilder:
                             state["required_value"] if kind == "account_state" else None,
                         ):
                             base.extend(needs)
-                ways = self.product(character, [tuple(base)], self.subject_gates("character", character), fact)
+                releases: list[Way] = [()]
+                if placement["source_script"] == "VithArena":
+                    releases = arena.get((placement["scene"], character), [])
+                    if not releases:
+                        raise _error(character, fact, "arena placement belongs to no round")
+                ways = self.product(character, [tuple(base)], releases, fact)
+                ways = self.product(character, ways, self.subject_gates("character", character), fact)
                 if spawn:
                     ways = self.product(character, ways, self.subject_gates("spawn_point", spawn), fact)
                 entries = self.entries.get(("character", character), set()) | self.entries.get(

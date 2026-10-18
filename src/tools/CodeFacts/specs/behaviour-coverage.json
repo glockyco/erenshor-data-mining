@@ -552,7 +552,7 @@
         "Inventory.HasItem"
       ],
       "classification": "adapter",
-      "component": "VithArenaListener, DynamicSpawnSourceListener, and processor/gates.py restored_vitheo"
+      "component": "VithArenaListener, DynamicSpawnSourceListener, processor/gates.py restored_vitheo, and the arena rounds of processor/progression.py"
     },
     "WeatherTrend": {
       "apis": [
