@@ -116,12 +116,7 @@ The graph SHALL leave out zone lines whose destination is saved state, inactive 
 
 ### Requirement: Nodes have a playthrough tier
 
-Each node SHALL carry the tier of its earliest way from a new character's start, counting the milestones on that way, and SHALL name the way that achieves it. The starts SHALL be the scenes that the game offers a new character: Stowaway's Step, and the alternate start in Willowwatch Ridge. Negative conditions and the initial account state SHALL hold at the start. Each need of a milestone's first way SHALL have a lower tier than the milestone, and each need of any other node's first way no higher a tier than that node. A node that no way reaches SHALL have no tier.
-
-#### Scenario: The starts
-
-- **WHEN** reading Stowaway's Step and Willowwatch Ridge
-- **THEN** both have tier 0, each through the start that places a new character there
+Each node SHALL carry the tier of its earliest way from a new character's start, counting the milestones on that way, and SHALL name the way that achieves it. A node that no way reaches SHALL have no tier.
 
 #### Scenario: A ritual portal's first way
 
@@ -133,6 +128,24 @@ Each node SHALL carry the tier of its earliest way from a new character's start,
 - **WHEN** a release needs a world state that no recorded fact produces, as rain in Braxonian Desert does until its weather mechanism is modeled
 - **THEN** the release's world state, the kill ways that need it, and every node that only those ways reach have no tier
 - **AND** no producer is invented for the world state
+
+### Requirement: Tiers count from the starts that the game offers
+
+The starts SHALL be the scenes that the game offers a new character: Stowaway's Step, and the alternate start in Willowwatch Ridge. Negative conditions and the initial account state SHALL hold at the start.
+
+#### Scenario: The starts
+
+- **WHEN** reading Stowaway's Step and Willowwatch Ridge
+- **THEN** both have tier 0, each through the start that places a new character there
+
+### Requirement: First ways respect the tier order
+
+Each need of a milestone's first way SHALL have a lower tier than the milestone, and each need of any other node's first way SHALL have no higher a tier than that node.
+
+#### Scenario: A milestone's first way
+
+- **WHEN** reading the first way of any milestone
+- **THEN** every need of that way has a lower tier than the milestone
 
 ### Requirement: Milestones mark progression steps
 
