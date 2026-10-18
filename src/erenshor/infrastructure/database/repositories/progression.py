@@ -97,6 +97,11 @@ class ProgressionRepository:
         except DatabaseConnectionError as error:
             raise RepositoryError(f"Cannot read progression graph: {error}") from error
 
+    def get_nodes(self) -> tuple[ProgressionNode, ...]:
+        """Return every persisted node in stable key order."""
+        self._load()
+        return tuple(self._nodes[key] for key in sorted(self._nodes))
+
     def get_node(self, key: str) -> ProgressionNode | None:
         self._load()
         return self._nodes.get(key)

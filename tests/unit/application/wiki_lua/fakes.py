@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Iterator
+from dataclasses import dataclass
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, Literal
 
@@ -24,8 +25,21 @@ if TYPE_CHECKING:
     from erenshor.domain.entities.item_stats import ItemStats
     from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
     from erenshor.domain.value_objects.faction import FactionModifier
+    from erenshor.domain.value_objects.progression import ProgressionNode, ProgressionWay
     from erenshor.domain.value_objects.vendor_stock import VendorStockEntry
     from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink
+
+
+@dataclass
+class FakeProgressionRepository:
+    nodes: tuple[ProgressionNode, ...]
+    ways: dict[str, tuple[ProgressionWay, ...]]
+
+    def get_nodes(self) -> tuple[ProgressionNode, ...]:
+        return self.nodes
+
+    def get_ways(self, key: str) -> tuple[ProgressionWay, ...]:
+        return self.ways.get(key, ())
 
 
 class FakeItemProvenanceRepository:

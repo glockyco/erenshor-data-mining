@@ -56,6 +56,7 @@ from erenshor.application.wiki_lua.link_catalog import build_links_data
 from erenshor.cli.mediawiki import create_readonly_mediawiki_client
 from erenshor.infrastructure.content_lifecycle import load_content_lifecycle
 from erenshor.infrastructure.database.repositories.build_metadata import BuildMetadataRepository
+from erenshor.infrastructure.database.repositories.progression import ProgressionRepository
 from erenshor.infrastructure.database.repositories.treasure import TreasureRepository
 from erenshor.infrastructure.wiki.content import normalize_saved_text
 
@@ -155,6 +156,7 @@ def _generate_lua(ctx: CLIContext, storage: WikiStorage, output: Path) -> dict[s
             class_display=context.class_display,
             build_repo=BuildMetadataRepository(composition.database),
             treasure_repo=TreasureRepository(composition.database),
+            progression_repo=ProgressionRepository(composition.database),
             provenance_repo=context.item_provenance_repo,
             lifecycle=load_content_lifecycle(ctx.repo_root / "content-lifecycle.json"),
             output_root=output,

@@ -70,10 +70,11 @@ def view_module_text(
     known_keys: Collection[str],
     *,
     reference_catalog: Mapping[str, Mapping[str, object]] | None = None,
+    entity_keys: Collection[str] | None = None,
 ) -> str:
     """Return the module text of a view after checking every row against its declaration."""
     for entity_key, rows in rows_by_entity.items():
-        if entity_key not in known_keys:
+        if entity_key not in (known_keys if entity_keys is None else entity_keys):
             raise ViewDataError(f"{view.title}: {view.entity} key {entity_key!r} is not in the link catalog")
         for index, row in enumerate(rows, start=1):
             _check_row(view, entity_key, index, row, known_keys, reference_catalog)
@@ -90,6 +91,8 @@ def _check_row(
     reference_catalog: Mapping[str, Mapping[str, object]] | None,
 ) -> None:
     where = f"{view.title}: row {index} of {entity_key}"
+    if "way" in row:
+        where += f" way {row['way']}"
     declared = {field.name: field for field in view.fields}
     for name in row:
         if name not in declared:

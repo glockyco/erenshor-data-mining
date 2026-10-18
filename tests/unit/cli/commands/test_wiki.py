@@ -252,7 +252,7 @@ class TestWikiGenerateCommand:
         self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext
     ):
         """Test generation receives the concrete faction and class services."""
-        repositories = tuple(MagicMock(name=f"repo_{index}") for index in range(12))
+        repositories = tuple(MagicMock(name=f"repo_{index}") for index in range(13))
         generation = MagicMock(written_paths=[], validation_tools={}, manifest_paths=())
         create = wiki._create_lua_repositories
         monkeypatch.setattr(
@@ -322,6 +322,7 @@ class TestWikiGenerateCommand:
             "BuildMetadataRepository",
             "TreasureRepository",
             "ItemProvenanceRepository",
+            "ProgressionRepository",
         )
         constructor_connections: list[object] = []
 

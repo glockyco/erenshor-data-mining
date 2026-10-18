@@ -10,6 +10,7 @@ from tests.unit.application.wiki_lua.fakes import (
     FakeFactionRepository,
     FakeItemProvenanceRepository,
     FakeItemRepository,
+    FakeProgressionRepository,
     FakeQuestRepository,
     FakeSkillRepository,
     FakeSpellRepository,
@@ -31,6 +32,7 @@ from erenshor.application.wiki_lua.generation import (
 )
 from erenshor.application.wiki_lua.validation import LuaValidationResult
 from erenshor.domain.value_objects.item_provenance import ItemAcquisition, ItemDisposition, ItemUse, fact_to_dict
+from erenshor.domain.value_objects.progression import ProgressionNode, ProgressionWay
 from erenshor.domain.value_objects.treasure import ChestWave, GuardianScaling, TreasureGuardian
 from erenshor.infrastructure.content_lifecycle import ContentLifecycle, LifecyclePage, load_content_lifecycle
 
@@ -64,6 +66,7 @@ def test_generation_validates_nonnull_blank_item_catalog_pages(tmp_path: Path) -
     with pytest.raises(ValueError, match="Blank link catalog page"):
         generate_lua_data_modules(
             build_repo=FakeBuildRepository(),
+            progression_repo=FakeProgressionRepository((), {}),
             treasure_repo=FakeTreasureRepository(),
             item_repo=item_repo,
             provenance_repo=FakeItemProvenanceRepository([item.stable_key]),
@@ -100,6 +103,7 @@ def test_generation_wires_canonical_provenance_and_persists_offline_coverage(tmp
 
     result = generate_lua_data_modules(
         build_repo=FakeBuildRepository(),
+        progression_repo=FakeProgressionRepository((), {}),
         treasure_repo=FakeTreasureRepository(),
         item_repo=FakeItemRepository(items=[item], stats={}, classes={}),
         provenance_repo=provenance,
@@ -140,10 +144,12 @@ def _run_generation(
     lifecycle: ContentLifecycle | None = None,
     stance_repo: FakeStanceRepository | None = None,
     character_repo: FakeCharacterRepository | None = None,
+    progression_repo: FakeProgressionRepository | None = None,
 ) -> LuaDataModuleGenerationResult:
     item_repo = FakeItemRepository(items=[make_item(stable_key=item_key)], stats={}, classes={})
     return generate_lua_data_modules(
         build_repo=FakeBuildRepository(),
+        progression_repo=progression_repo or FakeProgressionRepository((), {}),
         treasure_repo=FakeTreasureRepository(),
         item_repo=item_repo,
         provenance_repo=provenance_repo or FakeItemProvenanceRepository([item_key]),
@@ -160,6 +166,36 @@ def _run_generation(
         lifecycle=lifecycle if lifecycle is not None else ContentLifecycle({}, {}, {}),
         validate=lambda path: LuaValidationResult(path=path, tool="stylua"),
     )
+
+
+def test_generation_writes_and_validates_persisted_progression_rows(tmp_path: Path) -> None:
+    key = "item:sword_of_flames"
+    graph = FakeProgressionRepository(
+        (ProgressionNode(key, "item", "Sword", True, 1, "available"),),
+        {key: (ProgressionWay("available", ()),)},
+    )
+    result = _run_generation(tmp_path, progression_repo=graph)
+    path = tmp_path / "Erenshor" / "Data" / "Progression.lua"
+    assert path in result.written_paths
+    assert path in result.validation_tools
+    content = path.read_text()
+    assert key in content
+    assert '["milestone"] = true' in content
+    assert '["first"] = true' in content
+
+
+def test_invalid_progression_does_not_replace_previous_modules(tmp_path: Path) -> None:
+    key = "item:unknown"
+    graph = FakeProgressionRepository(
+        (ProgressionNode(key, "item", "Unknown", True, 1, "available"),),
+        {key: (ProgressionWay("available", ()),)},
+    )
+    previous = tmp_path / "Erenshor" / "Data" / "Progression.lua"
+    previous.parent.mkdir(parents=True)
+    previous.write_text("previous")
+    with pytest.raises(ValueError, match="unknown native identity"):
+        _run_generation(tmp_path, progression_repo=graph)
+    assert previous.read_text() == "previous"
 
 
 def test_generated_modules_are_byte_for_byte_deterministic(tmp_path: Path) -> None:
@@ -207,6 +243,7 @@ def test_generation_requires_faction_and_class_dependencies(tmp_path: Path) -> N
     with pytest.raises(TypeError) as error:
         generate_lua_data_modules(
             build_repo=FakeBuildRepository(),
+            progression_repo=FakeProgressionRepository((), {}),
             treasure_repo=FakeTreasureRepository(),
             item_repo=FakeItemRepository(items=[make_item()], stats={}, classes={}),
             provenance_repo=FakeItemProvenanceRepository([make_item().stable_key]),

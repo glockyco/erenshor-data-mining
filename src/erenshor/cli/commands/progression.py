@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 import typer
 
+from erenshor.application.progression_wording import ProgressionWordingError, condition_text
 from erenshor.infrastructure.database.connection import DatabaseConnection, DatabaseConnectionError
 from erenshor.infrastructure.database.repositories.progression import ProgressionRepository
 from erenshor.infrastructure.database.repository import RepositoryError
@@ -24,17 +25,10 @@ def _label(node: ProgressionNode) -> str:
 
 def _condition(need: ProgressionNeed) -> str:
     key = need.condition_key or ""
-    if need.relation == "event" and key.startswith("event:"):
-        return f"scripted event [{key}]"
-    descriptions = {
-        "health_phase_timer": "vulnerability after a health-phase timer",
-        "spawn_health_phase_timer": "vulnerability after a spawn health-phase timer",
-        "combat_empty_wards": "vulnerability during combat with no wards",
-    }
-    for mechanism, description in descriptions.items():
-        if need.relation == "condition" and key.startswith(f"release:{mechanism}:"):
-            return f"{description} [{key}]"
-    raise RepositoryError(f"Cannot word progression condition: {key!r}")
+    try:
+        return f"{condition_text(key)} [{key}]"
+    except ProgressionWordingError as error:
+        raise RepositoryError(str(error)) from error
 
 
 def _need(repository: ProgressionRepository, need: ProgressionNeed) -> str:

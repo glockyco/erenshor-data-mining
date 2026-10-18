@@ -6,7 +6,7 @@ Renders the clean database's requirement graph on the wiki: a target's playthrou
 
 ### Requirement: The data module mirrors the requirement graph
 
-`Module:Erenshor/Data/Progression` SHALL hold every node of the requirement graph with its kind, tier, milestone flag, and native identity reference, and every way with its needs. Generation SHALL fail and name the node when a need's condition has no wording, when an identity resolves in neither the link catalog nor the native identity catalog, or when the module exceeds its page budget.
+`Module:Erenshor/Data/Progression` SHALL hold every node of the requirement graph that has a way or that a need references, with its kind, tier, milestone flag, and native identity reference, and every way of those nodes with its needs, including a way without needs. Generation SHALL fail and name the node when a need's condition has no wording, when an identity resolves in neither the link catalog nor the native identity catalog, or when the module exceeds its page budget.
 
 #### Scenario: A raid plane
 
@@ -17,6 +17,11 @@ Renders the clean database's requirement graph on the wiki: a target's playthrou
 
 - **WHEN** a need names a condition key that the builder cannot word
 - **THEN** generation fails and names the node, the way, and the key
+
+#### Scenario: A node that carries no requirement
+
+- **WHEN** a node has no way and no need references it, such as an item that the game leaves unnamed and unobtainable
+- **THEN** the module leaves it out
 
 ### Requirement: A page renders a target's progression as text
 

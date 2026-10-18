@@ -39,6 +39,7 @@ from erenshor.application.wiki_lua.link_catalog import (
 from erenshor.application.wiki_lua.link_catalog import (
     ZoneDataRepository as LinkCatalogZoneRepository,
 )
+from erenshor.application.wiki_lua.progression import ProgressionDataRepository, write_progression_module
 from erenshor.application.wiki_lua.quests import QuestPanelRepository, write_quests_module
 from erenshor.application.wiki_lua.skills import (
     SkillDataRepository as SkillModuleRepository,
@@ -164,6 +165,7 @@ TOP_LEVEL_DATA_MODULES: tuple[str, ...] = (
     "ZoneRosters.lua",
     "ClassAbilities.lua",
     "Quests.lua",
+    "Progression.lua",
     "GameBoard.lua",
 )
 
@@ -291,6 +293,7 @@ def generate_lua_data_modules(
     zone_repo: WikiZoneRepository,
     provenance_repo: ItemProvenanceRepository,
     treasure_repo: TreasureDataRepository,
+    progression_repo: ProgressionDataRepository,
     output_root: Path,
     faction_repo: WikiFactionRepository,
     class_display: ClassDisplayNameService,
@@ -394,6 +397,13 @@ def generate_lua_data_modules(
             write_zone_rosters_module(character_repo, known_keys, staging_root, quest_catalog=character_catalog),
             write_class_abilities_module(spell_repo, provenance_repo, known_keys, staging_root),
             write_quests_module(quest_repo, known_keys, staging_root, native_catalog=character_catalog),
+            write_progression_module(
+                progression_repo,
+                known_keys,
+                staging_root,
+                native_catalog=character_catalog,
+                max_page_bytes=max_page_bytes,
+            ),
             write_game_board_module(
                 character_repo,
                 provenance_repo,

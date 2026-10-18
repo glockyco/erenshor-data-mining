@@ -119,6 +119,7 @@ from erenshor.infrastructure.database.repositories.characters import CharacterRe
 from erenshor.infrastructure.database.repositories.factions import FactionRepository
 from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
 from erenshor.infrastructure.database.repositories.items import ItemRepository
+from erenshor.infrastructure.database.repositories.progression import ProgressionRepository
 from erenshor.infrastructure.database.repositories.quests import QuestRepository
 from erenshor.infrastructure.database.repositories.skills import SkillRepository
 from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
@@ -439,6 +440,7 @@ _LuaRepositories = tuple[
     BuildMetadataRepository,
     TreasureRepository,
     ItemProvenanceRepository,
+    ProgressionRepository,
 ]
 
 
@@ -462,6 +464,7 @@ def _create_lua_repositories(cli_ctx: CLIContext, *, repositories: _LuaRepositor
         BuildMetadataRepository(db_connection),
         TreasureRepository(db_connection),
         ItemProvenanceRepository(db_connection),
+        ProgressionRepository(db_connection),
     )
 
 
@@ -691,6 +694,7 @@ def generate_lua(ctx: typer.Context) -> None:
             build_repo,
             treasure_repo,
             provenance_repo,
+            progression_repo,
         ) = _create_lua_repositories(cli_ctx)
         result = generate_lua_data_modules(
             item_repo=item_repo,
@@ -705,6 +709,7 @@ def generate_lua(ctx: typer.Context) -> None:
             build_repo=build_repo,
             treasure_repo=treasure_repo,
             provenance_repo=provenance_repo,
+            progression_repo=progression_repo,
             lifecycle=_load_retired_lifecycle(cli_ctx),
             output_root=output_root,
             max_page_bytes=cli_ctx.config.global_.mediawiki.max_page_bytes,
