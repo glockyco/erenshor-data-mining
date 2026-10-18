@@ -63,9 +63,14 @@ internal static class NavigationDisplay
             if (link.Atom is not { Kind: GateAtomKind.EncounterWon } atom)
                 continue;
             ImGui.PushID(i);
+            bool selected = nav.RequirementCharacterKey == atom.Ref;
+            if (selected)
+                ImGui.PushStyleColor(ImGuiCol.Button, Theme.QuestActive);
             if (ImGui.SmallButton("[NAV]"))
                 nav.NavigateToRequirementCharacter(atom.Ref, link.Label, currentScene);
             ImGui.PopID();
+            if (selected)
+                ImGui.PopStyleColor();
             ImGui.SameLine();
             Theme.TextWrapped(link.Label);
         }

@@ -195,6 +195,9 @@ A checked task proves its named behavior and checks, not newer shared-data integ
 - [ ] 10.10 Estimate quest levels from complete alternatives while retaining independent required steps, native item bundles and each destination's own route. Verify The Island Tomb's level-4 versus level-24 choice through actual owned generation and the native Guide.
   - All 204 Guide Python unit cases and 744 Guide host cases pass. Both native loader builds report zero warnings and errors. Actual generation from the approved readonly owned input changes The Island Tomb from 24 to 4 while retaining destination levels 4 and 24. Canonical source facts, conditions, routes and destination contexts are unchanged. Receipt: `/tmp/erenshor-guide/interactive-review111/evidence/alternative-level-generation112.json`. The running user-review build is unchanged and native display proof remains pending.
 
+- [ ] 10.11 Preserve original encounter advice and quest context when its NAV action is selected. Resolve the fight as combat, retain its real prerequisites across refreshes and show the selected focus without implying completion. Verify Eldoth Molorai for The Riftstone independently of formatting.
+  - The reported before/after screenshots establish the native loss. The existing override retains only advisory presentation links, not cached availability. All 745 Guide host cases pass, including actual-resource Eldoth focus before keys, after the Ghostly Key, locally after the Intricate Key and with an unreachable scene. Both loader builds report zero warnings and errors, and repository static checks pass. Native display and click acceptance remain pending while the user reviews the unchanged build.
+
 ## 8. Close-out
 
 Release planning, packaging dry runs, and publishing are outside this change's assignment.

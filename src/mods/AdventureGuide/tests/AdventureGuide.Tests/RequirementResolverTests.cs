@@ -799,6 +799,58 @@ public sealed class RequirementResolverTests
         Assert.All(result.Chain, link => Assert.Equal(GateAtomKind.EncounterWon, link.Atom!.Kind));
     }
 
+    [Fact]
+    public void Encounter_focus_retains_original_advice_through_key_and_scene_changes()
+    {
+        var data = ShippingData();
+        var quest = data.GetByDBName("Riftstone")!;
+        var origin = quest.Steps![0];
+        var facts = new GateTestFacts();
+        var resolver = Resolver(data, facts);
+        var original = resolver.Resolve(quest, origin, "Stowaway");
+        var context = NavigationResolutionPolicy.CaptureAdvisories(original);
+        var encounter = context.Single(link => link.Atom?.Ref == "character:eldoth molorai");
+        var focus = new QuestStep
+        {
+            Order = origin.Order,
+            Action = "kill",
+            Description = encounter.Label,
+            TargetType = "character",
+            TargetKey = encounter.Atom!.Ref,
+            TargetName = "Eldoth Molorai",
+        };
+
+        foreach (
+            var (scene, key, targetType) in new[]
+            {
+                ("Stowaway", (string?)null, "item"),
+                ("Stowaway", "item:key - ghostly key", "item"),
+                ("AzynthiClear", "item:key - intricate", "character"),
+            }
+        )
+        {
+            if (key != null)
+                facts.Keyring.Add(data.GateItems[key].GameId);
+            var result = NavigationResolutionPolicy.PreserveAdvisories(
+                resolver.Resolve(quest, focus, scene),
+                context
+            );
+            Assert.True(result.CanNavigate, result.Message);
+            Assert.Single(result.Chain, link => link.Atom?.Ref == "character:eldoth molorai");
+            Assert.Equal(targetType, result.Step.TargetType);
+            if (targetType == "character")
+                Assert.Equal("character:eldoth molorai", result.Step.TargetKey);
+            context = NavigationResolutionPolicy.CaptureAdvisories(result);
+        }
+
+        var unreachable = NavigationResolutionPolicy.PreserveAdvisories(
+            resolver.Resolve(quest, focus, "MainMenu"),
+            context
+        );
+        Assert.False(unreachable.CanNavigate);
+        Assert.Single(unreachable.Chain, link => link.Atom?.Ref == "character:eldoth molorai");
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]

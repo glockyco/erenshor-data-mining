@@ -28,7 +28,7 @@ public sealed class NavigationController
     private readonly HashSet<string> _reportedResolutionErrors = new(
         StringComparer.OrdinalIgnoreCase
     );
-    private QuestStep? _navigationOverride;
+    private (QuestStep Step, IReadOnlyList<RequirementLink> Advisories)? _navigationOverride;
     private readonly SourceNavigationSelection _sourceSelection = new();
 
     private RequirementResolution? _requirementResult;
@@ -54,6 +54,7 @@ public sealed class NavigationController
         }
     }
     public string? ImmediateRequirement { get; private set; }
+    public string? RequirementCharacterKey => _navigationOverride?.Step.TargetKey;
     public string? NextActionLabel =>
         SelectedSourceSummary ?? (Target == null ? null : _resolvedStep?.Description);
     public ZoneLineEntry? ChosenEntryLine => _chosenEntryLine ?? Requirements?.EntryLine;
@@ -319,16 +320,18 @@ public sealed class NavigationController
         var quest = OriginQuest;
         if (quest == null)
             return false;
-        _navigationOverride = new QuestStep
+        var advisoryContext = NavigationResolutionPolicy.CaptureAdvisories(Requirements);
+        var step = new QuestStep
         {
             Order = _originStepOrder,
-            Action = "talk",
+            Action = "kill",
             Description = displayName,
             TargetType = "character",
             TargetKey = characterKey,
             TargetName = displayName,
         };
-        return ResolveAndNavigate(_navigationOverride, quest, currentScene);
+        _navigationOverride = (step, advisoryContext);
+        return ResolveAndNavigate(step, quest, currentScene);
     }
 
     private QuestStep? CurrentRequirementStep(QuestEntry quest)
@@ -455,9 +458,9 @@ public sealed class NavigationController
             return false;
         }
         SetOriginStepOrder(order);
-        if (_navigationOverride != null)
+        if (_navigationOverride is { } navigationOverride)
             return ResolveAndNavigate(
-                _navigationOverride,
+                navigationOverride.Step,
                 quest,
                 currentScene,
                 preserveCrossZoneCache
@@ -576,6 +579,11 @@ public sealed class NavigationController
                     result.AvailableSpawns
                 );
             }
+            if (_navigationOverride is { } navigationOverride)
+                result = NavigationResolutionPolicy.PreserveAdvisories(
+                    result,
+                    navigationOverride.Advisories
+                );
             bool sameOrigin =
                 sameResolutionScene
                 && Target != null

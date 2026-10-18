@@ -29,6 +29,7 @@
 - Keep recipe ingredient markers and tracker order accurate until the full amount is gathered.
 - Show repeated navigation instructions only once.
 - Estimate quest levels from the easier complete alternative without skipping required steps.
+- Keep encounter requirements visible when navigating to a prerequisite fight.
 
 ## v2026.1008.0
 

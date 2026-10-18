@@ -34,6 +34,59 @@ public static class NavigationResolutionPolicy
         return 0;
     }
 
+    public static IReadOnlyList<RequirementLink> CaptureAdvisories(RequirementResolution? result)
+    {
+        if (result == null || result.Advisories.Count == 0)
+            return Array.Empty<RequirementLink>();
+        var context = new List<RequirementLink>(result.Advisories.Count);
+        foreach (var link in result.Chain)
+            if (link.Atom is { Kind: GateAtomKind.EncounterWon })
+                context.Add(link);
+        return context;
+    }
+
+    public static RequirementResolution PreserveAdvisories(
+        RequirementResolution result,
+        IReadOnlyList<RequirementLink> context
+    )
+    {
+        List<RequirementLink>? chain = null;
+        List<GateAtom>? advisories = null;
+        foreach (var link in context)
+        {
+            if (link.Atom is not { Kind: GateAtomKind.EncounterWon } atom)
+                continue;
+            bool present = false;
+            var existing = advisories ?? result.Advisories;
+            for (int i = 0; i < existing.Count; i++)
+                if (ReferenceEquals(existing[i], atom))
+                {
+                    present = true;
+                    break;
+                }
+            if (present)
+                continue;
+            chain ??= new List<RequirementLink>(result.Chain);
+            advisories ??= new List<GateAtom>(result.Advisories);
+            chain.Add(link);
+            advisories.Add(atom);
+        }
+        return chain == null
+            ? result
+            : new RequirementResolution(
+                result.Quest,
+                result.Step,
+                result.CanNavigate,
+                result.Message,
+                chain,
+                advisories!,
+                result.SelectedScene,
+                result.SelectedSpawn,
+                result.EntryLine,
+                result.AvailableSpawns
+            );
+    }
+
     public static bool ShouldResolveRequirements(int stateVersion, int resolutionVersion) =>
         stateVersion != resolutionVersion;
 

@@ -26,6 +26,8 @@ AdventureGuide SHALL NOT hide, skip, or reject a target because of an advisory a
 
 Transient activation and per-spawn release advice SHALL NOT become fabricated hard completion gates. PietyTrigger's quest guard SHALL describe activation, never imply despawn after quest completion. Actual live-entity withholding SHALL remain separate. Supported persistent account claims SHALL use the common effective-state projection rather than advisory kill history.
 
+Selecting an encounter requirement's NAV action SHALL preserve the original quest and step and retain its advisory context while resolving the selected fight's prerequisites. The selected action SHALL remain visible and distinguish navigation focus from completion. Inventory and scene changes SHALL refresh real prerequisites without dropping that context or manufacturing kill history. Selecting another origin, advancing the origin or clearing navigation SHALL clear the old focus.
+
 #### Scenario: A restored god
 
 - **WHEN** the player navigates to restored Fernalla
