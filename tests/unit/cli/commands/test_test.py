@@ -330,6 +330,24 @@ def test_python_leaves_use_exact_pytest_path_argv_and_repository_cwd(
     assert calls[0][1] == tmp_path
 
 
+def test_unit_leaf_fails_when_the_gadget_node_tests_fail(tmp_path: Path, monkeypatch: Any) -> None:
+    calls: list[list[str]] = []
+    monkeypatch.setattr(test, "_read_pytest_report", lambda _path: (_counts(), None))
+    monkeypatch.setitem(test._PREFLIGHTS, "unit", lambda _ctx: _passing_preflight())
+
+    def fake_run_process(argv: list[str], cwd: Path) -> Any:
+        calls.append(list(argv))
+        return test._CommandResult(tuple(argv), cwd, 1 if argv[0] == "pnpm" else 0, 0.125)
+
+    monkeypatch.setattr(test, "_run_process", fake_run_process)
+    result = test._run_leaf(_context(tmp_path), "unit")
+
+    assert calls[-1] == ["pnpm", "run", "test:wiki-gadgets"]
+    assert [command["exit_code"] for command in result.commands] == [0, 1]
+    assert result.status == "failed"
+    assert result.exit_code == 1
+
+
 def test_contract_preflight_requires_both_native_projects(tmp_path: Path, monkeypatch: Any) -> None:
     monkeypatch.setattr(test, "_executable", lambda name: test._Preflight(name, True, "present"))
 
@@ -973,6 +991,8 @@ def test_unit_rejects_zero_skipped_deselected_or_failed_pytest_results(
 
     def fake_run(args: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
         calls.append({"args": args, **kwargs})
+        if args[0] == "pnpm":
+            return subprocess.CompletedProcess(args=args, returncode=0)
         report_path = Path(args[args.index("--erenshor-report") + 1])
         report_path.parent.mkdir(parents=True, exist_ok=True)
         report_path.write_text(json.dumps(payload), encoding="utf-8")
@@ -987,7 +1007,7 @@ def test_unit_rejects_zero_skipped_deselected_or_failed_pytest_results(
     assert payload["status"] == "failed"
     assert payload["leaves"][0]["status"] == "failed"
     assert payload["leaves"][0]["exit_code"] == 1
-    assert len(calls) == 1
+    assert [call["args"][0] for call in calls] == ["pytest", "pnpm"]
 
 
 @pytest.mark.parametrize("report_mode", ["missing", "malformed", "shape", "counter", "incomplete", "schema"])
@@ -1171,6 +1191,8 @@ def test_nonzero_runner_outcome_writes_failed_report_with_diagnostics(tmp_path: 
     monkeypatch.setattr(test.time, "monotonic", lambda: 10.0)
 
     def fake_run(args: list[str], **_kwargs: Any) -> subprocess.CompletedProcess[str]:
+        if args[0] == "pnpm":
+            return subprocess.CompletedProcess(args=args, returncode=0)
         report_path = Path(args[args.index("--erenshor-report") + 1])
         report_path.parent.mkdir(parents=True, exist_ok=True)
         report_path.write_text(json.dumps(_valid_pytest_report()), encoding="utf-8")

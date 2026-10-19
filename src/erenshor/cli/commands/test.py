@@ -396,7 +396,12 @@ def _preflight_static(cli_ctx: CLIContext) -> list[_Preflight]:
 
 
 def _preflight_unit(cli_ctx: CLIContext) -> list[_Preflight]:
-    return [_executable("uv"), _directory(cli_ctx.repo_root / "tests/unit", "tests/unit")]
+    return [
+        _executable("uv"),
+        _executable("pnpm"),
+        _executable("node"),
+        _directory(cli_ctx.repo_root / "tests/unit", "tests/unit"),
+    ]
 
 
 def _preflight_contract(cli_ctx: CLIContext) -> list[_Preflight]:
@@ -945,6 +950,22 @@ def _run_pytest_leaf(
     )
 
 
+# The pure modules of the wiki gadgets have node tests beside the Python unit tests.
+_GADGET_TEST_COMMAND = ("pnpm", "run", "test:wiki-gadgets")
+
+
+def _run_unit_leaf(cli_ctx: CLIContext, *, coverage: bool) -> _LeafResult:
+    """Run the Python unit tests and the wiki gadget node tests."""
+    result = _run_pytest_leaf(cli_ctx, "unit", ["tests/unit"], coverage=coverage)
+    gadgets = _run_process(_GADGET_TEST_COMMAND, cli_ctx.repo_root)
+    result.commands.append(_command_json(gadgets))
+    if gadgets.exit_code != 0:
+        result.status = "failed"
+        result.exit_code = result.exit_code or gadgets.exit_code
+        result.diagnostics["gadget_tests"] = [f"exit_code={gadgets.exit_code}"]
+    return result
+
+
 def _run_native_test_project(cli_ctx: CLIContext, project: Path, *, name: str) -> _NativeTestResult:
     """Run one native test project and validate its retained TRX report."""
     report_path = _native_report_path(cli_ctx.repo_root, "contract", name)
@@ -1345,7 +1366,7 @@ def _run_leaf(
     elif task_id == "static":
         result = _run_static_leaf(cli_ctx)
     elif task_id == "unit":
-        result = _run_pytest_leaf(cli_ctx, task_id, ["tests/unit"], coverage=coverage)
+        result = _run_unit_leaf(cli_ctx, coverage=coverage)
     elif task_id == "contract":
         result = _run_contract_leaf(cli_ctx)
     elif task_id == "data":
@@ -1600,7 +1621,7 @@ def test_unit(
     ctx: typer.Context,
     coverage: bool = typer.Option(False, "--coverage", help="Generate explicit coverage output"),
 ) -> None:
-    """Run hermetic Python unit tests."""
+    """Run the hermetic Python unit tests and the wiki gadget node tests."""
     _run_task(ctx.obj, "unit", coverage=coverage)
 
 
