@@ -1059,9 +1059,10 @@ def test_invalid_pytest_report_validation_is_persisted_in_leaf_diagnostics(tmp_p
     monkeypatch.setitem(test._PREFLIGHTS, "unit", lambda _ctx: _passing_preflight())
 
     def fake_run_process(argv: Sequence[str], cwd: Path) -> Any:
-        report_path = Path(argv[-1])
-        report_path.parent.mkdir(parents=True, exist_ok=True)
-        report_path.write_text(json.dumps(_valid_pytest_report(schema=99)), encoding="utf-8")
+        if argv[0] == "pytest":
+            report_path = Path(argv[-1])
+            report_path.parent.mkdir(parents=True, exist_ok=True)
+            report_path.write_text(json.dumps(_valid_pytest_report(schema=99)), encoding="utf-8")
         return test._CommandResult(tuple(argv), cwd, 0, 0.0)
 
     monkeypatch.setattr(test, "_run_process", fake_run_process)
