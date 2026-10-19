@@ -24,6 +24,7 @@
 - Use the Stowaway's Step lighthouse entrance to reach Occuphage.
 - Stop routing through zone exits that players cannot reach, such as the Shivering Tomb exit to Stowaway's Step.
 - Stop listing exits that never open as quest unlocks, such as the Shivering Step exit to Hidden Hills for A Way To Erenshor.
+- Stop locking the odd statue, its catnip and the exits of Mysterious Portal (3) behind Catnip for a statue, which you finish at the statue.
 - Base quest levels on the easiest way to finish, so The Island Tomb shows level 4 instead of 24.
 - Show the hours when a fish can be caught.
 - Show the keyword to say when an NPC hands you an item.
