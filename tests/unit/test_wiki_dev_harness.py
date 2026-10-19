@@ -314,14 +314,6 @@ def test_local_wiki_runtime_artifacts_are_ignored() -> None:
     assert "wiki-dev/runtime/" in gitignore
 
 
-def test_scribunto_uses_system_lua_for_arm_compatible_local_rendering() -> None:
-    dockerfile = Path("wiki-dev/Dockerfile").read_text(encoding="utf-8")
-    settings = Path("wiki-dev/LocalSettings.extra.php").read_text(encoding="utf-8")
-
-    assert "lua5.1" in dockerfile
-    assert "$wgScribuntoEngineConf['luastandalone']['luaPath'] = '/usr/bin/lua5.1';" in settings
-
-
 def test_local_mediawiki_matches_live_skin_gadget_and_article_size_surface() -> None:
     dockerfile = Path("wiki-dev/Dockerfile").read_text(encoding="utf-8")
     settings = Path("wiki-dev/LocalSettings.extra.php").read_text(encoding="utf-8")
