@@ -24,6 +24,13 @@ public struct CatalogEntry
     public bool IncludeHostBounds { get; set; }
     public string? Reason { get; set; }
     public string? Rule { get; set; }
+
+    // What the spawned character needs from others: "host", "checked_in", or a
+    // controller field that names a SpawnPoint or a Character prefab.
+    public IReadOnlyList<string> SummonedBy { get; set; }
+
+    // "alive", "defeated", or "dialog". Set exactly when SummonedBy names someone.
+    public string? Summon { get; set; }
 }
 
 public sealed class ActivationCatalogEntry
@@ -109,6 +116,8 @@ public class DynamicSpawnCatalog
                         or "trigger_mode"
                         or "event_display_name"
                         or "include_host_bounds"
+                        or "summoned_by"
+                        or "summon"
                         or "reason";
             if (!valid)
                 throw new InvalidDataException($"Unknown [[{section}]] catalog attribute: {name}");
@@ -142,6 +151,22 @@ public class DynamicSpawnCatalog
         };
         if (fields.Count == 0 && section != "activation")
             throw new InvalidDataException($"Empty [[{section}]] fields for {script}");
+        IReadOnlyList<string> summonedBy = Array.Empty<string>();
+        string? summon = null;
+        if (section == "allowed")
+        {
+            // Every allowed field states who must be present or dead first, even when nobody must.
+            summonedBy = ParseFields(Required("summoned_by"));
+            summon = OptionalString("summon");
+            if (summonedBy.Count == 0 && summon != null)
+                throw new InvalidDataException($"{script} sets summon without summoned_by");
+            if (summonedBy.Count > 0 && summon is not ("alive" or "defeated" or "dialog"))
+                throw new InvalidDataException($"{script} needs summon alive, defeated, or dialog");
+            if (summon == "dialog" && (summonedBy.Count != 1 || summonedBy[0] != "host"))
+                throw new InvalidDataException(
+                    $"{script} dialog summons are said to the host only"
+                );
+        }
         if (section == "activation")
         {
             foreach (var activation in _activations)
@@ -171,6 +196,8 @@ public class DynamicSpawnCatalog
                 IncludeHostBounds = OptionalBool("include_host_bounds"),
                 Reason = OptionalString("reason"),
                 Rule = rule,
+                SummonedBy = summonedBy,
+                Summon = summon,
             };
             if (!_entries.TryAdd((script, field), entry))
                 throw new InvalidOperationException($"Duplicate catalog entry: {script}.{field}");

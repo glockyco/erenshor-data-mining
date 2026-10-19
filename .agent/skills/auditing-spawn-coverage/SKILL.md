@@ -11,7 +11,7 @@ Run this after `skill://refreshing-game-data` exports a new build. The export ga
 
 1. Run `uv run erenshor -V {v} extract export`. On exit 3, read `variants/{v}/.export/dynamic-spawn-errors.json`.
 2. For each `findings[]` entry, inspect its `script_type`, `field_name`, and resolved `example_prefab_path`. Read the corresponding shipped script in the ripped `Assembly-CSharp` tree. Verify how the field is used, not only its name.
-3. Classify each `(script_type, field_name)` in `src/Assets/Editor/ExportSystem/AssetScanner/dynamic-spawn-catalog.toml`. Allow a field when its instantiated prefab carries a `Character` component and its position is resolvable. Set `position_field` or an existing `position_strategy` when host position is wrong. Deny UI, effects, and runtime-rebound references with a specific `reason`.
+3. Classify each `(script_type, field_name)` in `src/Assets/Editor/ExportSystem/AssetScanner/dynamic-spawn-catalog.toml`. Allow a field when its instantiated prefab carries a `Character` component and its position is resolvable. Set `position_field` or an existing `position_strategy` when host position is wrong. Give every allowed field `summoned_by` and, when it names someone, `summon`, as the catalog header describes: read when the script spawns the field, such as only while its boss lives or once its host dies. A field that a trigger, an item, or the scene starts gets `summoned_by = []` with that reason. Deny UI, effects, and runtime-rebound references with a specific `reason`.
 4. Remove each `stale_entries[]` entry whose script no longer exists in the shipped assembly. Review renamed scripts before deleting their coverage.
 5. Rerun export. Exit 0 clears the old error envelope. Do not continue with an exit-3 raw database.
 

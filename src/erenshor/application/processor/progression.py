@@ -559,6 +559,13 @@ class ProgressionBuilder:
         encounter_members = self.index("encounter_placements", "member_spawn_stable_key")
         encounter_conditions = self.index("encounter_conditions", "encounter_key")
         arena = self.arena_releases()
+        summons: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+        for row in self.rows("character_summons"):
+            summons[row["character_stable_key"], row["spawn_point_stable_key"]].append(row)
+        dialogs: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+        for row in self.rows("character_dialogs"):
+            if row["spawn_character_stable_key"]:
+                dialogs[row["character_stable_key"], row["spawn_character_stable_key"]].append(row)
         for character, placements in sorted(self.placements.items()):
             for placement in placements:
                 spawn = placement["spawn_point_stable_key"]
@@ -600,6 +607,10 @@ class ProgressionBuilder:
                 ways = self.product(character, ways, self.subject_gates("character", character), fact)
                 if spawn:
                     ways = self.product(character, ways, self.subject_gates("spawn_point", spawn), fact)
+                if (character, spawn) in summons:
+                    ways = self.product(
+                        character, ways, self.summon_ways(character, summons[character, spawn], dialogs, fact), fact
+                    )
                 entries = self.entries.get(("character", character), set()) | self.entries.get(
                     ("spawn_point", spawn), set()
                 )
@@ -615,6 +626,45 @@ class ProgressionBuilder:
                     locations = [(Need("in zone", zone),)]
                 for way in self.product(character, ways, locations, fact):
                     self.add(character, way, fact)
+
+    def summon_ways(
+        self,
+        character: str,
+        rows: list[dict[str, Any]],
+        dialogs: dict[tuple[str, str], list[dict[str, Any]]],
+        fact: str,
+    ) -> list[Way]:
+        """The ways that the summoners of one placement give it (character_summons)."""
+        ways: list[Way] = []
+        deaths: dict[str, dict[int, list[str]]] = defaultdict(lambda: defaultdict(list))
+        for row in rows:
+            summoner = row["summoner_stable_key"]
+            if row["summon"] == "alive":
+                ways.append((Need("summoned by", summoner),))
+            elif row["summon"] == "dialog":
+                for dialog in dialogs[summoner, character]:
+                    needs = [Need("talk to", summoner, keywords=dialog["keywords"])]
+                    if dialog["required_quest_stable_key"]:
+                        needs.append(Need("quest done", dialog["required_quest_stable_key"]))
+                    ways.append(canonical_way(needs))
+            elif row["summon"] == "defeated":
+                deaths[row["source_field"]][row["summoner_index"]].append(summoner)
+            else:
+                raise _error(character, fact, f"unmapped summon {row['summon']!r}")
+        # A death summon needs one character of each summoner of its field.
+        for indices in deaths.values():
+            field_ways: list[Way] = [()]
+            for index in sorted(indices):
+                defeats = [
+                    way
+                    for summoner in indices[index]
+                    for way in self.atom(character, "encounter_won", summoner, None, fact)
+                ]
+                field_ways = self.product(character, field_ways, defeats, fact)
+            ways.extend(field_ways)
+        if not ways:
+            raise _error(character, fact, "summoned placement has no way")
+        return ways
 
     def location_conditions(self, node: str, location: dict[str, Any], fact: str) -> list[Way]:
         atoms = [asdict(condition_from_dict(atom)) for atom in json.loads(location["conditions"])]

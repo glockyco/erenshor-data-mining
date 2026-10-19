@@ -18,11 +18,15 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
 
     private readonly SQLiteConnection _db;
     private readonly CharacterStableKeyResolver _characterKeyResolver;
+    private readonly ActivationTargetResolver _activationTargets;
     private readonly DynamicSpawnCatalog _catalog;
     private readonly ObjectHierarchyCollector _hierarchy;
     private readonly DynamicSpawnErrorEnvelope _envelope = new();
     private readonly List<DynamicCharacterSpawnRecord> _spawnRecords = new();
     private readonly List<CharacterChainedSpawnRecord> _chainedRecords = new();
+    private readonly List<DynamicSpawnSummonerRecord> _summonerRecords = new();
+    private readonly HashSet<(string controller, string field)> _summonedFields = new();
+    private readonly Dictionary<string, (string field, bool summoned)> _spawnKeyFields = new();
 
     public DynamicSpawnErrorEnvelope Envelope => _envelope;
 
@@ -46,12 +50,14 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
     public DynamicSpawnSourceListener(
         SQLiteConnection db,
         CharacterStableKeyResolver characterKeyResolver,
+        ActivationTargetResolver activationTargets,
         DynamicSpawnCatalog catalog,
         ObjectHierarchyCollector hierarchy
     )
     {
         _db = db;
         _characterKeyResolver = characterKeyResolver;
+        _activationTargets = activationTargets;
         _catalog = catalog;
         _hierarchy = hierarchy;
     }
@@ -120,6 +126,7 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
             // a script can instantiate a prefab that no scene places.
             if (isPrefabAsset && !isChainedHost)
                 continue;
+            RecordSummoners(comp, scriptName, fieldName, entry);
 
             // Allowed — emit spawn rows
             var eventPosition = entry.IncludeHostPosition ? hostTransform.position : (Vector3?)null;
@@ -138,6 +145,7 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                             ParentStableKey = parentKey,
                             ChildStableKey = childKey,
                             SourceScript = scriptName,
+                            SourceField = fieldName,
                             ControllerObjectKey = _hierarchy.Capture(comp.gameObject),
                             ControllerComponentIsEnabled = comp.enabled,
                         }
@@ -154,6 +162,7 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                         resolved.Position,
                         hostScene,
                         scriptName,
+                        fieldName,
                         eventPosition,
                         triggerMetadata,
                         comp
@@ -170,6 +179,7 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                             position,
                             hostScene,
                             scriptName,
+                            fieldName,
                             eventPosition,
                             triggerMetadata,
                             comp
@@ -188,6 +198,7 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                             pos,
                             hostScene,
                             scriptName,
+                            fieldName,
                             eventPosition,
                             triggerMetadata,
                             comp
@@ -219,9 +230,11 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
             // Insert chained spawn records (deduplicate by composite)
             _db.CreateTable<CharacterChainedSpawnRecord>();
             var uniqueChained =
-                new Dictionary<(string, string, string), CharacterChainedSpawnRecord>();
+                new Dictionary<(string, string, string, string), CharacterChainedSpawnRecord>();
             foreach (var rec in _chainedRecords)
-                uniqueChained[(rec.ParentStableKey, rec.ChildStableKey, rec.SourceScript)] = rec;
+                uniqueChained[
+                    (rec.ParentStableKey, rec.ChildStableKey, rec.SourceScript, rec.SourceField)
+                ] = rec;
             _db.RunInTransaction(() =>
             {
                 _db.DeleteAll<CharacterChainedSpawnRecord>();
@@ -230,6 +243,17 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
             });
             UnityEngine.Debug.Log(
                 $"[DynamicSpawn] Inserted {uniqueChained.Count} chained records (from {_chainedRecords.Count} raw)"
+            );
+
+            _db.CreateTable<DynamicSpawnSummonerRecord>();
+            _db.RunInTransaction(() =>
+            {
+                _db.DeleteAll<DynamicSpawnSummonerRecord>();
+                foreach (var rec in _summonerRecords)
+                    _db.Insert(rec);
+            });
+            UnityEngine.Debug.Log(
+                $"[DynamicSpawn] Inserted {_summonerRecords.Count} summoner records"
             );
         }
         catch (Exception ex)
@@ -263,6 +287,9 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
 
         _spawnRecords.Clear();
         _chainedRecords.Clear();
+        _summonerRecords.Clear();
+        _summonedFields.Clear();
+        _spawnKeyFields.Clear();
 
         if (_envelope.HasErrors)
         {
@@ -372,11 +399,84 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
         return metadata;
     }
 
+    private void RecordSummoners(
+        MonoBehaviour controller,
+        string scriptName,
+        string fieldName,
+        CatalogEntry entry
+    )
+    {
+        var controllerKey = _hierarchy.Capture(controller.gameObject);
+        if (!_summonedFields.Add((controllerKey, fieldName)))
+            return;
+        for (int index = 0; index < entry.SummonedBy.Count; index++)
+        {
+            var (kind, key) = ResolveSummoner(
+                controller,
+                $"[DynamicSpawn] {scriptName}.{fieldName} summoned_by '{entry.SummonedBy[index]}'",
+                entry.SummonedBy[index]
+            );
+            _summonerRecords.Add(
+                new DynamicSpawnSummonerRecord
+                {
+                    ControllerObjectKey = controllerKey,
+                    SourceField = fieldName,
+                    SummonerIndex = index,
+                    SourceScript = scriptName,
+                    Summon = entry.Summon!,
+                    SummonerKind = kind,
+                    SummonerStableKey = key,
+                }
+            );
+        }
+    }
+
+    private (string kind, string? key) ResolveSummoner(
+        MonoBehaviour controller,
+        string where,
+        string token
+    )
+    {
+        // The characters that check in at run time come from the controller's
+        // check-in, which the clean build reads.
+        if (token == "checked_in")
+            return ("checked_in", null);
+        if (token == "host")
+        {
+            var host = controller.GetComponent<Character>();
+            if (host != null)
+                return ("character", _characterKeyResolver.GetStableKey(host));
+            var hostSpawn = controller.GetComponent<SpawnPoint>();
+            if (hostSpawn != null)
+                return ("spawn_point", _activationTargets.GetStableKey(hostSpawn));
+            throw new InvalidOperationException(
+                $"{where}: the host has no Character or SpawnPoint"
+            );
+        }
+        var field =
+            controller.GetType().GetField(token, FieldFlags)
+            ?? throw new InvalidOperationException($"{where}: the controller has no such field");
+        switch (field.GetValue(controller))
+        {
+            case SpawnPoint spawnPoint when spawnPoint != null:
+                return ("spawn_point", _activationTargets.GetStableKey(spawnPoint));
+            case Character character when character != null:
+                return ("character", _characterKeyResolver.GetStableKey(character));
+            case GameObject prefab when prefab != null && prefab.GetComponent<Character>() != null:
+                return (
+                    "character",
+                    _characterKeyResolver.GetStableKey(prefab.GetComponent<Character>())
+                );
+        }
+        throw new InvalidOperationException($"{where}: the field holds no SpawnPoint or Character");
+    }
+
     private void AddDynamicSpawnRecord(
         Character character,
         Vector3 pos,
         string hostScene,
         string scriptName,
+        string fieldName,
         Vector3? eventPosition,
         TriggerMetadata triggerMetadata,
         MonoBehaviour controller
@@ -387,6 +487,19 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
         var key = eventPosition.HasValue
             ? $"{childKey}|{hostScene}|{pos.x}|{pos.y}|{pos.z}|{scriptName}|event:{eventPosition.Value.x}|{eventPosition.Value.y}|{eventPosition.Value.z}"
             : $"{childKey}|{hostScene}|{pos.x}|{pos.y}|{pos.z}|{scriptName}";
+        // The key omits the field, so two fields that spawn the same character at
+        // one place merge. That is harmless only when neither has summoners, as
+        // for an arena fighter of two rounds.
+        bool summoned = _catalog.Classify(scriptName, fieldName).SummonedBy is { Count: > 0 };
+        if (
+            _spawnKeyFields.TryGetValue(key, out var existing)
+            && existing.field != fieldName
+            && (existing.summoned || summoned)
+        )
+            throw new InvalidOperationException(
+                $"[DynamicSpawn] {key} comes from both {scriptName}.{existing.field} and {scriptName}.{fieldName}"
+            );
+        _spawnKeyFields[key] = (fieldName, summoned);
         string controllerObjectKey = _hierarchy.Capture(controller.gameObject);
         _spawnRecords.Add(
             new DynamicCharacterSpawnRecord
@@ -398,6 +511,7 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                 Y = pos.y,
                 Z = pos.z,
                 SourceScript = scriptName,
+                SourceField = fieldName,
                 ControllerObjectKey = controllerObjectKey,
                 ControllerComponentIsEnabled = controller.enabled,
                 EventX = eventPosition?.x,

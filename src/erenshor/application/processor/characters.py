@@ -1303,7 +1303,7 @@ def process_characters(
     # expanded into character_spawns in Task C2)
     if _table_exists(raw, "CharacterChainedSpawns"):
         chained_rows = _load_rows(
-            raw, "SELECT ParentStableKey, ChildStableKey, SourceScript FROM CharacterChainedSpawns"
+            raw, "SELECT ParentStableKey, ChildStableKey, SourceScript, SourceField FROM CharacterChainedSpawns"
         )
         writer.insert_character_chained_spawns(
             [
@@ -1311,6 +1311,7 @@ def process_characters(
                     "parent_stable_key": r["ParentStableKey"],
                     "child_stable_key": r["ChildStableKey"],
                     "source_script": r["SourceScript"],
+                    "source_field": r["SourceField"],
                 }
                 for r in chained_rows
             ]
@@ -1729,3 +1730,24 @@ def expand_chained_spawns(conn: sqlite3.Connection) -> None:
         )
         conn.commit()
         logger.info(f"Chained spawns: expanded {len(rows_to_insert)} rows")
+
+
+def chained_placements(
+    conn: sqlite3.Connection, parent: str, child: str, script: str
+) -> list[tuple[str | None, str | None]]:
+    """Each placement that expand_chained_spawns gave the child at a placement of the parent.
+
+    Returns pairs of the child's and the parent's spawn point keys. A placement
+    without a position has no key, and a directly placed parent has none.
+    """
+    return list(
+        conn.execute(
+            "SELECT child.spawn_point_stable_key, parent.spawn_point_stable_key"
+            " FROM character_spawns child JOIN character_spawns parent"
+            " ON parent.character_stable_key = ? AND parent.scene = child.scene"
+            " AND parent.x IS child.x AND parent.y IS child.y AND parent.z IS child.z"
+            " WHERE child.character_stable_key = ? AND child.source_script = ? AND child.is_trigger_spawn = 1"
+            " ORDER BY 1, 2",
+            (parent, child, script),
+        )
+    )

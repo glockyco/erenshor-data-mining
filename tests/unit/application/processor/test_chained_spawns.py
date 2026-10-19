@@ -34,10 +34,11 @@ def _insert_spawn(conn, char_key, scene, x, y, z):
     )
 
 
-def _insert_chain(conn, parent, child, source):
+def _insert_chain(conn, parent, child, source, field="Spawns"):
     conn.execute(
-        "INSERT INTO character_chained_spawns (parent_stable_key, child_stable_key, source_script) VALUES (?, ?, ?)",
-        (parent, child, source),
+        "INSERT INTO character_chained_spawns (parent_stable_key, child_stable_key, source_script, source_field)"
+        " VALUES (?, ?, ?, ?)",
+        (parent, child, source, field),
     )
 
 

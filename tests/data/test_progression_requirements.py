@@ -229,6 +229,56 @@ def test_the_reliquary_hall_is_a_milestone_behind_its_portcullis(clean: sqlite3.
     assert _node(clean, "zone:reliquary")["is_milestone"] == 1
 
 
+def test_honsus_and_vitheo_each_summon_the_executioners(clean: sqlite3.Connection) -> None:
+    summoners = {
+        key
+        for needs in _ways(clean, "character:executioner").values()
+        for relation, key in _pairs(needs)
+        if relation == "summoned by"
+    }
+    assert summoners == {"character:honsus", "character:vitheo"}
+
+
+def test_the_legions_come_no_earlier_than_the_vitheo_who_summons_them(clean: sqlite3.Connection) -> None:
+    vitheo = _node(clean, "character:vitheo")["tier"]
+    assert vitheo is not None
+    assert _node(clean, "character:vithean myrmidon")["tier"] == vitheo
+
+
+def test_a_character_that_only_a_summoner_spawns_first_needs_that_summoner(clean: sqlite3.Connection) -> None:
+    children = [
+        key
+        for (key,) in clean.execute(
+            "SELECT DISTINCT child_stable_key FROM character_chained_spawns c WHERE NOT EXISTS ("
+            " SELECT 1 FROM character_spawns s WHERE s.character_stable_key = c.child_stable_key"
+            " AND s.is_trigger_spawn = 0)"
+        )
+    ]
+    assert children
+    for child in children:
+        first = _node(clean, child)["first_way_key"]
+        if first is None:
+            continue
+        summoners = {
+            key
+            for (key,) in clean.execute(
+                "SELECT summoner_stable_key FROM character_summons WHERE character_stable_key = ?", (child,)
+            )
+        }
+        needs = {key for _, key in _pairs(_ways(clean, child)[first])}
+        assert needs & summoners, child
+
+
+def test_the_bridge_chest_needs_both_twins_dead(clean: sqlite3.Connection) -> None:
+    assert {
+        key
+        for needs in _ways(clean, "character:braxbridgechest").values()
+        for relation, key in _pairs(needs)
+        if relation == "defeated"
+    } == {"character:frost", "character:inferno"}
+    assert len(_ways(clean, "character:braxbridgechest")) == 1
+
+
 def test_eldrich_crystal_names_the_actual_keeper_copy_and_sanctuary(clean: sqlite3.Connection) -> None:
     drops = [
         needs

@@ -62,7 +62,7 @@ A spawn or an activation that a controller performs once a set of characters is 
 
 ### Requirement: Spawns that a round or a summoner releases need what releases them
 
-A character that an arena round spawns SHALL need that round's coin, once for each round it fights in. A round's award chest SHALL need the round's coin and a defeat of each fighter of the round. A character that another character summons SHALL need its summoner.
+A character that an arena round spawns SHALL need that round's coin, once for each round it fights in. A round's award chest SHALL need the round's coin and a defeat of each fighter of the round. A character that another character summons SHALL need its summoner as the summoning script decides: a summon during a fight needs any one of its summoners, a summon after deaths needs the death of each summoner, and a summon by dialog needs the summoner's spawning dialog and the quest that the dialog requires. An add that a fight spawns SHALL join no death set, because a fight that ends before its adds spawn still releases its reward.
 
 #### Scenario: The round 8 chest
 
@@ -73,6 +73,16 @@ A character that an arena round spawns SHALL need that round's coin, once for ea
 
 - **WHEN** reading the ways to a character that Honsus summons
 - **THEN** the way through Honsus's summon needs Honsus
+
+#### Scenario: The bridge chest
+
+- **WHEN** reading the ways to the Braxonian Chest on the bridge of the Plane of Elements
+- **THEN** its one way needs both Frost and Inferno defeated
+
+#### Scenario: A round's adds
+
+- **WHEN** reading the ways to Vithean Chest (Round 7)
+- **THEN** it needs Honsus defeated and no Vithean Executioner
 
 ### Requirement: Barriers take their opening condition from their mechanism
 

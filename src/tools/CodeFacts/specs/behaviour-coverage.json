@@ -41,8 +41,8 @@
       "apis": [
         "Character.Alive"
       ],
-      "classification": "excluded",
-      "reason": "CheckIn binds Arbor while its spawn point's NPC lives, and the fight spawns saplings at health thresholds. The saplings are combat adds in the dynamic spawn catalog."
+      "classification": "adapter",
+      "component": "DynamicSpawnSourceListener summoned_by and processor/summons.py: the saplings need Arbor"
     },
     "AstraBreathScriot": {
       "apis": [
@@ -86,7 +86,7 @@
         "Character.Alive"
       ],
       "classification": "adapter",
-      "component": "ScriptedActivatorListener restored_brax and processor/gates.py restored_brax"
+      "component": "ScriptedActivatorListener restored_brax and processor/gates.py restored_brax. DynamicSpawnSourceListener summoned_by and processor/summons.py: the adds need Brax"
     },
     "CastSpell": {
       "apis": [
@@ -143,8 +143,8 @@
       "apis": [
         "Character.Alive"
       ],
-      "classification": "excluded",
-      "reason": "Update spawns a random add while its owner lives and its timer runs, then destroys itself. The adds are combat spawns in the dynamic spawn catalog."
+      "classification": "adapter",
+      "component": "DynamicSpawnSourceListener summoned_by and processor/summons.py: the constellation creatures need their constellation"
     },
     "DPSCheckAEEvent": {
       "apis": [
@@ -221,8 +221,8 @@
       "apis": [
         "Character.Alive"
       ],
-      "classification": "excluded",
-      "reason": "Update runs the fight while Faith lives and is engaged and resets it once Faith dies or leaves combat. Its heal adds are combat spawns in the dynamic spawn catalog."
+      "classification": "adapter",
+      "component": "DynamicSpawnSourceListener summoned_by and processor/summons.py: the heal adds need Faith"
     },
     "FernHighPriest": {
       "apis": [
@@ -236,7 +236,7 @@
         "SpawnPoint.MyNPCAlive"
       ],
       "classification": "adapter",
-      "component": "ScriptedActivatorListener restored_fernalla and processor/gates.py restored_fernalla"
+      "component": "ScriptedActivatorListener restored_fernalla and processor/gates.py restored_fernalla. DynamicSpawnSourceListener summoned_by and processor/summons.py: the adds need Fernalla"
     },
     "FernallaFightEvent": {
       "apis": [
@@ -245,7 +245,7 @@
         "SpawnPoint.MyNPCAlive"
       ],
       "classification": "adapter",
-      "component": "DynamicSpawnSourceListener controller hierarchy and CharacterDamageReleaseListener Fernalla fight phases"
+      "component": "DynamicSpawnSourceListener controller hierarchy and CharacterDamageReleaseListener Fernalla fight phases. DynamicSpawnSourceListener summoned_by and processor/summons.py: the phase spawns need the Fallen Fernalla"
     },
     "FernallaPortalEvent": {
       "apis": [
@@ -294,8 +294,8 @@
       "apis": [
         "Character.Alive"
       ],
-      "classification": "excluded",
-      "reason": "Update runs the fight while Grace lives and resets it once Grace dies."
+      "classification": "adapter",
+      "component": "DynamicSpawnSourceListener summoned_by and processor/summons.py: the copies need Grace"
     },
     "HardSetStats": {
       "apis": [
@@ -308,8 +308,8 @@
       "apis": [
         "Character.Alive"
       ],
-      "classification": "excluded",
-      "reason": "Update moves a living, damaged Honsus between its navigation points during the fight."
+      "classification": "adapter",
+      "component": "DynamicSpawnSourceListener summoned_by and processor/summons.py: the Executioners need Honsus"
     },
     "InfernoEnergy": {
       "apis": [
@@ -322,8 +322,8 @@
       "apis": [
         "Character.Alive"
       ],
-      "classification": "excluded",
-      "reason": "Update runs the twins' energy attacks while both live and are engaged. Its Start check-in with RewardListener is the progression.twins.checkin_binding code fact that ScriptedActivatorListener twin_giants exports."
+      "classification": "adapter",
+      "component": "DynamicSpawnSourceListener summoned_by and processor/summons.py: the energies need their twin. ScriptedActivatorListener twin_giants exports its check-in (progression.twins.checkin_binding)"
     },
     "InfernoTwinsSpawnPoints": {
       "apis": [
@@ -401,8 +401,8 @@
       "apis": [
         "Character.Alive"
       ],
-      "classification": "excluded",
-      "reason": "CheckIn holds Mizuki's spawn point while she lives, and CheckWinCond kills her shadows and releases the spawn point once she dies. The gate she guards opens through NPCAliveListener npc_alive."
+      "classification": "adapter",
+      "component": "DynamicSpawnSourceListener summoned_by and processor/summons.py: the remnants need Mizuki. NPCAliveListener npc_alive opens the gate she guards"
     },
     "MultiQuestListener": {
       "apis": [
@@ -479,8 +479,8 @@
       "apis": [
         "Character.Alive"
       ],
-      "classification": "excluded",
-      "reason": "FixedUpdate spawns adds while the NPC lives and is engaged, spawns its SpawnOnDeath objects once it dies, and regenerates while it lives. These are combat spawns in the dynamic spawn catalog."
+      "classification": "adapter",
+      "component": "DynamicSpawnSourceListener summoned_by and processor/summons.py: SpawnAdds need the host alive, SpawnOnDeath its death"
     },
     "NPCInvuln": {
       "apis": [
@@ -525,7 +525,7 @@
         "Character.Invulnerable"
       ],
       "classification": "adapter",
-      "component": "CharacterDamageReleaseListener ExportCombatWards and processor/combat_eligibility.py"
+      "component": "CharacterDamageReleaseListener ExportCombatWards and processor/combat_eligibility.py. DynamicSpawnSourceListener summoned_by and processor/summons.py: the wards need the phantom"
     },
     "PietyTrigger": {
       "apis": [
@@ -641,7 +641,7 @@
         "Character.Alive"
       ],
       "classification": "adapter",
-      "component": "ScriptedActivatorListener twin_giants check-ins and processor/barriers.py cliff removals"
+      "component": "ScriptedActivatorListener twin_giants check-ins, processor/barriers.py cliff removals, and processor/summons.py: the bridge chest needs both twins dead (progression.twins.chest)"
     },
     "RunWindow": {
       "apis": [
@@ -714,8 +714,8 @@
       "apis": [
         "Character.Alive"
       ],
-      "classification": "excluded",
-      "reason": "Update spawns Siraethe's wards at her event points while she lives and is engaged. The wards are combat spawns in the dynamic spawn catalog."
+      "classification": "adapter",
+      "component": "DynamicSpawnSourceListener summoned_by and processor/summons.py: the wards need Siraethe"
     },
     "SivTorchLight": {
       "apis": [
@@ -730,7 +730,7 @@
         "Character.Alive"
       ],
       "classification": "adapter",
-      "component": "ScriptedActivatorListener restored_soluna and processor/gates.py restored_soluna"
+      "component": "ScriptedActivatorListener restored_soluna and processor/gates.py restored_soluna. DynamicSpawnSourceListener summoned_by and processor/summons.py: the adds need Soluna"
     },
     "SpawnPoint": {
       "apis": [
@@ -772,7 +772,7 @@
         "Character.Invulnerable"
       ],
       "classification": "adapter",
-      "component": "CharacterDamageReleaseListener ExportEmptyWards and DynamicSpawnSourceListener"
+      "component": "CharacterDamageReleaseListener ExportEmptyWards and DynamicSpawnSourceListener summoned_by and processor/summons.py: the wards and the Trickster need Sprinkles"
     },
     "Stats": {
       "apis": [
@@ -855,8 +855,8 @@
       "apis": [
         "Character.Alive"
       ],
-      "classification": "excluded",
-      "reason": "Update ends the fight, its music, and its spawning once Vitheo dies. CheckIn hides RestoredVitheo, which VithArena reveals through restored_vitheo."
+      "classification": "adapter",
+      "component": "DynamicSpawnSourceListener summoned_by and processor/summons.py: the legions need the Vitheo that VithArena checks in (arena.vitheo_checkin). VithArena reveals RestoredVitheo through restored_vitheo"
     },
     "WaveEvent": {
       "apis": [
@@ -876,8 +876,8 @@
       "apis": [
         "Character.Alive"
       ],
-      "classification": "excluded",
-      "reason": "BossBarrier closes the arena only while a twin has an aggro target and opens again when the fight ends or both twins and Syzygy die. It gates no access before the fight. The chest and constellation adds are combat spawns in the dynamic spawn catalog."
+      "classification": "adapter",
+      "component": "DynamicSpawnSourceListener summoned_by and processor/summons.py: Syzygy needs Nadir, the constellations Zenith or Nadir, and the chest both of their deaths. BossBarrier gates no access before the fight"
     },
     "ZoneAnnounce": {
       "apis": [

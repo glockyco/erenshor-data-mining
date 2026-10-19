@@ -56,6 +56,7 @@ from .pictures import process_pictures
 from .progression import process_progression
 from .quest_routes import process_quest_routes
 from .special_world_drops import process_common_world_items, process_special_world_drops
+from .summons import process_summons
 from .travel import process_travel
 from .treasure import process_treasure
 from .ui_items import process_ui_items
@@ -166,6 +167,10 @@ def build(
 
         logger.info("Processing characters...")
         process_characters(raw, writer, mapping, item_keys, spawn_mapping)
+
+        logger.info("Processing the characters that summon others...")
+        summon_total = process_summons(raw, writer)
+        logger.info(f"Character summons: {summon_total} rows")
 
         logger.info("Processing combat eligibility...")
         process_combat_eligibility(raw, writer)

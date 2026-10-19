@@ -1490,7 +1490,22 @@ CREATE TABLE character_chained_spawns (
     parent_stable_key  TEXT NOT NULL,
     child_stable_key   TEXT NOT NULL,
     source_script      TEXT NOT NULL,
-    PRIMARY KEY (parent_stable_key, child_stable_key, source_script)
+    source_field       TEXT NOT NULL,
+    PRIMARY KEY (parent_stable_key, child_stable_key, source_script, source_field)
+);
+
+-- What a dynamic or chained placement needs of other characters, from the
+-- summoned_by rules of dynamic-spawn-catalog.toml. 'alive' and 'dialog' rows are
+-- alternatives. A 'defeated' placement needs one character of every summoner_index.
+CREATE TABLE character_summons (
+    character_stable_key   TEXT NOT NULL REFERENCES characters (stable_key),
+    spawn_point_stable_key TEXT NOT NULL,
+    source_script          TEXT NOT NULL,
+    source_field           TEXT NOT NULL,
+    summon                 TEXT NOT NULL CHECK (summon IN ('alive', 'defeated', 'dialog')),
+    summoner_index         INTEGER NOT NULL,
+    summoner_stable_key    TEXT NOT NULL REFERENCES characters (stable_key),
+    PRIMARY KEY (character_stable_key, spawn_point_stable_key, source_field, summoner_index, summoner_stable_key)
 );
 
 CREATE TABLE spawn_point_patrol_points (
@@ -2428,6 +2443,9 @@ class Writer:
 
     def insert_arena_rounds(self, rows: list[dict[str, object]]) -> int:
         return self._insert("arena_rounds", rows)
+
+    def insert_character_summons(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("character_summons", rows)
 
     def insert_arena_round_enemies(self, rows: list[dict[str, object]]) -> int:
         return self._insert("arena_round_enemies", rows)

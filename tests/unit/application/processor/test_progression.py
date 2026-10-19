@@ -1068,3 +1068,62 @@ def test_arena_placements_bind_to_rounds_of_one_arena(conn, failure, message):
         arena_round(conn, 1, "item:key", "character:ward", "character:copy", arena="OTHER")
     with pytest.raises(ValueError, match=message):
         builder(conn)
+
+
+def summon(
+    conn: sqlite3.Connection, summoner: str, kind: str = "alive", *, index: int = 0, field: str = "Adds"
+) -> None:
+    """Make the ward a summon of the summoner at the ward's placement."""
+    insert(
+        conn,
+        "character_summons",
+        character_stable_key="character:ward",
+        spawn_point_stable_key="spawn:character:ward",
+        source_script="Fight",
+        source_field=field,
+        summon=kind,
+        summoner_index=index,
+        summoner_stable_key=summoner,
+    )
+
+
+def test_an_add_appears_while_any_of_its_summoners_fights(conn):
+    summon(conn, "character:copy")
+    summon(conn, "character:other")
+    zone = Need("in zone", "zone:start")
+    assert set(builder(conn).ways["character:ward"].values()) == {
+        canonical_way((zone, Need("summoned by", "character:copy"))),
+        canonical_way((zone, Need("summoned by", "character:other"))),
+    }
+
+
+def test_a_death_summon_needs_one_death_of_each_summoner(conn):
+    summon(conn, "character:copy", "defeated", index=0, field="Chest")
+    summon(conn, "character:other", "defeated", index=1, field="Chest")
+    assert list(builder(conn).ways["character:ward"].values()) == [
+        canonical_way(
+            (
+                Need("in zone", "zone:start"),
+                Need("defeated", "character:copy", advisory=True),
+                Need("defeated", "character:other", advisory=True),
+            )
+        )
+    ]
+
+
+def test_a_dialog_summon_needs_the_spawning_keyword_and_its_quest(conn):
+    insert(
+        conn,
+        "character_dialogs",
+        character_stable_key="character:copy",
+        dialog_index=4,
+        keywords="Azynthi, azynthi",
+        required_quest_stable_key="quest:gate",
+        spawn_character_stable_key="character:ward",
+    )
+    summon(conn, "character:copy", "dialog", field="Spawn")
+    assert needs(builder(conn), "character:ward") == {
+        Need("in zone", "zone:start"),
+        Need("talk to", "character:copy", keywords="Azynthi, azynthi"),
+        Need("quest done", "quest:gate"),
+    }

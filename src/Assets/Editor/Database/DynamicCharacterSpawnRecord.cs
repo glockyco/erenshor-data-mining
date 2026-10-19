@@ -15,6 +15,9 @@ public class DynamicCharacterSpawnRecord
     public float Y { get; set; }
     public float Z { get; set; }
     public string SourceScript { get; set; } = string.Empty;
+
+    // The catalog field that spawns the character. Its summoners share it.
+    public string SourceField { get; set; } = string.Empty;
     public string ControllerObjectKey { get; set; } = string.Empty;
     public bool ControllerComponentIsEnabled { get; set; }
     public float? EventX { get; set; }

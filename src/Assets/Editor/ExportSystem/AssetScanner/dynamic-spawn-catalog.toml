@@ -2,6 +2,12 @@
 # Classifies serialized Character/GameObject fields on event-script MonoBehaviours.
 # Update this file when the export's dynamic-spawn-errors.json reports unknown
 # candidates. Classify each pair as allowed, denied, or activation.
+# Each allowed entry states with summoned_by who must be present or dead
+# before its fields spawn: "host" for the controller's own Character or
+# SpawnPoint, "checked_in" for the characters that check in with it, or a
+# controller field that holds a SpawnPoint or a Character prefab. summon is
+# "alive" when any summoner must be fighting, "defeated" when every summoner
+# must be dead, or "dialog" when the player says the host's spawning dialog.
 # See: skill://auditing-spawn-coverage
 
 schema_version = 1
@@ -20,6 +26,7 @@ include_host_position = true
 include_host_bounds = true
 event_display_name = "game board"
 reason = "SpawnLoc is the piece instantiate position. The Chess host transform and trigger bounds define the board trigger. The shipped chat message names it the game board."
+summoned_by = []
 
 [[allowed]]
 script = "Chessboard"
@@ -31,6 +38,7 @@ include_host_position = true
 include_host_bounds = true
 event_display_name = "game board"
 reason = "SpawnLoc is the piece instantiate position. The Chess host transform and trigger bounds define the board trigger. The shipped chat message names it the game board."
+summoned_by = []
 
 [[allowed]]
 script = "Chessboard"
@@ -42,6 +50,7 @@ include_host_position = true
 include_host_bounds = true
 event_display_name = "game board"
 reason = "SpawnLoc is the piece instantiate position. The Chess host transform and trigger bounds define the board trigger. The shipped chat message names it the game board."
+summoned_by = []
 
 [[allowed]]
 script = "Chessboard"
@@ -53,6 +62,7 @@ include_host_position = true
 include_host_bounds = true
 event_display_name = "game board"
 reason = "SpawnLoc is the piece instantiate position. The Chess host transform and trigger bounds define the board trigger. The shipped chat message names it the game board."
+summoned_by = []
 
 [[allowed]]
 script = "Chessboard"
@@ -64,6 +74,7 @@ include_host_position = true
 include_host_bounds = true
 event_display_name = "game board"
 reason = "SpawnLoc is the piece instantiate position. The Chess host transform and trigger bounds define the board trigger. The shipped chat message names it the game board."
+summoned_by = []
 
 [[allowed]]
 script = "Chessboard"
@@ -75,6 +86,7 @@ include_host_position = true
 include_host_bounds = true
 event_display_name = "game board"
 reason = "SpawnLoc is the piece instantiate position. The Chess host transform and trigger bounds define the board trigger. The shipped chat message names it the game board."
+summoned_by = []
 
 [[allowed]]
 script = "Chessboard"
@@ -86,88 +98,144 @@ include_host_position = true
 include_host_bounds = true
 event_display_name = "game board"
 reason = "SpawnLoc is the piece instantiate position. The Chess host transform and trigger bounds define the board trigger. The shipped chat message names it the game board."
+summoned_by = []
 
 [[allowed]]
 script = "Constellation"
 fields = ["Spawns"]
+summoned_by = ["host"]
+summon = "alive"
+reason = "Update spawns one of Spawns from its living Constellation host after a timer, then destroys the host."
 
 [[allowed]]
 script = "FernallaFightEvent"
 fields = ["FinalFernalla", "FawnToSpawn", "Phase2Ward", "Phase2Assault"]
+summoned_by = ["host"]
+summon = "alive"
+reason = "The Fallen Fernalla of the host SpawnPoint runs the fight. Its phases spawn the wards, damage areas, fawns, and the final Fernalla while she lives."
 
 [[allowed]]
 script = "FernallaPortalEvent"
 fields = ["Arcanist", "Knight", "Hound"]
+summoned_by = []
+reason = "Update keeps the guard group filled while the scene sets KeepSpawning. Nothing else starts it."
 
 [[allowed]]
 script = "MizukiEvent"
 fields = ["Remnants"]
+summoned_by = ["MizSpawn"]
+summon = "alive"
+reason = "Remnants spawn at Mizuki while the NPC of MizSpawn lives and is engaged."
 
 [[allowed]]
 script = "AstraListener"
 fields = ["Dragon"]
+summoned_by = []
+reason = "The astra_deaths activation gives Astra the deaths of every Stardust."
 
 [[allowed]]
 script = "PhantomFightEvent"
 fields = ["WardsToSpawn"]
 position_field = "WardSpawnPoints"
+summoned_by = ["host"]
+summon = "alive"
+reason = "Update spawns the wards while its host character lives and is engaged."
 
 [[allowed]]
 script = "SiraetheEvent"
 fields = ["WardSpawnable"]
+summoned_by = ["host"]
+summon = "alive"
+reason = "Update spawns the wards while Siraethe lives and is engaged."
 
 [[allowed]]
 script = "SprinklesEvent"
 fields = ["ForestWard"]
 position_field = "WardSpawnPoints"
+summoned_by = ["SprinklesSpawn"]
+summon = "alive"
+reason = "The wards spawn while the NPC of SprinklesSpawn lives and is engaged."
 
 [[allowed]]
 script = "SprinklesEvent"
 fields = ["Trickster"]
 position_field = "SprinklesAddPosition1,SprinklesAddPosition2"
+summoned_by = ["SprinklesSpawn"]
+summon = "alive"
+reason = "The Trickster spawns while the NPC of SprinklesSpawn lives and is engaged."
 
 [[allowed]]
 script = "StowawayPortal"
 fields = ["KeeperSac"]
 position_field = "SpawnPointsForAdds"
+summoned_by = []
+reason = "The stowaway_deaths activation gives the sacrifice the deaths of the four Shadows."
 
 [[allowed]]
 script = "TreasureChestEvent"
 fields = ["Guardians"]
+summoned_by = ["host"]
+summon = "alive"
+reason = "SpawnGuardians spawns the guardians around the struck chest that hosts it."
 
 [[allowed]]
 script = "VithArena"
 fields = ["Coin1Fight", "Coin2Fight", "Coin3Fight", "Coin4Fight", "Coin5Fight", "Coin6Fight", "Coin7Fight", "Coin8Fight"]
 position_strategy = "vith_arena_fight"
 reason = "Fight lists use VithArena.SpawnPiece semantics: 1 enemy -> SpawnLoc1, 2 enemies -> SpawnLoc2/SpawnLoc3, 3 enemies -> all three spawn locs."
+summoned_by = []
 
 [[allowed]]
 script = "WaveEvent"
 fields = ["WeakWave", "StrongWave", "StrongestWave", "BossMob"]
 position_field = "SpawnLocations"
+summoned_by = []
+reason = "WaveEventTrigger starts the waves when the player enters it."
 
 [[allowed]]
 script = "ZenithNadirScript"
 fields = ["ConstellationStar"]
 position_field = "ConstPt1,ConstPt2"
+summoned_by = ["ZenithSpawn", "NadirSpawn"]
+summon = "alive"
+reason = "Constellations spawn on a timer while Zenith or Nadir is engaged."
 
 [[allowed]]
 script = "ZenithNadirScript"
 fields = ["Syzygy"]
 position_field = "SyzSpawn"
+summoned_by = ["NadirSpawn"]
+summon = "alive"
+reason = "Syzygy spawns once the NPC of NadirSpawn falls below 12 percent health."
 
 [[allowed]]
 script = "HonsusScript"
 fields = ["AddToSpawn"]
+summoned_by = ["host"]
+summon = "alive"
+reason = "Update spawns Executioners from a damaged living Honsus."
 
 [[allowed]]
 script = "GraceEvent"
 fields = ["AnimDupe"]
 position_field = "Spawn1,Spawn2"
+summoned_by = ["MySpawn"]
+summon = "alive"
+reason = "Two copies spawn once the NPC of MySpawn falls below a third of its health."
 
 [[allowed]]
 script = "NPCFightEvent"
-fields = ["SpawnAdds", "SpawnOnDeath"]
+fields = ["SpawnAdds"]
+summoned_by = ["host"]
+summon = "alive"
+reason = "FixedUpdate spawns the adds while the host lives and is engaged."
+
+[[allowed]]
+script = "NPCFightEvent"
+fields = ["SpawnOnDeath"]
+summoned_by = ["host"]
+summon = "defeated"
+reason = "FixedUpdate spawns these once the host dies."
 
 # --- Denied: runtime-rebound trackers (host SpawnPoint already covers placement) ---
 
@@ -180,7 +248,9 @@ reason = "Runtime-rebound from MySpawn.SpawnedNPC; the originating SpawnPoint al
 script = "FaithEvent"
 fields = ["HealObject"]
 position_field = "SpawnLocsForHeals"
-reason = "Heal NPC instantiated at SpawnLocsForHeals; has Character component via FaithTracker pattern."
+summoned_by = ["MySpawn"]
+summon = "alive"
+reason = "Heal NPCs spawn at SpawnLocsForHeals while the NPC of MySpawn lives and is engaged."
 
 [[denied]]
 script = "GraceEvent"
@@ -251,6 +321,7 @@ script = "VithArena"
 fields = ["AwardChests"]
 position_field = "ChestSpawnPos"
 reason = "Arena reward chest, instantiated at ChestSpawnPos; prefab has Character component with loot."
+summoned_by = []
 
 [[denied]]
 script = "VithArena"
@@ -277,6 +348,7 @@ trigger_mode = "proximity_auto_consume"
 event_display_name = "Malaroth feeding site"
 include_host_bounds = true
 reason = "SpawnLoc is the NPC instantiate position; the component host transform and trigger bounds define the interaction site."
+summoned_by = []
 
 [[allowed]]
 script = "MalarothFeed"
@@ -288,6 +360,7 @@ trigger_mode = "proximity_auto_consume"
 event_display_name = "Malaroth feeding site"
 include_host_bounds = true
 reason = "SpawnLoc is the NPC instantiate position; the component host transform and trigger bounds define the interaction site."
+summoned_by = []
 
 [[denied]]
 script = "TreasureChestEvent"
@@ -308,7 +381,9 @@ reason = "Position marker (second spawn point for AnimDupe); Spawn1 is used as p
 script = "RewardListener"
 fields = ["Chest"]
 position_field = "ChestSpawn"
-reason = "Reward chest, instantiated at ChestSpawn; prefab has Character component with loot."
+summoned_by = ["checked_in"]
+summon = "defeated"
+reason = "The reward chest spawns at ChestSpawn once both twins that checked in are dead."
 
 [[denied]]
 script = "AstraListener"
@@ -319,7 +394,9 @@ reason = "Astra is the host NPC (assigned from Instantiate result); SpawnLoc is 
 script = "ZenithNadirScript"
 fields = ["Chest"]
 position_field = "ChestPos"
-reason = "Reward chest, instantiated at ChestPos; prefab has Character component with loot."
+summoned_by = ["ZenithSpawn", "NadirSpawn"]
+summon = "defeated"
+reason = "The reward chest spawns at ChestPos once Zenith and Nadir are dead, and Syzygy too if it spawned."
 
 [[denied]]
 script = "ZenithNadirScript"
@@ -340,51 +417,80 @@ reason = "Host NPC reference, not a dynamic spawn."
 script = "ArborScript"
 fields = ["Sapling"]
 position_field = "SapSpawn1,SapSpawn2"
+summoned_by = ["host"]
+summon = "alive"
+reason = "Start binds the SpawnPoint on its own object, and saplings spawn at health thresholds of its NPC."
 
 [[allowed]]
 script = "BraxFightEvent"
 fields = ["ElementalCrystal"]
 position_field = "Fire1Pos,Fire2Pos,Ice1Pos,Ice2Pos"
+summoned_by = ["BraxSpawn"]
+summon = "alive"
+reason = "The crystals spawn once the NPC of BraxSpawn is engaged, while it lives."
 
 [[allowed]]
 script = "BraxFightEvent"
 fields = ["Corruptor"]
 position_field = "SpawnPos1,SpawnPos2"
+summoned_by = ["BraxSpawn"]
+summon = "alive"
+reason = "Corruptors spawn at health thresholds of the NPC of BraxSpawn."
 
 [[allowed]]
 script = "BraxFightEvent"
 fields = ["elementalConstruct"]
 position_field = "AddSpawnLocs"
+summoned_by = ["BraxSpawn"]
+summon = "alive"
+reason = "Constructs spawn in the final phase of the NPC of BraxSpawn."
 
 [[allowed]]
 script = "FernallaFight"
 fields = ["Corruptor", "Fawn", "Spiderings", "Wolves"]
 position_field = "SpawnPoints"
+summoned_by = ["FernSpawnPoint"]
+summon = "alive"
+reason = "The adds spawn while the NPC of FernSpawnPoint lives and is engaged."
 
 [[allowed]]
 script = "InfernoTwins"
 fields = ["MyEnergy"]
+summoned_by = ["host"]
+summon = "alive"
+reason = "Update fires the energies while its twin lives and is engaged."
 
 [[allowed]]
 script = "SolunaFight"
 fields = ["ConstellationStar", "Shadow"]
 position_field = "AddPositions"
+summoned_by = ["SolunaSpawn"]
+summon = "alive"
+reason = "The adds spawn while the NPC of SolunaSpawn lives and is engaged."
 
 [[allowed]]
 script = "SolunaFight"
 fields = ["Corruptor1"]
 position_field = "SpecificSpawn1"
+summoned_by = ["SolunaSpawn"]
+summon = "alive"
+reason = "The corruptor spawns while the NPC of SolunaSpawn lives and is engaged."
 
 [[allowed]]
 script = "SolunaFight"
 fields = ["Corruptor2"]
 position_field = "SpecificSpawn2"
+summoned_by = ["SolunaSpawn"]
+summon = "alive"
+reason = "The corruptor spawns while the NPC of SolunaSpawn lives and is engaged."
 
 [[allowed]]
 script = "VitheoFight"
 fields = ["AzynthiCorruptor", "LegionTier1", "LegionTier2", "LegionTier3", "LegionTier4", "LegionTier5"]
 position_strategy = "vitheo_fight"
-reason = "SpawnLegions uses CorruptorSpawn for single corruptors, the first count arenaNav positions for legions, and all arenaNav positions for the infinite LegionTier4 phase."
+summoned_by = ["checked_in"]
+summon = "alive"
+reason = "SpawnLegions uses CorruptorSpawn for single corruptors, the first count arenaNav positions for legions, and all arenaNav positions for the infinite LegionTier4 phase. VithArena checks Vitheo the Tactician in for round 8, and the legions spawn at his health thresholds."
 
 [[denied]]
 script = "BraxFightEvent"
@@ -449,6 +555,8 @@ reason = "List of GameObjects enabled via SetActive on quest completion, not Ins
 [[allowed]]
 script = "NPCDialog"
 fields = ["Spawn"]
+summoned_by = ["host"]
+summon = "dialog"
 # Instantiated by NPCDialogManager.DoExtras() at the dialog NPC's transform
 # position when the dialog completes. The field is a serialized prefab reference
 # on the NPCDialog component itself, so the listener emits at the host's position.

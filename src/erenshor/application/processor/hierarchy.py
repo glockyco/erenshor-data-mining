@@ -6,6 +6,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from .characters import chained_placements
 from .gates import CONTROLLER, Atom, Gate, _ordered_groups
 from .planning import _ROOM_SLOTS
 
@@ -151,14 +152,10 @@ def apply_hierarchy_activity(raw: sqlite3.Connection, conn: sqlite3.Connection, 
         "SELECT ParentStableKey, ChildStableKey, SourceScript, ControllerObjectKey, ControllerComponentIsEnabled"
         " FROM CharacterChainedSpawns"
     ):
-        for key, parent_spawn in conn.execute(
-            "SELECT child.spawn_point_stable_key, parent.spawn_point_stable_key"
-            " FROM character_spawns child JOIN character_spawns parent"
-            " ON parent.character_stable_key = ? AND parent.scene = child.scene"
-            " AND parent.x IS child.x AND parent.y IS child.y AND parent.z IS child.z"
-            " WHERE child.character_stable_key = ? AND child.source_script = ? AND child.is_trigger_spawn = 1",
-            (parent, child, script),
-        ):
+        for key, parent_spawn in chained_placements(conn, parent, child, script):
+            # A placement without a position has no key to gate.
+            if key is None:
+                continue
             dynamic[key] = (child, controller, bool(component))
             parent_object = parent_spawn or subjects.get(("character", parent))
             if parent_object is not None:

@@ -501,6 +501,7 @@ public static class ExportListenerRegistry
                     context.DynamicSpawnListener = new DynamicSpawnSourceListener(
                         context.Database,
                         context.CharacterKeyResolver,
+                        context.ActivationTargets,
                         catalog,
                         context.ObjectHierarchy
                     );

@@ -181,6 +181,32 @@
       }
     },
     {
+      "id": "progression.twins.chest",
+      "mode": "assert",
+      "type": "RewardListener",
+      "method": "Update",
+      "matcher": "branch_shape",
+      "args": {
+        "condition": "InfernoIn && FrostIn && !ChestGiven && (!Frost || !Frost.Alive) && (!Inferno || !Inferno.Alive)",
+        "branch": "true",
+        "shape": "{ Object.Instantiate (Chest, ChestSpawn.position, transform.rotation); ChestGiven = true; UpdateSocialLog.LogAdd (new ChatLogLine (\"A Chest appears on the bridge...\", ChatLogLine.LogType.SystemMessages, \"yellow\")); InfernoCliff.SetActive (value: false); FrostCliff.SetActive (value: false); InfernoIn = false; FrostIn = false; RageLevel = 0; AEMult = 1; deadTwin = false; }"
+      },
+      "note": "The bridge chest spawns once both twins that checked in are dead. processor/summons.py gives the chest the deaths of the twins' check-ins."
+    },
+    {
+      "id": "arena.vitheo_checkin",
+      "mode": "assert",
+      "type": "VithArena",
+      "method": "SpawnPiece",
+      "matcher": "branch_shape",
+      "args": {
+        "condition": "_tier == 7 && Spawned [0].GetComponent<NPC> ().NPCName == \"Vitheo the Tactician\"",
+        "branch": "true",
+        "shape": "{ VithFightScript.CheckIn (Spawned [0]); }"
+      },
+      "note": "Round 8 checks its first fighter in with VitheoFight when it is Vitheo the Tactician. processor/summons.py makes him the summoner of the legions."
+    },
+    {
       "id": "weather.rain_start",
       "mode": "extract",
       "type": "AtmosphereColors",
