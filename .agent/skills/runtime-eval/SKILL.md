@@ -10,7 +10,7 @@ Use `in-game-performance-profiling` for timing methods. Use `combat-evaluation` 
 ## Start and stop a session
 
 1. Close the game and select BepInEx: `uv run erenshor mod activate --loader bepinex`.
-2. Start `uv run erenshor mod launch` in a separate terminal. With a native loader active, it launches the selected game's executable through CrossOver and waits for exit.
+2. Start `uv run erenshor mod launch` in a separate terminal. With a native loader active, it launches the selected game's executable through CrossOver without its audio driver, so the game stays silent whatever its volume settings, and waits for exit.
 3. After the game starts, run `uv run erenshor eval ping`. If it fails, allow startup to finish before checking `BepInEx/LogOutput.log` for HotRepl errors.
 4. Exit the game when finished. If the tracked session remains, run `uv run erenshor mod launch --recover` to stop only the recorded matching process.
 

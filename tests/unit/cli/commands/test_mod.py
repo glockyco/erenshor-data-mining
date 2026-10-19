@@ -1424,7 +1424,7 @@ def test_launch_inspects_unowned_pid_without_signaling(
     assert "No signal was sent" in output
 
 
-def test_launch_applies_native_proxy_override_for_active_loader(
+def test_launch_loads_the_native_proxy_and_mutes_the_game_for_active_loader(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     game = tmp_path / "game"
@@ -1446,7 +1446,7 @@ def test_launch_applies_native_proxy_override_for_active_loader(
         "--bottle",
         "Steam",
         "--dll",
-        "winhttp=n,b",
+        "winhttp=n,b;winecoreaudio.drv=d",
         "--wait-children",
         "--workdir",
         str(game),

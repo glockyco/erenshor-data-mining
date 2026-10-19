@@ -613,7 +613,9 @@ def plan_launch(cli_ctx: CLIContext) -> LaunchPlan:
                 "--bottle",
                 bottle,
                 "--dll",
-                "winhttp=n,b",
+                # The loader proxy must load natively. Without its audio driver the game has no
+                # device to play on, whatever volume its settings or restored saves hold.
+                "winhttp=n,b;winecoreaudio.drv=d",
                 "--wait-children",
                 "--workdir",
                 str(game_path),

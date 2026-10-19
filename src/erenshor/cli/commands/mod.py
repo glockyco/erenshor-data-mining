@@ -460,7 +460,10 @@ def launch(
         ),
     ] = None,
 ) -> None:
-    """Launch the selected game, recover its session, or inspect one PID."""
+    """Launch the selected game, recover its session, or inspect one PID.
+
+    With a native loader active, the game starts without an audio driver, so it stays silent.
+    """
     cli_ctx: CLIContext = ctx.obj
     if recover and inspect_pid is not None:
         console.print("[red]Error: --recover and --inspect-pid are mutually exclusive.[/red]")
