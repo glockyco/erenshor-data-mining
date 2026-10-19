@@ -12,7 +12,7 @@ QUESTS = DataView(
     module="Quests",
     description="Quest panels. Variant rows and their child rows retain the resource identity. "
     "Acquisition and completion routes without a variant apply to the canonical quest, not an inferred resource. "
-    "Routes are alternatives. A prerequisite belongs only to its route. "
+    "Routes are alternatives. Prerequisites belong only to their route, and it needs all of them. "
     "Required items within a variant are all required. "
     "Variant rows require variant, experience, gold, repeatable and every behavior flag. "
     "Required rows require variant, item and quantity. Faction rows require variant, faction and amount. "
@@ -29,7 +29,7 @@ QUESTS = DataView(
         ViewField("sourceVariant", "text", "The preceding quest resource that assigns this quest.", optional=True),
         ViewField("dialogIndex", "integer", "The dialog entry of the source copy.", optional=True),
         ViewField("keywords", "text", "The exported dialog keywords, separated by commas.", optional=True),
-        ViewField("prerequisite", "reference", "Quest completion required by this dialog route only.", optional=True),
+        ViewField("prerequisites", "references", "Quests whose completion this route alone needs.", optional=True),
         ViewField(
             "notOwnedItem",
             "reference",
@@ -130,7 +130,7 @@ _METHODS = {
 }
 
 _REFERENCE_KINDS = {
-    "prerequisite": "quest",
+    "prerequisites": "quest",
     "notOwnedItem": "item",
     "blockedByQuest": "quest",
     "requiredItem": "item",
@@ -162,16 +162,21 @@ def quest_module_text(
 ) -> str:
     """Validate the shared declaration and each discriminated quest row shape."""
     reference_fields = {field.name for field in QUESTS.fields if field.type == "reference"}
+    reference_lists = {field.name for field in QUESTS.fields if field.type == "references"}
+
+    def project(field: str, value: object, row: Mapping[str, object]) -> object:
+        if value is None:
+            return value
+        if field in reference_fields:
+            return _quest_reference(field, value, row, native_catalog)
+        if field in reference_lists:
+            if not isinstance(value, list):
+                raise ViewDataError(f"Quest field {field!r} requires a list of native stable keys, not {value!r}")
+            return [_quest_reference(field, item, row, native_catalog) for item in value]
+        return value
+
     projected = {
-        quest: [
-            {
-                field: _quest_reference(field, value, row, native_catalog)
-                if field in reference_fields and value is not None
-                else value
-                for field, value in row.items()
-            }
-            for row in rows
-        ]
+        quest: [{field: project(field, value, row) for field, value in row.items()} for row in rows]
         for quest, rows in rows_by_quest.items()
     }
     content = view_module_text(QUESTS, projected, known_keys, reference_catalog=native_catalog)

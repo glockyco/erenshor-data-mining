@@ -56,8 +56,12 @@ local function route(row, data)
 	if row.keywords then
 		text = text .. ' ("' .. Format.escape(row.keywords) .. '")'
 	end
-	if row.prerequisite then
-		text = text .. ". Requires " .. entity("quest", row.prerequisite)
+	if row.prerequisites then
+		local quests = {}
+		for _, reference in ipairs(row.prerequisites) do
+			table.insert(quests, entity("quest", reference))
+		end
+		text = text .. ". Requires " .. mw.text.listToText(quests)
 	end
 	if row.notOwnedItem then
 		text = text .. ". Without " .. entity("item", row.notOwnedItem)
@@ -84,7 +88,7 @@ local ROUTE_FIELDS = {
 	"sourceKind",
 	"sourceVariant",
 	"keywords",
-	"prerequisite",
+	"prerequisites",
 	"notOwnedItem",
 	"blockedByQuest",
 	"furniture",
@@ -94,6 +98,21 @@ local ROUTE_FIELDS = {
 	"quantity",
 }
 
+-- A reference compares by its key and a list of references by its keys in order.
+local function identity(value)
+	if type(value) ~= "table" then
+		return value
+	end
+	if value.key ~= nil then
+		return value.key
+	end
+	local keys = {}
+	for _, reference in ipairs(value) do
+		table.insert(keys, reference.key)
+	end
+	return table.concat(keys, "\n")
+end
+
 local function uniqueRoutes(rows, kind, variant)
 	local routes = {}
 	for _, row in ipairs(rows) do
@@ -102,13 +121,7 @@ local function uniqueRoutes(rows, kind, variant)
 			for _, previous in ipairs(routes) do
 				local same = true
 				for _, field in ipairs(ROUTE_FIELDS) do
-					local left, right = row[field], previous[field]
-					if type(left) == "table" then
-						left = left.key
-					end
-					if type(right) == "table" then
-						right = right.key
-					end
+					local left, right = identity(row[field]), identity(previous[field])
 					if left ~= right then
 						same = false
 						break

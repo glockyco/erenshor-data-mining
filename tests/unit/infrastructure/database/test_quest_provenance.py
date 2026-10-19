@@ -261,7 +261,7 @@ def test_dialog_gift_keeps_payload_gates_and_canonical_furniture(
     assert gift["acquisitionKey"] == "dialog:4"
     assert gift["notOwnedItem"] == "item:canonical"
     assert gift["blockedByQuest"] == "quest:assigned"
-    assert gift["prerequisite"] == "quest:assigned"
+    assert gift["prerequisites"] == ["quest:assigned"]
     assert gift["keywords"] == "thanks"
     assert gift["furniture"] == "item:furniture"
     assert gift["room"] == "west"

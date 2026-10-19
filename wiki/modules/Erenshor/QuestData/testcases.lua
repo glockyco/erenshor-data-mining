@@ -21,7 +21,7 @@ end
 function p.run()
 	local kinds = {
 		source = true,
-		prerequisite = "quest",
+		prerequisites = "quest",
 		notOwnedItem = "item",
 		blockedByQuest = "quest",
 		requiredItem = "item",
@@ -32,22 +32,38 @@ function p.run()
 		faction = "faction",
 		quest = "quest",
 	}
+	local lists = { prerequisites = true }
 	local seen = {}
+	local function check(field, reference, expected)
+		if
+			type(reference) ~= "table"
+			or type(reference.key) ~= "string"
+			or string.sub(reference.key, 1, #expected + 1) ~= expected .. ":"
+			or type(reference.name) ~= "string"
+			or reference.name == ""
+			or (reference.page ~= nil and type(reference.page) ~= "string")
+		then
+			error("Invalid fixture native reference: " .. field)
+		end
+	end
 	for _, rows in pairs(mw.loadData("Module:Erenshor/Data/Quests")) do
 		for _, row in ipairs(rows) do
 			for field, kind in pairs(kinds) do
-				local reference = row[field]
-				if reference ~= nil then
+				local value = row[field]
+				if value ~= nil then
 					local expected = field == "source" and row.sourceKind or kind
-					if
-						type(reference) ~= "table"
-						or type(reference.key) ~= "string"
-						or string.sub(reference.key, 1, #expected + 1) ~= expected .. ":"
-						or type(reference.name) ~= "string"
-						or reference.name == ""
-						or (reference.page ~= nil and type(reference.page) ~= "string")
-					then
-						error("Invalid fixture native reference: " .. field)
+					if lists[field] then
+						-- mw.loadData tables support ipairs, not the length operator.
+						local count = 0
+						for _, reference in ipairs(value) do
+							check(field, reference, expected)
+							count = count + 1
+						end
+						if count == 0 then
+							error("Empty fixture reference list: " .. field)
+						end
+					else
+						check(field, value, expected)
 					end
 					seen[field] = true
 				end
@@ -188,6 +204,11 @@ function p.run()
 		"blocking completed quest identity"
 	)
 	contains(following, 'data-erenshor-key="quest:catfordeer"', "required completed quest identity")
+	contains(
+		following,
+		'data-erenshor-key="quest:a skeleton eye for alyssa fearnon"',
+		"every required completed quest of a route"
+	)
 	absent(
 		following,
 		"No experience, gold, or item reward.",

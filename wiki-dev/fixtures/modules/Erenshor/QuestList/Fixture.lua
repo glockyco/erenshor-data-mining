@@ -83,7 +83,7 @@ return {
 			method = "dialog",
 			sourceKind = "character",
 			source = ref("character:captain_rowan"),
-			prerequisite = { key = "quest:pageless", name = "Native prerequisite" },
+			prerequisites = { { key = "quest:pageless", name = "Native prerequisite" } },
 			keywords = "help",
 			notOwnedItem = ref("item:healing_draught"),
 			blockedByQuest = ref("quest:magical_sword"),

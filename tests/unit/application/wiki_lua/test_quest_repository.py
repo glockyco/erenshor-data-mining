@@ -185,9 +185,28 @@ def test_dialog_gates_remain_on_their_routes_not_on_named_variants(panel_db: tup
     assert len(routes) == 2
     assert all(row["source"] == "character:a" and row["sourceCopy"] == "character:b" for row in routes)
     assert all("variant" not in row for row in routes)
-    assert routes[0]["prerequisite"] == "quest:gate"
+    assert routes[0]["prerequisites"] == ["quest:gate"]
     assert routes[0]["keywords"] == "favor"
-    assert "prerequisite" not in routes[1]
+    assert "prerequisites" not in routes[1]
+
+
+def test_a_scripted_event_needs_every_quest_of_its_conditions(panel_db: tuple[Writer, QuestRepository]) -> None:
+    writer, repo = panel_db
+    writer.insert_quest_variants([_variant("Resource A")])
+    writer.conn.execute(
+        "INSERT INTO zones (stable_key, scene_name, zone_name, display_name, image_name, zone_type)"
+        " VALUES ('zone:hall', 'Hall', 'Hall', 'Hall', 'Hall', 'Outdoor')"
+    )
+    writer.conn.execute(
+        "INSERT INTO scripted_events VALUES ('event:keepers', 'quest:one', 'keepers', 'zone:hall', 'Meet both')"
+    )
+    # Like Meet Shivering Step, which needs all four keepers.
+    writer.conn.executemany(
+        "INSERT INTO scripted_event_conditions VALUES ('event:keepers', 0, ?, 'quest_done', ?)",
+        [(0, "quest:two"), (1, "quest:gate")],
+    )
+    event = next(row for row in _panel_rows(writer, repo)["quest:one"] if row.get("method") == "scripted")
+    assert event["prerequisites"] == ["quest:two", "quest:gate"]
 
 
 def test_chain_predecessor_resources_and_completion_consequences_are_distinct(
@@ -224,7 +243,7 @@ def test_chain_predecessor_resources_and_completion_consequences_are_distinct(
         "sourceVariant": "Predecessor",
     } in rows
     assert {"type": "completes", "variant": "Target", "quest": "quest:gate"} in rows
-    assert not any("prerequisite" in row for row in rows)
+    assert not any("prerequisites" in row for row in rows)
 
 
 def test_partial_turnin_route_only_belongs_to_flagged_resources(panel_db: tuple[Writer, QuestRepository]) -> None:
@@ -327,7 +346,7 @@ def test_completion_dialog_gate_and_scripted_events_are_preserved(panel_db: tupl
     )
     rows = _panel_rows(writer, repo)["quest:one"]
     completion = [row for row in rows if row["type"] == "completion" and row["method"] == "talk"]
-    assert completion[0]["prerequisite"] == "quest:gate"
+    assert completion[0]["prerequisites"] == ["quest:gate"]
     assert completion[0]["keywords"] == "light"
     assert {
         "type": "completion",
@@ -562,7 +581,7 @@ def test_dialog_giveitem_is_a_distinct_reward_with_executed_gates(panel_db: tupl
     assert reward["item"] == "item:actual" and reward["quantity"] == 1
     assert reward["notOwnedItem"] == "item:actual"
     assert reward["blockedByQuest"] == "quest:two"
-    assert reward["prerequisite"] == "quest:gate"
+    assert reward["prerequisites"] == ["quest:gate"]
 
 
 def test_panel_routes_survive_removing_their_derivation_inputs(panel_db: tuple[Writer, QuestRepository]) -> None:
@@ -636,7 +655,7 @@ def test_panel_conditions_follow_route_atoms_not_native_dialog_fields(panel_db: 
     route = next(row for row in repo.get_quest_panel_rows()["quest:one"] if row["type"] == "completion")
 
     assert route["keywords"] == "canonical"
-    assert route["prerequisite"] == "quest:two"
+    assert route["prerequisites"] == ["quest:two"]
     assert route["sourceCopy"] == "character:b" and route["source"] == "character:a"
 
 

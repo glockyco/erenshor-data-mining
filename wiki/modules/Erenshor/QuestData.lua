@@ -77,8 +77,12 @@ local function route(row, data)
 		local label = string.find(row.keywords, ",", 1, true) and "keywords" or "keyword"
 		text = text .. " (" .. label .. ': "' .. Format.escape(row.keywords) .. '")'
 	end
-	if row.prerequisite then
-		text = text .. ". Requires completion of " .. entity("quest", row.prerequisite)
+	if row.prerequisites then
+		local quests = {}
+		for _, reference in ipairs(row.prerequisites) do
+			table.insert(quests, entity("quest", reference))
+		end
+		text = text .. ". Requires completion of " .. mw.text.listToText(quests)
 	end
 	if row.requiredItem then
 		text = text
@@ -140,7 +144,7 @@ local ROUTE_FIELDS = {
 	"source",
 	"sourceKind",
 	"keywords",
-	"prerequisite",
+	"prerequisites",
 	"sourceVariant",
 	"furniture",
 	"note",
@@ -151,18 +155,27 @@ local ROUTE_FIELDS = {
 	"quantity",
 }
 
+-- A reference compares by its key and a list of references by its keys in order.
+local function identity(value)
+	if type(value) ~= "table" then
+		return value
+	end
+	if value.key ~= nil then
+		return value.key
+	end
+	local keys = {}
+	for _, reference in ipairs(value) do
+		table.insert(keys, reference.key)
+	end
+	return table.concat(keys, "\n")
+end
+
 local function appendRoute(routes, row, data)
 	-- Compare facts before rendering, since icon strip markers differ per call.
 	for _, existing in ipairs(routes.rows or {}) do
 		local same = true
 		for _, field in ipairs(ROUTE_FIELDS) do
-			local left, right = existing[field], row[field]
-			if type(left) == "table" then
-				left = left.key
-			end
-			if type(right) == "table" then
-				right = right.key
-			end
+			local left, right = identity(existing[field]), identity(row[field])
 			if left ~= right then
 				same = false
 				break

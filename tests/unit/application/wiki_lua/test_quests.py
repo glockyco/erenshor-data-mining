@@ -76,7 +76,7 @@ def test_canonical_identity_fields_retain_declared_types(field: str, value: obje
     ("field", "kind"),
     [
         ("source", "quest"),
-        ("prerequisite", "quest"),
+        ("prerequisites", "quest"),
         ("notOwnedItem", "item"),
         ("blockedByQuest", "quest"),
         ("furniture", "item"),
@@ -90,7 +90,7 @@ def test_canonical_identity_fields_retain_declared_types(field: str, value: obje
 def test_each_identity_field_retains_a_valid_pageless_native_reference(field: str, kind: str) -> None:
     rows = _rows()
     key = f"{kind}:native-pageless"
-    rows["quest:offering"][0][field] = key
+    rows["quest:offering"][0][field] = [key] if field == "prerequisites" else key
     if field == "source":
         rows["quest:offering"][0]["sourceKind"] = kind
     elif field == "furniture":

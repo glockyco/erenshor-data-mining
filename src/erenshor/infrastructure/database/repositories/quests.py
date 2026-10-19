@@ -263,7 +263,7 @@ class QuestRepository(BaseRepository[Quest]):
             placements.setdefault(str(placement["character_stable_key"]), []).append(qualifier)
         conditions: dict[str, dict[str, object]] = {}
         fields = {
-            "quest_done": "prerequisite",
+            "quest_done": "prerequisites",
             "quest_not_done": "blockedByQuest",
             "item_not_owned": "notOwnedItem",
             "item_held": "requiredItem",
@@ -275,6 +275,12 @@ class QuestRepository(BaseRepository[Quest]):
                 raise RepositoryError(f"Cannot present quest route condition {dict(atom)}")
             target = conditions.setdefault(str(atom["route_key"]), {})
             field = fields[atom["atom_kind"]]
+            if field == "prerequisites":
+                # A route needs every quest of its one condition group.
+                quests = target.setdefault(field, [])
+                if isinstance(quests, list) and atom["atom_stable_key"] not in quests:
+                    quests.append(atom["atom_stable_key"])
+                continue
             if field in target and target[field] != atom["atom_stable_key"]:
                 raise RepositoryError(f"Cannot present multiple {field} conditions for route {atom['route_key']}")
             target[field] = atom["atom_stable_key"]

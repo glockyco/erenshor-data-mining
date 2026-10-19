@@ -202,7 +202,7 @@ return {
 			source = reference("character:captain_rowan"),
 			sourceKind = "character",
 			keywords = "answer",
-			prerequisite = reference("quest:catfordeer"),
+			prerequisites = { reference("quest:catfordeer") },
 		},
 		{
 			type = "completion",
@@ -211,7 +211,7 @@ return {
 			source = reference("character:captain_rowan"),
 			sourceKind = "character",
 			keywords = "other",
-			prerequisite = reference("quest:magical_sword"),
+			prerequisites = { reference("quest:magical_sword") },
 		},
 		{
 			type = "acquisition",
@@ -299,7 +299,10 @@ return {
 			quantity = 1,
 			notOwnedItem = reference("item:healing_draught"),
 			blockedByQuest = reference("quest:magical_sword"),
-			prerequisite = reference("quest:catfordeer"),
+			prerequisites = {
+				reference("quest:catfordeer"),
+				reference("quest:a skeleton eye for alyssa fearnon"),
+			},
 			keywords = "gift",
 			furniture = reference("item:lucky_charm"),
 			room = "L1",
@@ -313,7 +316,10 @@ return {
 			quantity = 1,
 			notOwnedItem = reference("item:healing_draught"),
 			blockedByQuest = reference("quest:magical_sword"),
-			prerequisite = reference("quest:catfordeer"),
+			prerequisites = {
+				reference("quest:catfordeer"),
+				reference("quest:a skeleton eye for alyssa fearnon"),
+			},
 			keywords = "gift",
 			furniture = reference("item:lucky_charm"),
 			room = "R4",
