@@ -1,0 +1,349 @@
+/* The explorer of Template:Progression graph. Colours follow the skin's theme
+   variables, so the graph reads in the light and the dark theme. */
+.epg {
+	--epg-text: var( --wiki-content-text-color, var( --color-base, #202122 ) );
+	--epg-surface: var( --wiki-content-background-color, var( --background-color-base, #fff ) );
+	--epg-surface-alt: var( --wiki-content-background-color--secondary, var( --background-color-interactive-subtle, #eaecf0 ) );
+	--epg-border: var( --wiki-content-border-color, var( --border-color-base, #a2a9b1 ) );
+	--epg-accent: var( --wiki-content-link-color, var( --color-progressive, #36c ) );
+	margin: 0.5em 0 1em;
+	color: var( --epg-text );
+}
+
+.epg-controls {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5em 1.25em;
+	align-items: center;
+	margin-bottom: 0.5em;
+}
+
+.epg-search {
+	position: relative;
+}
+
+.epg-search label {
+	margin-right: 0.4em;
+}
+
+.epg-search-input {
+	width: 16em;
+}
+
+.epg-results {
+	position: absolute;
+	z-index: 5;
+	top: 100%;
+	left: 0;
+	min-width: 100%;
+	max-height: 20em;
+	margin: 2px 0 0;
+	padding: 0;
+	overflow: auto;
+	list-style: none;
+	border: 1px solid var( --epg-border );
+	background: var( --epg-surface );
+}
+
+.epg-result {
+	display: flex;
+	justify-content: space-between;
+	gap: 1em;
+	margin: 0;
+	padding: 0.25em 0.5em;
+	cursor: pointer;
+}
+
+.epg-result[ aria-selected='true' ] {
+	background: var( --epg-surface-alt );
+	outline: 2px solid var( --epg-accent );
+	outline-offset: -2px;
+}
+
+.epg-result-meta {
+	opacity: 0.8;
+	white-space: nowrap;
+}
+
+.epg-modes {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25em 0.75em;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.epg-modes legend {
+	float: left;
+	margin-right: 0.25em;
+	padding: 0;
+}
+
+.epg-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35em;
+}
+
+.epg-legend {
+	margin: 0 0 0.5em;
+}
+
+.epg-body {
+	display: flex;
+	gap: 1em;
+	align-items: flex-start;
+}
+
+.epg-viewport {
+	position: relative;
+	flex: 1 1 auto;
+	min-width: 0;
+	max-height: 70vh;
+	overflow: auto;
+	border: 1px solid var( --epg-border );
+	background: var( --epg-surface );
+	cursor: grab;
+}
+
+.epg-dragging {
+	cursor: grabbing;
+	user-select: none;
+}
+
+.epg-sizer {
+	position: relative;
+	overflow: hidden;
+}
+
+.epg-world {
+	position: absolute;
+	top: 0;
+	left: 0;
+	transform-origin: 0 0;
+}
+
+.epg-lines {
+	position: absolute;
+	top: 0;
+	left: 0;
+	overflow: visible;
+	pointer-events: none;
+}
+
+.epg-line {
+	fill: none;
+	stroke: var( --epg-border );
+	stroke-width: 1.5;
+}
+
+.epg-line-skip {
+	stroke-dasharray: 6 4;
+	pointer-events: visibleStroke;
+}
+
+.epg-line-focus {
+	stroke: var( --epg-accent );
+	stroke-width: 3;
+}
+
+.epg-line-label,
+.epg-junction-label {
+	fill: var( --epg-text );
+	font-size: 11px;
+}
+
+.epg-junction {
+	fill: var( --epg-surface );
+	stroke: var( --epg-border );
+	stroke-width: 1.5;
+}
+
+.epg-junction-focus {
+	stroke: var( --epg-accent );
+	stroke-width: 3;
+}
+
+.epg-headings {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.epg-heading {
+	position: absolute;
+	top: 10px;
+	font-size: 0.8em;
+	font-weight: bold;
+	text-align: center;
+}
+
+.epg-node {
+	position: absolute;
+	box-sizing: border-box;
+	width: 216px;
+	border: 2px solid var( --epg-border );
+	border-radius: 4px;
+	background: var( --epg-surface );
+	color: var( --epg-text );
+	cursor: auto;
+}
+
+.epg-node-target {
+	border-width: 4px;
+}
+
+/* A border shape for each kind repeats what the kind label says. */
+.epg-kind-zone {
+	border-radius: 18px;
+}
+
+.epg-kind-item {
+	border-radius: 0;
+}
+
+.epg-kind-character {
+	border-radius: 4px 18px;
+}
+
+.epg-kind-quest,
+.epg-kind-quest_start {
+	border-left-width: 7px;
+}
+
+.epg-kind-barrier {
+	border-style: dashed;
+}
+
+.epg-kind-world_state,
+.epg-kind-account_state,
+.epg-kind-faction_standing {
+	border-style: dotted;
+}
+
+.epg-node-focus {
+	box-shadow: 0 0 0 3px var( --epg-accent );
+}
+
+/* The steps right before and after the focused step. The ring reads in both
+   themes, where the secondary background alone can match the surface. */
+.epg-node-related {
+	background: var( --epg-surface-alt );
+	box-shadow: 0 0 0 1px var( --epg-accent );
+}
+
+.epg-node-select {
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 56px;
+	margin: 0;
+	padding: 0.35em 3.6em 0.35em 0.6em;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.epg-node-select:focus-visible {
+	outline: 3px solid var( --epg-accent );
+	outline-offset: 2px;
+}
+
+.epg-node-kind {
+	display: block;
+	font-size: 0.72em;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	opacity: 0.85;
+}
+
+.epg-node-name {
+	display: block;
+	font-weight: bold;
+	line-height: 1.25;
+	overflow-wrap: anywhere;
+}
+
+.epg-node-tier {
+	display: block;
+	font-size: 0.8em;
+	opacity: 0.85;
+}
+
+.epg-node-toggle {
+	position: absolute;
+	top: 0.4em;
+	right: 0.4em;
+	padding: 0.1em 0.45em;
+	font-size: 0.8em;
+}
+
+.epg-node-detail {
+	max-height: 28em;
+	padding: 0.4em 0.6em 0.6em;
+	overflow: auto;
+	border-top: 1px solid var( --epg-border );
+	font-size: 0.85em;
+}
+
+.epg-node-detail ul {
+	margin: 0.2em 0 0.2em 1.2em;
+}
+
+.epg-depth-limit,
+.epg-group summary {
+	opacity: 0.85;
+}
+
+.epg-mention {
+	outline: 2px solid var( --epg-accent );
+}
+
+.epg-panel {
+	flex: 0 0 19em;
+	box-sizing: border-box;
+	max-height: 70vh;
+	padding: 0.5em 0.75em;
+	overflow: auto;
+	border: 1px solid var( --epg-border );
+	background: var( --epg-surface-alt );
+}
+
+.epg-panel-title {
+	margin-top: 0;
+}
+
+.epg-panel-list {
+	margin-left: 1.2em;
+}
+
+.epg-step,
+.epg-go {
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var( --epg-accent );
+	font: inherit;
+	text-align: left;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.epg-status {
+	margin: 0.5em 0 0;
+}
+
+@media ( max-width: 720px ) {
+	.epg-body {
+		flex-direction: column;
+	}
+
+	.epg-panel {
+		width: 100%;
+		flex-basis: auto;
+	}
+}

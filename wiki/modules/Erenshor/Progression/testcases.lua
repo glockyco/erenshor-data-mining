@@ -70,6 +70,9 @@ function p.run()
 		if not payload.nodes["mechanism:alternate"] or payload.nodes["zone:fixture-plane1"] then
 			error("Gadget JSON must include alternatives and only the target subgraph")
 		end
+		if payload.maxDepth ~= 6 or payload.sourceLimit ~= 4 then
+			error("Gadget JSON must carry the depth and source limits of the text")
+		end
 	end
 	local ambiguous = Progression.render({ page = "Dire Wolf" })
 	contains(ambiguous, "character:dire_wolf_alpha, character:dire_wolf_young")

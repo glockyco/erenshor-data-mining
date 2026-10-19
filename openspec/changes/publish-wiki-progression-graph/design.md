@@ -54,7 +54,7 @@ The shared `Link.pageKeys` reads `Module:Erenshor/Data/PageKeys`, a small page-t
 
 The view loads the compact progression module and decodes a way only when the text needs it. It renders a legend, the first-way overview as an ordered list by tier with each milestone linked, and each milestone's detail as nested lists. A node already shown is referenced, not repeated, and nested sources stop at depth 6. A key without data shows a message and adds `Pages with missing Erenshor progression data`.
 
-The gadget container holds a hidden `pre` with a nowiki JSON payload, serialized through `mw.text.jsonEncode` from plain copies of the compact records touched by the overview and depth-limited detail, including boundary labels. The payload names its targets and nodes. Keeping JSON in text avoids MediaWiki's large-attribute limit. The text remains visible without the gadget.
+The gadget container holds a hidden `pre` with a nowiki JSON payload, serialized in one `mw.text.jsonEncode` call from the compact records touched by the overview and depth-limited detail, including boundary labels. The payload names its targets, its nodes, and the depth and source limits of the text. Keeping JSON in text avoids MediaWiki's large-attribute limit. The text remains visible without the gadget.
 
 ### D5. The explorer gadget
 
@@ -62,7 +62,7 @@ The gadget container holds a hidden `pre` with a nowiki JSON payload, serialized
 
 - Layout: one column per tier, which the data already gives, so the layout needs no layering step. Nodes are ordered within a column by repeated barycenter sweeps. The first-way graph of milestones has no cycles, because each need of a milestone's first way has a lower tier.
 - A way with several needs joins at a small labelled junction. Required needs are solid lines. Alternatives appear in the side panel, not as extra edges, so a line never means "one of several".
-- Levels of detail follow D3. Expanding a milestone shows its ways and its source groups in place.
+- Levels of detail follow D3. Expanding a milestone shows its ways and its source groups in place. The details repeat the text's traversal, in its order and to its depth, so every label that they show is in the payload. A search result that only the details mention opens the details of the drawn milestone that first mentions it.
 - The reader can search every node by name, switch between needs and unlocks (the reversed edges), pan and zoom, and filter to quests or areas. A filtered edge says how many steps it hides on the playthrough route.
 - Every node is a focusable element with a label. Enter focuses it, and the arrow keys move to its neighbours.
 - Colours come from the skin's CSS variables, so the graph follows the light and dark themes. Shapes and labels carry every meaning that colour carries.

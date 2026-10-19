@@ -1,4 +1,4 @@
-owned_names = ["erenshor", "erenshor-api", "item-tooltips", "semantic-link-picker"]
+owned_names = ["erenshor", "erenshor-api", "item-tooltips", "progression-graph", "progression-graph-loader", "semantic-link-picker"]
 
 [[gadgets]]
 name = "erenshor"
@@ -14,6 +14,16 @@ sources = ["erenshor-api.js"]
 name = "item-tooltips"
 options = ["ResourceLoader", "default", "hidden"]
 sources = ["item-tooltips.js"]
+
+[[gadgets]]
+name = "progression-graph"
+options = ["ResourceLoader", "hidden", "dependencies=mediawiki.util"]
+sources = ["progression-graph-core.js", "progression-graph.js", "progression-graph.css"]
+
+[[gadgets]]
+name = "progression-graph-loader"
+options = ["ResourceLoader", "default", "hidden"]
+sources = ["progression-graph-loader.js"]
 
 [[gadgets]]
 name = "semantic-link-picker"

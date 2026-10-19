@@ -337,6 +337,8 @@ function p.render(args)
 	end
 	local payload = mw.text.jsonEncode({
 		targets = roots,
+		maxDepth = maxDepth,
+		sourceLimit = SOURCE_LIMIT,
 		nodes = touched,
 	})
 	local container = mw.html
