@@ -23,6 +23,8 @@ The Unity batch export scans ripped assets and writes raw SQLite tables. Follow 
 
 Use `StableKeyGenerator` for entity keys. Do not join entities by display name. For scripted character spawns, classify the `(script, field)` pair in `src/Assets/Editor/ExportSystem/AssetScanner/dynamic-spawn-catalog.toml` instead of inventing a placed `SpawnPoint`. Follow `skill://auditing-spawn-coverage` for exit 3 and orphan review.
 
+A script that enables, disables, moves, or spawns objects by its own rules is a controller. Bind its fields to a rule with an `[[activation]]` entry in the same catalog and a typed contract in `ScriptedActivatorListener.Contracts`, so that a changed field type fails the export. Give the rule its effect in the clean build, as a gate in `src/erenshor/application/processor/gates.py` or as a barrier mechanism in `barriers.py`, and classify the script as `skill://code-facts` describes. Every subject record and `ScriptedActivators` row names its scene object in `ObjectKey`, which `ObjectHierarchy` records with its ancestors. Add a new subject table to the subjects that `apply_hierarchy_activity` in `hierarchy.py` resolves, so its placements follow the activity of their objects.
+
 ## Resolve export failures
 
 - If `extract rip` refuses missing Editor dependencies, run `uv run erenshor extract packages`. Add new NuGet dependencies to `src/Assets/packages.config` and restore them. Newtonsoft.Json instead comes from the UPM package injected by rip. Do not put a duplicate DLL under `src/Assets/Packages`.
