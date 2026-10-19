@@ -279,6 +279,33 @@ def test_the_bridge_chest_needs_both_twins_dead(clean: sqlite3.Connection) -> No
     assert len(_ways(clean, "character:braxbridgechest")) == 1
 
 
+def test_a_dug_up_chest_needs_a_read_treasure_map(clean: sqlite3.Connection) -> None:
+    ways = _ways(clean, "character:treasurechest 0-10 1")
+    assert ways
+    assert all(("cast", "spell:none - read map") in _pairs(needs) for needs in ways.values())
+    assert _node(clean, "character:treasurechest 0-10 1")["tier"] is not None
+
+
+def test_the_treasure_guardians_need_a_struck_chest(clean: sqlite3.Connection) -> None:
+    chests = {
+        key
+        for (key,) in clean.execute("SELECT DISTINCT chest_character_stable_key FROM treasure_chest_possible_spawns")
+    }
+    guardians = {
+        key
+        for (key,) in clean.execute(
+            "SELECT DISTINCT child_stable_key FROM character_chained_spawns WHERE source_script = 'TreasureChestEvent'"
+        )
+    }
+    assert guardians
+    for guardian in guardians:
+        ways = _ways(clean, guardian)
+        assert ways, guardian
+        for needs in ways.values():
+            summoners = {key for relation, key in _pairs(needs) if relation == "summoned by"}
+            assert summoners and summoners <= chests, (guardian, summoners)
+
+
 def test_eldrich_crystal_names_the_actual_keeper_copy_and_sanctuary(clean: sqlite3.Connection) -> None:
     drops = [
         needs

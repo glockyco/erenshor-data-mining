@@ -562,10 +562,7 @@ class ProgressionBuilder:
         summons: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
         for row in self.rows("character_summons"):
             summons[row["character_stable_key"], row["spawn_point_stable_key"]].append(row)
-        dialogs: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
-        for row in self.rows("character_dialogs"):
-            if row["spawn_character_stable_key"]:
-                dialogs[row["character_stable_key"], row["spawn_character_stable_key"]].append(row)
+        dialogs = self.spawn_dialogs()
         for character, placements in sorted(self.placements.items()):
             for placement in placements:
                 spawn = placement["spawn_point_stable_key"]
@@ -627,6 +624,14 @@ class ProgressionBuilder:
                 for way in self.product(character, ways, locations, fact):
                     self.add(character, way, fact)
 
+    def spawn_dialogs(self) -> dict[tuple[str, str], list[dict[str, Any]]]:
+        """The dialogs of each host that spawn each child (NPCDialog.Spawn)."""
+        dialogs: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+        for row in self.rows("character_dialogs"):
+            if row["spawn_character_stable_key"]:
+                dialogs[row["character_stable_key"], row["spawn_character_stable_key"]].append(row)
+        return dialogs
+
     def summon_ways(
         self,
         character: str,
@@ -642,7 +647,7 @@ class ProgressionBuilder:
             if row["summon"] == "alive":
                 ways.append((Need("summoned by", summoner),))
             elif row["summon"] == "dialog":
-                for dialog in dialogs[summoner, character]:
+                for dialog in dialogs.get((summoner, character), ()):
                     needs = [Need("talk to", summoner, keywords=dialog["keywords"])]
                     if dialog["required_quest_stable_key"]:
                         needs.append(Need("quest done", dialog["required_quest_stable_key"]))
@@ -665,6 +670,40 @@ class ProgressionBuilder:
         if not ways:
             raise _error(character, fact, "summoned placement has no way")
         return ways
+
+    def build_treasure(self) -> None:
+        """A dug-up chest appears at a treasure site, and its guardians around it once it is struck."""
+        possible = self.rows("treasure_chest_possible_spawns")
+        if not possible:
+            return
+        # code-fact: treasure.read_map
+        spells = [row["stable_key"] for row in self.rows("spells") if row["spell_name"] == "Read Map"]
+        if len(spells) != 1:
+            raise _error("spell:read map", "spells", f"expected one Read Map spell, got {spells}")
+        read_map = spells[0]
+        self.node(read_map, "spell")
+        self.build_spells({read_map})
+        sites: dict[str, str] = {}
+        for row in possible:
+            chest, site = row["chest_character_stable_key"], row["treasure_location_stable_key"]
+            fact = f"treasure_chest_possible_spawns {chest} {site}"
+            zone = self.scenes.get(row["scene"])
+            if zone is None:
+                raise _error(chest, fact, f"unmapped treasure scene {row['scene']!r}")
+            sites[site] = zone
+            # code-fact: treasure.chest_tier_by_level
+            # The reading level picks the zone and the digging level the chest.
+            reading = Need("cast", read_map, required_level=row["player_level_min"])
+            self.add(chest, [reading, Need("in zone", zone)], fact)
+        summons: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+        for row in self.rows("character_summons"):
+            if row["spawn_point_stable_key"] in sites:
+                summons[row["character_stable_key"], row["spawn_point_stable_key"]].append(row)
+        dialogs = self.spawn_dialogs()
+        for (character, site), rows in sorted(summons.items()):
+            fact = f"character_summons {character} {site}"
+            for way in self.summon_ways(character, rows, dialogs, fact):
+                self.add(character, [*way, Need("in zone", sites[site])], fact)
 
     def location_conditions(self, node: str, location: dict[str, Any], fact: str) -> list[Way]:
         atoms = [asdict(condition_from_dict(atom)) for atom in json.loads(location["conditions"])]
@@ -1058,6 +1097,7 @@ class ProgressionBuilder:
         )
         self.build_weather()
         self.build_characters()
+        self.build_treasure()
         self.build_items()
         self.build_quests()
         self.build_states()

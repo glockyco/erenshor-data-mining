@@ -158,6 +158,8 @@ A character that another character summons is present only while its summoner is
 
 Adds that a fight spawns at health thresholds or on timers, such as the Executioners of Honsus or Syzygy, are hazards of the fight, not needs of what the fight releases. `VithArena` waits for every add that spawned, but a round whose Honsus dies before his adds spawn still releases its chest, and the Zenith chest waits for Syzygy only when Syzygy spawned. So an add joins no death set.
 
+A dug-up chest has no placement. Reading a Treasure Map casts Read Map, which picks a zone by the reader's level (`treasure.read_map`, `treasure.zone_pool_by_level`), and digging at the site there brings up the chest of the digger's level (`treasure.chest_tier_by_level`). A chest's way needs Read Map, with the lowest level that digs it up in that zone, and the zone. Its guardians appear around it once it is struck, so the summons step places them at the chest's treasure sites. The dig's upper level only picks another chest, so the graph keeps no upper bound.
+
 ### D13. Way ranks for consumers
 
 The build already orders every way when it computes tiers: a way's tier is the highest tier of its needs, plus one at a milestone, and its depth is one more than the deepest of its needs. A node's first way is its way of lowest tier and depth, and first-way depths strictly decrease, so following first ways never returns to a node. The build stores each usable way's tier and depth, and the clean facts that produced the way, such as an item's acquisition key.

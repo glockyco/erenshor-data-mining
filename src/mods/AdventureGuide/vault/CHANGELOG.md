@@ -14,6 +14,7 @@
 - Rank drops in Azynthi's Garden (Dimensional Rift), which the Azynthian Riftstone takes you to, instead of always listing them last.
 - Rank sources in Shivering Step and the Reliquary Hall after the door that leads in.
 - Rank drops of summoned enemies after the fight that summons them, such as Vitheo's legions.
+- Rank treasure chest drops by when you can dig the chest up, instead of always listing them last.
 - Stop listing the Auction House as an item source, since its stock is random.
 - Use the Stowaway's Step lighthouse entrance to reach Occuphage.
 - Base quest levels on the easiest way to finish, so The Island Tomb shows level 4 instead of 24.

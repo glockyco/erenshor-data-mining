@@ -207,6 +207,18 @@
       "note": "Round 8 checks its first fighter in with VitheoFight when it is Vitheo the Tactician. processor/summons.py makes him the summoner of the legions."
     },
     {
+      "id": "treasure.read_map",
+      "mode": "assert",
+      "type": "SpellVessel",
+      "method": "DoMiscSpells",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "SwitchSection",
+        "shape": "case \"Read Map\": GameData.GM.GetComponent<TreasureHunting> ().SetTreasureZone (); break;"
+      },
+      "note": "Read Map starts a treasure hunt. processor/progression.py gives each dug-up chest the spell."
+    },
+    {
       "id": "weather.rain_start",
       "mode": "extract",
       "type": "AtmosphereColors",

@@ -3,7 +3,8 @@
 The ``summoned_by`` rules of dynamic-spawn-catalog.toml say, for each spawning
 field, which characters must be fighting, dead, or spoken to before the field
 spawns. The export resolves each rule to characters and spawn points
-(``DynamicSpawnSummoners``). This step maps them onto the clean placements and
+(``DynamicSpawnSummoners``). This step maps them onto the clean placements, and
+onto the treasure sites of a dug-up chest for the guardians it spawns, and
 resolves the characters that check in at run time.
 """
 
@@ -60,6 +61,12 @@ def process_summons(raw: sqlite3.Connection, writer: Writer) -> int:
     scenes: dict[str, set[str]] = defaultdict(set)
     for controller, scene in raw.execute("SELECT ControllerObjectKey, Scene FROM DynamicCharacterSpawns"):
         scenes[controller].add(scene)
+    # A dug-up chest has no placement, only the treasure sites where it can appear.
+    sites: dict[str, set[str]] = defaultdict(set)
+    for chest, site in conn.execute(
+        "SELECT chest_character_stable_key, treasure_location_stable_key FROM treasure_chest_possible_spawns"
+    ):
+        sites[chest].add(site)
 
     def checked_in(controller: str, script: str, where: str) -> set[str]:
         if script == "RewardListener":
@@ -154,4 +161,7 @@ def process_summons(raw: sqlite3.Connection, writer: Writer) -> int:
         for spawn, _ in chained_placements(conn, parent, child, script):
             if spawn is not None:
                 emit(child, spawn, controller, script, field)
+        # A child of a dug-up chest appears at the chest's site.
+        for site in sorted(sites[parent]):
+            emit(child, site, controller, script, field)
     return writer.insert_character_summons(rows)

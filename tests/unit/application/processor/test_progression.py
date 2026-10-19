@@ -1127,3 +1127,55 @@ def test_a_dialog_summon_needs_the_spawning_keyword_and_its_quest(conn):
         Need("talk to", "character:copy", keywords="Azynthi, azynthi"),
         Need("quest done", "quest:gate"),
     }
+
+
+def test_a_dug_up_chest_needs_its_map_and_its_guardians_need_the_chest(conn):
+    for key in ("character:chest", "character:guardian"):
+        insert(
+            conn,
+            "characters",
+            stable_key=key,
+            display_name=key,
+            image_name=key,
+            encounter_tier="npc",
+            can_be_damaged=1,
+            invulnerable=0,
+            level_scales_with_player=0,
+        )
+    insert(conn, "spells", stable_key="spell:read map", spell_name="Read Map", display_name="Read Map", image_name="m")
+    conn.execute(
+        "UPDATE items SET item_effect_on_click_stable_key='spell:read map',required_slot='General'"
+        " WHERE stable_key='item:key'"
+    )
+    insert(conn, "treasure_locations", stable_key="treasure:end:1", scene="End", x=1, y=2, z=3)
+    insert(
+        conn,
+        "treasure_chest_possible_spawns",
+        chest_character_stable_key="character:chest",
+        treasure_location_stable_key="treasure:end:1",
+        level_min=10,
+        level_max=20,
+        player_level_min=10,
+        player_level_max=19,
+        scene="End",
+    )
+    insert(
+        conn,
+        "character_summons",
+        character_stable_key="character:guardian",
+        spawn_point_stable_key="treasure:end:1",
+        source_script="TreasureChestEvent",
+        source_field="Guardians",
+        summon="alive",
+        summoner_index=0,
+        summoner_stable_key="character:chest",
+    )
+    graph = builder(conn)
+    zone = Need("in zone", "zone:end")
+    assert list(graph.ways["character:chest"].values()) == [
+        canonical_way((Need("cast", "spell:read map", required_level=10), zone))
+    ]
+    assert list(graph.ways["character:guardian"].values()) == [
+        canonical_way((Need("summoned by", "character:chest"), zone))
+    ]
+    assert list(graph.ways["spell:read map"].values()) == [(Need("casts", "item:key"),)]

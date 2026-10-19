@@ -1497,6 +1497,8 @@ CREATE TABLE character_chained_spawns (
 -- What a dynamic or chained placement needs of other characters, from the
 -- summoned_by rules of dynamic-spawn-catalog.toml. 'alive' and 'dialog' rows are
 -- alternatives. A 'defeated' placement needs one character of every summoner_index.
+-- spawn_point_stable_key is the placement in character_spawns or, for the
+-- guardians of a dug-up chest, the chest's treasure site.
 CREATE TABLE character_summons (
     character_stable_key   TEXT NOT NULL REFERENCES characters (stable_key),
     spawn_point_stable_key TEXT NOT NULL,

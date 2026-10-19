@@ -168,10 +168,6 @@ def build(
         logger.info("Processing characters...")
         process_characters(raw, writer, mapping, item_keys, spawn_mapping)
 
-        logger.info("Processing the characters that summon others...")
-        summon_total = process_summons(raw, writer)
-        logger.info(f"Character summons: {summon_total} rows")
-
         logger.info("Processing combat eligibility...")
         process_combat_eligibility(raw, writer)
 
@@ -199,6 +195,11 @@ def build(
 
         logger.info("Processing treasure hunting...")
         process_treasure(raw, writer)
+
+        # Summons need the placements of characters and the sites of dug-up chests.
+        logger.info("Processing the characters that summon others...")
+        summon_total = process_summons(raw, writer)
+        logger.info(f"Character summons: {summon_total} rows")
 
         logger.info("Processing zone-wide spawn eligibility...")
         process_zone_wide_spawns(raw, writer)

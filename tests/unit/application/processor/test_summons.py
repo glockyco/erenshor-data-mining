@@ -169,3 +169,28 @@ def test_a_dialog_summon_needs_a_dialog_that_spawns_it(databases):
     )
     with pytest.raises(ValueError, match="no dialog of character:parent spawns character:child"):
         process_summons(raw, writer)
+
+
+def test_the_guardians_of_a_dug_up_chest_appear_at_its_sites(databases):
+    raw, writer = databases
+    writer.conn.execute("INSERT INTO treasure_locations VALUES ('treasure:brake:1', 'Brake', 1, 2, 3)")
+    writer.conn.execute(
+        "INSERT INTO treasure_chest_possible_spawns (chest_character_stable_key, treasure_location_stable_key,"
+        " level_min, level_max, player_level_min, player_level_max, scene, x, y, z)"
+        " VALUES ('character:chest', 'treasure:brake:1', 0, 10, 1, 9, 'Brake', 1, 2, 3)"
+    )
+    raw.execute(
+        "INSERT INTO CharacterChainedSpawns VALUES ('character:chest', 'character:child', 'TreasureChestEvent',"
+        " 'Guardians', 'prefab-object:chest')"
+    )
+    raw.execute(
+        "INSERT INTO DynamicSpawnSummoners VALUES ('prefab-object:chest', 'Guardians', 0, 'TreasureChestEvent',"
+        " 'alive', 'character', 'character:chest')"
+    )
+    process_summons(raw, writer)
+    assert {
+        tuple(row)
+        for row in writer.conn.execute(
+            "SELECT character_stable_key, spawn_point_stable_key, summoner_stable_key FROM character_summons"
+        )
+    } == {("character:child", "treasure:brake:1", "character:chest")}
