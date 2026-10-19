@@ -4,7 +4,13 @@ local Link = require("Module:Erenshor/Link")
 
 local p = {}
 local CATEGORY = "[[Category:Pages with missing Erenshor progression data]]"
+-- A node that is not a milestone shows this many ways before its other sources collapse.
+local SOURCE_LIMIT = 4
 local invocation = 0
+
+-- Positions of a packed need, as the header of Module:Erenshor/Data/Progression documents.
+local RELATION, NEED, QUANTITY, SLOT, KEYWORDS, TEXT, ADVISORY, UNCONFIRMED, LEVEL =
+	1, 2, 3, 4, 5, 6, 7, 8, 9
 
 local function message(text)
 	return '<span class="erenshor-missing-data">' .. Format.escape(text) .. "</span>" .. CATEGORY
@@ -40,17 +46,6 @@ local function targets(args, data)
 	return keys
 end
 
-local function plain(value)
-	if type(value) ~= "table" then
-		return value
-	end
-	local copy = {}
-	for key, child in pairs(value) do
-		copy[key] = plain(child)
-	end
-	return copy
-end
-
 local function graph(data)
 	local order = {}
 	local nodes = setmetatable({}, {
@@ -81,20 +76,7 @@ local function graph(data)
 						if field ~= "needs" then
 							return nil
 						end
-						local needs = {}
-						for _, need in ipairs(mw.text.jsonDecode(encoded)) do
-							table.insert(needs, {
-								relation = need[1],
-								need = need[2],
-								quantity = need[3],
-								slot = need[4],
-								keywords = need[5],
-								text = need[6],
-								advisory = need[7],
-								unconfirmed = need[8],
-								required_level = need[9],
-							})
-						end
+						local needs = mw.text.jsonDecode(encoded)
 						way.needs = needs
 						return needs
 					end,
@@ -122,8 +104,8 @@ local function overview(nodes, roots)
 		for _, way in ipairs(record.ways) do
 			if way.first then
 				for _, need in ipairs(way.needs) do
-					if need.need then
-						visit(need.need)
+					if need[NEED] then
+						visit(need[NEED])
 					end
 				end
 			end
@@ -156,42 +138,54 @@ local function label(record)
 	return text
 end
 
-local function needText(need, nodes)
-	local defeat = need.relation == "defeated" or need.relation == "defeat"
-	local text = Format.escape(need.relation) .. ": "
-	if defeat then
-		text = need.quantity
-				and need.quantity > 1
-				and ("Defeat all " .. tostring(need.quantity) .. " ")
-			or "Defeat "
-	elseif need.quantity then
-		text = text .. tostring(need.quantity) .. " x "
+-- Writes the words of a need through emit, one part at a time.
+local function emitNeed(emit, need, nodes)
+	local relation, key, quantity = need[RELATION], need[NEED], need[QUANTITY]
+	if relation == "defeated" or relation == "defeat" then
+		emit(
+			quantity and quantity > 1 and ("Defeat all " .. tostring(quantity) .. " ") or "Defeat "
+		)
+	else
+		emit(Format.escape(relation))
+		emit(": ")
+		if quantity then
+			emit(tostring(quantity))
+			emit(" x ")
+		end
 	end
-	if need.need then
-		text = text .. label(nodes[need.need])
+	if key then
+		emit(label(nodes[key]))
 	end
-	if need.text then
-		text = text
-			.. (need.need and " (" or "")
-			.. Format.escape(need.text)
-			.. (need.need and ")" or "")
+	if need[TEXT] then
+		if key then
+			emit(" (")
+			emit(Format.escape(need[TEXT]))
+			emit(")")
+		else
+			emit(Format.escape(need[TEXT]))
+		end
 	end
-	if need.slot then
-		text = text .. " (slot " .. Format.escape(need.slot) .. ")"
+	if need[SLOT] then
+		emit(" (slot ")
+		emit(Format.escape(need[SLOT]))
+		emit(")")
 	end
-	if need.keywords then
-		text = text .. ' (keywords: "' .. Format.escape(need.keywords) .. '")'
+	if need[KEYWORDS] then
+		emit(' (keywords: "')
+		emit(Format.escape(need[KEYWORDS]))
+		emit('")')
 	end
-	if need.required_level then
-		text = text .. " (level " .. tostring(need.required_level) .. ")"
+	if need[LEVEL] then
+		emit(" (level ")
+		emit(tostring(need[LEVEL]))
+		emit(")")
 	end
-	if need.advisory then
-		text = text .. " (advisory)"
+	if need[ADVISORY] then
+		emit(" (advisory)")
 	end
-	if need.unconfirmed then
-		text = text .. " (player access unconfirmed)"
+	if need[UNCONFIRMED] then
+		emit(" (player access unconfirmed)")
 	end
-	return text
 end
 
 function p.render(args)
@@ -223,117 +217,128 @@ function p.render(args)
 		end,
 	})
 	local seen = {}
+	-- The text is written into one buffer, because nested strings for every level
+	-- of a raid route cost more memory than the page that they make.
+	local out, size = {}, 0
+	local function emit(text)
+		size = size + 1
+		out[size] = text
+	end
 	local function reference(key, suffix)
 		return Format.pageLink("#" .. anchors[key], suffix)
 	end
 	local renderWays
 	local function renderNeed(need, depth)
-		local text = needText(need, nodes)
-		local key = need.need
+		local key = need[NEED]
 		if not key then
-			return "<li>" .. text .. "</li>"
+			emit("<li>")
+			emitNeed(emit, need, nodes)
+			emit("</li>")
+		elseif milestones[key] or seen[key] then
+			emit("<li>")
+			emitNeed(emit, need, nodes)
+			emit(" (" .. reference(key, "see above or below") .. ")</li>")
+		elseif depth >= maxDepth then
+			emit('<li class="erenshor-progression-depth-limit">')
+			emitNeed(emit, need, nodes)
+			emit(" (depth limit reached)</li>")
+		else
+			seen[key] = true
+			emit('<li id="' .. anchors[key] .. '">')
+			emitNeed(emit, need, nodes)
+			renderWays(key, depth + 1)
+			emit("</li>")
 		end
-		if milestones[key] or seen[key] then
-			return "<li>" .. text .. " (" .. reference(key, "see above or below") .. ")</li>"
-		end
-		if depth >= maxDepth then
-			return '<li class="erenshor-progression-depth-limit">'
-				.. text
-				.. " (depth limit reached)</li>"
-		end
-		seen[key] = true
-		return '<li id="' .. anchors[key] .. '">' .. text .. renderWays(key, depth + 1) .. "</li>"
 	end
 	local function renderWay(way, depth)
-		local out = {
-			'<li class="erenshor-progression-way">All of' .. (way.first and " (first way)" or ""),
-		}
+		emit('<li class="erenshor-progression-way">All of' .. (way.first and " (first way)" or ""))
 		if #way.needs == 0 then
-			table.insert(out, ": no further requirements.")
+			emit(": no further requirements.")
 		else
-			table.insert(out, "<ul>")
+			emit("<ul>")
 			for _, need in ipairs(way.needs) do
-				table.insert(out, renderNeed(need, depth))
+				renderNeed(need, depth)
 			end
-			table.insert(out, "</ul>")
+			emit("</ul>")
 		end
-		table.insert(out, "</li>")
-		return table.concat(out)
+		emit("</li>")
+	end
+	local function renderGroup(ways, name, depth)
+		if #ways > 0 then
+			emit(
+				'<li><div class="mw-collapsible mw-collapsed erenshor-progression-sources"><span class="erenshor-progression-source-count">'
+					.. tostring(#ways)
+					.. " "
+					.. name
+					.. '</span><div class="mw-collapsible-content"><ul>'
+			)
+			for _, way in ipairs(ways) do
+				renderWay(way, depth)
+			end
+			emit("</ul></div></div></li>")
+		end
 	end
 	renderWays = function(key, depth)
 		local record = nodes[key]
 		if #record.ways == 0 then
-			return "<p>No recorded way.</p>"
+			emit("<p>No recorded way.</p>")
+			return
 		end
 		local visible, sources, entrances = {}, {}, {}
 		for index, way in ipairs(record.ways) do
 			if
 				record.node.kind == "zone"
 				and #way.needs == 1
-				and way.needs[1].relation == "zone line"
+				and way.needs[1][RELATION] == "zone line"
 			then
 				table.insert(entrances, way)
-			elseif not record.node.milestone and index > 4 then
+			elseif not record.node.milestone and index > SOURCE_LIMIT then
 				table.insert(sources, way)
 			else
 				table.insert(visible, way)
 			end
 		end
-		local out = { '<div class="erenshor-progression-ways">Any one of<ul>' }
+		emit('<div class="erenshor-progression-ways">Any one of<ul>')
 		for _, way in ipairs(visible) do
-			table.insert(out, renderWay(way, depth))
+			renderWay(way, depth)
 		end
-		local function group(ways, name)
-			if #ways > 0 then
-				table.insert(
-					out,
-					'<li><div class="mw-collapsible mw-collapsed erenshor-progression-sources"><span class="erenshor-progression-source-count">'
-						.. tostring(#ways)
-						.. " "
-						.. name
-						.. '</span><div class="mw-collapsible-content"><ul>'
-				)
-				for _, way in ipairs(ways) do
-					table.insert(out, renderWay(way, depth))
-				end
-				table.insert(out, "</ul></div></div></li>")
-			end
-		end
-		group(sources, "more sources")
-		group(entrances, "gate-free entrances")
-		table.insert(out, "</ul></div>")
-		return table.concat(out)
+		renderGroup(sources, "more sources", depth)
+		renderGroup(entrances, "gate-free entrances", depth)
+		emit("</ul></div>")
 	end
-	local out = {
-		'<div class="erenshor-progression">',
-		'<p class="erenshor-progression-legend">Tiers are a playthrough order from a new character\'s start, not advice about your character. Ways are alternatives (any one of). Every need of a way is required (all of). The overview follows first ways. Advisory and unconfirmed needs are labeled.</p>',
-		'<div class="erenshor-progression-text"><ol class="erenshor-progression-overview">',
-	}
+	-- Top-level parts are separated by newlines.
+	emit('<div class="erenshor-progression">')
+	emit("\n")
+	emit(
+		'<p class="erenshor-progression-legend">Tiers are a playthrough order from a new character\'s start, not advice about your character. Ways are alternatives (any one of). Every need of a way is required (all of). The overview follows first ways. Advisory and unconfirmed needs are labeled.</p>'
+	)
+	emit("\n")
+	emit('<div class="erenshor-progression-text"><ol class="erenshor-progression-overview">')
 	for _, key in ipairs(ordered) do
 		seen[key] = true
 		local node = nodes[key].node
 		local tier = node.tier and "Playthrough tier " .. tostring(node.tier)
 			or "No playthrough tier recorded"
-		table.insert(
-			out,
+		emit("\n")
+		emit(
 			'<li id="' .. anchors[key] .. '" data-progression-key="' .. mw.text.encode(key) .. '">'
 		)
-		table.insert(out, label(nodes[key]) .. " (" .. tier .. ")" .. renderWays(key, 1) .. "</li>")
+		emit("\n")
+		emit(label(nodes[key]) .. " (" .. tier .. ")")
+		renderWays(key, 1)
+		emit("</li>")
 	end
-	table.insert(out, "</ol></div>")
-	-- Copy one node at a time, rather than holding a second graph beside loadData.
-	local encoded = {}
+	emit("\n")
+	emit("</ol></div>")
+	-- One jsonEncode call reads the loadData records themselves, so the payload holds no copies.
+	local touched = {}
 	for _, key in ipairs(nodeOrder) do
-		table.insert(
-			encoded,
-			mw.text.jsonEncode(key) .. ":" .. mw.text.jsonEncode(plain(data[key]))
-		)
+		touched[key] = data[key]
 	end
-	local payload = '{"targets":'
-		.. mw.text.jsonEncode(plain(roots))
-		.. ',"nodes":{'
-		.. table.concat(encoded, ",")
-		.. "}}"
+	local payload = mw.text.jsonEncode({
+		targets = roots,
+		nodes = touched,
+	})
 	local container = mw.html
 		.create("div")
 		:addClass("erenshor-progression-graph")
@@ -344,9 +349,11 @@ function p.render(args)
 		:addClass("erenshor-progression-data")
 		:css("display", "none")
 		:wikitext(mw.getCurrentFrame():extensionTag("nowiki", payload))
-	table.insert(out, tostring(container))
-	table.insert(out, "</div>")
-	return table.concat(out, "\n")
+	emit("\n")
+	emit(tostring(container))
+	emit("\n")
+	emit("</div>")
+	return table.concat(out)
 end
 
 function p.graph(frame)
