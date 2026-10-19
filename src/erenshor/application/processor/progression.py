@@ -705,6 +705,24 @@ class ProgressionBuilder:
             for way in self.summon_ways(character, rows, dialogs, fact):
                 self.add(character, [*way, Need("in zone", sites[site])], fact)
 
+    def build_zone_wide_spawns(self) -> None:
+        """A zone-wide rule spawns one of its candidates when the player enters one of its scenes."""
+        items = {row["stable_key"]: row for row in self.rows("items")}
+        candidates = self.index("zone_wide_spawn_candidates", "rule_id")
+        scenes = self.index("zone_wide_spawn_zones", "rule_id")
+        for rule in self.rows("zone_wide_spawn_rules"):
+            fact = f"zone_wide_spawn_rules {rule['rule_id']}"
+            # code-fact: spectres.cosmetic_slots
+            # The rule spawns only while its item is in a cosmetic slot.
+            equipped = self.item_action(items[rule["required_cosmetic_item_stable_key"]], "equipped")
+            # code-fact: spectres.spawn_point_registration
+            # A scene needs an enabled spawn point to place the candidate at.
+            zones = [row["zone_stable_key"] for row in scenes[rule["rule_id"]] if row["enabled_spawn_point_count"]]
+            for candidate in candidates[rule["rule_id"]]:
+                for zone in zones:
+                    for way in equipped:
+                        self.add(candidate["character_stable_key"], [*way, Need("in zone", zone)], fact)
+
     def location_conditions(self, node: str, location: dict[str, Any], fact: str) -> list[Way]:
         atoms = [asdict(condition_from_dict(atom)) for atom in json.loads(location["conditions"])]
         return self.conditions(node, atoms, fact, provenance=True)
@@ -1098,6 +1116,7 @@ class ProgressionBuilder:
         self.build_weather()
         self.build_characters()
         self.build_treasure()
+        self.build_zone_wide_spawns()
         self.build_items()
         self.build_quests()
         self.build_states()

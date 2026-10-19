@@ -15,6 +15,7 @@
 - Rank sources in Shivering Step and the Reliquary Hall after the door that leads in.
 - Rank drops of summoned enemies after the fight that summons them, such as Vitheo's legions.
 - Rank treasure chest drops by when you can dig the chest up, instead of always listing them last.
+- Rank Sivakayan spectre drops by when the Watcher's Lens lets the spectres appear, instead of always listing them last.
 - Send you to light the Bellwain Island torches before the notes that the statue hides.
 - Send you for the Bellwain Study Key before the Rainbow Flint in the locked study.
 - Stop listing the Auction House as an item source, since its stock is random.

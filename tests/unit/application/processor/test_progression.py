@@ -1186,3 +1186,55 @@ def test_a_dug_up_chest_needs_its_map_and_its_guardians_need_the_chest(conn):
         canonical_way((Need("summoned by", "character:chest"), zone))
     ]
     assert list(graph.ways["spell:read map"].values()) == [(Need("casts", "item:key"),)]
+
+
+def test_a_zone_wide_candidate_needs_its_cosmetic_and_a_scene_with_a_spawn_point(conn):
+    insert(
+        conn,
+        "characters",
+        stable_key="character:spectre",
+        display_name="Spectre",
+        image_name="Spectre",
+        encounter_tier="enemy",
+        can_be_damaged=1,
+        invulnerable=0,
+        level_scales_with_player=0,
+    )
+    conn.execute("UPDATE items SET required_slot='General' WHERE stable_key='item:key'")
+    insert(
+        conn,
+        "zone_wide_spawn_rules",
+        rule_id="spectres",
+        source_script="ZoneAnnounce",
+        candidate_script="Misc",
+        candidate_field="SivakayanSpectres",
+        required_cosmetic_item_stable_key="item:key",
+        attempt_probability=0.1,
+        entry_delay_ticks=10,
+        entry_delay_ticks_per_second=60,
+        attempt_trigger="entry_timer_crosses_below_zero",
+        max_attempts_per_entry=1,
+        recent_successful_zone_limit=5,
+        requires_registered_spawn_point=1,
+    )
+    insert(
+        conn,
+        "zone_wide_spawn_candidates",
+        rule_id="spectres",
+        character_stable_key="character:spectre",
+        weight=1,
+        total_weight=1,
+    )
+    # A scene whose spawn points all start disabled has none to place the spectre at.
+    for zone, enabled in (("zone:end", 2), ("zone:other", 0)):
+        insert(
+            conn,
+            "zone_wide_spawn_zones",
+            rule_id="spectres",
+            zone_stable_key=zone,
+            authored_spawn_point_count=2,
+            enabled_spawn_point_count=enabled,
+        )
+    assert list(builder(conn).ways["character:spectre"].values()) == [
+        canonical_way((Need("equipped", "item:key"), Need("in zone", "zone:end")))
+    ]
