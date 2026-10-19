@@ -19,6 +19,7 @@
 - Send you to light the Bellwain Island torches before the notes that the statue hides.
 - Send you for the Bellwain Study Key before the Rainbow Flint in the locked study.
 - Stop listing the Auction House as an item source, since its stock is random.
+- Stop listing faction changes for quests that change no faction, such as Ripper's Questline (1).
 - Use the Stowaway's Step lighthouse entrance to reach Occuphage.
 - Stop routing through zone exits that players cannot reach, such as the Shivering Tomb exit to Stowaway's Step.
 - Stop listing exits that never open as quest unlocks, such as the Shivering Step exit to Hidden Hills for A Way To Erenshor.

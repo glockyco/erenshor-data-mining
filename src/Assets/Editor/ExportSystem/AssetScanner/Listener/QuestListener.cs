@@ -1,7 +1,7 @@
 #nullable enable
 
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using SQLite;
 using UnityEngine;
 
@@ -157,43 +157,47 @@ public class QuestListener : IAssetScanListener<Quest>
         return records;
     }
 
+    // code-fact: faction.quest_hits_equal_lists
+    // FinishQuest changes standings only when the faction and amount lists have
+    // the same length, and it pairs them by slot.
     private List<QuestFactionAffectRecord> CreateQuestFactionAffectRecords(Quest quest)
     {
         var records = new List<QuestFactionAffectRecord>();
+        var factions = quest.AffectFactions;
+        var amounts = quest.AffectFactionAmts;
+        if (
+            factions == null
+            || amounts == null
+            || factions.Count == 0
+            || factions.Count != amounts.Count
+        )
+            return records;
+
         var seenFactionStableKeys = new HashSet<string>();
-
-        // Zip AffectFactions and AffectFactionAmts together
-        if (quest.AffectFactions != null && quest.AffectFactionAmts != null)
+        for (var slot = 0; slot < factions.Count; slot++)
         {
-            var factions = quest
-                .AffectFactions.Where(f => f != null && !string.IsNullOrEmpty(f.REFNAME))
-                .ToList();
-            var amounts = quest.AffectFactionAmts;
-
-            // Only process up to the minimum count to avoid index errors
-            int count = Mathf.Min(factions.Count, amounts.Count);
-
-            for (int i = 0; i < count; i++)
-            {
-                var faction = factions[i];
-                var amount = amounts[i];
-
-                if (!string.IsNullOrEmpty(faction.REFNAME))
+            var faction = factions[slot];
+            var amount = amounts[slot];
+            // FinishQuest reads the faction of every slot, so an empty slot throws in the game.
+            if (faction == null || string.IsNullOrEmpty(faction.REFNAME))
+                throw new InvalidOperationException($"{quest.name}: faction slot {slot} is empty");
+            var factionStableKey = StableKeyGenerator.ForFaction(faction);
+            if (!seenFactionStableKeys.Add(factionStableKey))
+                throw new InvalidOperationException(
+                    $"{quest.name}: lists {factionStableKey} twice"
+                );
+            if (amount != Mathf.Round(amount))
+                throw new InvalidOperationException(
+                    $"{quest.name}: faction amount {amount} is not a whole number"
+                );
+            records.Add(
+                new QuestFactionAffectRecord
                 {
-                    var factionStableKey = StableKeyGenerator.ForFaction(faction);
-                    if (seenFactionStableKeys.Add(factionStableKey))
-                    {
-                        records.Add(
-                            new QuestFactionAffectRecord
-                            {
-                                QuestVariantResourceName = quest.name,
-                                FactionStableKey = factionStableKey,
-                                ModifierValue = (int)amount,
-                            }
-                        );
-                    }
+                    QuestVariantResourceName = quest.name,
+                    FactionStableKey = factionStableKey,
+                    ModifierValue = (int)amount,
                 }
-            }
+            );
         }
 
         return records;

@@ -3855,6 +3855,18 @@
       "note": "A quest changes standings only at its first completion, because finishing a completed quest returns before its faction changes."
     },
     {
+      "id": "faction.quest_hits_equal_lists",
+      "mode": "assert",
+      "type": "GameData",
+      "method": "FinishQuest",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (QuestDB.GetQuestByName (_questName).AffectFactions.Count > 0 && QuestDB.GetQuestByName (_questName).AffectFactionAmts.Count == QuestDB.GetQuestByName (_questName).AffectFactions.Count) { for (int i = 0; i < QuestDB.GetQuestByName (_questName).AffectFactions.Count; i++) { GlobalFactionManager.ModifyFaction (QuestDB.GetQuestByName (_questName).AffectFactionAmts [i], QuestDB.GetQuestByName (_questName).AffectFactions [i].REFNAME); } }"
+      },
+      "note": "A quest changes standings only when its faction and amount lists have the same length, and it pairs them by slot. QuestListener exports only those pairs."
+    },
+    {
       "id": "faction.kill_hits",
       "mode": "assert",
       "type": "Character",
