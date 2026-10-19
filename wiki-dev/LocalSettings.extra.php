@@ -27,8 +27,8 @@ wfLoadExtension( 'NoTitle' );
 wfLoadExtension( 'EmbedVideo' );
 
 
-$wgScribuntoDefaultEngine = 'luastandalone';
-$wgScribuntoEngineConf['luastandalone']['luaPath'] = '/usr/bin/lua5.1';
+# The base image ships LuaSandbox, the engine that the live wiki runs.
+$wgScribuntoDefaultEngine = 'luasandbox';
 
 $wgShowExceptionDetails = true;
 $wgShowDBErrorBacktrace = true;

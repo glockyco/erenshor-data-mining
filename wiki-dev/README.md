@@ -50,6 +50,9 @@ deprecations while leaving warnings and errors visible.
 The stock 2 MB PHP upload ceiling rejects ordinary live assets such as the
 world map plate, so the image raises it to 32 MB.
 
+Scribunto runs on LuaSandbox, as on the live wiki, so the Lua memory and time
+in a local parse report are comparable with live ones.
+
 The live wiki is MediaWiki 1.43.6 with Classic Vector, Scribunto,
 TemplateSandbox, Gadgets/DataTables, and PortableInfobox. It also runs
 LIBRARIAN, wiki.gg's fork of Cargo, which the stack leaves out because the wiki

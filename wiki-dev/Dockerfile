@@ -4,7 +4,7 @@ FROM mediawiki:1.43
 
 RUN set -eux; \
     apt-get update; \
-    apt-get install -y --no-install-recommends git ca-certificates lua5.1; \
+    apt-get install -y --no-install-recommends git ca-certificates; \
     rm -rf /var/lib/apt/lists/*
 
 RUN set -eux; \
