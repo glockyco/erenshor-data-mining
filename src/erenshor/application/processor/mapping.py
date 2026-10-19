@@ -22,6 +22,10 @@ mapping.json schema (version 2.0):
                 "is_wiki_generated": 0 or 1,
                 "is_map_visible":    0 or 1
             },
+            "<zone_line_stable_key>": {
+                "is_usable": 0,
+                "reason":    "<why players cannot use the line>"
+            },
             ...
         }
     }
@@ -32,7 +36,9 @@ image_name: a stance has no icon in the game, and the stance processor
 takes the image of the skill that switches to it. Other entity keys require
 display_name and image_name. Spawn keys start with "spawn:" or "trigger:"
 and only carry visibility flags. is_wiki_generated and is_map_visible
-default to 1 when absent in any rule type.
+default to 1 when absent in any rule type. Zone line keys start with
+"zoneline:" and only exclude a line that players cannot use, with
+is_usable 0 and a reason. No rule can make a line usable.
 """
 
 from __future__ import annotations
@@ -110,10 +116,12 @@ def validate_character_name_overrides(
 
 def load_mapping(
     path: Path,
-) -> tuple[dict[str, MappingOverride], dict[str, SpawnMappingOverride]]:
-    """Load mapping.json and return (entity_overrides, spawn_overrides).
+) -> tuple[dict[str, MappingOverride], dict[str, SpawnMappingOverride], dict[str, str]]:
+    """Load mapping.json and return (entity_overrides, spawn_overrides, zone_line_exclusions).
 
     Keys starting with "spawn:" or "trigger:" are spawn-location overrides.
+    Keys starting with "zoneline:" are reviewed exclusions of zone lines that
+    players cannot use, which map each line to its reason.
     Other keys are entity overrides. Stance rules must not set image_name, and
     the image_name of their override is None. Other entity rules require
     display_name and image_name. Spawn rules only carry is_wiki_generated
@@ -137,7 +145,7 @@ def load_mapping(
         path: Path to mapping.json.
 
     Returns:
-        Tuple of (character_overrides, spawn_overrides) dicts.
+        Tuple of (character_overrides, spawn_overrides, zone_line_exclusions) dicts.
 
     Raises:
         FileNotFoundError: If the file does not exist.
@@ -159,11 +167,23 @@ def load_mapping(
 
     character_result: dict[str, MappingOverride] = {}
     spawn_result: dict[str, SpawnMappingOverride] = {}
+    zone_line_result: dict[str, str] = {}
     errors: list[str] = []
 
     for stable_key, rule in rules.items():
         if not isinstance(rule, dict):
             errors.append(f"{stable_key}: rule must be an object")
+            continue
+
+        if stable_key.startswith("zoneline:"):
+            error = _zone_line_error(rule)
+            if error is None:
+                zone_line_result[stable_key] = rule["reason"].strip()
+            else:
+                errors.append(f"{stable_key}: {error}")
+            continue
+        if "is_usable" in rule:
+            errors.append(f"{stable_key}: 'is_usable' belongs to a zoneline: rule")
             continue
 
         if stable_key.startswith(("spawn:", "trigger:")):
@@ -245,5 +265,21 @@ def load_mapping(
         suffix = f"\n  ... and {len(errors) - 10} more" if len(errors) > 10 else ""
         raise ValueError(f"mapping.json has {len(errors)} invalid rule(s):\n  {summary}{suffix}")
 
-    logger.info(f"Loaded {len(character_result)} character rules and {len(spawn_result)} spawn rules from {path}")
-    return character_result, spawn_result
+    logger.info(
+        f"Loaded {len(character_result)} character rules, {len(spawn_result)} spawn rules, and "
+        f"{len(zone_line_result)} zone line exclusions from {path}"
+    )
+    return character_result, spawn_result, zone_line_result
+
+
+def _zone_line_error(rule: dict[str, object]) -> str | None:
+    """Why a zone line rule is not a reviewed exclusion, or None when it is one."""
+    unknown = sorted(rule.keys() - {"is_usable", "reason"})
+    if unknown:
+        return f"unknown fields {unknown}"
+    if type(rule.get("is_usable")) is not int or rule["is_usable"] != 0:
+        return "'is_usable' must be 0, because a rule can only exclude a line"
+    reason = rule.get("reason")
+    if not isinstance(reason, str) or not reason.strip():
+        return "an exclusion requires a 'reason'"
+    return None

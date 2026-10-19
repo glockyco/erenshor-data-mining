@@ -43,7 +43,7 @@ def test_load_mapping_preserves_expected_npc_name(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    mapping, _ = load_mapping(path)
+    mapping, _, _ = load_mapping(path)
 
     assert mapping["character:guard"]["expected_npc_name"] == "Guard"
 
@@ -82,7 +82,7 @@ def _write_rule(tmp_path: Path, **fields: object) -> Path:
 
 
 def test_encounter_tier_override_is_loaded(tmp_path: Path) -> None:
-    characters, _ = load_mapping(_write_rule(tmp_path, encounter_tier="enemy", reason="Killed for a quest item."))
+    characters, _, _ = load_mapping(_write_rule(tmp_path, encounter_tier="enemy", reason="Killed for a quest item."))
 
     assert characters["character:catnip"]["encounter_tier"] == "enemy"
 
@@ -100,7 +100,7 @@ def test_invalid_encounter_tier_override_is_rejected(tmp_path: Path, fields: dic
 
 
 def test_unreachable_loot_requires_a_reason(tmp_path: Path) -> None:
-    characters, _ = load_mapping(_write_rule(tmp_path, loot_unreachable=True, reason="Destroyed by its fight."))
+    characters, _, _ = load_mapping(_write_rule(tmp_path, loot_unreachable=True, reason="Destroyed by its fight."))
     assert characters["character:catnip"]["loot_unreachable"] is True
 
     with pytest.raises(ValueError, match="'loot_unreachable' requires a 'reason'"):
@@ -110,9 +110,45 @@ def test_unreachable_loot_requires_a_reason(tmp_path: Path) -> None:
 def test_a_stance_rule_cannot_set_the_image(tmp_path: Path) -> None:
     path = tmp_path / "mapping.json"
     path.write_text(json.dumps({"rules": {"stance:normal": {"display_name": "Normal", "wiki_page_name": "Normal"}}}))
-    rules, _ = load_mapping(path)
+    rules, _, _ = load_mapping(path)
     assert rules["stance:normal"]["image_name"] is None
 
     path.write_text(json.dumps({"rules": {"stance:normal": {"display_name": "Normal", "image_name": "Normal"}}}))
     with pytest.raises(ValueError, match="must not set 'image_name'"):
         load_mapping(path)
+
+
+def _write_rules(tmp_path: Path, rules: dict[str, object]) -> Path:
+    path = tmp_path / "mapping.json"
+    path.write_text(json.dumps({"rules": rules}))
+    return path
+
+
+def test_a_zone_line_exclusion_maps_the_line_to_its_reason(tmp_path: Path) -> None:
+    path = _write_rules(tmp_path, {"zoneline:a": {"is_usable": 0, "reason": " No walk reaches it. "}})
+    assert load_mapping(path) == ({}, {}, {"zoneline:a": "No walk reaches it."})
+
+
+@pytest.mark.parametrize(
+    "rule",
+    [
+        {"is_usable": 1, "reason": "A rule cannot make a line usable."},
+        {"is_usable": False, "reason": "Not an integer."},
+        {"is_usable": "0", "reason": "Not an integer."},
+        {"reason": "No exclusion."},
+        {"is_usable": 0},
+        {"is_usable": 0, "reason": " "},
+        {"is_usable": 0, "reason": 3},
+        {"is_usable": 0, "reason": "Reviewed.", "component_is_enabled": 1},
+    ],
+)
+def test_a_zone_line_rule_must_be_a_reviewed_exclusion(tmp_path: Path, rule: dict[str, object]) -> None:
+    with pytest.raises(ValueError, match="zoneline:a"):
+        load_mapping(_write_rules(tmp_path, {"zoneline:a": rule}))
+
+
+@pytest.mark.parametrize("key", ["character:a", "spawn:a", "trigger:a", "zone:a"])
+def test_only_a_zone_line_rule_can_set_usability(tmp_path: Path, key: str) -> None:
+    rule = {"display_name": "A", "image_name": "A", "is_usable": 0, "reason": "Wrong kind."}
+    with pytest.raises(ValueError, match="'is_usable' belongs to a zoneline: rule"):
+        load_mapping(_write_rules(tmp_path, {key: rule}))

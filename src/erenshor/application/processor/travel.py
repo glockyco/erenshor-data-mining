@@ -1,7 +1,8 @@
 """Travel between zones: zone lines and the scene switches of spells.
 
 ``travel_routes`` records each way that a player can take between zones, once
-for every consumer. A zone line keeps its own gates in ``gate_conditions``. A
+for every consumer. Only zone lines that players can use become routes
+(``zone_lines.is_usable``), and each keeps its own gates in ``gate_conditions``. A
 spell route needs its spell, and the requirement graph reaches the spell
 through the items that cast or teach it. A route that returns to a saved place,
 such as a bind point or the stored exit of the Reliquary Hall, has no fixed
@@ -278,9 +279,8 @@ def _jail_routes(conn: sqlite3.Connection, zone: Callable[[str, str], str]) -> l
 
 
 def _zone_line_routes(conn: sqlite3.Connection, zone: Callable[[str, str], str]) -> list[dict[str, object]]:
-    """Zone lines that can send a player somewhere, with or without a fixed destination."""
+    """Usable zone lines that can send a player somewhere, with or without a fixed destination."""
     stored = {line for (line,) in conn.execute("SELECT zone_line_stable_key FROM zone_line_destination_contexts")}
-    capable = {line for (line,) in conn.execute("SELECT stable_key FROM zone_lines_with_zoning_capability")}
     # A line that starts inactive works once an effect activates it, which its gate states.
     activated = {
         line
@@ -293,16 +293,13 @@ def _zone_line_routes(conn: sqlite3.Connection, zone: Callable[[str, str], str])
     for line, scene, destination, active, x, y, z, use_sun in conn.execute(
         "SELECT stable_key, scene, destination_zone_stable_key, object_is_active,"
         " landing_position_x, landing_position_y, landing_position_z, use_sun_in_new_zone"
-        " FROM zone_lines ORDER BY stable_key"
+        " FROM zone_lines WHERE is_usable = 1 ORDER BY stable_key"
     ):
         saved = line in stored
         if not saved and not destination:
             continue
-        if saved:
-            # The controller that stores the return shows the exit, so it needs no activation gate.
-            if line not in capable:
-                continue
-        elif (line not in capable or not active) and line not in activated:
+        # The controller that stores the return shows the exit, so it needs no activation gate.
+        if not saved and not active and line not in activated:
             continue
         routes.append(
             {

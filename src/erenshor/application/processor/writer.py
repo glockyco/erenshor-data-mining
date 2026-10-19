@@ -195,6 +195,9 @@ CREATE TABLE water_fishables (
     PRIMARY KEY (water_stable_key, type, item_stable_key)
 );
 
+-- is_usable says whether players can use a line. unusable_reason gives the
+-- reviewed reason of a mapping.json exclusion or the missing physical input
+-- (processor/entities.py). An inactive object stays usable once activated.
 CREATE TABLE zone_lines (
     stable_key                  TEXT PRIMARY KEY NOT NULL,
     scene                       TEXT,
@@ -212,7 +215,13 @@ CREATE TABLE zone_lines (
     landing_position_y          REAL,
     landing_position_z          REAL,
     remove_party                INTEGER,
-    use_sun_in_new_zone          INTEGER
+    use_sun_in_new_zone          INTEGER,
+    is_usable                   INTEGER NOT NULL CHECK (is_usable IN (0, 1)),
+    unusable_reason             TEXT,
+    CHECK (
+        (is_usable = 1 AND unusable_reason IS NULL)
+        OR (is_usable = 0 AND unusable_reason IS NOT NULL AND length(trim(unusable_reason)) > 0)
+    )
 );
 
 CREATE TABLE zone_line_destination_contexts (
@@ -230,7 +239,9 @@ CREATE TABLE planning_portal_slots (
     PRIMARY KEY (zone_line_stable_key, slot)
 );
 
--- Zoning needs both the trigger callback and the enabled FixedUpdate transition.
+-- The raw capability audit: zoning needs both the trigger callback and the
+-- enabled FixedUpdate transition. Consumers read is_usable, which also holds
+-- the reviewed exclusions.
 CREATE VIEW zone_lines_with_zoning_capability AS
     SELECT * FROM zone_lines
     WHERE component_is_enabled = 1
@@ -263,6 +274,21 @@ CREATE TABLE gate_conditions (
     UNIQUE (subject_kind, subject_stable_key, item_stable_key, gate, group_index,
             atom_kind, atom_stable_key, atom_slot, atom_quantity)
 );
+
+-- The zone lines that connect zones for players: usable lines that some game
+-- state makes available. A gate with a 'never' atom in every group shuts a
+-- line for good, such as an inactive object that nothing activates. Readers
+-- that list connections without evaluating gates read this view.
+CREATE VIEW zone_line_connections AS
+    SELECT l.* FROM zone_lines l
+    WHERE l.is_usable = 1
+      AND NOT EXISTS (
+          SELECT 1 FROM gate_conditions g
+          WHERE g.subject_kind = 'zone_line' AND g.subject_stable_key = l.stable_key
+          GROUP BY g.gate
+          HAVING count(DISTINCT g.group_index)
+              = count(DISTINCT CASE WHEN g.atom_kind = 'never' THEN g.group_index END)
+      );
 
 -- Zone lines through which alone a target can be reached, from the reviewed
 -- [[entries]] of barriers.toml. A target without rows is reachable from every

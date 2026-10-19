@@ -7,7 +7,7 @@ from erenshor.infrastructure.database.connection import DatabaseConnection
 from erenshor.infrastructure.database.repositories.zones import ZoneRepository
 
 
-def test_overview_repository_retains_native_capability_and_connection_conditions(tmp_path: Path) -> None:
+def test_overview_repository_retains_connection_conditions_of_lines_that_connect(tmp_path: Path) -> None:
     path = tmp_path / "overview.sqlite"
     writer = Writer(path)
     writer.create_schema()
@@ -46,18 +46,25 @@ def test_overview_repository_retains_native_capability_and_connection_conditions
     )
     writer.conn.executemany(
         "INSERT INTO zone_lines (stable_key, scene, destination_zone_stable_key, component_is_enabled, "
-        "collider_is_trigger, has_enabled_trigger, is_enabled) VALUES (?, 'One', 'zone:two', 1, 1, ?, ?)",
+        "collider_is_trigger, has_enabled_trigger, is_enabled, is_usable, unusable_reason) "
+        "VALUES (?, 'One', 'zone:two', 1, 1, ?, ?, ?, ?)",
         [
-            ("line:open", 1, 1),
-            ("line:locked", 1, 1),
-            ("line:inactive", 1, 0),
-            ("line:return", 1, 0),
-            ("line:not-physical", 0, 1),
+            ("line:open", 1, 1, 1, None),
+            ("line:locked", 1, 1, 1, None),
+            ("line:inactive", 1, 0, 1, None),
+            ("line:return", 1, 0, 1, None),
+            ("line:not-physical", 0, 1, 0, "trigger_collider_disabled"),
+            ("line:reviewed", 1, 1, 0, "Reviewed fixture obstruction."),
+            ("line:never", 1, 0, 1, None),
         ],
     )
-    writer.conn.execute(
+    writer.conn.executemany(
         "INSERT INTO gate_conditions (subject_kind, subject_stable_key, gate, group_index, atom_kind, atom_stable_key) "
-        "VALUES ('zone_line', 'line:locked', 'fixture', 0, 'quest_done', 'quest:gate')"
+        "VALUES ('zone_line', ?, ?, 0, ?, ?)",
+        [
+            ("line:locked", "fixture", "quest_done", "quest:gate"),
+            ("line:never", "activation:object:never", "never", "object:never"),
+        ],
     )
     writer.conn.execute(
         "INSERT INTO zone_line_destination_contexts "

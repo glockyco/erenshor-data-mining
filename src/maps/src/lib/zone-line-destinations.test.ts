@@ -32,6 +32,17 @@ describe('common zone-line destination contexts', () => {
         expect(JSON.stringify(returns[0])).not.toContain('serialized_default');
     });
 
+    it('omits lines that players cannot use, including a reviewed exclusion of a capable line', async () => {
+        const keys = (await repository.getZoneLineMarkers('Stowaway')).map((line) => line.stableKey);
+        for (const key of ['zone-line:disabled-component', 'zone-line:non-trigger', 'zone-line:no-enabled-trigger',
+            'zone-line:reviewed-exclusion']) {
+            expect(keys).not.toContain(key);
+        }
+        const snapshot = await repository.getItemProvenanceSnapshot();
+        expect(snapshot.zone_line_destinations.find((line) => line.zone_line_stable_key === 'zone-line:reviewed-exclusion'))
+            .toMatchObject({ zoning_capable: true });
+    });
+
     it('keeps raw serialized defaults and capability exclusions in the offline snapshot', async () => {
         const snapshot = await repository.getItemProvenanceSnapshot();
         const returned = snapshot.zone_line_destinations.find((line) => line.zone_line_stable_key === 'zone-line:reliquary-return')!;

@@ -68,7 +68,7 @@ def process_weather(raw: sqlite3.Connection, conn: sqlite3.Connection) -> None:
     sun: dict[str, set[int]] = defaultdict(set)
     for zone, uses_sun in conn.execute(
         "SELECT destination_zone_stable_key, use_sun_in_new_zone FROM zone_lines"
-        " WHERE destination_zone_stable_key IS NOT NULL"
+        " WHERE destination_zone_stable_key IS NOT NULL AND is_usable = 1"
     ):
         if uses_sun not in (0, 1):
             raise ValueError(f"Weather scene {zone}: zone line lacks its sun flag")

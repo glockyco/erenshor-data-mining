@@ -107,7 +107,7 @@ def build(
     logger.info(f"Output: {clean_db_path}")
 
     # Load mapping.json once; all processors share it.
-    mapping, spawn_mapping = load_mapping(mapping_json_path)
+    mapping, spawn_mapping, zone_line_exclusions = load_mapping(mapping_json_path)
 
     # Open raw DB (read-only).
     raw = sqlite3.connect(f"file:{raw_db_path}?mode=ro", uri=True)
@@ -127,7 +127,7 @@ def build(
         process_code_facts(raw, writer)
 
         logger.info("Processing world/placement tables...")
-        process_world_tables(raw, writer)
+        process_world_tables(raw, writer, zone_line_exclusions)
 
         logger.info("Processing zones...")
         process_zones(raw, writer, mapping)

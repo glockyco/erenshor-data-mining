@@ -92,8 +92,8 @@ def portal_pair(tmp_path: Path) -> Iterator[tuple[sqlite3.Connection, Writer]]:
             (zone, f"Destination{index}", field, field, field, "Outdoor"),
         )
         conn.execute(
-            "INSERT INTO zone_lines (stable_key,scene,x,y,z,destination_zone_stable_key,is_enabled)"
-            " VALUES (?, 'Source', ?, 0, 0, ?, 0)",
+            "INSERT INTO zone_lines (stable_key,scene,x,y,z,destination_zone_stable_key,is_enabled,is_usable)"
+            " VALUES (?, 'Source', ?, 0, 0, ?, 0, 1)",
             (line, index, zone),
         )
         raw.execute(
@@ -108,8 +108,8 @@ def portal_pair(tmp_path: Path) -> Iterator[tuple[sqlite3.Connection, Writer]]:
         raw.execute("INSERT INTO ObjectHierarchy VALUES (?, ?, 1, 1)", (f"object:{line}", f"object:{field}"))
         raw.execute("INSERT INTO ZoneLines VALUES (?, ?, 1)", (line, f"object:{line}"))
     conn.execute(
-        "INSERT INTO zone_lines (stable_key,scene,x,y,z,destination_zone_stable_key,is_enabled)"
-        " VALUES ('zoneline:unrelated', 'Source', 99, 0, 0, 'zone:destination0', 1)"
+        "INSERT INTO zone_lines (stable_key,scene,x,y,z,destination_zone_stable_key,is_enabled,is_usable)"
+        " VALUES ('zoneline:unrelated', 'Source', 99, 0, 0, 'zone:destination0', 1, 1)"
     )
     raw.execute("INSERT INTO ObjectHierarchy VALUES ('object:unrelated', NULL, 1, 1)")
     raw.execute("INSERT INTO ZoneLines VALUES ('zoneline:unrelated', 'object:unrelated', 1)")

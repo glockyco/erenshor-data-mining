@@ -71,8 +71,8 @@ def writer(tmp_path: Path) -> Writer:
     conn.execute(
         "INSERT INTO zone_lines"
         " (stable_key,scene,is_enabled,destination_zone_stable_key,"
-        " component_is_enabled,collider_is_trigger,has_enabled_trigger)"
-        " VALUES ('zoneline:island:tomb:808.08:14.08:592.64','Island',1,'zone:tomb',1,1,1)"
+        " component_is_enabled,collider_is_trigger,has_enabled_trigger,is_usable)"
+        " VALUES ('zoneline:island:tomb:808.08:14.08:592.64','Island',1,'zone:tomb',1,1,1,1)"
     )
     conn.executemany(
         "INSERT INTO doors (stable_key, scene, x, y, z, key_item_stable_key) VALUES (?, ?, ?, ?, ?, ?)",

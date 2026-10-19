@@ -80,7 +80,7 @@ def test_zone_types_reuse_raid_sources_and_reviewed_area_input(tmp_path: Path) -
             }
         )
     )
-    mapping, _ = load_mapping(mapping_file)
+    mapping, _, _ = load_mapping(mapping_file)
     writer = Writer(tmp_path / "clean.sqlite")
     try:
         writer.create_schema()

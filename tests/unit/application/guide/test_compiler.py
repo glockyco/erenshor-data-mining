@@ -293,6 +293,40 @@ def test_graph_builder_spawn_nodes_preserve_source_script() -> None:
         conn.close()
 
 
+def test_graph_builder_omits_zone_lines_that_players_cannot_use(tmp_path: Path) -> None:
+    from erenshor.application.guide.node_builder import _add_zone_line_nodes
+    from erenshor.application.processor.writer import Writer
+
+    writer = Writer(tmp_path / "guide.sqlite")
+    writer.create_schema()
+    try:
+        writer.insert_zone_lines(
+            [
+                # A line that starts inactive stays a guide line, and its gate says when it appears.
+                {
+                    "stable_key": "zoneline:inactive",
+                    "scene": "A",
+                    "is_enabled": 0,
+                    "is_usable": 1,
+                    "unusable_reason": None,
+                },
+                {
+                    "stable_key": "zoneline:sealed",
+                    "scene": "A",
+                    "is_enabled": 1,
+                    "is_usable": 0,
+                    "unusable_reason": "No walk reaches it.",
+                },
+            ]
+        )
+        graph = EntityGraph()
+        _add_zone_line_nodes(writer.conn, graph, {})
+
+        assert [node.key for node in graph.nodes_of_type(NodeType.ZONE_LINE)] == ["zoneline:inactive"]
+    finally:
+        writer.conn.close()
+
+
 def test_graph_builder_completion_edges_keep_talk_keywords() -> None:
     from erenshor.application.guide.edge_builder import _add_quest_completion_edges
 

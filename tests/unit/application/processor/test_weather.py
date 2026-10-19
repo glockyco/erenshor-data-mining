@@ -22,7 +22,8 @@ def weather() -> Iterator[tuple[sqlite3.Connection, sqlite3.Connection]]:
             ("zone:" + scene.lower(), scene, scene, scene, scene, "Outdoor"),
         )
         conn.execute(
-            "INSERT INTO zone_lines (stable_key, destination_zone_stable_key, use_sun_in_new_zone) VALUES (?,?,?)",
+            "INSERT INTO zone_lines (stable_key, destination_zone_stable_key, use_sun_in_new_zone, is_usable)"
+            " VALUES (?,?,?,1)",
             ("line:" + scene, "zone:" + scene.lower(), int(scene != "Cave")),
         )
     for name, key in (("Invoke Storm", "spell:invoke"), ("Dissipate Storm", "spell:dissipate")):
@@ -102,11 +103,21 @@ def test_without_sun_neither_spells_nor_natural_weather_start_rain(weather):
 def test_conflicting_sun_evidence_fails_closed(weather):
     raw, conn = weather
     conn.execute(
-        "INSERT INTO zone_lines (stable_key,destination_zone_stable_key,use_sun_in_new_zone)"
-        " VALUES ('conflict','zone:forest',0)"
+        "INSERT INTO zone_lines (stable_key,destination_zone_stable_key,use_sun_in_new_zone,is_usable)"
+        " VALUES ('conflict','zone:forest',0,1)"
     )
     with pytest.raises(ValueError, match="conflicting incoming sun flags"):
         process_weather(raw, conn)
+
+
+def test_a_line_that_players_cannot_use_gives_no_sun_evidence(weather):
+    raw, conn = weather
+    conn.execute(
+        "INSERT INTO zone_lines (stable_key,destination_zone_stable_key,use_sun_in_new_zone,is_usable,unusable_reason)"
+        " VALUES ('sealed','zone:forest',0,0,'Reviewed fixture obstruction.')"
+    )
+    process_weather(raw, conn)
+    assert conn.execute("SELECT uses_sun FROM world_states WHERE zone_stable_key = 'zone:forest'").fetchone() == (1,)
 
 
 def test_missing_rule_fails_closed(weather):

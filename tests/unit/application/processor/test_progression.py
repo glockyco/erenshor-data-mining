@@ -353,7 +353,14 @@ def test_barrier_is_shared_instead_of_copying_keys(conn):
 
 
 def test_placement_triggers_furniture_quests_and_restricted_entry(conn):
-    insert(conn, "zone_lines", stable_key="zoneline:entry", scene="Other", destination_zone_stable_key="zone:start")
+    insert(
+        conn,
+        "zone_lines",
+        stable_key="zoneline:entry",
+        scene="Other",
+        destination_zone_stable_key="zone:start",
+        is_usable=1,
+    )
     insert(
         conn,
         "target_entries",
@@ -382,7 +389,7 @@ def test_placement_triggers_furniture_quests_and_restricted_entry(conn):
 
 def zone_line(conn: sqlite3.Connection, key: str = "zoneline:line", **changes: object) -> None:
     """A usable zone line from Start and the travel route that it is."""
-    line = {"stable_key": key, "scene": "Start", "destination_zone_stable_key": "zone:end"} | changes
+    line = {"stable_key": key, "scene": "Start", "destination_zone_stable_key": "zone:end", "is_usable": 1} | changes
     insert(conn, "zone_lines", **line)
     insert(
         conn,

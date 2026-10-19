@@ -558,7 +558,7 @@ def _add_zone_connect_edges(
     rows = conn.execute("""
         SELECT zl.scene, zl.destination_zone_stable_key
         FROM zone_lines zl
-        WHERE zl.destination_zone_stable_key IS NOT NULL
+        WHERE zl.destination_zone_stable_key IS NOT NULL AND zl.is_usable = 1
     """)
     seen: set[tuple[str, str]] = set()
     for r in rows:

@@ -19,6 +19,8 @@
 - Send you for the Bellwain Study Key before the Rainbow Flint in the locked study.
 - Stop listing the Auction House as an item source, since its stock is random.
 - Use the Stowaway's Step lighthouse entrance to reach Occuphage.
+- Stop routing through zone exits that players cannot reach, such as the Shivering Tomb exit to Stowaway's Step.
+- Stop listing exits that never open as quest unlocks, such as the Shivering Step exit to Hidden Hills for A Way To Erenshor.
 - Base quest levels on the easiest way to finish, so The Island Tomb shows level 4 instead of 24.
 - Show the hours when a fish can be caught.
 - Show the keyword to say when an NPC hands you an item.

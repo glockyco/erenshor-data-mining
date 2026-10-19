@@ -95,7 +95,7 @@ def _subject(
                 (key,),
             )
         else:
-            conn.execute("INSERT INTO zone_lines (stable_key, scene) VALUES (?, 'Scene')", (key,))
+            conn.execute("INSERT INTO zone_lines (stable_key, scene, is_usable) VALUES (?, 'Scene', 1)", (key,))
 
 
 def _effect(raw: sqlite3.Connection, target: str, host: str, quest: str, *, effect: str = "enable") -> None:

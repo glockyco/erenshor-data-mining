@@ -171,16 +171,36 @@ def _line(conn: sqlite3.Connection, **changes: object) -> None:
         "component_is_enabled": 1,
         "collider_is_trigger": 1,
         "has_enabled_trigger": 1,
+        "is_usable": 1,
     } | changes
     conn.execute(
         f"INSERT INTO zone_lines ({','.join(line)}) VALUES ({','.join('?' for _ in line)})", tuple(line.values())
     )
 
 
-@pytest.mark.parametrize("change", [{"object_is_active": 0}, {"component_is_enabled": 0}, {"has_enabled_trigger": 0}])
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"object_is_active": 0},
+        {"component_is_enabled": 0, "is_usable": 0, "unusable_reason": "component_disabled"},
+        {"is_usable": 0, "unusable_reason": "Reviewed fixture obstruction."},
+    ],
+)
 def test_a_zone_line_that_cannot_send_the_player_is_no_route(writer: Writer, change: dict[str, object]) -> None:
     _fact(writer.conn, _change())
     _line(writer.conn, **change)
+    process_travel(writer)
+    assert "zoneline:start:windwashed" not in _routes(writer.conn)
+
+
+def test_activating_a_line_that_players_cannot_use_makes_no_route(writer: Writer) -> None:
+    # Like the Shivering Step exit to Hidden Hills, whose disabled component stays disabled once a quest shows it.
+    _fact(writer.conn, _change())
+    _line(writer.conn, object_is_active=0, component_is_enabled=0, is_usable=0, unusable_reason="component_disabled")
+    writer.conn.execute(
+        "INSERT INTO gate_conditions (subject_kind, subject_stable_key, gate, group_index, atom_kind, atom_stable_key)"
+        " VALUES ('zone_line', 'zoneline:start:windwashed', 'activation:listener', 0, 'quest_done', 'quest:q')"
+    )
     process_travel(writer)
     assert "zoneline:start:windwashed" not in _routes(writer.conn)
 

@@ -2,7 +2,7 @@
   "metadata": {
     "schema_version": "2.0",
     "created_at": "2025-09-21T15:44:48.853024Z",
-    "updated_at": "2026-10-06T18:40:00Z"
+    "updated_at": "2026-10-19T20:30:00Z"
   },
   "rules": {
     "character:arenachest 1": {
@@ -3946,6 +3946,18 @@
       "is_wiki_generated": 0,
       "is_map_visible": 0,
       "reason": "Disabled SpawnPoint component retains Dire Wolf and Dire Huntress placeholders. PhantomFightEvent uses this WardTotemSpawn position to summon Wardlight instead, represented by a separate enabled scripted spawn."
+    },
+    "zoneline:shiveringstep:tutorial:808.08:14.08:592.64": {
+      "is_usable": 0,
+      "reason": "The trigger lies in a pocket below the Shivering Step lighthouse that a rock, vines, and the terrain seal, even with the lighthouse door open. In the game, a fill of the player's capsule from the trigger never left the pocket."
+    },
+    "zoneline:shiveringtomb:stowaway:48.90:8.26:188.47": {
+      "is_usable": 0,
+      "reason": "In the game, no walk from the tomb's only entrance, the landing from Shivering Step, reaches the trigger, even with jumps."
+    },
+    "zoneline:shiveringtomb2:stowaway:198.31:-10.96:46.08": {
+      "is_usable": 0,
+      "reason": "In the game, no walk from the second tomb's only entrance, the landing from Shivering Step, reaches the trigger, even with jumps. It sits almost where the first tomb has its exit to Shivering Step."
     },
     "character:fearantula": {
       "wiki_page_name": "Fearantula",

@@ -321,13 +321,15 @@ def entry_rows(conn: sqlite3.Connection, entries: list[Entry]) -> list[dict[str,
                     f"barriers.toml entries {index}: {line!r} has a stored return destination, not a fixed entry"
                 )
             destination = conn.execute(
-                "SELECT z.scene_name FROM zone_lines_with_zoning_capability l"
+                "SELECT z.scene_name FROM zone_lines l"
                 " JOIN zones z ON z.stable_key = l.destination_zone_stable_key"
-                " WHERE l.stable_key = ?",
+                " WHERE l.stable_key = ? AND l.is_usable = 1",
                 (line,),
             ).fetchone()
             if destination is None:
-                raise ValueError(f"barriers.toml entries {index} names {line!r}, which this build lacks")
+                raise ValueError(
+                    f"barriers.toml entries {index} names {line!r}, which this build lacks or players cannot use"
+                )
             if destination[0] != found[0]:
                 raise ValueError(
                     f"barriers.toml entries {index}: {line!r} leads to {destination[0]}, not to {found[0]}"

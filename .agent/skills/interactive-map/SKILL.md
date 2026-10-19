@@ -124,8 +124,10 @@ claim is shared across characters.
 Saved-return portals are conditional destinations, not fixed zone links, because
 their saved origin belongs to the character. Keep serialized defaults in offline
 coverage rather than using them to guess a return marker or connection.
-Portal markers use the shared zoning-capability projection. Initial inactivity
-does not itself mean a portal lacks zoning capability.
+Portal markers show `zone_line_connections`: lines that players can use
+(`zone_lines.is_usable`, which adds the reviewed exclusions of `mapping.json` to
+the raw zoning capability) and that no gate shuts for good. Initial inactivity
+does not make a line unusable.
 Pure global fishing replacements share one Any water source without markers.
 Higher local catch rates retain their water and time restrictions.
 The grouped source keeps every originating acquisition for offline coverage.

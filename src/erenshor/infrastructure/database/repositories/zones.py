@@ -55,9 +55,9 @@ class ZoneRepository(BaseRepository[Zone]):
             raise RepositoryError(f"Failed to retrieve zones: {e}") from e
 
     def get_zone_connections(self, scene_name: str) -> list[str]:
-        """Return fixed destination page titles for lines with physical zoning capability.
+        """Return fixed destination page titles for the lines that connect zones for players.
 
-        Disabled lines remain available to the legacy page's gate descriptions.
+        Lines that start inactive are included, because the legacy page describes their gates.
         Stored returns have no fixed destination and are omitted here.
 
         Args:
@@ -71,7 +71,7 @@ class ZoneRepository(BaseRepository[Zone]):
         """
         query = """
             SELECT DISTINCT z_dst.wiki_page_name
-            FROM zone_lines_with_zoning_capability zl
+            FROM zone_line_connections zl
             JOIN zones z_dst
               ON z_dst.stable_key = zl.destination_zone_stable_key
             LEFT JOIN zone_line_destination_contexts dc ON dc.zone_line_stable_key = zl.stable_key
@@ -119,7 +119,7 @@ class ZoneRepository(BaseRepository[Zone]):
                        SELECT 1 FROM gate_conditions g
                        WHERE g.subject_kind = 'zone_line' AND g.subject_stable_key = l.stable_key
                    ) THEN 1 ELSE 0 END AS conditional
-            FROM zone_lines_with_zoning_capability l
+            FROM zone_line_connections l
             JOIN zones src ON src.scene_name = l.scene AND src.wiki_page_name IS NOT NULL
             LEFT JOIN zone_line_destination_contexts dc ON dc.zone_line_stable_key = l.stable_key
             ORDER BY zone, l.stable_key

@@ -241,6 +241,7 @@ def _add_zone_line_nodes(
                z.display_name AS dest_display
         FROM zone_lines zl
         LEFT JOIN zones z ON z.stable_key = zl.destination_zone_stable_key
+        WHERE zl.is_usable = 1
     """)
     for r in rows:
         zone_key = _resolve_zone(r["scene"], scene_to_zone)

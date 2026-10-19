@@ -43,7 +43,7 @@ def test_zone_classification_is_selected_not_inferred_from_native_dungeon_flag(t
         writer.conn.close()
 
 
-def test_legacy_zone_connections_exclude_stored_returns_and_nonfunctional_lines(tmp_path: Path) -> None:
+def test_legacy_zone_connections_list_only_lines_that_connect_zones(tmp_path: Path) -> None:
     path = tmp_path / "clean.sqlite"
     writer = Writer(path)
     writer.create_schema()
@@ -58,7 +58,7 @@ def test_legacy_zone_connections_exclude_stored_returns_and_nonfunctional_lines(
                 "image_name": "",
                 "zone_type": "Outdoor",
             }
-            for name in ("A", "B", "Hidden")
+            for name in ("A", "B", "C", "D", "E", "Hidden")
         ]
     )
     writer.insert_zone_lines(
@@ -69,16 +69,24 @@ def test_legacy_zone_connections_exclude_stored_returns_and_nonfunctional_lines(
                 "destination_zone_stable_key": destination,
                 "is_enabled": 0,
                 "object_is_active": 0,
-                "component_is_enabled": component_enabled,
+                "component_is_enabled": int(reason != "component_disabled"),
                 "collider_is_trigger": 1,
                 "has_enabled_trigger": 1,
+                "is_usable": int(reason is None),
+                "unusable_reason": reason,
             }
-            for key, destination, component_enabled in (
-                ("line:fixed", "zone:B", 1),
-                ("line:return", "zone:Hidden", 1),
-                ("line:nonfunctional", "zone:Hidden", 0),
+            for key, destination, reason in (
+                ("line:fixed", "zone:B", None),
+                ("line:return", "zone:Hidden", None),
+                ("line:nonfunctional", "zone:C", "component_disabled"),
+                ("line:reviewed", "zone:D", "Reviewed fixture obstruction."),
+                ("line:never", "zone:E", None),
             )
         ]
+    )
+    writer.conn.execute(
+        "INSERT INTO gate_conditions (subject_kind, subject_stable_key, gate, group_index, atom_kind, atom_stable_key) "
+        "VALUES ('zone_line', 'line:never', 'activation:object:never', 0, 'never', 'object:never')"
     )
     writer.insert_zone_line_destination_contexts(
         [

@@ -257,6 +257,8 @@ CREATE TABLE zone_lines (
     collider_is_trigger INTEGER NOT NULL DEFAULT 1,
     has_enabled_trigger INTEGER NOT NULL DEFAULT 1,
     is_enabled INTEGER NOT NULL,
+    is_usable INTEGER NOT NULL DEFAULT 1 CHECK (is_usable IN (0, 1)),
+    unusable_reason TEXT,
     landing_position_x REAL,
     landing_position_y REAL,
     landing_position_z REAL,
@@ -266,6 +268,10 @@ CREATE TABLE zone_lines (
 CREATE VIEW zone_lines_with_zoning_capability AS
     SELECT * FROM zone_lines
     WHERE component_is_enabled = 1 AND collider_is_trigger = 1 AND has_enabled_trigger = 1;
+
+-- The real view also drops lines that a gate shuts for good. The fixture has no gates.
+CREATE VIEW zone_line_connections AS
+    SELECT * FROM zone_lines WHERE is_usable = 1;
 
 CREATE TABLE zone_line_destination_contexts (
     zone_line_stable_key TEXT PRIMARY KEY NOT NULL REFERENCES zone_lines(stable_key),
@@ -668,13 +674,17 @@ UPDATE characters SET can_be_damaged = CASE WHEN invulnerable = 0 THEN 1 ELSE 0 
 UPDATE characters SET invulnerable = 1, can_be_damaged = 0 WHERE stable_key = 'character:fixture guard';
 UPDATE characters SET can_be_damaged = 1 WHERE stable_key = 'character:fixture guard placed';
 INSERT INTO zone_lines (stable_key, scene, x, y, z, object_is_active, component_is_enabled,
-    collider_is_trigger, has_enabled_trigger, is_enabled, landing_position_x, landing_position_y,
-    landing_position_z, destination_zone_stable_key) VALUES
-    ('zone-line:reliquary-return', 'Reliquary', 400, 0, 500, 0, 1, 1, 1, 0, 123, 45, 678, 'zone:hidden'),
-    ('zone-line:disabled-component', 'Stowaway', 400, 0, 500, 1, 0, 1, 1, 0, 0, 0, 0, 'zone:hidden'),
-    ('zone-line:non-trigger', 'Stowaway', 400, 0, 500, 1, 1, 0, 1, 0, 0, 0, 0, 'zone:hidden'),
-    ('zone-line:no-enabled-trigger', 'Stowaway', 400, 0, 500, 1, 1, 1, 0, 0, 0, 0, 0, 'zone:hidden'),
-    ('zone-line:unlocated-prefab', NULL, NULL, NULL, NULL, 0, 1, 1, 1, 0, 0, 0, 0, 'zone:hidden');
+    collider_is_trigger, has_enabled_trigger, is_enabled, is_usable, unusable_reason, landing_position_x,
+    landing_position_y, landing_position_z, destination_zone_stable_key) VALUES
+    ('zone-line:reliquary-return', 'Reliquary', 400, 0, 500, 0, 1, 1, 1, 0, 1, NULL, 123, 45, 678, 'zone:hidden'),
+    ('zone-line:disabled-component', 'Stowaway', 400, 0, 500, 1, 0, 1, 1, 0, 0, 'component_disabled', 0, 0, 0,
+        'zone:hidden'),
+    ('zone-line:non-trigger', 'Stowaway', 400, 0, 500, 1, 1, 0, 1, 0, 0, 'no_trigger_collider', 0, 0, 0, 'zone:hidden'),
+    ('zone-line:no-enabled-trigger', 'Stowaway', 400, 0, 500, 1, 1, 1, 0, 0, 0, 'trigger_collider_disabled', 0, 0, 0,
+        'zone:hidden'),
+    ('zone-line:reviewed-exclusion', 'Stowaway', 400, 0, 500, 1, 1, 1, 1, 1, 0, 'Reviewed fixture obstruction.', 0, 0,
+        0, 'zone:hidden'),
+    ('zone-line:unlocated-prefab', NULL, NULL, NULL, NULL, 0, 1, 1, 1, 0, 1, NULL, 0, 0, 0, 'zone:hidden');
 INSERT INTO zone_line_destination_contexts VALUES
     ('zone-line:reliquary-return', 'stored_return', 'character_state:reliquary_return_zone',
     'character_state:reliquary_return_landing', 'activator:reliquary_return_controller');

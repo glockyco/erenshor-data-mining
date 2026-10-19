@@ -178,7 +178,7 @@ def native_inputs(tmp_path: Path) -> Iterator[sqlite3.Connection]:
         player_level_min=7,
         player_level_max=17,
     )
-    _insert(connection, "zone_lines", stable_key="entry:one", scene="One")
+    _insert(connection, "zone_lines", stable_key="entry:one", scene="One", is_usable=1)
     _insert(
         connection,
         "target_entries",

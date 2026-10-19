@@ -408,6 +408,11 @@ public sealed class RequirementResolverTests
             pair.Key.StartsWith("character:lighthouse demon:", StringComparison.Ordinal)
         );
         var spawn = Assert.Single(target.Value);
+        ZoneLineEntry StowawayLine(string key) =>
+            data.ZoneLines.Single(line => line.StableKey == "zoneline:stowaway:tutorial:" + key);
+        var lighthouse = StowawayLine("808.08:14.08:592.64");
+        var beach = StowawayLine("407.55:10.20:312.47");
+        var cliff = StowawayLine("809.72:19.36:645.26");
         var step = Character(target.Key);
         var quest = Quest("Lighthouse scenario", step);
         var facts = new GateTestFacts();
@@ -428,22 +433,22 @@ public sealed class RequirementResolverTests
 
         Assert.True(result.CanNavigate, result.Message);
         Assert.Same(spawn, result.SelectedSpawn);
-        Assert.Same(data.ZoneLines[105], result.EntryLine);
+        Assert.Same(lighthouse, result.EntryLine);
         Assert.NotNull(approach);
         Assert.Equal(new[] { "SaltedStrand", "Stowaway" }, approach.Value.Route!.Path);
         Assert.Equal("zone:stowaway", approach.Value.Route.NextHopZoneKey);
-        Assert.Same(data.ZoneLines[105], approach.Value.EntryLine);
+        Assert.Same(lighthouse, approach.Value.EntryLine);
 
         var atEntry = graph.GetPlacementRoute(spawn, "Stowaway");
         Assert.NotNull(atEntry);
         Assert.Null(atEntry.Value.Route);
-        Assert.Same(data.ZoneLines[105], atEntry.Value.EntryLine);
-        Assert.NotSame(data.ZoneLines[101], atEntry.Value.EntryLine);
-        Assert.NotSame(data.ZoneLines[106], atEntry.Value.EntryLine);
+        Assert.Same(lighthouse, atEntry.Value.EntryLine);
+        Assert.NotSame(beach, atEntry.Value.EntryLine);
+        Assert.NotSame(cliff, atEntry.Value.EntryLine);
 
-        var pinnedBeach = resolver.Resolve(quest, step, "Stowaway", data.ZoneLines[101]);
+        var pinnedBeach = resolver.Resolve(quest, step, "Stowaway", beach);
         Assert.True(pinnedBeach.CanNavigate, pinnedBeach.Message);
-        Assert.Same(data.ZoneLines[105], pinnedBeach.EntryLine);
+        Assert.Same(lighthouse, pinnedBeach.EntryLine);
 
         facts.Keyring.Clear();
         graph.Rebuild();
@@ -453,6 +458,21 @@ public sealed class RequirementResolverTests
         Assert.All(missingKey.Step.Sources!, source => Assert.Equal("Garrey Ambrose", source.Name));
         Assert.All(missingKey.AvailableSpawns!, spawn => Assert.Equal("Stowaway", spawn.Scene));
         Assert.Null(missingKey.EntryLine);
+    }
+
+    [Fact]
+    public void Shivering_Step_reaches_Hidden_Hills_through_Stowaway_not_its_disabled_exit()
+    {
+        // A Way To Erenshor shows the Shivering Step exit to Hidden Hills, whose component stays disabled.
+        var data = ShippingData();
+        var facts = new GateTestFacts();
+        facts.Quests.Add("A Way To Erenshor");
+        var graph = new ZoneGraph(data, new GateConditions(data, facts));
+
+        Assert.Equal(
+            new[] { "ShiveringStep", "Stowaway", "Hidden" },
+            graph.FindRoute("ShiveringStep", "Hidden")!.Path
+        );
     }
 
     [Fact]

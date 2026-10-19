@@ -155,7 +155,46 @@ def _filter_junction(
 # ---------------------------------------------------------------------------
 
 
-def process_world_tables(raw: sqlite3.Connection, writer: Writer) -> None:
+# The physical inputs of zoning, each with the reason its absence gives, in
+# the order that picks one reason.
+_ZONING_INPUTS = (
+    ("component_is_enabled", "component_disabled"),
+    ("collider_is_trigger", "no_trigger_collider"),
+    ("has_enabled_trigger", "trigger_collider_disabled"),
+)
+
+
+def process_zone_lines(raw: sqlite3.Connection, writer: Writer, exclusions: dict[str, str]) -> None:
+    """Copy the zone lines with whether players can use each one.
+
+    A reviewed exclusion from mapping.json makes a line unusable with its
+    reason. Otherwise a line needs an enabled component and an enabled trigger
+    collider. An inactive object does not make a line unusable, because an
+    activation gate states when it appears, and activating it does not enable
+    a disabled component.
+    """
+    rows = _rows(
+        raw,
+        "SELECT StableKey, Scene, X, Y, Z, IsEnabled, ObjectIsActive, ComponentIsEnabled,"
+        " ColliderIsTrigger, HasEnabledTrigger, DisplayText, DestinationZoneStableKey,"
+        " LandingPositionX, LandingPositionY, LandingPositionZ, RemoveParty, UseSunInNewZone FROM ZoneLines",
+    )
+    rows = _rename_cols(rows, {"DestinationZoneStableKey": "destination_zone_stable_key"})
+    stale = sorted(exclusions.keys() - {row["stable_key"] for row in rows})
+    if stale:
+        raise ValueError(f"mapping.json excludes zone lines that the export lacks: {stale}")
+    for row in rows:
+        key = str(row["stable_key"])
+        for column, _ in _ZONING_INPUTS:
+            if type(row[column]) is not int or row[column] not in (0, 1):
+                raise ValueError(f"Zone line {key}: {column} must be exported as 0 or 1")
+        reason = exclusions.get(key) or next((reason for column, reason in _ZONING_INPUTS if not row[column]), None)
+        row["is_usable"] = int(reason is None)
+        row["unusable_reason"] = reason
+    writer.insert_zone_lines(rows)
+
+
+def process_world_tables(raw: sqlite3.Connection, writer: Writer, zone_line_exclusions: dict[str, str]) -> None:
     """Copy world placements and derive fishing outcomes from native pool slots."""
 
     simple_tables = [
@@ -225,20 +264,7 @@ def process_world_tables(raw: sqlite3.Connection, writer: Writer) -> None:
     # discovered from asset data. We encode the known cases here.
     _process_spell_created_items(raw, writer)
 
-    # ZoneLines
-    rows = _rows(
-        raw,
-        "SELECT StableKey, Scene, X, Y, Z, IsEnabled, ObjectIsActive, ComponentIsEnabled,"
-        " ColliderIsTrigger, HasEnabledTrigger, DisplayText, DestinationZoneStableKey,"
-        " LandingPositionX, LandingPositionY, LandingPositionZ, RemoveParty, UseSunInNewZone FROM ZoneLines",
-    )
-    rows = _rename_cols(
-        rows,
-        {
-            "DestinationZoneStableKey": "destination_zone_stable_key",
-        },
-    )
-    writer.insert_zone_lines(rows)
+    process_zone_lines(raw, writer, zone_line_exclusions)
 
     # ZoneAtlasEntries + ZoneAtlasNeighbors
     rows = _rows(raw, "SELECT * FROM ZoneAtlasEntries")

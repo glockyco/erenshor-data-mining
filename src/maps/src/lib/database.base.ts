@@ -1185,7 +1185,7 @@ export class RepositoryBase {
                 destination.scene_name AS DestinationZone, destination.display_name AS ZoneName,
                 destination.is_map_visible AS IsMapVisible,
                 atlas.level_range_low AS LevelRangeLow, atlas.level_range_high AS LevelRangeHigh
-            FROM zone_lines_with_zoning_capability zl
+            FROM zone_line_connections zl
             LEFT JOIN zones destination ON destination.stable_key = zl.destination_zone_stable_key
             LEFT JOIN zone_atlas_entries atlas ON atlas.zone_name = destination.scene_name
             WHERE zl.scene = ? AND zl.x IS NOT NULL AND zl.y IS NOT NULL AND zl.z IS NOT NULL
