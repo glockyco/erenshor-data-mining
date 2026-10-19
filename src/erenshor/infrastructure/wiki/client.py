@@ -17,7 +17,7 @@ operations, designed to work with wiki.gg (https://erenshor.wiki.gg).
 """
 
 import hashlib
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, NoReturn
@@ -96,6 +96,10 @@ class MediaWikiEditConflictError(MediaWikiEditError):
 
 class MediaWikiAssertionError(MediaWikiEditError):
     """Raised when MediaWiki assertion guards reject the current session/user."""
+
+
+# MediaWiki's codes for a request whose assert or assertuser guard fails.
+_ASSERTION_CODES = frozenset({"assertuserfailed", "assertbotfailed", "assertnameduserfailed"})
 
 
 class MediaWikiPermissionError(MediaWikiEditError):
@@ -1935,7 +1939,11 @@ class MediaWikiClient:
         last_error: MediaWikiAPIError | None = None
         for attempt in range(2):
             data["token"] = self.get_csrf_token()
-            current = self.get_page_revision_metadata(title, assertion=assertion, assert_user=assert_user)
+            current = self._guarded_read(
+                title,
+                "editing",
+                lambda: self.get_page_revision_metadata(title, assertion=assertion, assert_user=assert_user),
+            )
             if (
                 current is None
                 or current.revision_id != base_revision.revision_id
@@ -1967,7 +1975,11 @@ class MediaWikiClient:
                 raise MediaWikiEditError(f"Safe edit failed: {error}")
 
             if "nochange" in edit_result:
-                snapshot = self.get_page_snapshots([title], assertion=assertion, assert_user=assert_user)[title]
+                snapshot = self._guarded_read(
+                    title,
+                    "editing",
+                    lambda: self.get_page_snapshots([title], assertion=assertion, assert_user=assert_user),
+                )[title]
                 if (
                     snapshot.revision is None
                     or snapshot.revision.revision_id != base_revision.revision_id
@@ -2039,7 +2051,11 @@ class MediaWikiClient:
         if bot:
             data["bot"] = "1"
 
-        snapshot = self.get_page_snapshots([title], assertion=assertion, assert_user=assert_user)[title]
+        snapshot = self._guarded_read(
+            title,
+            "creating",
+            lambda: self.get_page_snapshots([title], assertion=assertion, assert_user=assert_user),
+        )[title]
         if snapshot.revision is not None:
             raise MediaWikiEditConflictError(f"Conflict before creating {title!r}: page already exists")
         title = snapshot.title
@@ -2165,6 +2181,22 @@ class MediaWikiClient:
         return error.code in ("badtoken", "notoken")
 
     @staticmethod
+    def _guarded_read[T](title: str, operation: str, read: Callable[[], T]) -> T:
+        """Run a read that a safe write depends on.
+
+        The read carries the write's assertions, so MediaWiki rejects a changed
+        session there as it would reject the write, and the failure is the same.
+        """
+        try:
+            return read()
+        except MediaWikiAPIError as error:
+            if error.code in _ASSERTION_CODES:
+                raise MediaWikiAssertionError(
+                    f"Assertion failed while safely {operation} page '{title}': {error}"
+                ) from error
+            raise
+
+    @staticmethod
     def _raise_safe_write_api_error(title: str, error: MediaWikiAPIError, operation: str) -> NoReturn:
         """Raise a safe-write-specific exception for known MediaWiki edit failures.
         ``operation`` is the present participle of the attempted action
@@ -2182,7 +2214,7 @@ class MediaWikiClient:
             raise MediaWikiEditConflictError(
                 f"Lost create race while safely {operation} page '{title}': {error}"
             ) from error
-        if error.code in ("assertuserfailed", "assertbotfailed", "assertnameduserfailed"):
+        if error.code in _ASSERTION_CODES:
             raise MediaWikiAssertionError(
                 f"Assertion failed while safely {operation} page '{title}': {error}"
             ) from error
