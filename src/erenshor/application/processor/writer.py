@@ -2137,7 +2137,10 @@ class Writer:
     # ------------------------------------------------------------------
 
     def _insert(self, table: str, rows: list[dict[str, object]]) -> int:
-        """Bulk-insert rows into a table.
+        """Bulk-insert rows into a table, skipping rows that repeat a unique key.
+
+        A row that breaks a NOT NULL or CHECK constraint raises instead of
+        disappearing, so the schema's constraints guard every table.
 
         Args:
             table: Table name (snake_case).
@@ -2151,7 +2154,7 @@ class Writer:
         columns = list(rows[0].keys())
         placeholders = ", ".join("?" * len(columns))
         col_list = ", ".join(columns)
-        sql = f"INSERT OR IGNORE INTO {table} ({col_list}) VALUES ({placeholders})"
+        sql = f"INSERT INTO {table} ({col_list}) VALUES ({placeholders}) ON CONFLICT DO NOTHING"
         values = [tuple(row[c] for c in columns) for row in rows]
         self._conn.executemany(sql, values)
         self._conn.commit()

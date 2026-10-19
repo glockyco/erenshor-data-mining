@@ -1709,7 +1709,7 @@ def expand_chained_spawns(conn: sqlite3.Connection) -> None:
 
     if rows_to_insert:
         conn.executemany(
-            """INSERT OR IGNORE INTO character_spawns
+            """INSERT INTO character_spawns
                (character_stable_key, spawn_point_stable_key, zone_stable_key, scene,
                 x, y, z, is_enabled, is_directly_placed, is_trigger_spawn,
                 rare_npc_chance, level_mod, spawn_delay_1, spawn_delay_2,
@@ -1725,7 +1725,8 @@ def expand_chained_spawns(conn: sqlite3.Connection) -> None:
                 :night_spawn, :patrol_points, :loop_patrol, :random_wander_range,
                 :spawn_upon_quest_complete_stable_key, :protector_stable_key,
                 :spawn_chance, :is_common, :is_rare, :is_wiki_generated,
-                :is_map_visible, :source_script)""",
+                :is_map_visible, :source_script)
+               ON CONFLICT DO NOTHING""",
             rows_to_insert,
         )
         conn.commit()

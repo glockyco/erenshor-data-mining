@@ -1771,7 +1771,7 @@ class ProvenanceBuilder:
                     self._insert(f"item_{family}_locations", {"owner_key": owner, **location_data})
                 for evidence in fact.evidence:
                     self.connection.execute(
-                        "INSERT OR IGNORE INTO item_provenance_evidence VALUES (?,?,?)",
+                        "INSERT INTO item_provenance_evidence VALUES (?,?,?) ON CONFLICT DO NOTHING",
                         (owner, evidence.input_relation, evidence.input_primary_key),
                     )
 
