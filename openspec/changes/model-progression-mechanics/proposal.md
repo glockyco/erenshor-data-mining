@@ -21,7 +21,7 @@ The overrides approximate these mechanisms. They gate the Jaws entrance instead 
 - Travel: zone lines, teleport items, and scene switches by spell become one set of travel facts with their conditions.
 - World state: each scene's weather limits and the spells that change the weather become facts, and a gate can need a world state.
 - Item actions preserve their class restrictions and record spell learning levels as need attributes, so a teaching scroll is not an unrestricted substitute for a click effect.
-- Faction standing: the rules by which a world faction's standing blocks an NPC's dialog become code facts, and a gate can need a standing with a faction.
+- Faction standing: the rules by which a world faction's standing blocks an NPC's dialog become code facts, and a dialog can need a standing with a faction.
 - Hand-coded literals, such as `"STANDANGEL"`, `"JAWSSEEN"`, and spell names, come from code facts that extract them, so a changed literal fails the run instead of drifting.
 - The rule-specific branches of `gates.py` that these rules cover go, with their literal quest keys.
 - Way ranks: each way keeps the tier and depth that the build already computes and the clean facts that produced it, so that a consumer choosing among ways it cannot use yet follows the build's order and never loops.

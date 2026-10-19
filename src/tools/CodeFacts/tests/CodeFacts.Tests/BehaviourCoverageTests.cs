@@ -58,6 +58,7 @@ public sealed class BehaviourCoverageTests
                 "GameData.FinishQuest",
                 "GameData.HasQuest",
                 "GameData.IsQuestDone",
+                "GlobalFactionManager.ModifyFaction",
                 "Inventory.HasCosmetic",
                 "Inventory.HasItem",
                 "NPCFaction.Value",

@@ -39,6 +39,7 @@ internal static class BehaviourCoverage
         ["SceneChange.ChangeSceneSafe"] = true,
         ["GameData.FinishQuest"] = true,
         ["GameData.AssignQuest"] = true,
+        ["GlobalFactionManager.ModifyFaction"] = true,
         ["Character.Invulnerable"] = true,
         ["AtmosphereColors.WeightGoal"] = true,
         ["AtmosphereColors.SinceRain"] = true,

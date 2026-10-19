@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import defaultdict, deque
 
+from erenshor.application.progression_wording import standing_text
 from erenshor.domain.value_objects.progression import (
     PROGRESSION_SCHEMA_VERSION,
     ProgressionNeed,
@@ -41,7 +42,7 @@ class ProgressionRepository:
             with self.db.connect() as connection:
                 names = {
                     row[0]: row[1]
-                    for table in ("zones", "quests", "items", "characters", "spells")
+                    for table in ("zones", "quests", "items", "characters", "spells", "factions")
                     for row in connection.execute(f"SELECT stable_key, display_name FROM {table}")
                 }
                 names.update(
@@ -58,6 +59,8 @@ class ProgressionRepository:
                     elif key.startswith("world_state:weather:raining:"):
                         zone = key.removeprefix("world_state:weather:raining:")
                         name = "Rain in " + (names.get(zone) or zone)
+                    elif row["kind"] == "faction_standing":
+                        name = standing_text(key, names)
                     elif key == "mechanic:new_character_start":
                         name = "New character start"
                     elif key == "mechanic:alternate_start":

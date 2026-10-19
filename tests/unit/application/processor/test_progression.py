@@ -55,6 +55,7 @@ def conn() -> Iterator[sqlite3.Connection]:
             can_be_damaged=1,
             invulnerable=0,
             level_scales_with_player=0,
+            my_faction="Villager",
         )
         insert(
             connection,
@@ -84,6 +85,37 @@ def conn() -> Iterator[sqlite3.Connection]:
     insert(
         connection, "code_facts", fact_id="progression.item_action_guards", key="ok", value="true", value_type="bool"
     )
+    # Dialog standing rules, with a charm that sets School to 10 with the Pin and to -10 otherwise.
+    for fact in ("faction.hail_silence", "faction.aggro_standing", "faction.aggression_lifted"):
+        insert(connection, "code_facts", fact_id=fact, key="value", value="0", value_type="text")
+    for fact in (
+        "faction.hail_busy",
+        "faction.keyword_busy",
+        "faction.generic_world_faction",
+        "faction.generic_world_factions",
+        "faction.quest_hits_once",
+        "faction.kill_hits",
+    ):
+        insert(connection, "code_facts", fact_id=fact, key="ok", value="true", value_type="bool")
+    for key, value in (("literal", "Pin"), ("argument", "School"), ("when_equal", "10"), ("otherwise", "-10")):
+        insert(connection, "code_facts", fact_id="faction.charm_override", key=key, value=value, value_type="text")
+    for key, refname, resource, default in (
+        ("faction:school", "School", "School", 0.0),
+        ("faction:good", "GOOD", "Generic Good", 400.0),
+        ("faction:evil", "EVIL", "Generic Evil", -300.0),
+        ("faction:guild", "Guild", "Guild", -20.0),
+    ):
+        insert(
+            connection,
+            "factions",
+            stable_key=key,
+            display_name=key,
+            image_name=key,
+            refname=refname,
+            resource_name=resource,
+            default_value=default,
+        )
+    connection.execute("UPDATE items SET item_name='Pin' WHERE stable_key='item:key'")
     insert(connection, "code_facts_meta", game_build_id="123")
     insert(connection, "quest_variants", resource_name="Resource", quest_stable_key="quest:q")
     insert(
@@ -119,7 +151,19 @@ def acquisition(conn: sqlite3.Connection, kind: str, source: str | None = None, 
     }
     if kind in {"character_drop", "vendor", "dialog"}:
         values["source_copy_stable_key"] = source or "character:copy"
-    insert(conn, "item_acquisitions", **(values | changes))
+    if kind == "dialog":
+        values["variant_key"] = "0"
+    row = values | changes
+    if kind == "dialog":
+        # A gift is keyed by the index of the dialog that gives it.
+        insert(
+            conn,
+            "character_dialogs",
+            character_stable_key=row["source_copy_stable_key"],
+            dialog_index=int(str(row["variant_key"])),
+            give_item_stable_key=row["item_stable_key"],
+        )
+    insert(conn, "item_acquisitions", **row)
 
 
 def condition(conn: sqlite3.Connection, predicate: str, reference: str | None = None, **changes: object) -> None:
@@ -1238,3 +1282,101 @@ def test_a_zone_wide_candidate_needs_its_cosmetic_and_a_scene_with_a_spawn_point
     assert list(builder(conn).ways["character:spectre"].values()) == [
         canonical_way((Need("equipped", "item:key"), Need("in zone", "zone:end")))
     ]
+
+
+def test_a_keyword_to_a_faction_at_or_below_zero_needs_a_positive_standing(conn):
+    # The charm slot holds no Pin at the start, so School starts at the charm's other value.
+    conn.execute("UPDATE items SET required_slot='Charm' WHERE stable_key='item:key'")
+    conn.execute("UPDATE characters SET my_world_faction_stable_key='faction:school' WHERE stable_key='character:copy'")
+    route(conn, "talk", "character", "character:copy", keywords="secret")
+    graph = builder(conn)
+    standing = Need("standing", "faction_standing:school:positive")
+    assert standing in needs(graph, "quest:q")
+    assert list(graph.ways["faction_standing:school:positive"].values()) == [(Need("equipped", "item:key"),)]
+
+
+@pytest.mark.parametrize(("native", "standing"), [("OtherEvil", "faction_standing:evil:positive"), ("Villager", None)])
+def test_a_character_without_a_world_faction_takes_the_generic_one(conn, native, standing):
+    conn.execute("UPDATE characters SET my_faction=? WHERE stable_key='character:copy'", (native,))
+    route(conn, "talk", "character", "character:copy", keywords="secret")
+    graph = builder(conn)
+    found = {need.need_stable_key for need in needs(graph, "quest:q") if need.relation == "standing"}
+    assert found == ({standing} if standing else set())
+    if standing:
+        assert not graph.ways.get(standing)
+
+
+@pytest.mark.parametrize(
+    ("keywords", "hostile", "standing"),
+    [
+        ("secret", None, None),
+        (None, None, "faction_standing:guild:non_negative"),
+        # A character hostile towards the player by nature stays so until its standing is positive.
+        (None, "PC, Player", "faction_standing:guild:positive"),
+    ],
+)
+def test_a_character_that_never_aggroes_needs_a_standing_only_for_a_hail(conn, keywords, hostile, standing):
+    conn.execute(
+        "UPDATE characters SET my_world_faction_stable_key='faction:guild', never_aggro=1, aggressive_towards=?"
+        " WHERE stable_key='character:copy'",
+        (hostile,),
+    )
+    route(conn, "talk", "character", "character:copy", keywords=keywords)
+    found = {need.need_stable_key for need in needs(builder(conn), "quest:q") if need.relation == "standing"}
+    assert found == ({standing} if standing else set())
+
+
+def guild_quests(conn: sqlite3.Connection, *changes: tuple[str, str, int, int]) -> None:
+    """Give quest variants a standing change with the guild."""
+    for resource, quest, repeatable, value in changes:
+        if resource != "Resource":
+            insert(conn, "quest_variants", resource_name=resource, quest_stable_key=quest, repeatable=repeatable)
+        insert(
+            conn,
+            "quest_faction_affects",
+            quest_variant_resource_name=resource,
+            faction_stable_key="faction:guild",
+            modifier_value=value,
+        )
+
+
+def test_a_standing_comes_from_quests_that_lift_it_together_and_from_kills(conn):
+    conn.execute("UPDATE characters SET my_world_faction_stable_key='faction:guild' WHERE stable_key='character:copy'")
+    route(conn, "talk", "character", "character:copy", keywords="secret")
+    # The guild starts at -20, and a quest changes it only once even when the quest repeats.
+    guild_quests(conn, ("Resource", "quest:q", 0, 10), ("Lift", "quest:other", 0, 30), ("Again", "quest:gate", 1, 15))
+    insert(
+        conn,
+        "character_faction_modifiers",
+        character_stable_key="character:other",
+        faction_stable_key="faction:guild",
+        modifier_value=2,
+    )
+    graph = builder(conn)
+    assert set(graph.ways["faction_standing:guild:positive"].values()) == {
+        canonical_way((Need("quest done", "quest:other"),)),
+        canonical_way((Need("quest done", "quest:q"), Need("quest done", "quest:gate"))),
+        *graph.kill_needs("character:other"),
+    }
+
+
+def test_a_standing_fails_when_the_variants_of_a_quest_change_it_differently(conn):
+    conn.execute("UPDATE characters SET my_world_faction_stable_key='faction:guild' WHERE stable_key='character:copy'")
+    route(conn, "talk", "character", "character:copy", keywords="secret")
+    # FinishQuest applies the changes of whichever variant QuestDB finds first by name.
+    guild_quests(conn, ("Resource", "quest:q", 0, 30), ("Other", "quest:q", 0, 5))
+    with pytest.raises(ValueError, match="variants change faction:guild differently"):
+        builder(conn)
+
+
+@pytest.mark.parametrize(("never_aggro", "standing", "lifted"), [(0, "positive", False), (1, "non_negative", True)])
+def test_a_quest_that_lifts_a_standing_to_zero_reaches_only_a_non_negative_bound(conn, never_aggro, standing, lifted):
+    conn.execute(
+        "UPDATE characters SET my_world_faction_stable_key='faction:guild', never_aggro=?"
+        " WHERE stable_key='character:copy'",
+        (never_aggro,),
+    )
+    route(conn, "talk", "character", "character:copy", keywords=None)
+    guild_quests(conn, ("Lift", "quest:other", 0, 20))
+    ways = builder(conn).ways[f"faction_standing:guild:{standing}"]
+    assert list(ways.values()) == ([canonical_way((Need("quest done", "quest:other"),))] if lifted else [])

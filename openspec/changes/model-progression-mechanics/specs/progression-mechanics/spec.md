@@ -158,9 +158,9 @@ A teaching way SHALL need an allowed learner class through a class node and SHAL
 - **AND** Tempestalia, Ring of Storms remains usable by every playable class
 
 
-### Requirement: Gates can need a faction standing
+### Requirement: Dialogs can need a faction standing
 
-The clean database SHALL record the rules by which a world faction's standing blocks an NPC's dialog, and a gate SHALL be able to need a standing with a faction. A dialog route or relation with an NPC SHALL need the standing that those rules require, and the standing SHALL need a recorded source that produces it.
+The clean database SHALL record the rules by which a world faction's standing blocks an NPC's dialog, and a progression way SHALL be able to need a standing with a faction. A dialog route, gift, or summon with an NPC SHALL need the standing that those rules require. The ways to a standing SHALL be its recorded sources: the kills that raise it, the smallest sets of quests whose first completions together lift it from its default, and for The Ancients the equipped Pupil's Pin.
 
 #### Scenario: The Loss Stone
 
@@ -170,7 +170,12 @@ The clean database SHALL record the rules by which a world faction's standing bl
 #### Scenario: A faction that starts below zero
 
 - **WHEN** an NPC's faction starts below zero and the rules block its dialog
-- **THEN** its dialog routes need a standing that a recorded quest or kill raises
+- **THEN** its dialog routes need a standing that has a way only through recorded quests or kills that raise it
+
+#### Scenario: A repeated quest
+
+- **WHEN** a repeatable quest raises a faction
+- **THEN** it counts once toward the standing, because finishing a completed quest changes no standing
 
 ### Requirement: Consumers add no gates of their own
 

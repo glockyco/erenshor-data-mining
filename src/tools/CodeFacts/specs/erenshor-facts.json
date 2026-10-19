@@ -3738,6 +3738,133 @@
         "kind": "IfElseStatement",
         "shape": "if (Myself == null) { Myself = GetComponent<Character> (); }"
       }
+    },
+    {
+      "id": "faction.hail_silence",
+      "mode": "extract",
+      "type": "NPCDialogManager",
+      "method": "GenericHail",
+      "matcher": "float_expression",
+      "args": {
+        "left": "thisNPC.GetChar ().MyWorldFaction.FactionValue",
+        "operator": "<"
+      },
+      "keys": ["value"],
+      "note": "A hail gets \"...\" below this standing. processor/progression.py needs it for a hail with no keyword."
+    },
+    {
+      "id": "faction.hail_busy",
+      "mode": "assert",
+      "type": "NPCDialogManager",
+      "method": "GenericHail",
+      "matcher": "branch_shape",
+      "args": {
+        "condition": "thisNPC.CurrentAggroTarget == null",
+        "branch": "false",
+        "shape": "{ returnDel = 20f; ReturnString = \"I'm busy right now...\"; }"
+      },
+      "note": "An NPC that is fighting answers no hail."
+    },
+    {
+      "id": "faction.keyword_busy",
+      "mode": "assert",
+      "type": "NPCDialogManager",
+      "method": "ParseText",
+      "matcher": "branch_shape",
+      "args": {
+        "condition": "thisNPC.CurrentAggroTarget == null",
+        "branch": "false",
+        "shape": "{ returnDel = 20f; ReturnString = \"I'm busy right now...\"; }"
+      },
+      "note": "An NPC that is fighting answers no keyword, whatever the standing."
+    },
+    {
+      "id": "faction.aggro_standing",
+      "mode": "extract",
+      "type": "NPCAggroArea",
+      "method": "OnTriggerEnter",
+      "matcher": "float_expression",
+      "args": {
+        "left": "Myself.MyWorldFaction.FactionValue",
+        "operator": "<="
+      },
+      "keys": ["value"],
+      "note": "An NPC at or below this standing turns on a player who comes near."
+    },
+    {
+      "id": "faction.aggression_lifted",
+      "mode": "extract",
+      "type": "NPC",
+      "method": "BehaviorUpdate",
+      "matcher": "float_expression",
+      "args": {
+        "left": "Myself.MyWorldFaction.FactionValue",
+        "operator": ">"
+      },
+      "keys": ["value"],
+      "note": "Above this standing an NPC drops its hostility towards the player, so a positive standing also opens a natively hostile NPC."
+    },
+    {
+      "id": "faction.charm_override",
+      "mode": "extract",
+      "type": "Inventory",
+      "method": "UpdateInvStats",
+      "matcher": "equality_branch_assignments",
+      "args": {
+        "left": "CharmSlot.MyItem.ItemName",
+        "invocation": "GlobalFactionManager.FindFactionData",
+        "member": "Value"
+      },
+      "keys": ["literal", "argument", "when_equal", "otherwise"],
+      "note": "The charm slot sets one faction's standing outright: the Pupil's Pin for The Ancients."
+    },
+    {
+      "id": "faction.generic_world_faction",
+      "mode": "assert",
+      "type": "Character",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (MyWorldFaction == null && MyFaction != Faction.PC && MyFaction != Faction.Player) { LoadGenericWorldFaction (); }"
+      },
+      "note": "A character without a world faction takes a generic one when it starts."
+    },
+    {
+      "id": "faction.generic_world_factions",
+      "mode": "assert",
+      "type": "Character",
+      "method": "LoadGenericWorldFaction",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (MyFaction == Faction.GoodHuman || MyFaction == Faction.GoodGuard || MyFaction == Faction.OtherGood || MyFaction == Faction.PreyAnimal || MyFaction == Faction.Villager || MyFaction == Faction.Unseen || MyFaction == Faction.DEBUG) { MyWorldFaction = Resources.Load (\"Factions/Generic Good\") as WorldFaction; } else { MyWorldFaction = Resources.Load (\"Factions/Generic Evil\") as WorldFaction; }"
+      },
+      "note": "The good native factions take Generic Good and all others Generic Evil. processor/progression.py lists the good ones."
+    },
+    {
+      "id": "faction.quest_hits_once",
+      "mode": "assert",
+      "type": "GameData",
+      "method": "FinishQuest",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (_questName == null || !(_questName != \"\") || CompletedQuests.Contains (_questName)) { return; }"
+      },
+      "note": "A quest changes standings only at its first completion, because finishing a completed quest returns before its faction changes."
+    },
+    {
+      "id": "faction.kill_hits",
+      "mode": "assert",
+      "type": "Character",
+      "method": "DoDeath",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (factionMods.Length != 0) { if (MyNPC.CurrentAggroTarget == GameData.PlayerControl || damagedByPlayerEver) { affectPlayer = true; } if (affectPlayer) { ModifyFaction[] array = factionMods; for (int i = 0; i < array.Length; i++) { array [i].SubmitForModification (); } } }"
+      },
+      "note": "Every death of a character that the player fought or damaged applies its faction changes."
     }
   ]
 }

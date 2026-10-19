@@ -46,6 +46,11 @@ internal static class Runner
                     "node_shape" => Matchers.NodeShape(scope, fact),
                     "foreach_source" => Matchers.ForeachSource(scope, fact),
                     "int_expression" => Matchers.IntExpression(scope, fact),
+                    "float_expression" => Matchers.FloatExpression(scope, fact),
+                    "equality_branch_assignments" => Matchers.EqualityBranchAssignments(
+                        scope,
+                        fact
+                    ),
                     "branch_shape" => Matchers.BranchShape(scope, fact),
                     "nested_branch_split" => Matchers.NestedBranchSplit(scope, fact),
                     "switch_item_grant" => Matchers.SwitchItemGrant(scope, fact),
@@ -778,7 +783,40 @@ internal static class Matchers
     /// Extract the integer right operand of one binary expression, matching its
     /// left operand and operator exactly. Unlike int_comparisons this preserves
     /// the distinction between a cap and a relative level-window offset.
-    public static Dictionary<string, string> IntExpression(EntityDeclaration scope, FactSpec fact)
+    public static Dictionary<string, string> IntExpression(
+        EntityDeclaration scope,
+        FactSpec fact
+    ) =>
+        LiteralOperand(
+            scope,
+            fact,
+            "int_expression",
+            value => value is int ? Convert.ToString(value, CultureInfo.InvariantCulture) : null
+        );
+
+    /// Extract the float right operand of one binary expression, matching its
+    /// left operand and operator exactly, such as the standing that a rule
+    /// compares a faction value with.
+    public static Dictionary<string, string> FloatExpression(
+        EntityDeclaration scope,
+        FactSpec fact
+    ) =>
+        LiteralOperand(
+            scope,
+            fact,
+            "float_expression",
+            value =>
+                value is float or double
+                    ? Convert.ToString(value, CultureInfo.InvariantCulture)
+                    : null
+        );
+
+    private static Dictionary<string, string> LiteralOperand(
+        EntityDeclaration scope,
+        FactSpec fact,
+        string matcher,
+        Func<object?, string?> literal
+    )
     {
         AstNode search = scope;
         if (fact.Args.TryGetValue("within_draw", out string? identifier))
@@ -789,7 +827,7 @@ internal static class Matchers
                 .ToList();
             if (draws.Count != 1)
                 throw new InvalidDataException(
-                    $"int_expression draw bound {draws.Count} times (need exactly 1)"
+                    $"{matcher} draw bound {draws.Count} times (need exactly 1)"
                 );
             search = draws[0];
         }
@@ -798,7 +836,8 @@ internal static class Matchers
             .Where(node =>
                 Normalize(node.Left!.ToString()) == Normalize(fact.Args["left"])
                 && OpName(node.Operator) == fact.Args["operator"]
-                && node.Right is PrimitiveExpression { Value: int }
+                && node.Right is PrimitiveExpression primitive
+                && literal(primitive.Value) is not null
             )
             .Where(node =>
                 !fact.Args.ContainsKey("top_level")
@@ -808,14 +847,94 @@ internal static class Matchers
                     && guard.Parent == method.Body
                 )
             )
-            .Select(node => ((PrimitiveExpression)node.Right!).Value.ToString()!)
+            .Select(node => literal(((PrimitiveExpression)node.Right!).Value)!)
             .Distinct()
             .ToList();
         if (matches.Count != 1)
             throw new InvalidDataException(
-                $"int_expression bound {matches.Count} times (need exactly 1)"
+                $"{matcher} bound {matches.Count} times (need exactly 1)"
             );
         return new() { ["value"] = matches[0] };
+    }
+
+    /// Extract one `left == "literal"` guard whose true and false branches each
+    /// assign one float literal to the same member of one call with a string
+    /// literal argument, such as an equipped item that overrides a standing.
+    /// Emits `literal`, `argument`, `when_equal`, and `otherwise`.
+    public static Dictionary<string, string> EqualityBranchAssignments(
+        EntityDeclaration scope,
+        FactSpec fact
+    )
+    {
+        string left = Normalize(fact.Args["left"]);
+        var guards = scope
+            .Descendants.OfType<IfElseStatement>()
+            .Where(node =>
+                node.Condition
+                    is BinaryOperatorExpression
+                    {
+                        Operator: BinaryOperatorType.Equality,
+                        Right: PrimitiveExpression { Value: string },
+                    } condition
+                && Normalize(condition.Left!.ToString()) == left
+            )
+            .ToList();
+        if (guards.Count != 1)
+            throw new InvalidDataException(
+                $"equality_branch_assignments guard bound {guards.Count} times (need exactly 1)"
+            );
+        var (argument, whenEqual) = BranchAssignment(guards[0].TrueStatement, fact);
+        var (other, otherwise) = BranchAssignment(guards[0].FalseStatement, fact);
+        if (argument != other)
+            throw new InvalidDataException(
+                $"equality_branch_assignments branches assign '{argument}' and '{other}'"
+            );
+        var guarded = (PrimitiveExpression)((BinaryOperatorExpression)guards[0].Condition).Right!;
+        return new()
+        {
+            ["literal"] = (string)guarded.Value!,
+            ["argument"] = argument,
+            ["when_equal"] = whenEqual,
+            ["otherwise"] = otherwise,
+        };
+    }
+
+    private static (string Argument, string Value) BranchAssignment(
+        Statement? branch,
+        FactSpec fact
+    )
+    {
+        var statements = branch switch
+        {
+            BlockStatement block => block.Statements.ToList(),
+            null => new List<Statement>(),
+            _ => new List<Statement> { branch },
+        };
+        if (
+            statements.Count != 1
+            || statements[0]
+                is not ExpressionStatement
+                {
+                    Expression: AssignmentExpression
+                    {
+                        Operator: AssignmentOperatorType.Assign,
+                        Left: MemberReferenceExpression
+                        {
+                            Target: InvocationExpression call
+                        } member,
+                    } assignment,
+                }
+            || member.MemberName != fact.Args["member"]
+            || Normalize(call.Target.ToString()) != Normalize(fact.Args["invocation"])
+            || call.Arguments.Count != 1
+            || call.Arguments.First() is not PrimitiveExpression { Value: string argument }
+            || assignment.Right is not PrimitiveExpression { Value: float or double }
+            || FloatLiteralOf(assignment.Right) is not string value
+        )
+            throw new InvalidDataException(
+                $"equality_branch_assignments needs one call-member assignment per branch: {branch}"
+            );
+        return (argument, value);
     }
 
     /// <summary>Assert that exactly one foreach loop iterates the named source.</summary>

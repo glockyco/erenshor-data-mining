@@ -54,6 +54,12 @@ public class NPCFaction
     public float Value;
 }
 
+public static class GlobalFactionManager
+{
+    public static void ModifyFaction(float modifier, string faction) =>
+        System.Console.WriteLine(faction);
+}
+
 namespace BehaviourFixtures
 {
     public class AllApis
@@ -70,6 +76,7 @@ namespace BehaviourFixtures
         {
             global::GameData.FinishQuest("done");
             global::GameData.AssignQuest("new");
+            global::GlobalFactionManager.ModifyFaction(1f, "faction");
             character.Invulnerable = false;
             weather.WeightGoal += 1;
             weather.SinceRain--;

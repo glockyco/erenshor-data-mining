@@ -24,6 +24,8 @@ WORDING = {
     "account_state:reliquary_claimed:true": "Reliquary claimed by this account",
     "world_state:weather:raining:": "Rain in {name}",
     "weather:natural_rain": "Wait for natural rain",
+    "faction_standing:positive": "Positive standing with {name}",
+    "faction_standing:non_negative": "Standing of zero or more with {name}",
 }
 
 
@@ -46,6 +48,16 @@ def condition_text(key: str) -> str:
     raise ProgressionWordingError(f"Cannot word progression condition: {key!r}")
 
 
+def standing_text(key: str, names: Mapping[str, str]) -> str:
+    """Word a faction standing by the name of its faction."""
+    faction, _, required = key.removeprefix("faction_standing:").rpartition(":")
+    template = WORDING.get("faction_standing:" + required)
+    name = names.get("faction:" + faction)
+    if template is None or not name:
+        raise ProgressionWordingError(f"Cannot word progression faction standing: {key!r}")
+    return template.format(name=name)
+
+
 def node_text(node: ProgressionNode, names: Mapping[str, str]) -> str:
     """Word a noncatalog node without substituting a raw stable key."""
     key = node.stable_key
@@ -57,6 +69,8 @@ def node_text(node: ProgressionNode, names: Mapping[str, str]) -> str:
         zone = key.removeprefix("world_state:weather:raining:")
         if zone in names:
             return WORDING["world_state:weather:raining:"].format(name=names[zone])
+    if node.kind == "faction_standing":
+        return standing_text(key, names)
     if node.kind == "mechanism" and key.startswith("ui:"):
         parts = key.rsplit(":", 2)
         wording_key = "ui:" + parts[-2] if len(parts) == 3 else key

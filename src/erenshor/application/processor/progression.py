@@ -6,6 +6,7 @@ import hashlib
 import json
 import sqlite3
 from collections import Counter, defaultdict
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, replace
 from time import perf_counter
 from typing import Any
@@ -128,8 +129,13 @@ _GATE_RELATIONS = frozenset(
         "state",
         "summoned with",
         "release",
+        "standing",
     }
 )
+# code-fact: faction.generic_world_factions
+# A character without a world faction takes Generic Good when its native
+# faction is one of these, and Generic Evil otherwise.
+_GENERIC_GOOD_FACTIONS = frozenset({"GoodHuman", "GoodGuard", "OtherGood", "PreyAnimal", "Villager", "Unseen", "DEBUG"})
 
 
 def _json(value: object) -> str:
@@ -150,6 +156,18 @@ class Need:
 
 
 Way = tuple[Need, ...]
+
+
+@dataclass(frozen=True)
+class _Standings:
+    """The world factions and the standing a new character starts with in each (design D11)."""
+
+    starts: dict[str, float]
+    generic: dict[bool, str]
+    # The faction that the charm slot sets outright, the item that raises it, and the standing it gives.
+    override: str
+    override_item: str
+    override_worn: float
 
 
 def canonical_way(needs: tuple[Need, ...] | list[Need]) -> Way:
@@ -226,6 +244,11 @@ class ProgressionBuilder:
         self.locations = self.index("item_acquisition_locations", "owner_key")
         self.route_conditions = self.index("quest_route_conditions", "route_key")
         self.kill_cache: dict[str, list[Way]] = {}
+        self._standings: _Standings | None = None
+        self.dialog_keywords = {
+            (row["character_stable_key"], row["dialog_index"]): row["keywords"]
+            for row in self.rows("character_dialogs")
+        }
 
     def rows(self, table: str) -> list[dict[str, Any]]:
         if table not in self.tables:
@@ -649,6 +672,7 @@ class ProgressionBuilder:
             elif row["summon"] == "dialog":
                 for dialog in dialogs.get((summoner, character), ()):
                     needs = [Need("talk to", summoner, keywords=dialog["keywords"])]
+                    needs.extend(self.dialog_standing(summoner, dialog["keywords"]))
                     if dialog["required_quest_stable_key"]:
                         needs.append(Need("quest done", dialog["required_quest_stable_key"]))
                     ways.append(canonical_way(needs))
@@ -707,14 +731,13 @@ class ProgressionBuilder:
 
     def build_zone_wide_spawns(self) -> None:
         """A zone-wide rule spawns one of its candidates when the player enters one of its scenes."""
-        items = {row["stable_key"]: row for row in self.rows("items")}
         candidates = self.index("zone_wide_spawn_candidates", "rule_id")
         scenes = self.index("zone_wide_spawn_zones", "rule_id")
         for rule in self.rows("zone_wide_spawn_rules"):
             fact = f"zone_wide_spawn_rules {rule['rule_id']}"
             # code-fact: spectres.cosmetic_slots
             # The rule spawns only while its item is in a cosmetic slot.
-            equipped = self.item_action(items[rule["required_cosmetic_item_stable_key"]], "equipped")
+            equipped = self.item_action(self.item(rule["required_cosmetic_item_stable_key"]), "equipped")
             # code-fact: spectres.spawn_point_registration
             # A scene needs an enabled spawn point to place the candidate at.
             zones = [row["zone_stable_key"] for row in scenes[rule["rule_id"]] if row["enabled_spawn_point_count"]]
@@ -761,6 +784,12 @@ class ProgressionBuilder:
                     raise _error(node, fact, f"need resolves to no source copy: {source}")
                 releases = self.kill_needs(source) if kind == "character_drop" else [()]
                 bases = [canonical_way((Need(relation, source), *release)) for release in releases]
+                if kind == "dialog":
+                    # The producer keys a gift by the index of its dialog, whose keywords the player says.
+                    dialog = (source, int(acquisition["variant_key"]))
+                    if dialog not in self.dialog_keywords:
+                        raise _error(node, fact, f"dialog gift without its dialog: {dialog}")
+                    bases = [(*base, *self.dialog_standing(source, self.dialog_keywords[dialog])) for base in bases]
             elif kind in {"mining", "fishing", "fishing_bonus", "item_bag"}:
                 for location in locations:
                     zone = location["zone_stable_key"]
@@ -815,6 +844,8 @@ class ProgressionBuilder:
                 if source not in self.kinds or self.kinds[source] != kind:
                     raise _error(node, fact, f"need resolves to no {kind} node: {source}")
                 base = [Need(relation, source, keywords=route["keywords"])]
+                if method in {"dialog", "talk"}:
+                    base.extend(self.dialog_standing(source, route["keywords"]))
             if phase == "completion" and quest in started:
                 base.append(Need("started", "quest_start:" + quest))
             if method == "item_turnin":
@@ -875,6 +906,172 @@ class ProgressionBuilder:
         if allowed == playable:
             return [canonical_way(base)]
         return [canonical_way((*base, Need("class", key))) for key in sorted(allowed)]
+
+    def code_fact(self, fact_id: str, key: str) -> str:
+        """The one value that a code fact extracted under a key."""
+        values = [row["value"] for row in self.rows("code_facts") if row["fact_id"] == fact_id and row["key"] == key]
+        if len(values) != 1:
+            raise _error(fact_id, "code_facts", f"expected one {key!r} value")
+        return str(values[0])
+
+    def standings(self) -> _Standings:
+        """The rules that decide whether a character talks, read on first use (design D11)."""
+        if self._standings is not None:
+            return self._standings
+        # code-fact: faction.hail_silence
+        # code-fact: faction.aggro_standing
+        # code-fact: faction.aggression_lifted
+        thresholds = {
+            fact: float(self.code_fact(fact, "value"))
+            for fact in ("faction.hail_silence", "faction.aggro_standing", "faction.aggression_lifted")
+        }
+        if any(value != 0 for value in thresholds.values()):
+            raise _error("faction standing", "code_facts", f"unsupported standing thresholds {thresholds}")
+        for fact in (
+            "faction.hail_busy",
+            "faction.keyword_busy",
+            "faction.generic_world_faction",
+            "faction.generic_world_factions",
+            "faction.quest_hits_once",
+            "faction.kill_hits",
+        ):
+            if self.code_fact(fact, "ok") != "true":
+                raise _error("faction standing", fact, "missing verified standing rule")
+        factions = self.rows("factions")
+        starts = {row["stable_key"]: float(row["default_value"]) for row in factions}
+        by_refname = {row["refname"]: row["stable_key"] for row in factions}
+        by_resource = {row["resource_name"]: row["stable_key"] for row in factions}
+        # code-fact: faction.generic_world_factions
+        if not {"Generic Good", "Generic Evil"} <= by_resource.keys():
+            raise _error("faction standing", "factions", "missing a generic world faction")
+        # code-fact: faction.charm_override
+        # The charm slot sets one faction outright on every inventory update, so an empty slot gives its start.
+        override = by_refname.get(self.code_fact("faction.charm_override", "argument"))
+        name = self.code_fact("faction.charm_override", "literal")
+        items = [row["stable_key"] for row in self.rows("items") if row["item_name"] == name]
+        if override is None or len(items) != 1:
+            raise _error("faction standing", "faction.charm_override", f"unmapped charm {name!r} or its faction")
+        starts[override] = float(self.code_fact("faction.charm_override", "otherwise"))
+        self._standings = _Standings(
+            starts=starts,
+            generic={True: by_resource["Generic Good"], False: by_resource["Generic Evil"]},
+            override=override,
+            override_item=items[0],
+            override_worn=float(self.code_fact("faction.charm_override", "when_equal")),
+        )
+        return self._standings
+
+    def world_faction(self, character: str) -> str | None:
+        """The world faction a character uses, with the generic one that fills in when it has none."""
+        row = self.characters[character]
+        if row["my_world_faction_stable_key"]:
+            return str(row["my_world_faction_stable_key"])
+        # code-fact: faction.generic_world_faction
+        if row["my_faction"] in {"PC", "Player"}:
+            return None
+        return self.standings().generic[row["my_faction"] in _GENERIC_GOOD_FACTIONS]
+
+    def dialog_standing(self, character: str, keywords: str | None) -> list[Need]:
+        """The standing that a hail or a keyword to a character needs (design D11).
+
+        A fighting character answers neither. A character that can aggro turns
+        on the player at a standing of zero or less, and one that is hostile by
+        nature stays so until its standing is positive, so it talks only with a
+        positive standing. A character that never aggroes answers any keyword,
+        and a hail at a standing of zero or more, or a positive one while it is
+        hostile towards the player by nature. The graph has no player levels or
+        invisibility, so it ignores that a character leaves alone a player that
+        it cannot see or that is more than five levels above it.
+        """
+        # code-fact: faction.hail_busy
+        # code-fact: faction.keyword_busy
+        faction = self.world_faction(character)
+        if faction is None:
+            return []
+        row = self.characters[character]
+        if not row["never_aggro"]:
+            required = "positive"
+        elif keywords:
+            return []
+        else:
+            hostile = "Player" in {name.strip() for name in (row["aggressive_towards"] or "").split(",")}
+            required = "positive" if hostile else "non_negative"
+        start = self.standings().starts[faction]
+        if start > 0 or (required == "non_negative" and start == 0):
+            return []
+        return [Need("standing", self.standing(faction, required))]
+
+    def standing(self, faction: str, required: str) -> str:
+        """The node of a required standing, with the ways that reach it from the start."""
+        key = f"faction_standing:{faction.removeprefix('faction:')}:{required}"
+        if key in self.kinds:
+            return key
+        self.node(key, "faction_standing")
+        rules = self.standings()
+        fact = f"faction standing {faction}"
+
+        def reaches(value: float) -> bool:
+            return value > 0 or (required == "non_negative" and value == 0)
+
+        if faction == rules.override:
+            # The charm slot overwrites every other change, so only the charm moves it.
+            if reaches(rules.override_worn):
+                for way in self.item_action(self.item(rules.override_item), "equipped"):
+                    self.add(key, way, fact)
+            return key
+        start = rules.starts[faction]
+        # code-fact: faction.kill_hits
+        # Every death of a character that the player fought applies its faction changes. A kill comes back with
+        # the character, so one kill that raises the standing reaches any bound.
+        for row in self.rows("character_faction_modifiers"):
+            if row["faction_stable_key"] == faction and row["modifier_value"] > 0:
+                for way in self.kill_needs(row["character_stable_key"]):
+                    self.add(key, way, fact)
+        for quests in self.lifting_quests(key, faction, start, reaches):
+            self.add(key, [Need("quest done", quest) for quest in quests], fact)
+        return key
+
+    def lifting_quests(
+        self, key: str, faction: str, start: float, reaches: Callable[[float], bool]
+    ) -> list[tuple[str, ...]]:
+        """The smallest sets of quests whose standing changes together lift a faction from its start."""
+        # code-fact: faction.quest_hits_once
+        # A quest changes standings only at its first completion, so each quest counts once.
+        owners = {row["resource_name"]: row["quest_stable_key"] for row in self.rows("quest_variants")}
+        values: dict[str, dict[str, float]] = defaultdict(dict)
+        for row in self.rows("quest_faction_affects"):
+            if row["faction_stable_key"] == faction:
+                resource = row["quest_variant_resource_name"]
+                values[owners[resource]][resource] = row["modifier_value"]
+        raises: list[tuple[str, float]] = []
+        for quest, by_variant in sorted(values.items()):
+            # GameData.FinishQuest applies the changes of the first variant that QuestDB finds by name.
+            observed = {by_variant.get(resource, 0) for resource, owner in owners.items() if owner == quest}
+            if len(observed) != 1:
+                raise _error(key, quest, f"its variants change {faction} differently")
+            if (value := observed.pop()) > 0:
+                raises.append((quest, value))
+        # With the largest changes first, the first set on a path that reaches the bound is a smallest one.
+        raises.sort(key=lambda pair: -pair[1])
+        remaining = [sum(value for _, value in raises[index:]) for index in range(len(raises) + 1)]
+        found: list[tuple[str, ...]] = []
+
+        def extend(index: int, chosen: tuple[str, ...], total: float) -> None:
+            if reaches(total):
+                found.append(chosen)
+                if len(found) > EXPANSION_LIMIT:
+                    raise _error(key, "quest_faction_affects", f"standing expansion exceeds {EXPANSION_LIMIT} ways")
+                return
+            if not reaches(total + remaining[index]):
+                return
+            for position in range(index, len(raises)):
+                extend(position + 1, (*chosen, raises[position][0]), total + raises[position][1])
+
+        extend(0, (), start)
+        return found
+
+    def item(self, key: str) -> dict[str, Any]:
+        return next(row for row in self.rows("items") if row["stable_key"] == key)
 
     def build_weather(self) -> None:
         states = {row["stable_key"]: row for row in self.rows("world_states")}
@@ -991,7 +1188,9 @@ class ProgressionBuilder:
             if need.relation in _GATE_RELATIONS and self.kinds.get(need.need_stable_key or "") == "item"
         }
         for node, kind in self.kinds.items():
-            if kind in {"quest", "barrier", "world_state"} or (kind in {"zone", "character"} and node in gated):
+            if kind in {"quest", "barrier", "world_state", "faction_standing"} or (
+                kind in {"zone", "character"} and node in gated
+            ):
                 self.milestones.add(node)
             elif kind == "item":
                 ways = self.ways.get(node, {})

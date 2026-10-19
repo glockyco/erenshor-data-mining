@@ -97,7 +97,13 @@ def build_progression_data(
     }
     names = {key: str(entry["name"]) for key, entry in native_catalog.items() if entry.get("name")}
     for node in nodes:
-        if node.stable_key not in catalog and node.kind in {"mechanism", "barrier", "world_state", "account_state"}:
+        if node.stable_key not in catalog and node.kind in {
+            "mechanism",
+            "barrier",
+            "world_state",
+            "account_state",
+            "faction_standing",
+        }:
             try:
                 catalog[node.stable_key] = {"name": node_text(node, names)}
             except ProgressionWordingError as error:

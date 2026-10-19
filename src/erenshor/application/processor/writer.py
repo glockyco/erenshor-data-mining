@@ -1132,7 +1132,7 @@ CREATE TABLE progression_nodes (
     stable_key TEXT PRIMARY KEY NOT NULL,
     kind TEXT NOT NULL CHECK (kind IN (
         'zone', 'quest', 'quest_start', 'item', 'character', 'barrier',
-        'mechanism', 'class', 'spell', 'world_state', 'account_state'
+        'mechanism', 'class', 'spell', 'world_state', 'account_state', 'faction_standing'
     )),
     is_milestone INTEGER NOT NULL CHECK (is_milestone IN (0, 1)),
     tier INTEGER CHECK (tier >= 0),
