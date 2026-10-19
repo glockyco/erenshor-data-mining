@@ -8,7 +8,7 @@ comes from the exported mechanism of each object:
 - ``door``: the key opens the door (``Door.OpenOrShut``). A quest listener that
   removes the door is a second way through.
 - ``removed``: a quest listener or a classified script disables the object.
-- ``moved``: a classified script moves the object away (``ShiveringAngel``).
+- ``moved``: a classified script moves the object away (``ShiveringAngel``, ``AngelScript``).
 - ``guardians``: a trigger calls guardians unless a quest is done
   (``PietyTrigger``).
 
@@ -46,7 +46,7 @@ if TYPE_CHECKING:
     from .hierarchy import Activity, Groups
 
 KINDS = frozenset({"door", "removed", "moved", "guardians"})
-CHECKS = frozenset({"navmesh", "render", "unconfirmed"})
+CHECKS = frozenset({"navmesh", "physics", "render", "unconfirmed"})
 # Doors of one doorway stand this close together and share a key. The widest
 # pair, the Braxonian gate, stands 7.9 m apart.
 _DOUBLE_DOOR_DISTANCE = 8.0
