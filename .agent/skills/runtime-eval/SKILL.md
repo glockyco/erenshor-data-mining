@@ -133,3 +133,5 @@ type.GetMethod("ReloadPlugins", System.Reflection.BindingFlags.Instance | System
 HotRepl resets its evaluator after a ScriptEngine assembly loads. It drops stored variables and resolves the newest assembly. If cross-assembly errors persist after rapid reloads, run `uv run erenshor eval reset`. Check `BepInEx/LogOutput.log` for reload errors.
 
 Keep scene-creating loops short. `SpellVessel.ResolveSpell` can leave simulated particle systems behind. Stop between batches, check `eval ping`, and exit the game if it no longer responds.
+
+A spell resolves only on a target that can take damage (`SpellVessel.FixedUpdate`), so an invulnerable player cannot cast on itself. Clear `Character.Invulnerable` for the cast and restore it afterwards. Cast an item's click spell with `CastSpell.StartSpell(item.ItemEffectOnClick, target, item.SpellCastTime)`. A movement key interrupts the cast.
