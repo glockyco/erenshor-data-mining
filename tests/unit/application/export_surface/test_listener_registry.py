@@ -21,7 +21,6 @@ EXPECTED_KEYS = {
     "objecthierarchy",
     "gameconstants",
     "weathertrends",
-    "teleportlocs",
     "secretpassages",
     "wishingwells",
     "questactivations",

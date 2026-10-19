@@ -56,6 +56,7 @@ from .pictures import process_pictures
 from .progression import process_progression
 from .quest_routes import process_quest_routes
 from .special_world_drops import process_common_world_items, process_special_world_drops
+from .travel import process_travel
 from .treasure import process_treasure
 from .ui_items import process_ui_items
 from .weather import process_weather
@@ -180,6 +181,10 @@ def build(
 
         logger.info("Processing gates...")
         process_gates(raw, writer, barriers_path)
+
+        logger.info("Processing travel between zones...")
+        route_total = process_travel(writer)
+        logger.info(f"Travel routes: {route_total} rows")
 
         logger.info("Processing item mechanics...")
         process_item_mechanics(raw, writer)

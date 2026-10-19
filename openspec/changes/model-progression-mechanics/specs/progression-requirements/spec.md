@@ -28,3 +28,17 @@ The requirement graph SHALL NOT give an item a way through the Auction House, be
 
 - **WHEN** an item's only player acquisition is an Auction House listing
 - **THEN** the item has no way and no tier
+
+### Requirement: Travel routes give zones their ways
+
+A zone's ways SHALL come from the travel routes that lead to it: a zone line with its gates, and a spell that switches scenes, which needs the spell and, when it works in one zone only, that zone. A spell SHALL need the items that cast or teach it. A route to a saved place, such as a bind point, SHALL give no way. The requirement graph SHALL NOT give a way through being jailed, because a punishment is no plan.
+
+#### Scenario: The Dimensional Rift
+
+- **WHEN** reading the ways to Azynthi's Garden (Dimensional Rift)
+- **THEN** one way casts Dimensional Rift in Azynthi's Garden, and the spell needs the Azynthian Riftstone
+
+#### Scenario: Prison
+
+- **WHEN** reading the ways to Prison
+- **THEN** it has none, although the travel routes record the jailings that send a player there

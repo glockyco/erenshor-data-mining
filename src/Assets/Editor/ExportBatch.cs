@@ -38,7 +38,7 @@ using Debug = UnityEngine.Debug;
 /// characters, classes, classstartingitems, doors, forges, guildtopics,
 /// itembags, itemdrops, items, knowledgeentries, loottables, miningnodes,
 /// questactivations, planarbosses, planningtable, quests, secretpassages,
-/// skills, spells, spawnpoints, specialworlddrops, stances, teleportlocs,
+/// skills, spells, spawnpoints, specialworlddrops, stances,
 /// treasurehunting, treasurelocs, waters, wishingwells, worldfactions,
 /// zoneannounces, zoneatlasentries, zonelines
 ///
@@ -482,8 +482,6 @@ public static class ExportBatch
             SELECT StableKey, Scene, X, Y, Z, 'Door' AS Category FROM Doors
             UNION ALL
             SELECT StableKey, Scene, X, Y, Z, 'MiningNode' AS Category FROM MiningNodes
-            UNION ALL
-            SELECT StableKey, Scene, X, Y, Z, 'Teleport' AS Category FROM Teleports
             UNION ALL
             SELECT StableKey, Scene, X, Y, Z, 'ZoneLine' AS Category FROM ZoneLines
             UNION ALL

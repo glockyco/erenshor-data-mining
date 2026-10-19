@@ -283,18 +283,6 @@ public static class StableKeyGenerator
     }
 
     /// <summary>
-    /// Generate stable key for a teleport destination.
-    /// Format: "teleport:scene:x:y:z"
-    /// </summary>
-    public static string ForTeleport(string scene, float x, float y, float z)
-    {
-        if (string.IsNullOrEmpty(scene))
-            throw new ArgumentException("Scene cannot be null or empty", nameof(scene));
-
-        return $"teleport:{Normalize(scene)}:{FormatCoord(x)}:{FormatCoord(y)}:{FormatCoord(z)}";
-    }
-
-    /// <summary>
     /// Generate stable key for a zone line.
     /// Format: "zoneline:source_scene:dest_scene:x:y:z"
     /// </summary>

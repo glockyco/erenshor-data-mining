@@ -274,6 +274,46 @@
       }
     },
     {
+      "id": "travel.spell_scene_changes",
+      "mode": "extract",
+      "type": "SpellVessel",
+      "method": "DoMiscSpells",
+      "matcher": "scene_changes",
+      "args": {"invocation": "GameData.SceneChange.ChangeScene"}
+    },
+    {
+      "id": "travel.jail_obscenities",
+      "mode": "extract",
+      "type": "SimPlayerMngr",
+      "method": "GMWarningForObscenities",
+      "matcher": "scene_changes",
+      "args": {"invocation": "GameData.SceneChange.ChangeScene"}
+    },
+    {
+      "id": "travel.jail_off_navmesh",
+      "mode": "extract",
+      "type": "PlayerControl",
+      "method": "WarnOffNav",
+      "matcher": "scene_changes",
+      "args": {"invocation": "GameData.SceneChange.ChangeScene"}
+    },
+    {
+      "id": "travel.jail_blessing_altar",
+      "mode": "extract",
+      "type": "BlessingAltar",
+      "method": "SubmitBlessing",
+      "matcher": "scene_changes",
+      "args": {"invocation": "GameData.SceneChange.ChangeScene"}
+    },
+    {
+      "id": "travel.jail_release",
+      "mode": "extract",
+      "type": "JailTimer",
+      "method": "Update",
+      "matcher": "scene_changes",
+      "args": {"invocation": "GameData.SceneChange.ChangeScene"}
+    },
+    {
       "id": "progression.new_character_scene",
       "mode": "extract",
       "type": "CharSelectManager",

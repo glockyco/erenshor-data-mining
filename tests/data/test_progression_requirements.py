@@ -205,6 +205,25 @@ def test_both_twin_giants_must_die_to_open_the_cliffs_of_the_plane_of_elements(c
         }
 
 
+def test_the_dimensional_rift_is_cast_in_azynthis_garden_with_the_riftstone(clean: sqlite3.Connection) -> None:
+    ways = _ways(clean, "zone:azynthi")
+    assert [_pairs(needs) for needs in ways.values()] == [
+        {("cast", "spell:arc - dimensional rift"), ("in zone", "zone:azynthiclear")}
+    ]
+    assert [_pairs(needs) for needs in _ways(clean, "spell:arc - dimensional rift").values()] == [
+        {("casts", "item:gen - azynthian riftstone")}
+    ]
+    assert _node(clean, "zone:azynthi")["tier"] is not None
+
+
+def test_prison_has_no_way_although_its_jailings_are_recorded(clean: sqlite3.Connection) -> None:
+    assert _ways(clean, "zone:detention") == {}
+    jailings = clean.execute(
+        "SELECT count(*) FROM travel_routes WHERE mechanism = 'jail' AND to_zone_stable_key = 'zone:detention'"
+    ).fetchone()[0]
+    assert jailings == 3
+
+
 def test_eldrich_crystal_names_the_actual_keeper_copy_and_sanctuary(clean: sqlite3.Connection) -> None:
     drops = [
         needs

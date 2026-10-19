@@ -159,7 +159,6 @@ def process_world_tables(raw: sqlite3.Connection, writer: Writer) -> None:
     """Copy world placements and derive fishing outcomes from native pool slots."""
 
     simple_tables = [
-        ("SELECT * FROM Teleports", writer.insert_teleports, {"TeleportItemStableKey": "teleport_item_stable_key"}),
         ("SELECT * FROM WishingWells", writer.insert_wishing_wells, {}),
         (
             "SELECT * FROM AchievementTriggers",

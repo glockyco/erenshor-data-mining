@@ -71,6 +71,8 @@ CREATE TABLE weather_spell_effects (
     cloud_amount REAL NOT NULL
 );
 
+-- Teleport landings: one for each spell that sends the player to a fixed place
+-- from any zone, with the item that casts it (processor/travel.py).
 CREATE TABLE teleports (
     stable_key                  TEXT PRIMARY KEY NOT NULL,
     scene                       TEXT,
@@ -78,6 +80,27 @@ CREATE TABLE teleports (
     y                           REAL,
     z                           REAL,
     teleport_item_stable_key    TEXT
+);
+
+-- Each way that a player can take between zones (processor/travel.py). A zone
+-- line keeps its gates in gate_conditions, and a spell route needs its spell.
+-- A route without from_zone_stable_key works in any zone but
+-- except_zone_stable_key. A route without to_zone_stable_key returns to a saved
+-- place, such as a bind point, and a route without a landing lands where the
+-- player stands or at the saved place. A jail route is recorded with its note,
+-- and no consumer routes through it, because a punishment is no plan.
+CREATE TABLE travel_routes (
+    route_key               TEXT PRIMARY KEY NOT NULL,
+    mechanism               TEXT NOT NULL CHECK (mechanism IN ('zone_line', 'spell', 'jail')),
+    source_stable_key       TEXT NOT NULL,
+    from_zone_stable_key    TEXT REFERENCES zones (stable_key),
+    except_zone_stable_key  TEXT REFERENCES zones (stable_key),
+    to_zone_stable_key      TEXT REFERENCES zones (stable_key),
+    landing_x               REAL,
+    landing_y               REAL,
+    landing_z               REAL,
+    use_sun                 INTEGER CHECK (use_sun IN (0, 1)),
+    note                    TEXT
 );
 
 CREATE TABLE wishing_wells (
@@ -2123,6 +2146,9 @@ class Writer:
 
     def insert_teleports(self, rows: list[dict[str, object]]) -> int:
         return self._insert("teleports", rows)
+
+    def insert_travel_routes(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("travel_routes", rows)
 
     def insert_wishing_wells(self, rows: list[dict[str, object]]) -> int:
         return self._insert("wishing_wells", rows)

@@ -78,10 +78,8 @@
       "apis": [
         "SceneChange.ChangeScene"
       ],
-      "classification": "pending",
-      "tasks": [
-        "4.1"
-      ]
+      "classification": "adapter",
+      "component": "travel.jail_blessing_altar in processor/travel.py, a jail route that no consumer routes through"
     },
     "BraxFightEvent": {
       "apis": [
@@ -180,20 +178,16 @@
       "apis": [
         "GameData.CompletedQuests"
       ],
-      "classification": "pending",
-      "tasks": [
-        "4.1"
-      ]
+      "classification": "excluded",
+      "reason": "The /rocfest chat command turns on DemonstrationMode, whose class hotkeys call ResetMe. It overwrites the character with a preset level, gear, and spells and clears CompletedQuests, which replaces the character instead of progressing it."
     },
     "DemonstrationMngrROC": {
       "apis": [
         "GameData.CompletedQuests",
         "SceneChange.ChangeScene"
       ],
-      "classification": "pending",
-      "tasks": [
-        "4.1"
-      ]
+      "classification": "excluded",
+      "reason": "The /preview chat command turns on RocFestMode, whose class hotkeys call ResetMe. It overwrites the character with a preset level, gear, and spells, clears CompletedQuests, and moves it to Port Azure, which replaces the character instead of progressing it."
     },
     "DmgEventArea": {
       "apis": [
@@ -371,10 +365,8 @@
       "apis": [
         "SceneChange.ChangeScene"
       ],
-      "classification": "pending",
-      "tasks": [
-        "4.1"
-      ]
+      "classification": "adapter",
+      "component": "travel.jail_release in processor/travel.py, the release routes from Prison, which no consumer routes through"
     },
     "JawsStatueStartup": {
       "apis": [
@@ -563,10 +555,8 @@
         "Inventory.HasItem",
         "SceneChange.ChangeScene"
       ],
-      "classification": "pending",
-      "tasks": [
-        "4.1"
-      ]
+      "classification": "adapter",
+      "component": "travel.jail_off_navmesh in processor/travel.py and the Rainbow Flint torch rule progression.bellwain.flint of processor/scripted_events.py. The WILLOWSEED check discards its result."
     },
     "PlayerRaidCard": {
       "apis": [
@@ -643,10 +633,8 @@
         "Character.Alive",
         "SceneChange.ChangeScene"
       ],
-      "classification": "pending",
-      "tasks": [
-        "4.1"
-      ]
+      "classification": "excluded",
+      "reason": "RespawnPlayer returns a dead player to the saved bind point, or to the Reliquary Hall from a zone whose ZoneAnnounce names itself as the temporary bind, which only the four raid planes do and which the Reliquary Hall's planning portals lead to. Both are places the player already reached."
     },
     "RewardListener": {
       "apis": [
@@ -660,10 +648,8 @@
         "Character.Alive",
         "SceneChange.ChangeScene"
       ],
-      "classification": "pending",
-      "tasks": [
-        "4.1"
-      ]
+      "classification": "excluded",
+      "reason": "ReliquaryFromSim sends a dead player in a raid to the Reliquary Hall while a raider lives. GuildManager forms raids only in a Reliquary, so the player already reached it."
     },
     "SableheartEvent": {
       "apis": [
@@ -721,10 +707,8 @@
       "apis": [
         "SceneChange.ChangeScene"
       ],
-      "classification": "pending",
-      "tasks": [
-        "4.1"
-      ]
+      "classification": "adapter",
+      "component": "travel.jail_obscenities in processor/travel.py, a jail route that no consumer routes through"
     },
     "SiraetheEvent": {
       "apis": [
@@ -772,10 +756,8 @@
         "SceneChange.ChangeScene",
         "SpawnPoint.MyNPCAlive"
       ],
-      "classification": "pending",
-      "tasks": [
-        "4.1"
-      ]
+      "classification": "adapter",
+      "component": "weather.invoke_storm and weather.dissipate_storm in processor/weather.py, travel.spell_scene_changes in processor/travel.py, and the Time Stone facts of processor/item_mechanics.py"
     },
     "SpiderEvent": {
       "apis": [

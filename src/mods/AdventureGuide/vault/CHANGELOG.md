@@ -11,6 +11,7 @@
 - Only route you through a locked door once you have its key.
 - Only route you through a planning table portal once its stone or rune is in place.
 - Only route you past a wall, ward or cliff once it is gone, such as the wall behind the gaze statue in the Jaws of Sivakaya.
+- Rank drops in Azynthi's Garden (Dimensional Rift), which the Azynthian Riftstone takes you to, instead of always listing them last.
 - Stop listing the Auction House as an item source, since its stock is random.
 - Use the Stowaway's Step lighthouse entrance to reach Occuphage.
 - Base quest levels on the easiest way to finish, so The Island Tomb shows level 4 instead of 24.

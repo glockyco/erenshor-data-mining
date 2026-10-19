@@ -153,13 +153,6 @@ public static class ExportListenerRegistry
                     )
             ),
             new(
-                "teleportlocs",
-                "Teleport Locations",
-                ExportScanChannel.Null,
-                Array.Empty<string>(),
-                context => context.RegisterNullListener(new TeleportLocListener(context.Database))
-            ),
-            new(
                 "secretpassages",
                 "Secret Passages",
                 ExportScanChannel.GameObject,

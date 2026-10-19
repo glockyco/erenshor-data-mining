@@ -381,21 +381,35 @@ def test_placement_triggers_furniture_quests_and_restricted_entry(conn):
 
 
 def zone_line(conn: sqlite3.Connection, key: str = "zoneline:line", **changes: object) -> None:
+    """A usable zone line from Start and the travel route that it is."""
+    line = {"stable_key": key, "scene": "Start", "destination_zone_stable_key": "zone:end"} | changes
+    insert(conn, "zone_lines", **line)
     insert(
         conn,
-        "zone_lines",
-        **(
-            {
-                "stable_key": key,
-                "scene": "Start",
-                "destination_zone_stable_key": "zone:end",
-                "object_is_active": 1,
-                "component_is_enabled": 1,
-                "collider_is_trigger": 1,
-                "has_enabled_trigger": 1,
-            }
-            | changes
-        ),
+        "travel_routes",
+        route_key=key,
+        mechanism="zone_line",
+        source_stable_key=key,
+        from_zone_stable_key="zone:" + str(line["scene"]).lower(),
+        to_zone_stable_key=line["destination_zone_stable_key"],
+    )
+
+
+def spell_route(conn: sqlite3.Connection, origin: str | None = None) -> None:
+    """A spell that sends its caster to End, cast by clicking item:rune."""
+    insert(conn, "spells", stable_key="spell:portal", spell_name="Portal", display_name="Portal", image_name="p")
+    conn.execute(
+        "UPDATE items SET item_effect_on_click_stable_key='spell:portal',required_slot='General'"
+        " WHERE stable_key='item:rune'"
+    )
+    insert(
+        conn,
+        "travel_routes",
+        route_key="travel:spell:portal:zone:end",
+        mechanism="spell",
+        source_stable_key="spell:portal",
+        from_zone_stable_key=origin,
+        to_zone_stable_key="zone:end",
     )
 
 
@@ -418,37 +432,22 @@ def test_rune_slots_collapse_before_expansion(conn):
     assert Need("planning slot", "item:rune", slot="rune slot") in needs(graph, "zone:end")
 
 
-@pytest.mark.parametrize("exclusion", ["stored", "inactive", "incapable", "never"])
-def test_unusable_zone_lines_are_excluded(conn, exclusion):
+def test_a_zone_line_that_never_opens_gives_no_way(conn):
     zone_line(conn)
-    if exclusion == "stored":
-        insert(
-            conn,
-            "zone_line_destination_contexts",
-            zone_line_stable_key="zoneline:line",
-            kind="stored_return",
-            destination_state_key="saved",
-            landing_state_key="saved-position",
-            source_key="controller",
-        )
-    elif exclusion == "inactive":
-        conn.execute("UPDATE zone_lines SET object_is_active=0")
-    elif exclusion == "incapable":
-        conn.execute("UPDATE zone_lines SET component_is_enabled=0")
-    else:
-        gate(conn, "never", "no", subject_kind="zone_line", subject_stable_key="zoneline:line")
+    gate(conn, "never", "no", subject_kind="zone_line", subject_stable_key="zoneline:line")
     assert not builder(conn).ways.get("zone:end")
 
 
-def test_recorded_activation_allows_inactive_line(conn):
-    zone_line(conn, object_is_active=0)
-    gate(conn, subject_kind="zone_line", subject_stable_key="zoneline:line")
-    assert builder(conn).ways["zone:end"]
+def test_a_spell_route_needs_its_spell_and_the_spell_its_item(conn):
+    spell_route(conn)
+    graph = builder(conn)
+    assert list(graph.ways["zone:end"].values()) == [(Need("cast", "spell:portal"),)]
+    assert list(graph.ways["spell:portal"].values()) == [(Need("casts", "item:rune"),)]
 
 
-def test_teleport_needs_its_item(conn):
-    insert(conn, "teleports", stable_key="teleport:end", scene="End", teleport_item_stable_key="item:rune")
-    assert Need("teleport", "item:rune") in needs(builder(conn), "zone:end")
+def test_a_spell_route_that_works_in_one_zone_needs_that_zone(conn):
+    spell_route(conn, origin="zone:other")
+    assert needs(builder(conn), "zone:end") == {Need("cast", "spell:portal"), Need("in zone", "zone:other")}
 
 
 @pytest.mark.parametrize("state", ["internal_only", "non_acquirable"])
@@ -798,7 +797,7 @@ def test_build_rows_are_identical_and_keep_unchanged_way_identity(conn):
     process_progression(conn)
     assert before == {table: conn.execute(f"SELECT * FROM {table} ORDER BY 1,2").fetchall() for table in tables}
     old = conn.execute("SELECT way_key FROM progression_ways WHERE node_stable_key='zone:end'").fetchone()[0]
-    insert(conn, "teleports", stable_key="teleport:end", scene="End", teleport_item_stable_key="item:rune")
+    spell_route(conn)
     process_progression(conn)
     assert old in {
         row[0] for row in conn.execute("SELECT way_key FROM progression_ways WHERE node_stable_key='zone:end'")

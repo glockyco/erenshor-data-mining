@@ -441,6 +441,9 @@ class ProgressionBuilder:
             self.node(row["stable_key"], "world_state")
         for row in self.rows("weather_spell_effects"):
             self.node(row["spell_stable_key"], "spell")
+        for row in self.rows("travel_routes"):
+            if row["mechanism"] == "spell":
+                self.node(row["source_stable_key"], "spell")
         # code-fact: progression.playable_classes
         facts = [
             row["value"]
@@ -475,26 +478,25 @@ class ProgressionBuilder:
                     self.add(key, way, key)
 
     def build_zones(self) -> None:
-        stored = {row["zone_line_stable_key"] for row in self.rows("zone_line_destination_contexts")}
-        capable = {row["stable_key"] for row in self.rows("zone_lines_with_zoning_capability")}
-        for key, line in sorted(self.lines.items()):
-            source = self.scenes.get(line["scene"])
-            destination = line["destination_zone_stable_key"]
-            if key in stored or not destination:
+        for route in self.rows("travel_routes"):
+            destination = route["to_zone_stable_key"]
+            if destination is None:
+                # A saved destination is a place that the player already reached.
                 continue
-            gates = self.gates.get(("zone_line", key, None), [])
-            activated = any(row["gate"].startswith("activation") for row in gates)
-            if (key not in capable or not line["object_is_active"]) and not activated:
+            if route["mechanism"] == "jail":
+                # A punishment is no plan, so no way passes through being jailed.
                 continue
-            if source is None:
-                raise _error(destination, key, f"unmapped source scene {line['scene']!r}")
-            for way in self.subject_gates("zone_line", key):
-                self.add(destination, [Need("zone line", source), *way], key)
-        for row in self.rows("teleports"):
-            zone = self.scenes.get(row["scene"])
-            if zone is None:
-                raise _error(str(row["scene"]), row["stable_key"], "unmapped teleport destination scene")
-            self.add(zone, [Need("teleport", row["teleport_item_stable_key"])], row["stable_key"])
+            key, origin = route["source_stable_key"], route["from_zone_stable_key"]
+            if route["mechanism"] == "zone_line":
+                for way in self.subject_gates("zone_line", key):
+                    self.add(destination, [Need("zone line", origin), *way], key)
+            elif route["mechanism"] == "spell":
+                needs = [Need("cast", key)]
+                if origin is not None:
+                    needs.append(Need("in zone", origin))
+                self.add(destination, needs, route["route_key"])
+            else:
+                raise _error(destination, route["route_key"], f"unmapped travel mechanism {route['mechanism']!r}")
         # code-fact: progression.start_selection
         if not any(
             row["fact_id"] == "progression.start_selection" and row["key"] == "ok" and row["value"] == "true"
@@ -779,11 +781,11 @@ class ProgressionBuilder:
             else:
                 raise _error(state["stable_key"], "world_state_producers", "unmapped weather producer")
             self.add(state["stable_key"], needs, "world_state_producers")
-        spells = {
-            row["stable_key"]: row
-            for row in self.rows("spells")
-            if row["stable_key"] in {effect["spell_stable_key"] for effect in self.rows("weather_spell_effects")}
-        }
+        self.build_spells({row["spell_stable_key"] for row in self.rows("weather_spell_effects")})
+
+    def build_spells(self, keys: set[str]) -> None:
+        """Give each spell the items that cast or teach it."""
+        spells = {row["stable_key"]: row for row in self.rows("spells") if row["stable_key"] in keys}
         for item in self.rows("items"):
             for column, relation in (
                 ("item_effect_on_click_stable_key", "casts"),
@@ -975,6 +977,9 @@ class ProgressionBuilder:
     def build(self) -> None:
         self.build_nodes()
         self.build_zones()
+        self.build_spells(
+            {row["source_stable_key"] for row in self.rows("travel_routes") if row["mechanism"] == "spell"}
+        )
         self.build_weather()
         self.build_characters()
         self.build_items()
