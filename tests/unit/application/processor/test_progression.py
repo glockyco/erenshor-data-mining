@@ -450,6 +450,27 @@ def test_a_spell_route_that_works_in_one_zone_needs_that_zone(conn):
     assert needs(builder(conn), "zone:end") == {Need("cast", "spell:portal"), Need("in zone", "zone:other")}
 
 
+def test_a_way_back_through_the_node_itself_does_not_lift_its_milestone(conn):
+    # End is entered past a gate, and Deep, which only End leads to, leads back.
+    insert(
+        conn,
+        "zones",
+        stable_key="zone:deep",
+        scene_name="Deep",
+        zone_name="Deep",
+        display_name="Deep",
+        image_name="Deep",
+        zone_type="Dungeon",
+    )
+    zone_line(conn)
+    gate(conn, "quest_done", "quest:gate", subject_kind="zone_line", subject_stable_key="zoneline:line")
+    zone_line(conn, "zoneline:on", scene="End", destination_zone_stable_key="zone:deep")
+    zone_line(conn, "zoneline:back", scene="Deep", destination_zone_stable_key="zone:end")
+    graph = builder(conn)
+    assert "zone:end" in graph.milestones
+    assert "zone:deep" not in graph.milestones
+
+
 @pytest.mark.parametrize("state", ["internal_only", "non_acquirable"])
 def test_nonplayer_sources_are_excluded(conn, state):
     acquisition(conn, "vendor", "character:copy", player_access_state=state)

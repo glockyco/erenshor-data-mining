@@ -42,3 +42,19 @@ A zone's ways SHALL come from the travel routes that lead to it: a zone line wit
 
 - **WHEN** reading the ways to Prison
 - **THEN** it has none, although the travel routes record the jailings that send a player there
+
+## MODIFIED Requirements
+
+### Requirement: Milestones mark progression steps
+
+A node SHALL be a milestone when it is a quest or a barrier, a zone or character copy whose every way needs a gate, or an item that a gate, a summon, or a release needs or whose every source is a quest reward, a craft, or a gated copy. A way that needs a node whose every way needs the zone or copy itself SHALL NOT count, because it cannot be how a player first gets there.
+
+#### Scenario: A key and a common ingredient
+
+- **WHEN** reading the Ancient Braxonian Key and Wolf Meat
+- **THEN** the key is a milestone and Wolf Meat is not
+
+#### Scenario: A way back through the zone itself
+
+- **WHEN** reading the Reliquary Hall, whose Box of Portals is found inside it
+- **THEN** the hall is a milestone, because its only other way passes the portcullis

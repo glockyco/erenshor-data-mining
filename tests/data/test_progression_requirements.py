@@ -224,6 +224,11 @@ def test_prison_has_no_way_although_its_jailings_are_recorded(clean: sqlite3.Con
     assert jailings == 3
 
 
+def test_the_reliquary_hall_is_a_milestone_behind_its_portcullis(clean: sqlite3.Connection) -> None:
+    # The Box of Portals is found inside the hall, so its way cannot be the first.
+    assert _node(clean, "zone:reliquary")["is_milestone"] == 1
+
+
 def test_eldrich_crystal_names_the_actual_keeper_copy_and_sanctuary(clean: sqlite3.Connection) -> None:
     drops = [
         needs

@@ -844,12 +844,38 @@ class ProgressionBuilder:
             for way in ways:
                 self.add(key, way, fact)
 
+    def dependents(self, target: str) -> set[str]:
+        """Every node all of whose ways need the target, directly or through such a node."""
+        found = {target}
+        changed = True
+        while changed:
+            changed = False
+            for node, ways in self.ways.items():
+                if node in found or not ways:
+                    continue
+                if all(any(need.need_stable_key in found for need in way) for way in ways.values()):
+                    found.add(node)
+                    changed = True
+        return found
+
     def mark_milestones(self) -> None:
-        gated = {
-            node
-            for node, ways in self.ways.items()
-            if ways and all(any(need.relation in _GATE_RELATIONS for need in way) for way in ways.values())
-        }
+        def gate(way: Way) -> bool:
+            return any(need.relation in _GATE_RELATIONS for need in way)
+
+        gated: set[str] = set()
+        for node, ways in self.ways.items():
+            if not ways:
+                continue
+            open_ways = [way for way in ways.values() if not gate(way)]
+            if len(open_ways) == len(ways):
+                continue
+            # A way that passes through the node itself, such as a return trip from
+            # a zone that only it leads to, cannot be how a player first gets there.
+            if open_ways:
+                through = self.dependents(node)
+                if not all(any(need.need_stable_key in through for need in way) for way in open_ways):
+                    continue
+            gated.add(node)
         gate_items = {
             need.need_stable_key
             for ways in self.ways.values()
