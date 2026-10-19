@@ -11,6 +11,7 @@
 - Only route you through a locked door once you have its key.
 - Only route you through a planning table portal once its stone or rune is in place.
 - Only route you past a wall, ward or cliff once it is gone, such as the wall behind the gaze statue in the Jaws of Sivakaya.
+- Stop requiring the Nighthollow Candle or She Sees You to enter the Jaws of Sivakaya.
 - Rank drops in Azynthi's Garden (Dimensional Rift), which the Azynthian Riftstone takes you to, instead of always listing them last.
 - Rank sources in Shivering Step and the Reliquary Hall after the door that leads in.
 - Rank drops of summoned enemies after the fight that summons them, such as Vitheo's legions.

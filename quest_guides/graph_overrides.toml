@@ -7,33 +7,13 @@
 
 # ── Jaws of Sivakaya ────────────────────────────────────────────────────
 
-# Vessel Siraethe requires A Pious Guest quest completed.
+# The clean piety barrier already gates Vessel Siraethe's spawn. This gate stays
+# because quest rewards list unlocked characters only from gates on characters.
 [[gates]]
 subject_kind = "character"
 subject = "character:siraethe"
 gate = "override:piety"
 groups = [[{ kind = "quest_done", ref = "quest:jawspiety" }]]
-
-# ── The Duskenlight Coast → Jaws of Sivakaya ────────────────────────────
-
-# The Nighthollow Candle or She Sees You opens this zone line.
-[[gates]]
-subject_kind = "zone_line"
-subject = "zoneline:duskenlight:jaws:989.40:148.67:53.90"
-gate = "override:jaws_entry"
-groups = [
-    [{ kind = "item_held", ref = "item:hand - 100 - the nighthollow candle" }],
-    [{ kind = "quest_done", ref = "quest:jawsseen" }],
-]
-
-# ── Shivering Tomb 2 zone line gate ──────────────────────────────────────────
-
-# ShiveringAngel.cs: the angel statue rotates clear when Stand, Angel! completes.
-[[gates]]
-subject_kind = "zone_line"
-subject = "zoneline:shiveringstep:shiveringtomb2:809.72:19.36:645.26"
-gate = "override:shivering_angel"
-groups = [[{ kind = "quest_done", ref = "quest:standangel" }]]
 
 # ── Reliquary planning table ─────────────────────────────────────────────
 # PlanningTable (MonoBehaviour 34075) belongs to PlanningDesk (GameObject 6522).

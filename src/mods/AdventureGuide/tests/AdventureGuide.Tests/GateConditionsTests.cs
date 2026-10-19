@@ -616,35 +616,27 @@ public sealed class GateConditionsTests
     }
 
     [Fact]
-    public void Duskenlight_to_Jaws_requires_the_candle_or_She_Sees_You()
+    public void Jaws_entrance_is_open_and_Siraethe_waits_behind_the_gaze_wall_and_the_wards()
     {
         var data = ShippingData();
         var line = Assert.Single(
             data.ZoneLines,
             line => line.Scene == "Duskenlight" && line.DestinationZoneKey == "zone:jaws"
         );
-        Assert.NotNull(line.Condition);
-        var groups = data.Conditions[line.Condition.Value];
-        var candle = Assert.Single(
-            groups.SelectMany(group => group),
-            atom => atom.Kind == GateAtomKind.ItemHeld
-        );
-        Assert.Equal("item:hand - 100 - the nighthollow candle", candle.Ref);
-        Assert.Contains(
-            groups,
-            group =>
-                group.Count == 1
-                && group[0].Kind == GateAtomKind.QuestDone
-                && group[0].Ref == "JAWSSEEN"
-        );
+        Assert.Null(line.Condition);
         var facts = new GateTestFacts();
         var gates = new GateConditions(data, facts);
-        Assert.False(gates.IsAvailable(line.Condition));
-        facts.Inventory[candle.Ref] = 1;
-        Assert.True(gates.IsAvailable(line.Condition));
-        facts.Inventory.Clear();
+        const string siraethe = "character:siraethe";
+        // A Pious Guest dismisses the wards but leaves the gaze wall standing.
+        facts.Quests.Add("JAWSPIETY");
+        Assert.False(gates.IsCharacterAvailable(siraethe));
+        // The gaze wall falls after The Guardian Awakens and She Sees You, but the wards remain.
+        facts.Quests.Clear();
+        facts.Quests.Add("JAWSENTRY");
         facts.Quests.Add("JAWSSEEN");
-        Assert.True(gates.IsAvailable(line.Condition));
+        Assert.False(gates.IsCharacterAvailable(siraethe));
+        facts.Quests.Add("JAWSPIETY");
+        Assert.True(gates.IsCharacterAvailable(siraethe));
     }
 
     [Fact]

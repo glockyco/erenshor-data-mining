@@ -476,37 +476,6 @@ public sealed class RequirementResolverTests
     }
 
     [Fact]
-    public void Jaws_route_names_real_alternatives_and_chooses_nearest_first_requirement()
-    {
-        var data = ShippingData();
-        var quest = data.GetByDBName("JAWSENTRY")!;
-        var travelStep = new QuestStep
-        {
-            Order = 1,
-            Action = "travel",
-            Description = "Travel to Jaws of Sivakaya.",
-            TargetType = "zone",
-            TargetKey = "zone:jaws",
-            TargetName = "Jaws of Sivakaya",
-            ZoneName = "Jaws of Sivakaya",
-        };
-        var gates = new GateConditions(data, new GateTestFacts());
-        var graph = new ZoneGraph(data, gates);
-        var result = new RequirementResolver(
-            data,
-            gates,
-            graph,
-            entry => entry.Steps?.FirstOrDefault()
-        ).Resolve(quest, travelStep, "Duskenlight");
-
-        Assert.True(result.CanNavigate, result.Message);
-        Assert.Contains(result.Chain, link => link.Alternatives.Count > 0);
-        Assert.Contains("Nighthollow Candle", result.DisplayText);
-        Assert.Contains("She Sees You", result.DisplayText);
-        Assert.DoesNotContain(result.Chain, link => link.Atom?.Kind == GateAtomKind.QuestNotDone);
-    }
-
-    [Fact]
     public void Meet_the_Fisherman_follows_Anglers_Ring_to_missing_crafting_materials()
     {
         var data = ShippingData();
