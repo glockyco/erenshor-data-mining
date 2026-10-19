@@ -589,6 +589,14 @@ reason = "ShiveringAngel turns the statue away once Stand, Angel! is done. It st
 check = "navmesh"
 
 [[barriers]]
+kind = "moved"
+name = "Statue of the Bellwain torches"
+objects = ["object:summerevent:sm_prop_statue_01[1867]"]
+targets = ["itembag:summerevent:118.10:-2.27:255.96"]
+reason = "AngelScript raises the statue once all twelve torches show their colour. A Collection of Notes lies under it as its child and rises with it."
+check = "unconfirmed"
+
+[[barriers]]
 kind = "removed"
 name = "Rock fall in Blooming Sepulcher"
 objects = ["object:bloomingsepulcher:sm_env_rock_cliff_02%20%2835%29[289]"]

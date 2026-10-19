@@ -37,7 +37,8 @@ def _quest(raw: sqlite3.Connection, conn: sqlite3.Connection, rule: str) -> str:
     return SHIVER_MEET_ALL if fact is None else _code_fact_quest(raw, conn, fact)
 
 
-def _own_conditions(raw: sqlite3.Connection, conn: sqlite3.Connection, rule: str) -> Groups:
+def own_conditions(raw: sqlite3.Connection, conn: sqlite3.Connection, rule: str) -> Groups:
+    """What a finishing rule needs besides its controller, which a barrier that it moves shares."""
     if rule == "bellwain_reveal":
         # code-fact: progression.bellwain.flint
         # PlayerControl lights a torch only while the player carries the flint.
@@ -60,7 +61,7 @@ def process_scripted_events(raw: sqlite3.Connection, writer: Writer, activity: A
         tuple(_RULES),
     ):
         note = _RULES[rule][1]
-        groups = _and(_own_conditions(raw, conn, rule), activity.controller(source))
+        groups = _and(own_conditions(raw, conn, rule), activity.controller(source))
         if not groups:
             # A controller that can never act finishes nothing.
             continue

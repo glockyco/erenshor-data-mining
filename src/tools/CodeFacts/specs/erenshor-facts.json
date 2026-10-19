@@ -207,6 +207,30 @@
       "note": "Round 8 checks its first fighter in with VitheoFight when it is Vitheo the Tactician. processor/summons.py makes him the summoner of the legions."
     },
     {
+      "id": "progression.bellwain.torches",
+      "mode": "assert",
+      "type": "AngelScript",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (num == 12) { IsDone = true; }"
+      },
+      "note": "The puzzle is done once all twelve torches show their colour."
+    },
+    {
+      "id": "progression.bellwain.lift",
+      "mode": "assert",
+      "type": "AngelScript",
+      "method": "Step2",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (transform.position.y < HomeY) { transform.Translate (0f, 1f * Time.deltaTime, 0f); return; }"
+      },
+      "note": "A done puzzle raises the statue that hosts AngelScript. processor/barriers.py opens the statue's barrier with the torch condition."
+    },
+    {
       "id": "treasure.read_map",
       "mode": "assert",
       "type": "SpellVessel",

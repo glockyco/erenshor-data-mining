@@ -15,6 +15,7 @@
 - Rank sources in Shivering Step and the Reliquary Hall after the door that leads in.
 - Rank drops of summoned enemies after the fight that summons them, such as Vitheo's legions.
 - Rank treasure chest drops by when you can dig the chest up, instead of always listing them last.
+- Send you to light the Bellwain Island torches before the notes that the statue hides.
 - Stop listing the Auction House as an item source, since its stock is random.
 - Use the Stowaway's Step lighthouse entrance to reach Occuphage.
 - Base quest levels on the easiest way to finish, so The Island Tomb shows level 4 instead of 24.

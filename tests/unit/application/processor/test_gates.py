@@ -550,3 +550,41 @@ def test_cliffs_of_the_twin_giants_open_only_once_both_twins_are_dead(
     assert _gates(writer)[
         ("zone_line", "zoneline:island:tomb:808.08:14.08:592.64", None, "object:plane:frostcliff")
     ] == [[("encounter_won", "character:bassle", None), ("encounter_won", _GHOST, None)]]
+
+
+def test_the_torch_statue_rises_only_while_the_flint_lights_the_torches(
+    tmp_path: Path, writer: Writer, raw: sqlite3.Connection
+) -> None:
+    writer.conn.execute(
+        "INSERT INTO items (stable_key, id, display_name, image_name) VALUES ('item:flint', '7', 'F', 'f')"
+    )
+    raw.execute("CREATE TABLE code_facts (fact_id TEXT, key TEXT, value TEXT, value_type TEXT)")
+    raw.executemany(
+        "INSERT INTO code_facts VALUES (?, ?, ?, 'text')",
+        [
+            ("progression.bellwain.flint", "item_id", "7"),
+            ("progression.bellwain.finish", "quest", "MEET"),
+            ("progression.bellwain.quest", "quest", "MEET"),
+        ],
+    )
+    raw.execute("ALTER TABLE ScriptedActivators ADD COLUMN SourceObjectName TEXT")
+    raw.execute("INSERT INTO ObjectHierarchy VALUES ('object:island:statue', NULL, 1, 1)")
+    raw.execute(
+        "INSERT INTO ScriptedActivators (SourceKey, RuleId, SourceScene, ComponentIsEnabled, ObjectKey)"
+        " VALUES ('angel', 'bellwain_reveal', 'Tomb', 1, 'object:island:statue')"
+    )
+    raw.execute(
+        "INSERT INTO ScriptedActivatorReferences VALUES ('r1', 'angel', '$host', 'object', 'object:island:statue')"
+    )
+    body = _COMPLETE + _record(
+        kind='"moved"',
+        name='"Torch statue"',
+        objects='["object:island:statue"]',
+        targets='["zoneline:island:tomb:808.08:14.08:592.64"]',
+    )
+    process_gates(raw, writer, _barriers(tmp_path, body))
+
+    # The statue rises only once the torches are lit, which needs the flint.
+    assert _gates(writer)[("zone_line", "zoneline:island:tomb:808.08:14.08:592.64", None, "object:island:statue")] == [
+        [("item_held", "item:flint", None)]
+    ]

@@ -37,6 +37,7 @@ from .gates import (
     _target_kind,
 )
 from .hierarchy import _and, _simplify
+from .scripted_events import own_conditions
 
 if TYPE_CHECKING:
     import sqlite3
@@ -157,7 +158,8 @@ def _mechanisms(raw: sqlite3.Connection, conn: sqlite3.Connection, activity: Act
 
     for source, rule in raw.execute(
         "SELECT SourceKey, RuleId FROM ScriptedActivators WHERE RuleId IN ('siv_torch_gaze', 'npc_alive',"
-        " 'morph_trigger', 'shivering_angel', 'piety_guardians', 'twin_giants') ORDER BY SourceKey"
+        " 'morph_trigger', 'shivering_angel', 'piety_guardians', 'twin_giants', 'bellwain_reveal')"
+        " ORDER BY SourceKey"
     ):
         capability = activity.controller(source)
         if rule == "siv_torch_gaze":
@@ -202,6 +204,12 @@ def _mechanisms(raw: sqlite3.Connection, conn: sqlite3.Connection, activity: Act
             # code-fact: guide.gates.angel
             quest = _code_fact_quest(raw, conn, "progression.shivering_angel.quest")
             opening = _and(((Atom("quest_done", quest),),), capability)
+            add(_scripted_reference(raw, source, "$host", "object"), "moved", opening)
+        elif rule == "bellwain_reveal":
+            # code-fact: progression.bellwain.torches
+            # code-fact: progression.bellwain.lift
+            # Once every torch shows its colour, AngelScript raises its host statue.
+            opening = _and(own_conditions(raw, conn, rule), capability)
             add(_scripted_reference(raw, source, "$host", "object"), "moved", opening)
         elif rule == "piety_guardians":
             quest = _scripted_reference(raw, source, "RequiredQuest", "quest")
