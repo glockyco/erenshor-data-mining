@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json;
 using ICSharpCode.Decompiler;
 using ICSharpCode.Decompiler.CSharp;
 using ICSharpCode.Decompiler.CSharp.Syntax;
@@ -50,6 +51,7 @@ internal static class Runner
                     "switch_item_grant" => Matchers.SwitchItemGrant(scope, fact),
                     "weather_rain_start" => Matchers.WeatherRainStart(scope, fact),
                     "weather_spell" => Matchers.WeatherSpell(scope, fact),
+                    "scene_changes" => Matchers.SceneChanges(scope, fact),
                     "item_action_guards" => Matchers.ItemActionGuards(scope, fact),
                     _ => throw new InvalidDataException($"unknown matcher '{fact.Matcher}'"),
                 };
@@ -224,6 +226,185 @@ internal static class Matchers
             throw new InvalidDataException("weather_spell effects changed");
         return values;
     }
+
+    /// Lists every call of `invocation` in the bound method, in source order. Each
+    /// value is JSON with the destination, landing, and sun arguments, `when`, the
+    /// enclosing conditions from the outside in (a switch case as `switch == label`,
+    /// an else branch as `!(condition)`), and `unless`, the conditions of earlier
+    /// guards that leave the path. An argument that is no literal keeps its source
+    /// text after `expr:`. Control flow that the matcher cannot read fails the fact.
+    public static Dictionary<string, string> SceneChanges(EntityDeclaration scope, FactSpec fact)
+    {
+        if (scope is not MethodDeclaration method)
+            throw new InvalidDataException("scene_changes binds a method");
+        string invocation = Normalize(fact.Args["invocation"]);
+        var calls = method
+            .Body.Descendants.OfType<InvocationExpression>()
+            .Where(call => Normalize(call.Target.ToString()) == invocation)
+            .ToList();
+        if (calls.Count == 0)
+            throw new InvalidDataException($"scene_changes found no {invocation}");
+        var values = new Dictionary<string, string>();
+        for (int index = 0; index < calls.Count; index++)
+        {
+            var call = calls[index];
+            var arguments = call
+                .Arguments.Select(argument =>
+                    argument is NamedArgumentExpression named ? named.Expression : argument
+                )
+                .ToList();
+            if (arguments.Count != 4)
+                throw new InvalidDataException($"scene_changes changed arguments: {call}");
+            var (when, unless) = SceneChangeConditions(call, method);
+            values[index.ToString(CultureInfo.InvariantCulture)] = JsonSerializer.Serialize(
+                new SortedDictionary<string, object>
+                {
+                    ["to"] = SceneChangeArgument(arguments[0]),
+                    ["landing"] = SceneChangeLanding(arguments[1]),
+                    ["sun"] = SceneChangeArgument(arguments[2]),
+                    ["when"] = when,
+                    ["unless"] = unless,
+                }
+            );
+        }
+        return values;
+    }
+
+    private static string SceneChangeArgument(Expression argument) =>
+        argument switch
+        {
+            PrimitiveExpression { Value: string text } => text,
+            PrimitiveExpression { Value: bool flag } => flag ? "true" : "false",
+            _ => "expr:" + Normalize(argument.ToString()),
+        };
+
+    private static string SceneChangeLanding(Expression argument)
+    {
+        if (
+            argument is ObjectCreateExpression create
+            && create.Type.ToString() == "Vector3"
+            && create.Arguments.Count == 3
+        )
+        {
+            var coordinates = create.Arguments.Select(NumberLiteral).ToList();
+            if (coordinates.All(value => value is not null))
+                return string.Join(",", coordinates);
+        }
+        return "expr:" + Normalize(argument.ToString());
+    }
+
+    private static string? NumberLiteral(Expression expression) =>
+        expression switch
+        {
+            PrimitiveExpression { Value: float or double or int } literal => Convert.ToString(
+                literal.Value,
+                CultureInfo.InvariantCulture
+            ),
+            UnaryOperatorExpression
+            {
+                Operator: UnaryOperatorType.Minus,
+                Expression: PrimitiveExpression { Value: float or double or int } literal,
+            } => "-" + Convert.ToString(literal.Value, CultureInfo.InvariantCulture),
+            _ => null,
+        };
+
+    private static (List<string> When, List<string> Unless) SceneChangeConditions(
+        InvocationExpression call,
+        MethodDeclaration method
+    )
+    {
+        var when = new List<string>();
+        var unless = new List<string>();
+        AstNode node =
+            call.Parent as ExpressionStatement
+            ?? throw new InvalidDataException($"scene_changes needs a statement call: {call}");
+        while (node != method.Body)
+        {
+            var parent =
+                node.Parent ?? throw new InvalidDataException("scene_changes left the method");
+            var levelWhen = new List<string>();
+            var levelUnless = new List<string>();
+            switch (parent)
+            {
+                case BlockStatement block:
+                    SceneChangeGuards(block.Statements.TakeWhile(s => s != node), levelUnless);
+                    break;
+                case IfElseStatement branch when node == branch.TrueStatement:
+                    levelWhen.Add(Normalize(branch.Condition.ToString()));
+                    break;
+                case IfElseStatement branch when node == branch.FalseStatement:
+                    levelWhen.Add("!(" + Normalize(branch.Condition.ToString()) + ")");
+                    break;
+                case SwitchSection section:
+                    if (
+                        section.CaseLabels.Count != 1
+                        || section.CaseLabels.Single().Expression is null
+                        || section.Parent is not SwitchStatement statementSwitch
+                    )
+                        throw new InvalidDataException(
+                            $"scene_changes needs one case label around {call}"
+                        );
+                    levelWhen.Add(
+                        Normalize(statementSwitch.Expression.ToString())
+                            + " == "
+                            + Normalize(section.CaseLabels.Single().Expression.ToString())
+                    );
+                    SceneChangeGuards(section.Statements.TakeWhile(s => s != node), levelUnless);
+                    break;
+                case SwitchStatement:
+                    break;
+                default:
+                    throw new InvalidDataException(
+                        $"scene_changes cannot read {parent.GetType().Name} around {call}"
+                    );
+            }
+            when.InsertRange(0, levelWhen);
+            unless.InsertRange(0, levelUnless);
+            node = parent;
+        }
+        return (when, unless);
+    }
+
+    // An earlier statement that can leave the path must be a guard that ends in
+    // its exit, so the call runs exactly when the guard's condition does not hold.
+    private static void SceneChangeGuards(IEnumerable<Statement> statements, List<string> unless)
+    {
+        foreach (var statement in statements)
+        {
+            if (!LeavesPath(statement))
+                continue;
+            if (
+                statement is IfElseStatement { FalseStatement: null } guard
+                && guard.TrueStatement is BlockStatement { Statements.Count: > 0 } body
+                && body.Statements.Last()
+                    is BreakStatement
+                        or ReturnStatement
+                        or YieldBreakStatement
+                && !body.Statements.SkipLast(1).Any(LeavesPath)
+            )
+                unless.Add(Normalize(guard.Condition.ToString()));
+            else
+                throw new InvalidDataException(
+                    $"scene_changes cannot read an early exit: {statement}"
+                );
+        }
+    }
+
+    private static bool LeavesPath(AstNode root) =>
+        root.DescendantsAndSelf.Any(node =>
+            node is ReturnStatement or YieldBreakStatement or ThrowStatement or GotoStatement
+            || node is BreakStatement or ContinueStatement
+                && !node
+                    .Ancestors.TakeWhile(ancestor => ancestor != root.Parent)
+                    .Any(ancestor =>
+                        ancestor
+                            is ForStatement
+                                or ForeachStatement
+                                or WhileStatement
+                                or DoWhileStatement
+                                or SwitchStatement
+                    )
+        );
 
     public static Dictionary<string, string> ItemActionGuards(
         EntityDeclaration scope,
