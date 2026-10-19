@@ -114,4 +114,5 @@ Unity exports, code-facts runs, and clean builds of the main variant run in the 
 
 - [ ] 9.1 After `model-guide-gates` archives, move the shared requirements of `guide-gate-data` into `progression-mechanics` with a delta that removes them there and adds them here. Verify: `openspec validate --specs` passes.
 - [ ] 9.2 Run `uv run erenshor test ci`. Verify: it passes.
+  - With every task but 8.2 done, all six leaves pass: dependency state, static, unit, contract, maps, and mods. The run repeats once 8.2 lands.
 - [ ] 9.3 Archive with `openspec archive model-progression-mechanics --yes`. Verify: the behaviour catalog has no `pending` entry, and `openspec/specs/progression-mechanics/spec.md` exists.
