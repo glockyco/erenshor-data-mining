@@ -170,11 +170,18 @@ Place a view template on a page to show a list from the game data. It changes af
 | [[Template:Zone list|Zone list]] || [[Module:Erenshor/Data/Zones]] || Every zone's type, hostile levels, and exits, with a notes column that editors fill in
 |-
 | [[Template:Quest list|Quest list]] || [[Module:Erenshor/Data/Quests]] || Every quest's starts, required items, and rewards
+|-
+| [[Template:Progression graph|Progression graph]] || [[Module:Erenshor/Data/Progression]] || The playthrough route to a zone, quest, item, or character, with each step's ways and requirements
 |}
 
 For example, write <code><nowiki>{{Zone roster}}</nowiki></code> on a zone page, or <code><nowiki>{{Class abilities|stablekey=class:druid}}</nowiki></code> to select a class explicitly. An entity-specific view without a key uses the entity of its kind on the current page. If several entities share that page, give the template the intended <code>stablekey</code>. Use <code><nowiki>{{Game board}}</nowiki></code> for the board's boss table. Give <code><nowiki>{{Zone list}}</nowiki></code> one note per zone, named by the zone's page, such as <code><nowiki>{{Zone list|Port Azure=Starting city}}</nowiki></code>.
 
 Spawn chances are chances per eligible spawn roll, not the chance of meeting a character anywhere in a zone. Scripted encounters do not imply a fixed spawn position. Furniture-only rows require the named set to be placed.
+
+=== Progression graph ===
+<code><nowiki>{{Progression graph}}</nowiki></code> shows the route to the zone, quest, item, or character of the current page, or to the entity that <code>stablekey</code> names. On a page without such an entity, it shows the routes to the four raid planes. A way is one way to reach a step, and a step's ways are alternatives (any one of). The needs of a way are all required (all of). A tier is a step's place in a playthrough from a new character's start, not advice about your own character. The route follows each step's first way, the one with the lowest tier.
+
+With JavaScript, the progression-graph gadget draws the route with one column per tier, and its button "Show the route as text" brings the text back. A wrong or missing requirement is a fact that the export lacks. [[#How to report|Report it]] instead of working around it in the article.
 
 === Reading data in your own module ===
 Each data module's opening comment describes its fields and their types. Use [[Module:Erenshor/Link]] for article-backed identities so links and tooltips follow [[Module:Erenshor/Data/Links]]. Some fields carry native references with a name and an optional page. Preserve those references instead of guessing a page for an entity without an article. For example:
