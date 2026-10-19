@@ -532,6 +532,14 @@ def _load_zone_by_scene(conn: sqlite3.Connection) -> dict[str, str]:
     return {str(r["SceneName"]): str(r["StableKey"]) for r in rows if r["SceneName"]}
 
 
+def _same_spot(a: _SpawnRow, b: _SpawnRow) -> bool:
+    """Whether two rows stand at one spot, at the centimetre precision of spawn point keys."""
+    if a.scene != b.scene:
+        return False
+    pairs = zip((a.x, a.y, a.z), (b.x, b.y, b.z), strict=True)
+    return all(p is not None and q is not None and round(p, 2) == round(q, 2) for p, q in pairs)
+
+
 def process_arena_rounds(
     raw: sqlite3.Connection,
     writer: Writer,
@@ -709,8 +717,8 @@ def process_characters(
     # ------------------------------------------------------------------
     zone_by_scene = _load_zone_by_scene(raw)
 
-    # Load directly-placed characters (they have coordinates in Characters table
-    # but no SpawnPoint — their scene/X/Y/Z IS the spawn location)
+    # Directly placed characters stand at their own scene/X/Y/Z. ExportBatch also
+    # gives each of them a virtual spawn point there, which then is the placement.
     direct_spawn_by_char: dict[str, _SpawnRow] = {}
     furniture_by_char = furniture_items_by_character(raw) if _table_exists(raw, "PlanningTableCharacters") else {}
     for row in char_rows:
@@ -1051,9 +1059,14 @@ def process_characters(
     for c in chars:
         sk = c.stable_key
         spawns: list[_SpawnRow] = []
-        if sk in direct_spawn_by_char:
-            spawns.append(direct_spawn_by_char[sk])
-        spawns.extend(spawn_rows_by_char.get(sk, []))
+        rows = spawn_rows_by_char.get(sk, [])
+        direct = direct_spawn_by_char.get(sk)
+        # A spawn point at the character's own spot, virtual or real, already is this
+        # placement, and a second row would skip that spawn point's gates. Spawn point
+        # keys round positions to centimetres, so the comparison does too.
+        if direct is not None and not any(_same_spot(direct, row) for row in rows):
+            spawns.append(direct)
+        spawns.extend(rows)
         char_data.append(
             _CharData(
                 char=c,

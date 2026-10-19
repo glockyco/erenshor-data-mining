@@ -130,19 +130,33 @@ def processed_db(tmp_path):
             ("character:demented", "Demented", "Demented", "MalarothScene", None, None, None),
             ("character:ordinary", "Ordinary", "Ordinary", None, None, None, None),
             ("character:arena-chest", "ArenaChest", "ArenaChest", None, None, None, None),
+            ("character:placed", "Placed", "Placed", "OrdinaryScene", 1.0, 2.0, 3.0),
+            ("character:wanderer", "Wanderer", "Wanderer", "OrdinaryScene", 4.0, 5.0, 6.0),
+            ("character:managed", "Managed", "Managed", "OrdinaryScene", 9.0, 8.0, 7.0),
         ],
     )
-    raw.execute(
+    raw.executemany(
         (
             "INSERT INTO SpawnPoints "
             "(StableKey, Scene, X, Y, Z, IsEnabled, IsDirectlyPlaced) "
-            "VALUES (?, ?, ?, ?, ?, 1, 0)"
+            "VALUES (?, ?, ?, ?, ?, 1, ?)"
         ),
-        ("spawn:ordinary", "OrdinaryScene", 9.0, 8.0, 7.0),
+        [
+            ("spawn:ordinary", "OrdinaryScene", 9.0, 8.0, 7.0, 0),
+            # The export's virtual spawn point for a directly placed character.
+            ("spawn:placed", "OrdinaryScene", 1.0, 2.0, 3.0, 1),
+            ("spawn:elsewhere", "OrdinaryScene", 7.0, 7.0, 7.0, 0),
+        ],
     )
-    raw.execute(
+    raw.executemany(
         "INSERT INTO SpawnPointCharacters VALUES (?, ?, 1.0, 1, 0)",
-        ("spawn:ordinary", "character:ordinary"),
+        [
+            ("spawn:ordinary", "character:ordinary"),
+            # A real spawn point at a placed character's spot, which the export uses instead of a virtual one.
+            ("spawn:ordinary", "character:managed"),
+            ("spawn:placed", "character:placed"),
+            ("spawn:elsewhere", "character:wanderer"),
+        ],
     )
     raw.executemany(
         """INSERT INTO DynamicCharacterSpawns
@@ -305,6 +319,21 @@ def processed_db(tmp_path):
     raw.close()
     yield writer._conn
     writer._conn.close()
+
+
+def test_a_spawn_point_at_a_placed_characters_spot_is_its_only_placement(processed_db):
+    # A second row would let the character skip the gates of its spawn point.
+    rows = processed_db.execute(
+        "SELECT character_stable_key, spawn_point_stable_key FROM character_spawns"
+        " WHERE character_stable_key IN ('character:placed', 'character:managed', 'character:wanderer')"
+        " ORDER BY 1, 2"
+    ).fetchall()
+    assert [tuple(row) for row in rows] == [
+        ("character:managed", "spawn:ordinary"),
+        ("character:placed", "spawn:placed"),
+        ("character:wanderer", None),
+        ("character:wanderer", "spawn:elsewhere"),
+    ]
 
 
 def test_common_world_item_flag_survives_character_processing(processed_db):
