@@ -184,7 +184,7 @@ def test_generation_writes_and_validates_persisted_progression_rows(tmp_path: Pa
     assert key in content
     assert '["milestone"] = true' in content
     assert '["first"] = 1' in content
-    assert '["ways"]' in content and '"[]"' in content
+    assert '["ways"] = {' in content and """'["Nothing is needed."]'""" in content
     assert '["type"]' not in content
 
 
