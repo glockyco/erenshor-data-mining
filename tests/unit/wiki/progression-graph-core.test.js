@@ -5,46 +5,69 @@ const vm = require( 'node:vm' );
 const assert = require( 'node:assert/strict' );
 const core = require( '../../../wiki/gadgets/progression-graph-core.js' );
 
-// A record in the form that Module:Erenshor/Progression puts into the payload:
-// packed ways, a one-based first way, and an omitted page for page = name.
-const node = ( kind, name, tier, milestone, ways, extra ) => Object.assign(
-	{ kind, name, milestone, ways: ways.map( ( needs ) => JSON.stringify( needs ) ), first: 1 },
-	tier === null ? {} : { tier },
-	extra || {}
-);
-const meatWays = [ 1, 2, 3, 4, 5, 6 ].map( () => [ [ 'drop', 'character:wolf' ] ] );
+// A way in the form that Module:Erenshor/Progression puts into the payload: the
+// sentence first, then one positional array per need.
+const way = ( sentence, ...needs ) => JSON.stringify( [ sentence, ...needs ] );
 
+// A vault behind a door whose key a boss drops while it rains, an errand that a
+// note starts and whose reward the plane needs, and a later quest that the
+// errand must leave undone.
 const routeNodes = () => ( {
-	'zone:stowaway': node( 'zone', "Stowaway's Step", 0, true, [ [] ] ),
-	'quest_start:errand': node( 'quest_start', 'An Errand', 0, false, [ [ [ 'talk to', 'character:guard' ] ] ] ),
-	'character:guard': node( 'character', 'A Guard', 0, false, [ [ [ 'in zone', 'zone:stowaway' ] ] ] ),
-	'quest:errand': node( 'quest', 'An Errand', 1, true, [ [ [ 'quest start', 'quest_start:errand' ] ] ] ),
-	'item:key': node( 'item', 'Iron Key', 2, true, [ [ [ 'quest reward', 'quest:errand' ] ] ] ),
-	'barrier:door': node( 'barrier', 'Iron Door', 3, true, [ [ [ 'key', 'item:key' ] ] ], { page: false } ),
-	'zone:vault': node( 'zone', 'The Vault', 4, true, [
-		[ [ 'zone line', 'zone:stowaway' ] ],
-		[ [ 'zone line', 'zone:stowaway' ] ],
-		[ [ 'barrier', 'barrier:door' ], [ 'zone line', 'zone:stowaway' ] ]
-	], { first: 3 } ),
-	'character:wolf': node( 'character', 'A Wolf', 0, false, [ [ [ 'in zone', 'zone:stowaway' ] ] ] ),
-	'item:meat': node( 'item', 'Wolf Meat', 0, false, meatWays ),
-	'character:priest': node( 'character', 'A Priest', 4, false, [ [ [ 'in zone', 'zone:vault' ] ] ] ),
-	'mechanism:bridge': node( 'mechanism', 'A bridge', 2, false, [ [ [ 'after', 'item:key' ] ] ], { page: false } ),
-	'quest:ritual': node( 'quest', 'The Ritual', 5, true, [
-		[ [ 'turn in to', 'character:priest' ], [ 'required item', 'item:meat', 2 ], [ 'after', 'mechanism:bridge' ] ],
-		[ [ 'alternative', 'zone:vault' ] ]
-	] ),
-	'zone:plane': node( 'zone', 'The Plane', 6, true, [
-		[ [ 'quest done', 'quest:ritual' ], [ 'planning slot', 'item:key', null, 'PlanarX' ] ]
-	] )
+	'zone:start': { kind: 'zone', name: "Stowaway's Step", way: way( 'Start a new character in {zone:start}.', [ 'from', 'mechanism:start' ] ) },
+	'mechanism:start': { kind: 'mechanism', name: 'New character start', page: false, way: way( 'Nothing is needed.' ) },
+	'character:boss': { kind: 'character', name: 'Boss', way: way( 'Find {character:boss} in {zone:start}.', [ 'in zone', 'zone:start' ] ) },
+	'world_state:rain': { kind: 'world_state', name: 'Rain in the Step', page: false, way: way( 'Wait for rain in {zone:start}.', [ 'natural weather', null, null, null, null, 'Wait for natural rain' ], [ 'in zone', 'zone:start' ] ) },
+	'item:key': { kind: 'item', name: 'Iron Key', way: way( 'Defeat {character:boss} in {zone:start} for {item:key}, while it rains in {zone:start}.', [ 'drops', 'character:boss' ], [ 'release', 'world_state:rain' ] ) },
+	'barrier:door': { kind: 'barrier', name: 'Iron Door', page: false, way: way( 'Open {barrier:door} with {item:key}.', [ 'key', 'item:key' ] ) },
+	'zone:vault': { kind: 'zone', name: 'The Vault', way: way( 'Travel from {zone:start} to {zone:vault} through {barrier:door}.', [ 'barrier', 'barrier:door' ], [ 'zone line', 'zone:start' ] ) },
+	'quest:later': { kind: 'quest', name: 'A Later Quest' },
+	'item:note': { kind: 'item', name: 'A Torn Note', way: way( 'Defeat {character:boss} in {zone:start} for {item:note}.', [ 'drops', 'character:boss' ] ) },
+	'quest_start:quest:errand': { kind: 'quest_start', name: 'An Errand', way: way( 'Read {item:note} to start {quest:errand}.', [ 'read', 'item:note' ] ) },
+	'quest:errand': { kind: 'quest', name: 'An Errand', way: way( 'Read {item:note} to start {quest:errand}, then talk to {character:boss} in {zone:start} to finish it, before you finish {quest:later}.', [ 'talk to', 'character:boss' ], [ 'quest not done', 'quest:later' ], [ 'started', 'quest_start:quest:errand' ] ) },
+	'item:reward': { kind: 'item', name: 'Errand Reward', way: way( 'Finish {quest:errand} for {item:reward}.', [ 'reward', 'quest:errand' ] ) },
+	'zone:plane': { kind: 'zone', name: 'The Plane', way: way( 'Place {item:reward} on the planning table in {zone:vault} to travel to {zone:plane}.', [ 'planning slot', 'item:reward' ], [ 'zone line', 'zone:vault' ] ) }
 } );
 
-const payload = ( nodes, overrides ) => JSON.stringify( Object.assign(
-	{ targets: [ 'zone:plane' ], maxDepth: 6, sourceLimit: 4, unmet: [ 'quest not done' ], nodes: nodes || routeNodes() },
-	overrides
-) );
+const routeChapters = () => [
+	{ title: 'Unlock The Vault', parts: [ { title: 'Unlock The Vault', steps: [ 'world_state:rain', 'item:key', 'barrier:door', 'zone:vault' ] } ] },
+	{ title: 'Finish An Errand', parts: [ { title: 'Finish An Errand', steps: [ 'quest:errand' ] } ] },
+	{ title: 'Unlock The Plane', parts: [ { title: 'Unlock The Plane', steps: [ 'zone:plane' ] } ] }
+];
+
+const routeSteps = () => ( {
+	'world_state:rain': { deps: {} },
+	'item:key': { deps: [ 'world_state:rain' ] },
+	'barrier:door': { deps: [ 'item:key' ] },
+	'zone:vault': { deps: [ 'barrier:door' ] },
+	'quest:errand': { deps: [], folds: [ 'item:reward' ] },
+	'zone:plane': { deps: [ 'zone:vault', 'quest:errand' ] }
+} );
+
+const actions = {
+	drops: 'defeat',
+	release: 'defeat',
+	'release|world_state': 'bring',
+	key: 'open with',
+	barrier: 'get past',
+	'zone line': 'travel from',
+	'planning slot': 'place',
+	'talk to': 'talk to',
+	'in zone': 'go to',
+	reward: 'finish',
+	read: 'read',
+	started: 'start',
+	from: 'use'
+};
+
+const payload = ( overrides ) => JSON.stringify( Object.assign( {
+	targets: [ 'zone:plane' ],
+	unmet: [ 'quest not done' ],
+	actions: actions,
+	chapters: routeChapters(),
+	steps: routeSteps(),
+	nodes: routeNodes()
+}, overrides ) );
 const model = ( text ) => core.createModel( core.parsePayload( text || payload() ) );
-const edges = ( view ) => view.edges.map( ( edge ) => edge.from + ' > ' + edge.to ).sort();
 
 test( 'publishes the browser global inside a ResourceLoader module wrapper', () => {
 	const context = { module: { exports: {} } };
@@ -60,295 +83,182 @@ test( 'publishes the browser global inside a ResourceLoader module wrapper', () 
 	assert.deepEqual( context.module.exports, {} );
 } );
 
-test( 'reads pages, first ways, and tiers from the compact records', () => {
+test( 'reads the route, its pages, and first ways from the payload', () => {
 	const graph = model();
 
+	assert.deepEqual( graph.order, [ 'world_state:rain', 'item:key', 'barrier:door', 'zone:vault', 'quest:errand', 'zone:plane' ] );
 	assert.equal( graph.record( 'zone:vault' ).page, 'The Vault' );
 	assert.equal( graph.record( 'barrier:door' ).page, null );
-	assert.equal( graph.record( 'zone:vault' ).first, 2 );
-	assert.equal( graph.firstWay( 'zone:vault' ).needs[ 0 ].need, 'barrier:door' );
-	assert.deepEqual( graph.ways( 'zone:plane' )[ 0 ].needs[ 1 ], {
-		relation: 'planning slot',
-		need: 'item:key',
+	// Lua writes an empty list of needs as an empty object.
+	assert.deepEqual( graph.steps.get( 'world_state:rain' ).deps, [] );
+	assert.deepEqual( graph.firstWay( 'item:key' ).needs[ 1 ], {
+		relation: 'release',
+		need: 'world_state:rain',
 		quantity: null,
-		slot: 'PlanarX',
+		slot: null,
 		keywords: null,
 		text: null,
-		advisory: false,
-		unconfirmed: false,
+		advisory: null,
+		unconfirmed: null,
 		requiredLevel: null
 	} );
-	assert.equal( core.parsePayload( payload( { 'zone:plane': node( 'zone', 'P', null, true, [], { first: undefined } ) } ) )
-		.records.get( 'zone:plane' ).tier, null );
+	assert.equal( graph.firstWay( 'quest:later' ), null );
 } );
 
 test( 'rejects data that the view could not have rendered', () => {
 	assert.throws( () => core.parsePayload( '{"targets":' ), /cannot be read/ );
-	assert.throws( () => core.parsePayload( payload( undefined, { targets: [ 'zone:elsewhere' ] } ) ),
-		/target zone:elsewhere has no node/ );
-	assert.throws( () => core.parsePayload( payload( undefined, { maxDepth: 0 } ) ), /depth limit/ );
-	assert.throws( () => core.parsePayload( payload( undefined, { sourceLimit: undefined } ) ), /source limit/ );
-	assert.throws( () => core.parsePayload( payload( undefined, { unmet: undefined } ) ), /unmet relations/ );
-	const nodes = routeNodes();
-	nodes[ 'zone:plane' ].first = 2;
-	assert.throws( () => core.parsePayload( payload( nodes ) ), /first way that it does not have/ );
-	const unnamed = routeNodes();
-	unnamed[ 'item:key' ].ways = [ JSON.stringify( [ [ 'quest reward' ] ] ) ];
-	assert.throws( () => model( payload( unnamed ) ).ways( 'item:key' ), /without a step or a condition/ );
+	assert.throws( () => core.parsePayload( payload( { targets: [] } ) ), /names no targets/ );
+	assert.throws( () => core.parsePayload( payload( { targets: [ 'zone:start' ] } ) ), /target zone:start is no step/ );
+	const missing = routeNodes();
+	delete missing[ 'item:key' ];
+	assert.throws( () => core.parsePayload( payload( { nodes: missing } ) ), /step item:key is missing/ );
+	const steps = routeSteps();
+	steps[ 'zone:vault' ].deps = [ 'zone:start' ];
+	assert.throws( () => core.parsePayload( payload( { steps: steps } ) ), /names zone:start, which the route lacks/ );
+	const chapters = routeChapters();
+	delete chapters[ 1 ].title;
+	assert.throws( () => core.parsePayload( payload( { chapters: chapters } ) ), /chapter 2 is malformed/ );
+	const broken = routeNodes();
+	broken[ 'item:key' ].way = JSON.stringify( [ [ 'drops', 'character:boss' ] ] );
+	assert.throws( () => model( payload( { nodes: broken } ) ).firstWay( 'item:key' ), /has no sentence/ );
 } );
 
-test( 'the overview joins milestones through the first ways of other steps', () => {
-	const view = core.overview( model(), [ 'zone:plane' ] );
-
-	assert.deepEqual( view.keys, [
-		'zone:stowaway', 'quest:errand', 'item:key', 'barrier:door', 'zone:vault', 'quest:ritual', 'zone:plane'
-	] );
-	// The Ritual reaches the vault through its priest, the key through the
-	// bridge, and Stowaway's Step through the meat's wolf.
-	assert.deepEqual( view.deps.get( 'quest:ritual' ), [ 'zone:stowaway', 'item:key', 'zone:vault' ] );
-	// The quest start and its giver lead to the giver's zone.
-	assert.deepEqual( view.deps.get( 'quest:errand' ), [ 'zone:stowaway' ] );
-	// The vault's first way is its gated entrance, not a gate-free one.
-	assert.deepEqual( view.deps.get( 'zone:vault' ), [ 'zone:stowaway', 'barrier:door' ] );
-	assert.ok( !view.deps.has( 'mechanism:bridge' ) );
-} );
-
-test( 'every edge of the overview runs to a later tier column', () => {
+test( 'a goal keeps its step and every step that it needs', () => {
 	const graph = model();
-	const view = core.overview( graph, [ 'zone:plane' ] );
-	const columns = core.orderColumns( view, graph, 8 );
-	const column = new Map();
-	columns.forEach( ( entry, index ) => entry.keys.forEach( ( key ) => column.set( key, index ) ) );
 
-	assert.deepEqual( columns.map( ( entry ) => entry.tier ), [ 0, 1, 2, 3, 4, 5, 6 ] );
-	assert.ok( view.edges.length > 0 );
-	for ( const edge of view.edges ) {
-		assert.ok( column.get( edge.from ) < column.get( edge.to ), edge.from + ' > ' + edge.to );
-		assert.ok( graph.record( edge.from ).tier < graph.record( edge.to ).tier );
+	assert.deepEqual( [ ...core.goalSteps( graph, 'zone:vault' ) ].sort(), [ 'barrier:door', 'item:key', 'world_state:rain', 'zone:vault' ] );
+	assert.equal( core.goalSteps( graph, 'zone:plane' ).size, 6 );
+	// A reward that a quest's step names leads to that quest.
+	assert.deepEqual( [ ...core.goalSteps( graph, 'item:reward' ) ], [ 'quest:errand' ] );
+	assert.throws( () => core.goalSteps( graph, 'quest:later' ), /not on this route/ );
+} );
+
+test( 'transitive reduction drops a line that a longer path already implies', () => {
+	assert.deepEqual(
+		core.transitiveReduction( 4, [ { from: 0, to: 1 }, { from: 1, to: 2 }, { from: 0, to: 2 }, { from: 2, to: 3 }, { from: 0, to: 3 } ] ),
+		[ { from: 0, to: 1 }, { from: 1, to: 2 }, { from: 2, to: 3 } ]
+	);
+} );
+
+test( 'the chapter graph holds the chapters of the goal and how they depend on each other', () => {
+	const graph = model();
+	const plane = core.chapterGraph( graph, core.goalSteps( graph, 'zone:plane' ) );
+	const vault = core.chapterGraph( graph, core.goalSteps( graph, 'zone:vault' ) );
+
+	assert.deepEqual( plane.chapters.map( ( chapter ) => chapter.title ), [ 'Unlock The Vault', 'Finish An Errand', 'Unlock The Plane' ] );
+	assert.deepEqual( plane.edges, [ { from: 0, to: 2 }, { from: 1, to: 2 } ] );
+	assert.deepEqual( vault.chapters.map( ( chapter ) => [ chapter.chapter, chapter.steps.length ] ), [ [ 0, 4 ] ] );
+	assert.deepEqual( vault.edges, [] );
+} );
+
+test( 'a line that spans layers bends through a place of its own in each layer it crosses', () => {
+	const size = { width: 100, height: 40, gapX: 20, gapY: 30, bend: 10 };
+	// A then B then C, and D, which needs nothing, is a requirement of C.
+	const graph = {
+		chapters: [ 'A', 'B', 'C', 'D' ].map( ( title, index ) => ( { chapter: index, title: title, steps: [ title ] } ) ),
+		edges: [ { from: 0, to: 1 }, { from: 1, to: 2 }, { from: 3, to: 2 } ]
+	};
+	const layout = core.layoutChapters( graph, size );
+	const card = ( index ) => layout.cards[ index ];
+	const long = layout.lines.find( ( line ) => line.from === 3 );
+
+	assert.deepEqual( layout.cards.map( ( place ) => place.y ), [ 0, 70, 140, 0 ] );
+	assert.equal( long.points.length, 3 );
+	// The bend lies in the middle layer, beside B rather than through it.
+	assert.equal( long.points[ 1 ].y, 70 + 20 );
+	assert.ok( long.points[ 1 ].x < card( 1 ).x || long.points[ 1 ].x > card( 1 ).x + card( 1 ).width );
+	for ( const line of layout.lines ) {
+		for ( let index = 1; index < line.points.length; index++ ) {
+			assert.ok( line.points[ index ].y > line.points[ index - 1 ].y, 'a line runs down' );
+		}
 	}
+	assert.equal( layout.height, 3 * 40 + 2 * 30 );
+	assert.match( core.linePath( long.points ), /^M\S+ \S+ C/ );
 } );
 
-test( 'a quest to keep undone is no requirement of the route', () => {
-	const nodes = routeNodes();
-	// The key can only be had before The Ritual is done, which needs the key itself.
-	nodes[ 'item:key' ].ways = [ JSON.stringify( [ [ 'quest reward', 'quest:errand' ], [ 'quest not done', 'quest:ritual' ] ] ) ];
-	const graph = model( payload( nodes ) );
-	const view = core.overview( graph, [ 'barrier:door' ] );
-	const forest = core.detailForest( graph, view );
+test( 'a neighbourhood shows what a node needs and what needs it, with the action of each line', () => {
+	const graph = model();
+	const key = core.neighbourhood( graph, 'item:key' );
+	const errand = core.neighbourhood( graph, 'quest:errand' );
 
-	assert.deepEqual( view.keys, [ 'zone:stowaway', 'quest:errand', 'item:key', 'barrier:door' ] );
-	assert.deepEqual( view.deps.get( 'item:key' ), [ 'quest:errand' ] );
-	const undone = forest.trees.get( 'item:key' ).visible[ 0 ].needs[ 1 ];
-	assert.equal( undone.state, 'unmet' );
-	assert.equal( undone.ways, undefined );
-	assert.equal( core.routeOwner( graph, view, 'character:priest' ), null );
+	assert.deepEqual( key.needs, [ { key: 'character:boss', action: 'defeat' }, { key: 'world_state:rain', action: 'bring' } ] );
+	assert.deepEqual( key.unlocks, [ { key: 'barrier:door', action: 'open with' } ] );
+	// A quest to keep undone is no requirement, so neither side names the other.
+	// The note that starts the errand counts as the errand's own need.
+	assert.deepEqual( errand.needs, [ { key: 'character:boss', action: 'talk to' }, { key: 'item:note', action: 'read' } ] );
+	assert.deepEqual( core.neighbourhood( graph, 'item:note' ).unlocks, [ { key: 'quest:errand', action: 'read' } ] );
+	assert.deepEqual( core.neighbourhood( graph, 'quest:later' ).unlocks, [] );
+	assert.deepEqual( core.neighbourhood( graph, 'quest:errand' ).unlocks, [ { key: 'item:reward', action: 'finish' } ] );
 } );
 
-test( 'untiered steps take the last column', () => {
-	const nodes = {
-		'zone:plane': node( 'zone', 'P', null, true, [ [ [ 'after', 'item:a' ] ] ] ),
-		'item:a': node( 'item', 'A', 3, true, [ [] ] )
+test( 'a neighbourhood lays out its needs, the node, and what needs it from left to right', () => {
+	const size = { width: 100, height: 40, gapX: 60, gapY: 10 };
+	const near = {
+		key: 'center',
+		needs: [ { key: 'a', action: 'defeat' }, { key: 'b', action: 'bring' } ],
+		unlocks: [ { key: 'c', action: 'use' }, { key: 'd', action: 'go to' }, { key: 'e', action: 'use' } ]
 	};
-	const graph = model( payload( nodes ) );
-	const columns = core.orderColumns( core.overview( graph, [ 'zone:plane' ] ), graph, 2 );
+	const layout = core.layoutNeighbourhood( near, size );
+	const cards = [ ...layout.needs, layout.center, ...layout.unlocks ];
+	const gaps = [ [ 100, 160 ], [ 260, 320 ] ];
 
-	assert.deepEqual( columns.map( ( entry ) => entry.tier ), [ 3, null ] );
-} );
-
-test( 'barycenter sweeps uncross the lines between two columns', () => {
-	const nodes = {
-		'item:a1': node( 'item', 'A1', 0, true, [ [] ] ),
-		'item:a2': node( 'item', 'A2', 0, true, [ [] ] ),
-		'item:b1': node( 'item', 'B1', 1, true, [ [ [ 'from', 'item:a2' ] ] ] ),
-		'item:b2': node( 'item', 'B2', 1, true, [ [ [ 'from', 'item:a1' ] ] ] )
-	};
-	const graph = model( payload( nodes, { targets: [ 'item:b1', 'item:b2' ] } ) );
-	const columns = core.orderColumns( core.overview( graph, [ 'item:b1', 'item:b2' ] ), graph, 4 );
-
-	assert.deepEqual( columns[ 0 ].keys, [ 'item:a1', 'item:a2' ] );
-	assert.deepEqual( columns[ 1 ].keys, [ 'item:b2', 'item:b1' ] );
-} );
-
-test( 'a step with several requirements gathers them at one junction', () => {
-	const graph = model();
-	const view = core.overview( graph, [ 'zone:plane' ] );
-	const layout = core.placeColumns( core.orderColumns( view, graph, 8 ), () => 40, {
-		left: 10, top: 30, nodeWidth: 200, columnGap: 80, rowGap: 10
-	} );
-	const routes = core.edgeRoutes( view, layout.positions, { anchor: 20, junctionGap: 24, labelOffset: 28, labelSpacing: 13 } );
-	const plane = layout.positions.get( 'zone:plane' );
-	const junction = routes.junctions.find( ( entry ) => entry.key === 'zone:plane' );
-
-	assert.deepEqual( junction, { key: 'zone:plane', x: plane.x - 24, y: plane.y + 20, count: 2 } );
-	assert.ok( !routes.junctions.some( ( entry ) => entry.key === 'barrier:door' ) );
-	const intoPlane = routes.routes.filter( ( route ) => route.to === 'zone:plane' && route.from );
-	assert.deepEqual( intoPlane.map( ( route ) => route.from ).sort(), [ 'item:key', 'quest:ritual' ] );
-	assert.ok( intoPlane.every( ( route ) => route.d.endsWith( ( plane.x - 24 ) + ' ' + ( plane.y + 20 ) ) ) );
-} );
-
-test( 'labels of lines that hide steps stack in the gap after their source', () => {
-	const graph = model();
-	const quests = core.filterView( core.overview( graph, [ 'zone:plane' ] ), graph, 'quests', new Set( [ 'zone:plane' ] ) );
-	const layout = core.placeColumns( core.orderColumns( quests, graph, 8 ), () => 40, {
-		left: 10, top: 30, nodeWidth: 200, columnGap: 80, rowGap: 10
-	} );
-	const routes = core.edgeRoutes( quests, layout.positions, { anchor: 20, junctionGap: 24, labelOffset: 28, labelSpacing: 13 } );
-	const errand = layout.positions.get( 'quest:errand' );
-	const labels = routes.routes.filter( ( route ) => route.from === 'quest:errand' ).map( ( route ) => route.label );
-
-	assert.equal( labels.length, 2 );
-	assert.ok( labels.every( ( label ) => label.x === errand.x + errand.width + 28 ) );
-	assert.notEqual( labels[ 0 ].y, labels[ 1 ].y );
-	assert.equal( routes.routes.find( ( route ) => route.from === 'quest:ritual' ).label, null );
-} );
-
-test( 'what an item unlocks follows the reversed edges of its route', () => {
-	const view = core.overview( model(), [ 'zone:plane' ] );
-	const unlocks = core.restrict( view, 'item:key', 'unlocks' );
-	const needs = core.restrict( view, 'zone:vault', 'needs' );
-
-	assert.deepEqual( unlocks.keys, [ 'item:key', 'barrier:door', 'zone:vault', 'quest:ritual', 'zone:plane' ] );
-	assert.deepEqual( unlocks.deps.get( 'item:key' ), [] );
-	assert.deepEqual( needs.keys, [ 'zone:stowaway', 'quest:errand', 'item:key', 'barrier:door', 'zone:vault' ] );
-	assert.throws( () => core.restrict( unlocks, 'quest:errand', 'needs' ), /not on this route/ );
-} );
-
-test( 'a filtered edge names the steps that it hides', () => {
-	const graph = model();
-	const view = core.overview( graph, [ 'zone:plane' ] );
-	const quests = core.filterView( view, graph, 'quests', new Set( [ 'zone:plane' ] ) );
-	const edge = ( from, to ) => quests.edges.find( ( entry ) => entry.from === from && entry.to === to );
-
-	assert.deepEqual( quests.keys, [ 'quest:errand', 'quest:ritual', 'zone:plane' ] );
-	assert.deepEqual( edges( quests ), [
-		'quest:errand > quest:ritual', 'quest:errand > zone:plane', 'quest:ritual > zone:plane'
+	// The cards of one action stay together, in the order of their first card.
+	assert.deepEqual( cards.map( ( card ) => [ card.key, card.x, card.y ] ), [
+		[ 'a', 0, 25 ], [ 'b', 0, 75 ], [ 'center', 160, 50 ], [ 'c', 320, 0 ], [ 'e', 320, 50 ], [ 'd', 320, 100 ]
 	] );
-	assert.deepEqual( edge( 'quest:errand', 'quest:ritual' ), {
-		from: 'quest:errand', to: 'quest:ritual', direct: false, hidden: [ 'item:key', 'barrier:door', 'zone:vault' ]
-	} );
-	assert.deepEqual( edge( 'quest:ritual', 'zone:plane' ).hidden, [] );
-	assert.equal( edge( 'quest:ritual', 'zone:plane' ).direct, true );
-	assert.equal( core.hiddenStepsLabel( 1 ), '1 hidden step' );
-	assert.equal( core.hiddenStepsLabel( 3 ), '3 hidden steps' );
-
-	const areas = core.filterView( view, graph, 'areas', new Set( [ 'zone:plane' ] ) );
-	assert.deepEqual( areas.keys, [ 'zone:stowaway', 'zone:vault', 'zone:plane' ] );
-	assert.deepEqual( areas.edges.find( ( entry ) => entry.from === 'zone:vault' ).hidden, [ 'quest:ritual' ] );
+	assert.deepEqual( [ layout.width, layout.height ], [ 420, 140 ] );
+	// Each action's label sits at the fork of its lines, in the middle of a gap.
+	assert.deepEqual( layout.groups.map( ( group ) => [ group.action, group.fork.x, group.fork.y ] ), [
+		[ 'defeat', 130, 45 ], [ 'bring', 130, 95 ], [ 'use', 290, 45 ], [ 'go to', 290, 120 ]
+	] );
+	for ( const group of layout.groups ) {
+		for ( const path of group.paths ) {
+			assert.ok( gaps.some( ( [ left, right ] ) => left <= path.from.x && path.from.x < path.to.x && path.to.x <= right ),
+				'a line runs rightwards within one gap' );
+		}
+	}
+	assert.deepEqual( layout.arrows, [ { x: 160, y: 70 }, { x: 320, y: 20 }, { x: 320, y: 70 }, { x: 320, y: 120 } ] );
+	// Without needs the node starts the row.
+	const alone = core.layoutNeighbourhood( { key: 'center', needs: [], unlocks: [ { key: 'c', action: 'use' } ] }, size );
+	assert.deepEqual( [ alone.center.x, alone.unlocks[ 0 ].x, alone.width ], [ 0, 160, 260 ] );
+	// A path leaves and meets its ends horizontally, which the arrows assume.
+	assert.equal( core.sidewaysPath( { x: 0, y: 0 }, { x: 60, y: 20 } ), 'M0 0 C30 0 30 20 60 20' );
 } );
 
-test( 'details collapse common sources and gate-free entrances like the text', () => {
+test( 'a node that is no step belongs to the nearest step whose first way leads to it', () => {
 	const graph = model();
-	const forest = core.detailForest( graph, core.overview( graph, [ 'zone:plane' ] ) );
-	const vault = forest.trees.get( 'zone:vault' );
-	const ritual = forest.trees.get( 'quest:ritual' ).visible[ 0 ];
-	const meat = ritual.needs[ 1 ];
 
-	assert.equal( vault.entrances.length, 2 );
-	assert.equal( vault.visible.length, 1 );
-	assert.equal( vault.visible[ 0 ].first, true );
-	assert.equal( meat.state, 'expanded' );
-	assert.equal( meat.ways.visible.length, 4 );
-	assert.equal( meat.ways.sources.length, 2 );
-	// The first source expands the wolf, and later sources refer to it.
-	assert.equal( meat.ways.visible[ 0 ].needs[ 0 ].state, 'expanded' );
-	assert.equal( meat.ways.visible[ 1 ].needs[ 0 ].state, 'reference' );
-	// Drawn steps are references, not repeated.
-	assert.equal( ritual.needs[ 0 ].ways.visible[ 0 ].needs[ 0 ].state, 'reference' );
-	assert.equal( forest.owners.get( 'character:wolf' ), 'quest:ritual' );
-	assert.equal( forest.owners.get( 'character:guard' ), 'quest:errand' );
-	assert.equal( forest.owners.get( 'zone:vault' ), 'zone:vault' );
+	assert.equal( graph.owner( 'item:key' ), 'item:key' );
+	assert.equal( graph.owner( 'item:reward' ), 'quest:errand' );
+	// The boss drops the key and receives the errand, and the key comes first.
+	assert.equal( graph.owner( 'character:boss' ), 'item:key' );
+	assert.equal( graph.owner( 'zone:start' ), 'world_state:rain' );
+	assert.equal( graph.owner( 'quest:later' ), null );
 } );
 
-test( 'a milestone keeps every way, and details stop at the depth limit', () => {
-	const nodes = {
-		'zone:plane': node( 'zone', 'P', 2, true, [ [ [ 'after', 'item:one' ] ] ] ),
-		'item:one': node( 'item', 'One', 1, false, [ [ [ 'after', 'item:two' ] ] ] ),
-		'item:two': node( 'item', 'Two', 1, false, [ [ [ 'after', 'item:three' ] ] ] ),
-		'item:three': node( 'item', 'Three', 1, true, meatWays.map( () => [] ) )
-	};
-	const graph = model( payload( nodes, { maxDepth: 2 } ) );
-	const view = core.overview( graph, [ 'zone:plane' ] );
-	const forest = core.detailForest( graph, view );
-	const one = forest.trees.get( 'zone:plane' ).visible[ 0 ].needs[ 0 ];
-
-	assert.equal( one.state, 'expanded' );
-	assert.equal( one.ways.visible[ 0 ].needs[ 0 ].state, 'limit' );
-	assert.equal( forest.trees.get( 'item:three' ).visible.length, 6 );
-	assert.equal( forest.trees.get( 'item:three' ).sources.length, 0 );
-} );
-
-test( 'a step beyond the depth limit belongs to the drawn step whose first way reaches it', () => {
-	const nodes = {
-		'zone:plane': node( 'zone', 'P', 2, true, [ [ [ 'after', 'item:one' ] ] ] ),
-		'item:one': node( 'item', 'One', 1, false, [ [ [ 'after', 'item:two' ] ] ] ),
-		'item:two': node( 'item', 'Two', 1, false, [ [ [ 'after', 'item:three' ] ] ] ),
-		'item:three': node( 'item', 'Three', 1, true, [ [] ] )
-	};
-	const graph = model( payload( nodes, { maxDepth: 1 } ) );
-	const view = core.overview( graph, [ 'zone:plane' ] );
-	const forest = core.detailForest( graph, view );
-
-	assert.equal( forest.owners.get( 'item:two' ), undefined );
-	assert.equal( core.routeOwner( graph, view, 'item:two' ), 'zone:plane' );
-	assert.equal( core.routeOwner( graph, view, 'item:three' ), 'item:three' );
-} );
-
-test( 'needs read as the text words them', () => {
-	const graph = model();
-	const words = ( values ) => {
-		const nodes = routeNodes();
-		nodes[ 'zone:plane' ].ways = [ JSON.stringify( [ values ] ) ];
-		const local = model( payload( nodes ) );
-		return local.ways( 'zone:plane' )[ 0 ].needs.map( ( need ) => core.needWording( local, need ) )[ 0 ];
-	};
-
-	assert.deepEqual( words( [ 'defeated', 'character:wolf', 9 ] ),
-		{ lead: 'Defeat all 9 ', key: 'character:wolf', name: 'A Wolf', trail: '' } );
-	assert.equal( words( [ 'defeated', 'character:wolf', 1 ] ).lead, 'Defeat ' );
-	assert.equal( words( [ 'defeat', 'character:wolf' ] ).lead, 'Defeat ' );
-	assert.deepEqual( words( [ 'required item', 'item:key', 2, 'L1', 'open', null, true, true, 8 ] ), {
-		lead: 'required item: 2 x ',
-		key: 'item:key',
-		name: 'Iron Key',
-		trail: ' (slot L1) (keywords: "open") (level 8) (advisory) (player access unconfirmed)'
-	} );
-	assert.deepEqual( words( [ 'state', null, null, null, null, 'Wait for night' ] ),
-		{ lead: 'state: ', key: null, name: null, trail: 'Wait for night' } );
-	assert.equal( words( [ 'standing', 'item:key', null, null, null, 'positive' ] ).trail, ' (positive)' );
-	assert.equal( core.needWording( graph, graph.ways( 'quest:errand' )[ 0 ].needs[ 0 ] ).name, 'Start An Errand' );
-} );
-
-test( 'search finds every step of the data, whole names first', () => {
+test( 'search finds the route by name, whole names first and then in route order', () => {
 	const graph = model();
 
 	assert.deepEqual( core.search( graph, '  iron  ', 10 ).map( ( entry ) => entry.key ), [ 'item:key', 'barrier:door' ] );
-	assert.deepEqual( core.search( graph, 'wolf', 10 ).map( ( entry ) => entry.key ),
-		[ 'item:meat', 'character:wolf' ] );
-	assert.deepEqual( core.search( graph, 'the vault', 10 )[ 0 ], {
-		key: 'zone:vault', name: 'The Vault', kind: 'zone', tier: 4
-	} );
-	assert.deepEqual( core.search( graph, 'start an', 10 ).map( ( entry ) => entry.key ), [ 'quest_start:errand' ] );
-	assert.deepEqual( core.search( graph, '', 10 ), [] );
-	assert.equal( core.search( graph, 'a', 2 ).length, 2 );
+	assert.deepEqual( core.search( graph, 'the vault', 10 ).map( ( entry ) => entry.key ), [ 'zone:vault' ] );
+	assert.deepEqual( core.search( graph, 'reward', 10 ), [
+		{ key: 'item:reward', name: 'Errand Reward', kind: 'item', owner: 'quest:errand', rank: 2 }
+	] );
+	// A quest that no step leads to is not part of this route, and a quest's
+	// start, which carries the quest's name, is found as the quest.
+	assert.deepEqual( core.search( graph, 'later', 10 ), [] );
+	assert.deepEqual( core.search( graph, 'errand', 10 ).map( ( entry ) => entry.key ), [ 'item:reward', 'quest:errand' ] );
+	assert.deepEqual( core.search( graph, ' ', 10 ), [] );
 } );
 
-test( 'the arrow keys reach the nearest requirement and unlock', () => {
+test( 'a sentence splits into its text and the nodes that it names', () => {
 	const graph = model();
-	const view = core.overview( graph, [ 'zone:plane' ] );
-	const columns = core.orderColumns( view, graph, 8 );
-	const around = core.neighbours( view, columns, 'quest:ritual' );
 
-	assert.deepEqual( around.needs, [ 'zone:vault', 'item:key', 'zone:stowaway' ] );
-	assert.deepEqual( around.unlocks, [ 'zone:plane' ] );
-	assert.equal( around.up, null );
-	assert.equal( around.down, null );
-	assert.throws( () => core.neighbours( view, columns, 'item:meat' ), /not drawn/ );
-} );
-
-test( 'kinds read as words that the reader knows', () => {
-	assert.equal( core.kindLabel( 'zone' ), 'Area' );
-	assert.equal( core.kindLabel( 'faction_standing' ), 'Standing' );
-	assert.equal( core.kindLabel( 'new_kind' ), 'New kind' );
-	assert.equal( core.tierLabel( 4 ), 'Playthrough tier 4' );
-	assert.equal( core.tierLabel( null ), 'No playthrough tier recorded' );
+	assert.deepEqual( core.sentenceParts( graph, graph.firstWay( 'barrier:door' ).sentence ), [
+		{ text: 'Open ' },
+		{ key: 'barrier:door', name: 'Iron Door', page: null },
+		{ text: ' with ' },
+		{ key: 'item:key', name: 'Iron Key', page: 'Iron Key' },
+		{ text: '.' }
+	] );
 } );

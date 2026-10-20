@@ -104,11 +104,11 @@ The gadget container holds a hidden `pre` with a nowiki JSON payload, serialized
 `progression-graph` holds the drawing code and loads through a small default gadget, `progression-graph-loader`, only when the page holds the container.
 
 - One goal at a time. The map opens on the first target, and the reader picks another target or any step of the route. The text hides the steps that the goal does not need and renumbers the rest.
-- The map draws the goal's chapters from top to bottom. A line joins two chapters when a step of the lower one needs a step of the upper one, after transitive reduction. Layers follow the longest path, repeated barycenter sweeps order each layer, and a line that spans layers bends through a point in each layer that it crosses, so that no line passes behind a card.
+- The map draws the goal's chapters from top to bottom. A line joins two chapters when a step of the lower one needs a step of the upper one, after transitive reduction. Layers follow the longest path, repeated barycenter sweeps order each layer, and a line that spans layers bends through a point in each layer that it crosses, so that no line passes behind a card. A goal of one chapter draws no map.
 - Choosing a chapter scrolls the text to it and marks it.
-- Each step of the text gets a button that draws the step's neighbourhood below it: what its first way needs above it and what needs it below, each line labelled with the action of its relation. Choosing a neighbour that is a step moves there, and any other node becomes the centre of the drawing.
-- Search finds every node of the payload by name. A node that is no step leads to the step whose sentence first names it.
-- Every card and button is a focusable element with a label. Colours come from the skin's CSS variables, and shapes and labels carry every meaning that colour carries. Every failure is caught and logged, and the text stays visible.
+- Each step of the text gets a button that draws the step's neighbourhood under it, from left to right: what its first way needs, the step, and what needs it. A quest's start reads as part of its quest, as in the quest's sentence. The lines of one action meet at a fork that carries the action's label, and arrows point from a need to what needs it. Choosing a neighbour that is a step moves there, and any other node becomes the centre of the drawing.
+- Search finds every node of the payload by name. A node that is no step leads to the nearest step whose first way needs it, directly or through other nodes, and to the earliest of those in route order. An item that a quest's step yields leads to that step.
+- Every card that leads somewhere and every button is a focusable element with a label. Colours come from the skin's CSS variables, and shapes and labels carry every meaning that colour carries. Every failure is caught and logged, and the text stays visible.
 
 The goal's closure, the chapter graph and its reduction, the layers, the ordering, the bends, the neighbourhood, and search are pure functions apart from the DOM code, with node tests beside `semantic-link-picker-core.test.js`.
 
@@ -117,6 +117,7 @@ Alternatives considered:
 - One graph of every milestone, as the first explorer drew it. Rejected: see Context.
 - A third-party graph library copied into `MediaWiki:` pages. Rejected: no dependency manager would track the copy, and a chapter graph is small enough for a layered layout of our own.
 - A canvas. Rejected: a canvas has no elements for the keyboard or for screen readers.
+- A neighbourhood from top to bottom, with needs above and what needs it below. Rejected: a node of the route needs up to 6 nodes and is needed by up to 13, so rows would wrap and lines from a far row would pass behind the cards of a near one.
 
 ### D8. When to publish
 

@@ -1,11 +1,15 @@
-/* The explorer of Template:Progression graph. Colours follow the skin's theme
-   variables, so the graph reads in the light and the dark theme. */
-.epg {
+/* The chapter map of Template:Progression graph and the neighbourhood of a step.
+   Colours follow the skin's theme variables, so both read in the light and the
+   dark theme. */
+.erenshor-progression {
 	--epg-text: var( --wiki-content-text-color, var( --color-base, #202122 ) );
 	--epg-surface: var( --wiki-content-background-color, var( --background-color-base, #fff ) );
 	--epg-surface-alt: var( --wiki-content-background-color--secondary, var( --background-color-interactive-subtle, #eaecf0 ) );
 	--epg-border: var( --wiki-content-border-color, var( --border-color-base, #a2a9b1 ) );
 	--epg-accent: var( --wiki-content-link-color, var( --color-progressive, #36c ) );
+}
+
+.epg {
 	margin: 0.5em 0 1em;
 	color: var( --epg-text );
 }
@@ -15,11 +19,18 @@
 	flex-wrap: wrap;
 	gap: 0.5em 1.25em;
 	align-items: center;
-	margin-bottom: 0.5em;
 }
 
+.epg-goal-select,
+.epg-search-input {
+	font: inherit;
+}
+
+/* The search box may shrink below its input's width on a narrow screen. */
 .epg-search {
 	position: relative;
+	min-width: 0;
+	max-width: 100%;
 }
 
 .epg-search label {
@@ -27,7 +38,9 @@
 }
 
 .epg-search-input {
+	box-sizing: border-box;
 	width: 16em;
+	max-width: 100%;
 }
 
 .epg-results {
@@ -36,92 +49,62 @@
 	top: 100%;
 	left: 0;
 	min-width: 100%;
-	max-height: 20em;
-	margin: 2px 0 0;
+	max-height: 18em;
+	margin: 0;
 	padding: 0;
-	overflow: auto;
-	list-style: none;
+	overflow-y: auto;
 	border: 1px solid var( --epg-border );
 	background: var( --epg-surface );
+	list-style: none;
 }
 
 .epg-result {
-	display: flex;
-	justify-content: space-between;
-	gap: 1em;
 	margin: 0;
-	padding: 0.25em 0.5em;
+	padding: 0.3em 0.6em;
 	cursor: pointer;
 }
 
 .epg-result[ aria-selected='true' ] {
-	background: var( --epg-surface-alt );
 	outline: 2px solid var( --epg-accent );
 	outline-offset: -2px;
+	background: var( --epg-surface-alt );
 }
 
 .epg-result-meta {
+	font-size: 0.85em;
 	opacity: 0.8;
-	white-space: nowrap;
 }
 
-.epg-modes {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.25em 0.75em;
-	margin: 0;
+.epg-map-toggle,
+.epg-near-toggle,
+.epg-near-back,
+.epg-near-goal {
 	padding: 0;
 	border: 0;
+	background: none;
+	color: var( --epg-accent );
+	font: inherit;
+	cursor: pointer;
 }
 
-.epg-modes legend {
-	float: left;
-	margin-right: 0.25em;
-	padding: 0;
+.epg-near-toggle {
+	font-size: 0.85em;
 }
 
-.epg-actions {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.35em;
+.epg-status {
+	margin: 0.4em 0;
 }
 
-.epg-legend {
-	margin: 0 0 0.5em;
+/* The map is as wide as its widest layer and scrolls on a narrow screen. */
+.epg-map {
+	overflow-x: auto;
+	padding: 0.25em 0;
 }
 
-.epg-body {
-	display: flex;
-	gap: 1em;
-	align-items: flex-start;
-}
-
-.epg-viewport {
+.epg-cards,
+.epg-near-frame {
 	position: relative;
-	flex: 1 1 auto;
-	min-width: 0;
-	max-height: 70vh;
-	overflow: auto;
-	border: 1px solid var( --epg-border );
-	background: var( --epg-surface );
-	cursor: grab;
-}
-
-.epg-dragging {
-	cursor: grabbing;
-	user-select: none;
-}
-
-.epg-sizer {
-	position: relative;
-	overflow: hidden;
-}
-
-.epg-world {
-	position: absolute;
-	top: 0;
-	left: 0;
-	transform-origin: 0 0;
+	margin: 0 auto;
 }
 
 .epg-lines {
@@ -135,215 +118,140 @@
 .epg-line {
 	fill: none;
 	stroke: var( --epg-border );
-	stroke-width: 1.5;
+	stroke-width: 2;
 }
 
-.epg-line-skip {
-	stroke-dasharray: 6 4;
-	pointer-events: visibleStroke;
+.epg-arrow {
+	fill: var( --epg-border );
 }
 
-.epg-line-focus {
-	stroke: var( --epg-accent );
-	stroke-width: 3;
-}
-
-.epg-line-label,
-.epg-junction-label {
-	fill: var( --epg-text );
-	font-size: 11px;
-}
-
-.epg-junction {
-	fill: var( --epg-surface );
-	stroke: var( --epg-border );
-	stroke-width: 1.5;
-}
-
-.epg-junction-focus {
-	stroke: var( --epg-accent );
-	stroke-width: 3;
-}
-
-.epg-headings {
+.epg-card,
+.epg-near-card {
 	position: absolute;
-	top: 0;
-	left: 0;
-}
-
-.epg-heading {
-	position: absolute;
-	top: 10px;
-	font-size: 0.8em;
-	font-weight: bold;
-	text-align: center;
-}
-
-.epg-node {
-	position: absolute;
+	display: flex;
 	box-sizing: border-box;
-	width: 216px;
+	flex-direction: column;
+	justify-content: center;
+	margin: 0;
+	padding: 0.2em 0.6em;
+	overflow: hidden;
 	border: 2px solid var( --epg-border );
-	border-radius: 4px;
+	border-radius: 6px;
 	background: var( --epg-surface );
 	color: var( --epg-text );
-	cursor: auto;
-}
-
-.epg-node-target {
-	border-width: 4px;
-}
-
-/* A border shape for each kind repeats what the kind label says. */
-.epg-kind-zone {
-	border-radius: 18px;
-}
-
-.epg-kind-item {
-	border-radius: 0;
-}
-
-.epg-kind-character {
-	border-radius: 4px 18px;
-}
-
-.epg-kind-quest,
-.epg-kind-quest_start {
-	border-left-width: 7px;
-}
-
-.epg-kind-barrier {
-	border-style: dashed;
-}
-
-.epg-kind-world_state,
-.epg-kind-account_state,
-.epg-kind-faction_standing {
-	border-style: dotted;
-}
-
-.epg-node-focus {
-	box-shadow: 0 0 0 3px var( --epg-accent );
-}
-
-/* The steps right before and after the focused step. The ring reads in both
-   themes, where the secondary background alone can match the surface. */
-.epg-node-related {
-	background: var( --epg-surface-alt );
-	box-shadow: 0 0 0 1px var( --epg-accent );
-}
-
-.epg-node-select {
-	display: block;
-	box-sizing: border-box;
-	width: 100%;
-	min-height: 56px;
-	margin: 0;
-	padding: 0.35em 3.6em 0.35em 0.6em;
-	border: 0;
-	background: none;
-	color: inherit;
 	font: inherit;
-	text-align: left;
+	text-align: center;
 	cursor: pointer;
 }
 
-.epg-node-select:focus-visible {
-	outline: 3px solid var( --epg-accent );
-	outline-offset: 2px;
+.epg-card {
+	padding-left: 2.4em;
+	text-align: left;
 }
 
-.epg-node-kind {
-	display: block;
-	font-size: 0.72em;
-	letter-spacing: 0.04em;
-	text-transform: uppercase;
-	opacity: 0.85;
+.epg-card:hover,
+.epg-card:focus-visible,
+.epg-near-card:not( :disabled ):hover,
+.epg-near-card:focus-visible {
+	border-color: var( --epg-accent );
 }
 
-.epg-node-name {
-	display: block;
-	font-weight: bold;
-	line-height: 1.25;
-	overflow-wrap: anywhere;
+.epg-card[ aria-current='true' ] {
+	border-width: 3px;
+	border-color: var( --epg-accent );
 }
 
-.epg-node-tier {
-	display: block;
-	font-size: 0.8em;
-	opacity: 0.85;
-}
-
-.epg-node-toggle {
+.epg-card-number {
 	position: absolute;
-	top: 0.4em;
-	right: 0.4em;
-	padding: 0.1em 0.45em;
-	font-size: 0.8em;
-}
-
-.epg-node-detail {
-	max-height: 28em;
-	padding: 0.4em 0.6em 0.6em;
-	overflow: auto;
-	border-top: 1px solid var( --epg-border );
+	top: 50%;
+	left: 0.5em;
+	min-width: 1.3em;
+	padding: 0 0.25em;
+	border-radius: 0.8em;
+	background: var( --epg-accent );
+	color: var( --epg-surface );
 	font-size: 0.85em;
+	text-align: center;
+	transform: translateY( -50% );
 }
 
-.epg-node-detail ul {
-	margin: 0.2em 0 0.2em 1.2em;
+/* A long title takes a second line, and the hover title holds the whole of it. */
+.epg-card-title,
+.epg-near-name {
+	display: -webkit-box;
+	overflow: hidden;
+	font-size: 0.9em;
+	font-weight: bold;
+	line-height: 1.2;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
 }
 
-.epg-depth-limit,
-.epg-group summary {
+.epg-card-count {
+	font-size: 0.8em;
 	opacity: 0.85;
 }
 
-.epg-mention {
-	outline: 2px solid var( --epg-accent );
+/* The label of a line sits on its middle and hides the line behind it. */
+.epg-near-action {
+	position: absolute;
+	padding: 0 0.3em;
+	border-radius: 3px;
+	background: var( --epg-surface-alt );
+	font-size: 0.8em;
+	line-height: 1.3;
+	white-space: nowrap;
+	transform: translate( -50%, -50% );
 }
 
-.epg-panel {
-	flex: 0 0 19em;
-	box-sizing: border-box;
-	max-height: 70vh;
-	padding: 0.5em 0.75em;
-	overflow: auto;
+.epg-near-heading {
+	position: absolute;
+	top: 0;
+	font-size: 0.85em;
+	font-weight: bold;
+	text-align: center;
+	opacity: 0.85;
+}
+
+.epg-near-center {
+	border-width: 3px;
+	border-color: var( --epg-accent );
+	cursor: default;
+}
+
+.epg-near {
+	margin: 0.4em 0 0.6em;
+	padding: 0.5em;
+	overflow-x: auto;
 	border: 1px solid var( --epg-border );
 	background: var( --epg-surface-alt );
 }
 
-.epg-panel-title {
-	margin-top: 0;
+.epg-near-head {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.3em 1em;
+	justify-content: center;
+	margin-bottom: 0.4em;
 }
 
-.epg-panel-list {
-	margin-left: 1.2em;
+.epg-near-title {
+	font-weight: bold;
 }
 
-.epg-step,
-.epg-go {
-	padding: 0;
-	border: 0;
-	background: none;
-	color: var( --epg-accent );
-	font: inherit;
-	text-align: left;
-	text-decoration: underline;
-	cursor: pointer;
+.epg-near-sentence,
+.epg-near-none {
+	margin: 0 0 0.5em;
+	text-align: center;
 }
 
-.epg-status {
-	margin: 0.5em 0 0;
+/* A chapter or a step that the map or a search led to. */
+.erenshor-progression-chapter.epg-marked {
+	border-left-color: var( --epg-accent );
+	background-color: var( --epg-surface-alt );
 }
 
-@media ( max-width: 720px ) {
-	.epg-body {
-		flex-direction: column;
-	}
-
-	.epg-panel {
-		width: 100%;
-		flex-basis: auto;
-	}
+.erenshor-progression-step.epg-marked {
+	outline: 2px solid var( --epg-accent );
+	outline-offset: 2px;
 }

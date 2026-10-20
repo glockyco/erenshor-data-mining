@@ -126,7 +126,7 @@ With the gadget, the template SHALL draw the chapters of one goal as a map, with
 #### Scenario: What a key unlocks
 
 - **WHEN** the reader shows the neighbourhood of the Ancient Braxonian Key
-- **THEN** it draws Evadne the Corrupted and the rain of Braxonian Desert above the key and the gate into Fallen Braxonia below it, with the action on each line
+- **THEN** it draws Evadne the Corrupted and the rain of Braxonian Desert before the key and the gate into Fallen Braxonia after it, with the action on each line
 
 #### Scenario: Search
 

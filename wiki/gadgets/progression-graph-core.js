@@ -14,25 +14,9 @@
 	const NEED_FIELDS = [
 		'relation', 'need', 'quantity', 'slot', 'keywords', 'text', 'advisory', 'unconfirmed', 'requiredLevel'
 	];
-	const KIND_LABELS = {
-		account_state: 'Account state',
-		barrier: 'Barrier',
-		character: 'Character',
-		class: 'Class',
-		faction_standing: 'Standing',
-		item: 'Item',
-		mechanism: 'Mechanism',
-		quest: 'Quest',
-		quest_start: 'Quest start',
-		spell: 'Spell',
-		world_state: 'World state',
-		zone: 'Area'
-	};
-	const FILTER_KINDS = {
-		quests: [ 'quest', 'quest_start' ],
-		areas: [ 'zone' ]
-	};
-	const FILTERS = [ 'all', 'quests', 'areas' ];
+	const PLACEHOLDER = /\{([^{}]+)\}/g;
+	// A quest's start carries its quest's name and reads as part of the quest.
+	const QUEST_START = 'quest_start';
 
 	function fail( message ) {
 		throw new Error( 'Progression graph: ' + message );
@@ -42,29 +26,24 @@
 		return value !== null && typeof value === 'object' && !Array.isArray( value );
 	}
 
-	function isCount( value ) {
-		return typeof value === 'number' && isFinite( value ) && Math.floor( value ) === value && value >= 0;
-	}
-
 	function isText( value ) {
 		return typeof value === 'string' && value !== '';
 	}
 
+	// Lua writes an empty table as an empty object or an empty array.
+	function list( value, what ) {
+		if ( value === undefined || ( isObject( value ) && !Object.keys( value ).length ) ) {
+			return [];
+		}
+		if ( !Array.isArray( value ) || !value.every( isText ) ) {
+			fail( what + ' is not a list of keys' );
+		}
+		return value.slice();
+	}
+
 	function normalizeRecord( key, source ) {
-		if ( !isObject( source ) ) {
-			fail( 'node ' + key + ' is not a record' );
-		}
-		if ( !isText( source.kind ) ) {
-			fail( 'node ' + key + ' has no kind' );
-		}
-		if ( !isText( source.name ) ) {
-			fail( 'node ' + key + ' has no name' );
-		}
-		if ( typeof source.milestone !== 'boolean' ) {
-			fail( 'node ' + key + ' has no milestone flag' );
-		}
-		if ( source.tier !== undefined && !isCount( source.tier ) ) {
-			fail( 'node ' + key + ' has an invalid tier' );
+		if ( !isObject( source ) || !isText( source.kind ) || !isText( source.name ) ) {
+			fail( 'node ' + key + ' has no kind or name' );
 		}
 		let page;
 		if ( source.page === undefined ) {
@@ -76,33 +55,16 @@
 		} else {
 			fail( 'node ' + key + ' has an invalid page' );
 		}
-		const ways = source.ways;
-		if ( !Array.isArray( ways ) || !ways.every( function ( way ) {
-			return typeof way === 'string';
-		} ) ) {
-			fail( 'node ' + key + ' has invalid ways' );
+		if ( source.way !== undefined && typeof source.way !== 'string' ) {
+			fail( 'node ' + key + ' has an invalid way' );
 		}
-		let first = null;
-		if ( source.first !== undefined ) {
-			if ( !isCount( source.first ) || source.first < 1 || source.first > ways.length ) {
-				fail( 'node ' + key + ' names a first way that it does not have' );
-			}
-			first = source.first - 1;
-		}
-		return {
-			key: key,
-			kind: source.kind,
-			name: source.name,
-			milestone: source.milestone,
-			tier: source.tier === undefined ? null : source.tier,
-			page: page,
-			first: first,
-			packed: ways.slice()
-		};
+		return { key: key, kind: source.kind, name: source.name, page: page, packed: source.way || null };
 	}
 
 	/**
-	 * Read the JSON payload that Module:Erenshor/Progression renders for the gadget.
+	 * Read the payload that Module:Erenshor/Progression renders for the gadget:
+	 * the goals, the chapters with their parts and steps in route order, what
+	 * each step needs on the route, and the route's nodes with their first ways.
 	 */
 	function parsePayload( text ) {
 		let payload;
@@ -114,524 +76,623 @@
 		if ( !isObject( payload ) ) {
 			fail( 'the data is not a record' );
 		}
-		const targets = payload.targets;
-		if ( !Array.isArray( targets ) || !targets.length || !targets.every( isText ) ) {
+		const targets = list( payload.targets, 'the targets' );
+		if ( !targets.length ) {
 			fail( 'the data names no targets' );
 		}
-		if ( !isCount( payload.maxDepth ) || payload.maxDepth < 1 ) {
-			fail( 'the data has no depth limit' );
+		const unmet = new Set( list( payload.unmet, 'the unmet relations' ) );
+		if ( !isObject( payload.actions ) || !Object.keys( payload.actions ).every( function ( key ) {
+			return isText( payload.actions[ key ] );
+		} ) ) {
+			fail( 'the data has no actions' );
 		}
-		if ( !isCount( payload.sourceLimit ) || payload.sourceLimit < 1 ) {
-			fail( 'the data has no source limit' );
-		}
-		if ( !Array.isArray( payload.unmet ) || !payload.unmet.every( isText ) ) {
-			fail( 'the data names no unmet relations' );
-		}
-		if ( !isObject( payload.nodes ) ) {
-			fail( 'the data has no nodes' );
+		if ( !isObject( payload.nodes ) || !isObject( payload.steps ) || !Array.isArray( payload.chapters ) ) {
+			fail( 'the data has no route' );
 		}
 		const records = new Map();
 		Object.keys( payload.nodes ).forEach( function ( key ) {
 			records.set( key, normalizeRecord( key, payload.nodes[ key ] ) );
 		} );
+		const steps = new Map();
+		const order = [];
+		const chapters = payload.chapters.map( function ( chapter, index ) {
+			if ( !isObject( chapter ) || !isText( chapter.title ) || !Array.isArray( chapter.parts ) ) {
+				fail( 'chapter ' + ( index + 1 ) + ' is malformed' );
+			}
+			return {
+				index: index,
+				title: chapter.title,
+				parts: chapter.parts.map( function ( part ) {
+					if ( !isObject( part ) || !isText( part.title ) ) {
+						fail( 'a part of chapter ' + ( index + 1 ) + ' is malformed' );
+					}
+					const keys = list( part.steps, 'a part of chapter ' + ( index + 1 ) );
+					keys.forEach( function ( key ) {
+						const source = payload.steps[ key ];
+						if ( !isObject( source ) || !records.has( key ) || steps.has( key ) ) {
+							fail( 'the step ' + key + ' is missing or repeated' );
+						}
+						steps.set( key, {
+							key: key,
+							chapter: index,
+							deps: list( source.deps, 'the needs of ' + key ),
+							folds: list( source.folds, 'the rewards of ' + key )
+						} );
+						order.push( key );
+					} );
+					return { title: part.title, steps: keys };
+				} )
+			};
+		} );
+		steps.forEach( function ( step ) {
+			step.deps.concat( step.folds ).forEach( function ( key ) {
+				if ( !records.has( key ) || ( step.deps.indexOf( key ) !== -1 && !steps.has( key ) ) ) {
+					fail( 'the step ' + step.key + ' names ' + key + ', which the route lacks' );
+				}
+			} );
+		} );
 		targets.forEach( function ( key ) {
-			if ( !records.has( key ) ) {
-				fail( 'the target ' + key + ' has no node' );
+			if ( !steps.has( key ) ) {
+				fail( 'the target ' + key + ' is no step' );
 			}
 		} );
 		return {
-			targets: targets.slice(),
-			maxDepth: payload.maxDepth,
-			sourceLimit: payload.sourceLimit,
-			unmet: new Set( payload.unmet ),
+			targets: targets,
+			unmet: unmet,
+			actions: payload.actions,
+			chapters: chapters,
+			steps: steps,
+			order: order,
 			records: records
 		};
 	}
 
-	function decodeNeed( owner, position, values ) {
-		const where = 'node ' + owner + ' way ' + ( position + 1 );
+	function decodeNeed( owner, values ) {
 		if ( !Array.isArray( values ) || !values.length || values.length > NEED_FIELDS.length ) {
-			fail( where + ' has a malformed need' );
+			fail( 'node ' + owner + ' has a malformed need' );
 		}
 		const need = {};
 		NEED_FIELDS.forEach( function ( field, index ) {
 			need[ field ] = values[ index ] === undefined ? null : values[ index ];
 		} );
-		if ( !isText( need.relation ) ) {
-			fail( where + ' has a need without a relation' );
+		if ( !isText( need.relation ) || ( need.need !== null && !isText( need.need ) ) ) {
+			fail( 'node ' + owner + ' has a need without a relation or with an invalid step' );
 		}
-		if ( need.need !== null && !isText( need.need ) ) {
-			fail( where + ' has a need with an invalid step' );
-		}
-		[ 'slot', 'keywords', 'text' ].forEach( function ( field ) {
-			if ( need[ field ] !== null && typeof need[ field ] !== 'string' ) {
-				fail( where + ' has an invalid ' + field );
-			}
-		} );
-		[ 'quantity', 'requiredLevel' ].forEach( function ( field ) {
-			if ( need[ field ] !== null && ( typeof need[ field ] !== 'number' || !isFinite( need[ field ] ) ) ) {
-				fail( where + ' has an invalid ' + field );
-			}
-		} );
-		if ( need.need === null && need.text === null ) {
-			fail( where + ' has a need without a step or a condition' );
-		}
-		need.advisory = need.advisory === true;
-		need.unconfirmed = need.unconfirmed === true;
 		return need;
 	}
 
 	/**
-	 * Wrap a parsed payload. Ways are decoded when a caller first reads them.
+	 * Wrap a parsed payload. A first way is decoded when a caller first reads it.
 	 */
 	function createModel( payload ) {
 		const records = payload.records;
 		const decoded = new Map();
+		const rank = new Map();
+		payload.order.forEach( function ( key, index ) {
+			rank.set( key, index );
+		} );
+		const folded = new Map();
+		payload.steps.forEach( function ( step ) {
+			step.folds.forEach( function ( key ) {
+				folded.set( key, step.key );
+			} );
+		} );
+		let reverse = null;
 
 		function record( key ) {
 			const found = records.get( key );
 			if ( !found ) {
-				fail( 'the data lacks the step ' + key );
+				fail( 'the data lacks the node ' + key );
 			}
 			return found;
 		}
 
-		function ways( key ) {
-			let list = decoded.get( key );
-			if ( !list ) {
-				const source = record( key );
-				list = source.packed.map( function ( packed, index ) {
-					let values;
-					try {
-						values = JSON.parse( packed );
-					} catch ( error ) {
-						fail( 'node ' + key + ' way ' + ( index + 1 ) + ' cannot be read' );
-					}
-					if ( !Array.isArray( values ) ) {
-						fail( 'node ' + key + ' way ' + ( index + 1 ) + ' is not a list of needs' );
-					}
-					return {
-						index: index,
-						first: index === source.first,
-						needs: values.map( function ( values ) {
-							return decodeNeed( key, index, values );
-						} )
-					};
-				} );
-				decoded.set( key, list );
+		function firstWay( key ) {
+			if ( decoded.has( key ) ) {
+				return decoded.get( key );
 			}
-			return list;
+			const source = record( key );
+			let way = null;
+			if ( source.packed ) {
+				let values;
+				try {
+					values = JSON.parse( source.packed );
+				} catch ( error ) {
+					fail( 'the way of ' + key + ' cannot be read' );
+				}
+				if ( !Array.isArray( values ) || typeof values[ 0 ] !== 'string' ) {
+					fail( 'the way of ' + key + ' has no sentence' );
+				}
+				way = {
+					sentence: values[ 0 ],
+					needs: values.slice( 1 ).map( function ( need ) {
+						return decodeNeed( key, need );
+					} )
+				};
+			}
+			decoded.set( key, way );
+			return way;
 		}
 
-		function firstWay( key ) {
-			const source = record( key );
-			return source.first === null ? null : ways( key )[ source.first ];
+		// What needs each node on the route: the nodes whose first way names it.
+		function users( key ) {
+			if ( !reverse ) {
+				reverse = new Map();
+				Array.from( records.keys() ).forEach( function ( other ) {
+					const way = firstWay( other );
+					( way ? way.needs : [] ).forEach( function ( need ) {
+						if ( need.need && records.has( need.need ) && !payload.unmet.has( need.relation ) ) {
+							if ( !reverse.has( need.need ) ) {
+								reverse.set( need.need, [] );
+							}
+							reverse.get( need.need ).push( { key: other, need: need } );
+						}
+					} );
+				} );
+			}
+			return reverse.get( key ) || [];
+		}
+
+		/**
+		 * The step that shows a node: the step itself, the quest whose step names
+		 * its reward, or the earliest step whose first way leads to it.
+		 */
+		function owner( key ) {
+			if ( payload.steps.has( key ) ) {
+				return key;
+			}
+			if ( folded.has( key ) ) {
+				return folded.get( key );
+			}
+			const seen = new Set( [ key ] );
+			let layer = [ key ];
+			while ( layer.length ) {
+				const next = [];
+				const found = [];
+				layer.forEach( function ( current ) {
+					users( current ).forEach( function ( use ) {
+						if ( seen.has( use.key ) ) {
+							return;
+						}
+						seen.add( use.key );
+						if ( payload.steps.has( use.key ) || folded.has( use.key ) ) {
+							found.push( payload.steps.has( use.key ) ? use.key : folded.get( use.key ) );
+						} else {
+							next.push( use.key );
+						}
+					} );
+				} );
+				if ( found.length ) {
+					return found.sort( function ( a, b ) {
+						return rank.get( a ) - rank.get( b );
+					} )[ 0 ];
+				}
+				layer = next;
+			}
+			return null;
 		}
 
 		return {
 			targets: payload.targets,
-			maxDepth: payload.maxDepth,
-			sourceLimit: payload.sourceLimit,
-			// A need with one of these relations must stay undone, so no route follows it.
 			unmet: payload.unmet,
+			actions: payload.actions,
+			chapters: payload.chapters,
+			steps: payload.steps,
+			order: payload.order,
 			has: function ( key ) {
 				return records.has( key );
 			},
+			isStep: function ( key ) {
+				return payload.steps.has( key );
+			},
+			rank: function ( key ) {
+				return rank.has( key ) ? rank.get( key ) : Infinity;
+			},
 			record: record,
-			ways: ways,
 			firstWay: firstWay,
+			users: users,
+			owner: owner,
 			keys: function () {
 				return Array.from( records.keys() );
 			}
 		};
 	}
 
-	function kindLabel( kind ) {
-		if ( Object.prototype.hasOwnProperty.call( KIND_LABELS, kind ) ) {
-			return KIND_LABELS[ kind ];
+	/**
+	 * The steps of the route to one goal: its step and every step that it needs.
+	 */
+	function goalSteps( model, goal ) {
+		const start = model.owner( goal );
+		if ( start === null ) {
+			fail( goal + ' is not on this route' );
 		}
-		const words = kind.replace( /_/g, ' ' );
-		return words.charAt( 0 ).toUpperCase() + words.slice( 1 );
-	}
-
-	function stepName( record ) {
-		return record.kind === 'quest_start' ? 'Start ' + record.name : record.name;
-	}
-
-	function tierLabel( tier ) {
-		return tier === null ? 'No playthrough tier recorded' : 'Playthrough tier ' + tier;
-	}
-
-	function hiddenStepsLabel( count ) {
-		return count === 1 ? '1 hidden step' : count + ' hidden steps';
-	}
-
-	// Steps in playthrough order: by tier, untiered steps last, then by key.
-	function stepOrder( model ) {
-		return function ( left, right ) {
-			const a = model.record( left ).tier;
-			const b = model.record( right ).tier;
-			const x = a === null ? Infinity : a;
-			const y = b === null ? Infinity : b;
-			if ( x !== y ) {
-				return x < y ? -1 : 1;
+		const kept = new Set();
+		const pending = [ start ];
+		while ( pending.length ) {
+			const key = pending.pop();
+			if ( !kept.has( key ) ) {
+				kept.add( key );
+				model.steps.get( key ).deps.forEach( function ( other ) {
+					pending.push( other );
+				} );
 			}
-			return left < right ? -1 : left > right ? 1 : 0;
+		}
+		return kept;
+	}
+
+	/**
+	 * Drop each edge whose end the start reaches another way, which keeps what
+	 * depends on what with the fewest lines.
+	 */
+	function transitiveReduction( count, edges ) {
+		const next = [];
+		for ( let index = 0; index < count; index++ ) {
+			next.push( [] );
+		}
+		edges.forEach( function ( edge ) {
+			next[ edge.from ].push( edge.to );
+		} );
+		function reachesWithout( from, to ) {
+			const seen = new Set();
+			const stack = next[ from ].filter( function ( other ) {
+				return other !== to;
+			} );
+			while ( stack.length ) {
+				const current = stack.pop();
+				if ( current === to ) {
+					return true;
+				}
+				if ( !seen.has( current ) ) {
+					seen.add( current );
+					next[ current ].forEach( function ( other ) {
+						stack.push( other );
+					} );
+				}
+			}
+			return false;
+		}
+		return edges.filter( function ( edge ) {
+			return !reachesWithout( edge.from, edge.to );
+		} );
+	}
+
+	/**
+	 * The chapters that hold a visible step, and a line from a chapter to each
+	 * later chapter with a step that needs one of its steps, after reduction.
+	 */
+	function chapterGraph( model, visible ) {
+		const chapters = [];
+		const place = new Map();
+		model.chapters.forEach( function ( chapter ) {
+			const steps = [];
+			chapter.parts.forEach( function ( part ) {
+				part.steps.forEach( function ( key ) {
+					if ( visible.has( key ) ) {
+						steps.push( key );
+					}
+				} );
+			} );
+			if ( steps.length ) {
+				steps.forEach( function ( key ) {
+					place.set( key, chapters.length );
+				} );
+				chapters.push( { chapter: chapter.index, title: chapter.title, steps: steps } );
+			}
+		} );
+		const seen = new Set();
+		const edges = [];
+		chapters.forEach( function ( chapter, to ) {
+			chapter.steps.forEach( function ( key ) {
+				model.steps.get( key ).deps.forEach( function ( other ) {
+					const from = place.get( other );
+					if ( from !== undefined && from !== to && !seen.has( from + '>' + to ) ) {
+						seen.add( from + '>' + to );
+						edges.push( { from: from, to: to } );
+					}
+				} );
+			} );
+		} );
+		return { chapters: chapters, edges: transitiveReduction( chapters.length, edges ) };
+	}
+
+	/**
+	 * A layered drawing from top to bottom. Each chapter sits one layer below its
+	 * lowest requirement, a line that spans layers bends through a point in each
+	 * layer that it crosses, and barycenter sweeps order the layers so that lines
+	 * cross less. Bends take a place in their layer, so no line passes behind a card.
+	 */
+	function layoutChapters( graph, size ) {
+		const count = graph.chapters.length;
+		const before = [];
+		for ( let index = 0; index < count; index++ ) {
+			before.push( [] );
+		}
+		graph.edges.forEach( function ( edge ) {
+			before[ edge.to ].push( edge.from );
+		} );
+		const layer = [];
+		const visiting = new Set();
+		function layerOf( index ) {
+			if ( layer[ index ] !== undefined ) {
+				return layer[ index ];
+			}
+			if ( visiting.has( index ) ) {
+				fail( 'the chapters depend on each other in a cycle' );
+			}
+			visiting.add( index );
+			layer[ index ] = before[ index ].reduce( function ( deepest, other ) {
+				return Math.max( deepest, layerOf( other ) + 1 );
+			}, 0 );
+			visiting.delete( index );
+			return layer[ index ];
+		}
+		for ( let index = 0; index < count; index++ ) {
+			layerOf( index );
+		}
+		const depth = count ? Math.max.apply( null, layer ) + 1 : 0;
+		const rows = [];
+		for ( let row = 0; row < depth; row++ ) {
+			rows.push( [] );
+		}
+		const items = [];
+		for ( let index = 0; index < count; index++ ) {
+			const item = { kind: 'chapter', chapter: index, row: layer[ index ], up: [], down: [] };
+			items.push( item );
+			rows[ item.row ].push( item );
+		}
+		const chains = graph.edges.map( function ( edge ) {
+			const chain = [ items[ edge.from ] ];
+			for ( let row = layer[ edge.from ] + 1; row < layer[ edge.to ]; row++ ) {
+				const bend = { kind: 'bend', row: row, up: [], down: [] };
+				rows[ row ].push( bend );
+				chain.push( bend );
+			}
+			chain.push( items[ edge.to ] );
+			for ( let index = 1; index < chain.length; index++ ) {
+				chain[ index ].up.push( chain[ index - 1 ] );
+				chain[ index - 1 ].down.push( chain[ index ] );
+			}
+			return { from: edge.from, to: edge.to, chain: chain };
+		} );
+		function index( row ) {
+			row.forEach( function ( item, position ) {
+				item.position = ( position + 0.5 ) / row.length;
+			} );
+		}
+		rows.forEach( index );
+		function sweep( order, side ) {
+			order.forEach( function ( row ) {
+				const scored = row.map( function ( item, position ) {
+					const around = item[ side ];
+					const score = around.length ? around.reduce( function ( sum, other ) {
+						return sum + other.position;
+					}, 0 ) / around.length : item.position;
+					return { item: item, score: score, position: position };
+				} );
+				scored.sort( function ( a, b ) {
+					return a.score - b.score || a.position - b.position;
+				} );
+				scored.forEach( function ( entry, position ) {
+					row[ position ] = entry.item;
+				} );
+				index( row );
+			} );
+		}
+		for ( let round = 0; round < 8; round++ ) {
+			sweep( rows.slice( 1 ), 'up' );
+			sweep( rows.slice( 0, -1 ).reverse(), 'down' );
+		}
+		const widths = rows.map( function ( row ) {
+			return row.reduce( function ( sum, item ) {
+				return sum + ( item.kind === 'chapter' ? size.width : size.bend );
+			}, 0 ) + Math.max( 0, row.length - 1 ) * size.gapX;
+		} );
+		const width = Math.max.apply( null, [ 0 ].concat( widths ) );
+		rows.forEach( function ( row, number ) {
+			let x = ( width - widths[ number ] ) / 2;
+			const y = number * ( size.height + size.gapY );
+			row.forEach( function ( item ) {
+				const itemWidth = item.kind === 'chapter' ? size.width : size.bend;
+				item.x = x;
+				item.y = y;
+				item.width = itemWidth;
+				x += itemWidth + size.gapX;
+			} );
+		} );
+		return {
+			width: width,
+			height: depth ? depth * size.height + ( depth - 1 ) * size.gapY : 0,
+			cards: items.map( function ( item ) {
+				return { chapter: item.chapter, x: item.x, y: item.y, width: item.width, height: size.height };
+			} ),
+			lines: chains.map( function ( entry ) {
+				const points = entry.chain.map( function ( item, position ) {
+					const x = item.x + item.width / 2;
+					if ( position === 0 ) {
+						return { x: x, y: item.y + size.height };
+					}
+					if ( position === entry.chain.length - 1 ) {
+						return { x: x, y: item.y };
+					}
+					return { x: x, y: item.y + size.height / 2 };
+				} );
+				return { from: entry.from, to: entry.to, points: points };
+			} )
 		};
 	}
 
-	function buildView( keys, edges ) {
-		const order = new Map();
-		const deps = new Map();
-		const dependents = new Map();
-		keys.forEach( function ( key, index ) {
-			order.set( key, index );
-			deps.set( key, [] );
-			dependents.set( key, [] );
-		} );
-		edges.forEach( function ( edge ) {
-			deps.get( edge.to ).push( edge.from );
-			dependents.get( edge.from ).push( edge.to );
-		} );
-		function byOrder( left, right ) {
-			return order.get( left ) - order.get( right );
+	/**
+	 * A smooth path through the points of a line: each segment leaves and meets
+	 * its points vertically.
+	 */
+	function linePath( points ) {
+		let path = 'M' + points[ 0 ].x + ' ' + points[ 0 ].y;
+		for ( let index = 1; index < points.length; index++ ) {
+			const from = points[ index - 1 ];
+			const to = points[ index ];
+			const middle = ( from.y + to.y ) / 2;
+			path += ' C' + from.x + ' ' + middle + ' ' + to.x + ' ' + middle + ' ' + to.x + ' ' + to.y;
 		}
-		deps.forEach( function ( list ) {
-			list.sort( byOrder );
-		} );
-		dependents.forEach( function ( list ) {
-			list.sort( byOrder );
-		} );
-		return { keys: keys, order: order, deps: deps, dependents: dependents, edges: edges };
+		return path;
 	}
 
 	/**
-	 * The overview of D3: the milestones on the first-way route of the roots, and
-	 * the roots themselves. A step depends on the nearest steps that its first way
-	 * reaches through steps that are not milestones. A need to keep a quest undone
-	 * is no requirement, so the route never follows it.
+	 * A smooth path from one point to another that leaves and meets its ends
+	 * horizontally.
 	 */
-	function overview( model, roots ) {
-		function required( need ) {
-			return need.need !== null && !model.unmet.has( need.relation );
-		}
-		const closure = new Set();
-		const steps = new Set();
-		const pending = roots.slice();
-		while ( pending.length ) {
-			const key = pending.pop();
-			if ( closure.has( key ) ) {
-				continue;
-			}
-			closure.add( key );
-			if ( model.record( key ).milestone ) {
-				steps.add( key );
-			}
-			const way = model.firstWay( key );
-			if ( way ) {
-				way.needs.forEach( function ( need ) {
-					if ( required( need ) ) {
-						pending.push( need.need );
-					}
-				} );
-			}
-		}
-		roots.forEach( function ( key ) {
-			steps.add( key );
-		} );
-		const keys = Array.from( steps ).sort( stepOrder( model ) );
-		const frontiers = new Map();
+	function sidewaysPath( from, to ) {
+		const middle = ( from.x + to.x ) / 2;
+		return 'M' + from.x + ' ' + from.y + ' C' + middle + ' ' + from.y + ' ' + middle + ' ' + to.y +
+			' ' + to.x + ' ' + to.y;
+	}
 
-		function nearest( key, path ) {
-			if ( frontiers.has( key ) ) {
-				return frontiers.get( key );
-			}
-			if ( path.has( key ) ) {
-				fail( 'the first ways cycle at ' + key );
-			}
-			path.add( key );
-			const found = new Set();
-			const way = model.firstWay( key );
-			if ( way ) {
-				way.needs.forEach( function ( need ) {
-					if ( !required( need ) ) {
-						return;
-					}
-					if ( steps.has( need.need ) ) {
-						found.add( need.need );
-					} else {
-						nearest( need.need, path ).forEach( function ( step ) {
-							found.add( step );
-						} );
-					}
-				} );
-			}
-			path.delete( key );
-			frontiers.set( key, found );
-			return found;
-		}
-
-		const edges = [];
-		keys.forEach( function ( key ) {
-			const found = new Set();
-			const way = model.firstWay( key );
-			if ( way ) {
-				way.needs.forEach( function ( need ) {
-					if ( !required( need ) ) {
-						return;
-					}
-					if ( steps.has( need.need ) ) {
-						found.add( need.need );
-					} else {
-						nearest( need.need, new Set( [ key ] ) ).forEach( function ( step ) {
-							found.add( step );
-						} );
-					}
-				} );
-			}
-			found.delete( key );
-			found.forEach( function ( from ) {
-				edges.push( { from: from, to: key, direct: true, hidden: [] } );
-			} );
-		} );
-		return buildView( keys, edges );
+	function actionOf( model, need ) {
+		const kind = model.has( need.need ) ? model.record( need.need ).kind : null;
+		return model.actions[ need.relation + '|' + kind ] || model.actions[ need.relation ] || need.relation;
 	}
 
 	/**
-	 * Keep a step with what it needs (its ancestors) or what it unlocks (its
-	 * descendants, the reversed edges).
+	 * What a node's first way needs and what on the route needs it, each with the
+	 * action of the relation between them. A quest to keep undone is no
+	 * requirement. A quest's start reads as part of its quest, as in the quest's
+	 * sentence: what the start needs, the quest needs, and what needs the start
+	 * leads to the quest with the action of its own need.
 	 */
-	function restrict( view, focus, direction ) {
-		if ( !view.deps.has( focus ) ) {
-			fail( focus + ' is not on this route' );
-		}
-		if ( direction !== 'needs' && direction !== 'unlocks' ) {
-			fail( 'unknown direction ' + direction );
-		}
-		const next = direction === 'needs' ? view.deps : view.dependents;
-		const keep = new Set( [ focus ] );
-		const pending = [ focus ];
-		while ( pending.length ) {
-			next.get( pending.pop() ).forEach( function ( other ) {
-				if ( !keep.has( other ) ) {
-					keep.add( other );
-					pending.push( other );
+	function neighbourhood( model, key ) {
+		const way = model.firstWay( key );
+		const needs = [];
+		const named = new Set( [ key ] );
+		function addNeeds( list ) {
+			list.forEach( function ( need ) {
+				if ( !need.need || !model.has( need.need ) || model.unmet.has( need.relation ) || named.has( need.need ) ) {
+					return;
+				}
+				named.add( need.need );
+				if ( model.record( need.need ).kind === QUEST_START ) {
+					const start = model.firstWay( need.need );
+					addNeeds( start ? start.needs : [] );
+				} else {
+					needs.push( { key: need.need, action: actionOf( model, need ) } );
 				}
 			} );
 		}
-		return buildView(
-			view.keys.filter( function ( key ) {
-				return keep.has( key );
-			} ),
-			view.edges.filter( function ( edge ) {
-				return keep.has( edge.from ) && keep.has( edge.to );
-			} )
-		);
-	}
-
-	/**
-	 * Keep only quests or areas, and the steps in `always`. An edge between two
-	 * kept steps names the hidden steps that lie between them on the route.
-	 */
-	function filterView( view, model, filter, always ) {
-		if ( filter === 'all' ) {
-			return view;
-		}
-		const kinds = FILTER_KINDS[ filter ];
-		if ( !kinds ) {
-			fail( 'unknown filter ' + filter );
-		}
-		const kept = new Set( view.keys.filter( function ( key ) {
-			return kinds.indexOf( model.record( key ).kind ) !== -1 || always.has( key );
-		} ) );
-		function byOrder( left, right ) {
-			return view.order.get( left ) - view.order.get( right );
-		}
-		const edges = [];
-		view.keys.forEach( function ( to ) {
-			if ( !kept.has( to ) ) {
-				return;
-			}
-			// The hidden steps that reach this step through hidden steps only,
-			// and the kept steps right before them.
-			const between = new Set();
-			const sources = new Set();
-			const pending = [ to ];
-			while ( pending.length ) {
-				view.deps.get( pending.pop() ).forEach( function ( from ) {
-					if ( kept.has( from ) ) {
-						sources.add( from );
-					} else if ( !between.has( from ) ) {
-						between.add( from );
-						pending.push( from );
-					}
-				} );
-			}
-			Array.from( sources ).sort( byOrder ).forEach( function ( from ) {
-				const hidden = new Set();
-				const queue = [ from ];
-				while ( queue.length ) {
-					view.dependents.get( queue.pop() ).forEach( function ( next ) {
-						if ( between.has( next ) && !hidden.has( next ) ) {
-							hidden.add( next );
-							queue.push( next );
-						}
-					} );
+		addNeeds( way ? way.needs : [] );
+		const unlocks = [];
+		const users = new Set( [ key ] );
+		function addUsers( node, action ) {
+			model.users( node ).forEach( function ( use ) {
+				if ( users.has( use.key ) ) {
+					return;
 				}
-				edges.push( {
-					from: from,
-					to: to,
-					direct: view.deps.get( to ).indexOf( from ) !== -1,
-					hidden: Array.from( hidden ).sort( byOrder )
-				} );
-			} );
-		} );
-		return buildView(
-			view.keys.filter( function ( key ) {
-				return kept.has( key );
-			} ),
-			edges
-		);
-	}
-
-	/**
-	 * One column per tier, untiered steps last. Repeated barycenter sweeps order
-	 * each column by the positions of its steps' neighbours.
-	 */
-	function orderColumns( view, model, sweeps ) {
-		const byTier = new Map();
-		view.keys.forEach( function ( key ) {
-			const tier = model.record( key ).tier;
-			if ( !byTier.has( tier ) ) {
-				byTier.set( tier, [] );
-			}
-			byTier.get( tier ).push( key );
-		} );
-		const tiers = Array.from( byTier.keys() ).sort( function ( a, b ) {
-			if ( a === b ) {
-				return 0;
-			}
-			if ( a === null ) {
-				return 1;
-			}
-			if ( b === null ) {
-				return -1;
-			}
-			return a - b;
-		} );
-		const columns = tiers.map( function ( tier ) {
-			return { tier: tier, keys: byTier.get( tier ) };
-		} );
-		const position = new Map();
-		function index( column ) {
-			column.keys.forEach( function ( key, row ) {
-				position.set( key, ( row + 0.5 ) / column.keys.length );
-			} );
-		}
-		columns.forEach( index );
-		function sweep( list, neighbours ) {
-			list.forEach( function ( column ) {
-				const scored = column.keys.map( function ( key, row ) {
-					const around = neighbours.get( key );
-					let score = position.get( key );
-					if ( around.length ) {
-						score = around.reduce( function ( sum, other ) {
-							return sum + position.get( other );
-						}, 0 ) / around.length;
-					}
-					return { key: key, score: score, row: row };
-				} );
-				scored.sort( function ( a, b ) {
-					return a.score - b.score || a.row - b.row;
-				} );
-				column.keys = scored.map( function ( entry ) {
-					return entry.key;
-				} );
-				index( column );
-			} );
-		}
-		for ( let round = 0; round < sweeps; round++ ) {
-			sweep( columns.slice( 1 ), view.deps );
-			sweep( columns.slice( 0, -1 ).reverse(), view.dependents );
-		}
-		return columns;
-	}
-
-	function placeColumns( columns, heightOf, spacing ) {
-		const positions = new Map();
-		let width = 0;
-		let height = 0;
-		columns.forEach( function ( column, index ) {
-			const x = spacing.left + index * ( spacing.nodeWidth + spacing.columnGap );
-			let y = spacing.top;
-			column.keys.forEach( function ( key ) {
-				const size = heightOf( key );
-				positions.set( key, { x: x, y: y, width: spacing.nodeWidth, height: size, column: index } );
-				y += size + spacing.rowGap;
-			} );
-			width = Math.max( width, x + spacing.nodeWidth + spacing.left );
-			height = Math.max( height, y );
-		} );
-		return { positions: positions, width: width, height: height };
-	}
-
-	function curve( start, end ) {
-		const bend = Math.max( 24, ( end.x - start.x ) / 2 );
-		return 'M' + start.x + ' ' + start.y + ' C' + ( start.x + bend ) + ' ' + start.y + ' ' +
-			( end.x - bend ) + ' ' + end.y + ' ' + end.x + ' ' + end.y;
-	}
-
-	/**
-	 * Lines from each requirement to the step that needs it. A step with several
-	 * requirements gathers them at a junction before it, because its drawn way
-	 * needs all of them. The label of a line that hides steps sits in the gap
-	 * after its source, and the labels of one source stack, so that neither
-	 * meets the junction labels of the next column nor each other.
-	 */
-	function edgeRoutes( view, positions, options ) {
-		const incoming = new Map();
-		view.edges.forEach( function ( edge ) {
-			if ( !incoming.has( edge.to ) ) {
-				incoming.set( edge.to, [] );
-			}
-			incoming.get( edge.to ).push( edge );
-		} );
-		const labelled = new Map();
-		const routes = [];
-		const junctions = [];
-		view.keys.forEach( function ( to ) {
-			const edges = incoming.get( to );
-			if ( !edges ) {
-				return;
-			}
-			const target = positions.get( to );
-			const end = { x: target.x, y: target.y + options.anchor };
-			let join = end;
-			if ( edges.length > 1 ) {
-				join = { x: target.x - options.junctionGap, y: end.y };
-				junctions.push( { key: to, x: join.x, y: join.y, count: edges.length } );
-				routes.push( { from: null, to: to, d: 'M' + join.x + ' ' + join.y + ' L' + end.x + ' ' + end.y, direct: true, hidden: [], label: null } );
-			}
-			edges.forEach( function ( edge ) {
-				const source = positions.get( edge.from );
-				const start = { x: source.x + source.width, y: source.y + options.anchor };
-				let label = null;
-				if ( edge.hidden.length ) {
-					const before = labelled.get( edge.from ) || 0;
-					labelled.set( edge.from, before + 1 );
-					label = { x: start.x + options.labelOffset, y: start.y - options.labelSpacing * ( before + 0.5 ) };
+				users.add( use.key );
+				const used = action || actionOf( model, use.need );
+				if ( model.record( use.key ).kind === QUEST_START ) {
+					addUsers( use.key, used );
+				} else {
+					unlocks.push( { key: use.key, action: used } );
 				}
-				routes.push( {
-					from: edge.from,
-					to: to,
-					d: curve( start, join ),
-					direct: edge.direct,
-					hidden: edge.hidden,
-					label: label
-				} );
 			} );
+		}
+		addUsers( key, null );
+		unlocks.sort( function ( a, b ) {
+			return model.rank( a.key ) - model.rank( b.key ) ||
+				( model.record( a.key ).name < model.record( b.key ).name ? -1 : 1 );
 		} );
-		return { routes: routes, junctions: junctions };
+		return { key: key, sentence: way ? way.sentence : null, needs: needs, unlocks: unlocks };
+	}
+
+	/**
+	 * Places a neighbourhood from left to right: what the node needs, the node,
+	 * and what needs it. Each column stacks its cards, so lines run only through
+	 * the gaps between columns. The cards of a side that share an action form a
+	 * group, kept together in the order of its first card: their lines meet at a
+	 * fork in the middle of the gap, where the action's label sits, and one line
+	 * joins the fork to the node. Each path runs from a need towards what needs
+	 * it, and the arrows mark where needs arrive. A side without cards takes no room.
+	 */
+	function layoutNeighbourhood( near, size ) {
+		const rows = Math.max( 1, near.needs.length, near.unlocks.length );
+		const height = rows * size.height + ( rows - 1 ) * size.gapY;
+		const step = size.width + size.gapX;
+		const centerX = near.needs.length ? step : 0;
+		const center = { key: near.key, x: centerX, y: ( height - size.height ) / 2 };
+		const middle = center.y + size.height / 2;
+		function grouped( entries ) {
+			const actions = [];
+			const members = new Map();
+			entries.forEach( function ( entry ) {
+				if ( !members.has( entry.action ) ) {
+					members.set( entry.action, [] );
+					actions.push( entry.action );
+				}
+				members.get( entry.action ).push( entry );
+			} );
+			return actions.map( function ( action ) {
+				return { action: action, entries: members.get( action ) };
+			} );
+		}
+		function side( entries, x, inward ) {
+			const cards = [];
+			let y = ( height - entries.length * size.height - ( entries.length - 1 ) * size.gapY ) / 2;
+			const forkX = inward ? size.width + size.gapX / 2 : centerX + size.width + size.gapX / 2;
+			const node = { x: inward ? centerX : centerX + size.width, y: middle };
+			const groups = grouped( entries ).map( function ( group ) {
+				const placed = group.entries.map( function ( entry ) {
+					const card = { key: entry.key, action: entry.action, x: x, y: y };
+					y += size.height + size.gapY;
+					cards.push( card );
+					return card;
+				} );
+				const fork = { x: forkX, y: ( placed[ 0 ].y + placed[ placed.length - 1 ].y + size.height ) / 2 };
+				const branches = placed.map( function ( card ) {
+					const end = { x: inward ? card.x + size.width : card.x, y: card.y + size.height / 2 };
+					return inward ? { from: end, to: fork } : { from: fork, to: end };
+				} );
+				return {
+					action: group.action,
+					fork: fork,
+					paths: [ inward ? { from: fork, to: node } : { from: node, to: fork } ].concat( branches )
+				};
+			} );
+			const arrows = inward ? ( cards.length ? [ node ] : [] ) : groups.reduce( function ( ends, group ) {
+				return ends.concat( group.paths.slice( 1 ).map( function ( path ) {
+					return path.to;
+				} ) );
+			}, [] );
+			return { cards: cards, groups: groups, arrows: arrows };
+		}
+		const needs = side( near.needs, 0, true );
+		const unlocks = side( near.unlocks, centerX + step, false );
+		return {
+			width: centerX + size.width + ( unlocks.cards.length ? step : 0 ),
+			height: height,
+			center: center,
+			needs: needs.cards,
+			unlocks: unlocks.cards,
+			groups: needs.groups.concat( unlocks.groups ),
+			arrows: needs.arrows.concat( unlocks.arrows )
+		};
+	}
+
+	/**
+	 * The parts of a sentence: plain text, and the nodes that it names.
+	 */
+	function sentenceParts( model, sentence ) {
+		const parts = [];
+		let position = 0;
+		sentence.replace( PLACEHOLDER, function ( match, key, offset ) {
+			if ( offset > position ) {
+				parts.push( { text: sentence.slice( position, offset ) } );
+			}
+			const source = model.record( key );
+			parts.push( { key: key, name: source.name, page: source.page } );
+			position = offset + match.length;
+			return match;
+		} );
+		if ( position < sentence.length ) {
+			parts.push( { text: sentence.slice( position ) } );
+		}
+		return parts;
 	}
 
 	function normalize( text ) {
@@ -639,8 +700,9 @@
 	}
 
 	/**
-	 * Every step of the data whose name holds the query: whole names first, then
-	 * names that start with it, then words that start with it, then the rest.
+	 * Every node of the route whose name holds the query: whole names first,
+	 * then names that start with it, then words that start with it, then the
+	 * rest, each in route order.
 	 */
 	function search( model, query, limit ) {
 		const needle = normalize( query );
@@ -649,8 +711,11 @@
 		}
 		const found = [];
 		model.keys().forEach( function ( key ) {
-			const record = model.record( key );
-			const name = normalize( stepName( record ) );
+			const source = model.record( key );
+			if ( source.kind === QUEST_START ) {
+				return;
+			}
+			const name = normalize( source.name );
 			let rank;
 			if ( name === needle ) {
 				rank = 0;
@@ -663,260 +728,30 @@
 			} else {
 				return;
 			}
-			found.push( { key: key, rank: rank, record: record } );
+			const owner = model.owner( key );
+			if ( owner !== null ) {
+				found.push( { key: key, name: source.name, kind: source.kind, owner: owner, rank: rank } );
+			}
 		} );
 		found.sort( function ( a, b ) {
-			const x = a.record.tier === null ? Infinity : a.record.tier;
-			const y = b.record.tier === null ? Infinity : b.record.tier;
-			if ( a.rank !== b.rank ) {
-				return a.rank - b.rank;
-			}
-			if ( x !== y ) {
-				return x < y ? -1 : 1;
-			}
-			const left = stepName( a.record );
-			const right = stepName( b.record );
-			if ( left !== right ) {
-				return left < right ? -1 : 1;
-			}
-			return a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
+			return a.rank - b.rank || model.rank( a.owner ) - model.rank( b.owner ) ||
+				( a.name < b.name ? -1 : a.name > b.name ? 1 : 0 ) || ( a.key < b.key ? -1 : 1 );
 		} );
-		return found.slice( 0, limit ).map( function ( entry ) {
-			return { key: entry.key, name: stepName( entry.record ), kind: entry.record.kind, tier: entry.record.tier };
-		} );
-	}
-
-	/**
-	 * The steps that the arrow keys reach from a step: what it needs and what it
-	 * unlocks, nearest first, and the steps above and below it in its column.
-	 */
-	function neighbours( view, columns, key ) {
-		const places = new Map();
-		columns.forEach( function ( column, index ) {
-			column.keys.forEach( function ( other, row ) {
-				places.set( other, { column: index, row: row } );
-			} );
-		} );
-		const here = places.get( key );
-		if ( !here ) {
-			fail( key + ' is not drawn' );
-		}
-		function nearest( list ) {
-			return list.slice().sort( function ( a, b ) {
-				const x = places.get( a );
-				const y = places.get( b );
-				return Math.abs( x.column - here.column ) - Math.abs( y.column - here.column ) ||
-					Math.abs( x.row - here.row ) - Math.abs( y.row - here.row ) ||
-					x.row - y.row;
-			} );
-		}
-		const column = columns[ here.column ].keys;
-		return {
-			needs: nearest( view.deps.get( key ) ),
-			unlocks: nearest( view.dependents.get( key ) ),
-			up: here.row > 0 ? column[ here.row - 1 ] : null,
-			down: here.row < column.length - 1 ? column[ here.row + 1 ] : null
-		};
-	}
-
-	const reverseFirstWays = new WeakMap();
-
-	/**
-	 * The nearest drawn step whose first way leads to a step, for a step that
-	 * the details never mention because it lies beyond their depth limit.
-	 */
-	function routeOwner( model, view, key ) {
-		if ( view.deps.has( key ) ) {
-			return key;
-		}
-		let reverse = reverseFirstWays.get( model );
-		if ( !reverse ) {
-			reverse = new Map();
-			model.keys().forEach( function ( other ) {
-				const way = model.firstWay( other );
-				if ( way ) {
-					way.needs.forEach( function ( need ) {
-						if ( need.need && !model.unmet.has( need.relation ) ) {
-							if ( !reverse.has( need.need ) ) {
-								reverse.set( need.need, [] );
-							}
-							reverse.get( need.need ).push( other );
-						}
-					} );
-				}
-			} );
-			reverseFirstWays.set( model, reverse );
-		}
-		const seen = new Set( [ key ] );
-		let layer = [ key ];
-		while ( layer.length ) {
-			const next = [];
-			const drawn = [];
-			layer.forEach( function ( step ) {
-				( reverse.get( step ) || [] ).forEach( function ( other ) {
-					if ( seen.has( other ) ) {
-						return;
-					}
-					seen.add( other );
-					if ( view.deps.has( other ) ) {
-						drawn.push( other );
-					} else {
-						next.push( other );
-					}
-				} );
-			} );
-			if ( drawn.length ) {
-				return drawn.sort( function ( left, right ) {
-					return view.order.get( left ) - view.order.get( right );
-				} )[ 0 ];
-			}
-			layer = next;
-		}
-		return null;
-	}
-
-	/**
-	 * The ways and sources of every overview step, in the order and depth of the
-	 * text that Module:Erenshor/Progression renders, so that every label it needs
-	 * is in the data. A step that is drawn, or that the text already expanded, is
-	 * a reference. A quest to keep undone is a condition without sources.
-	 * `owners` maps each step to the overview step whose detail first mentions it.
-	 */
-	function detailForest( model, base ) {
-		const drawn = new Set( base.keys );
-		const seen = new Set();
-		const owners = new Map();
-		const trees = new Map();
-		let owner = null;
-
-		function waysOf( key, depth ) {
-			const record = model.record( key );
-			const list = model.ways( key );
-			const tree = { empty: !list.length, visible: [], sources: [], entrances: [] };
-			const visible = [];
-			const sources = [];
-			const entrances = [];
-			list.forEach( function ( way ) {
-				if ( record.kind === 'zone' && way.needs.length === 1 && way.needs[ 0 ].relation === 'zone line' ) {
-					entrances.push( way );
-				} else if ( !record.milestone && way.index >= model.sourceLimit ) {
-					sources.push( way );
-				} else {
-					visible.push( way );
-				}
-			} );
-			// The text expands visible ways first, then the source groups.
-			tree.visible = visible.map( function ( way ) {
-				return wayOf( way, depth );
-			} );
-			tree.sources = sources.map( function ( way ) {
-				return wayOf( way, depth );
-			} );
-			tree.entrances = entrances.map( function ( way ) {
-				return wayOf( way, depth );
-			} );
-			return tree;
-		}
-
-		function wayOf( way, depth ) {
-			return {
-				first: way.first,
-				needs: way.needs.map( function ( need ) {
-					return needOf( need, depth );
-				} )
-			};
-		}
-
-		function needOf( need, depth ) {
-			const key = need.need;
-			if ( !key ) {
-				return { need: need, key: null, state: 'plain' };
-			}
-			model.record( key );
-			if ( !owners.has( key ) ) {
-				owners.set( key, owner );
-			}
-			if ( model.unmet.has( need.relation ) ) {
-				return { need: need, key: key, state: 'unmet' };
-			}
-			if ( drawn.has( key ) || seen.has( key ) ) {
-				return { need: need, key: key, state: 'reference' };
-			}
-			if ( depth >= model.maxDepth ) {
-				return { need: need, key: key, state: 'limit' };
-			}
-			seen.add( key );
-			return { need: need, key: key, state: 'expanded', ways: waysOf( key, depth + 1 ) };
-		}
-
-		base.keys.forEach( function ( key ) {
-			owner = key;
-			owners.set( key, key );
-			seen.add( key );
-			trees.set( key, waysOf( key, 1 ) );
-		} );
-		return { trees: trees, owners: owners };
-	}
-
-	/**
-	 * The words of a need, as the text renders them: what comes before the step's
-	 * name, the step, and what follows it.
-	 */
-	function needWording( model, need ) {
-		let lead;
-		if ( need.relation === 'defeated' || need.relation === 'defeat' ) {
-			lead = need.quantity !== null && need.quantity > 1 ? 'Defeat all ' + need.quantity + ' ' : 'Defeat ';
-		} else {
-			lead = need.relation + ': ';
-			if ( need.quantity !== null ) {
-				lead += need.quantity + ' x ';
-			}
-		}
-		let trail = '';
-		if ( need.text !== null ) {
-			trail += need.need ? ' (' + need.text + ')' : need.text;
-		}
-		if ( need.slot !== null ) {
-			trail += ' (slot ' + need.slot + ')';
-		}
-		if ( need.keywords !== null ) {
-			trail += ' (keywords: "' + need.keywords + '")';
-		}
-		if ( need.requiredLevel !== null ) {
-			trail += ' (level ' + need.requiredLevel + ')';
-		}
-		if ( need.advisory ) {
-			trail += ' (advisory)';
-		}
-		if ( need.unconfirmed ) {
-			trail += ' (player access unconfirmed)';
-		}
-		return {
-			lead: lead,
-			key: need.need,
-			name: need.need ? stepName( model.record( need.need ) ) : null,
-			trail: trail
-		};
+		return found.slice( 0, limit );
 	}
 
 	return {
-		FILTERS: FILTERS,
 		parsePayload: parsePayload,
 		createModel: createModel,
-		kindLabel: kindLabel,
-		stepName: stepName,
-		tierLabel: tierLabel,
-		hiddenStepsLabel: hiddenStepsLabel,
-		overview: overview,
-		restrict: restrict,
-		filterView: filterView,
-		orderColumns: orderColumns,
-		placeColumns: placeColumns,
-		edgeRoutes: edgeRoutes,
-		search: search,
-		neighbours: neighbours,
-		detailForest: detailForest,
-		routeOwner: routeOwner,
-		needWording: needWording
+		goalSteps: goalSteps,
+		transitiveReduction: transitiveReduction,
+		chapterGraph: chapterGraph,
+		layoutChapters: layoutChapters,
+		linePath: linePath,
+		sidewaysPath: sidewaysPath,
+		neighbourhood: neighbourhood,
+		layoutNeighbourhood: layoutNeighbourhood,
+		sentenceParts: sentenceParts,
+		search: search
 	};
 } ) );
