@@ -70,7 +70,7 @@ Alternatives considered:
 
 1. The chapter map of the gadget shows the chapters of one goal and how they depend on each other.
 2. The route lists each chapter's steps as numbered sentences. A step is a milestone of the first-way route. An item whose `reward` names a quest of the route is named in that quest's step instead of its own.
-3. Each step has one disclosure with its other ways and, for each need that is no step of its own, where to get it. A list of more than four ways collapses after the fourth into a counted group, and so do zone entrances without a gate.
+3. Each step has one disclosure with its other ways and, for each need that is no step of its own, where to get it. An area that is no step is open, so the disclosure leaves travel there to the area's page. A character whose only way names its zone, and a quest start with one way, add nothing to the step's sentence and get no list. A list of more than four ways collapses after the fourth into a counted group.
 
 This keeps disclosure to two levels below the route.
 
@@ -80,7 +80,7 @@ The view groups the route into chapters, because a long list needs bottlenecks t
 
 - Steps are ordered by a depth-first walk from the goals that visits each step's deepest requirement first. A chain is finished before the materials of the next step are gathered, and every step comes after what it needs.
 - Areas, gates, and goals anchor chapters. With several goals, so does a step that several goals need when every step that needs it serves fewer goals. Each anchor, in walk order, takes the steps that it needs and that no earlier chapter took.
-- A gate's chapter joins the chapter of the area behind it.
+- A gate's chapter joins the chapter of the area behind it, and a chapter of one step that is no goal joins the chapter after it.
 - A chapter of more than twelve steps splits at its quests into parts, each led by its quest. A part of one step joins the next part, and a last part of one step joins the part before it.
 - Titles use the leads of the wording table: "Unlock" an area, "Get past" a barrier, "Finish" a quest, "Get" an item, "Find" a character.
 

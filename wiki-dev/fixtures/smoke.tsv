@@ -352,16 +352,17 @@ Game Board Fixture	elem:ul.erenshor-game-board-drops=6.86%
 Game Board Fixture	!category:Pages_with_missing_Erenshor_game_board_data
 Game Board Fixture	!category:Pages_with_unresolved_Erenshor_links
 Lua Progression Smoke	text:PASS Erenshor Progression testcases
-Progression Fixture	elem:ol.erenshor-progression-overview
-Progression Fixture	elem:[data-progression-key="quest:catfordeer"]=Playthrough tier 0
-Progression Fixture	elem:[data-progression-key="barrier:fixture-door"]=A locked door
-Progression Fixture	elem:[data-progression-key="zone:PortAzure"]=Playthrough tier 4
-Progression Fixture	elem:.erenshor-progression-legend=playthrough order from a new character's start
-Progression Fixture	elem:.erenshor-progression-ways=Any one of
-Progression Fixture	elem:.erenshor-progression-way=All of
-Progression Fixture	elem:.erenshor-progression-depth-limit=depth limit reached
-Progression Fixture	elem:.erenshor-progression-source-count=2 more sources
-Progression Fixture	elem:.erenshor-progression-source-count=2 gate-free entrances
+Progression Fixture	elem:ol.erenshor-progression-steps
+Progression Fixture	elem:.erenshor-progression-chapter-title=Unlock Port Azure
+Progression Fixture	elem:[data-progression-key="quest:catfordeer"]=to finish
+Progression Fixture	elem:.erenshor-progression-yields=You get
+Progression Fixture	elem:[data-progression-key="barrier:fixture-door"]=before you finish
+Progression Fixture	elem:[data-progression-key="zone:PortAzure"]=Travel from
+Progression Fixture	!elem:[data-progression-key="item:lucky_charm"]
+Progression Fixture	elem:.erenshor-progression-legend=one order of play from a new character's start
+Progression Fixture	elem:.erenshor-progression-toggle=Other ways and sources
+Progression Fixture	elem:.erenshor-progression-more-title=Where to get Catnip
+Progression Fixture	elem:.erenshor-progression-toggle=2 more ways
 Progression Fixture	elem:.erenshor-progression-graph[data-erenshor-progression]
 Progression Fixture	!category:Pages_with_missing_Erenshor_progression_data
 Progression Explorer Fixture	elem:[data-progression-key="zone:fixture-plane1"]

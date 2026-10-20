@@ -14,71 +14,100 @@ local function absent(actual, unexpected)
 	end
 end
 
+local function before(actual, first, second)
+	local left = string.find(actual, first, 1, true)
+	local right = string.find(actual, second, 1, true)
+	if not (left and right and left < right) then
+		error(first .. " is not before " .. second, 2)
+	end
+end
+
+local function payloadOf(rendered)
+	local encoded = string.match(rendered, "<pre[^>]*>(.-)</pre>")
+	return mw.text.jsonDecode(mw.text.unstripNoWiki(encoded))
+end
+
 function p.run()
 	local explicit = Progression.render({ stablekey = "zone:PortAzure" })
 	local inferred = Progression.render({ page = "Port Azure" })
 	for _, rendered in ipairs({ explicit, inferred }) do
-		contains(rendered, 'class="erenshor-progression-overview"')
-		contains(rendered, 'data-progression-key="zone:PortAzure"')
-		contains(rendered, "[[Port Azure]]")
-		contains(rendered, "[[Lucky Charm]]")
-		contains(rendered, "A locked door")
-		contains(rendered, "[[Cat for a Deer]]")
-		contains(rendered, "Any one of")
-		contains(rendered, "All of (first way)")
-		contains(rendered, "no further requirements")
-		contains(rendered, "see above or below")
-		contains(rendered, "depth limit reached")
-		contains(rendered, "No recorded way.")
-		contains(rendered, "2 more sources")
-		contains(rendered, "2 gate-free entrances")
-		contains(rendered, "Wait for night")
-		contains(rendered, "2 x [[Lucky Charm]] (slot L1)")
-		contains(rendered, 'keywords: "open"')
-		contains(rendered, "(advisory)")
-		contains(rendered, "(level 8)")
-		contains(rendered, "Defeat all 9 [[A Grizzly Bear]]")
-		contains(rendered, "Defeat [[A Grizzly Bear]]")
-		absent(rendered, "repeat its requirements for each defeat")
-		absent(rendered, "times: [[A Grizzly Bear]]")
-		absent(rendered, "Defeat all 1 ")
-		absent(rendered, "9 x [[A Grizzly Bear]]")
-		contains(rendered, "(player access unconfirmed)")
+		-- The door's chapter joins the chapter of the area behind it.
 		contains(
 			rendered,
-			"Tiers are a playthrough order from a new character's start, not advice about your character."
+			'class="erenshor-progression-chapter-number">1</span> Unlock [[Port Azure]]'
 		)
-		absent(rendered, CATEGORY)
-		-- Alternative milestones belong to the detail, not to the first-way overview.
-		absent(rendered, 'data-progression-key="mechanism:alternate"')
-		contains(rendered, "Alternate milestone")
-		local first = string.find(rendered, 'data-progression-key="quest:catfordeer"', 1, true)
-		local key = string.find(rendered, 'data-progression-key="item:lucky_charm"', 1, true)
-		local door = string.find(rendered, 'data-progression-key="barrier:fixture-door"', 1, true)
-		local target = string.find(rendered, 'data-progression-key="zone:PortAzure"', 1, true)
-		if not (first < key and key < door and door < target) then
-			error("Overview is not in playthrough tier order")
-		end
-		-- A non-milestone contributes its first-way milestone dependency.
-		absent(rendered, 'data-progression-key="mechanism:bridge"')
-		-- A quest to leave undone is no step, and the text does not list its sources.
-		contains(rendered, "quest not done: [[A quest to leave undone]]")
+		absent(rendered, 'class="erenshor-progression-chapter-number">2</span>')
+		contains(rendered, 'data-progression-key="zone:PortAzure"')
+		-- Each step is its first way's sentence, with its nodes linked.
+		contains(
+			rendered,
+			"Give [[Catnip]] to [[A Deer]] in [[Starter Bay]] to finish [[Cat for a Deer]], after [[A first quest]]."
+		)
+		before(
+			rendered,
+			'data-progression-key="quest:fixture-first"',
+			'data-progression-key="quest:catfordeer"'
+		)
+		contains(rendered, "Travel from [[Starter Bay]] to [[Port Azure]] through A locked door.")
+		-- The reward of the quest is named in the quest's step, not as a step of its own.
+		contains(rendered, 'class="erenshor-progression-yields">You get [[Lucky Charm]].')
+		absent(rendered, 'data-progression-key="item:lucky_charm"')
+		before(
+			rendered,
+			'data-progression-key="quest:catfordeer"',
+			'data-progression-key="barrier:fixture-door"'
+		)
+		before(
+			rendered,
+			'data-progression-key="barrier:fixture-door"',
+			'data-progression-key="zone:PortAzure"'
+		)
+		-- A quest to leave undone is a condition, and the route holds nothing that only it needs.
+		contains(rendered, "before you finish [[A quest to leave undone]].")
 		absent(rendered, 'data-progression-key="quest:fixture-undone"')
 		absent(rendered, "An item for that quest")
+		-- One disclosure holds the other ways of a step and where to get what it needs.
+		contains(rendered, ">Other ways and sources</span>")
+		contains(rendered, "Where to get [[Catnip]]")
+		contains(rendered, "Defeat Wolf 4 in [[Starter Bay]] for [[Catnip]].")
+		contains(rendered, ">2 more ways</span>")
+		before(rendered, "Defeat Wolf 4", ">2 more ways</span>")
+		before(rendered, ">2 more ways</span>", "Defeat Wolf 5")
+		-- A character whose only way is its zone has no list of its own, and an open area has none either.
+		absent(rendered, "Where to find [[A Deer]]")
+		absent(rendered, "How to reach")
+		contains(
+			rendered,
+			"These steps are one order of play from a new character's start, not a check of your own character."
+		)
+		absent(rendered, "tier")
+		absent(rendered, CATEGORY)
 		contains(rendered, 'class="erenshor-progression-graph"')
-		local encoded = string.match(rendered, "<pre[^>]*>(.-)</pre>")
-		local payload = mw.text.jsonDecode(mw.text.unstripNoWiki(encoded))
-		if payload.targets[1] ~= "zone:PortAzure" or not payload.nodes["mechanism:depth6"] then
-			error("Gadget JSON loses its target or depth-boundary labels")
+		local payload = payloadOf(rendered)
+		if
+			payload.targets[1] ~= "zone:PortAzure"
+			or payload.chapters[1].title ~= "Unlock Port Azure"
+		then
+			error("Gadget JSON loses its target or its chapters")
 		end
-		if not payload.nodes["mechanism:alternate"] or payload.nodes["zone:fixture-plane1"] then
-			error("Gadget JSON must include alternatives and only the target subgraph")
+		if
+			#payload.chapters[1].parts[1].steps ~= 4
+			or payload.steps["zone:PortAzure"].deps[1] ~= "barrier:fixture-door"
+		then
+			error("Gadget JSON loses the steps of a chapter or what a step needs")
 		end
-		if payload.maxDepth ~= 6 or payload.sourceLimit ~= 4 then
-			error("Gadget JSON must carry the depth and source limits of the text")
+		if payload.steps["quest:catfordeer"].folds[1] ~= "item:lucky_charm" then
+			error("Gadget JSON loses the reward that a quest's step names")
 		end
-		if payload.unmet[1] ~= "quest not done" or payload.nodes["item:fixture-undone"] then
-			error("Gadget JSON must name the unmet relations and leave out what they would need")
+		if
+			not payload.nodes["zone:start"]
+			or payload.nodes["item:fixture-undone"]
+			or payload.nodes["zone:fixture-plane1"]
+		then
+			error("Gadget JSON must hold the route and only the route")
+		end
+		if payload.unmet[1] ~= "quest not done" or payload.actions.drops ~= "defeat" then
+			error("Gadget JSON must carry the unmet relations and the actions")
 		end
 	end
 	local ambiguous = Progression.render({ page = "Dire Wolf" })
@@ -89,13 +118,38 @@ function p.run()
 	contains(missing, "Missing progression data: quest:magical_sword")
 	contains(missing, CATEGORY)
 	local unreachable = Progression.render({ stablekey = "mechanism:unreachable" })
-	contains(unreachable, "No playthrough tier recorded")
-	contains(unreachable, "No recorded way.")
+	contains(unreachable, "Unreachable source: no way from a new character's start is recorded.")
+	-- A step that several goals need, and that nothing serving as many needs, ends a chapter of its own.
 	local explorer = Progression.render({ page = "Progression Graph" })
 	for index = 1, 4 do
 		contains(explorer, 'data-progression-key="zone:fixture-plane' .. tostring(index) .. '"')
 	end
+	contains(
+		explorer,
+		'class="erenshor-progression-chapter-number">1</span> Finish [[Cat for a Deer]]'
+	)
+	contains(explorer, 'class="erenshor-progression-chapter-number">5</span> Unlock Raid plane 4')
 	absent(explorer, 'data-progression-key="zone:fixture-rune"')
+	-- A chapter of more than twelve steps splits at its quests. A part of one step joins the next.
+	local long = Progression.render({ stablekey = "zone:fixture-long" })
+	contains(long, 'aria-level="4">Finish [[Chain quest 2]]</div>')
+	absent(long, 'aria-level="4">Finish [[Chain quest 1]]</div>')
+	absent(long, 'aria-level="4">Unlock [[The long road]]</div>')
+	before(
+		long,
+		'data-progression-key="quest:fixture-chain14"',
+		'data-progression-key="zone:fixture-long"'
+	)
+	contains(long, '<ol class="erenshor-progression-steps" start="3">')
+	-- A chapter of one step, here the hatch's, joins the chapter after it.
+	local isle = Progression.render({ stablekey = "zone:fixture-isle" })
+	contains(isle, 'class="erenshor-progression-chapter-number">1</span> Unlock [[The isle]]')
+	absent(isle, 'class="erenshor-progression-chapter-number">2</span>')
+	before(
+		isle,
+		'data-progression-key="barrier:fixture-hatch"',
+		'data-progression-key="quest:fixture-isle"'
+	)
 	return "PASS Erenshor Progression testcases"
 end
 
