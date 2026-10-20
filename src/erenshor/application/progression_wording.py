@@ -674,7 +674,7 @@ class ProgressionSentences:
     def _conditions(self, taken: Needs, rooms: frozenset[str]) -> str:
         """Word every need that the main clause left, in a fixed order."""
         defeats = self._take(taken, "defeated") + self._take(taken, "defeat")
-        releases = []
+        releases: list[ProgressionNeed] = []
         for need in self._take(taken, "release"):
             (defeats if self._kind(need) == "character" else releases).append(need)
         if defeats:
