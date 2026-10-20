@@ -23,7 +23,8 @@ PROGRESSION = DataView(
     module="Progression",
     description="Requirement graph. Ways are alternatives. All needs of a way are required. "
     "Tiers are a playthrough order from a new character, not an assessment of a reader's save. "
-    "A way row preserves a way even when it has no needs. The first flag marks the selected way.",
+    "A way row preserves a way even when it has no needs. The first flag marks the selected way. "
+    "A way that needs its own node is left out, because it cannot be how a player gets the node.",
     entity="progression node",
     fields=(
         ViewField("type", "text", "node, way, or need."),
@@ -65,6 +66,7 @@ class ProgressionData:
     way_count: int
     need_count: int
     omitted_counts: dict[str, int]
+    circular_ways: int
 
     @property
     def module_bytes(self) -> int:
@@ -112,6 +114,7 @@ def build_progression_data(
     rows: dict[str, list[dict[str, object]]] = {}
     way_count = 0
     need_count = 0
+    circular_ways = 0
     for node in nodes:
         key = node.stable_key
         identity_key = key.removeprefix("quest_start:") if node.kind == "quest_start" else key
@@ -130,7 +133,12 @@ def build_progression_data(
         if node.tier is not None:
             node_row["tier"] = node.tier
         rows[key] = [node_row]
-        ways = sorted(ways_by_node[key], key=lambda way: way.way_key)
+        ways = [
+            way
+            for way in sorted(ways_by_node[key], key=lambda way: way.way_key)
+            if all(need.need_stable_key != key for need in way.needs)
+        ]
+        circular_ways += len(ways_by_node[key]) - len(ways)
         if node.first_way_key is not None and node.first_way_key not in {way.way_key for way in ways}:
             raise ViewDataError(f"{PROGRESSION.title}: node {key}: missing first way {node.first_way_key}")
         for way in ways:
@@ -175,7 +183,16 @@ def build_progression_data(
     )
     content = header + module_text(compact)
     json_bytes = len(json.dumps(compact, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode("utf-8"))
-    return ProgressionData(rows, content, json_bytes, len(nodes), way_count, need_count, dict(sorted(omitted.items())))
+    return ProgressionData(
+        rows,
+        content,
+        json_bytes,
+        len(nodes),
+        way_count,
+        need_count,
+        dict(sorted(omitted.items())),
+        circular_ways,
+    )
 
 
 _NEED_FIELDS = ("relation", "need", "quantity", "slot", "keywords", "text", "advisory", "unconfirmed", "required_level")
@@ -254,7 +271,8 @@ def write_progression_module(
     """Write the checked module only when it fits the configured page budget."""
     data = build_progression_data(repository, known_keys, native_catalog=native_catalog)
     logger.info(
-        "{}: {} Lua bytes, {} JSON bytes. Page budget {} bytes. Nodes {}, ways {}, needs {}. Omitted {}.",
+        "{}: {} Lua bytes, {} JSON bytes. Page budget {} bytes. Nodes {}, ways {}, needs {}. Omitted {}. "
+        "Left out {} ways that need their own node.",
         PROGRESSION.title,
         data.module_bytes,
         data.json_bytes,
@@ -263,6 +281,7 @@ def write_progression_module(
         data.way_count,
         data.need_count,
         data.omitted_counts,
+        data.circular_ways,
     )
     if data.module_bytes > max_page_bytes:
         raise ViewDataError(

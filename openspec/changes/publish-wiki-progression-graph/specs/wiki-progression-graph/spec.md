@@ -6,7 +6,7 @@ Renders the clean database's requirement graph on the wiki: a target's playthrou
 
 ### Requirement: The data module mirrors the requirement graph
 
-`Module:Erenshor/Data/Progression` SHALL hold every node of the requirement graph that has a way or that a need references, with its kind, tier, milestone flag, native name and page, and every way of those nodes with its needs, including a way without needs. It SHALL use one table per node and escaped JSON strings for ways, preserving first-way selection and every need field, including required character level. The renderer SHALL decode ways lazily. Generation SHALL validate source rows before compaction and fail with the node when a condition has no wording, an identity resolves in neither catalog, or the module exceeds its page budget.
+`Module:Erenshor/Data/Progression` SHALL hold every node of the requirement graph that has a way or that a need references, with its kind, tier, milestone flag, native name and page, and every way of those nodes with its needs, including a way without needs. It SHALL leave out a way that needs its own node, because such a way cannot be how a player gets the node. It SHALL use one table per node and escaped JSON strings for ways, preserving first-way selection and every need field, including required character level. The renderer SHALL decode ways lazily. Generation SHALL validate source rows before compaction and fail with the node when a condition has no wording, an identity resolves in neither catalog, or the module exceeds its page budget.
 
 #### Scenario: A raid plane
 
@@ -22,6 +22,11 @@ Renders the clean database's requirement graph on the wiki: a target's playthrou
 
 - **WHEN** a node has no way and no need references it, such as an item that the game leaves unnamed and unobtainable
 - **THEN** the module leaves it out
+
+#### Scenario: A way that needs its own node
+
+- **WHEN** a way to get the Loss Stone needs the Loss Stone held
+- **THEN** the module leaves that way out and keeps the Loss Stone's other ways
 
 #### Scenario: A packed way preserves optional requirements
 

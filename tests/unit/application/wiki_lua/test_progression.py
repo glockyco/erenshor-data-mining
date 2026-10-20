@@ -107,6 +107,17 @@ def test_unknown_identities_fail_closed(graph, catalog, failure):
         build_progression_data(graph, {"quest:goal"}, native_catalog=catalog)
 
 
+def test_a_way_that_needs_its_own_node_is_left_out(graph, catalog):
+    held = ProgressionNeed("held", "quest:goal", None, None, None, None, False, False)
+    graph.ways["quest:goal"] += (ProgressionWay("circular", (held,)),)
+    data = build_progression_data(graph, {"quest:goal"}, native_catalog=catalog)
+    assert [row["way"] for row in data.rows["quest:goal"] if row["type"] == "way"] == ["alternative", "complete"]
+    assert data.circular_ways == 1
+    graph.ways["quest:goal"] = (ProgressionWay("complete", (held,)),)
+    with pytest.raises(ViewDataError, match="missing first way complete"):
+        build_progression_data(graph, {"quest:goal"}, native_catalog=catalog)
+
+
 @pytest.mark.parametrize("field", ["slot", "keywords", "label"])
 def test_markup_is_rejected_in_all_player_text(graph, catalog, field):
     if field == "label":

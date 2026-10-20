@@ -34,7 +34,7 @@ Alternatives considered:
 
 ### D2. The compact data module
 
-The builder reads `ProgressionRepository` and validates its node, way, and need rows through the declared `DataView` before serializing `Module:Erenshor/Data/Progression`. It retains every node with a way or referenced by a need, including a referenced node without a way. Conditions use the wording table shared with `erenshor progression`, and native identities supply names and optional pages. Generation fails when wording or an identity is missing.
+The builder reads `ProgressionRepository` and validates its node, way, and need rows through the declared `DataView` before serializing `Module:Erenshor/Data/Progression`. It retains every node with a way or referenced by a need, including a referenced node without a way. It leaves out a way that needs its own node, such as a Loss Stone that the player already holds, because it cannot be how a player gets the node. Conditions use the wording table shared with `erenshor progression`, and native identities supply names and optional pages. Generation fails when wording or an identity is missing.
 
 The module uses one table per node with its kind, tier, milestone flag, name, optional page, first-way index, and an array of packed way strings. Each way string is a JSON array of positional needs. JSON escaping preserves every optional value without allocating a Lua table for every need during `mw.loadData`. The generated module's header documents the field order, null handling, page sentinel, and first-way index. `_meta` records the default targets from dedicated planning slots and the source-depth limit. This changes representation, not which way the clean build selected.
 
