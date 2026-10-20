@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections import Counter
 from collections.abc import Collection, Mapping, Sequence
 from dataclasses import dataclass
@@ -11,13 +12,22 @@ from typing import TYPE_CHECKING, Protocol
 
 from loguru import logger
 
-from erenshor.application.progression_wording import ProgressionWordingError, condition_text, node_text
+from erenshor.application.progression_wording import (
+    ACTIONS,
+    LEADS,
+    ProgressionSentences,
+    ProgressionWordingError,
+    condition_text,
+    node_text,
+)
 from erenshor.application.wiki_lua.lua_writer import module_text
 from erenshor.application.wiki_lua.views import DataView, ViewDataError, ViewField, view_module_text
 from erenshor.domain.value_objects.progression import UNMET_RELATIONS
 
 if TYPE_CHECKING:
     from erenshor.domain.value_objects.progression import ProgressionNode, ProgressionWay
+
+_PLACEHOLDER = re.compile(r"\{([^{}]+)\}")
 
 PROGRESSION = DataView(
     module="Progression",
@@ -32,8 +42,10 @@ PROGRESSION = DataView(
         ViewField("tier", "integer", "Playthrough tier. Absent when unreachable.", optional=True),
         ViewField("milestone", "boolean", "Whether the node is a milestone.", optional=True),
         ViewField("label", "reference", "Native identity with its label and optional page.", optional=True),
+        ViewField("reward", "text", "Quest whose reward alone gives this item.", optional=True),
         ViewField("way", "text", "Persisted way key within the owning node.", optional=True),
         ViewField("first", "boolean", "Whether this is the node's first way.", optional=True),
+        ViewField("sentence", "text", "Plain sentence of the way. A node appears as {stable key}.", optional=True),
         ViewField("relation", "text", "Persisted relation of this need.", optional=True),
         ViewField("need", "text", "Exact target node key. Absent for a worded condition.", optional=True),
         ViewField("quantity", "number", "Required quantity.", optional=True),
@@ -89,6 +101,12 @@ def build_progression_data(
         for need in way.needs
         if need.need_stable_key is not None
     }
+    # A start's sentence names its quest, so the quest stays even when it has no way of its own.
+    referenced |= {
+        node.stable_key.removeprefix("quest_start:")
+        for node in all_nodes
+        if node.kind == "quest_start" and ways_by_node[node.stable_key]
+    }
     nodes = [node for node in all_nodes if ways_by_node[node.stable_key] or node.stable_key in referenced]
     omitted = Counter(
         node.kind for node in all_nodes if not ways_by_node[node.stable_key] and node.stable_key not in referenced
@@ -111,10 +129,20 @@ def build_progression_data(
                 catalog[node.stable_key] = {"name": node_text(node, names)}
             except ProgressionWordingError as error:
                 raise ViewDataError(f"{PROGRESSION.title}: node {node.stable_key}: {error}") from error
+    # A way that needs its own node cannot be how a player first gets that node.
+    kept = {
+        node.stable_key: tuple(
+            way
+            for way in sorted(ways_by_node[node.stable_key], key=lambda way: way.way_key)
+            if all(need.need_stable_key != node.stable_key for need in way.needs)
+        )
+        for node in nodes
+    }
+    circular_ways = sum(len(ways_by_node[key]) - len(ways) for key, ways in kept.items())
+    writer = ProgressionSentences({node.stable_key: node for node in nodes}, kept, names)
     rows: dict[str, list[dict[str, object]]] = {}
     way_count = 0
     need_count = 0
-    circular_ways = 0
     for node in nodes:
         key = node.stable_key
         identity_key = key.removeprefix("quest_start:") if node.kind == "quest_start" else key
@@ -133,17 +161,15 @@ def build_progression_data(
         if node.tier is not None:
             node_row["tier"] = node.tier
         rows[key] = [node_row]
-        ways = [
-            way
-            for way in sorted(ways_by_node[key], key=lambda way: way.way_key)
-            if all(need.need_stable_key != key for need in way.needs)
-        ]
-        circular_ways += len(ways_by_node[key]) - len(ways)
+        ways = kept[key]
         if node.first_way_key is not None and node.first_way_key not in {way.way_key for way in ways}:
             raise ViewDataError(f"{PROGRESSION.title}: node {key}: missing first way {node.first_way_key}")
+        way_rows: list[dict[str, object]] = []
         for way in ways:
             way_count += 1
-            rows[key].append({"type": "way", "way": way.way_key, "first": way.way_key == node.first_way_key})
+            way_row: dict[str, object] = {"type": "way", "way": way.way_key, "first": way.way_key == node.first_way_key}
+            way_rows.append(way_row)
+            rows[key].append(way_row)
             for index, need in enumerate(way.needs):
                 need_count += 1
                 where = f"{PROGRESSION.title}: node {key} way {way.way_key} need {index}"
@@ -168,18 +194,35 @@ def build_progression_data(
                 if need.unconfirmed:
                     row["unconfirmed"] = True
                 rows[key].append(row)
+        try:
+            sentences = writer.sentences(key)
+            reward = writer.reward_of(key)
+        except ProgressionWordingError as error:
+            raise ViewDataError(f"{PROGRESSION.title}: node {error}") from error
+        for way_row, sentence in zip(way_rows, sentences, strict=True):
+            unknown = sorted(set(_PLACEHOLDER.findall(sentence)) - node_keys)
+            if unknown:
+                raise ViewDataError(
+                    f"{PROGRESSION.title}: node {key} way {way_row['way']}: names unknown nodes {unknown}"
+                )
+            way_row["sentence"] = sentence
+        if reward is not None:
+            node_row["reward"] = reward
     view_module_text(PROGRESSION, rows, known_keys, reference_catalog=catalog, entity_keys=node_keys)
     compact = compact_progression_data(rows)
     header = (
         f"-- {PROGRESSION.title}\n"
         "-- Generated by `erenshor wiki generate-lua`. The bot overwrites every edit of this page.\n"
-        "-- Nodes contain kind, optional tier, milestone, name, optional page, optional first, and ways.\n"
-        "-- An omitted page means page=name. page=false means no page. first is a one-based way index.\n"
-        "-- Each way is a JSON string of need arrays. Fields are relation, need, quantity, slot,\n"
-        "-- keywords, text, advisory, unconfirmed, required_level. Internal nulls retain positions.\n"
-        "-- Trailing nulls are omitted.\n"
-        "-- _meta holds dedicated planning-slot defaults, maxDepth for the renderer, and the unmet\n"
-        "-- relations, whose targets must stay undone and are no prerequisites.\n"
+        "-- Nodes contain kind, optional tier, milestone, name, optional page, optional first, optional\n"
+        "-- reward, and ways. An omitted page means page=name. page=false means no page. first is a\n"
+        "-- one-based way index. reward names the quest whose reward alone gives an item.\n"
+        "-- Each way is a JSON array: the way's plain sentence, then one array per need. A sentence\n"
+        "-- names a node as {stable key}. Need fields are relation, need, quantity, slot, keywords,\n"
+        "-- text, advisory, unconfirmed, required_level. Internal nulls retain positions, and\n"
+        "-- trailing nulls are omitted.\n"
+        "-- _meta holds dedicated planning-slot defaults, the unmet relations, whose targets must stay\n"
+        "-- undone and are no prerequisites, the action of each relation for map lines, and the lead of\n"
+        "-- each node kind for titles.\n"
     )
     content = header + module_text(compact)
     json_bytes = len(json.dumps(compact, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode("utf-8"))
@@ -198,13 +241,13 @@ def build_progression_data(
 _NEED_FIELDS = ("relation", "need", "quantity", "slot", "keywords", "text", "advisory", "unconfirmed", "required_level")
 
 
-def _packed_way(needs: Sequence[Mapping[str, object]]) -> str:
-    """Encode needs as JSON arrays in _NEED_FIELDS order.
+def _packed_way(sentence: str, needs: Sequence[Mapping[str, object]]) -> str:
+    """Encode a way as a JSON array: its sentence, then each need in _NEED_FIELDS order.
 
     Trailing null fields are omitted. Internal nulls retain positional meaning.
     JSON escaping preserves player text for lazy mw.text.jsonDecode in Lua.
     """
-    packed: list[list[object]] = []
+    packed: list[object] = [sentence]
     for row in needs:
         values = [row.get(field) for field in _NEED_FIELDS]
         while values and values[-1] is None:
@@ -221,8 +264,8 @@ def compact_progression_data(
     An omitted page means the name is its page title. False means no page.
     First is a one-based way index and is absent without a persisted first way.
     The reserved _meta record carries dedicated planning-slot defaults, the
-    renderer's maximum detail depth, and the relations whose targets must stay
-    unmet, which no route follows.
+    relations whose targets must stay unmet, which no route follows, the action
+    of each relation, and the title lead of each node kind.
     """
     compact: dict[str, object] = {}
     defaults: list[str] = []
@@ -237,6 +280,8 @@ def compact_progression_data(
         }
         if "tier" in source:
             node["tier"] = source["tier"]
+        if "reward" in source:
+            node["reward"] = source["reward"]
         if label.get("page") is None:
             node["page"] = False
         elif label["page"] != label["name"]:
@@ -246,7 +291,7 @@ def compact_progression_data(
         for row in records:
             if row["type"] == "need":
                 needs[str(row["way"])].append(row)
-        node["ways"] = [_packed_way(needs[str(way["way"])]) for way in ways]
+        node["ways"] = [_packed_way(str(way["sentence"]), needs[str(way["way"])]) for way in ways]
         for index, way in enumerate(ways, start=1):
             if way["first"]:
                 node["first"] = index
@@ -256,7 +301,12 @@ def compact_progression_data(
             for row in records
         ):
             defaults.append(key)
-    compact["_meta"] = {"defaults": defaults, "maxDepth": 6, "unmet": sorted(UNMET_RELATIONS)}
+    compact["_meta"] = {
+        "defaults": defaults,
+        "unmet": sorted(UNMET_RELATIONS),
+        "actions": dict(sorted(ACTIONS.items())),
+        "leads": dict(sorted(LEADS.items())),
+    }
     return compact
 
 
