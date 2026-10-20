@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import defaultdict, deque
+from collections.abc import Mapping
 
 from erenshor.application.progression_wording import standing_text
 from erenshor.domain.value_objects.progression import (
@@ -21,6 +22,7 @@ class ProgressionRepository:
         self.db = db
         self._nodes: dict[str, ProgressionNode] = {}
         self._ways: dict[str, tuple[ProgressionWay, ...]] = {}
+        self._names: dict[str, str] = {}
         self._loaded = False
         try:
             with db.connect() as connection:
@@ -93,6 +95,7 @@ class ProgressionRepository:
                     )
             self._nodes = nodes
             self._ways = {key: tuple(value) for key, value in ways.items()}
+            self._names = names
             self._loaded = True
         except DatabaseConnectionError as error:
             raise RepositoryError(f"Cannot read progression graph: {error}") from error
@@ -101,6 +104,11 @@ class ProgressionRepository:
         """Return every persisted node in stable key order."""
         self._load()
         return tuple(self._nodes[key] for key in sorted(self._nodes))
+
+    def display_names(self) -> Mapping[str, str]:
+        """Display names by stable key of the entities that progression keys name, such as factions."""
+        self._load()
+        return self._names
 
     def get_node(self, key: str) -> ProgressionNode | None:
         self._load()

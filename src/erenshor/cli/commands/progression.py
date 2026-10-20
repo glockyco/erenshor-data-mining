@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import re
 from collections import Counter
 from typing import TYPE_CHECKING
 
 import typer
 
-from erenshor.application.progression_wording import ProgressionWordingError, condition_text
+from erenshor.application.progression_wording import ProgressionSentences, ProgressionWordingError, condition_text
 from erenshor.infrastructure.database.connection import DatabaseConnection, DatabaseConnectionError
 from erenshor.infrastructure.database.repositories.progression import ProgressionRepository
 from erenshor.infrastructure.database.repository import RepositoryError
@@ -15,6 +16,8 @@ from erenshor.infrastructure.database.repository import RepositoryError
 if TYPE_CHECKING:
     from erenshor.cli.context import CLIContext
     from erenshor.domain.value_objects.progression import ProgressionNeed, ProgressionNode
+
+_PLACEHOLDER = re.compile(r"\{([^{}]+)\}")
 
 app = typer.Typer(help="Inspect the clean database's progression requirements")
 
@@ -55,6 +58,19 @@ def _need(repository: ProgressionRepository, need: ProgressionNeed) -> str:
     return f"{need.relation} {text}" + (f" ({', '.join(details)})" if details else "")
 
 
+def _sentences(repository: ProgressionRepository, key: str) -> tuple[str, ...]:
+    """The plain sentence of each way of a node, with its nodes named."""
+    nodes = {node.stable_key: node for node in repository.get_nodes()}
+    writer = ProgressionSentences(
+        nodes, {other: repository.get_ways(other) for other in nodes}, repository.display_names()
+    )
+    try:
+        sentences = writer.sentences(key)
+    except ProgressionWordingError as error:
+        raise RepositoryError(str(error)) from error
+    return tuple(_PLACEHOLDER.sub(lambda match: nodes[match.group(1)].name, sentence) for sentence in sentences)
+
+
 def _show_node(repository: ProgressionRepository, node: ProgressionNode) -> None:
     typer.echo(_label(node))
     tier = "unreachable" if node.tier is None else str(node.tier)
@@ -62,8 +78,8 @@ def _show_node(repository: ProgressionRepository, node: ProgressionNode) -> None
     typer.echo("Playthrough order from new-character starts, not a save-state assessment.")
     ways = repository.get_ways(node.stable_key)
     typer.echo(f"Ways ({len(ways)})")
-    for way in ways:
-        typer.echo(f"  {way.way_key}" + (" (first)" if way.way_key == node.first_way_key else ""))
+    for way, sentence in zip(ways, _sentences(repository, node.stable_key), strict=True):
+        typer.echo(f"  {way.way_key}" + (" (first)" if way.way_key == node.first_way_key else "") + f": {sentence}")
         for need in way.needs:
             typer.echo("    " + _need(repository, need))
         if not way.needs:

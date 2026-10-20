@@ -74,7 +74,8 @@ def graph_path(cli_context: CLIContext) -> Path:
             ("quest:gate", "quest", 0, "enter", "zone:start", None, None, None, 0, 0),
             ("zone:goal", "goal", 0, "zone line", "zone:start", None, None, None, 0, 0),
             ("zone:goal", "goal", 1, "quest done", "quest:gate", 2, "L1", "hello", 1, 1),
-            ("zone:blocked", "blocked", 0, "release", "world_state:weather:raining:zone:start", None, None, None, 0, 0),
+            ("zone:blocked", "blocked", 0, "zone line", "zone:start", None, None, None, 0, 0),
+            ("zone:blocked", "blocked", 1, "release", "world_state:weather:raining:zone:start", None, None, None, 0, 0),
             ("quest:negative", "negative", 0, "quest not done", "quest:gap", None, None, None, 0, 0),
         ):
             connection.execute(
@@ -181,7 +182,9 @@ def test_show_prints_ways_metadata_and_ordered_first_way_milestones(cli_context,
     assert result.exit_code == 0, result.output
     assert "Secret Garden [zone:goal]" in result.output
     assert "Kind zone. Tier 2. Build build-123." in result.output
-    assert "goal (first)" in result.output
+    assert "goal (first): Travel from Starter Bay to Secret Garden, after Open the Gate (not confirmed in play)." in (
+        result.output
+    )
     assert (
         "quest done Open the Gate [quest:gate] (quantity 2, slot L1, keywords 'hello', advisory, unconfirmed)"
         in result.output
@@ -206,6 +209,7 @@ def test_learning_level_round_trips_and_prints_without_becoming_a_tier(cli_conte
     result = runner.invoke(app, ["show", "zone:goal"], obj=cli_context)
     assert result.exit_code == 0, result.output
     assert "level 8" in result.output
+    assert "after Open the Gate, at level 8 or higher" in result.output
     assert "Tier 2." in result.output
 
 
@@ -267,13 +271,19 @@ def test_missing_database_does_not_create_one(cli_context, tmp_path):
     ],
 )
 def test_condition_keys_have_explicit_wording_or_fail(cli_context, graph_path, condition):
-    relation = "event" if condition.startswith("event:") else "condition"
     with closing(sqlite3.connect(graph_path)) as connection, connection:
-        connection.execute(
-            "UPDATE progression_needs SET relation=?,need_stable_key=NULL,condition_key=? "
-            "WHERE node_stable_key='quest:gate'",
-            (relation, condition),
-        )
+        if condition.startswith("event:"):
+            connection.execute(
+                "UPDATE progression_needs SET relation='event',need_stable_key=NULL,condition_key=? "
+                "WHERE node_stable_key='quest:gate'",
+                (condition,),
+            )
+        else:
+            connection.execute(
+                "INSERT INTO progression_needs "
+                "VALUES ('quest:gate','quest',1,'release',NULL,NULL,NULL,NULL,?,0,0,NULL)",
+                (condition,),
+            )
     result = runner.invoke(app, ["show", "quest:gate"], obj=cli_context)
     assert result.exit_code == (1 if condition.startswith("unknown:") else 0), result.output
     assert condition in result.output
