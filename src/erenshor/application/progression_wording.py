@@ -592,13 +592,14 @@ class ProgressionSentences:
         return f"travel from {source} to {zone}{through}"
 
     def _barrier(self, node: ProgressionNode, taken: Needs) -> str:
+        """A key or a carried item leads, and quests or defeats that it waits for follow as conditions."""
         barrier = _ref(node.stable_key)
+        if "key" in taken or "held" in taken:
+            return self._lead(_BARRIER_CLAUSES, barrier, taken)
         if "quest done" in taken:
             quests = _join([_ref(need.need_stable_key) for need in self._take(taken, "quest done")])
             return f"finish {quests} to get past {barrier}"
-        if "defeated" in taken:
-            return f"defeat {self._defeats(self._take(taken, 'defeated'))} to get past {barrier}"
-        return self._lead(_BARRIER_CLAUSES, barrier, taken)
+        return f"defeat {self._defeats(self._take(taken, 'defeated'))} to get past {barrier}"
 
     def _character(self, node: ProgressionNode, taken: Needs) -> str:
         character = _ref(node.stable_key)
@@ -683,11 +684,14 @@ class ProgressionSentences:
         unknown = sorted(set(taken) - set(_CONDITION_ORDER))
         if unknown:
             raise ProgressionWordingError(f"Cannot word {unknown} as a condition")
+        level = max((need.required_level or 0 for needs in taken.values() for need in needs), default=0)
         phrases: list[str] = []
         for relation in _CONDITION_ORDER:
             for phrase in self._condition(relation, self._take(taken, relation), rooms):
                 if phrase not in phrases:
                     phrases.append(phrase)
+        if level > 1:
+            phrases.append(f"at level {level} or higher")
         return "".join(", " + phrase for phrase in phrases)
 
     def _condition(self, relation: str, needs: Sequence[ProgressionNeed], rooms: frozenset[str]) -> list[str]:

@@ -215,6 +215,11 @@ def test_levels_above_one_are_named():
         "Learn {spell:storm} from {item:stone} of level 8 or higher.",
         "Learn {spell:storm} from {item:stone}.",
     )
+    # A level on any other need follows the conditions.
+    gate = graph({"barrier:gate": [[need("key", "item:key"), need("quest done", "quest:first", level=12)]]})
+    assert gate.sentences("barrier:gate") == (
+        "Open {barrier:gate} with {item:key}, after {quest:first}, at level 12 or higher.",
+    )
 
 
 def test_a_way_without_needs_needs_nothing():
