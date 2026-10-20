@@ -5,6 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 PROGRESSION_SCHEMA_VERSION = 4
+# A need with one of these relations holds while its target is not done. The
+# target is no prerequisite, so it adds no tier and no step to a first-way route.
+UNMET_RELATIONS = frozenset({"quest not done"})
 
 
 @dataclass(frozen=True)

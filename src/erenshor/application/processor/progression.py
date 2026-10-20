@@ -14,7 +14,7 @@ from typing import Any
 from loguru import logger
 
 from erenshor.domain.value_objects.item_provenance import condition_from_dict
-from erenshor.domain.value_objects.progression import PROGRESSION_SCHEMA_VERSION
+from erenshor.domain.value_objects.progression import PROGRESSION_SCHEMA_VERSION, UNMET_RELATIONS
 
 EXPANSION_LIMIT = 32
 START_SCENE_FACTS = {
@@ -1208,7 +1208,7 @@ class ProgressionBuilder:
                     self.milestones.add(node)
 
     def need_tier(self, need: Need) -> int | None:
-        if need.need_stable_key is None or need.relation == "quest not done":
+        if need.need_stable_key is None or need.relation in UNMET_RELATIONS:
             return 0
         return self.tiers.get(need.need_stable_key)
 
@@ -1221,7 +1221,7 @@ class ProgressionBuilder:
     def way_depth(self, way: Way) -> int | None:
         depths = [
             0
-            if need.need_stable_key is None or need.relation == "quest not done"
+            if need.need_stable_key is None or need.relation in UNMET_RELATIONS
             else self.depths.get(need.need_stable_key)
             for need in way
         ]
@@ -1293,7 +1293,7 @@ class ProgressionBuilder:
             key = self.first[node]
             for need in self.ways[node][key]:
                 target = need.need_stable_key
-                if target is None or need.relation == "quest not done":
+                if target is None or need.relation in UNMET_RELATIONS:
                     continue
                 if target not in self.first:
                     raise _error(node, str(need), "first way has no start-rooted explanation", key)

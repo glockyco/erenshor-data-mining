@@ -7,6 +7,7 @@ from collections import defaultdict, deque
 from erenshor.application.progression_wording import standing_text
 from erenshor.domain.value_objects.progression import (
     PROGRESSION_SCHEMA_VERSION,
+    UNMET_RELATIONS,
     ProgressionNeed,
     ProgressionNode,
     ProgressionWay,
@@ -110,7 +111,7 @@ class ProgressionRepository:
         return self._ways.get(key, ())
 
     def _target(self, need: ProgressionNeed) -> ProgressionNode | None:
-        if need.need_stable_key is None or need.relation == "quest not done":
+        if need.need_stable_key is None or need.relation in UNMET_RELATIONS:
             return None
         target = self._nodes.get(need.need_stable_key)
         if target is None:
