@@ -7,6 +7,7 @@ from dataclasses import replace
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import click
 import pytest
 from typer import Typer
 from typer.testing import CliRunner
@@ -235,7 +236,8 @@ def test_show_gaps_counts_and_lists_missing_ways_and_tiers(cli_context, graph_pa
 def test_show_requires_one_inspection_mode(cli_context, graph_path, arguments):
     result = runner.invoke(app, arguments, obj=cli_context)
     assert result.exit_code == 2
-    assert "Provide one stable key or --gaps" in result.output
+    # Typer styles its usage errors when GITHUB_ACTIONS is set, which splits the text.
+    assert "Provide one stable key or --gaps" in click.unstyle(result.output)
 
 
 def test_show_unknown_node_reports_a_clear_error(cli_context, graph_path):
