@@ -14,6 +14,7 @@ from loguru import logger
 from erenshor.application.progression_wording import ProgressionWordingError, condition_text, node_text
 from erenshor.application.wiki_lua.lua_writer import module_text
 from erenshor.application.wiki_lua.views import DataView, ViewDataError, ViewField, view_module_text
+from erenshor.domain.value_objects.progression import UNMET_RELATIONS
 
 if TYPE_CHECKING:
     from erenshor.domain.value_objects.progression import ProgressionNode, ProgressionWay
@@ -169,7 +170,8 @@ def build_progression_data(
         "-- Each way is a JSON string of need arrays. Fields are relation, need, quantity, slot,\n"
         "-- keywords, text, advisory, unconfirmed, required_level. Internal nulls retain positions.\n"
         "-- Trailing nulls are omitted.\n"
-        "-- _meta holds dedicated planning-slot defaults and maxDepth for the renderer.\n"
+        "-- _meta holds dedicated planning-slot defaults, maxDepth for the renderer, and the unmet\n"
+        "-- relations, whose targets must stay undone and are no prerequisites.\n"
     )
     content = header + module_text(compact)
     json_bytes = len(json.dumps(compact, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode("utf-8"))
@@ -201,8 +203,9 @@ def compact_progression_data(
 
     An omitted page means the name is its page title. False means no page.
     First is a one-based way index and is absent without a persisted first way.
-    The reserved _meta record carries dedicated planning-slot defaults and the
-    renderer's maximum detail depth.
+    The reserved _meta record carries dedicated planning-slot defaults, the
+    renderer's maximum detail depth, and the relations whose targets must stay
+    unmet, which no route follows.
     """
     compact: dict[str, object] = {}
     defaults: list[str] = []
@@ -236,7 +239,7 @@ def compact_progression_data(
             for row in records
         ):
             defaults.append(key)
-    compact["_meta"] = {"defaults": defaults, "maxDepth": 6}
+    compact["_meta"] = {"defaults": defaults, "maxDepth": 6, "unmet": sorted(UNMET_RELATIONS)}
     return compact
 
 

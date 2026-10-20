@@ -124,6 +124,9 @@
 		if ( !isCount( payload.sourceLimit ) || payload.sourceLimit < 1 ) {
 			fail( 'the data has no source limit' );
 		}
+		if ( !Array.isArray( payload.unmet ) || !payload.unmet.every( isText ) ) {
+			fail( 'the data names no unmet relations' );
+		}
 		if ( !isObject( payload.nodes ) ) {
 			fail( 'the data has no nodes' );
 		}
@@ -140,6 +143,7 @@
 			targets: targets.slice(),
 			maxDepth: payload.maxDepth,
 			sourceLimit: payload.sourceLimit,
+			unmet: new Set( payload.unmet ),
 			records: records
 		};
 	}
@@ -228,6 +232,8 @@
 			targets: payload.targets,
 			maxDepth: payload.maxDepth,
 			sourceLimit: payload.sourceLimit,
+			// A need with one of these relations must stay undone, so no route follows it.
+			unmet: payload.unmet,
 			has: function ( key ) {
 				return records.has( key );
 			},
@@ -302,9 +308,13 @@
 	/**
 	 * The overview of D3: the milestones on the first-way route of the roots, and
 	 * the roots themselves. A step depends on the nearest steps that its first way
-	 * reaches through steps that are not milestones.
+	 * reaches through steps that are not milestones. A need to keep a quest undone
+	 * is no requirement, so the route never follows it.
 	 */
 	function overview( model, roots ) {
+		function required( need ) {
+			return need.need !== null && !model.unmet.has( need.relation );
+		}
 		const closure = new Set();
 		const steps = new Set();
 		const pending = roots.slice();
@@ -320,7 +330,7 @@
 			const way = model.firstWay( key );
 			if ( way ) {
 				way.needs.forEach( function ( need ) {
-					if ( need.need ) {
+					if ( required( need ) ) {
 						pending.push( need.need );
 					}
 				} );
@@ -344,7 +354,7 @@
 			const way = model.firstWay( key );
 			if ( way ) {
 				way.needs.forEach( function ( need ) {
-					if ( !need.need ) {
+					if ( !required( need ) ) {
 						return;
 					}
 					if ( steps.has( need.need ) ) {
@@ -367,7 +377,7 @@
 			const way = model.firstWay( key );
 			if ( way ) {
 				way.needs.forEach( function ( need ) {
-					if ( !need.need ) {
+					if ( !required( need ) ) {
 						return;
 					}
 					if ( steps.has( need.need ) ) {
@@ -726,7 +736,7 @@
 				const way = model.firstWay( other );
 				if ( way ) {
 					way.needs.forEach( function ( need ) {
-						if ( need.need ) {
+						if ( need.need && !model.unmet.has( need.relation ) ) {
 							if ( !reverse.has( need.need ) ) {
 								reverse.set( need.need, [] );
 							}
@@ -769,8 +779,8 @@
 	 * The ways and sources of every overview step, in the order and depth of the
 	 * text that Module:Erenshor/Progression renders, so that every label it needs
 	 * is in the data. A step that is drawn, or that the text already expanded, is
-	 * a reference. `owners` maps each step to the overview step whose detail
-	 * first mentions it.
+	 * a reference. A quest to keep undone is a condition without sources.
+	 * `owners` maps each step to the overview step whose detail first mentions it.
 	 */
 	function detailForest( model, base ) {
 		const drawn = new Set( base.keys );
@@ -825,6 +835,9 @@
 			model.record( key );
 			if ( !owners.has( key ) ) {
 				owners.set( key, owner );
+			}
+			if ( model.unmet.has( need.relation ) ) {
+				return { need: need, key: key, state: 'unmet' };
 			}
 			if ( drawn.has( key ) || seen.has( key ) ) {
 				return { need: need, key: key, state: 'reference' };

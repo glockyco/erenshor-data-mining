@@ -40,7 +40,7 @@ const routeNodes = () => ( {
 } );
 
 const payload = ( nodes, overrides ) => JSON.stringify( Object.assign(
-	{ targets: [ 'zone:plane' ], maxDepth: 6, sourceLimit: 4, nodes: nodes || routeNodes() },
+	{ targets: [ 'zone:plane' ], maxDepth: 6, sourceLimit: 4, unmet: [ 'quest not done' ], nodes: nodes || routeNodes() },
 	overrides
 ) );
 const model = ( text ) => core.createModel( core.parsePayload( text || payload() ) );
@@ -88,6 +88,7 @@ test( 'rejects data that the view could not have rendered', () => {
 		/target zone:elsewhere has no node/ );
 	assert.throws( () => core.parsePayload( payload( undefined, { maxDepth: 0 } ) ), /depth limit/ );
 	assert.throws( () => core.parsePayload( payload( undefined, { sourceLimit: undefined } ) ), /source limit/ );
+	assert.throws( () => core.parsePayload( payload( undefined, { unmet: undefined } ) ), /unmet relations/ );
 	const nodes = routeNodes();
 	nodes[ 'zone:plane' ].first = 2;
 	assert.throws( () => core.parsePayload( payload( nodes ) ), /first way that it does not have/ );
@@ -125,6 +126,22 @@ test( 'every edge of the overview runs to a later tier column', () => {
 		assert.ok( column.get( edge.from ) < column.get( edge.to ), edge.from + ' > ' + edge.to );
 		assert.ok( graph.record( edge.from ).tier < graph.record( edge.to ).tier );
 	}
+} );
+
+test( 'a quest to keep undone is no requirement of the route', () => {
+	const nodes = routeNodes();
+	// The key can only be had before The Ritual is done, which needs the key itself.
+	nodes[ 'item:key' ].ways = [ JSON.stringify( [ [ 'quest reward', 'quest:errand' ], [ 'quest not done', 'quest:ritual' ] ] ) ];
+	const graph = model( payload( nodes ) );
+	const view = core.overview( graph, [ 'barrier:door' ] );
+	const forest = core.detailForest( graph, view );
+
+	assert.deepEqual( view.keys, [ 'zone:stowaway', 'quest:errand', 'item:key', 'barrier:door' ] );
+	assert.deepEqual( view.deps.get( 'item:key' ), [ 'quest:errand' ] );
+	const undone = forest.trees.get( 'item:key' ).visible[ 0 ].needs[ 1 ];
+	assert.equal( undone.state, 'unmet' );
+	assert.equal( undone.ways, undefined );
+	assert.equal( core.routeOwner( graph, view, 'character:priest' ), null );
 } );
 
 test( 'untiered steps take the last column', () => {

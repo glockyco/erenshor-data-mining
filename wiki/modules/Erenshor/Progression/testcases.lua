@@ -61,6 +61,10 @@ function p.run()
 		end
 		-- A non-milestone contributes its first-way milestone dependency.
 		absent(rendered, 'data-progression-key="mechanism:bridge"')
+		-- A quest to leave undone is no step, and the text does not list its sources.
+		contains(rendered, "quest not done: [[A quest to leave undone]]")
+		absent(rendered, 'data-progression-key="quest:fixture-undone"')
+		absent(rendered, "An item for that quest")
 		contains(rendered, 'class="erenshor-progression-graph"')
 		local encoded = string.match(rendered, "<pre[^>]*>(.-)</pre>")
 		local payload = mw.text.jsonDecode(mw.text.unstripNoWiki(encoded))
@@ -72,6 +76,9 @@ function p.run()
 		end
 		if payload.maxDepth ~= 6 or payload.sourceLimit ~= 4 then
 			error("Gadget JSON must carry the depth and source limits of the text")
+		end
+		if payload.unmet[1] ~= "quest not done" or payload.nodes["item:fixture-undone"] then
+			error("Gadget JSON must name the unmet relations and leave out what they would need")
 		end
 	end
 	local ambiguous = Progression.render({ page = "Dire Wolf" })

@@ -28,9 +28,21 @@ node("mechanism:alternate", "mechanism", "Alternate milestone", 1, true)
 node("mechanism:source", "mechanism", "Common ingredient", 0, false)
 node("mechanism:unreachable", "mechanism", "Unreachable source", nil, false)
 node("character:a_grizzly_bear", "character", "A Grizzly Bear", 3, false, "A Grizzly Bear")
+node("quest:fixture-undone", "quest", "A quest to leave undone", 5, true, "A quest to leave undone")
+node("item:fixture-undone", "item", "An item for that quest", 4, true, "An item for that quest")
 way("quest:catfordeer", "start", true, {})
 way("mechanism:bridge", "bridge", true, { { relation = "after", need = "quest:catfordeer" } })
-way("item:lucky_charm", "reward", true, { { relation = "reward", need = "mechanism:bridge" } })
+way("item:lucky_charm", "reward", true, {
+	{ relation = "reward", need = "mechanism:bridge" },
+	{ relation = "quest not done", need = "quest:fixture-undone" },
+})
+way(
+	"quest:fixture-undone",
+	"turn in",
+	true,
+	{ { relation = "required item", need = "item:fixture-undone" } }
+)
+way("item:fixture-undone", "drop", true, {})
 way(
 	"item:lucky_charm",
 	"alternative",
@@ -113,7 +125,7 @@ way(
 	true,
 	{ { relation = "planning slot", need = "item:lucky_charm", slot = "rune slot" } }
 )
-local compact = { _meta = { defaults = {}, maxDepth = 6 } }
+local compact = { _meta = { defaults = {}, maxDepth = 6, unmet = { "quest not done" } } }
 for index = 1, 4 do
 	table.insert(compact._meta.defaults, "zone:fixture-plane" .. tostring(index))
 end

@@ -223,7 +223,7 @@ def test_compact_node_preserves_first_index_alternatives_and_all_need_fields(gra
         "page": False,
         "ways": [],
     }
-    assert compact["_meta"] == {"defaults": [], "maxDepth": 6}
+    assert compact["_meta"] == {"defaults": [], "maxDepth": 6, "unmet": ["quest not done"]}
 
 
 @pytest.mark.parametrize("page", [None, "Goal", "Different article"])
@@ -294,7 +294,7 @@ def test_default_raid_routes_use_dedicated_planning_slot_needs_not_names(graph, 
         )
     data = build_progression_data(graph, {"quest:goal"}, native_catalog=catalog)
     compact = compact_progression_data(data.rows)
-    assert compact["_meta"] == {"defaults": dedicated, "maxDepth": 6}
+    assert compact["_meta"] == {"defaults": dedicated, "maxDepth": 6, "unmet": ["quest not done"]}
     assert all("first" not in compact[key] and "tier" not in compact[key] for key in dedicated)
 
 

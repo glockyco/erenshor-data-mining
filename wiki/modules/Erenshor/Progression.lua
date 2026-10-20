@@ -90,7 +90,8 @@ local function graph(data)
 	return nodes, order
 end
 
-local function overview(nodes, roots)
+-- A need whose relation is unmet must stay undone, so its target is no step of the route.
+local function overview(nodes, roots, unmet)
 	local visited, milestones = {}, {}
 	local function visit(key)
 		if visited[key] then
@@ -104,7 +105,7 @@ local function overview(nodes, roots)
 		for _, way in ipairs(record.ways) do
 			if way.first then
 				for _, need in ipairs(way.needs) do
-					if need[NEED] then
+					if need[NEED] and not unmet[need[RELATION]] then
 						visit(need[NEED])
 					end
 				end
@@ -203,8 +204,12 @@ function p.render(args)
 			return message("Missing progression data: " .. key)
 		end
 	end
+	local unmet = {}
+	for _, relation in ipairs(data._meta.unmet) do
+		unmet[relation] = true
+	end
 	local nodes, nodeOrder = graph(data)
-	local ordered, milestones = overview(nodes, roots)
+	local ordered, milestones = overview(nodes, roots, unmet)
 	invocation = invocation + 1
 	local prefix = "erenshor-progression-" .. tostring(invocation) .. "-"
 	local anchorCount = 0
@@ -231,6 +236,11 @@ function p.render(args)
 	local function renderNeed(need, depth)
 		local key = need[NEED]
 		if not key then
+			emit("<li>")
+			emitNeed(emit, need, nodes)
+			emit("</li>")
+		elseif unmet[need[RELATION]] then
+			-- A condition to keep undone has no sources to list.
 			emit("<li>")
 			emitNeed(emit, need, nodes)
 			emit("</li>")
@@ -339,6 +349,7 @@ function p.render(args)
 		targets = roots,
 		maxDepth = maxDepth,
 		sourceLimit = SOURCE_LIMIT,
+		unmet = data._meta.unmet,
 		nodes = touched,
 	})
 	local container = mw.html
