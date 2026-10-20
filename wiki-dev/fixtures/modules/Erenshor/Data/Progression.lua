@@ -28,7 +28,8 @@ node("zone:start", "zone", "Starter Bay", 0, false, "Starter Bay")
 node("barrier:fixture-door", "barrier", "A locked door", 5, true)
 node("item:lucky_charm", "item", "Lucky Charm", 4, true, "Lucky Charm", "quest:catfordeer")
 node("quest:catfordeer", "quest", "Cat for a Deer", 3, true, "Cat for a Deer")
-node("quest:fixture-first", "quest", "A first quest", 2, true, "A first quest")
+-- Some stable keys hold two spaces, which an attribute must keep.
+node("quest:fixture  first", "quest", "A first quest", 2, true, "A first quest")
 node("character:deer", "character", "A Deer", 0, false, "A Deer")
 node("item:catnip", "item", "Catnip", 1, false, "Catnip")
 node("mechanism:new_character_start", "mechanism", "New character start", 0, false)
@@ -86,18 +87,18 @@ way(
 	"quest:catfordeer",
 	"turn in",
 	true,
-	"Give {item:catnip} to {character:deer} in {zone:start} to finish {quest:catfordeer}, after {quest:fixture-first}.",
+	"Give {item:catnip} to {character:deer} in {zone:start} to finish {quest:catfordeer}, after {quest:fixture  first}.",
 	{
 		{ relation = "turn in to", need = "character:deer" },
 		{ relation = "required item", need = "item:catnip", quantity = 1, slot = "1" },
-		{ relation = "quest done", need = "quest:fixture-first" },
+		{ relation = "quest done", need = "quest:fixture  first" },
 	}
 )
 way(
-	"quest:fixture-first",
+	"quest:fixture  first",
 	"talk",
 	true,
-	"Talk to {character:deer} in {zone:start} to finish {quest:fixture-first}.",
+	"Talk to {character:deer} in {zone:start} to finish {quest:fixture  first}.",
 	{
 		{ relation = "talk to", need = "character:deer" },
 	}

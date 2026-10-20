@@ -355,6 +355,7 @@ Lua Progression Smoke	text:PASS Erenshor Progression testcases
 Progression Fixture	elem:ol.erenshor-progression-steps
 Progression Fixture	elem:.erenshor-progression-chapter-title=Unlock Port Azure
 Progression Fixture	elem:[data-progression-key="quest:catfordeer"]=to finish
+Progression Fixture	elem:[data-progression-key="quest:fixture  first"]=to finish
 Progression Fixture	elem:.erenshor-progression-yields=You get
 Progression Fixture	elem:[data-progression-key="barrier:fixture-door"]=before you finish
 Progression Fixture	elem:[data-progression-key="zone:PortAzure"]=Travel from

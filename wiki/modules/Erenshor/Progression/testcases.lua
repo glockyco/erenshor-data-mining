@@ -45,7 +45,7 @@ function p.run()
 		)
 		before(
 			rendered,
-			'data-progression-key="quest:fixture-first"',
+			'data-progression-key="quest:fixture&#32;&#32;first"',
 			'data-progression-key="quest:catfordeer"'
 		)
 		contains(rendered, "Travel from [[Starter Bay]] to [[Port Azure]] through A locked door.")

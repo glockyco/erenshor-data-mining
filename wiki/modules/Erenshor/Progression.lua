@@ -114,6 +114,23 @@ local function join(parts)
 	return table.concat(parts, ", ", 1, #parts - 1) .. " and " .. parts[#parts]
 end
 
+-- MediaWiki collapses runs of whitespace in an attribute, and some stable keys
+-- hold two spaces, so each character of such a run is a character reference.
+local function keyAttribute(key)
+	return (
+		mw.text.encode(key):gsub("%s+", function(spaces)
+			if spaces == " " then
+				return spaces
+			end
+			return (
+				spaces:gsub(".", function(character)
+					return "&#" .. string.byte(character) .. ";"
+				end)
+			)
+		end)
+	)
+end
+
 -- The steps of the goals' first-way route, what each needs, and the order in
 -- which a reader takes them. A step is a milestone or a goal. An item whose
 -- first way is only a quest's reward is shown in that quest's step. A need to
@@ -557,7 +574,7 @@ function p.render(args)
 				.. "s"
 				.. tostring(number)
 				.. '" data-progression-key="'
-				.. mw.text.encode(key)
+				.. keyAttribute(key)
 				.. '"><span class="erenshor-progression-sentence">'
 				.. (main or (label(key) .. ": no way from a new character's start is recorded."))
 				.. "</span>"
