@@ -2,6 +2,6 @@
 
 For example, <code><nowiki>{{Progression graph|stablekey=zone:braxonia}}</nowiki></code> shows the route to Fallen Braxonia. On a page without an entity, the template shows the routes to the four raid planes.
 
-The steps are one order of play from a new character's start, not level or difficulty advice or your character's progress. Each step names one way in a plain sentence. Chapters end at the areas and gates that the route opens, and a long chapter is split at its quests. Other ways, and where to get what a step needs, can be expanded under each step. With JavaScript, a map of the chapters of one goal appears above the route.
+The steps are one order of play from a new character's start, not level or difficulty advice or your character's progress. Each step names one way in a plain sentence. Chapters end at the areas and gates that the route opens, and a long chapter is split at its quests. Other ways, and where to get what a step needs, can be expanded under each step. With JavaScript, a map of the chapters of one goal appears above the route, and each step can show what it needs and what needs it.
 
 The text works without JavaScript. Report a missing or incorrect requirement at [[Erenshor Wiki:Game Data]]. Keep handwritten strategy and walkthroughs unchanged.</noinclude>
