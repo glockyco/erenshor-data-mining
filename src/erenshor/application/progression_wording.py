@@ -304,6 +304,10 @@ class ProgressionSentences:
             for need in way.needs
             if need.relation == "room furnished" and need.slot
         )
+        # Each furnished room has its own copy of a character, such as a vendor, under one name.
+        self._copies: dict[tuple[str, str], list[str]] = defaultdict(list)
+        for key, node in sorted(nodes.items()):
+            self._copies[node.kind, node.name].append(key)
         self._writers = {
             "item": self._item,
             "quest": self._quest,
@@ -322,11 +326,12 @@ class ProgressionSentences:
         """Return the sentence of each way of a node, in the order of its ways."""
         node = self._node(key)
         ways = self._ways.get(key, ())
-        rooms = self._room_sets(ways)
+        copies = self._copies[node.kind, node.name] if node.kind == "character" else [key]
+        rooms = self._room_sets([(copy, way) for copy in copies for way in self._ways.get(copy, ())])
         sentences = []
         for way in ways:
             try:
-                sentences.append(self._sentence(node, way, rooms[way.way_key]))
+                sentences.append(self._sentence(node, way, rooms[key, way.way_key]))
             except ProgressionWordingError as error:
                 raise ProgressionWordingError(f"{key} way {way.way_key}: {error}") from error
         return tuple(sentences)
@@ -365,20 +370,21 @@ class ProgressionSentences:
         zone = next((need.need_stable_key for need in way.needs if need.relation == "in zone"), None) if way else None
         return f" in {_ref(zone)}" if zone else ""
 
-    def _room_sets(self, ways: Sequence[ProgressionWay]) -> dict[str, frozenset[str]]:
-        """The furnished rooms of each way, merged across ways that read alike apart from the room.
+    def _room_sets(self, ways: Sequence[tuple[str, ProgressionWay]]) -> dict[tuple[str, str], frozenset[str]]:
+        """The furnished rooms of each way of each node, merged across ways that read alike apart from the room.
 
-        Each room has its own copy of a furnished vendor, so ways compare the names of their needs.
+        Each room has its own copy of a furnished vendor, so ways compare the names of their needs, and
+        the copies of one character share their rooms.
         """
-        groups: dict[tuple[tuple[object, ...], ...], list[ProgressionWay]] = defaultdict(list)
-        for way in ways:
-            groups[tuple(sorted((self._shape(need) for need in way.needs), key=repr))].append(way)
-        rooms: dict[str, frozenset[str]] = {}
+        groups: dict[tuple[tuple[object, ...], ...], list[tuple[str, ProgressionWay]]] = defaultdict(list)
+        for owner, way in ways:
+            groups[tuple(sorted((self._shape(need) for need in way.needs), key=repr))].append((owner, way))
+        rooms: dict[tuple[str, str], frozenset[str]] = {}
         for group in groups.values():
             slots = frozenset(
-                need.slot for way in group for need in way.needs if need.relation == "room furnished" and need.slot
+                need.slot for _, way in group for need in way.needs if need.relation == "room furnished" and need.slot
             )
-            rooms.update((way.way_key, slots) for way in group)
+            rooms.update(((owner, way.way_key), slots) for owner, way in group)
         return rooms
 
     def _shape(self, need: ProgressionNeed) -> tuple[object, ...]:

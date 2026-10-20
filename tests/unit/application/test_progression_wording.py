@@ -166,6 +166,28 @@ def test_furnished_rooms_merge_into_any_room_only_when_every_room_is_listed():
     )
 
 
+def test_copies_of_a_character_that_each_need_one_room_read_as_any_room():
+    rooms = {
+        f"character:vendor:{room}": [
+            [need("in zone", "zone:home"), need("room furnished", "item:furniture", slot=room)]
+        ]
+        for room in ROOMS
+    }
+    sentences = graph(rooms)
+
+    assert sentences.sentences("character:vendor:L1") == (
+        "Find {character:vendor:L1} in {zone:home}, with {item:furniture} furnished in any room of your Reliquary.",
+    )
+    # Without the other copies, the one copy names its own room.
+    alone = graph(
+        {
+            "character:vendor:L1": rooms["character:vendor:L1"],
+            "item:bread": [[need("room furnished", "item:furniture", slot="R2"), need("found in", "zone:home")]],
+        }
+    )
+    assert alone.sentences("character:vendor:L1")[0].endswith("furnished in room L1 of your Reliquary.")
+
+
 def test_copies_that_share_a_name_read_as_one_name_with_their_count():
     sentences = graph(
         {
