@@ -1,9 +1,41 @@
-# Barriers: objects that block access until their mechanism opens them. Every
-# object that a mechanism opens must appear in one record. A record has a kind
-# (door, removed, moved, or guardians), a name, its objects, the targets they
-# guard, a reason, and the check that confirmed the targets (navmesh, render, or
-# unconfirmed). The first object names the barrier and every gate it causes. [[entries]] name targets that only some of the zone
-# lines into their scene reach. See README.md (Concepts) for how both are reviewed.
+# Barriers: objects that block access until their mechanism opens them.
+#
+# Every object that a mechanism opens needs exactly one [[barriers]] record. The
+# opening condition comes from the exported mechanism and its controller, never
+# from the record. A record has these fields:
+#   kind     door (keyed), removed (a quest listener or classified script removes
+#            it), moved (a script moves it away), or guardians (a trigger calls
+#            guardians until its quest is done)
+#   name     the player-facing name. The first object names the barrier and
+#            every gate it causes.
+#   objects  the objects that form it. All of them must open the same way.
+#   targets  the zone lines, placements, item bags, or spawn points it guards.
+#            A barrier that guards nothing a player needs has none.
+#   reason   why it guards these targets
+#   check    how the targets were confirmed in the game:
+#            navmesh      With a carved NavMesh obstacle blocking the barrier,
+#                         paths from the scene entry reach the targets only
+#                         while it is open.
+#            physics      The player's capsule, filled cell by cell from each
+#                         target through free space, escapes to the rest of the
+#                         scene only while it is open. Where flying would leave
+#                         through open sky, the fill walks, falls, and jumps
+#                         instead. An item counts as reached when a filled cell
+#                         sees it within its 5 m click range.
+#            render       Scene renders show the targets enclosed behind it
+#                         where the NavMesh does not reach.
+#            unconfirmed  No check confirms the targets yet.
+# Review a new barrier with navmesh, and use physics where the NavMesh does not
+# reach.
+#
+# [[entries]] name targets that only some zone lines into their scene reach,
+# such as Occuphage's ledge in the Island Tomb. Navigation enters through those
+# lines.
+#
+# The clean build fails when a mechanism opens an object without a record, a
+# record names an object, zone line, or target the build lacks, a record's kind
+# no longer matches its mechanism, or one record joins objects that open
+# differently.
 
 [[barriers]]
 kind = "door"

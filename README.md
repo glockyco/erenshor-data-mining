@@ -6,10 +6,10 @@ Game data for the single-player MMORPG [Erenshor](https://store.steampowered.com
 
 ## What it publishes
 
-- **Wiki** (`erenshor.wiki.gg`). Generated item, character, ability, stance, and zone articles, Lua data modules for links and tooltips, and repository-owned modules and templates. Editors write the prose. The pipeline owns the generated data. The OpenSpec change [`adopt-data-backed-wiki`](openspec/changes/adopt-data-backed-wiki/) holds the plan: bot-owned data modules, view templates that render lists such as vendor stock and zone rosters from them, data-backed templates, and articles that hold only what people write.
-- **Google Sheets.** One tab per query in `src/erenshor/application/sheets/queries/`.
-- **Interactive map** (`erenshor.compendiums.org`). A SvelteKit and deck.gl site with every spawn, resource, and location, plus live positions from the companion mod.
-- **Companion mods.** AdventureGuide (quest guide and navigation), InteractiveMapCompanion (live map data), Sprint, and JusticeForF7. MapTileCapture is an internal tool. Each mod builds for BepInEx and Lunaris.
+- Wiki at `erenshor.wiki.gg`. Generated articles, Lua data modules for links and tooltips, and repository-owned modules and templates. Editors write the prose, and the pipeline owns the data.
+- Google Sheets. One tab per query in `src/erenshor/application/sheets/queries/`.
+- Interactive map at `erenshor.compendiums.org`. A SvelteKit and deck.gl site with every spawn, resource, and location, plus live positions from the companion mod.
+- Companion mods. AdventureGuide (quest guide and navigation), InteractiveMapCompanion (live map data), Sprint, and JusticeForF7, each for BepInEx and Lunaris. MapTileCapture is an internal tool.
 
 Every published fact comes from the clean database of the current shipping build.
 
@@ -27,28 +27,22 @@ flowchart LR
   clean --> guide["Quest guide"] --> mods["Mods"]
 ```
 
-1. **Rip and export.** `extract rip` turns the installed game into a Unity project with AssetRipper. `extract export` runs the editor scripts in `src/Assets/Editor/` in Unity batch mode. They write tables that mirror the Unity assets into `variants/<variant>/erenshor-<variant>-raw.sqlite`, without merging or filtering.
-2. **Code facts.** `extract code-facts` reads constants that the game hardcodes (drop chances, level gates, formulas) from the shipped assembly into the raw database. The clean build fails without them. The same run lists every script type that reads or changes progression state (quests, items, account claims, weather, scenes, deaths, invulnerability) and fails when `src/tools/CodeFacts/specs/behaviour-coverage.json` does not classify it, so that a script that a game update adds or changes is reviewed before its gates reach the clean build.
-3. **Clean build.** `extract build` applies `mapping.json` (display names, exclusions, overrides with a reason), deduplicates characters, derives columns, and writes `variants/<variant>/erenshor-<variant>.sqlite`. The schema lives in `src/erenshor/application/processor/writer.py`.
-4. **Consumers.** The wiki generators, the sheet queries, the map build, and the quest guide compiler read only the clean database.
+1. Rip and export. `extract rip` turns the installed game into a Unity project with AssetRipper. `extract export` runs the editor scripts in `src/Assets/Editor/` in Unity batch mode. They write tables that mirror the Unity assets into `variants/<variant>/erenshor-<variant>-raw.sqlite`, without merging or filtering.
+2. Code facts. `extract code-facts` reads constants that the game hardcodes, such as drop chances, level gates, and formulas, from the shipped assembly into the raw database. It also fails when `src/tools/CodeFacts/specs/behaviour-coverage.json` does not classify a script that reads or changes progression state, so a game update's new scripts are reviewed before the clean build.
+3. Clean build. `extract build` applies `mapping.json` (display names, exclusions, overrides with a reason), deduplicates characters, derives columns, and writes `variants/<variant>/erenshor-<variant>.sqlite`. The schema lives in `src/erenshor/application/processor/writer.py`.
+4. Consumers. The wiki generators, the sheet queries, the map build, and the quest guide compiler read only the clean database.
 
 ### Concepts worth knowing
 
-- **Stable keys.** Every entity has a `stable_key` such as `item:head - 7 - arcanist cap`. Names and pages are not unique and never join data. Characters placed in a scene with a duplicate name get coordinates in their key.
-- **Variants.** `main` (Steam app 2382520), `playtest` (3090030), and `demo` (2522260) have separate installs, Unity projects, and databases. Select one with `-V`. The wiki publishes only the current shipping build.
-- **Encounter tiers.** Each character is `npc`, `enemy`, `elite`, or `boss`, derived in the clean build from faction, boss XP, and spawn placements. `mapping.json` can override a tier with a reason.
-- Item provenance. The clean build selects acquisition and use facts in `src/erenshor/application/processor/item_provenance.py`. Its versioned repository contract keeps source copies, native slots, conditions, locations, quantities and probability stages separate from display grouping. Source-table queries belong to that processor boundary, not output adapters.
-- **Spawn coverage.** Some spawns are scripted at run time. The dynamic-spawn catalog in `src/Assets/Editor/ExportSystem/AssetScanner/` classifies every spawning script, and the export fails when a new one is unclassified.
-- **Gates.** `gate_conditions` records what makes a zone line, placement, vendor item, or item bag available: quests done or not done, items or keys held, a furnished Reliquary room, or an encounter won (advisory). The clean build derives them from the export and `barriers.toml`, and the guide adds the reviewed gates in `quest_guides/graph_overrides.toml`. A controller whose behaviour starts disabled acts only once another controller enables it, such as the gaze statue of Jaws of Sivakaya after The Guardian Awakens. An object is available when the scene file or an activation effect makes it active, nothing disables it, and its parent is available. A subject is available when its object is, and a controller's effects, the characters it spawns among them, need its host. A placement that starts inactive, itself or through an ancestor, and that no effect enables gets a gate that never holds. A spawn that follows deaths, such as Astra, Rogue of the Stars after all 9 Stardust, needs every copy in its death set dead together, not repeated kills of one copy.
-- **Barriers.** `barriers.toml` records each object that blocks access until its mechanism opens it: a keyed `door`, an object that a quest listener or a classified script `removed`, one that a script `moved`, or a trigger that calls `guardians`. A record has its kind, a player-facing name, the objects that form it, the targets it guards, a reason, and the check that confirmed the targets. The opening condition comes from the exported mechanism and its controller, never from the record, and the first object names the barrier and its gates. `navmesh` means that in the game, with a carved NavMesh obstacle blocking the barrier, NavMesh paths from the scene entry reach the targets only while it is open. `physics` means that in the game, the player's capsule, filled cell by cell from each target through free space, escapes to the rest of the scene only while the barrier is open. Where flying would leave through open sky, the fill walks, falls, and jumps instead, and an item counts as reached when a filled cell sees it within its 5 m click range. `render` means that renders of the scene show the targets enclosed behind it where the NavMesh does not reach. `unconfirmed` means that no recorded check confirms them yet. Its `[[entries]]` name targets that only some zone lines into their scene reach, such as Occuphage's ledge in the Island Tomb, and navigation enters through those lines. The build fails when a mechanism opens an object without a record, a record names an object, zone line, or target the build lacks, a record's kind no longer matches its mechanism, or one record joins objects that open differently. Review a new barrier with the `navmesh` check, and use `physics` where the NavMesh does not reach.
-- **Scripted events.** A classified controller that finishes a quest itself, such as the gaze statue for She Sees You, becomes a completion route in its zone. A code fact names the quest, and the route needs what the controller and its rule need (`scripted_events`).
-- **Travel.** `travel_routes` records each way between zones: zone lines with their gates, and the scene switches of spells, which the `travel.spell_scene_changes` code fact reads from `SpellVessel`, such as the Dimensional Rift that the Azynthian Riftstone casts. A spell route needs its spell and, when the spell works in one zone only, that zone. A route to a saved place, such as a bind point, has no fixed destination. Being jailed by the GM is recorded, but no consumer routes through a punishment. `teleports` keeps the fixed spell landings with the item that casts each.
-- **Zone line usability.** `zone_lines.is_usable` says whether players can use a line, and `unusable_reason` says why not. A line needs an enabled component and an enabled trigger collider, because activating its object does not enable them. A `zoneline:` rule in `mapping.json` with `is_usable` 0 and a reason excludes a line that the game has but no player can reach, such as the exit of Shivering Tomb to Stowaway's Step. The rule needs an in-game check, and no rule can make a line usable. Travel and the guide read only usable lines with their gates. The map and the wiki list `zone_line_connections`, the usable lines that no gate shuts for good, and `zone_lines_with_zoning_capability` keeps the raw capability for audits.
-- World state. `world_states` records the rain of each zone that a usable zone line enters. Rain needs a zone that uses the sun, by the sun flag of the lines into it. Natural rain also needs every rain cap of the zone's `weather_trends` at or above the start threshold of the `weather.rain_start` code fact. `world_state_producers` lists natural weather and the spells that force rain there, such as Invoke Storm. A release that needs rain, such as the one that makes Evadne the Corrupted vulnerable, needs the rain of her zone.
-- Quest routes and the requirement graph. `quest_routes` records how each quest starts and completes, once for every consumer. The requirement graph in the `progression_*` tables joins quests, items, characters, zones, barriers, and gate conditions into ways and needs, and orders them into playthrough tiers from the two new-character starts. `uv run erenshor progression show <key>` prints a node's ways and the milestones of its first way, and `--gaps` lists the nodes without a way or a tier. A wrong or missing step means a missing fact or mechanism, which belongs in the export, code facts, or a reviewed file, not in a consumer.
-- Faction standing. The `faction.*` code facts pin when a standing lets an NPC answer a hail or a keyword, and how quests and kills change it. A hail or a keyword to an NPC of a world faction needs the standing that the NPC's rules require, positive for one that can aggro, unless the faction starts there. The need names a `faction_standing` node. Its ways are the kills that raise the faction and the smallest sets of quests that lift it together. For The Ancients only the equipped Pupil's Pin counts, because the charm slot overwrites every other change. A standing is no gate in `gate_conditions`, so the guide does not show it.
-- **Generated and written content.** On the wiki, the bot owns the data modules. Prose, notes, and strategy belong to editors and survive every refresh. A fact the export misses goes into code facts or `mapping.json`, so every consumer sees it, not into one article's parameters.
-- Provenance coverage. Compare the clean build's independent input coverage with each output's offline provenance manifest before publication. Wiki Lua generation keeps its world-drop manifest beside the generated module tree, and article generation keeps its item manifest beside the link audit. These files support review and are not wiki pages.
+- Stable keys. Every entity has a `stable_key` such as `item:head - 7 - arcanist cap`. Names and pages are not unique and never join data. Characters placed in a scene with a duplicate name get coordinates in their key.
+- Variants. `main` (Steam app 2382520), `playtest` (3090030), and `demo` (2522260) have separate installs, Unity projects, and databases. Select one with `-V`. The wiki publishes only the current shipping build.
+- Encounter tiers. Each character is `npc`, `enemy`, `elite`, or `boss`, derived in the clean build. `mapping.json` can override a tier with a reason.
+- Generated and written content. On the wiki, the bot owns the data modules. Prose, notes, and strategy belong to editors and survive every refresh. A fact the export misses goes into code facts or `mapping.json`, so every consumer sees it, not into one article's parameters.
+- Spawn coverage. Some spawns are scripted at run time. The dynamic-spawn catalog in `src/Assets/Editor/ExportSystem/AssetScanner/` classifies every spawning script, and the export fails when a new one is unclassified.
+- Item provenance. `src/erenshor/application/processor/item_provenance.py` selects every acquisition and use of an item. Queries over source tables belong there, not in output adapters. Before publishing, compare its input coverage with each output's provenance manifest.
+- Progression. The clean build models what unlocks what: gates in `gate_conditions`, barriers, scripted events, travel between zones, world state such as rain, and faction standing. `quest_routes` and the `progression_*` tables join them into a requirement graph with playthrough tiers. `erenshor progression show <key>` explains a node, and `--gaps` lists the nodes without a way or a tier. A wrong or missing step means a missing fact in the export, code facts, or a reviewed file, never a consumer fix. The `progression-requirements` and `quest-routes` specs and the `model-progression-mechanics` change hold the rules.
+- Barriers. Every object that a mechanism opens needs a record in `barriers.toml` with the targets it guards and the in-game check that confirmed them. The file's header describes the fields and checks, and the build fails on a missing or stale record.
+- Unusable zone lines. A `zoneline:` rule in `mapping.json` with `is_usable` 0 and a reason excludes a line that no player can reach. Add one only after an in-game check. No rule can make a line usable.
 
 ## Repository layout
 
@@ -78,29 +72,23 @@ pnpm exec lefthook install --reset-hooks-path
 erenshor status                      # tool paths, installs, and database state
 ```
 
-The shell never compiles a toolchain from source. If entering it starts a compiler, stop it and check `nix build --dry-run 'path:.#devShells.aarch64-darwin.default'`: the plan must not contain `swift`, `dotnet-vmr`, or `dotnet-stage0`.
+The shell never compiles a toolchain from source. If entering it starts a compiler, stop it and check `nix build --dry-run 'path:.#devShells.aarch64-darwin.default'`. The plan must not contain `swift`, `dotnet-vmr`, or `dotnet-stage0`.
 
 Three things the shell cannot provide:
 
-- **Unity 2021.3.45f2**, installed through Unity Hub. `extract export` refuses any other version.
-- **CrossOver with a Steam bottle** that has each variant installed. The CLI finds an install by its Steam app ID. Set `CROSSOVER_BOTTLE` when there are several bottles.
-- **Credentials.** Copy `config.local.toml.example` to `.erenshor/config.local.toml` and fill in the wiki bot and interface logins. The Google service account key path is set there too. The Thunderstore token goes into `.env` (see `.env.example`). `config.toml` holds the tracked defaults, and an unknown key is an error.
+- Unity 2021.3.45f2, installed through Unity Hub. `extract export` refuses any other version.
+- CrossOver with a Steam bottle that has each variant installed. The CLI finds an install by its Steam app ID. Set `CROSSOVER_BOTTLE` when there are several bottles.
+- Credentials. Copy `config.local.toml.example` to `.erenshor/config.local.toml` and fill in the wiki bot and interface logins and the Google service account key path. The Thunderstore token goes into `.env` (see `.env.example`). `config.toml` holds the tracked defaults, and an unknown key is an error.
 
 ### Git worktrees
 
-Enter the dev shell and run the existing bootstrap command in each new worktree. The editable Python installation selects the checkout containing the current directory at interpreter startup. This also applies to `python`, `erenshor`, and `uv run` inherited from another checkout's dev shell. No `PYTHONPATH` override is needed.
-
-After a dev-shell update, enter `nix develop` again or reload direnv. An inherited immutable environment may still import a different checkout. The CLI rejects that mismatch before loading configuration or creating logs.
+Run the bootstrap in each new worktree. Python imports the checkout that contains the current directory, even from another checkout's dev shell, and the CLI rejects a mismatch. After a dev-shell update, enter the shell again. To check which checkout is imported:
 
 ```sh
 python -c 'import erenshor; from erenshor.infrastructure.config import get_repo_root; print(erenshor.__file__); print(get_repo_root())'
 ```
 
-Resolve variant paths from `config.toml` and any local overrides before copying data. Give each worktree its own raw and clean SQLite files. On macOS, `/bin/cp -c` creates owned APFS clones without duplicating their unchanged data blocks. Use `/bin/cp` because the dev shell's GNU `cp` does not support APFS cloning. Do not symlink the SQLite files or their writable parent directory to another checkout, because a clean build replaces the published database.
-
-Unity, images, wiki, and backups may remain symlinks when used only as read inputs. A clean build also writes its image catalog, profiles, and clean-database backup. For builds on macOS, clone the image and backup directories into owned locations with `/bin/cp -cR`, then point the selected variant's `images_output` and `backups` local overrides at those clones. Keep the shared symlinks for read-only work. This preserves the existing catalog and backup contracts without changing another checkout's files.
-
-`extract build` rejects outputs resolving into another checkout before profiling or building. Correct the named path in `.erenshor/config.local.toml` or replace its symlink with an owned clone. Explicit output paths outside Git checkouts remain supported.
+A worktree that builds needs its own raw and clean databases, image catalog, and backups, because a build replaces them. Never symlink them to another checkout. On macOS, clone them with `/bin/cp -c`, or `/bin/cp -cR` for directories, since the dev shell's GNU `cp` cannot clone. Point the `images_output` and `backups` overrides in `.erenshor/config.local.toml` at the clones. `extract build` rejects outputs inside another checkout. Read-only inputs, such as the Unity project, may stay symlinks. A copied Unity project's `Assets/Editor` link still points at the checkout that created it, so point it at the worktree's own `src/Assets/Editor` before an export.
 
 ## Common work
 
@@ -123,21 +111,9 @@ Run every subsystem through `erenshor`, not through `pnpm`, `wrangler`, or `dotn
 
 ### Reviewed publishing
 
-Use `publish` for a coordinated update instead of chaining publishing commands in a shell. Its fixed selection schema is declared in `src/erenshor/application/publish/models.py`. Select exact titles, map targets, and sheet tabs. Missing dependencies are reported, never added to the live write set.
+Use `publish` for a coordinated update instead of chaining publishing commands. `publish prepare` freezes the selected titles, map targets, and sheet tabs into a new run directory without writing anything live. Review its `review-summary.json` and the payloads it links, then check the plan with `erenshor --dry-run publish apply`. A live `apply` or `resume` needs a human approval that names the reviewed digest. Editor prose goes into a separately reviewed variant-local replacement file, whose digest the selection names.
 
-Prepare into a new directory under the selected variant's storage. Preparation inspects live bases and freezes complete payloads without publishing. Selected maps are built locally at this step. Start with the native `review-summary.json`, then open its referenced payloads and exact Sheets request-body sidecar. The summary includes every operation, destination, base, dependency, guard and recovery limit without dumping workbook cells into the terminal.
-
-Inspect the plan with root `--dry-run` and `publish apply`. The complete `review.json` and hashed payload files retain exact wiki text and diffs, map asset hashes, and the stable Sheets preimage with typed rows and atomic request bytes. A concise summary does not replace review of those payloads or change the approval digest.
-
-Only a human approval declaration naming that reviewed digest permits live `apply` or `resume`. Keep editor prose in a separately reviewed variant-local replacement file, not tracked wiki sources. The selection must include its exact file digest. The publisher does not invent prose changes.
-
-The first failure stops every later operation. Keep the entire run directory and native wiki rollback manifests. `status` reports known writes and blocked or uncertain work. Explicit `resume` rechecks completed receipts and remaining bases before skipping successful operations. Changed inputs, destinations, editor revisions, or uncertain provider outcomes require reconciliation and a newly reviewed continuation.
-
-Wiki writes check the current revision before editing and verify the saved revision, parent and source afterward. MediaWiki can merge a racing edit, so this is not atomic compare-and-set. A mismatch stops publication and retains the actual write and editor's prior text for separately reviewed recovery. Map and Sheets checks also cannot prevent a concurrent writer between inspection and mutation.
-
-There is no automatic or cross-service rollback. Wiki rollback cannot delete new pages, and map or sheet restoration is a separate provider-specific review.
-
-Selected tabs for one spreadsheet publish together in one native atomic batch. Google manages reference rebasing. The publisher checks owned outputs and retains the observed workbook state for resume rather than predicting formulas. Atomicity does not prevent a concurrent editor from racing the preflight check.
+The first failure stops the run. Keep the run directory, read `publish status`, and reconcile before `resume`. There is no automatic rollback. The `ordered-publishing` spec of the `plan-ordered-publishing` change lists every guard and its limits.
 
 ### Game updates
 
@@ -185,9 +161,9 @@ Keep NuGet feeds and package source mappings beside the central package versions
 
 ## Troubleshooting
 
-- **Setup.** `erenshor status` reports tool paths, installs, and database state. Logs are in `.erenshor/logs/` and `variants/<variant>/logs/`.
-- **Git hooks fail with exit 127.** Git clients without a shell call hooks without the dev shell. Hook jobs that need project tools run through `scripts/with-dev-env.sh`.
-- **Live map does not connect.** The game must run InteractiveMapCompanion, which serves `ws://localhost:18585`.
+- Setup. `erenshor status` reports tool paths, installs, and database state. Logs are in `.erenshor/logs/` and `variants/<variant>/logs/`.
+- Git hooks fail with exit 127. Git clients without a shell call hooks without the dev shell. Hook jobs that need project tools run through `scripts/with-dev-env.sh`.
+- Live map does not connect. The game must run InteractiveMapCompanion, which serves `ws://localhost:18585`.
 
 ## Further reading
 
