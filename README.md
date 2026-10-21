@@ -6,12 +6,12 @@ Game data for the single-player MMORPG [Erenshor](https://store.steampowered.com
 
 ## What it publishes
 
-- Wiki at `erenshor.wiki.gg`. Generated articles, Lua data modules for links and tooltips, and repository-owned modules and templates. Editors write the prose, and the pipeline owns the data.
-- Google Sheets. One tab per query in `src/erenshor/application/sheets/queries/`.
-- Interactive map at `erenshor.compendiums.org`. A SvelteKit and deck.gl site with every spawn, resource, and location, plus live positions from the companion mod.
-- Companion mods. AdventureGuide (quest guide and navigation), InteractiveMapCompanion (live map data), Sprint, and JusticeForF7, each for BepInEx and Lunaris. MapTileCapture is an internal tool.
+- The wiki at `erenshor.wiki.gg`: generated articles, Lua data modules for links and tooltips, and the modules and templates in `wiki/`. Editors write the article text. The pipeline writes the data.
+- Google Sheets, with one tab per query in `src/erenshor/application/sheets/queries/`.
+- The interactive map at `erenshor.compendiums.org`, a SvelteKit and deck.gl site with every spawn, resource, and location. It also shows live positions of the characters in your zone, which the companion mod sends.
+- The companion mods AdventureGuide (quest guide and navigation), InteractiveMapCompanion (live map data), Sprint, and JusticeForF7. Each builds for BepInEx and Lunaris. MapTileCapture is an internal tool.
 
-Every published fact comes from the clean database of the current shipping build.
+All of them read the clean database of the current shipping build.
 
 ## How it works
 
@@ -27,35 +27,35 @@ flowchart LR
   clean --> guide["Quest guide"] --> mods["Mods"]
 ```
 
-1. Rip and export. `extract rip` turns the installed game into a Unity project with AssetRipper. `extract export` runs the editor scripts in `src/Assets/Editor/` in Unity batch mode. They write tables that mirror the Unity assets into `variants/<variant>/erenshor-<variant>-raw.sqlite`, without merging or filtering.
-2. Code facts. `extract code-facts` reads constants that the game hardcodes, such as drop chances, level gates, and formulas, from the shipped assembly into the raw database. It also fails when `src/tools/CodeFacts/specs/behaviour-coverage.json` does not classify a script that reads or changes progression state, so a game update's new scripts are reviewed before the clean build.
-3. Clean build. `extract build` applies `mapping.json` (display names, exclusions, overrides with a reason), deduplicates characters, derives columns, and writes `variants/<variant>/erenshor-<variant>.sqlite`. The schema lives in `src/erenshor/application/processor/writer.py`.
-4. Consumers. The wiki generators, the sheet queries, the map build, and the quest guide compiler read only the clean database.
+1. `extract rip` turns the installed game into a Unity project with AssetRipper. `extract export` then runs the editor scripts in `src/Assets/Editor/` in Unity batch mode. They copy the Unity assets into tables in `variants/<variant>/erenshor-<variant>-raw.sqlite` without merging or filtering them.
+2. `extract code-facts` reads values that the game hardcodes, such as drop chances and level limits, from the shipped assembly into the raw database. It fails when `src/tools/CodeFacts/specs/behaviour-coverage.json` does not list a script that reads or changes quests, items, or other progression state. After a game update, this makes you review new scripts before the clean build.
+3. `extract build` applies `mapping.json` (display names, exclusions, and overrides with a reason), merges duplicate characters, derives columns, and writes `variants/<variant>/erenshor-<variant>.sqlite`. The schema is in `src/erenshor/application/processor/writer.py`.
+4. The wiki generators, sheet queries, map build, and quest guide compiler read only the clean database.
 
-### Concepts worth knowing
+### Concepts
 
-- Stable keys. Every entity has a `stable_key` such as `item:head - 7 - arcanist cap`. Names and pages are not unique and never join data. Characters placed in a scene with a duplicate name get coordinates in their key.
-- Variants. `main` (Steam app 2382520), `playtest` (3090030), and `demo` (2522260) have separate installs, Unity projects, and databases. Select one with `-V`. The wiki publishes only the current shipping build.
-- Encounter tiers. Each character is `npc`, `enemy`, `elite`, or `boss`, derived in the clean build. `mapping.json` can override a tier with a reason.
-- Generated and written content. On the wiki, the bot owns the data modules. Prose, notes, and strategy belong to editors and survive every refresh. A fact the export misses goes into code facts or `mapping.json`, so every consumer sees it, not into one article's parameters.
-- Spawn coverage. Some spawns are scripted at run time. The dynamic-spawn catalog in `src/Assets/Editor/ExportSystem/AssetScanner/` classifies every spawning script, and the export fails when a new one is unclassified.
-- Item provenance. `src/erenshor/application/processor/item_provenance.py` selects every acquisition and use of an item. Queries over source tables belong there, not in output adapters. Before publishing, compare its input coverage with each output's provenance manifest.
-- Progression. The clean build models what unlocks what: gates in `gate_conditions`, barriers, scripted events, travel between zones, world state such as rain, and faction standing. `quest_routes` and the `progression_*` tables join them into a requirement graph with playthrough tiers. `erenshor progression show <key>` explains a node, and `--gaps` lists the nodes without a way or a tier. A wrong or missing step means a missing fact in the export, code facts, or a reviewed file, never a consumer fix. The `progression-requirements` and `quest-routes` specs and the `model-progression-mechanics` change hold the rules.
-- Barriers. Every object that a mechanism opens needs a record in `barriers.toml` with the targets it guards and the in-game check that confirmed them. The file's header describes the fields and checks, and the build fails on a missing or stale record.
-- Unusable zone lines. A `zoneline:` rule in `mapping.json` with `is_usable` 0 and a reason excludes a line that no player can reach. Add one only after an in-game check. No rule can make a line usable.
+- Every entity has a `stable_key`, such as `item:head - 7 - arcanist cap`. Join data on these keys. Names are not unique. A character placed in a scene under a name that another character also uses gets its coordinates in its key.
+- The variants `main` (Steam app 2382520), `playtest` (3090030), and `demo` (2522260) each have their own install, Unity project, and databases. Select one with `-V`. The wiki shows only the current shipping build.
+- The clean build gives each character an encounter tier: `npc`, `enemy`, `elite`, or `boss`. Override a tier in `mapping.json` with a reason.
+- The wiki bot owns the data modules. Editors own the prose, notes, and strategy, and refreshes keep them. When the export misses a fact, add it to code facts or `mapping.json`, so that every consumer gets it. Do not add it to one article's parameters.
+- Some characters are spawned by game scripts at run time. The dynamic-spawn catalog in `src/Assets/Editor/ExportSystem/AssetScanner/` lists each spawning script, and the export fails on a script it does not list.
+- `src/erenshor/application/processor/item_provenance.py` decides where each item comes from and what it is used for. Put queries over the source tables there, and keep them out of the output code. Before publishing, compare its input coverage with each output's provenance manifest.
+- The clean build records what a player needs before something becomes available: gates in `gate_conditions`, barriers, script-completed quests, travel between zones, rain and other world state, and faction standing. `quest_routes` and the `progression_*` tables combine these into a requirement graph, ordered into playthrough tiers. `erenshor progression show <key>` explains one node, and `--gaps` lists nodes that have no way or tier. When a step is wrong or missing, add the missing fact to the export, the code facts, or a reviewed file. Do not patch it in a consumer. The rules are in the `progression-requirements` and `quest-routes` specs and the `model-progression-mechanics` change.
+- Each door or other object that a game script opens needs a record in `barriers.toml`, with the targets it guards and the in-game check that confirmed them. The comment at the top of that file explains the fields and checks. The build fails when a record is missing or out of date.
+- To exclude a zone line that no player can reach, add a `zoneline:` rule with `is_usable` 0 and a reason to `mapping.json`, after checking the line in the game. A rule cannot make a line usable.
 
 ## Repository layout
 
-| Path | What it holds |
+| Path | Contents |
 | --- | --- |
 | `src/erenshor` | The `erenshor` CLI: extraction, clean build, wiki, sheets, maps, mods, tests. |
 | `src/Assets/Editor` | Unity editor scripts for the raw export. |
 | `src/tools` | Native analyzers (CodeFacts, ExportSurface) and maintenance scripts. |
 | `src/maps` | The interactive map site. |
 | `src/mods` | The companion mods and their packaging. |
-| `wiki` | Repository-owned wiki pages: Lua modules, templates, content pages, and gadgets. |
+| `wiki` | Wiki pages kept in the repository: Lua modules, templates, content pages, and gadgets. |
 | `wiki-dev` | A local MediaWiki stack for testing wiki changes. |
-| `quest_guides` | Generated and curated quest guide data for AdventureGuide. |
+| `quest_guides` | Generated and hand-written quest guide data for AdventureGuide. |
 | `tests` | Unit, contract, system, and data tests. |
 | `openspec` | Requirements (`specs/`) and the reasoning behind each change (`changes/`). |
 | `.agent/skills` | Step-by-step procedures for recurring work. |
@@ -64,7 +64,7 @@ flowchart LR
 
 ## Getting started
 
-The Nix flake's dev shell provides Python and uv, the .NET SDKs, Node and pnpm, AssetRipper, and `sqlite3`. With nix-direnv it loads in the working tree. Otherwise run `nix develop`. Every command below assumes the dev shell.
+The Nix flake's dev shell provides Python and uv, the .NET SDKs, Node and pnpm, AssetRipper, and `sqlite3`. With nix-direnv it loads when you enter the working tree. Otherwise run `nix develop`. The commands below assume the dev shell.
 
 ```sh
 nix run .#bootstrap                  # locked JavaScript packages and .NET tools
@@ -72,23 +72,25 @@ pnpm exec lefthook install --reset-hooks-path
 erenshor status                      # tool paths, installs, and database state
 ```
 
-The shell never compiles a toolchain from source. If entering it starts a compiler, stop it and check `nix build --dry-run 'path:.#devShells.aarch64-darwin.default'`. The plan must not contain `swift`, `dotnet-vmr`, or `dotnet-stage0`.
+The shell never builds a toolchain from source. If entering it starts a compiler, stop it and run `nix build --dry-run 'path:.#devShells.aarch64-darwin.default'`. The plan must not contain `swift`, `dotnet-vmr`, or `dotnet-stage0`.
 
-Three things the shell cannot provide:
+The shell does not provide these:
 
-- Unity 2021.3.45f2, installed through Unity Hub. `extract export` refuses any other version.
-- CrossOver with a Steam bottle that has each variant installed. The CLI finds an install by its Steam app ID. Set `CROSSOVER_BOTTLE` when there are several bottles.
-- Credentials. Copy `config.local.toml.example` to `.erenshor/config.local.toml` and fill in the wiki bot and interface logins and the Google service account key path. The Thunderstore token goes into `.env` (see `.env.example`). `config.toml` holds the tracked defaults, and an unknown key is an error.
+- Unity 2021.3.45f2, installed through Unity Hub. `extract export` refuses other versions.
+- CrossOver with a Steam bottle that has each variant installed. The CLI finds an install by its Steam app ID. Set `CROSSOVER_BOTTLE` if you have several bottles.
+- Credentials. Copy `config.local.toml.example` to `.erenshor/config.local.toml` and fill in the wiki bot and interface logins and the path of the Google service account key. Put the Thunderstore token in `.env` (see `.env.example`). `config.toml` has the tracked defaults, and an unknown key is an error.
 
 ### Git worktrees
 
-Run the bootstrap in each new worktree. Python imports the checkout that contains the current directory, even from another checkout's dev shell, and the CLI rejects a mismatch. After a dev-shell update, enter the shell again. To check which checkout is imported:
+Run the bootstrap in each new worktree. Python imports the checkout that contains the current directory, even inside another checkout's dev shell, and the CLI stops if the two differ. After a dev-shell update, enter the shell again. This prints which checkout Python imports:
 
 ```sh
 python -c 'import erenshor; from erenshor.infrastructure.config import get_repo_root; print(erenshor.__file__); print(get_repo_root())'
 ```
 
-A worktree that builds needs its own raw and clean databases, image catalog, and backups, because a build replaces them. Never symlink them to another checkout. On macOS, clone them with `/bin/cp -c`, or `/bin/cp -cR` for directories, since the dev shell's GNU `cp` cannot clone. Point the `images_output` and `backups` overrides in `.erenshor/config.local.toml` at the clones. `extract build` rejects outputs inside another checkout. Read-only inputs, such as the Unity project, may stay symlinks. A copied Unity project's `Assets/Editor` link still points at the checkout that created it, so point it at the worktree's own `src/Assets/Editor` before an export.
+A worktree that runs builds needs its own raw and clean databases, image catalog, and backups, because a build overwrites them. Do not symlink them to another checkout. On macOS, copy them with `/bin/cp -c`, or `/bin/cp -cR` for directories. These make APFS clones, which the dev shell's GNU `cp` cannot. Then point `images_output` and `backups` in `.erenshor/config.local.toml` at the copies. `extract build` refuses to write into another checkout.
+
+A worktree that only reads data can symlink the Unity project. To export, give the worktree its own copy and point the copy's `Assets/Editor` link at the worktree's `src/Assets/Editor`. The link still points at the checkout the project came from, so without this the export runs that checkout's scripts.
 
 ## Common work
 
@@ -96,43 +98,46 @@ A worktree that builds needs its own raw and clean databases, image catalog, and
 | --- | --- |
 | `erenshor extract packages` | Restores the Unity editor packages, once per checkout. |
 | `erenshor extract rip` / `export` / `code-facts` / `build` | Runs the pipeline steps above. |
-| `erenshor extract changes` | Compares the clean database with a backed-up build or saved clean database. Review its report after every data change. |
+| `erenshor extract changes` | Compares the clean database with a backed-up build or a saved clean database. Review its report after every data change. |
 | `erenshor wiki fetch` / `generate` | Fetches live articles and merges regenerated data into them. |
-| `erenshor wiki generate-lua` / `deploy-repo-pages` | Generates the Lua data modules and deploys repository-owned modules and templates with revision guards and rollback data. |
+| `erenshor wiki generate-lua` / `deploy-repo-pages` | Generates the Lua data modules, and deploys the modules and templates in `wiki/`. Each edit checks the page's current revision and keeps rollback data. |
 | `erenshor sheets deploy` | Publishes the sheet queries. |
-| `erenshor maps dev` / `build` / `preview` / `deploy` | Develops, verifies, and deploys the map. |
-| `erenshor publish prepare` / `apply` / `status` / `resume` | Reviews and coordinates explicitly selected wiki, map, and sheet writes with one immutable plan. |
+| `erenshor maps dev` / `build` / `preview` / `deploy` | Develops, checks, and deploys the map. |
+| `erenshor publish prepare` / `apply` / `status` / `resume` | Publishes selected wiki pages, map builds, and sheet tabs from one reviewed plan. |
 | `erenshor mod build` / `deploy` / `thunderstore` | Builds, installs, and packages the mods. `-V` selects the game install, `--loader` the loader. |
 | `erenshor guide export-mod` | Writes `quest_guides/quest-guide.json`, the quest data that AdventureGuide embeds. |
-| `erenshor eval run '<C#>'` | Evaluates code in the running game through HotRepl. |
+| `erenshor eval run '<C#>'` | Runs code in the running game through HotRepl. |
 | `erenshor capture run` | Captures map tiles through MapTileCapture. |
 
-Run every subsystem through `erenshor`, not through `pnpm`, `wrangler`, or `dotnet` directly. `erenshor <group> --help` lists the options.
+Run every subsystem through `erenshor` instead of calling `pnpm`, `wrangler`, or `dotnet` directly. `erenshor <group> --help` lists the options.
 
-### Reviewed publishing
+### Publishing several targets
 
-Use `publish` for a coordinated update instead of chaining publishing commands. `publish prepare` freezes the selected titles, map targets, and sheet tabs into a new run directory without writing anything live. Review its `review-summary.json` and the payloads it links, then check the plan with `erenshor --dry-run publish apply`. A live `apply` or `resume` needs a human approval that names the reviewed digest. Editor prose goes into a separately reviewed variant-local replacement file, whose digest the selection names.
+Use `publish` instead of running publishing commands one after another. `publish prepare` writes the selected titles, map targets, and sheet tabs into a new run directory without publishing anything. Read its `review-summary.json` and the files it links to, then run `erenshor --dry-run publish apply`. A live `apply` or `resume` needs a person's approval of the reviewed digest. Put changed editor prose in a separately reviewed replacement file in the variant directory, and include its digest in the selection.
 
-The first failure stops the run. Keep the run directory, read `publish status`, and reconcile before `resume`. There is no automatic rollback. The `ordered-publishing` spec of the `plan-ordered-publishing` change lists every guard and its limits.
+The run stops at the first failure. Keep the run directory, read `publish status`, and sort out what happened before you `resume`. Nothing is rolled back automatically. The `ordered-publishing` spec in the `plan-ordered-publishing` change lists each check and what it cannot catch.
 
 ### Game updates
 
-A new Steam build runs through backup, rip, export, code facts, and build, then through the checks and deploys of each consumer. The [refreshing-game-data skill](.agent/skills/refreshing-game-data/SKILL.md) gives the order and the gates.
+After a Steam update, back up, rip, export, extract code facts, and build, then check and deploy each consumer. The [refreshing-game-data skill](.agent/skills/refreshing-game-data/SKILL.md) gives the order and the checks between steps.
 
 ### Rules for changes
 
 - Never edit the decompiled game scripts under `variants/<variant>/unity/ExportedProject/Assets/Scripts/`, other ripped assets, or the installed game.
 - Never edit generated output by hand: databases, `quest_guides/quest-guide.json`, map builds, captured tiles, generated wiki pages, or mod metadata. Change the generator and regenerate.
-- Deploys to the wiki, the map, or the sheets need the maintainer's approval. Review each deploy with its dry run first.
-- The live map keeps its legacy contract: `/map` with the `layers` and `sel` parameters on both hosts, WebSocket ports 18584 and 18585, and `/db/erenshor.sqlite`.
-- The Nix dev shell must never compile a toolchain from source.
-- Fix every failing check you meet, including failures that predate the change.
-- Follow the relevant subsystem skill before implementing a change.
-- Wiki work follows the plan in the OpenSpec change `adopt-data-backed-wiki`. Read its design before any wiki change, and track wiki work only in OpenSpec.
+- Deploys to the wiki, the map, or the sheets need the maintainer's approval. Do a dry run of each deploy first.
+- Keep the live map's old URLs and ports working: `/map` with the `layers` and `sel` parameters on both hosts, WebSocket ports 18584 and 18585, and `/db/erenshor.sqlite`.
+- The Nix dev shell must never build a toolchain from source.
+- Fix every failing check you come across, including ones that failed before your change.
+- Read the relevant subsystem skill before changing that subsystem.
+- Wiki work follows the plan in the OpenSpec change `adopt-data-backed-wiki`. Read its design before changing anything on the wiki, and track wiki work only in OpenSpec.
 
 ### Design principles
 
-Interfaces (wiki, map, mods) put evidence before decoration: show source, identity, state, and failure plainly. Use the host platform's conventions (MediaWiki, the web, the game) instead of a new visual language. Keep safe paths obvious: preview before mutation, fail before destructive actions. Target WCAG 2.2 AA with complete keyboard use.
+- Show where data comes from and report errors on the page instead of hiding them.
+- Follow the conventions of MediaWiki, the web, and the game instead of inventing a separate look.
+- Preview before writing, and stop before anything destructive.
+- Meet WCAG 2.2 AA, and make everything usable from the keyboard.
 
 ## Testing
 
@@ -142,7 +147,7 @@ erenshor test unit                   # one leaf
 erenshor -V main test release        # adds main data, clean wiki parity, real builds, package checks
 ```
 
-`uv run pytest` alone is not CI. The maps leaf prerenders the site against the fixture database in `src/maps/tests/fixtures/`, which has a different schema from the real one, so a query that works against the real database can fail in CI. `erenshor test wiki` needs the local MediaWiki stack described in `wiki-dev/README.md`. Each leaf writes a report under `artifacts/test-reports/`.
+Running `uv run pytest` alone does not match CI. The maps leaf prerenders the site against the fixture database in `src/maps/tests/fixtures/`, whose schema differs from the real one, so a query that works on the real database can fail in CI. `erenshor test wiki` needs the local MediaWiki stack described in `wiki-dev/README.md`. Each leaf writes a report to `artifacts/test-reports/`.
 
 ## Dependencies
 
@@ -155,21 +160,20 @@ erenshor -V main test release        # adds main data, clean wiki parity, real b
 | .NET tools | `.config/dotnet-tools.json` | exact versions |
 | GitHub Actions | workflow `uses:` | full commit SHAs |
 
-Renovate updates everything except Nix. The private `glockyco/dependency-automation` workflow updates Nix and the pnpm version in `flake.nix`, and opens a pull request. After a manual change, regenerate the lock (`uv lock`, `pnpm install --lockfile-only`, `dotnet restore --force-evaluate` once per mod loader, or `nix flake update` and `nix run .#sync-pnpm-version`) and run `erenshor test dependency-state`.
+Renovate updates everything except Nix. The private `glockyco/dependency-automation` workflow updates Nix and the pnpm version in `flake.nix`, and opens a pull request. After changing a dependency by hand, regenerate its lock (`uv lock`, `pnpm install --lockfile-only`, `dotnet restore --force-evaluate` once per mod loader, or `nix flake update` and `nix run .#sync-pnpm-version`) and run `erenshor test dependency-state`.
 
-Keep NuGet feeds and package source mappings beside the central package versions, so Renovate's generated restore configuration and project builds discover the same sources.
+Keep NuGet feeds and package source mappings next to the central package versions. Renovate's restore configuration and the project builds then use the same sources.
 
 ## Troubleshooting
 
-- Setup. `erenshor status` reports tool paths, installs, and database state. Logs are in `.erenshor/logs/` and `variants/<variant>/logs/`.
-- Git hooks fail with exit 127. Git clients without a shell call hooks without the dev shell. Hook jobs that need project tools run through `scripts/with-dev-env.sh`.
-- Live map does not connect. The game must run InteractiveMapCompanion, which serves `ws://localhost:18585`.
+- `erenshor status` shows tool paths, installs, and database state. Logs are in `.erenshor/logs/` and `variants/<variant>/logs/`.
+- If Git hooks fail with exit 127, your Git client runs them outside the dev shell. Hook jobs that need project tools go through `scripts/with-dev-env.sh`.
+- If the live map does not connect, check that the game runs InteractiveMapCompanion, which serves `ws://localhost:18585`.
 
 ## Further reading
 
-- [`openspec/specs`](openspec/specs/) states what the pipeline and its outputs must do. Each change under [`openspec/changes`](openspec/changes/) records why it was made.
-- [`.agent/skills`](.agent/skills/) holds the procedures for game updates, exports, code facts, wiki, sheets, map, tile capture, mods, and runtime inspection.
-- Commit messages explain why each change exists.
+- [`openspec/specs`](openspec/specs/) describes what the pipeline and its outputs must do. Each change under [`openspec/changes`](openspec/changes/) explains why it was made.
+- [`.agent/skills`](.agent/skills/) has the procedures for game updates, exports, code facts, the wiki, sheets, the map, tile capture, mods, and inspecting the running game.
 
 ## License
 
