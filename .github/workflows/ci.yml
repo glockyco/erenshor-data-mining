@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Install Nix
-        uses: DeterminateSystems/determinate-nix-action@e847f25223456b3058e12f7fc9d777b6a6f25060 # v3.23.2
+        uses: DeterminateSystems/determinate-nix-action@96c5ee93a9dddf2830d31e1da6ec719077336c28 # v3.23.3
 
       # The check is defined once for the whole workstation in the fleet input.
       # It fails on an invalid artifact and on a change archived with unfinished
@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Install Nix
-        uses: DeterminateSystems/determinate-nix-action@e847f25223456b3058e12f7fc9d777b6a6f25060 # v3.23.2
+        uses: DeterminateSystems/determinate-nix-action@96c5ee93a9dddf2830d31e1da6ec719077336c28 # v3.23.3
 
       - name: Validate committed dependency state
         run: nix develop --command erenshor test dependency-state
@@ -61,7 +61,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Install Nix
-        uses: DeterminateSystems/determinate-nix-action@e847f25223456b3058e12f7fc9d777b6a6f25060 # v3.23.2
+        uses: DeterminateSystems/determinate-nix-action@96c5ee93a9dddf2830d31e1da6ec719077336c28 # v3.23.3
 
       - name: Restore tools
         run: nix develop --command dotnet tool restore
@@ -99,7 +99,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Install Nix
-        uses: DeterminateSystems/determinate-nix-action@e847f25223456b3058e12f7fc9d777b6a6f25060 # v3.23.2
+        uses: DeterminateSystems/determinate-nix-action@96c5ee93a9dddf2830d31e1da6ec719077336c28 # v3.23.3
 
       - name: Run unit leaf
         run: nix develop --command erenshor test unit
@@ -120,7 +120,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Install Nix
-        uses: DeterminateSystems/determinate-nix-action@e847f25223456b3058e12f7fc9d777b6a6f25060 # v3.23.2
+        uses: DeterminateSystems/determinate-nix-action@96c5ee93a9dddf2830d31e1da6ec719077336c28 # v3.23.3
 
       - name: Run contract leaf
         run: nix develop --command erenshor test contract
@@ -143,7 +143,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Install Nix
-        uses: DeterminateSystems/determinate-nix-action@e847f25223456b3058e12f7fc9d777b6a6f25060 # v3.23.2
+        uses: DeterminateSystems/determinate-nix-action@96c5ee93a9dddf2830d31e1da6ec719077336c28 # v3.23.3
 
       - name: Install map dependencies
         run: nix develop --command pnpm install --frozen-lockfile
@@ -170,7 +170,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Install Nix
-        uses: DeterminateSystems/determinate-nix-action@e847f25223456b3058e12f7fc9d777b6a6f25060 # v3.23.2
+        uses: DeterminateSystems/determinate-nix-action@96c5ee93a9dddf2830d31e1da6ec719077336c28 # v3.23.3
 
       - name: Run mods leaf
         run: nix develop --command erenshor test mods
