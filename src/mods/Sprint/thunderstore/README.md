@@ -1,37 +1,27 @@
 # Sprint
 
-Ever feel like your character's jogging through molasses while trying to reach that distant quest marker? Not anymore.
+Sprint adds a configurable sprint key to Erenshor. Use it to move your character faster while exploring, either by holding a key or toggling sprint on and off.
 
-**Sprint** adds a simple sprint key to run faster. Hold Shift (or any key you want) and go.
+## Install
 
-## What it does
+This package requires [BepInEx 5](https://thunderstore.io/c/erenshor/p/BepInEx/BepInExPack/). Install it with your Thunderstore mod manager, or copy the package's `Sprint/` folder into the game's `BepInEx/plugins/` directory. Keep `Sprint.dll` inside that folder, then launch the game.
 
-Press and hold your sprint key to run faster. That's it. No cooldowns, no stamina system, no complications.
+This is the BepInEx build. Use the Erenshor Vault release instead if you run Lunaris.
 
-The speed multiplier stacks with existing buffs and debuffs - if you've got Flight of Foot active, sprinting makes you even faster. If you're snared, sprint still helps (but you're still slower than normal).
+## Run faster
 
-## Installation
+Hold your sprint key to increase your character's run speed. Sprint affects only your character and adds no stamina cost or cooldown. `General.Enabled` is on by default. Turn it off to disable sprint without removing the mod.
 
-Requires [BepInEx 5](https://thunderstore.io/c/erenshor/p/BepInEx/BepInExPack/).
+`Settings.SprintMultiplier` sets the speed increase. Its default is 1.5, which makes you run 50% faster. It applies after movement buffs and debuffs, so Flight of Foot increases the speed you sprint from and a snare reduces it.
 
-1. Install BepInEx if you haven't already
-2. Copy the `Sprint/` package folder containing `Sprint.dll` into
-   `BepInEx/plugins/`
-3. Launch the game
+## Hold or toggle sprint
 
-## Configuration
+`Controls.ToggleMode` is off by default, so you sprint only while holding the key. Turn it on to tap the key once to start sprinting and again to stop. Change `Controls.SprintKey` if you want a different binding.
 
-Edit `BepInEx/config/wow-much.sprint.cfg` after first run:
+## Default keys
 
-```ini
-[Controls]
-SprintKey = LeftShift        # Any key works
-ToggleMode = false           # true = tap to toggle, false = hold
+- Left Shift activates sprint.
 
-[Speed]
-SprintMultiplier = 1.5       # 1.0 to 10.0 - go wild
-```
+## Configure Sprint
 
-Want Mouse4? Set `SprintKey = Mouse4`.<br>
-Want toggle instead of hold? Set `ToggleMode = true`.<br>
-Want ludicrous speed? Set `SprintMultiplier = 10.0`.
+After the first launch, edit `BepInEx/config/wow-much.sprint.cfg`, or use [BepInEx Configuration Manager](https://github.com/BepInEx/BepInEx.ConfigurationManager) in-game. Use the generated file's descriptions for the full settings list and allowed values.
