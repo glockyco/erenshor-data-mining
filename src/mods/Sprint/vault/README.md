@@ -1,29 +1,27 @@
 # Sprint
 
-Ever feel like your character's jogging through molasses while trying to reach that distant quest marker? Not anymore.
+Sprint adds a configurable sprint key to Erenshor. Use it to move your character faster while exploring, either by holding a key or toggling sprint on and off.
 
-**Sprint** adds a simple sprint key to run faster. Hold Shift (or any key you want) and go.
+## Install
 
-## What it does
+Open Lunaris's in-game mod browser and install Sprint from the Erenshor Vault. Enable the mod before using it.
 
-Hold or toggle your sprint key to run faster. That's it. No cooldowns, no stamina system, no complications.
+This is the Lunaris build. Use the Thunderstore release instead if you run BepInEx.
 
-The speed multiplier stacks with existing buffs and debuffs - if you've got Flight of Foot active, sprinting makes you even faster. If you're snared, sprint still helps (but you're still slower than normal).
+## Run faster
 
-## Installation
+Hold your sprint key to increase your character's run speed. Sprint affects only your character and adds no stamina cost or cooldown. Enabled is on by default. Turn it off to disable sprint without removing the mod.
 
-Install through Lunaris — open the in-game mod browser and grab Sprint from the Erenshor Vault.
+Speed Multiplier sets the speed increase. Its default is 1.5, which makes you run 50% faster. It applies after movement buffs and debuffs, so Flight of Foot increases the speed you sprint from and a snare reduces it.
 
-## Configuration
+## Hold or toggle sprint
 
-Set in the in-game Lunaris config UI:
+Toggle Mode is off by default, so you sprint only while holding the key. Turn it on to tap the key once to start sprinting and again to stop. Change Sprint Key if you want a different binding.
 
-```
-Sprint Key        = LeftShift   # Any key works
-Toggle Mode       = false       # true = tap to toggle, false = hold
-Speed Multiplier  = 1.5         # 1.0 to 10.0 - go wild
-```
+## Default keys
 
-Want toggle instead of hold? Turn on Toggle Mode.
+- Left Shift activates sprint.
 
-Want ludicrous speed? Set Speed Multiplier to 10.0.
+## Configure Sprint
+
+Use the in-game Lunaris config UI for the full settings list, including Enabled, Sprint Key, Toggle Mode and Speed Multiplier.

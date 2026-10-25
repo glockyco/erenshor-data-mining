@@ -1,55 +1,39 @@
 # Justice for F7
 
-Press F7 for truly clean screenshots.
-Extends the F7 "Hide UI" key to also hide world-space UI elements.
+Justice for F7 extends Erenshor's F7 "Hide UI" action to hide nameplates, target indicators, health bars and other UI drawn in the game world. Use it when you want screenshots without those elements.
 
-## What it hides
+## Install
 
-The game's F7 key toggles the screen-space Canvas and Compass. This mod
-additionally hides:
+This package requires [BepInEx 5](https://thunderstore.io/c/erenshor/p/BepInEx/BepInExPack/). Install it with your Thunderstore mod manager, or copy the package's `JusticeForF7/` folder into the game's `BepInEx/plugins/` directory. Keep `JusticeForF7.dll` inside that folder, then launch the game.
 
-- **Nameplates** — NPC, SimPlayer, and player name text
-- **Target arrows** — the indicator above the current target
-- **Health bars** — health bars above characters
-- **Damage numbers** — floating damage and heal popups
-- **Target rings** — the selection ring under targeted characters
-- **XP orbs** — XP orb particles
-- **Cast bars** — NPC and SimPlayer cast bars above nameplates
-- **Loot prompts** — floating text above lootable corpses
-- **Other world text** — any remaining world-space text
+This is the BepInEx build. Use the Erenshor Vault release instead if you run Lunaris.
 
-All elements are restored when you press F7 again.
+## Hide world UI
 
-## Configuration
+Press F7 to hide the game's UI and the world-space elements covered by the mod. Press F7 again to show them. `General.Enabled` is on by default. Turn it off if you want F7 to behave as it does without the mod.
 
-Each element category can be independently toggled in the BepInEx
-config file at `BepInEx/config/wow-much.justice-for-f7.cfg`:
+### Nameplates, health bars and target indicators
 
-```ini
-[General]
-## Master switch. When false, F7 behaves as vanilla.
-Enabled = true
+`Elements.HideNameplates` is on by default. It hides NPC, SimPlayer and player names, the target arrow above a character and character health bars. `Elements.HideTargetRings` is also on by default and hides the selection ring under your target.
 
-## Enable debug logging. Set to false to silence all mod log output.
-EnableLogging = true
+### Damage numbers and XP orbs
 
-## Frames between re-scans while UI is hidden (0 = disable re-scan).
-RescanInterval = 30
+`Elements.HideDamageNumbers` is on by default and hides floating damage and healing numbers. `Elements.HideXPOrbs` is on by default and hides XP orb particles. New popups and orbs are suppressed while the UI is hidden.
 
-[Elements]
-HideNameplates = true
-HideDamageNumbers = true
-HideTargetRings = true
-HideXPOrbs = true
-HideCastBars = true
-HideOtherWorldText = true
-```
+### Cast bars and other world text
 
-## Installation
+`Elements.HideCastBars` is on by default and hides NPC and SimPlayer cast bars above nameplates. `Elements.HideOtherWorldText` is on by default and hides remaining world-space text, including loot prompts above corpses.
 
-Requires [BepInEx 5](https://thunderstore.io/c/erenshor/p/BepInEx/BepInExPack/).
+Turn off a category's setting if you want to keep those elements visible when you press F7.
 
-1. Install BepInEx if you haven't already
-2. Copy the `JusticeForF7/` package folder containing `JusticeForF7.dll` into
-   `BepInEx/plugins/`
-3. Launch the game — config file is generated on first run
+## Keep newly appearing UI hidden
+
+The mod checks for newly appearing world UI while F7 has the UI hidden. `General.RescanInterval` controls that check and defaults to once every 30 frames. Set it to 0 to turn periodic checks off.
+
+## Default keys
+
+- F7 hides or shows UI using the game's existing key binding.
+
+## Configure Justice for F7
+
+After the first launch, edit `BepInEx/config/wow-much.justice-for-f7.cfg`, or use [BepInEx Configuration Manager](https://github.com/BepInEx/BepInEx.ConfigurationManager) in-game. Use the generated file's descriptions for the full settings list.

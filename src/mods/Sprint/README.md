@@ -1,68 +1,34 @@
 # Sprint
 
-Native dual-loader plugin that adds a configurable sprint key to Erenshor. Hold
-or toggle a key to multiply the player's run speed.
+Sprint adds a configurable sprint key to Erenshor. Use it to move your character faster while exploring, either by holding a key or toggling sprint on and off.
 
-Sprint has native Lunaris and BepInEx adapters over one shared lifecycle. The
-Lunaris release is distributed through the Erenshor Vault. The BepInEx release
-is distributed through Thunderstore.
+## Install and use
 
-## Architecture
+Choose the release for your loader:
 
-```
-src/
-├── Plugin.BepInEx.cs          # BepInEx adapter and KeyboardShortcut binding
-├── Plugin.Lunaris.cs          # Lunaris KeyCode setting with Unity input polling
-├── PluginInfo.cs              # GUID/name + generated version constant
-├── Config/                    # Loader-neutral contract and Lunaris settings
-├── Core/SprintRuntime.cs      # Shared lifecycle, input, speed, patch, cleanup
-└── Patches/CalcStatsPatch.cs  # Harmony postfix forwarding stat recalculation
-```
+- [BepInEx installation and controls](thunderstore/README.md).
+- [Lunaris installation and controls](vault/README.md).
 
-## How it works
+Hold Left Shift to sprint with the initial settings. Sprint affects only your character and applies its multiplier after movement buffs and debuffs. Change the key, toggle mode and multiplier through your loader's configuration.
 
-1. **Input**: each loader maps its native keybind to a `Func<bool>`. The shared
-   lifecycle uses that pressed state for hold mode or edge-detects it for toggle
-   mode.
-2. **Speed**: `SprintRuntime` recomputes `actualRunSpeed` from the game's base +
-   status-effect speed, multiplying the total while sprinting and respecting the
-   minimum-speed floor.
-3. **Persistence**: the `CalcStats` postfix reapplies sprint whenever the game
-   recalculates stats (equipment, buffs), so vanilla recalculation never
-   overwrites sprint. Only the player's `Stats` are affected.
-4. **Cleanup**: both adapters forward unload to the shared idempotent lifecycle,
-   which restores base speed before unpatching and resetting static state.
+## Build and deploy
 
-## Building
+Follow the [repository setup](../../../README.md#setup) first. From the repository root, with the game closed:
 
-```bash
+```sh
 uv run erenshor mod setup
-uv run erenshor mod build --mod sprint --loader lunaris
 uv run erenshor mod build --mod sprint --loader bepinex
-uv run erenshor mod deploy --mod sprint --loader lunaris
 uv run erenshor mod deploy --mod sprint --loader bepinex
 ```
 
-Each deploy also activates its loader. Exit the game before switching targets,
-then restart before testing. The Lunaris Vault artifact contains only
-`Sprint.dll`. The BepInEx Thunderstore package installs the loader-specific DLL
-under `BepInEx/plugins/Sprint/`. BepInEx supplies Harmony and other shared
-dependencies. Thunderstore uses the BepInEx artifact. Vault uses the Lunaris
-artifact.
+Use `--loader lunaris` instead for the Lunaris build. Deployment installs the selected artifact and activates its loader. Restart the game after deployment. Do not put one loader's DLL into the other loader's plugin directory.
 
-For the canonical local Thunderstore release check, package all four public
-mods without uploading:
+## Development and releases
 
-```bash
-uv run erenshor --dry-run mod thunderstore
-```
+[src/Core/SprintRuntime.cs](src/Core/SprintRuntime.cs) holds the shared sprint lifecycle. The loader adapters bind controls and settings.
 
-A real upload requires exactly one `--mod sprint` and a non-placeholder
-`TCLI_AUTH_TOKEN`. Vault upload remains a manual local workflow via
-`uv run erenshor mod vault --mod sprint`. There is no GitHub release automation.
+The [mod-development guide](../../../.agent/skills/mod-development/SKILL.md) covers local development. The [mod-pipeline guide](../../../.agent/skills/mod-pipeline/SKILL.md) covers packaging and publishing. Run checks through the repository's `erenshor test` commands, as described in the [repository README](../../../README.md#working-on-it).
 
-## Configuration
+## License
 
-Both loaders expose Enabled, sprint key, toggle mode, and the speed multiplier.
-The defaults are Enabled, Left Shift, hold mode, and `1.5x`. The multiplier
-range is `1.0–10.0`.
+[MIT](../../../LICENSE).

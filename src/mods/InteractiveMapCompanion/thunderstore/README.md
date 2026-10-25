@@ -1,70 +1,54 @@
 # Interactive Map Companion
 
-Ever alt-tab to check the wiki for an NPC location while your SimPlayer party
-waits patiently? Now you don't have to guess what's where - see everything alive
-in your zone on a real-time interactive map, right in your browser.
+Interactive Map Companion shows your live Erenshor position, SimPlayers, NPCs, enemies and pets on the interactive world map. Use it in a browser, on a second screen or in the optional in-game map overlay.
 
-**Interactive Map Companion** broadcasts live entity positions from your game to
-the [interactive world map](https://erenshor-maps.wowmuch1.workers.dev/map),
-turning it into a second-screen companion for exploration, combat, and
-navigation.
+[Open the interactive map](https://erenshor.compendiums.org/map).
 
-![Live tracking demo](https://erenshor-maps.wowmuch1.workers.dev/world-map-companion.gif)
+![Live tracking demo](https://erenshor.compendiums.org/world-map-companion.gif)
+Live entities appear on the map as you move through the zone.
 
-## What it tracks
+## Install
 
-- **Your character** — live position and facing direction
-- **SimPlayers** — party members and other SimPlayers in the zone
-- **NPCs** — quest givers, merchants, and other friendly NPCs
-- **Enemies** — all hostile mobs currently alive
-- **Pets** — companion pets
+This package requires [BepInEx 5](https://thunderstore.io/c/erenshor/p/BepInEx/BepInExPack/). Install it with your Thunderstore mod manager, or copy the package's `InteractiveMapCompanion/` folder into the game's `BepInEx/plugins/` directory. Keep the DLL inside that folder, then launch the game.
 
-All tracking updates in real-time (10 Hz by default).
+This is the BepInEx build. Use the Erenshor Vault release instead if you run Lunaris.
 
-## Privacy
+## Connect the map
 
-All data stays on your machine. The mod runs a local WebSocket server that your
-browser connects to directly - nothing is sent to any external server.
+1. Launch Erenshor and log in with a character.
+2. Open the [interactive map](https://erenshor.compendiums.org/map).
+3. Enable Live Mode in the map sidebar.
 
-## Quick Start
+## See live characters in your zone
 
-Requires [BepInEx 5](https://thunderstore.io/c/erenshor/p/BepInEx/BepInExPack/).
+The map tracks:
 
-1. Install BepInEx if you haven't already
-2. Copy the `InteractiveMapCompanion/` folder containing
-   `InteractiveMapCompanion.dll` into `BepInEx/plugins/`
-3. Launch the game and log in with a character
-4. Open the [interactive world map](https://erenshor-maps.wowmuch1.workers.dev/map)
-5. Toggle **Enable Live Mode** in the sidebar
+- Your character's position and facing direction.
+- SimPlayers, including your party and others in the zone.
+- Friendly NPCs, including quest givers and merchants.
+- Living enemies.
+- Companion pets.
 
-### Reducing Clutter
+Markers move as the game state changes. `Server.UpdateInterval` controls how often the mod sends updates. Its default is 100 milliseconds, or ten updates per second.
 
-To hide static markers and only see live entities, disable the regular enemy and
-NPC layers through the sidebar, or use this direct link:
-[map with static markers hidden](https://erenshor-maps.wowmuch1.workers.dev/map?layers=-sp%2C-spr%2C-spu%2C-npc)
+## Reduce map clutter
 
-## Configuration
+To show live entities without the static enemy and NPC markers, disable those layers in the sidebar. You can also open the [map with static markers hidden](https://erenshor.compendiums.org/map?layers=-sp%2C-spr%2C-spu%2C-npc).
 
-The config file is generated on first run at
-`BepInEx/config/wow-much.interactive-map-companion.cfg`:
+## Use the in-game overlay
 
-### Server
+Launch the game through Steam to use the map inside the game window. `Overlay.EnableOverlay` is on by default. Press M to show or hide the overlay, or change `Overlay.ToggleKey` to use another key. You can adjust its size and position through the overlay settings.
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `Port` | `18585` | WebSocket server port |
-| `UpdateInterval` | `100` | Broadcast interval in ms (100 = 10 Hz) |
+## Use a second screen
 
-### Logging
+For another device on your local network, enter your game computer's local IP address and the configured WebSocket port in the map's connection settings. For example, if the computer is `192.168.1.50` and you have not changed `Server.Port`, connect to `ws://192.168.1.50:18585`. Keep access restricted to a trusted network.
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `WebSocketLogLevel` | `Warning` | `Debug` / `Info` / `Warning` / `Error` |
-| `ModLogLevel` | `Info` | `Debug` / `Info` / `Warning` / `Error` |
+## Default keys
 
-## Technical Details
+- M shows or hides the in-game map overlay.
 
-The mod runs a lightweight WebSocket server on `localhost:18585`. Your browser
-connects directly to this local server - the map website's JavaScript acts as
-the client. The protocol uses JSON messages for handshake, state updates, and
-zone changes.
+## Connection and settings
+
+The mod streams game state directly to connected map clients through a WebSocket server. The server listens on all network interfaces, so other devices can connect if your firewall permits them. Do not expose its port to the internet. The mod does not upload the stream to the map's hosting server.
+
+After the first launch, edit `BepInEx/config/wow-much.interactive-map-companion.cfg`, or use [BepInEx Configuration Manager](https://github.com/BepInEx/BepInEx.ConfigurationManager) in-game. Use the generated file's descriptions for the full settings list. Match the map's connection address to `Server.Port` if you change it.
