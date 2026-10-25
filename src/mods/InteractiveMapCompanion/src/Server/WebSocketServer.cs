@@ -35,7 +35,7 @@ public sealed class WebSocketServer : IWebSocketServer
     public void Start()
     {
         var port = _config.Port;
-        var location = $"ws://0.0.0.0:{port}";
+        var location = ServerAddress.GetLocation(port, _config.AllowLanConnections);
 
         lock (_lifecycleGate)
         {

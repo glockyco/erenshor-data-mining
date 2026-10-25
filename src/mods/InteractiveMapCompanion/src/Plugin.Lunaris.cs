@@ -82,6 +82,7 @@ public sealed class Plugin : LunarisPlugin
         }
 
         public override int Port => _settings.Port;
+        public override bool AllowLanConnections => _settings.AllowLanConnections;
         public override int UpdateInterval => _settings.UpdateInterval;
         public override LogLevel WebSocketLogLevel => _settings.WebSocketLogLevel;
         public override LogLevel ModLogLevel => _settings.ModLogLevel;
@@ -122,6 +123,13 @@ public sealed class Plugin : LunarisPlugin
             "WebSocket server port. Clients connect to ws://localhost:{port}"
         )]
         public int Port { get; set; } = 18585;
+
+        [Config(
+            "AllowLanConnections",
+            "Server",
+            "Allow other devices on the LAN to connect. Disabled by default so the WebSocket server only listens on loopback."
+        )]
+        public bool AllowLanConnections { get; set; } = false;
 
         [Config(
             "UpdateInterval",

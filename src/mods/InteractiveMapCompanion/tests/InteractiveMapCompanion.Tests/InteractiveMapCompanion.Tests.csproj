@@ -24,6 +24,7 @@
         <Compile Include="../../src/State/IBroadcastLoop.cs" Link="State/IBroadcastLoop.cs" />
         <Compile Include="../../src/State/BroadcastLoop.cs" Link="State/BroadcastLoop.cs" />
         <Compile Include="../../src/Server/IWebSocketServer.cs" Link="Server/IWebSocketServer.cs" />
+        <Compile Include="../../src/Server/ServerAddress.cs" Link="Server/ServerAddress.cs" />
         <Compile Include="../../src/Entities/IEntityTracker.cs" Link="Entities/IEntityTracker.cs" />
         <Compile Include="../../src/Entities/EntityData.cs" Link="Entities/EntityData.cs" />
         <Compile Include="../../src/Entities/EntityType.cs" Link="Entities/EntityType.cs" />
