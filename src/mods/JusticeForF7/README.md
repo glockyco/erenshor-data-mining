@@ -1,80 +1,34 @@
 # Justice for F7
 
-Native dual-loader plugin that extends Erenshor's F7 "Hide UI" key to also hide
-world-space UI — nameplates, target arrows, health bars, damage numbers, target
-rings, XP orbs, cast bars, and loot prompts.
+Justice for F7 extends Erenshor's F7 "Hide UI" action to hide nameplates, target indicators, health bars and other UI drawn in the game world. Use it when you want screenshots without those elements.
 
-Justice for F7 has native BepInEx and Lunaris builds. The BepInEx artifact is
-the Thunderstore release (`WoW_Much/JusticeForF7`). The Lunaris artifact is
-the Erenshor Vault release. See `vault/` for listing assets and manual
-publishing notes.
+## Install and use
 
-## Architecture
+Choose the release for your loader:
 
-```
-src/
-├── Plugin.BepInEx.cs     # Native BepInEx entrypoint
-├── Plugin.Lunaris.cs     # Native Lunaris entrypoint
-├── JusticeContracts.cs   # Loader-neutral settings and logging contracts
-├── JusticeRuntime.cs     # Shared lifecycle, canvas observation, patches, and cleanup
-├── PluginInfo.cs         # GUID/name + generated version constant
-├── JusticeSettings.cs    # Lunaris Config.Register settings (per-category toggles)
-├── WorldUIHider.cs       # Finds and hides/restores world-space renderers
-└── Patches/              # Canvas visibility observer + transient suppression patches
-```
+- [BepInEx installation and settings](thunderstore/README.md).
+- [Lunaris installation and settings](vault/README.md).
 
-## How it works
+Press F7 to hide the UI and press it again to show it. Choose which element categories to hide through your loader's configuration. Turn off Enabled to restore the game's normal F7 behavior.
 
-1. **F7 detection**: `JusticeRuntime.Tick` passes the authoritative
-   `GameData.MainCanvas.enabled` state to `CanvasVisibilityObserver` each frame.
-   The observer drives the hider on transitions and runs a periodic re-scan while
-   hidden to catch newly spawned elements.
-2. **Hiding**: `WorldUIHider` toggles `Renderer.enabled` and owned child
-   GameObjects rather than `TextMeshPro.enabled`, which the game manages itself.
-   `NamePlatePatch` immediately re-hides target arrows that the game updates every
-   frame. `NpcNamePlatePatch` does the same for character health bars. The hider
-   restores exactly what it disabled when F7 is pressed again.
-3. **Suppression**: `DmgPopPatch` and `XPBubPatch` prefix the game's popup/orb
-   factories to skip creating transient elements while the UI is hidden.
+## Build and deploy
 
-## Building and distribution
+Follow the [repository setup](../../../README.md#setup) first. From the repository root, with the game closed:
 
-Set up references once, then select the native loader explicitly:
-
-```bash
+```sh
 uv run erenshor mod setup
 uv run erenshor mod build --mod justice-for-f7 --loader bepinex
 uv run erenshor mod deploy --mod justice-for-f7 --loader bepinex
-uv run erenshor mod build --mod justice-for-f7 --loader lunaris
-uv run erenshor mod deploy --mod justice-for-f7 --loader lunaris
 ```
 
-BepInEx deployment follows `thunderstore.toml` and installs the DLL under
-`<game>/BepInEx/plugins/JusticeForF7/`. Lunaris deploys to `<game>/plugins`.
-Each deploy also activates its loader. Exit the game before switching, then
-restart before testing. Prepare the Lunaris artifact for manual Vault upload
-with:
+Use `--loader lunaris` instead for the Lunaris build. Deployment installs the selected artifact and activates its loader. Restart the game after deployment. Do not put one loader's DLL into the other loader's plugin directory.
 
-```bash
-uv run erenshor mod vault --mod justice-for-f7
-```
+## Development and releases
 
-The canonical local Thunderstore check packages all four public BepInEx mods
-without uploading:
+[src/JusticeRuntime.cs](src/JusticeRuntime.cs) holds the shared lifecycle. [src/WorldUIHider.cs](src/WorldUIHider.cs) handles world-space visibility, and [src/Patches](src/Patches) suppresses transient elements while the UI is hidden.
 
-```bash
-uv run erenshor --dry-run mod thunderstore
-```
+The [mod-development guide](../../../.agent/skills/mod-development/SKILL.md) covers local development. The [mod-pipeline guide](../../../.agent/skills/mod-pipeline/SKILL.md) covers packaging and publishing. Run checks through the repository's `erenshor test` commands, as described in the [repository README](../../../README.md#working-on-it).
 
-A real upload requires exactly one `--mod justice-for-f7` and a
-non-placeholder `TCLI_AUTH_TOKEN`. There is no GitHub release automation.
+## License
 
-Lunaris plugins may support loader-managed reloads, but this mod's release
-verification uses a full game restart after deployment. See the
-`mod-development` and `mod-pipeline` skills.
-
-## Configuration
-
-Both loaders expose a master `Enabled` switch, logging, the re-scan interval,
-and a per-category toggle for each world-UI element through their native config
-systems. See `JusticeSettings.cs`.
+[MIT](../../../LICENSE).

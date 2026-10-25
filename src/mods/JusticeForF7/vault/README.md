@@ -1,45 +1,39 @@
 # Justice for F7
 
-Press F7 for truly clean screenshots.
-Extends the F7 "Hide UI" key to also hide world-space UI elements.
+Justice for F7 extends Erenshor's F7 "Hide UI" action to hide nameplates, target indicators, health bars and other UI drawn in the game world. Use it when you want screenshots without those elements.
 
-## What it hides
+## Install
 
-The game's F7 key toggles the screen-space Canvas and Compass. This mod
-additionally hides:
+Open Lunaris's in-game mod browser and install Justice for F7 from the Erenshor Vault. Enable the mod before using it.
 
-- **Nameplates** — NPC, SimPlayer, and player name text
-- **Target arrows** — the indicator above the current target
-- **Health bars** — health bars above characters
-- **Damage numbers** — floating damage and heal popups
-- **Target rings** — the selection ring under targeted characters
-- **XP orbs** — XP orb particles
-- **Cast bars** — NPC and SimPlayer cast bars above nameplates
-- **Loot prompts** — floating text above lootable corpses
-- **Other world text** — any remaining world-space text
+This is the Lunaris build. Use the Thunderstore release instead if you run BepInEx.
 
-All elements are restored when you press F7 again.
+## Hide world UI
 
-## Configuration
+Press F7 to hide the game's UI and the world-space elements covered by the mod. Press F7 again to show them. Enabled is on by default. Turn it off if you want F7 to behave as it does without the mod.
 
-Each element category can be independently toggled in the in-game Lunaris
-config UI:
+### Nameplates, health bars and target indicators
 
-```
-[General]
-Enabled         = true   # Master switch. When false, F7 behaves as vanilla.
-EnableLogging   = true   # Set to false to silence all mod log output.
-RescanInterval  = 30     # Frames between re-scans while UI is hidden (0 = disable re-scan).
+Hide Nameplates is on by default. It hides NPC, SimPlayer and player names, the target arrow above a character and character health bars. Hide Target Rings is also on by default and hides the selection ring under your target.
 
-[Elements]
-HideNameplates       = true
-HideDamageNumbers    = true
-HideTargetRings      = true
-HideXPOrbs           = true
-HideCastBars         = true
-HideOtherWorldText   = true
-```
+### Damage numbers and XP orbs
 
-## Installation
+Hide Damage Numbers is on by default and hides floating damage and healing numbers. Hide XP Orbs is on by default and hides XP orb particles. New popups and orbs are suppressed while the UI is hidden.
 
-Install through Lunaris — open the in-game mod browser and grab Justice for F7 from the Erenshor Vault.
+### Cast bars and other world text
+
+Hide Cast Bars is on by default and hides NPC and SimPlayer cast bars above nameplates. Hide Other World Text is on by default and hides remaining world-space text, including loot prompts above corpses.
+
+Turn off a category's setting if you want to keep those elements visible when you press F7.
+
+## Keep newly appearing UI hidden
+
+The mod checks for newly appearing world UI while F7 has the UI hidden. Rescan Interval controls that check and defaults to once every 30 frames. Set it to 0 to turn periodic checks off.
+
+## Default keys
+
+- F7 hides or shows UI using the game's existing key binding.
+
+## Configure Justice for F7
+
+Use the in-game Lunaris config UI for the full settings list, including the element categories, re-scan interval and logging.
