@@ -20,7 +20,7 @@
         {
             name: 'Adventure Guide',
             description:
-                'In-game quest companion with GPS navigation. 170+ quests with walkthroughs, item sources, and world markers. Click any step, follow the arrow.',
+                'Quest walkthroughs, item-source lookup, world markers and navigation for Erenshor. Follow objectives and track your next action without leaving the game.',
             vaultUrl: 'https://erenshorvault.app/mod/adventure-guide',
             thunderstoreUrl: 'https://thunderstore.io/c/erenshor/p/WoW_Much/AdventureGuide/',
             image: {

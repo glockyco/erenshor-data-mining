@@ -9,7 +9,7 @@
 # POST /api/mods create fields.
 name = "Adventure Guide"
 mod_ref = "adventure-guide"
-short_description = "In-game quest companion with GPS navigation. 170+ quests with walkthroughs, item sources, and world markers. Click any step, follow the arrow."
+short_description = "Quest walkthroughs, item-source lookup, world markers and navigation for Erenshor."
 # Public source repository, or "" to omit. Adventure Guide source is not public.
 source_url = ""
 hidden = false
