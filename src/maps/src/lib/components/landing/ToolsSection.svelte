@@ -7,7 +7,7 @@
             img: '/adventure-guide-window.webp',
             alt: 'Adventure Guide quest window',
             title: 'Adventure Guide',
-            desc: 'In-game quest companion. 170+ quests with walkthroughs, world markers, and navigation.'
+            desc: 'Quest walkthroughs, item-source lookup, world markers and navigation for Erenshor.'
         },
         {
             href: '/mod',
