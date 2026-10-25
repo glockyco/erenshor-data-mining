@@ -16,14 +16,14 @@ A long-running refresh command SHALL remain the authoritative owner of each proc
 
 #### Scenario: Game session is interrupted
 
-- **WHEN** the user interrupts a running game launch
+- **WHEN** a running game launch receives an interrupt
 - **THEN** the command requests graceful termination of its owned process tree
 - **AND** it uses forced termination only for an owned process that does not exit within the bounded grace period
 - **AND** it does not terminate an unrelated CrossOver process
 
 #### Scenario: Maps server is interrupted
 
-- **WHEN** the user interrupts a running maps development server
+- **WHEN** a running maps development server receives an interrupt
 - **THEN** the command terminates the server process that it created
 - **AND** no process from that server remains listening on its configured port
 

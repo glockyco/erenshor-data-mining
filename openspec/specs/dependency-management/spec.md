@@ -120,7 +120,7 @@ The default branch MUST require the current aggregate CI status, linear history,
 
 #### Scenario: Green current dependency pull request
 - **WHEN** a dependency pull request is current with the default branch and all required checks pass
-- **THEN** the maintainer can merge it manually
+- **THEN** it can be merged manually
 
 #### Scenario: Failed or stale dependency pull request
 - **WHEN** a dependency pull request is stale or a required check fails

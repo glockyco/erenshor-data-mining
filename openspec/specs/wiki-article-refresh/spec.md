@@ -144,7 +144,7 @@ Before it writes an article, `wiki deploy` SHALL parse the new text on the live 
 
 #### Scenario: Roll back a canary
 
-- **WHEN** the maintainer rolls back the manifest of a canary deploy and nobody edited the pages since
+- **WHEN** the manifest of a canary deploy is rolled back and nobody edited the pages since
 - **THEN** each page holds its fetched text again
 
 ### Requirement: Deploy failures are named
@@ -182,7 +182,7 @@ A dry run of `wiki deploy` SHALL NOT write to the wiki. It SHALL report the page
 
 ### Requirement: Repository pages are not overwritten after another account's edit
 
-`wiki deploy-repo-pages` SHALL NOT edit a page whose latest revision was made by an account other than the deploying account and whose text differs from the repository source, unless the maintainer accepts that page by title. It SHALL name each such page before the first write.
+`wiki deploy-repo-pages` SHALL NOT edit a page whose latest revision was made by an account other than the deploying account and whose text differs from the repository source, unless that page is explicitly accepted by title. It SHALL name each such page before the first write.
 
 #### Scenario: An administrator reverted a template
 
@@ -191,7 +191,7 @@ A dry run of `wiki deploy` SHALL NOT write to the wiki. It SHALL report the page
 
 #### Scenario: An accepted page
 
-- **WHEN** the maintainer reviews the live text of `Template:Quest` and passes `--accept-drift Template:Quest`
+- **WHEN** the live text of `Template:Quest` has been reviewed and the command receives `--accept-drift Template:Quest`
 - **THEN** the deploy overwrites `Template:Quest`
 
 #### Scenario: Live text equal to the source
