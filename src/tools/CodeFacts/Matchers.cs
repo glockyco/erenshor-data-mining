@@ -240,11 +240,11 @@ internal static class Matchers
     /// text after `expr:`. Control flow that the matcher cannot read fails the fact.
     public static Dictionary<string, string> SceneChanges(EntityDeclaration scope, FactSpec fact)
     {
-        if (scope is not MethodDeclaration method)
-            throw new InvalidDataException("scene_changes binds a method");
+        if (scope is not MethodDeclaration { Body: { } body } method)
+            throw new InvalidDataException("scene_changes binds a method with a body");
         string invocation = Normalize(fact.Args["invocation"]);
-        var calls = method
-            .Body.Descendants.OfType<InvocationExpression>()
+        var calls = body
+            .Descendants.OfType<InvocationExpression>()
             .Where(call => Normalize(call.Target.ToString()) == invocation)
             .ToList();
         if (calls.Count == 0)
@@ -343,7 +343,7 @@ internal static class Matchers
                 case SwitchSection section:
                     if (
                         section.CaseLabels.Count != 1
-                        || section.CaseLabels.Single().Expression is null
+                        || section.CaseLabels.Single().Expression is not { } label
                         || section.Parent is not SwitchStatement statementSwitch
                     )
                         throw new InvalidDataException(
@@ -352,7 +352,7 @@ internal static class Matchers
                     levelWhen.Add(
                         Normalize(statementSwitch.Expression.ToString())
                             + " == "
-                            + Normalize(section.CaseLabels.Single().Expression.ToString())
+                            + Normalize(label.ToString())
                     );
                     SceneChangeGuards(section.Statements.TakeWhile(s => s != node), levelUnless);
                     break;
@@ -381,7 +381,7 @@ internal static class Matchers
             if (
                 statement is IfElseStatement { FalseStatement: null } guard
                 && guard.TrueStatement is BlockStatement { Statements.Count: > 0 } body
-                && body.Statements.Last()
+                && body.Statements[body.Statements.Count - 1]
                     is BreakStatement
                         or ReturnStatement
                         or YieldBreakStatement
@@ -927,7 +927,7 @@ internal static class Matchers
             || member.MemberName != fact.Args["member"]
             || Normalize(call.Target.ToString()) != Normalize(fact.Args["invocation"])
             || call.Arguments.Count != 1
-            || call.Arguments.First() is not PrimitiveExpression { Value: string argument }
+            || call.Arguments[0] is not PrimitiveExpression { Value: string argument }
             || assignment.Right is not PrimitiveExpression { Value: float or double }
             || FloatLiteralOf(assignment.Right) is not string value
         )

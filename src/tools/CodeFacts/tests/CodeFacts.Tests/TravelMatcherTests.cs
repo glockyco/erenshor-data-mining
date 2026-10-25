@@ -90,6 +90,16 @@ public sealed class TravelMatcherTests
         Assert.Equal(new[] { "!Released" }, Strings(changes[1], "unless"));
     }
 
+    [Fact]
+    public void Method_without_a_body_fails_with_a_contract_error()
+    {
+        var method = new MethodDeclaration { Name = "AbstractTravel" };
+
+        var error = Assert.Throws<InvalidDataException>(() => Matchers.SceneChanges(method, Fact));
+
+        Assert.Equal("scene_changes binds a method with a body", error.Message);
+    }
+
     [Theory]
     [InlineData("InLoop")]
     [InlineData("UnreadableExit")]

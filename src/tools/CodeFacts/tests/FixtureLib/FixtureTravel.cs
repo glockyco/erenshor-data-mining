@@ -145,9 +145,9 @@ namespace FixtureLib
         {
             public static readonly Changer SceneChange = new Changer();
             public static string BindZone = "";
-            public static Vector3 BindLoc;
-            public static bool SunInBindZone;
-            public static bool usingSun;
+            public static Vector3 BindLoc = new Vector3(0f, 0f, 0f);
+            public static bool SunInBindZone = false;
+            public static bool usingSun = false;
 
             public static void Save() { }
         }
