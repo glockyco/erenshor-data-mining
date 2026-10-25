@@ -1,4 +1,4 @@
-import { expect, test as base } from '@playwright/test';
+import { expect, test as base, type Page } from '@playwright/test';
 
 /**
  * Captured map tiles are outside the deterministic fixture.
@@ -47,6 +47,12 @@ const test = base.extend<{ pageProblems: string[] }>({
         { auto: true }
     ]
 });
+
+async function gotoAfterFonts(page: Page, url: string) {
+    // Hydration can start fonts after load. Replacing the document cancels them.
+    await page.evaluate(() => document.fonts.ready);
+    await page.goto(url);
+}
 
 test('home page renders fixture statistics and provenance', async ({ page }) => {
     await page.goto('/');
@@ -100,7 +106,7 @@ test('shared character portraits use density variants in search and spawn popups
         expect(response.headers()['content-type']).toContain('image/webp');
     }
     await expect.poll(() => portrait.evaluate((image) => image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0)).toBe(true);
-    await page.goto('/map?sel=marker:spawn:stowaway-enemy');
+    await gotoAfterFonts(page, '/map?sel=marker:spawn:stowaway-enemy');
     await expect(portrait).toHaveCount(1);
 });
 
@@ -108,7 +114,7 @@ test('a character without a portrait leaves no image slot or wiki fallback', asy
     await page.goto('/map?sel=npc:Breena%20Carpenter');
     await expect(page.getByRole('link', { name: 'Wiki', exact: true })).toHaveAttribute('href', 'https://erenshor.wiki.gg/wiki/Breena%20Carpenter');
     await expect(page.locator('img[src*="/characters/"], img[src*="wiki.gg"]')).toHaveCount(0);
-    await page.goto('/map?sel=marker:spawn:stowaway-breena');
+    await gotoAfterFonts(page, '/map?sel=marker:spawn:stowaway-breena');
     await expect(page.getByText('Fixture Key', { exact: true })).toBeVisible();
     await expect(page.locator('img[src*="/characters/"], img[src*="wiki.gg"]')).toHaveCount(0);
 });
@@ -298,7 +304,7 @@ test('stored return portals have no serialized Hidden destination in either map 
     await expect(destination).not.toContainText('Hidden');
     await expect(page.getByText('Enemy Levels', { exact: true })).toHaveCount(0);
     await expect(page.locator('a[href="/Hidden"], a[href="/maps/Hidden"]')).toHaveCount(0);
-    await page.goto('/maps/Reliquary?marker=zone-line:reliquary-return');
+    await gotoAfterFonts(page, '/maps/Reliquary?marker=zone-line:reliquary-return');
     const popup = page.locator('.leaflet-popup-content');
     await expect(popup).toContainText('Return to where you teleported from');
     await expect(popup).not.toContainText('Hidden');
