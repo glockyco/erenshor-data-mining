@@ -5,10 +5,10 @@
 
 <Seo
     path="/adventure-guide"
-    title="Erenshor Adventure Guide – Quest Companion Mod"
-    description="In-game quest companion for Erenshor. 170+ quests with step-by-step walkthroughs, GPS navigation, and world markers above every quest NPC."
+    title="Erenshor Adventure Guide - Quest Companion Mod"
+    description="Adventure Guide adds quest walkthroughs, item-source lookup and navigation to Erenshor. Follow quest objectives and find missing items without leaving the game."
     image="/og-adventure-guide.png"
-    imageAlt="Adventure Guide – Every quest. Every item source. Click and go."
+    imageAlt="Adventure Guide quest walkthroughs, item sources and navigation"
     imageWidth={1731}
     imageHeight={909}
     jsonLd={breadcrumbJsonLd([
@@ -21,17 +21,25 @@
 <div class="text-center mb-12">
     <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">Adventure Guide</h1>
     <div class="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto rounded-full"></div>
-    <p class="text-slate-300 mt-4 text-lg">Every quest. Every item source. Click and go.</p>
+    <p class="text-slate-300 mt-4 text-lg">
+        Quest walkthroughs, item-source lookup and navigation for Erenshor.
+    </p>
     <p class="text-slate-400 mt-2 max-w-2xl mx-auto">
-        In-game quest companion for Erenshor. 170+ quests with step-by-step walkthroughs, GPS
-        navigation, and floating world markers above every quest-relevant NPC.
+        Follow quest objectives, find missing items and track your next action without leaving the
+        game.
     </p>
     <div class="flex flex-wrap justify-center gap-3 mt-6">
         <a
             href="#install"
             class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
         >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <svg
+                class="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
                 <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -54,9 +62,9 @@
 </div>
 
 <div class="max-w-4xl mx-auto space-y-16">
-    <!-- Navigate to anything -->
+    <!-- Navigate to an objective or item source -->
     <section>
-        <h3 class="text-2xl font-bold text-white mb-4">Navigate to anything</h3>
+        <h3 class="text-2xl font-bold text-white mb-4">Navigate to an objective or item source</h3>
         <img
             src="/adventure-guide-window.webp"
             alt="Quest window with walkthroughs and navigation buttons"
@@ -67,22 +75,25 @@
         />
         <div class="text-slate-300 space-y-3">
             <p>
-                Every quest step has a <span class="font-semibold text-white">[NAV]</span> button. Click
-                it and a directional arrow points you to your target — across zone boundaries, chaining
-                through multiple connections to get you there.
+                Click an objective's <span class="font-semibold text-white">[NAV]</span> button to follow
+                a source. The arrow guides you across zone connections to the target.
             </p>
             <p>
-                Need an item? Every source is listed — enemy drops, vendors, mining nodes, fishing
-                spots, crafting recipes, quest rewards. Click any source and the arrow takes you to
-                it. When a source is another quest's reward, that quest's walkthrough unfolds inline
-                with its own nav buttons.
+                Use "Choose a source" to select another way to obtain an item or follow missing
+                crafting materials. Sources include drops, vendors, mining, fishing, crafting, quest
+                rewards and items obtained by using another item. A quest reward can open its
+                walkthrough inline. Locked sources show the requirements you still need.
+            </p>
+            <p>
+                Rare world drops and treasure map chests have no fixed source location. After you
+                read a treasure map, navigation can lead you to its dig site.
             </p>
         </div>
     </section>
 
-    <!-- See what you've been missing -->
+    <!-- Find quest NPCs and check respawn times -->
     <section>
-        <h3 class="text-2xl font-bold text-white mb-4">See what you've been missing</h3>
+        <h3 class="text-2xl font-bold text-white mb-4">Find quest NPCs and check respawn times</h3>
         <img
             src="/adventure-guide-markers.webp"
             alt="World markers above NPCs showing quest state and respawn timers"
@@ -93,17 +104,16 @@
         />
         <div class="text-slate-300 space-y-3">
             <p>
-                Floating icons appear above NPCs in the game world — quest givers you've walked
-                past, turn-in targets waiting for your items, enemies you need to hunt down. Kill a
-                quest mob and its marker switches to a live respawn countdown. Night-only spawns
-                show the spawn window and current game time so you know when to come back.
+                World markers identify quest givers, turn-in targets and enemies needed for
+                objectives. A quest target's marker shows its respawn timer after it dies.
+                Night-only spawns show their spawn window and the current game time.
             </p>
         </div>
     </section>
 
-    <!-- Know the whole path -->
+    <!-- Follow quest objectives -->
     <section>
-        <h3 class="text-2xl font-bold text-white mb-4">Know the whole path</h3>
+        <h3 class="text-2xl font-bold text-white mb-4">Follow quest objectives</h3>
         <img
             src="/adventure-guide-nav.webp"
             alt="Navigation arrow and ground path guiding to target"
@@ -114,10 +124,10 @@
         />
         <div class="text-slate-300 space-y-3">
             <p>
-                Each step tells you who to talk to, what to say, where to go, and what items to
-                collect. Level estimates on quests and steps show what you're ready for and help you
-                tackle things in the right order. Come back after a week and your progress, item
-                counts, and active step are right where you left them.
+                Select a quest to read who to talk to, what to say and which items to collect. Item
+                counts update from your inventory. Level estimates on quests and steps help you
+                choose what to attempt next. Browsing another quest does not change the action you
+                are tracking. Guide state is saved per character.
             </p>
         </div>
     </section>
@@ -136,13 +146,18 @@
                 <ol class="list-decimal list-inside text-slate-300 text-sm space-y-3">
                     <li>
                         Extract <code
-                            class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-slate-200">winhttp.dll</code
-                        > from the
+                            class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-slate-200"
+                            >winhttp.dll</code
+                        >
+                        from the
                         <a
                             href="https://github.com/MizukiBelhi/Lunaris/releases/latest"
-                            class="text-purple-400 hover:text-purple-300 underline">latest Lunaris release</a
-                        > next to <code
-                            class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-slate-200">Erenshor.exe</code
+                            class="text-purple-400 hover:text-purple-300 underline"
+                            >latest Lunaris release</a
+                        >
+                        next to
+                        <code class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-slate-200"
+                            >Erenshor.exe</code
                         >.
                     </li>
                     <li>Launch the game.</li>
@@ -157,10 +172,11 @@
             <div>
                 <h4 class="text-lg font-semibold text-white mb-2">Thunderstore (BepInEx)</h4>
                 <p class="text-slate-300 text-sm">
-                    Thunderstore is retained for BepInEx users.
+                    Use the Thunderstore package if you run BepInEx.
                     <a
                         href="https://thunderstore.io/c/erenshor/p/WoW_Much/AdventureGuide/"
-                        class="text-purple-400 hover:text-purple-300 underline">View on Thunderstore</a
+                        class="text-purple-400 hover:text-purple-300 underline"
+                        >View on Thunderstore</a
                     >.
                 </p>
             </div>
@@ -193,7 +209,8 @@
         <div class="mt-6 pt-6 border-t border-slate-700">
             <h4 class="text-lg font-semibold text-white mb-3">Configuration</h4>
             <p class="text-slate-300 text-sm mb-4">
-                These settings control Adventure Guide behavior and are listed with their defaults below.
+                These settings control Adventure Guide behavior and are listed with their defaults
+                below.
             </p>
             <div class="overflow-x-auto">
                 <table class="w-full min-w-[600px] text-sm text-left">
