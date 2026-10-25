@@ -65,6 +65,8 @@ portrait leaves no image slot; the map never uses wiki pictures as a fallback.
 The smoke test covers `/`, `/map`, `/maps/Stowaway`, marker popups, legacy `layers` query state, and the published database.
 It fails on site-initiated `.sqlite` requests.
 Extend it when changing a companion-facing URL or database contract.
+Before a smoke test replaces an open page, use the font-settling navigation helper.
+Hydration can start fonts after the load event, and replacing the document cancels them.
 
 ## Renderer dependency updates
 
