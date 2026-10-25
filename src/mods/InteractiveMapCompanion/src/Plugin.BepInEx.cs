@@ -65,6 +65,7 @@ public sealed class Plugin : BaseUnityPlugin
     private sealed class BepModConfig : ModConfigBase
     {
         private readonly ConfigEntry<int> _port;
+        private readonly ConfigEntry<bool> _allowLanConnections;
         private readonly ConfigEntry<int> _updateInterval;
         private readonly ConfigEntry<ConfigLogLevel> _webSocketLogLevel;
         private readonly ConfigEntry<ConfigLogLevel> _modLogLevel;
@@ -83,6 +84,12 @@ public sealed class Plugin : BaseUnityPlugin
                 "Port",
                 18585,
                 "WebSocket server port. Clients connect to ws://localhost:{port}"
+            );
+            _allowLanConnections = config.Bind(
+                "Server",
+                "AllowLanConnections",
+                false,
+                "Allow other devices on the LAN to connect. Disabled by default so the WebSocket server only listens on loopback."
             );
             _updateInterval = config.Bind(
                 "Server",
@@ -147,6 +154,7 @@ public sealed class Plugin : BaseUnityPlugin
         }
 
         public override int Port => _port.Value;
+        public override bool AllowLanConnections => _allowLanConnections.Value;
         public override int UpdateInterval => _updateInterval.Value;
         public override ConfigLogLevel WebSocketLogLevel => _webSocketLogLevel.Value;
         public override ConfigLogLevel ModLogLevel => _modLogLevel.Value;

@@ -38,7 +38,7 @@ Launch the game through Steam to use the map inside the game window. `Overlay.En
 
 ## Use a second screen
 
-For another device on your local network, enter your game computer's local IP address and the configured WebSocket port in the map's connection settings. For example, if the computer is `192.168.1.50` and you have not changed `Server.Port`, connect to `ws://192.168.1.50:18585`. Keep access restricted to a trusted network.
+For another device on your local network, enable `Server.AllowLanConnections` in the mod settings and restart the game. Enter your game computer's local IP address and configured WebSocket port in that device's map connection settings. Keep firewall access restricted to a trusted network because enabling LAN connections makes the server listen on all network interfaces.
 
 ## Default keys
 
@@ -46,6 +46,6 @@ For another device on your local network, enter your game computer's local IP ad
 
 ## Connection and settings
 
-The mod streams game state directly to connected map clients through a WebSocket server. The server listens on all network interfaces, so other devices can connect if your firewall permits them. Do not expose its port to the internet. The mod does not upload the stream to the map's hosting server.
+The mod streams game state directly to connected map clients through a WebSocket server. It listens only on loopback unless you enable LAN connections. Do not expose its port to the internet. The mod does not upload the stream to the map's hosting server.
 
 Use the in-game Lunaris config UI for the full settings list, including the connection, overlay and logging options. Match the map's connection address to `Server.Port` if you change it.

@@ -20,6 +20,7 @@ public enum LogLevel
 public interface IModConfig : IBroadcastConfig
 {
     int Port { get; }
+    bool AllowLanConnections { get; }
     LogLevel WebSocketLogLevel { get; }
     LogLevel ModLogLevel { get; }
     bool EnableOverlay { get; }
@@ -39,6 +40,7 @@ public interface IModConfig : IBroadcastConfig
 public abstract class ModConfigBase : IModConfig
 {
     public abstract int Port { get; }
+    public abstract bool AllowLanConnections { get; }
     public abstract int UpdateInterval { get; }
     public abstract LogLevel WebSocketLogLevel { get; }
     public abstract LogLevel ModLogLevel { get; }

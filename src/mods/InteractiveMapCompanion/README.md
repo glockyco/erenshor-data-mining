@@ -13,11 +13,11 @@ Choose the release for your loader:
 
 Launch Erenshor and log in with a character. Open the map and enable Live Mode in its sidebar. For the in-game overlay, launch through Steam and press M to show or hide it with the initial key setting.
 
-Configure the connection, overlay and logging through your loader's settings. Match the map's connection address to the configured server port if you change it.
+Configure the connection, overlay and logging through your loader's settings. Match the map's connection address to the configured server port if you change it. To connect from another device, enable `Server.AllowLanConnections` and restart the game. Enter the game computer's local IP address and configured port in that device's map connection settings.
 
 ## Game-state streaming
 
-The mod streams game state directly to connected map clients through a WebSocket server. The server listens on all network interfaces, so other devices can connect if your firewall permits them. Keep access restricted to a trusted network and do not expose the port to the internet. The mod does not upload the stream to the map's hosting server.
+The mod streams game state directly to connected map clients through a WebSocket server. It listens only on loopback unless you enable LAN connections. Enabling `Server.AllowLanConnections` listens on all network interfaces, so restrict firewall access to a trusted network and do not expose the port to the internet. The mod does not upload the stream to the map's hosting server.
 
 ## Build and deploy
 
