@@ -57,7 +57,7 @@ After changing a dependency by hand, regenerate its lock file and run `erenshor 
 - Never edit the ripped game files under `variants/` or the installed game.
 - Never edit generated output by hand, such as databases, `quest_guides/quest-guide.json`, or generated wiki pages. Change the generator.
 - Fix missing or wrong data where it comes from: the export, the code facts, or a reviewed file such as `mapping.json` or `barriers.toml`. Do not patch it in one consumer.
-- Publishing to the wiki, the map, or the sheets needs the maintainer's approval. Do a dry run first.
+- Ask before publishing to the wiki, the map, or the sheets. Do a dry run first.
 - Keep the map's public URLs working: `/map` with the `layers` and `sel` parameters, WebSocket ports 18584 and 18585, and `/db/erenshor.sqlite`.
 - Fix every failing check you come across, including ones that failed before your change.
 
