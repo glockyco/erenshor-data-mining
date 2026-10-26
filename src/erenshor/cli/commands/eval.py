@@ -73,6 +73,7 @@ def complete(
 @app.command()
 def watch(
     ctx: typer.Context,
+    *,
     code: str = typer.Argument(..., help="C# expression to watch"),
     interval: int = typer.Option(60, "--interval", min=1, help="Eval interval in frames"),
     on_change: bool = typer.Option(False, "--on-change", help="Only print when value changes"),
@@ -118,6 +119,7 @@ def describe(
 @app.command()
 def call(
     ctx: typer.Context,
+    *,
     name: str = typer.Argument(..., help="Registered command name"),
     args: str = typer.Option("{}", "--args", help="Command arguments as a JSON object"),
     timeout: int = typer.Option(30000, "--timeout", min=1, help="Overall command/job deadline in ms"),

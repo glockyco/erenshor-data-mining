@@ -245,7 +245,7 @@ def build_items_v2_data(
             item_repo.get_item_classes(key),
             item_repo.get_crafting_recipe(key),
             class_display_names,
-            [
+            zone_restrictions=[
                 (use.target_stable_key, use.mechanic or "")
                 for use in uses_by_item[key]
                 if use.kind == "zone_restriction" and use.target_stable_key is not None

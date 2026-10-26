@@ -8,9 +8,9 @@ from types import SimpleNamespace
 from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
 
-import click
 import httpx
 import pytest
+from rich.text import Text
 from typer.main import get_command
 from typer.testing import CliRunner
 
@@ -551,7 +551,7 @@ def test_changes_baseline_and_since_are_mutually_exclusive(cli_context: CLIConte
 
     assert result.exit_code == 2
     # Typer styles its usage errors when GITHUB_ACTIONS is set, which splits the text.
-    assert "--baseline and --since are mutually exclusive" in click.unstyle(result.output)
+    assert "--baseline and --since are mutually exclusive" in Text.from_ansi(result.output).plain
 
 
 def test_changes_baseline_names_a_missing_database(

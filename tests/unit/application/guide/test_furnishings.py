@@ -69,7 +69,7 @@ def test_ungated_zone_level_and_completion_preferred_and_furnishing_condition_em
     zones = {"character:golem": "zone:reliquary", "character:world": "zone:world"}
     medians = {"zone:reliquary": 1, "zone:world": 20}
     assert _best_interaction_zone_key(["character:golem", "character:world"], graph, zones, medians) == "zone:world"
-    assert _estimate_quest_level(quest, graph, medians, {}, zones, {}, {}) == 20
+    assert _estimate_quest_level(quest, graph, medians, {}, zones, quest_levels={}, item_cache={}) == 20
     guide = build_mod_guide(graph, compile_graph(graph))
     assert guide["_furniture_sets"] == {"item:smithy": {"display_name": "Smithy Set"}}
     spawn = guide["_character_spawns"]["character:golem"][0]

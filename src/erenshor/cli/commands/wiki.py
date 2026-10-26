@@ -1281,6 +1281,7 @@ def rollback_interface_command(
 @require_preconditions(wiki_endpoint, wiki_credentials, option_path("pages_file"))
 def deploy_repo_pages_command(
     ctx: typer.Context,
+    *,
     pages_file: Annotated[
         str | None,
         typer.Option(

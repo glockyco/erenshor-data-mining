@@ -303,6 +303,7 @@ async def capture_portraits(
     png_dir: Path,
     run: PortraitRun,
     on_result: Callable[[PortraitRun], None],
+    *,
     timeout: float = RESPONSE_TIMEOUT_SECS,
 ) -> PortraitRun:
     """Capture each request in turn, reviewing and recording each answer.

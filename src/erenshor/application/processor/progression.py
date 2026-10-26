@@ -296,6 +296,7 @@ class ProgressionBuilder:
         key: str | None,
         slot: str | None,
         fact: str,
+        *,
         value: str | None = None,
         quantity: float | None = None,
     ) -> list[Way]:
@@ -370,8 +371,8 @@ class ProgressionBuilder:
                             atom.get("reference_stable_key") if provenance else atom["atom_stable_key"],
                             atom.get("reference_slot") if provenance else atom.get("atom_slot"),
                             f"{fact}, gate {gate}",
-                            atom.get("value"),
-                            (
+                            value=atom.get("value"),
+                            quantity=(
                                 atom.get("minimum")
                                 if provenance and atom["predicate"] == "encounter_won"
                                 else atom.get("atom_quantity")
@@ -615,7 +616,7 @@ class ProgressionBuilder:
                             state["state_key"],
                             None,
                             fact,
-                            state["required_value"] if kind == "account_state" else None,
+                            value=state["required_value"] if kind == "account_state" else None,
                         ):
                             base.extend(needs)
                 releases: list[Way] = [()]
@@ -1141,7 +1142,7 @@ class ProgressionBuilder:
                         guard["state_key"],
                         None,
                         fact,
-                        guard["required_value"] if kind == "account_state" else None,
+                        value=guard["required_value"] if kind == "account_state" else None,
                     ),
                     fact,
                 )

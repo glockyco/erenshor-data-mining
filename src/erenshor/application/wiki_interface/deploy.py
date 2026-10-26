@@ -89,6 +89,7 @@ class InterfaceDeployClient(Protocol):
         base_revision: MediaWikiPageRevision,
         summary: str | None = None,
         minor: bool | None = None,
+        *,
         bot: bool = False,
         assertion: Literal["user"] = "user",
         assert_user: str | None = None,
@@ -102,6 +103,7 @@ class InterfaceDeployClient(Protocol):
         start_timestamp: str,
         summary: str | None = None,
         minor: bool | None = None,
+        *,
         bot: bool = False,
         assertion: Literal["user"] = "user",
         assert_user: str | None = None,
@@ -435,8 +437,8 @@ def rollback_interface_pages(
     client: InterfaceDeployClient,
     summary: str,
     force: bool = False,
-    assert_user: str | None = None,
     *,
+    assert_user: str | None = None,
     checkpoint: Checkpoint,
 ) -> InterfaceRollbackResult:
     """Restore attributable writes using the latest checkpoint of the original manifest.
@@ -486,7 +488,7 @@ def rollback_interface_pages(
             entry.rollback_account,
             rollback_model,
             _text_digest(rollback_text),
-            entry.rollback_new_revision_id,
+            acknowledged_revision_id=entry.rollback_new_revision_id,
             request_api_url=entry.rollback_api_url,
             api_url=client.api_url,
         ):
@@ -583,7 +585,7 @@ def rollback_interface_pages(
                 entry.rollback_account,
                 rollback_model,
                 _text_digest(rollback_text),
-                entry.rollback_new_revision_id,
+                acknowledged_revision_id=entry.rollback_new_revision_id,
                 request_api_url=entry.rollback_api_url,
                 api_url=client.api_url,
             ):
@@ -783,7 +785,7 @@ def _reconcile_mutation(
         manifest_entry.deploy_account,
         plan_entry.content_model,
         _text_digest(target_text),
-        manifest_entry.new_revision_id,
+        acknowledged_revision_id=manifest_entry.new_revision_id,
         request_api_url=manifest_entry.deploy_api_url,
         api_url=client.api_url,
     ):
@@ -874,7 +876,7 @@ def _recover_pending_rollbacks(
             entry.rollback_account,
             model,
             _text_digest(text),
-            entry.rollback_new_revision_id,
+            acknowledged_revision_id=entry.rollback_new_revision_id,
             request_api_url=entry.rollback_api_url,
             api_url=client.api_url,
         ):
@@ -930,7 +932,7 @@ def _recover_pending_deploys(
             entry.deploy_account,
             entry.content_model,
             entry.deployed_text_sha256,
-            entry.new_revision_id,
+            acknowledged_revision_id=entry.new_revision_id,
             request_api_url=entry.deploy_api_url,
             api_url=client.api_url,
         ):
@@ -959,8 +961,8 @@ def _matches_request(
     account: str | None,
     content_model: str,
     text_digest: str | None,
-    acknowledged_revision_id: int | None = None,
     *,
+    acknowledged_revision_id: int | None = None,
     request_api_url: str | None,
     api_url: str,
 ) -> bool:

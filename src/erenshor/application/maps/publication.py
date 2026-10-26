@@ -265,7 +265,7 @@ def freeze_worker(maps_dir: Path, target: str, output: Path) -> Path:
     return bundle
 
 
-def deploy_frozen(maps_dir: Path, target: str, config: Path, bundle: Path, assets: Path, message: str) -> None:
+def deploy_frozen(maps_dir: Path, target: str, config: Path, bundle: Path, assets: Path, *, message: str) -> None:
     """Deploy the approved bundle and assets through the standalone checked runner."""
     from erenshor.cli.commands.maps import _deploy_command, _run
 

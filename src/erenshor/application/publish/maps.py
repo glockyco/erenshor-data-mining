@@ -351,7 +351,7 @@ def execute(
             Path(payload["config"]),
             Path(payload["bundle"]),
             Path(payload["assets"]),
-            payload["message"],
+            message=payload["message"],
         )
         deployment = publication.current_deployment(maps_dir, operation["target"])
         evidence["observed_deployment"] = deployment

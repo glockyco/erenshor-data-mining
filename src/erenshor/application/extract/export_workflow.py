@@ -29,6 +29,7 @@ class UnityExportRunner(Protocol):
         method_name: str,
         log_file: Path | None = None,
         arguments: dict[str, str] | None = None,
+        *,
         profile: Any | None = None,
     ) -> None: ...
 

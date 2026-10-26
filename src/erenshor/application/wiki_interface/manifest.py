@@ -470,11 +470,11 @@ def _validate_manifest(manifest: InterfaceDeployManifest) -> None:
 
 def _validate_digest(value: str, label: str, index: int) -> None:
     if not isinstance(value, str) or len(value) != 64:
-        raise ValueError(f"entries[{index}].{label.split('.')[-1]} must be a SHA-256 digest")
+        raise ValueError(f"entries[{index}].{label.rsplit('.', maxsplit=1)[-1]} must be a SHA-256 digest")
     try:
         int(value, 16)
     except ValueError as error:
-        raise ValueError(f"entries[{index}].{label.split('.')[-1]} must be hexadecimal") from error
+        raise ValueError(f"entries[{index}].{label.rsplit('.', maxsplit=1)[-1]} must be hexadecimal") from error
 
 
 def _validate_owned_page(entry: InterfacePageManifestEntry, index: int) -> None:

@@ -96,6 +96,7 @@ def extract_code_facts(
     raw_db_path: Path,
     variant: str | None = None,
     game_build_id: str | None = None,
+    *,
     game_build_published_at: str | None = None,
 ) -> int:
     """Run the analyzer against ``assembly`` and persist the facts into the raw DB."""

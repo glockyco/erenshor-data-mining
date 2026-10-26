@@ -76,7 +76,7 @@ class ProvenanceBuilder:
             and row["subject_stable_key"] == key
             and (row["item_stable_key"] is None or row["item_stable_key"] == item_key)
         ]
-        atoms.sort(key=lambda row: _json(row))
+        atoms.sort(key=_json)
         counts: dict[tuple[str, int], int] = defaultdict(int)
         result = []
         for row in atoms:
@@ -114,6 +114,7 @@ class ProvenanceBuilder:
         relation: str,
         coordinate: str | None,
         conditions: tuple[ProvenanceCondition, ...] = (),
+        *,
         entries: tuple[str, ...] = (),
     ) -> ProvenanceLocation:
         return ProvenanceLocation(
@@ -197,7 +198,7 @@ class ProvenanceBuilder:
                     "fixed" if row["is_directly_placed"] else "spawn",
                     str(spawn_key or copy),
                     conditions,
-                    tuple(sorted(set(entries))),
+                    entries=tuple(sorted(set(entries))),
                 )
             )
         for row in self.rows("treasure_chest_possible_spawns"):

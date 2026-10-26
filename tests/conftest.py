@@ -190,6 +190,7 @@ def ability_validator():
 # Service fixtures
 @pytest.fixture
 def item_update_service(
+    *,
     item_generator,
     item_transformer,
     item_validator,
@@ -212,6 +213,7 @@ def item_update_service(
 
 @pytest.fixture
 def character_update_service(
+    *,
     character_generator,
     character_transformer,
     character_validator,
@@ -234,6 +236,7 @@ def character_update_service(
 
 @pytest.fixture
 def ability_update_service(
+    *,
     ability_generator,
     ability_transformer,
     ability_validator,

@@ -29,6 +29,7 @@ def approve(
     staging_png_dir: Path,
     approved_dir: Path,
     subjects: Sequence[str],
+    *,
     previous: Approval | None = None,
 ) -> Approval:
     """Approve the accepted captures of ``subjects`` and copy them to ``approved_dir``.

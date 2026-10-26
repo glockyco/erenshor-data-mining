@@ -7,8 +7,8 @@ from dataclasses import replace
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import click
 import pytest
+from rich.text import Text
 from typer import Typer
 from typer.testing import CliRunner
 
@@ -237,7 +237,7 @@ def test_show_requires_one_inspection_mode(cli_context, graph_path, arguments):
     result = runner.invoke(app, arguments, obj=cli_context)
     assert result.exit_code == 2
     # Typer styles its usage errors when GITHUB_ACTIONS is set, which splits the text.
-    assert "Provide one stable key or --gaps" in click.unstyle(result.output)
+    assert "Provide one stable key or --gaps" in Text.from_ansi(result.output).plain
 
 
 def test_show_unknown_node_reports_a_clear_error(cli_context, graph_path):

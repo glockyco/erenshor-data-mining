@@ -37,6 +37,7 @@ class GuardedEditClient(Protocol):
         base_revision: MediaWikiPageRevision,
         summary: str | None = None,
         minor: bool | None = None,
+        *,
         bot: bool = True,
         assertion: Literal["user", "bot"] = "bot",
         assert_user: str | None = None,

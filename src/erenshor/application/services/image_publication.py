@@ -291,6 +291,7 @@ def plan_publication(
     bot: str,
     owners: Collection[str],
     pictures: LivePictureCache,
+    *,
     is_used: Callable[[str], bool],
 ) -> PublishPlan:
     """Give every title one verdict against one listing of the wiki.

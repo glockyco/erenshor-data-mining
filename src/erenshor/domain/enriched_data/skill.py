@@ -20,6 +20,7 @@ class EnrichedSkillData:
         teaching_items: list[ItemLink],
         activated_stance: AbilityLink | None = None,
         effect_to_apply: AbilityLink | None = None,
+        *,
         cast_on_target: AbilityLink | None = None,
         spawn_on_use: CharacterLink | None = None,
     ) -> None:

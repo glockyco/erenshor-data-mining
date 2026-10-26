@@ -393,6 +393,7 @@ class SheetsService:
         failed: int,
         total_rows: int,
         errors: list[str],
+        *,
         duration_seconds: float,
         dry_run: bool,
     ) -> None:

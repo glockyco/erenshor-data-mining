@@ -51,8 +51,8 @@ def _denormalize_quest_metadata(conn: sqlite3.Connection, graph: EntityGraph) ->
             zone_medians,
             char_levels,
             char_zones,
-            quest_levels,
-            item_cache,
+            quest_levels=quest_levels,
+            item_cache=item_cache,
         )
         if level is not None:
             quest.level = level
@@ -71,8 +71,8 @@ def _denormalize_quest_metadata(conn: sqlite3.Connection, graph: EntityGraph) ->
             zone_medians,
             char_levels,
             char_zones,
-            quest_levels,
-            item_cache,
+            quest_levels=quest_levels,
+            item_cache=item_cache,
         )
         if level is not None:
             quest_node.level = level
@@ -80,7 +80,7 @@ def _denormalize_quest_metadata(conn: sqlite3.Connection, graph: EntityGraph) ->
 
     # The level of reaching each character, for interactions whose target's
     # own level means nothing (see mod_writer).
-    ctx = _LevelContext(graph, zone_medians, char_levels, char_zones, quest_levels, item_cache)
+    ctx = _LevelContext(graph, zone_medians, char_levels, char_zones, quest_levels, item_cache=item_cache)
     for node in graph.nodes_of_type(NodeType.CHARACTER):
         node.place_level = _place_level(node.key, ctx)
 
@@ -175,6 +175,7 @@ def _estimate_quest_level(
     zone_medians: dict[str, int],
     char_levels: dict[str, int],
     char_zones: dict[str, str],
+    *,
     quest_levels: dict[str, int],
     item_cache: dict[str, int | None],
 ) -> int | None:
@@ -186,7 +187,7 @@ def _estimate_quest_level(
     requirements that must all be met).
     """
     factors: list[int] = []
-    ctx = _LevelContext(graph, zone_medians, char_levels, char_zones, quest_levels, item_cache)
+    ctx = _LevelContext(graph, zone_medians, char_levels, char_zones, quest_levels, item_cache=item_cache)
 
     _add_step_level_factors(quest.key, ctx, factors)
 
@@ -346,6 +347,7 @@ class _LevelContext:
         char_levels: dict[str, int],
         char_zones: dict[str, str],
         quest_levels: dict[str, int],
+        *,
         item_cache: dict[str, int | None],
     ) -> None:
         self.graph = graph

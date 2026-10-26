@@ -180,6 +180,7 @@ def trace_character(
     has_chained: bool,
     is_excluded: bool,
     scene_map: dict[str, list[str]],
+    *,
     prefab_map: dict[str, list[str]],
 ) -> TraceResult:
     guid = row.get("guid")
@@ -334,7 +335,7 @@ def main() -> int:
             has_chained,
             sk in excluded_rules,
             scene_map,
-            prefab_map,
+            prefab_map=prefab_map,
         )
         results.append(result)
         if (i + 1) % 50 == 0:

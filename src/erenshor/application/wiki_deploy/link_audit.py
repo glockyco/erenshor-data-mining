@@ -397,6 +397,7 @@ def _occurrence_from_template(
     kind: str,
     template: Any,
     index: _CatalogIndex,
+    *,
     origin: Origin,
 ) -> tuple[LinkOccurrence | None, LinkAuditFinding | None]:
     named, positional = _parameter_values(template)
@@ -498,7 +499,7 @@ def parse_link_occurrences(
         kind = _semantic_kind(template_name)
         if kind is None:
             continue
-        occurrence, _ = _occurrence_from_template(source_page, template_name, kind, template, index, origin)
+        occurrence, _ = _occurrence_from_template(source_page, template_name, kind, template, index, origin=origin)
         if occurrence is not None:
             occurrences.append(occurrence)
     return tuple(occurrences)
@@ -628,7 +629,7 @@ def audit_links(
                 if kind is None:
                     continue
                 occurrence, local_finding = _occurrence_from_template(
-                    source_page, template_name, kind, template, index, origin
+                    source_page, template_name, kind, template, index, origin=origin
                 )
                 if occurrence is None:
                     continue

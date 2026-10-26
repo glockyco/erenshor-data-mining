@@ -70,8 +70,7 @@ def require_preconditions(*checks: PreconditionCheck) -> Callable[[Callable[...,
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             console = Console()
 
-            # Extract CLIContext from first argument (Typer passes it as ctx)
-            # Note: Typer passes ctx in kwargs (not args) and uses click.core.Context at runtime
+            # Typer supplies its context as ctx, usually as a keyword argument.
             ctx = args[0] if args else kwargs.get("ctx")
 
             # Fail fast if context is missing or invalid

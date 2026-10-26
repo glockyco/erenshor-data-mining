@@ -203,7 +203,7 @@ def test_any_unfinished_keeper_retains_first_kio_and_welcome_crew(event: Writer,
     ],
 )
 def test_phase_transitions(
-    event: Writer, later: set[str], kio: bool, hider: bool, triggers: bool, warm_flame: bool
+    *, event: Writer, later: set[str], kio: bool, hider: bool, triggers: bool, warm_flame: bool
 ) -> None:
     completed = set(SHIVER_KEEPER_QUESTS) | later
     assert not _available(event, "character", _FIRST, completed)

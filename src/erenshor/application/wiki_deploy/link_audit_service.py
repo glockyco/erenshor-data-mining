@@ -80,6 +80,7 @@ class LinkAuditService:
         variant: str,
         online: bool,
         include_live_pages: bool = True,
+        *,
         known_generated_titles: Collection[str] | None = None,
     ) -> LinkAuditReport:
         """Audit exact generated scope, optionally enriching it from MediaWiki."""

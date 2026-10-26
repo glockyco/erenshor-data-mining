@@ -339,6 +339,7 @@ def test_source_projections_require_supported_canonical_schema(tmp_path: Path, v
     ],
 )
 def test_obtainability_and_teaching_share_canonical_player_access(
+    *,
     canonical_writer: Writer,
     tmp_path: Path,
     access: Any,
@@ -524,6 +525,7 @@ def test_crafting_recipe_rejects_an_unlinked_canonical_outcome(
     ],
 )
 def test_crafting_recipe_does_not_invent_quantities(
+    *,
     canonical_writer: Writer,
     tmp_path: Path,
     kind: str,

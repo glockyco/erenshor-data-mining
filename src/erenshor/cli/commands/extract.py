@@ -222,6 +222,7 @@ def profile_report(
 @require_preconditions(comparison_databases)
 def compare_variants(
     ctx: typer.Context,
+    *,
     base_variant: str = typer.Option(
         "main",
         "--base-variant",
@@ -265,6 +266,7 @@ def compare_variants(
 @require_preconditions(database_exists)
 def changes(
     ctx: typer.Context,
+    *,
     since: str | None = typer.Option(
         None,
         "--since",

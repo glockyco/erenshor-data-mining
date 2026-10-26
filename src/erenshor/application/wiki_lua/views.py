@@ -77,7 +77,7 @@ def view_module_text(
         if entity_key not in (known_keys if entity_keys is None else entity_keys):
             raise ViewDataError(f"{view.title}: {view.entity} key {entity_key!r} is not in the link catalog")
         for index, row in enumerate(rows, start=1):
-            _check_row(view, entity_key, index, row, known_keys, reference_catalog)
+            _check_row(view, entity_key, index, row, known_keys, reference_catalog=reference_catalog)
     data = {entity_key: list(rows) for entity_key, rows in sorted(rows_by_entity.items())}
     return _header(view) + module_text(data)
 
@@ -88,6 +88,7 @@ def _check_row(
     index: int,
     row: Mapping[str, object],
     known_keys: Collection[str],
+    *,
     reference_catalog: Mapping[str, Mapping[str, object]] | None,
 ) -> None:
     where = f"{view.title}: row {index} of {entity_key}"
