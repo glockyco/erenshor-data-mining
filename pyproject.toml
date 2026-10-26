@@ -79,6 +79,11 @@ dev = [
     "inline-snapshot>=0.35.0",
 ]
 
+# Renovate holds releases for 3 days but cannot do so for lock file maintenance, so uv applies the same
+# minimum age whenever it resolves versions.
+[tool.uv]
+exclude-newer = "3 days"
+
 # mwparserfromhell publishes no Python 3.14 wheel and its sdist omits the
 # setuptools backend from its package metadata. uv needs this to build the sdist.
 # The Nix environment takes the prebuilt nixpkgs package instead (flake.nix).

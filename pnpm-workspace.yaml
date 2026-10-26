@@ -3,3 +3,6 @@ packages:
   - "src/tools/item-export"
 onlyBuiltDependencies:
   - lefthook
+# Renovate holds releases for 3 days but cannot do so for lock file maintenance, so pnpm applies the
+# same minimum age, in minutes, whenever it resolves versions.
+minimumReleaseAge: 4320
