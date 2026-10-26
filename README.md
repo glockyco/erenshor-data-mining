@@ -52,6 +52,8 @@ After a game update, follow the [refreshing-game-data skill](.agent/skills/refre
 
 After changing a dependency by hand, regenerate its lock file and run `erenshor test dependency-state`.
 
+Nix owns the pnpm version. Keep its toolchain on the patched 10.x line rather than the compatibility freeze, which can retain known vulnerabilities. After updating Nix inputs, run `nix run .#sync-pnpm-version` to align `package.json` before the dependency-state check.
+
 ## Rules
 
 - Never edit the ripped game files under `variants/` or the installed game.

@@ -52,11 +52,12 @@
 
       forAllSystems = nixpkgs.lib.genAttrs systems;
 
+      # pnpm_10 is an insecure compatibility freeze. Follow the patched 10.x line.
       packageManager = (builtins.fromJSON (builtins.readFile ./package.json)).packageManager;
       assertPnpmVersion =
         pkgs:
         let
-          expected = "pnpm@${pkgs.pnpm_10.version}";
+          expected = "pnpm@${pkgs.pnpm_10_latest.version}";
         in
         pkgs.lib.assertMsg (
           packageManager == expected
@@ -179,7 +180,7 @@
               runtimeInputs = [
                 pkgs.git
                 pkgs.nodejs_22
-                pkgs.pnpm_10
+                pkgs.pnpm_10_latest
                 (dotnetSdk pkgs)
               ];
               text = ''
@@ -200,7 +201,6 @@
             name = "erenshor-sync-pnpm-version";
             runtimeInputs = [
               pkgs.jq
-              pkgs.pnpm_10
             ];
             text = ''
               if [[ ! -f flake.nix || ! -f package.json ]]; then
@@ -208,7 +208,8 @@
                 exit 1
               fi
 
-              package_manager="pnpm@$(pnpm --version)"
+              # pnpm can delegate to package.json's old version, so use Nix metadata.
+              package_manager="pnpm@${pkgs.pnpm_10_latest.version}"
               temporary="$(mktemp package.json.XXXXXX)"
               trap 'rm -f "$temporary"' EXIT
               jq --arg package_manager "$package_manager" \
@@ -257,7 +258,7 @@
               pkgs.git
               dotnetEnvironment
               pkgs.nodejs_22
-              pkgs.pnpm_10
+              pkgs.pnpm_10_latest
               pkgs.bun
               (assetRipper pkgs)
               pkgs.sqlite
