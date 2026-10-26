@@ -20,6 +20,7 @@ class EnrichedSpellData:
         items_with_effect: list[ItemLink],
         teaching_items: list[ItemLink],
         used_by_characters: list[CharacterLink],
+        *,
         pet_to_summon: CharacterLink | None = None,
     ) -> None:
         """Initialize enriched spell data.

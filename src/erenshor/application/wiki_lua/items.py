@@ -193,6 +193,7 @@ def build_items_data(
     classes_by_item: Mapping[str, list[str]],
     recipes_by_item: Mapping[str, CraftingRecipe | None] | None = None,
     class_display_names: Mapping[str, str] | None = None,
+    *,
     zone_restrictions_by_item: Mapping[str, list[tuple[str, str]]] | None = None,
 ) -> LuaData:
     """Build the serializable item index and semantic shard tables for `mw.loadData()`."""
@@ -254,6 +255,7 @@ def _item_record(
     classes: list[str],
     recipe: CraftingRecipe | None,
     class_display_names: Mapping[str, str] | None,
+    *,
     zone_restrictions: list[tuple[str, str]],
 ) -> LuaData:
     row: LuaData = {}

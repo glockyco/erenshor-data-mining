@@ -85,12 +85,12 @@ class _Catalog:
 
 
 def _plan(catalog: Catalog, wiki: MediaWikiFake, cache: LivePictureCache) -> PublishPlan:
-    return plan_publication(catalog, wiki.listing(), BOT, OWNERS, cache, wiki.is_file_used)
+    return plan_publication(catalog, wiki.listing(), BOT, OWNERS, cache, is_used=wiki.is_file_used)
 
 
 def _run(catalog: Catalog, wiki: MediaWikiFake, cache: LivePictureCache, directory: Path) -> RunRecord:
     record = RunRecord(directory)
-    execute(_plan(catalog, wiki, cache), catalog, wiki, wiki, record, "Publish")
+    execute(_plan(catalog, wiki, cache), catalog, wiki, wiki, record, summary="Publish")
     return record
 
 
@@ -214,7 +214,7 @@ def test_an_editors_newer_version_is_a_conflict_that_names_them_and_stays(setup:
     catalog = pictures.build()
 
     plan = _plan(catalog, wiki, cache)
-    execute(plan, catalog, wiki, wiki, RunRecord(tmp_path / "run"), "Publish")
+    execute(plan, catalog, wiki, wiki, RunRecord(tmp_path / "run"), summary="Publish")
 
     (item,) = plan.titles
     assert (item.verdict, item.reason) == ("conflict", "Ulor uploaded the file")
@@ -228,7 +228,7 @@ def test_a_new_item_that_shares_a_picture_redirects_to_its_file_without_an_uploa
     catalog = pictures.build()
 
     plan = _plan(catalog, wiki, cache)
-    execute(plan, catalog, wiki, wiki, RunRecord(tmp_path / "run"), "Publish")
+    execute(plan, catalog, wiki, wiki, RunRecord(tmp_path / "run"), summary="Publish")
 
     assert _verdicts(plan)["File:Spell Scroll Brand New.png"] == "redirect"
     assert wiki.uploads == 0
@@ -245,7 +245,7 @@ def test_a_changed_shared_picture_is_one_new_version_that_every_title_shows(setu
     catalog = pictures.build()
 
     plan = _plan(catalog, wiki, cache)
-    execute(plan, catalog, wiki, wiki, RunRecord(tmp_path / "run"), "Publish")
+    execute(plan, catalog, wiki, wiki, RunRecord(tmp_path / "run"), summary="Publish")
 
     assert sorted(_verdicts(plan).values()) == ["unchanged", "unchanged", "update"]
     assert wiki.uploads == 1
@@ -261,7 +261,7 @@ def test_a_copy_of_the_old_pipeline_is_deleted_and_its_title_redirects(setup: An
     catalog = pictures.build()
 
     plan = _plan(catalog, wiki, cache)
-    execute(plan, catalog, wiki, wiki, RunRecord(tmp_path / "run"), "Publish")
+    execute(plan, catalog, wiki, wiki, RunRecord(tmp_path / "run"), summary="Publish")
 
     assert _verdicts(plan) == {
         "File:Spell Scroll Antidote.png": "unchanged",
@@ -300,7 +300,7 @@ def test_the_bots_orphans_go_with_their_redirects_and_the_operators_unused_files
     catalog = pictures.build()
 
     plan = _plan(catalog, wiki, cache)
-    execute(plan, catalog, wiki, wiki, RunRecord(tmp_path / "run"), "Publish")
+    execute(plan, catalog, wiki, wiki, RunRecord(tmp_path / "run"), summary="Publish")
 
     assert [(orphan.title, orphan.redirects) for orphan in plan.orphans] == [
         ("File:Spell Scroll- Aetherstorm.png", ("File:Spell Scroll-: Aetherstorm.png",))
@@ -319,7 +319,7 @@ def test_an_orphan_that_a_page_starts_to_show_before_the_run_stays(setup: Any) -
     wiki.used.add("File:Spell Scroll- Aetherstorm.png")
     record = RunRecord(tmp_path / "run")
 
-    execute(plan, catalog, wiki, wiki, record, "Publish")
+    execute(plan, catalog, wiki, wiki, record, summary="Publish")
 
     assert "File:Spell Scroll- Aetherstorm.png" in wiki.files
     assert record.entries[-1]["reason"] == "a page shows the file since the plan"
@@ -336,7 +336,7 @@ def test_a_plan_that_moves_or_deletes_refuses_to_run_without_the_administrator_a
     catalog = pictures.build()
 
     with pytest.raises(ValueError, match="needs the administrator account"):
-        execute(_plan(catalog, wiki, cache), catalog, wiki, None, RunRecord(tmp_path / "run"), "Publish")
+        execute(_plan(catalog, wiki, cache), catalog, wiki, None, RunRecord(tmp_path / "run"), summary="Publish")
 
     assert (wiki.uploads, wiki.archive) == (0, {})
 
@@ -379,7 +379,7 @@ def test_a_title_that_changed_after_the_plan_is_skipped(setup: Any) -> None:
     wiki.put_file("File:Thorned Branch.png", screenshot, user="Ulor")
     record = RunRecord(tmp_path / "run")
 
-    execute(plan, catalog, wiki, wiki, record, "Publish")
+    execute(plan, catalog, wiki, wiki, record, summary="Publish")
 
     assert wiki.files["File:Thorned Branch.png"][0].data == screenshot
     assert record.entries == [
@@ -426,7 +426,7 @@ def test_a_title_that_redirects_through_another_redirect_is_pointed_at_the_file(
     catalog = pictures.build()
 
     plan = _plan(catalog, wiki, cache)
-    execute(plan, catalog, wiki, wiki, RunRecord(tmp_path / "run"), "Publish")
+    execute(plan, catalog, wiki, wiki, RunRecord(tmp_path / "run"), summary="Publish")
 
     assert _verdicts(plan)["File:Antidote Scroll.png"] == "redirect"
     assert wiki.shows_a_picture("File:Antidote Scroll.png")
@@ -444,7 +444,7 @@ def test_a_revert_restores_replaced_bytes_deleted_copies_orphans_and_redirects(s
     wiki.put_file("File:Spell Scroll- Aetherstorm.png", OLD)
     run = _run(pictures.build(), wiki, cache, tmp_path / "run")
 
-    revert(RunRecord.load(run.directory), wiki, wiki, RunRecord(tmp_path / "revert"), OWNERS, "Revert")
+    revert(RunRecord.load(run.directory), wiki, wiki, RunRecord(tmp_path / "revert"), OWNERS, summary="Revert")
 
     assert wiki.files["File:Thorned Branch.png"][0].data == OLD
     assert wiki.files["File:Spell Scroll Annihilate.png"][0].data == old_copy
@@ -464,12 +464,12 @@ def test_a_file_whose_description_page_redirects_gets_its_description(setup: Any
 
     plan = _plan(catalog, wiki, cache)
     run = RunRecord(tmp_path / "run")
-    execute(plan, catalog, wiki, wiki, run, "Publish")
+    execute(plan, catalog, wiki, wiki, run, summary="Publish")
 
     assert _verdicts(plan)["File:A Collection of Notes.png"] == "describe"
     assert "{{License|Game}}" in wiki.pages["File:A Collection of Notes.png"]
     assert _verdicts(_plan(catalog, wiki, cache))["File:A Collection of Notes.png"] == "unchanged"
-    revert(RunRecord.load(run.directory), wiki, wiki, RunRecord(tmp_path / "revert"), OWNERS, "Revert")
+    revert(RunRecord.load(run.directory), wiki, wiki, RunRecord(tmp_path / "revert"), OWNERS, summary="Revert")
     assert wiki.pages["File:A Collection of Notes.png"] == "#REDIRECT [[File:A collection of notes.png]]"
 
 
@@ -483,7 +483,7 @@ def test_a_copy_that_hides_its_redirect_to_a_planned_title_is_deleted(setup: Any
     wiki.used.add("File:Azure Loyalty Medal .png")
 
     plan = _plan(pictures.build(), wiki, cache)
-    execute(plan, pictures.build(), wiki, wiki, RunRecord(tmp_path / "run"), "Publish")
+    execute(plan, pictures.build(), wiki, wiki, RunRecord(tmp_path / "run"), summary="Publish")
 
     assert _verdicts(plan)["File:Azure Loyalty Medal .png"] == "retire"
     assert "File:Azure Loyalty Medal .png" not in wiki.files
@@ -515,7 +515,7 @@ def test_a_file_whose_title_changes_moves_with_its_history_and_its_redirects_fol
     catalog = pictures.build()
 
     plan = _plan(catalog, wiki, cache)
-    execute(plan, catalog, wiki, wiki, RunRecord(tmp_path / "run"), "Publish")
+    execute(plan, catalog, wiki, wiki, RunRecord(tmp_path / "run"), summary="Publish")
 
     assert _verdicts(plan) == {
         "File:Antidote icon.png": "move",
@@ -538,7 +538,7 @@ def test_the_file_that_most_redirects_name_moves_and_another_copy_goes(setup: An
     catalog = pictures.build()
 
     plan = _plan(catalog, wiki, cache)
-    execute(plan, catalog, wiki, wiki, RunRecord(tmp_path / "run"), "Publish")
+    execute(plan, catalog, wiki, wiki, RunRecord(tmp_path / "run"), summary="Publish")
 
     assert [item.source for item in plan.titles if item.verdict == "move"] == ["File:Antidote.png"]
     assert [orphan.title for orphan in plan.orphans] == ["File:Antidote (copy).png"]
@@ -559,7 +559,7 @@ def test_a_reverted_move_puts_the_file_back_without_a_redirect_and_restores_its_
     _antidote(pictures, wiki)
     run = _run(pictures.build(), wiki, cache, tmp_path / "run")
 
-    revert(RunRecord.load(run.directory), wiki, wiki, RunRecord(tmp_path / "revert"), OWNERS, "Revert")
+    revert(RunRecord.load(run.directory), wiki, wiki, RunRecord(tmp_path / "revert"), OWNERS, summary="Revert")
 
     assert len(wiki.files["File:Antidote.png"]) == 2
     assert "File:Antidote icon.png" not in wiki.pages
@@ -575,7 +575,7 @@ def test_a_move_whose_answer_was_lost_counts_when_the_file_arrived(setup: Any) -
 
     plan = _plan(catalog, wiki, cache)
     record = RunRecord(tmp_path / "run")
-    execute(plan, catalog, wiki, wiki, record, "Publish")
+    execute(plan, catalog, wiki, wiki, record, summary="Publish")
 
     assert [
         (entry["action"], entry["done"]) for entry in record.entries if entry["title"] == "File:Antidote icon.png"
@@ -643,7 +643,7 @@ def test_image_edit_mismatch_retains_ack_parent_and_reviewed_preimage(
 
     with pytest.raises(MediaWikiEditVerificationError) as caught:
         if action == "redirect":
-            image_publication_run.redirect(title, "File:New Notes.png", target, wiki, record, "Publish")
+            image_publication_run.redirect(title, "File:New Notes.png", target, wiki, record, summary="Publish")
         elif action == "describe":
             image_hash = pictures.add(SCROLL, title)
             image_publication_run._describe(
@@ -717,7 +717,7 @@ def test_reviewed_image_recovery_restores_actual_parent_or_refuses(
     )
     run = RunRecord(tmp_path / "run")
     with pytest.raises(MediaWikiEditVerificationError):
-        image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, run, "Publish")
+        image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, run, summary="Publish")
     monkeypatch.undo()
     saved = RunRecord.load(run.directory)
     if proof == "model changed":
@@ -727,7 +727,7 @@ def test_reviewed_image_recovery_restores_actual_parent_or_refuses(
     before = wiki.revisions[title]
     recovery = RunRecord(tmp_path / "recovery")
 
-    revert(saved, wiki, None, recovery, OWNERS, "Reviewed recovery")
+    revert(saved, wiki, None, recovery, OWNERS, summary="Reviewed recovery")
 
     assert len(errors) == 1
     (entry,) = recovery.entries
@@ -758,7 +758,7 @@ def test_image_verification_failure_stops_dependencies_and_retains_confirmed_upl
     record = RunRecord(tmp_path / "run")
 
     with pytest.raises(MediaWikiEditVerificationError) as caught:
-        execute(plan, catalog, wiki, wiki, record, "Publish")
+        execute(plan, catalog, wiki, wiki, record, summary="Publish")
 
     assert caught.value is errors[0]
     assert [entry["action"] for entry in record.entries] == ["update", "describe"]
@@ -786,7 +786,7 @@ def test_image_ack_survives_missing_evidence_and_ledger_io_failure(setup: Any, m
 
     monkeypatch.setattr(image_publication_run, "durable_write_text", fail_ledger)
     with pytest.raises(MediaWikiEditVerificationError) as caught:
-        image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, record, "Publish")
+        image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, record, summary="Publish")
 
     assert caught.value is errors[0]
     (entry,) = record.entries
@@ -806,11 +806,11 @@ def test_image_recovery_verification_failure_retains_its_own_ack_and_stops(
     errors = _fail_image_edit_verification(wiki, monkeypatch)
     run = RunRecord(tmp_path / "run")
     with pytest.raises(MediaWikiEditVerificationError):
-        image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, run, "Publish")
+        image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, run, summary="Publish")
     recovery = RunRecord(tmp_path / "recovery")
 
     with pytest.raises(MediaWikiEditVerificationError) as caught:
-        revert(RunRecord.load(run.directory), wiki, None, recovery, OWNERS, "Reviewed recovery")
+        revert(RunRecord.load(run.directory), wiki, None, recovery, OWNERS, summary="Reviewed recovery")
 
     assert caught.value is errors[1]
     (entry,) = RunRecord.load(recovery.directory).entries
@@ -831,10 +831,10 @@ def test_unknown_image_parent_blocks_earlier_upload_recovery(setup: Any, monkeyp
     _fail_image_edit_verification(wiki, monkeypatch, parent_known=False)
     run = RunRecord(tmp_path / "run")
     with pytest.raises(MediaWikiEditVerificationError):
-        execute(_plan(catalog, wiki, cache), catalog, wiki, wiki, run, "Publish")
+        execute(_plan(catalog, wiki, cache), catalog, wiki, wiki, run, summary="Publish")
     recovery = RunRecord(tmp_path / "recovery")
 
-    revert(RunRecord.load(run.directory), wiki, None, recovery, OWNERS, "Reviewed recovery")
+    revert(RunRecord.load(run.directory), wiki, None, recovery, OWNERS, summary="Reviewed recovery")
 
     assert wiki.uploads == 1
     assert wiki.files[title][0].data == SCROLL
@@ -979,7 +979,7 @@ def test_native_image_unknown_outcome_is_durable_and_stops_dependencies(
     expected_error = KeyboardInterrupt if outcome == "interrupt" else MediaWikiNetworkError
     with api.client() as writer:
         with pytest.raises(expected_error):
-            execute(plan, pictures.build(), writer, administrator, run, "Publish")
+            execute(plan, pictures.build(), writer, administrator, run, summary="Publish")
         (pending,) = RunRecord.load(run.directory).entries
         assert pending["done"] is None
         assert pending["pending_mutation"] is True
@@ -989,13 +989,13 @@ def test_native_image_unknown_outcome_is_durable_and_stops_dependencies(
         assert pending["intended_content_model"] == "wikitext"
         assert pending["intended_source_sha256"] == hashlib.sha256(pending["intended_source"].encode()).hexdigest()
         recovery = RunRecord(tmp_path / "recovery")
-        revert(RunRecord.load(run.directory), writer, administrator, recovery, OWNERS, "Revert")
+        revert(RunRecord.load(run.directory), writer, administrator, recovery, OWNERS, summary="Revert")
         assert RunRecord.load(run.directory).entries[0]["pending_mutation"] is True
         assert recovery.entries[0]["action"] == f"reconcile {action}"
         assert recovery.entries[0]["done"] is False
         if not commit:
             api.fail_reads = False
-            revert(RunRecord.load(run.directory), writer, administrator, recovery, OWNERS, "Revert")
+            revert(RunRecord.load(run.directory), writer, administrator, recovery, OWNERS, summary="Revert")
             assert RunRecord.load(run.directory).entries[0]["pending_mutation"] is True
     assert len([request for request in api.requests if request[0] == "POST"]) == 1
     assert all(params.get("titles") != "File:Later.png" for _, params in api.requests)
@@ -1008,7 +1008,7 @@ def test_native_image_ack_resolves_the_same_intent_once(tmp_path: Path, create: 
     run = RunRecord(tmp_path / "run")
     api = _NativeImageAPI(run.directory, outcome="success", create=create)
     with api.client() as writer:
-        image_publication_run.redirect(api.title, api.new_target, api.old_target, writer, run, "Publish")
+        image_publication_run.redirect(api.title, api.new_target, api.old_target, writer, run, summary="Publish")
     (entry,) = RunRecord.load(run.directory).entries
     assert entry["done"] is True
     assert entry["pending_mutation"] is False
@@ -1036,7 +1036,7 @@ def test_native_image_pending_recovery_requires_strong_evidence_before_upload_un
     run.add({"title": "File:Earlier.png", "action": "update", "done": True, "new_sha1": "earlier-upload"})
     with api.client() as writer:
         with pytest.raises(MediaWikiNetworkError):
-            image_publication_run.redirect(api.title, api.new_target, api.old_target, writer, run, "Publish")
+            image_publication_run.redirect(api.title, api.new_target, api.old_target, writer, run, summary="Publish")
         api.fail_reads = False
         api.outcome = "success"
         if proof == "other actor":
@@ -1057,7 +1057,7 @@ def test_native_image_pending_recovery_requires_strong_evidence_before_upload_un
         recovery = RunRecord(tmp_path / "recovery")
         if proof == "complete":
             api.directory = recovery.directory
-            revert(saved, writer, None, recovery, OWNERS, "Revert", titles=[api.title])
+            revert(saved, writer, None, recovery, OWNERS, summary="Revert", titles=[api.title])
             assert api.history[api.current]["slots"]["main"]["*"] == f"#REDIRECT [[{api.old_target}]]"
             (restored,) = recovery.entries
             assert restored["done"] is True
@@ -1068,7 +1068,7 @@ def test_native_image_pending_recovery_requires_strong_evidence_before_upload_un
             assert original.entries[1]["actual_parent_snapshot"]["revision"]["revision_id"] == 1234
             assert len([request for request in api.requests if request[0] == "POST"]) == 2
         else:
-            revert(saved, writer, None, recovery, OWNERS, "Revert")
+            revert(saved, writer, None, recovery, OWNERS, summary="Revert")
             assert RunRecord.load(run.directory).entries[1]["pending_mutation"] is True
             assert recovery.entries[0]["done"] is False
             assert len([request for request in api.requests if request[0] == "POST"]) == 1
@@ -1169,7 +1169,7 @@ def test_image_intent_checkpoint_failure_prevents_native_write(setup: Any, monke
     monkeypatch.setattr(RunRecord, "save", fail_checkpoint)
     with pytest.raises(OSError, match="intent cannot be persisted"):
         image_publication_run.redirect(
-            title, "File:New.png", "File:Old.png", wiki, RunRecord(tmp_path / "run"), "Publish"
+            title, "File:New.png", "File:Old.png", wiki, RunRecord(tmp_path / "run"), summary="Publish"
         )
     assert wiki.revisions[title] == revision
 
@@ -1202,13 +1202,13 @@ def test_native_image_explicit_preflight_rejection_does_not_adopt_matching_edito
     run = RunRecord(tmp_path / "run")
     api = _NativeImageAPI(run.directory, outcome="preflight changed")
     with api.client() as writer:
-        image_publication_run.redirect(api.title, api.new_target, api.old_target, writer, run, "Publish")
+        image_publication_run.redirect(api.title, api.new_target, api.old_target, writer, run, summary="Publish")
         (entry,) = RunRecord.load(run.directory).entries
         assert entry["done"] is False
         assert entry["pending_mutation"] is False
         assert entry["mutation_state"] == "rejected"
         recovery = RunRecord(tmp_path / "recovery")
-        revert(RunRecord.load(run.directory), writer, None, recovery, OWNERS, "Revert")
+        revert(RunRecord.load(run.directory), writer, None, recovery, OWNERS, summary="Revert")
     assert api.history[api.current]["user"] == "Editor"
     assert not any(method == "POST" for method, _ in api.requests)
     assert recovery.entries == []
@@ -1256,11 +1256,11 @@ def test_image_native_edit_waits_for_durable_intent(
 
     if failure is not None:
         with pytest.raises(OSError, match=f"{failure} unavailable"):
-            image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, record, "Publish")
+            image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, record, summary="Publish")
         assert "native_edit" not in events
         assert wiki.revisions[title] == original_revision
     else:
-        image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, record, "Publish")
+        image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, record, summary="Publish")
         assert events.count("native_edit") == 1
         assert RunRecord.load(record.directory).entries[0]["pending_mutation"] is False
 
@@ -1291,7 +1291,7 @@ def test_known_image_edit_endpoint_binding_blocks_all_earlier_recovery(
     if action == "acknowledged":
         _fail_image_edit_verification(wiki, monkeypatch)
         with pytest.raises(MediaWikiEditVerificationError):
-            image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, run, "Publish")
+            image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, run, summary="Publish")
         monkeypatch.undo()
     elif action == "describe":
         image_hash = pictures.add(SCROLL, title)
@@ -1303,7 +1303,7 @@ def test_known_image_edit_endpoint_binding_blocks_all_earlier_recovery(
             "Publish",
         )
     else:
-        image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, run, "Publish")
+        image_publication_run.redirect(title, "File:New.png", "File:Old.png", wiki, run, summary="Publish")
     clone = deepcopy(wiki)
     if binding == "other endpoint":
         clone.api_url = "https://clone.invalid/api.php"
@@ -1313,7 +1313,7 @@ def test_known_image_edit_endpoint_binding_blocks_all_earlier_recovery(
     before = clone.revisions[title]
     recovery = RunRecord(tmp_path / "recovery")
 
-    revert(RunRecord.load(run.directory), clone, None, recovery, OWNERS, "Revert")
+    revert(RunRecord.load(run.directory), clone, None, recovery, OWNERS, summary="Revert")
 
     assert clone.revisions[title] == before
     assert clone.uploads == 0
@@ -1335,7 +1335,7 @@ def test_original_image_run_resumes_after_parent_restoration(
     _fail_image_edit_verification(wiki, monkeypatch)
     run = RunRecord(tmp_path / "run")
     with pytest.raises(MediaWikiEditVerificationError):
-        execute(_plan(catalog, wiki, cache), catalog, wiki, wiki, run, "Publish")
+        execute(_plan(catalog, wiki, cache), catalog, wiki, wiki, run, summary="Publish")
     monkeypatch.undo()
     first = RunRecord(tmp_path / "first-recovery")
     native_update = RunRecord.update
@@ -1362,10 +1362,10 @@ def test_original_image_run_resumes_after_parent_restoration(
         patch.setattr(RunRecord, "update", interrupted_update)
         if interruption == "upload failure":
             patch.setattr(wiki, "upload_file", interrupted_upload)
-            revert(RunRecord.load(run.directory), wiki, None, first, OWNERS, "Revert")
+            revert(RunRecord.load(run.directory), wiki, None, first, OWNERS, summary="Revert")
         else:
             with pytest.raises(KeyboardInterrupt):
-                revert(RunRecord.load(run.directory), wiki, None, first, OWNERS, "Revert")
+                revert(RunRecord.load(run.directory), wiki, None, first, OWNERS, summary="Revert")
     assert wiki.pages[title] == "editor's actual preimage"
     assert wiki.files[title][0].data == SCROLL
     original = RunRecord.load(run.directory)
@@ -1383,7 +1383,7 @@ def test_original_image_run_resumes_after_parent_restoration(
 
     monkeypatch.setattr(wiki, "safe_edit_page", no_replay)
     second = RunRecord(tmp_path / "second-recovery")
-    revert(RunRecord.load(run.directory), wiki, None, second, OWNERS, "Revert")
+    revert(RunRecord.load(run.directory), wiki, None, second, OWNERS, summary="Revert")
 
     assert wiki.files[title][0].data == OLD
     assert wiki.pages[title] == "editor's actual preimage"
@@ -1406,7 +1406,7 @@ def test_image_restoration_crash_recovery_does_not_adopt_matching_text_without_a
     _fail_image_edit_verification(wiki, monkeypatch)
     run = RunRecord(tmp_path / "run")
     with pytest.raises(MediaWikiEditVerificationError):
-        execute(_plan(catalog, wiki, cache), catalog, wiki, wiki, run, "Publish")
+        execute(_plan(catalog, wiki, cache), catalog, wiki, wiki, run, summary="Publish")
     monkeypatch.undo()
     first = RunRecord(tmp_path / "first-recovery")
     native_update = RunRecord.update
@@ -1419,7 +1419,7 @@ def test_image_restoration_crash_recovery_does_not_adopt_matching_text_without_a
     with monkeypatch.context() as patch:
         patch.setattr(RunRecord, "update", lose_receipt)
         with pytest.raises(KeyboardInterrupt):
-            revert(RunRecord.load(run.directory), wiki, None, first, OWNERS, "Revert")
+            revert(RunRecord.load(run.directory), wiki, None, first, OWNERS, summary="Revert")
     if proof == "other actor":
         wiki.put_page(title, wiki.pages[title], user="Editor")
     else:
@@ -1427,7 +1427,7 @@ def test_image_restoration_crash_recovery_does_not_adopt_matching_text_without_a
     before = wiki.revisions[title]
     second = RunRecord(tmp_path / "second-recovery")
 
-    revert(RunRecord.load(run.directory), wiki, None, second, OWNERS, "Revert")
+    revert(RunRecord.load(run.directory), wiki, None, second, OWNERS, summary="Revert")
 
     assert wiki.revisions[title] == before
     assert wiki.files[title][0].data == SCROLL

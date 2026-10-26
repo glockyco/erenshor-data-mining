@@ -26,6 +26,7 @@ class EnrichedItemData:
         classes: list[str],
         proc: ProcInfo | None = None,
         sources: SourceInfo | None = None,
+        *,
         aura_spell: Spell | None = None,
         taught_spell: Spell | None = None,
         taught_skill: Skill | None = None,

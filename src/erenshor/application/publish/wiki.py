@@ -248,6 +248,7 @@ def _direct_dependencies(
     generated: Mapping[str, Path],
     client: Any,
     selected: Mapping[str, str],
+    *,
     snapshots: dict[str, MediaWikiPageSnapshot],
 ) -> set[str]:
     dependencies = set(literal_dependencies(title, text))
@@ -281,7 +282,7 @@ def _dependencies(
     def direct(page: str, source: str) -> set[str]:
         key = (page, _sha(source))
         if key not in dependency_edges:
-            dependency_edges[key] = _direct_dependencies(page, source, generated, client, selected, cache)
+            dependency_edges[key] = _direct_dependencies(page, source, generated, client, selected, snapshots=cache)
         return dependency_edges[key]
 
     pending = set(direct(title, text))
@@ -353,10 +354,10 @@ def _operation(
     title: str,
     snapshot: MediaWikiPageSnapshot,
     content: str,
+    *,
     payload: dict[str, Any],
     dependencies: Mapping[str, dict[str, Any]],
     inputs: Sequence[str],
-    *,
     predecessor: str | None = None,
 ) -> dict[str, Any]:
     original = payload["original"]
@@ -531,7 +532,7 @@ def prepare(ctx: CLIContext, selection: dict[str, Any], run_dir: Path) -> list[d
                 entry.title,
                 cache[entry.title],
                 sources[entry.title],
-                {
+                payload={
                     "original": cache[entry.title].source_text or "",
                     "summary": summary,
                     "manifest_entry": asdict(entry),
@@ -542,8 +543,8 @@ def prepare(ctx: CLIContext, selection: dict[str, Any], run_dir: Path) -> list[d
                     "include_content_pages": chosen.include_content_pages,
                     "action": repo_page_action(cache[entry.title], sources[entry.title]),
                 },
-                deps,
-                inputs,
+                dependencies=deps,
+                inputs=inputs,
             )
             operation["dependencies"] = sorted(
                 set(operation["dependencies"])
@@ -586,15 +587,15 @@ def prepare(ctx: CLIContext, selection: dict[str, Any], run_dir: Path) -> list[d
                     edit.title,
                     snapshot,
                     edit.content,
-                    {
+                    payload={
                         "original": edit.original,
                         "summary": edit.summary,
                         "render": render,
                         "prose_review_sha256": chosen.prose_review_sha256,
                         "page_edits_file": str(prose_file),
                     },
-                    deps,
-                    [*common_inputs, str(prose_file)],
+                    dependencies=deps,
+                    inputs=[*common_inputs, str(prose_file)],
                 )
             )
         article_plan = plan_article_deploy(storage, page_titles=chosen.article_titles)
@@ -670,7 +671,7 @@ def prepare(ctx: CLIContext, selection: dict[str, Any], run_dir: Path) -> list[d
                     title,
                     cache[title],
                     article.generated_text,
-                    {
+                    payload={
                         "original": original,
                         "summary": article_summary,
                         "action": article.action,
@@ -683,8 +684,8 @@ def prepare(ctx: CLIContext, selection: dict[str, Any], run_dir: Path) -> list[d
                         "kept_roots": storage.get_metadata_by_titles([title])[title].kept_roots,
                         "stable_keys": storage.get_metadata_by_titles([title])[title].stable_keys,
                     },
-                    deps,
-                    common_inputs,
+                    dependencies=deps,
+                    inputs=common_inputs,
                     predecessor=_id("wiki_prose", title) if title in projections else None,
                 )
             )
@@ -1027,7 +1028,7 @@ def reconcile_many(
     try:
         snapshots = _snapshots(reader, sorted({operation["target"] for operation, _, _ in operations}))
         for operation, payload, receipt in operations:
-            _reconcile_snapshot(ctx, operation, payload, receipt, receipts, snapshots[operation["target"]])
+            _reconcile_snapshot(ctx, operation, payload, receipt, receipts, snapshot=snapshots[operation["target"]])
     finally:
         reader.close()
 
@@ -1038,6 +1039,7 @@ def _reconcile_snapshot(
     payload: dict[str, Any],
     receipt: dict[str, Any],
     receipts: dict[str, dict[str, Any]],
+    *,
     snapshot: MediaWikiPageSnapshot,
 ) -> None:
     if operation["destination"] != _destination(ctx):

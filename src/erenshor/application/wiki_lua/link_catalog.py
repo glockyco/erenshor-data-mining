@@ -7,7 +7,7 @@ import json
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Protocol, TypeGuard, TypeVar, cast
+from typing import TYPE_CHECKING, Protocol, TypeGuard, cast
 
 from erenshor.application.wiki_lua.lua_writer import module_text
 from erenshor.domain.entities.item_kind import classify_item_kind
@@ -65,9 +65,6 @@ class _LinkEntity(Protocol):
 
     @property
     def image_name(self) -> str | None: ...
-
-
-_EntityT = TypeVar("_EntityT", bound=_LinkEntity)
 
 
 class ItemDataRepository(Protocol):
@@ -171,10 +168,10 @@ def _is_nonblank_string(value: object) -> TypeGuard[str]:
     return isinstance(value, str) and bool(value.strip())
 
 
-def _entity_entries(
-    entities: Iterable[_EntityT],
+def _entity_entries[EntityT: _LinkEntity](
+    entities: Iterable[EntityT],
     kind: str,
-    subtype_fn: Callable[[_EntityT], str | None],
+    subtype_fn: Callable[[EntityT], str | None],
 ) -> list[LinkCatalogEntry]:
     result: list[LinkCatalogEntry] = []
     for entity in entities:

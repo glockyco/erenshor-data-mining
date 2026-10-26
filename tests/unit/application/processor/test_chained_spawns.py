@@ -24,7 +24,7 @@ def _insert_character(conn, stable_key, display_name):
     )
 
 
-def _insert_spawn(conn, char_key, scene, x, y, z):
+def _insert_spawn(conn, char_key, scene, x, y, *, z):
     conn.execute(
         """INSERT INTO character_spawns
            (character_stable_key, spawn_point_stable_key, zone_stable_key, scene,
@@ -47,7 +47,7 @@ def test_expand_creates_child_at_parent_coords(clean_db):
     conn = clean_db
     _insert_character(conn, "character:parent", "Parent")
     _insert_character(conn, "character:child", "Child")
-    _insert_spawn(conn, "character:parent", "TestScene", 10.0, 20.0, 30.0)
+    _insert_spawn(conn, "character:parent", "TestScene", 10.0, 20.0, z=30.0)
     _insert_chain(conn, "character:parent", "character:child", "Constellation")
     conn.commit()
 
@@ -70,8 +70,8 @@ def test_expand_multiple_parent_spawns(clean_db):
     conn = clean_db
     _insert_character(conn, "character:parent", "Parent")
     _insert_character(conn, "character:child", "Child")
-    _insert_spawn(conn, "character:parent", "Scene1", 1.0, 2.0, 3.0)
-    _insert_spawn(conn, "character:parent", "Scene2", 4.0, 5.0, 6.0)
+    _insert_spawn(conn, "character:parent", "Scene1", 1.0, 2.0, z=3.0)
+    _insert_spawn(conn, "character:parent", "Scene2", 4.0, 5.0, z=6.0)
     _insert_chain(conn, "character:parent", "character:child", "NPCFightEvent")
     conn.commit()
 
@@ -94,7 +94,7 @@ def test_expand_recursive_chain(clean_db):
     _insert_character(conn, "character:gp", "Grandparent")
     _insert_character(conn, "character:parent", "Parent")
     _insert_character(conn, "character:child", "Child")
-    _insert_spawn(conn, "character:gp", "GrandScene", 100.0, 200.0, 300.0)
+    _insert_spawn(conn, "character:gp", "GrandScene", 100.0, 200.0, z=300.0)
     _insert_chain(conn, "character:gp", "character:parent", "NPCFightEvent")
     _insert_chain(conn, "character:parent", "character:child", "NPCFightEvent")
     conn.commit()
@@ -121,7 +121,7 @@ def test_expand_cycle_does_not_infinite_loop(clean_db):
     conn = clean_db
     _insert_character(conn, "character:a", "A")
     _insert_character(conn, "character:b", "B")
-    _insert_spawn(conn, "character:a", "CycleScene", 1.0, 2.0, 3.0)
+    _insert_spawn(conn, "character:a", "CycleScene", 1.0, 2.0, z=3.0)
     _insert_chain(conn, "character:a", "character:b", "CycleScript")
     _insert_chain(conn, "character:b", "character:a", "CycleScript")
     conn.commit()
@@ -139,8 +139,8 @@ def test_expand_dedup_same_position(clean_db):
     _insert_character(conn, "character:p1", "Parent1")
     _insert_character(conn, "character:p2", "Parent2")
     _insert_character(conn, "character:child", "Child")
-    _insert_spawn(conn, "character:p1", "SameScene", 5.0, 5.0, 5.0)
-    _insert_spawn(conn, "character:p2", "SameScene", 5.0, 5.0, 5.0)
+    _insert_spawn(conn, "character:p1", "SameScene", 5.0, 5.0, z=5.0)
+    _insert_spawn(conn, "character:p2", "SameScene", 5.0, 5.0, z=5.0)
     _insert_chain(conn, "character:p1", "character:child", "ScriptA")
     _insert_chain(conn, "character:p2", "character:child", "ScriptB")
     conn.commit()
@@ -174,7 +174,7 @@ def test_expand_idempotent(clean_db):
     conn = clean_db
     _insert_character(conn, "character:parent", "Parent")
     _insert_character(conn, "character:child", "Child")
-    _insert_spawn(conn, "character:parent", "Scene1", 1.0, 2.0, 3.0)
+    _insert_spawn(conn, "character:parent", "Scene1", 1.0, 2.0, z=3.0)
     _insert_chain(conn, "character:parent", "character:child", "Script")
     conn.commit()
 
@@ -191,7 +191,7 @@ def test_expand_multiple_children_from_one_parent(clean_db):
     _insert_character(conn, "character:parent", "Parent")
     _insert_character(conn, "character:child_a", "Child A")
     _insert_character(conn, "character:child_b", "Child B")
-    _insert_spawn(conn, "character:parent", "Scene1", 1.0, 2.0, 3.0)
+    _insert_spawn(conn, "character:parent", "Scene1", 1.0, 2.0, z=3.0)
     _insert_chain(conn, "character:parent", "character:child_a", "Script")
     _insert_chain(conn, "character:parent", "character:child_b", "Script")
     conn.commit()
@@ -218,8 +218,8 @@ def test_expand_child_with_own_direct_spawns(clean_db):
     conn = clean_db
     _insert_character(conn, "character:parent", "Parent")
     _insert_character(conn, "character:child", "Child")
-    _insert_spawn(conn, "character:parent", "ParentScene", 10.0, 20.0, 30.0)
-    _insert_spawn(conn, "character:child", "ChildScene", 40.0, 50.0, 60.0)
+    _insert_spawn(conn, "character:parent", "ParentScene", 10.0, 20.0, z=30.0)
+    _insert_spawn(conn, "character:child", "ChildScene", 40.0, 50.0, z=60.0)
     _insert_chain(conn, "character:parent", "character:child", "ChainScript")
     conn.commit()
 
@@ -244,7 +244,7 @@ def test_expand_diamond_chain_dedup(clean_db):
     _insert_character(conn, "character:b", "B")
     _insert_character(conn, "character:c", "C")
     _insert_character(conn, "character:d", "D")
-    _insert_spawn(conn, "character:a", "DiamondScene", 5.0, 5.0, 5.0)
+    _insert_spawn(conn, "character:a", "DiamondScene", 5.0, 5.0, z=5.0)
     _insert_chain(conn, "character:a", "character:b", "Script")
     _insert_chain(conn, "character:a", "character:c", "Script")
     _insert_chain(conn, "character:b", "character:d", "ScriptB")
@@ -267,7 +267,7 @@ def test_expand_empty_chained_table_is_noop(clean_db):
     """No chained spawns in the table — expansion does nothing."""
     conn = clean_db
     _insert_character(conn, "character:lonely", "Lonely")
-    _insert_spawn(conn, "character:lonely", "SoloScene", 1.0, 2.0, 3.0)
+    _insert_spawn(conn, "character:lonely", "SoloScene", 1.0, 2.0, z=3.0)
     conn.commit()
 
     expand_chained_spawns(conn)

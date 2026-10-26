@@ -243,8 +243,8 @@ def _write_page(
     text: str,
     writer: PublishWriter,
     record: RunRecord,
-    summary: str,
     *,
+    summary: str,
     restoration_of: tuple[RunRecord, dict[str, Any]] | None = None,
 ) -> int | None:
     """Persist intent before native I/O and stop on every outcome that is not a proven rejection."""
@@ -316,6 +316,7 @@ def execute(
     writer: PublishWriter,
     administrator: AdministratorWriter | None,
     record: RunRecord,
+    *,
     summary: str,
 ) -> None:
     """Carry out a plan so that no title that a page shows goes without a picture for long.
@@ -345,11 +346,13 @@ def execute(
         if item.verdict != "move":
             continue
         assert administrator is not None  # needs_administrator holds for a plan with moves
-        if not move(str(item.source), item.title, str(item.source_sha1), writer, administrator, record, summary):
+        if not move(
+            str(item.source), item.title, str(item.source_sha1), writer, administrator, record=record, summary=summary
+        ):
             missing_files.add(item.title)
             continue
         for follower in followers.get(str(item.source), ()):
-            redirect(follower.title, str(follower.file), follower.redirect_target, writer, record, summary)
+            redirect(follower.title, str(follower.file), follower.redirect_target, writer, record, summary=summary)
             followed.add(follower.title)
     for item in plan.titles:
         if item.verdict in ("create", "update"):
@@ -369,12 +372,12 @@ def execute(
 
     for item in plan.titles:
         if item.verdict == "redirect" and item.title not in followed and has_file(item):
-            redirect(item.title, str(item.file), item.redirect_target, writer, record, summary)
+            redirect(item.title, str(item.file), item.redirect_target, writer, record, summary=summary)
     if administrator is None:
         return
     for item in plan.titles:
         if item.verdict == "retire" and has_file(item) and _delete_copy(item, writer, administrator, record, summary):
-            redirect(item.title, str(item.file), item.redirect_target, writer, record, summary)
+            redirect(item.title, str(item.file), item.redirect_target, writer, record, summary=summary)
     for orphan in plan.orphans:
         _delete_orphan(orphan, writer, administrator, record, summary)
 
@@ -403,7 +406,7 @@ def _describe(item: PlannedTitle, catalog: Catalog, writer: PublishWriter, recor
         text,
         writer,
         record,
-        summary,
+        summary=summary,
     )
 
 
@@ -418,6 +421,7 @@ def move(
     sha1: str,
     writer: PublishWriter,
     administrator: AdministratorWriter,
+    *,
     record: RunRecord,
     summary: str,
 ) -> bool:
@@ -556,7 +560,13 @@ def _delete_orphan(
 
 
 def redirect(
-    title: str, target: str, expected: str | None, writer: PublishWriter, record: RunRecord, summary: str
+    title: str,
+    target: str,
+    expected: str | None,
+    writer: PublishWriter,
+    record: RunRecord,
+    *,
+    summary: str,
 ) -> None:
     """Create the title's redirect to ``target``, or point its redirect there while it still names ``expected``.
 
@@ -576,7 +586,7 @@ def redirect(
         content,
         writer,
         record,
-        summary,
+        summary=summary,
     )
 
 
@@ -781,8 +791,8 @@ def revert(
     administrator: AdministratorWriter | None,
     record: RunRecord,
     owners: Sequence[str],
-    summary: str,
     *,
+    summary: str,
     titles: Sequence[str] | None = None,
 ) -> None:
     """Undo what a run changed.
@@ -826,7 +836,7 @@ def revert(
         if entry.get("requires_rollback") or entry.get("restoration_revision") is not None:
             continue
         if action == "update":
-            _revert_update(entry, run.directory, writer, record, owners, summary)
+            _revert_update(entry, run.directory, writer, record, owners, summary=summary)
         elif action == "retire" and administrator is not None:
             _restore_copy(entry, writer, administrator, record, summary)
         elif action == "orphan" and administrator is not None:
@@ -869,6 +879,7 @@ def _revert_update(
     writer: PublishWriter,
     record: RunRecord,
     owners: Sequence[str],
+    *,
     summary: str,
 ) -> None:
     title = str(entry["title"])
@@ -924,7 +935,7 @@ def _restore_copy(
             str(entry["description"]),
             writer,
             record,
-            summary,
+            summary=summary,
         )
         if revision is None:
             return
@@ -966,7 +977,7 @@ def _restore_redirect(entry: dict[str, Any], writer: PublishWriter, record: RunR
         str(entry["old_text"]),
         writer,
         record,
-        summary,
+        summary=summary,
     )
 
 
@@ -990,7 +1001,7 @@ def _restore_description(entry: dict[str, Any], writer: PublishWriter, record: R
         str(entry["old_text"]),
         writer,
         record,
-        summary,
+        summary=summary,
     )
 
 
@@ -1047,7 +1058,7 @@ def _restore_unverified_edit(
         parent["source_text"],
         writer,
         record,
-        summary,
+        summary=summary,
         restoration_of=(authority, entry) if authority is not None else None,
     )
     return revision is not None

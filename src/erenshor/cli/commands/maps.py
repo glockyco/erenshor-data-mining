@@ -12,7 +12,7 @@ import os
 import shutil
 import signal
 import subprocess
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, Any
 
@@ -67,7 +67,7 @@ DEPLOY_CONFIGS: dict[str, str] = {
 DEPLOY_ORDER: tuple[str, ...] = ("site", "legacy")
 
 
-class DeployTarget(str, Enum):
+class DeployTarget(StrEnum):
     """Which Worker service(s) `maps deploy` should publish."""
 
     ALL = "all"

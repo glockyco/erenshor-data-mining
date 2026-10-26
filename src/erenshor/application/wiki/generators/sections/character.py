@@ -418,6 +418,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         image_name: str,
         enemy_type: str,
         faction: str,
+        *,
         faction_change: str,
         zones: str,
         coordinates: str,

@@ -47,6 +47,7 @@ class WikiRollbackClient(Protocol):
         base_revision: MediaWikiPageRevision,
         summary: str | None = None,
         minor: bool | None = None,
+        *,
         bot: bool = True,
         assertion: EditAssertion = "bot",
         assert_user: str | None = None,

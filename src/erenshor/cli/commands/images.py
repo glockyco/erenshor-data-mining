@@ -495,7 +495,12 @@ def _approve(
     )
     try:
         approval = approve(
-            captures, manifest_data, capture_dir / "staging" / "png", capture_dir / "approved", selected, previous
+            captures,
+            manifest_data,
+            capture_dir / "staging" / "png",
+            capture_dir / "approved",
+            selected,
+            previous=previous,
         )
     except ValueError as error:
         console.print(f"[red]{error}[/red]")
@@ -603,7 +608,7 @@ def publish(
                 administrator,
                 record,
                 owners,
-                f"Revert the picture publication of {revert_stamp}",
+                summary=f"Revert the picture publication of {revert_stamp}",
                 titles=revert_titles or None,
             )
         _print_record(console, record)
@@ -615,7 +620,7 @@ def publish(
         file_pages = reader.list_file_pages()
         live = LiveWiki({file.title: file for file in files}, file_pages.redirects, file_pages.pages)
         pictures = LivePictureCache(reader.download, publish_dir / "live")
-        plan = plan_publication(catalog, live, bot, owners, pictures, reader.is_file_used)
+        plan = plan_publication(catalog, live, bot, owners, pictures, is_used=reader.is_file_used)
         sheets = write_contact_sheets(plan, catalog, live, pictures, run_dir)
         pictures.save()
     (run_dir / "plan.json").write_text(json.dumps(plan.to_json(), indent=2, ensure_ascii=False) + "\n")
@@ -662,7 +667,7 @@ def publish(
         _administrator_client(cli_ctx, console, needed=plan.needs_administrator) as administrator,
     ):
         writer.login()
-        execute(plan, catalog, writer, administrator, record, "Publish the game's pictures")
+        execute(plan, catalog, writer, administrator, record, summary="Publish the game's pictures")
     _print_record(console, record)
 
 

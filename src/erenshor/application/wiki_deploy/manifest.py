@@ -322,7 +322,7 @@ def _optional_pending_operation(value: object) -> PendingOperation | None:
         return None
     if value not in ("deploy", "rollback"):
         raise ValueError("Unknown native pending operation")
-    return cast("PendingOperation", value)
+    return value
 
 
 def _boolean(value: object, field: str) -> bool:
@@ -334,13 +334,13 @@ def _boolean(value: object, field: str) -> bool:
 def _upload_stage(value: str) -> UploadStage:
     if value not in UPLOAD_STAGES:
         raise ValueError(f"Unknown wiki deploy upload stage: {value}")
-    return value  # type: ignore[return-value]
+    return value
 
 
 def _content_model(value: str) -> ContentModel:
     if value not in _CONTENT_MODELS:
         raise ValueError(f"Unknown wiki deploy content model: {value}")
-    return value  # type: ignore[return-value]
+    return value
 
 
 def _optional_deploy_action(value: object) -> DeployAction | None:

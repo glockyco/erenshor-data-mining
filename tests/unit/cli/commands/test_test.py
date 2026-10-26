@@ -1107,12 +1107,12 @@ def test_wiki_preflight_monkeypatches_api_and_browser_boundaries(tmp_path: Path,
     monkeypatch.setattr(
         test,
         "_wiki_api_reachable",
-        lambda base_url=test._WIKI_BASE_URL: (api_calls.append(base_url) or (True, "loopback")),
+        lambda base_url=test._WIKI_BASE_URL: api_calls.append(base_url) or (True, "loopback"),
     )
     monkeypatch.setattr(
         test,
         "_playwright_chromium_available",
-        lambda: (browser_calls.append(True) or (True, "browser")),
+        lambda: browser_calls.append(True) or (True, "browser"),
     )
 
     checks = test._preflight_wiki(_context(tmp_path))

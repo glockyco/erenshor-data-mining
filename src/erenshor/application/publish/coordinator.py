@@ -798,6 +798,7 @@ def _reconcile_prerequisites(
     ctx: CLIContext,
     run_dir: Path,
     receipts: dict[str, dict[str, Any]],
+    *,
     proof: ExecutionInputProof,
 ) -> None:
     if operation.kind not in {OperationKind.MAP, OperationKind.SHEET}:
@@ -923,7 +924,7 @@ def apply_publish(path: Path, approval_digest: str | None, ctx: CLIContext, *, r
                 payload = proof.payload(operation)
                 _check_run_outputs(ctx, path.parent, operation, payload)
                 owner.check(ctx, runtime, payload, receipts)
-                _reconcile_prerequisites(operation, plan, ctx, path.parent, receipts, proof)
+                _reconcile_prerequisites(operation, plan, ctx, path.parent, receipts, proof=proof)
                 journal.append(
                     operation.id,
                     "running",

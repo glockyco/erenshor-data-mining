@@ -91,9 +91,9 @@ def build_mod_guide(
                 nodes,
                 compiled,
                 compiled_nodes,
-                reward_by_item,
-                incoming_chain,
-                db_names,
+                reward_by_item=reward_by_item,
+                incoming_chain=incoming_chain,
+                db_names=db_names,
             )
             for quest in quests
         ],
@@ -210,7 +210,7 @@ def _required_number(key: str, field: str, value: Any) -> int | float:
         finite = False
     if not finite:
         raise ValueError(f"invalid {field} for node {key!r}")
-    return cast("int | float", value)
+    return value
 
 
 def _required_coordinate(node: Node, axis: str, value: Any) -> int | float:
@@ -421,7 +421,7 @@ def _gate_items(
         if door_zones.get(key):
             value["door_zones"] = sorted(door_zones[key])
         sources = _item_sources_with_rewards(
-            compiled, _compiled_id(compiled, key), compiled_nodes, reward_by_item, "", graph, nodes
+            compiled, _compiled_id(compiled, key), compiled_nodes, reward_by_item, "", graph=graph, nodes=nodes
         )
         if sources:
             value["sources"] = sources
@@ -469,6 +469,7 @@ def _quest_entry(
     nodes: dict[str, Node],
     compiled: CompiledData,
     compiled_nodes: dict[int, Any],
+    *,
     reward_by_item: dict[int, list[Any]],
     incoming_chain: dict[str, list[Edge]],
     db_names: dict[str, str | None],
@@ -487,16 +488,18 @@ def _quest_entry(
     _put_if(result, "zone_context", zone)
 
     acquisition = _acquisition(graph, quest, nodes)
-    required_items = _required_items(graph, quest, nodes, compiled, compiled_nodes, reward_by_item)
+    required_items = _required_items(graph, quest, nodes, compiled, compiled_nodes, reward_by_item=reward_by_item)
     prerequisites = _prerequisites(graph, quest, nodes)
     prerequisites.extend(_implicit_item_prerequisites(quest, required_items, nodes))
     prerequisites.extend(
-        _implicit_acquisition_item_prerequisites(graph, quest, nodes, compiled, compiled_nodes, reward_by_item)
+        _implicit_acquisition_item_prerequisites(
+            graph, quest, nodes, compiled, compiled_nodes, reward_by_item=reward_by_item
+        )
     )
     prerequisites.extend(_implicit_character_prerequisites(graph, quest, nodes))
     prerequisites = _dedupe_prerequisites(prerequisites)
     completion = _completion(graph, quest, nodes, required_items)
-    steps = _steps(graph, quest, nodes, required_items, completion, compiled, compiled_nodes)
+    steps = _steps(graph, quest, nodes, required_items, completion, compiled=compiled, compiled_nodes=compiled_nodes)
     rewards = _rewards(quest, graph, nodes)
     chain = _chain(graph, quest, nodes, incoming_chain, db_names)
     flags = _flags(quest)
@@ -575,6 +578,7 @@ def _implicit_acquisition_item_prerequisites(
     nodes: dict[str, Node],
     compiled: CompiledData,
     compiled_nodes: dict[int, Any],
+    *,
     reward_by_item: dict[int, list[Any]],
 ) -> list[dict[str, Any]]:
     result: list[dict[str, Any]] = []
@@ -595,7 +599,9 @@ def _implicit_acquisition_item_prerequisites(
         item_id = _compiled_id(compiled, item.key)
         if item_id not in compiled_nodes:
             raise ValueError(f"dangling compiled node id for key: {item.key!r}")
-        sources = _item_sources_with_rewards(compiled, item_id, compiled_nodes, reward_by_item, quest.key, graph, nodes)
+        sources = _item_sources_with_rewards(
+            compiled, item_id, compiled_nodes, reward_by_item, quest.key, graph=graph, nodes=nodes
+        )
         result.extend(_item_reward_prerequisites(quest, item.display_name, sources, nodes))
     return result
 
@@ -672,6 +678,7 @@ def _required_items(
     nodes: dict[str, Node],
     compiled: CompiledData,
     compiled_nodes: dict[int, Any],
+    *,
     reward_by_item: dict[int, list[Any]],
 ) -> list[dict[str, Any]]:
     result: list[dict[str, Any]] = []
@@ -707,7 +714,9 @@ def _required_items(
             }
             _put_if(value, "variant_key", variant)
             _put_if(value, "output_quality", quality)
-            sources = _canonical_item_sources(compiled, item_key, nodes, quest.key, frozenset(), quality)
+            sources = _canonical_item_sources(
+                compiled, item_key, nodes, quest.key, frozenset(), requested_quality=quality
+            )
             if sources:
                 value["sources"] = sources
             result.append(value)
@@ -724,7 +733,13 @@ def _required_items(
             }
             _put_if(value, "or_group", edge.group)
             sources = _item_sources_with_rewards(
-                compiled, _compiled_id(compiled, item.key), compiled_nodes, reward_by_item, quest.key, graph, nodes
+                compiled,
+                _compiled_id(compiled, item.key),
+                compiled_nodes,
+                reward_by_item,
+                quest.key,
+                graph=graph,
+                nodes=nodes,
             )
             if sources:
                 value["sources"] = sources
@@ -774,6 +789,7 @@ def _item_sources_with_rewards(
     compiled_nodes: dict[int, Any],
     reward_by_item: dict[int, list[Any]],
     exclude_quest_key: str,
+    *,
     graph: EntityGraph,
     nodes: dict[str, Node],
     visiting: frozenset[int] = frozenset(),
@@ -811,7 +827,14 @@ def _item_sources_with_rewards(
             "source_key": used.key,
             "instruction": f"Use {used.display_name}.",
             "children": _item_sources_with_rewards(
-                compiled, edge.source_id, compiled_nodes, reward_by_item, exclude_quest_key, graph, nodes, visiting
+                compiled,
+                edge.source_id,
+                compiled_nodes,
+                reward_by_item,
+                exclude_quest_key,
+                graph=graph,
+                nodes=nodes,
+                visiting=visiting,
             ),
         }
         _put_if(value, "level", used.obtainability_level)
@@ -910,6 +933,7 @@ def _steps(
     nodes: dict[str, Node],
     required_items: list[dict[str, Any]],
     completion: list[dict[str, Any]],
+    *,
     compiled: CompiledData,
     compiled_nodes: dict[int, Any],
 ) -> list[dict[str, Any]]:
@@ -941,7 +965,9 @@ def _steps(
             item_id = _compiled_id(compiled, target.key)
             if item_id not in compiled_nodes:
                 raise ValueError(f"dangling compiled node id for key: {target.key!r}")
-            sources = _item_sources_with_rewards(compiled, item_id, compiled_nodes, {}, quest.key, graph, nodes)
+            sources = _item_sources_with_rewards(
+                compiled, item_id, compiled_nodes, {}, quest.key, graph=graph, nodes=nodes
+            )
             source_cache[target.key] = sources
         return _item_level_estimate(sources)
 
@@ -1314,6 +1340,7 @@ def _canonical_item_sources(
     nodes: dict[str, Node],
     exclude_quest_key: str,
     visiting: frozenset[str],
+    *,
     requested_quality: str | None = None,
 ) -> list[dict[str, Any]]:
     """Expand source choices by path, retaining exact native acquisition and use identities."""
@@ -1449,7 +1476,12 @@ def _canonical_item_sources(
                     "use_key": use.use_key,
                     "quantity": use.quantity_min if use.quantity_min is not None else 1,
                     "children": _canonical_item_sources(
-                        compiled, ingredient.key, nodes, exclude_quest_key, visiting, _requested_quality(use)
+                        compiled,
+                        ingredient.key,
+                        nodes,
+                        exclude_quest_key,
+                        visiting,
+                        requested_quality=_requested_quality(use),
                     ),
                 }
                 child_id = compiled.node_key_to_id[ingredient.key]

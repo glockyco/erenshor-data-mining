@@ -65,7 +65,7 @@ def test_a_new_build_approves_a_capture_and_keeps_the_approvals_of_an_earlier_bu
     captures["game_build"] = manifest["game_build"] = "25000000"
     captures["results"][1]["status"] = "accepted"
 
-    approval = approve(captures, manifest, staging, tmp_path / "approved", ["Opus"], earlier)
+    approval = approve(captures, manifest, staging, tmp_path / "approved", ["Opus"], previous=earlier)
 
     assert [(image.subject, image.game_build) for image in approval.images] == [
         ("Faith", "24405256"),

@@ -18,14 +18,14 @@ Design:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 
 # ---------------------------------------------------------------------------
 # Node types — every entity that is a node in the graph
 # ---------------------------------------------------------------------------
 
 
-class NodeType(str, Enum):
+class NodeType(StrEnum):
     """Every entity type that exists as a graph node."""
 
     QUEST = "quest"
@@ -61,7 +61,7 @@ class NodeType(str, Enum):
 # ---------------------------------------------------------------------------
 
 
-class EdgeType(str, Enum):
+class EdgeType(StrEnum):
     """Every typed, directed relationship in the graph.
 
     Convention: A → B means "A relates to B in this way."
@@ -127,7 +127,7 @@ class EdgeType(str, Enum):
 # ---------------------------------------------------------------------------
 
 
-class SubjectKind(str, Enum):
+class SubjectKind(StrEnum):
     """What a gate makes available."""
 
     ZONE_LINE = "zone_line"
@@ -139,7 +139,7 @@ class SubjectKind(str, Enum):
     DOOR = "door"
 
 
-class AtomKind(str, Enum):
+class AtomKind(StrEnum):
     """One fact of game state that a gate can require."""
 
     QUEST_DONE = "quest_done"

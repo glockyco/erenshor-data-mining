@@ -8,7 +8,7 @@ group. The stable key of that member resolves to the same page and label.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
 from erenshor.shared.game_constants import WIKITEXT_LINE_SEPARATOR
 
@@ -17,13 +17,11 @@ if TYPE_CHECKING:
 
     from erenshor.domain.value_objects.wiki_link import WikiLink
 
-Row = TypeVar("Row")
-
 RANGE_DASH = "\u2013"
 """En dash between the lowest and highest chance of a range."""
 
 
-def group_by_page_and_label(rows: Iterable[Row], link: Callable[[Row], WikiLink]) -> list[list[Row]]:
+def group_by_page_and_label[Row](rows: Iterable[Row], link: Callable[[Row], WikiLink]) -> list[list[Row]]:
     """Group rows whose links show the same page and label, in the order of their first rows."""
     groups: dict[tuple[str | None, str], list[Row]] = {}
     for row in rows:

@@ -98,7 +98,7 @@ def prepared(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> SimpleNamespace
         url = maps_config.base_url if target == "canonical" else maps_config.legacy_base_url
         return {"provider": "cloudflare", "account_id": "account", "service": target, "url": url}
 
-    def deploy(_: Path, target: str, config: Path, bundle: Path, assets: Path, message: str) -> None:
+    def deploy(_: Path, target: str, config: Path, bundle: Path, assets: Path, *, message: str) -> None:
         assert config.is_file() and bundle.is_file()
         assert assets != build
         assert publication.verify_database(assets, database) == publication.sha256(database)
@@ -191,7 +191,7 @@ def test_canonical_receipt_reconciles_and_legacy_resumes_without_canonical_uploa
     receipt = maps.execute(prepared.ctx, canonical, canonical["payload"], {})
     original_deploy = publication.deploy_frozen
 
-    def failed_legacy(*_: Any) -> None:
+    def failed_legacy(*_: Any, **__: Any) -> None:
         raise RuntimeError("lost response after request")
 
     monkeypatch.setattr(publication, "deploy_frozen", failed_legacy)
@@ -223,7 +223,7 @@ def test_lost_receipt_cannot_be_inferred_from_matching_bytes(
     prepared: SimpleNamespace, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     operation = prepared.operations[0]
-    monkeypatch.setattr(publication, "deploy_frozen", lambda *_: None)
+    monkeypatch.setattr(publication, "deploy_frozen", lambda *_, **__: None)
     with pytest.raises(SurfaceUncertainError, match="uniquely identifiable"):
         maps.execute(prepared.ctx, operation, operation["payload"], {})
 

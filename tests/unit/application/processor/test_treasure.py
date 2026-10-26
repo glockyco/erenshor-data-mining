@@ -54,7 +54,7 @@ SAMPLES = [
 
 @pytest.mark.parametrize(("player_level", "guardian", "level", "health", "ac", "attack"), SAMPLES)
 def test_every_in_game_sample_is_a_possible_outcome(
-    player_level: int, guardian: GuardianProfile | None, level: int, health: int, ac: int, attack: int
+    *, player_level: int, guardian: GuardianProfile | None, level: int, health: int, ac: int, attack: int
 ) -> None:
     candidates = [guardian] if guardian else [SKELETON, HORROR, DEMON]
     outcomes = {

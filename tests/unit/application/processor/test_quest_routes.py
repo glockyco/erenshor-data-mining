@@ -60,6 +60,7 @@ def source(
     kind: str,
     phase: str = "completion",
     key: str | None = None,
+    *,
     quest: str = "quest:q",
     note: str | None = None,
 ) -> None:

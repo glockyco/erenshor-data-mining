@@ -174,6 +174,7 @@ class UnityBatchMode:
         method_name: str,
         log_file: Path | None = None,
         arguments: dict[str, str] | None = None,
+        *,
         profile: ExportProfileRecorder | None = None,
     ) -> None:
         """Execute a static C# method in Unity batch mode.

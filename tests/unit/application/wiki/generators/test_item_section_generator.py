@@ -467,7 +467,7 @@ def test_article_assembler_enumerates_every_canonical_recipe_without_raw_sql() -
                 former_pages=("Former Reward",),
             ),
         ),
-        item_repo=SimpleNamespace(get_crafting_recipe=lambda key: recipes.get(key)),
+        item_repo=SimpleNamespace(get_crafting_recipe=recipes.get),
     )
     sources = generator._assemble_source_info(item)
     assert sources.disposition is not None

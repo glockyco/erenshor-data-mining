@@ -1432,7 +1432,9 @@ def _validate_manual_overrides(
             findings.add("manual_overrides", parsed.title, str(exc))
             continue
         for old_root, new_root in pairs:
-            _validate_root_overrides(findings, parsed.title, name, rules, old_root, new_root, config, merge)
+            _validate_root_overrides(
+                findings, parsed.title, name, rules, old_root, new_root=new_root, config=config, merge=merge
+            )
 
 
 def _validate_root_overrides(
@@ -1441,6 +1443,7 @@ def _validate_root_overrides(
     name: str,
     rules: Mapping[str, str],
     old_root: Any,
+    *,
     new_root: Any,
     config: FieldPreservationConfig,
     merge: LinkListMerge,

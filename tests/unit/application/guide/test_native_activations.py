@@ -168,13 +168,13 @@ def test_chest_fee_level_follows_previous_offering_without_cycle(native):
     for index in range(1, 9):
         graph.add_edge(Edge(f"character:chest{index}", f"item:fee{index % 8 + 1}", EdgeType.DROPS_ITEM))
     graph.build_indexes()
-    ctx = _LevelContext(graph, {}, {"character:fee_source": 45}, {}, {}, {})
+    ctx = _LevelContext(graph, {}, {"character:fee_source": 45}, {}, {}, item_cache={})
     assert _item_obtainability_level("item:fee2", ctx, set()) == 45
     assert _character_accessibility_level("character:chest1", ctx, set()) == 45
     # An ordinary copy remains an alternative, without requiring the offering.
     spawn("character:chest1", "Ordinary", "StartScene")
     graph.build_indexes()
-    ctx = _LevelContext(graph, {}, {"character:chest1": 5, "character:fee_source": 45}, {}, {}, {})
+    ctx = _LevelContext(graph, {}, {"character:chest1": 5, "character:fee_source": 45}, {}, {}, item_cache={})
     assert _character_accessibility_level("character:chest1", ctx, set()) == 5
 
 

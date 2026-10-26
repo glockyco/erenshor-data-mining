@@ -191,6 +191,7 @@ def build_spells_data(
     teaching_items_by_spell: Mapping[str, Iterable[ItemLink]] | None = None,
     items_with_effect_by_spell: Mapping[str, Iterable[ItemLink]] | None = None,
     used_by_by_spell: Mapping[str, Iterable[CharacterLink]] | None = None,
+    *,
     class_display_names: Mapping[str, str] | None = None,
 ) -> LuaData:
     """Build the serializable spell data table for `mw.loadData()`."""
@@ -219,6 +220,7 @@ def _spell_record(
     teaching_items: Iterable[ItemLink] = (),
     items_with_effect: Iterable[ItemLink] = (),
     used_by: Iterable[CharacterLink] = (),
+    *,
     class_display_names: Mapping[str, str] | None = None,
 ) -> LuaData | None:
     name = spell.display_name or spell.spell_name or spell.wiki_page_name

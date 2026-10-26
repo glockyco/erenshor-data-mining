@@ -158,6 +158,7 @@ class BackupService:
         database_path: Path,
         scripts_path: Path,
         backup_dir: Path,
+        *,
         app_id: str,
     ) -> BackupStats:
         """Create backup for a specific build.

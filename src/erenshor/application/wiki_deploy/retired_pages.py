@@ -75,6 +75,7 @@ def _rename_state(
     status: MediaWikiTitleStatus,
     rename: LifecycleRename,
     identities: Mapping[str, set[str]],
+    *,
     target_exists: bool,
 ) -> RetiredPage:
     expected = "redirect"
@@ -138,6 +139,7 @@ def _historical_state(
     source: str,
     status: MediaWikiTitleStatus,
     page: LifecyclePage,
+    *,
     destinations: set[str],
     parser: TemplateParser,
 ) -> RetiredPage:
@@ -163,6 +165,7 @@ def _split_state(
     source: str,
     status: MediaWikiTitleStatus,
     split: LifecycleSplit,
+    *,
     identities: Mapping[str, set[str]],
     statuses: Mapping[str, MediaWikiTitleStatus],
     parser: TemplateParser,
@@ -195,6 +198,7 @@ def _classify(
     status: MediaWikiTitleStatus,
     lifecycle: ContentLifecycle,
     identities: Mapping[str, set[str]],
+    *,
     parser: TemplateParser,
     statuses: Mapping[str, MediaWikiTitleStatus],
 ) -> RetiredPage:
@@ -207,14 +211,16 @@ def _classify(
     current_title = next(iter(destinations)) if len(destinations) == 1 else rename.current_title if rename else None
     split = lifecycle.splits.get(title)
     if split:
-        return _split_state(title, key, source, status, split, identities, statuses, parser)
+        return _split_state(title, key, source, status, split, identities=identities, statuses=statuses, parser=parser)
 
     if len(keys) > 1:
         return RetiredPage(title, None, None, "review needed", "unexplained", "The page has several stable keys.")
     if rename:
-        return _rename_state(title, key, status, rename, identities, statuses[rename.current_title].exists)
+        return _rename_state(
+            title, key, status, rename, identities, target_exists=statuses[rename.current_title].exists
+        )
     if recorded_page:
-        return _historical_state(title, key, source, status, recorded_page, destinations, parser)
+        return _historical_state(title, key, source, status, recorded_page, destinations=destinations, parser=parser)
     if status.redirect_target is not None:
         current_title = status.redirect_target
     return RetiredPage(
@@ -270,7 +276,7 @@ def audit_retired_pages(
             continue
         if snapshot is None or snapshot.revision is None:
             raise ValueError(f"Retired page review is incomplete: revision for {title!r} is missing")
-        item = _classify(title, live_source, statuses[title], lifecycle, identities, parser, statuses)
+        item = _classify(title, live_source, statuses[title], lifecycle, identities, parser=parser, statuses=statuses)
         (bot_pages if title in created else other_pages).append(item)
     return RetiredPageReport(
         checked=len(created), pages=tuple(bot_pages), reviewed_non_bot=tuple(other_pages), snapshots=snapshots

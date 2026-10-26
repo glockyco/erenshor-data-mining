@@ -27,6 +27,7 @@ def display_operation_summary(
     total: int,
     succeeded: int,
     failed: int,
+    *,
     skipped: int,
     warnings: list[str],
     errors: list[str],

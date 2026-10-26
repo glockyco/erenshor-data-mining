@@ -74,7 +74,7 @@ def test_frozen_deploy_keeps_checked_owner_and_never_rebundles(tmp_path: Path, m
     config, bundle, assets = [
         tmp_path / part for part in ("frozen/wrangler.jsonc", "frozen/site-worker.js", "frozen/build")
     ]
-    publication.deploy_frozen(tmp_path, "canonical", config, bundle, assets, "publish-map:digest")
+    publication.deploy_frozen(tmp_path, "canonical", config, bundle, assets, message="publish-map:digest")
     assert calls == [
         (
             [

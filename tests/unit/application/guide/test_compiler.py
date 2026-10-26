@@ -854,7 +854,7 @@ def test_item_use_unknown_source_and_cycle_have_no_obtainability_level() -> None
 
     a, b = item_node("item:a"), item_node("item:b")
     graph = build_graph(a, b, edges=[Edge(a.key, b.key, EdgeType.CREATES_ITEM)])
-    ctx = _LevelContext(graph, {}, {}, {}, {}, {})
+    ctx = _LevelContext(graph, {}, {}, {}, {}, item_cache={})
     assert _item_obtainability_level(b.key, ctx, set()) is None
     graph.add_edge(Edge(b.key, a.key, EdgeType.CREATES_ITEM))
     graph.build_indexes()
@@ -908,4 +908,9 @@ def test_quest_levels_preserve_required_steps_and_explicit_alternatives(
     character_levels = {"character:easy": 4, "character:hard": 24, "character:common": common_level or 1}
     character_zones = {character.key: zone.key for character, zone in zip(characters, zones, strict=True)}
 
-    assert _estimate_quest_level(quest, graph, zone_levels, character_levels, character_zones, {}, {}) == expected
+    assert (
+        _estimate_quest_level(
+            quest, graph, zone_levels, character_levels, character_zones, quest_levels={}, item_cache={}
+        )
+        == expected
+    )

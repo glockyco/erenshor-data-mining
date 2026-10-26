@@ -3221,6 +3221,7 @@ def test_disabled_actual_preseed_retains_native_copies_without_claiming_player_a
     ],
 )
 def test_character_copy_quantity_uses_only_positive_native_count_support(
+    *,
     native_inputs: sqlite3.Connection,
     distribution: str | None,
     chance: float | None,
@@ -3300,6 +3301,7 @@ def test_global_common_quantity_bounds_require_every_contributing_count_distribu
     ids=["mortal", "native_release", "permanently_immune", "chest_break"],
 )
 def test_kill_loot_access_is_separate_from_native_inventory_and_initializer(
+    *,
     native_inputs: sqlite3.Connection,
     enabled: int,
     immune: int,

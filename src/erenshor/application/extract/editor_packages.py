@@ -212,6 +212,7 @@ def restore_packages(
     cache_dir: Path,
     runtime_id: str | None = None,
     download: Downloader | None = None,
+    *,
     force: bool = False,
 ) -> RestoreResult:
     """Materialise every pinned package into the Unity `Packages` directory.

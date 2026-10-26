@@ -359,6 +359,7 @@ class GoogleSheetsPublisher:
         sheet_id: int,
         table_id: str,
         table_range: dict[str, Any],
+        *,
         rows: list[list[Any]],
         current_row_count: int,
         new_row_count: int,
@@ -443,6 +444,7 @@ class GoogleSheetsPublisher:
         sheet_id: int,
         table_id: str,
         table_range: dict[str, Any],
+        *,
         current_row_count: int,
         new_row_count: int,
         new_column_count: int,
@@ -658,6 +660,7 @@ class GoogleSheetsPublisher:
         table_id: str,
         table_range: dict[str, Any],
         new_row_count: int,
+        *,
         new_column_count: int | None = None,
     ) -> None:
         """Record a new table range.

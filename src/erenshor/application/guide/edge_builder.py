@@ -737,5 +737,5 @@ def _find_dialog_keyword(
 
     if row and row["keywords"]:
         keywords: str = row["keywords"]
-        return keywords.split(",")[0].strip()
+        return keywords.split(",", maxsplit=1)[0].strip()
     return None

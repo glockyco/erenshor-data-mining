@@ -5,8 +5,8 @@ from dataclasses import replace
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import click
 import pytest
+from rich.text import Text
 from tests.fakes.mediawiki import MediaWikiFake, PurgeRequest
 from typer.main import get_command
 from typer.testing import CliRunner
@@ -53,7 +53,7 @@ def _unwrapped(output: str) -> str:
 
     Typer forces a styled terminal when ``GITHUB_ACTIONS`` is set, so CI output carries ANSI codes.
     """
-    return " ".join(click.unstyle(output).split())
+    return " ".join(Text.from_ansi(output).plain.split())
 
 
 def _stub_composition(*, wiki_client: object | None = None) -> wiki._WikiComposition:
@@ -146,10 +146,9 @@ class TestWikiFetchCommand:
             ([], True, {"limit": None, "force_refetch": False, "generator_names": None}),
         ],
     )
-    @patch("erenshor.cli.commands.wiki.WikiFetchService")
     def test_fetch_passes_options_to_the_service(
         self,
-        fetch_service: MagicMock,
+        *,
         args: list[str],
         dry_run: bool,
         expected: dict[str, object],
@@ -157,13 +156,14 @@ class TestWikiFetchCommand:
         mock_operation_result,
         cli_context: CLIContext,
     ):
-        fetch_service.return_value.fetch_all.return_value = mock_operation_result
-        _use_composition(monkeypatch, _stub_composition(wiki_client=MagicMock()))
+        with patch("erenshor.cli.commands.wiki.WikiFetchService") as fetch_service:
+            fetch_service.return_value.fetch_all.return_value = mock_operation_result
+            _use_composition(monkeypatch, _stub_composition(wiki_client=MagicMock()))
 
-        result = runner.invoke(wiki.app, ["fetch", *args], obj=replace(cli_context, dry_run=dry_run))
+            result = runner.invoke(wiki.app, ["fetch", *args], obj=replace(cli_context, dry_run=dry_run))
 
-        assert result.exit_code == 0, result.output
-        fetch_service.return_value.fetch_all.assert_called_once_with(dry_run=dry_run, page_titles=None, **expected)
+            assert result.exit_code == 0, result.output
+            fetch_service.return_value.fetch_all.assert_called_once_with(dry_run=dry_run, page_titles=None, **expected)
 
     @patch("erenshor.cli.commands.wiki.WikiFetchService")
     def test_fetch_fails_when_a_page_fails(
@@ -193,10 +193,9 @@ class TestWikiGenerateCommand:
             ([], True, {"limit": None, "generator_names": None}),
         ],
     )
-    @patch("erenshor.cli.commands.wiki.WikiGenerateService")
     def test_generate_passes_options_to_the_service(
         self,
-        generate_service: MagicMock,
+        *,
         args: list[str],
         dry_run: bool,
         expected: dict[str, object],
@@ -204,18 +203,19 @@ class TestWikiGenerateCommand:
         mock_operation_result,
         cli_context: CLIContext,
     ):
-        generate_service.return_value.generate_all.return_value = mock_operation_result
-        _use_composition(monkeypatch, _stub_composition())
+        with patch("erenshor.cli.commands.wiki.WikiGenerateService") as generate_service:
+            generate_service.return_value.generate_all.return_value = mock_operation_result
+            _use_composition(monkeypatch, _stub_composition())
 
-        result = runner.invoke(wiki.app, ["generate", *args], obj=replace(cli_context, dry_run=dry_run))
+            result = runner.invoke(wiki.app, ["generate", *args], obj=replace(cli_context, dry_run=dry_run))
 
-        assert result.exit_code == 0, result.output
-        call = generate_service.return_value.generate_all.call_args.kwargs
-        assert {key: call[key] for key in ("dry_run", "page_titles", *expected)} == {
-            "dry_run": dry_run,
-            "page_titles": None,
-            **expected,
-        }
+            assert result.exit_code == 0, result.output
+            call = generate_service.return_value.generate_all.call_args.kwargs
+            assert {key: call[key] for key in ("dry_run", "page_titles", *expected)} == {
+                "dry_run": dry_run,
+                "page_titles": None,
+                **expected,
+            }
 
     @patch("erenshor.cli.commands.wiki.WikiGenerateService")
     def test_generate_shows_warnings_and_succeeds(
@@ -1182,6 +1182,7 @@ class TestWikiDeployRepoCommand:
     )
     def test_deploy_repo_pages_discovers_requested_optional_titles(
         self,
+        *,
         monkeypatch: pytest.MonkeyPatch,
         tmp_path: Path,
         title: str,

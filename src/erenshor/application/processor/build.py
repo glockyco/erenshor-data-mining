@@ -71,6 +71,7 @@ def build(
     mapping_json_path: Path,
     barriers_path: Path,
     export_dir: Path,
+    *,
     images_dir: Path,
 ) -> None:
     """Build the clean database from the raw export.

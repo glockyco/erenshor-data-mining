@@ -413,8 +413,9 @@ def test_deploy_routes_explicit_loader_output(tmp_path: Path, monkeypatch: pytes
     monkeypatch.setattr(
         local_workflow,
         "build_mods",
-        lambda _ctx, mod=None, **kwargs: calls.append(kwargs["loader"])
-        or local_workflow.BuildResult(((mod or "sprint", kwargs["loader"]),)),
+        lambda _ctx, mod=None, **kwargs: (
+            calls.append(kwargs["loader"]) or local_workflow.BuildResult(((mod or "sprint", kwargs["loader"]),))
+        ),
     )
 
     mod_command.deploy(ctx=SimpleNamespace(obj=ctx), mod="sprint", loader="bepinex", scripts=False)
@@ -1225,8 +1226,9 @@ def test_vault_build_is_explicitly_lunaris(tmp_path: Path, monkeypatch: pytest.M
     monkeypatch.setattr(
         local_workflow,
         "build_mods",
-        lambda _ctx, mod=None, **kwargs: calls.append(kwargs["loader"])
-        or local_workflow.BuildResult(((mod or "sprint", kwargs["loader"]),)),
+        lambda _ctx, mod=None, **kwargs: (
+            calls.append(kwargs["loader"]) or local_workflow.BuildResult(((mod or "sprint", kwargs["loader"]),))
+        ),
     )
 
     mod_command.vault(SimpleNamespace(obj=ctx), mod="sprint")
@@ -1365,8 +1367,10 @@ def test_launch_uses_crossover_steam_protocol(tmp_path: Path, monkeypatch: pytes
     monkeypatch.setattr(
         local_workflow,
         "launch_game",
-        lambda cli_ctx: calls.append((list(local_workflow.plan_launch(cli_ctx).command), False))
-        or local_workflow.plan_launch(cli_ctx),
+        lambda cli_ctx: (
+            calls.append((list(local_workflow.plan_launch(cli_ctx).command), False))
+            or local_workflow.plan_launch(cli_ctx)
+        ),
     )
 
     mod_command.launch(ctx)
