@@ -56,6 +56,12 @@
       "addLabels": ["dotnet"]
     },
     {
+      "description": "NuGet cannot hold releases for a minimum age, so lock file maintenance for it would bring releases younger than the 3-day policy. Ordinary NuGet updates keep Renovate's release-age check.",
+      "matchManagers": ["nuget"],
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "enabled": false
+    },
+    {
       "description": "Require explicit approval for non-security major updates",
       "matchUpdateTypes": ["major"],
       "dependencyDashboardApproval": true,
