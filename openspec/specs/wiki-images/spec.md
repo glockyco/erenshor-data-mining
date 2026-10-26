@@ -7,7 +7,7 @@ Track missing images on generated pages, capture game models consistently, and u
 
 ### Requirement: Character infoboxes identify missing images by kind
 
-Character infoboxes SHALL add a hidden, kind-specific `Needs Image` category to a main-namespace page when neither the render nor the screenshot title has an uploaded image, including when a file description page or redirect exists at the title. They SHALL NOT add that category when either image exists. They SHALL distinguish chest, summon, and other character images. Item, spell, skill, and stance icons come from the game's icon export, so their infoboxes SHALL NOT add a `Needs Image` category. A later upload SHALL remove the page from the category when the page is refreshed.
+Character infoboxes SHALL add a hidden, kind-specific `Needs Image` category to a main-namespace page when neither the render nor the screenshot title has an uploaded image, including when a file description page or redirect exists at the title. They SHALL NOT add that category when either image exists. They SHALL distinguish chest, summon, and other character images.
 
 #### Scenario: A missing chest appears on a boss page
 
@@ -15,20 +15,32 @@ Character infoboxes SHALL add a hidden, kind-specific `Needs Image` category to 
 - **THEN** Frost is in `Category:Needs Chest Image`
 - **AND** its chest infobox remains on the page
 
+#### Scenario: A file description exists without image bytes
+
+- **WHEN** a page or redirect exists at the render title but no image is uploaded there or at the screenshot title
+- **THEN** the page remains in the right `Needs Image` category
+
+### Requirement: Exported icons do not create image requests
+
+Item, spell, skill, and stance icons come from the game's icon export, so their infoboxes SHALL NOT add a `Needs Image` category.
+
 #### Scenario: An exported icon is not an image request
 
 - **WHEN** an item, spell, skill, or stance page shows an icon from the game's icon export
 - **THEN** its infobox adds no `Needs Image` category
+
+### Requirement: Existing character images prevent image requests
+
+Character infoboxes SHALL NOT add a `Needs Image` category when either the render or the screenshot image exists.
 
 #### Scenario: A screenshot without a render
 
 - **WHEN** the Aetherfiend has no render and an editor's screenshot exists at its screenshot title
 - **THEN** its page is in no `Needs Image` category and shows the screenshot alone
 
-#### Scenario: A file description exists without image bytes
+### Requirement: Refresh clears resolved image requests
 
-- **WHEN** a page or redirect exists at the render title but no image is uploaded there or at the screenshot title
-- **THEN** the page remains in the right `Needs Image` category
+A later upload SHALL remove the page from the category when the page is refreshed.
 
 #### Scenario: A missing file is uploaded
 
@@ -37,7 +49,7 @@ Character infoboxes SHALL add a hidden, kind-specific `Needs Image` category to 
 
 ### Requirement: Every character model has a capture source
 
-The image workflow SHALL list every character model of the clean database once, under the subject that its characters share, whether or not the wiki has a picture for it. It SHALL show the subject, the render title, the pages of its characters, including pages with the unused notice, its kind, and the game object to capture. Captures and approvals SHALL name a model by its subject. A model whose characters no capture can locate SHALL be listed apart, so that every character belongs to one listed model.
+The image workflow SHALL list every character model of the clean database once, under the subject that its characters share, whether or not the wiki has a picture for it. It SHALL show the subject, the render title, the pages of its characters, including pages with the unused notice, its kind, and the game object to capture. Captures and approvals SHALL name a model by its subject.
 
 #### Scenario: Characters share a model
 
@@ -54,6 +66,16 @@ The image workflow SHALL list every character model of the clean database once, 
 - **WHEN** `Queen Evadne` carries the unused notice
 - **THEN** the manifest names her model with that page and selects her prefab for capture
 
+### Requirement: Unlocatable character models remain accounted for
+
+A model whose characters no capture can locate SHALL be listed apart, so that every character belongs to one listed model.
+
+#### Scenario: No capture can locate a model
+
+- WHEN no capture can locate any character of a model
+- THEN the workflow lists that model apart
+- AND every character still belongs to one listed model
+
 ### Requirement: Game icons are not substitutes for character images
 
 The image workflow SHALL use a game's item, spell, or skill icon as the matching item's, spell's, or skill's image. It SHALL NOT treat an icon of a summon spell as an image of the summoned creature. A character or chest without a suitable sprite SHALL be captured from the running game or reported for editor attention when a useful capture cannot be made.
@@ -66,7 +88,7 @@ The image workflow SHALL use a game's item, spell, or skill icon as the matching
 
 ### Requirement: Captures are repeatable and reviewable
 
-The capture workflow SHALL read the manifest of character and item models. It SHALL record the game build and camera preset for each output. It SHALL render each subject at 1024 × 1024 pixels as the player's camera shows it in an outdoor zone at midday: in the game's day sun and ambient light, through the camera's image effects at the game's default graphics options. It SHALL crop each render with a consistent margin and save one transparent PNG per subject. The output SHALL show the right subject without UI, another character, a clipped model, or a blank image. An unsuccessful capture SHALL be reported, not uploaded. The workflow SHALL restore game state after success, failure, or cancellation.
+The capture workflow SHALL read the manifest of character and item models. It SHALL record the game build and camera preset for each output.
 
 #### Scenario: Kinds with different models share a page
 
@@ -74,16 +96,28 @@ The capture workflow SHALL read the manifest of character and item models. It SH
 - **THEN** the first three show `Training Dummy render.png`
 - **AND** the manifest captures `Training Dummy (1000 AC) render.png` from the Expert Training Set's dummy
 
+### Requirement: Captures reproduce the outdoor player camera
+
+The workflow SHALL render each subject at 1024 × 1024 pixels as the player's camera shows it in an outdoor zone at midday: in the game's day sun and ambient light, through the camera's image effects at the game's default graphics options. It SHALL crop each render with a consistent margin and save one transparent PNG per subject.
+
 #### Scenario: A capture shows the game's colours
 
 - **WHEN** the Fernallan Sister Hailey is captured
 - **THEN** her robe shows the saturated orange that the player's camera shows in Port Azure at noon, not the duller texture colour
+
+### Requirement: Failed captures remain unpublished
+
+The output SHALL show the right subject without UI, another character, a clipped model, or a blank image. An unsuccessful capture SHALL be reported, not uploaded.
 
 #### Scenario: A capture fails
 
 - **WHEN** the selected game entity has no visible model
 - **THEN** the workflow reports its subject and entity and does not offer a blank file for upload
 - **AND** the running game is restored to its prior state
+
+### Requirement: Captures restore game state
+
+The workflow SHALL restore game state after success, failure, or cancellation.
 
 #### Scenario: A capture is cancelled
 
@@ -269,32 +303,50 @@ Publishing SHALL delete every file whose latest version the bot account uploaded
 
 ### Requirement: The wiki draws the frames of game icons
 
-Icon files SHALL be the game's pictures without frames. Every template and module that shows an item, spell, skill, or stance icon SHALL draw its frame at every size it uses: an item SHALL sit in a slot whose ring is a vertical gradient from light grey through blue to grey-teal, and a spell, skill, or stance SHALL sit in a solid black border, 8 px of 150 and at least 1 px wide, as the wiki's earlier icon files showed. An icon SHALL fit within its frame's inner square, keep its proportions, and never extend past it.
+Icon files SHALL be the game's pictures without frames. Every template and module that shows an item, spell, skill, or stance icon SHALL draw its frame at every size it uses.
+
+#### Scenario: A framed icon is displayed
+
+- WHEN a template or module shows an item, spell, skill, or stance icon
+- THEN it draws the frame rather than using a framed icon file
+
+#### Scenario: An infobox picture
+
+- **WHEN** an Ability infobox shows its spell's picture at full size
+- **THEN** the picture shows without a frame
+
+
+### Requirement: Item icon frames use the slot gradient
+
+An item icon SHALL sit in a slot whose ring is a vertical gradient from light grey through blue to grey-teal, as the wiki's earlier icon files showed.
 
 #### Scenario: An item tooltip
 
 - **WHEN** an item's tooltip header shows its icon at 80 px
 - **THEN** the icon sits in a slot whose ring runs from light grey at the top through blue to grey-teal at the bottom
 
+### Requirement: Spell skill and stance frames use scaled black borders
+
+A spell, skill, or stance icon SHALL sit in a solid black border, 8 px of 150 and at least 1 px wide, as the wiki's earlier icon files showed.
+
 #### Scenario: The spell details of a tooltip
 
 - **WHEN** a spell tooltip or an item's spell details show the spell's icon at 48 px
 - **THEN** the icon sits in a 3 px black border
-
-#### Scenario: A texture wider than tall
-
-- **WHEN** an item's texture is 501 × 486 pixels
-- **THEN** the wiki shows it within the slot's square at its own proportions
 
 #### Scenario: A spell link in running text
 
 - **WHEN** a page links a spell with its icon at 24 px
 - **THEN** the spell's art sits in a 1 px black border
 
-#### Scenario: An infobox picture
+### Requirement: Icons retain proportions within their frame
 
-- **WHEN** an Ability infobox shows its spell's picture at full size
-- **THEN** the picture shows without a frame
+An icon SHALL fit within its frame's inner square, keep its proportions, and never extend past it.
+
+#### Scenario: A texture wider than tall
+
+- **WHEN** an item's texture is 501 × 486 pixels
+- **THEN** the wiki shows it within the slot's square at its own proportions
 
 ### Requirement: Character infoboxes show the render and the screenshot
 
@@ -343,17 +395,25 @@ The bot SHALL NOT upload to a character's or an item's screenshot title, and SHA
 
 ### Requirement: A picture whose title changes keeps its file history
 
-When a picture's file title changes and a file of the project at another title holds the picture, publishing SHALL move that file to the new title instead of uploading a copy. The move SHALL leave a file redirect at the old title. Every other File redirect that named the old title SHALL then name the new title, so no redirect leads through another. The plan SHALL list each move with its old and new title, and a reverted run SHALL move each file back and restore each redirect it changed. Publishing SHALL NOT move a file whose latest version someone else uploaded.
+When a picture's file title changes and a file of the project at another title holds the picture, publishing SHALL move that file to the new title instead of uploading a copy. The move SHALL leave a file redirect at the old title. Publishing SHALL NOT move a file whose latest version someone else uploaded.
 
 #### Scenario: A game update renames an entity
 
 - **WHEN** a game update changes an item's image name and its picture stays the same
 - **THEN** the run moves the file from the old title to the new one, and the old title redirects to it
 
+### Requirement: Moved picture redirects remain direct
+
+Every other File redirect that named the old title SHALL then name the new title, so no redirect leads through another.
+
 #### Scenario: A redirect to the moved file
 
 - **WHEN** another item's title redirects to the file that the run moves
 - **THEN** the redirect names the file's new title
+
+### Requirement: Planned file moves are reviewable and reversible
+
+The plan SHALL list each move with its old and new title, and a reverted run SHALL move each file back and restore each redirect it changed.
 
 #### Scenario: A run is reverted
 
@@ -362,7 +422,7 @@ When a picture's file title changes and a file of the project at another title h
 
 ### Requirement: Every item model has a capture source
 
-The image workflow SHALL list once, under the subject that its items share, every item whose model the game shows: a weapon or shield, a worn item, a mask, the furnishing of a Reliquary furniture set, and the belt lamp or the lens that a lamp or the Watcher's Lens turns on in a cosmetic slot. It SHALL show the subject, the render title, the item's page, its kind, and the game object to capture. An item without a model SHALL NOT be listed. A capture that cannot find an item's model SHALL report the subject and the missing object.
+The image workflow SHALL list once, under the subject that its items share, every item whose model the game shows: a weapon or shield, a worn item, a mask, the furnishing of a Reliquary furniture set, and the belt lamp or the lens that a lamp or the Watcher's Lens turns on in a cosmetic slot. It SHALL show the subject, the render title, the item's page, its kind, and the game object to capture. An item without a model SHALL NOT be listed.
 
 #### Scenario: Items share a subject
 
@@ -385,6 +445,10 @@ The image workflow SHALL list once, under the subject that its items share, ever
 - **THEN** the manifest captures the belt lamp for each of their render titles
 - **AND** the catalog holds one picture that all three titles name
 
+### Requirement: Missing item models are reported
+
+A capture that cannot find an item's model SHALL report the subject and the missing object.
+
 #### Scenario: A model that the capture cannot find
 
 - **WHEN** the capture finds no object of the name that an item switches on
@@ -392,13 +456,17 @@ The image workflow SHALL list once, under the subject that its items share, ever
 
 ### Requirement: An item render shows the piece by itself
 
-A render of an item SHALL show only the item's model, as the game shows it in use: a weapon or shield, the parts that the game switches on for a worn item, a mask, the furnishing of a furniture set, or the belt lamp or the lens of the player. A worn item SHALL show every part that it switches on, in its own colours, without the body: once on each body when the male and female bodies have different models for its parts, and once otherwise. A render SHALL NOT show a body, other equipment, a room, or UI.
+A render of an item SHALL show only the item's model, as the game shows it in use: a weapon or shield, the parts that the game switches on for a worn item, a mask, the furnishing of a furniture set, or the belt lamp or the lens of the player. A render SHALL NOT show a body, other equipment, a room, or UI.
 
 #### Scenario: A pair of boots
 
 - **WHEN** the Wolfhide Boots are captured
 - **THEN** the render shows both boots in the item's colours
 - **AND** it shows no body and no other equipment
+
+### Requirement: Worn item renders preserve body-specific parts
+
+A worn item SHALL show every part that it switches on, in its own colours, without the body: once on each body when the male and female bodies have different models for its parts, and once otherwise.
 
 #### Scenario: Parts that differ between the bodies
 
@@ -415,6 +483,10 @@ A render of an item SHALL show only the item's model, as the game shows it in us
 - **WHEN** the Aged Plate Bracer and the Azure Plate Bracer both switch on the `ThickPlate` part
 - **THEN** each render shows that part in its own item's colours
 
+### Requirement: Weapon renders exclude surrounding equipment
+
+A weapon render SHALL show only the weapon's model without a body, other equipment, a room, or UI.
+
 #### Scenario: A weapon
 
 - **WHEN** the Molorai Bow is captured
@@ -422,13 +494,17 @@ A render of an item SHALL show only the item's model, as the game shows it in us
 
 ### Requirement: Item infoboxes show the render and the screenshot
 
-An item infobox SHALL take the titles of the item's renders in `render`, `render_male`, and `render_female`, and of its screenshot in `screenshot`. Generation SHALL fill the render parameters from the item's approved renders in the catalog, and `screenshot` as `<subject> screenshot.png`. The infobox SHALL show the existing files in the order render, male, female, screenshot, as tabs labelled Render, Male, Female, and Screenshot, or one alone. When none exists, it SHALL show the item's icon.
+An item infobox SHALL take the titles of the item's renders in `render`, `render_male`, and `render_female`, and of its screenshot in `screenshot`. Generation SHALL fill the render parameters from the item's approved renders in the catalog, and `screenshot` as `<subject> screenshot.png`.
 
 #### Scenario: An item with a render and a screenshot
 
 - **WHEN** `Molorai Bow render.png` and `Molorai Bow screenshot.png` both exist
 - **THEN** the Molorai Bow's infobox shows the render under the selected Render tab
 - **AND** the Screenshot tab shows the screenshot
+
+### Requirement: Item picture tabs follow render order
+
+The infobox SHALL show the existing files in the order render, male, female, screenshot, as tabs labelled Render, Male, Female, and Screenshot, or one alone.
 
 #### Scenario: An item with a render only
 
@@ -440,15 +516,27 @@ An item infobox SHALL take the titles of the item's renders in `render`, `render
 - **WHEN** `Wolfhide Boots render (male).png`, `Wolfhide Boots render (female).png`, and `Wolfhide Boots screenshot.png` exist
 - **THEN** the infobox shows the tabs Male, Female, and Screenshot, with Male selected
 
+### Requirement: Items without pictures fall back to icons
+
+When no render or screenshot exists, the item infobox SHALL show the item's icon.
+
 #### Scenario: An item without a model or a screenshot
 
 - **WHEN** Bread has no render and no screenshot
 - **THEN** its infobox shows `Bread icon.png`
 
+### Requirement: Item screenshots replace icon fallback
+
+When only the item's screenshot exists, the infobox SHALL show it alone.
+
 #### Scenario: An editor uploads a screenshot of an item without a model
 
 - **WHEN** an editor uploads `Bread screenshot.png` and the page is refreshed
 - **THEN** Bread's infobox shows the screenshot instead of the icon, without an edit of the page
+
+### Requirement: Item captions remain beneath picture tabs
+
+An editor's `imagecaption` SHALL show beneath the item's pictures.
 
 #### Scenario: A caption
 

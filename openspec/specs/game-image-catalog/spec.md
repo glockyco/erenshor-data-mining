@@ -92,12 +92,16 @@ A render of a character or an item SHALL enter the catalog only when a review ap
 
 ### Requirement: Every picture has the wiki title of each entity
 
-The catalog SHALL give every linked entity the wiki file title of its picture, made of the entity's subject, a space, the picture's role, and `.png`. The subject SHALL be the entity's image name without the characters that MediaWiki forbids in file names, with runs of whitespace collapsed. The role SHALL be `icon` for the game picture of an item, spell, skill, or stance and `render` for the rendered model of a character or an item. An item whose parts differ between the male and the female body SHALL have `render (male)` and `render (female)` instead of `render`, unless its two approved renders have equal pixels, which SHALL give it one `render`. Every title SHALL be one that MediaWiki can hold a file at, so no title needs a redirect from another spelling. A build SHALL fail when one title names two different pictures, and name both entities.
+The catalog SHALL give every linked entity the wiki file title of its picture, made of the entity's subject, a space, the picture's role, and `.png`. The subject SHALL be the entity's image name without the characters that MediaWiki forbids in file names, with runs of whitespace collapsed. Every title SHALL be one that MediaWiki can hold a file at, so no title needs a redirect from another spelling.
 
 #### Scenario: A stance uses its activating skill's picture
 
 - **WHEN** the stance Aggressive, whose image name is `Stance: Aggressive`, is activated by a skill
 - **THEN** the catalog links Aggressive to that skill's picture under the title `Stance Aggressive icon.png`
+
+### Requirement: Picture roles distinguish icons and renders
+
+The role SHALL be `icon` for the game picture of an item, spell, skill, or stance and `render` for the rendered model of a character or an item.
 
 #### Scenario: A character's portrait
 
@@ -114,10 +118,18 @@ The catalog SHALL give every linked entity the wiki file title of its picture, m
 - **WHEN** the catalog holds the approved render of the Molorai Bow
 - **THEN** the Molorai Bow's titles are `Molorai Bow icon.png` and `Molorai Bow render.png`
 
+### Requirement: Wiki picture titles are unambiguous
+
+A build SHALL fail when one title names two different pictures, and name both entities.
+
 #### Scenario: An item render and a character render share a title
 
 - **WHEN** an item with an approved render and a character with an approved render have the same image name, and their renders differ
 - **THEN** the build fails and names both
+
+### Requirement: Body-specific render titles reflect pixel differences
+
+An item whose parts differ between the male and the female body SHALL have `render (male)` and `render (female)` instead of `render`, unless its two approved renders have equal pixels, which SHALL give it one `render`.
 
 #### Scenario: An item with a render for each body
 

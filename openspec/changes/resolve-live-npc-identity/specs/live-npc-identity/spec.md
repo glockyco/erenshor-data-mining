@@ -4,10 +4,6 @@
 
 Define how the live map companion supplies immutable NPC origin information so a map can distinguish exact exported character identity from honest name-based fallback without breaking existing companion clients.
 
-## Evidence
-
-Current entity/wire contract: `src/mods/InteractiveMapCompanion/src/Entities/EntityData.cs:8-39`, `src/mods/InteractiveMapCompanion/src/Protocol/MessageSerializer.cs:12-20`, `src/mods/InteractiveMapCompanion/src/Protocol/ProtocolVersion.cs:9`. Original object names are lost at startup: `variants/main/unity/ExportedProject/Assets/Scripts/Assembly-CSharp/NPC.cs:462-467`. The capture precedent is `src/mods/AdventureGuide/src/Navigation/NpcOrigins.cs:30-78`, `src/mods/AdventureGuide/src/Patches/NpcStartPatch.cs:21-29`. Export identity and duplicate suffixes: `src/Assets/Editor/StableKeyGenerator.cs:155-183`. Non-fatal client negotiation: `src/maps/src/lib/map/live/connection.ts:129-145`. The requirements below specify proposed behavior, not already-implemented behavior.
-
 ## ADDED Requirements
 
 ### Requirement: NPC origin survives name changes and movement
@@ -34,7 +30,7 @@ For friendly and enemy NPCs whose startup is observed, the companion SHALL repor
 
 ### Requirement: Identity enrichment is optional and additive
 
-The companion SHALL advertise protocol `0.3.0` and add optional `characterOrigin` to entity snapshots without changing existing required fields or message types. Prefab origins SHALL contain `kind: "prefab"` and normalized `objectName`; placed origins SHALL contain `kind: "placed"`, normalized `objectName` and `scene`, and finite three-number `position`. Names SHALL be trimmed and invariant-lowercased. Absent origins SHALL be omitted; capabilities SHALL remain `["entities"]`.
+The companion SHALL advertise protocol `0.3.0` and add optional `characterOrigin` to entity snapshots without changing existing required fields or message types. Prefab origins SHALL contain `kind: "prefab"` and normalized `objectName`. Placed origins SHALL contain `kind: "placed"`, normalized `objectName` and `scene`, and finite three-number `position`. Names SHALL be trimmed and invariant-lowercased. Absent origins SHALL be omitted. Capabilities SHALL remain `["entities"]`.
 
 #### Scenario: A snapshot contains captured NPC origins
 

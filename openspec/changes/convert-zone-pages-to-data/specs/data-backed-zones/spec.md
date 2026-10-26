@@ -49,13 +49,17 @@ A page shared by zone scenes SHALL render one ZoneData infobox through an explic
 
 ### Requirement: Missing data and unsupported parameters are visible
 
-A ZoneData call SHALL require a valid zone stable identity. Missing, unknown, wrong-kind or ambiguous identities, missing required generated records and unsupported parameters SHALL produce documented diagnostics and tracking categories. Unsupported parameters SHALL NOT override canonical facts. Known absence of fixed hostile encounters SHALL be distinguished from missing export data and player-scaled encounters without inventing zero-valued levels. The infobox SHALL identify its data build through maintained shared presentation.
+A ZoneData call SHALL require a valid zone stable identity. Missing, unknown, wrong-kind or ambiguous identities, missing required generated records and unsupported parameters SHALL produce documented diagnostics and tracking categories. Unsupported parameters SHALL NOT override canonical facts. The infobox SHALL identify its data build through maintained shared presentation.
 
 #### Scenario: An article supplies a factual override
 
 - **WHEN** a ZoneData call supplies a legacy type or numeric level parameter as a factual override
 - **THEN** canonical facts remain unchanged
 - **AND** the page identifies that unsupported input for review
+
+### Requirement: Zone encounter absence remains distinct from missing data
+
+Known absence of fixed hostile encounters SHALL be distinguished from missing export data and player-scaled encounters without inventing zero-valued levels.
 
 #### Scenario: Event puzzles without fixed hostile encounters
 
@@ -64,9 +68,7 @@ A ZoneData call SHALL require a valid zone stable identity. Missing, unknown, wr
 
 ### Requirement: Editor content survives with its actual meaning
 
-Conversion SHALL account for every populated legacy field and SHALL preserve exact image and caption value bytes and all editor text outside the converted infobox. Existing level, type, map and connection values SHALL have individually reviewed dispositions grounded in current shared facts, page context and relevant access behavior. Conversion SHALL NOT silently relabel a value as advice, invent an access requirement, discard a note, or introduce contradictory competing classifications or numeric level rows. Unresolved material meanings SHALL block the conversion batch and leave original articles unchanged.
-
-Confirmed advice MAY become a concise editor-owned contextual note. Confirmed classification belongs in the common producer, not a factual article override. Notes retained as editor input SHALL remain separate from authoritative navigation and combat facts.
+Existing level, type, map and connection values SHALL have individually reviewed dispositions grounded in current shared facts, page context and relevant access behavior. Conversion SHALL NOT silently relabel a value as advice, invent an access requirement, discard a note, or introduce contradictory competing classifications or numeric level rows. Unresolved material meanings SHALL block the conversion batch and leave original articles unchanged.
 
 #### Scenario: A level field could describe a one-time encounter
 
@@ -80,6 +82,19 @@ Confirmed advice MAY become a concise editor-owned contextual note. Confirmed cl
 - **THEN** the disagreement is reviewed explicitly
 - **AND** conversion does not hide it by adding a contradictory recommendation row
 
+### Requirement: Confirmed zone advice stays separate from authoritative facts
+
+Confirmed advice MAY become a concise editor-owned contextual note. Confirmed classification SHALL belong in the common producer, not a factual article override. Notes retained as editor input SHALL remain separate from authoritative navigation and combat facts.
+
+#### Scenario: A reviewed field is confirmed as advice
+
+- **WHEN** review confirms a legacy level value as advice rather than access or combat data
+- **THEN** it may become a concise contextual note separate from authoritative navigation and combat facts
+
+### Requirement: Zone conversion preserves editor bytes and accounts for every field
+
+Conversion SHALL account for every populated legacy field and preserve exact image and caption value bytes and all editor text outside the converted infobox.
+
 #### Scenario: Editor pictures and surrounding rosters
 
 - **WHEN** a zone root contains nested image markup and a caption and the page also contains rosters, prose, map pictures, comments, a navbox and placed view calls
@@ -89,7 +104,7 @@ Confirmed advice MAY become a concise editor-owned contextual note. Confirmed cl
 
 ### Requirement: Zone map targets remain complete and compatible
 
-Generated map targets SHALL use validated case-sensitive scene identities present in the actual map-position input and the existing public map URL and selector contract. Every independently mapped member of a grouped page SHALL be available. Editor map presentation SHALL be retained only with a reviewed complete target set, without duplicate rows or misleading destinations. Missing or malformed required map input SHALL fail generation. This conversion SHALL NOT change the published database URL or companion protocol or URLs.
+Generated map targets SHALL use validated case-sensitive scene identities present in the actual map-position input and the existing public map URL and selector contract. Every independently mapped group member SHALL be available. Editor map presentation SHALL be retained only with a reviewed complete target set, without duplicate rows or misleading destinations. Missing or malformed required map input SHALL fail generation.
 
 #### Scenario: A shared page previously linked only its first scene
 
@@ -101,6 +116,15 @@ Generated map targets SHALL use validated case-sensitive scene identities presen
 
 - **WHEN** a map target is rendered
 - **THEN** its selector uses the map's original case-sensitive scene name and the complete selector is safely encoded as one query value
+
+### Requirement: Zone conversion preserves companion and database interfaces
+
+Zone conversion SHALL NOT change the published database URL or companion protocol or URLs.
+
+#### Scenario: An existing companion opens a converted zone map
+
+- **WHEN** an existing companion uses its published protocol and URLs after zone conversion
+- **THEN** those interfaces and the published database URL remain unchanged
 
 ### Requirement: Directed connection conditions remain intact
 
@@ -133,12 +157,16 @@ ZoneData SHALL reuse complete immutable published data modules. Additional page 
 
 ### Requirement: Full host comparisons and limits gate conversion
 
-Before article conversion, every actual current zone page SHALL have a complete production legacy-text versus candidate-text parse comparison against available real dependencies. All visible text, category, image/caption, map, link, gate and scene-summary differences SHALL be reviewed. Local browser inspection and screenshots SHALL precede live approval. Actual production-scale data and enforcing host limits SHALL establish at least 25 percent headroom for exposed parser and Lua limits. Unavailable metrics SHALL be stated rather than fabricated. A failed limit SHALL NOT be solved by dropping members, gates or editor content.
+Before article conversion, every actual current zone page SHALL have a complete production legacy-text versus candidate-text parse comparison against available real dependencies. All visible text, category, image/caption, map, link, gate and scene-summary differences SHALL be reviewed. Local browser inspection and screenshots SHALL precede live approval.
 
 #### Scenario: A dependency is missing in a sandbox
 
 - **WHEN** a candidate parse cannot load a required new dependency
 - **THEN** the result is provisional and cannot approve article conversion
+
+### Requirement: Full-scale zone data leaves measured host headroom
+
+Actual production-scale data and enforcing host limits SHALL establish at least 25 percent headroom for exposed parser and Lua limits. Unavailable metrics SHALL be stated rather than fabricated. A failed limit SHALL NOT be solved by dropping members, gates or editor content.
 
 #### Scenario: The largest grouped page exceeds its budget
 
@@ -147,12 +175,34 @@ Before article conversion, every actual current zone page SHALL have a complete 
 
 ### Requirement: Zone conversion is guarded and reversible through the native path
 
-Zone conversion SHALL use the existing native guarded article/deployment/manifest/rollback machinery rather than a separate writer or duplicated migration engine. Its complete inventory SHALL include current generated membership and all live zone roots. Ambiguous roots, duplicate group calls, unknown fields, incomplete membership or unresolved field dispositions SHALL block the batch. Each write SHALL be guarded by its reviewed base revision. The manifest SHALL exist before the first write and checkpoint successful new revisions. Rollback SHALL restore exact original article bytes and refuse later edits. A canary rollback SHALL be demonstrated before separately approved broad conversion.
+Zone conversion SHALL use the existing native guarded article/deployment/manifest/rollback machinery rather than a separate writer or duplicated migration engine.
+
+#### Scenario: A reviewed zone conversion is applied
+
+- **WHEN** an approved zone conversion writes an article
+- **THEN** it uses the existing native guarded deployment and manifest path rather than a separate writer
+
+### Requirement: Zone conversion accounts for the complete root inventory
+
+The complete conversion inventory SHALL include current generated membership and all live zone roots. Ambiguous roots, duplicate group calls, unknown fields, incomplete membership or unresolved field dispositions SHALL block the batch.
+
+#### Scenario: A live root has no resolved group membership
+
+- **WHEN** a live zone root cannot be accounted for in the complete inventory
+- **THEN** the conversion batch is blocked before any write
+
+### Requirement: Zone writes retain their reviewed revision guards
+
+Each zone conversion write SHALL be guarded by its reviewed base revision.
 
 #### Scenario: A page changes after comparison
 
 - **WHEN** an editor changes or deletes the article before its planned write
 - **THEN** the native path reports a conflict without overwriting the new state
+
+### Requirement: Zone conversion checkpoints exact rollback state
+
+The manifest SHALL exist before the first write and checkpoint successful new revisions. Rollback SHALL restore exact original article bytes and refuse later edits. A canary rollback SHALL be demonstrated before separately approved broad conversion.
 
 #### Scenario: An interrupted canary
 
@@ -162,7 +212,7 @@ Zone conversion SHALL use the existing native guarded article/deployment/manifes
 
 ### Requirement: Cutover leaves facts in data and preserves legacy compatibility
 
-After complete approved group coverage and rollback acceptance, refresh SHALL create compact ZoneData stubs for new zone pages and SHALL return existing article bytes unchanged when article membership is unchanged. A new member under a valid existing page anchor SHALL update the generated relation without requiring an article edit. True membership or lifecycle changes SHALL use guarded reconciliation. Zone-specific full-article generation SHALL be removed only after those gates. Shared machinery still used by other types, native guarded deployment/rollback and compatible parameter-only legacy Zone, MapLink and navbox templates SHALL remain available.
+After complete approved group coverage and rollback acceptance, refresh SHALL create compact ZoneData stubs for new zone pages and return existing article bytes unchanged when article membership is unchanged. A new member under a valid existing page anchor SHALL update the generated relation without requiring an article edit. True membership or lifecycle changes SHALL use guarded reconciliation.
 
 #### Scenario: An existing zone's enemy median changes
 
@@ -174,6 +224,10 @@ After complete approved group coverage and rollback acceptance, refresh SHALL cr
 
 - **WHEN** a new mapped scene joins an existing group whose root anchor remains valid
 - **THEN** the page relation adds that member and the existing infobox renders it without rewriting editor content
+
+### Requirement: Zone generation removal preserves remaining consumers
+
+Zone-specific full-article generation SHALL be removed only after complete approved group coverage and rollback acceptance. Shared machinery still used by other types, native guarded deployment/rollback and compatible parameter-only legacy Zone, MapLink and navbox templates SHALL remain available.
 
 #### Scenario: Another type still needs the merge engine
 

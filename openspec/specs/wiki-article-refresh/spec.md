@@ -40,19 +40,25 @@ A generated list field SHALL show one entry for each pair of linked page and lab
 
 ### Requirement: Preserved fields follow the entity
 
-Every generated root template of an entity SHALL carry the entity's stable key in `stablekey`. Generation SHALL match a live root template to a generated one by stable key. A live root without a key SHALL match a generated root with the same entity name. When several roots share a name, generation SHALL pair them so that the most field values agree. When several pairings agree equally well and give different pages, generation SHALL fail for that page, name it, and list the stable keys to add by hand. A live root that matches no generated entity SHALL stay unchanged, and generation SHALL list it for review. Generation SHALL NOT delete it.
-
-A merged root SHALL take the companion templates of its generated root, such as `ItemTooltip` or `SpellTooltip`. The generated companions SHALL replace the live companions of that root, also when prose or editor markup stands between the root and a companion.
+Every generated root template of an entity SHALL carry the entity's stable key in `stablekey`. Generation SHALL match a live root template to a generated one by stable key.
 
 #### Scenario: Entities change order
 
 - **WHEN** the entities of a page change order between two builds
 - **THEN** each preserved field stays with its stable key
 
+### Requirement: Unmatched live roots survive generation
+
+A live root that matches no generated entity SHALL stay unchanged, and generation SHALL list it for review. Generation SHALL NOT delete it.
+
 #### Scenario: A root that an editor added
 
 - **WHEN** the live Frost page holds a Braxonian Chest character infobox that generation does not produce for Frost
 - **THEN** the infobox stays unchanged and the page is listed for review
+
+### Requirement: Unkeyed roots are paired by name and field agreement
+
+A live root without a key SHALL match a generated root with the same entity name. When several roots share a name, generation SHALL pair them so that the most field values agree. When several pairings agree equally well and give different pages, generation SHALL fail for that page, name it, and list the stable keys to add by hand.
 
 #### Scenario: Variants that share a name
 
@@ -63,6 +69,11 @@ A merged root SHALL take the companion templates of its generated root, such as 
 
 - **WHEN** a live page has two unkeyed character infoboxes with the same name and the same values, only one of them has an image caption, and generation produces two entities with that name
 - **THEN** generation fails for that page and names the stable keys to add
+
+### Requirement: Generated companions replace their matching live companions
+
+A merged root SHALL take the companion templates of its generated root, such as `ItemTooltip` or `SpellTooltip`. The generated companions SHALL replace the live companions of that root, also when prose or editor markup stands between the root and a companion.
+
 
 #### Scenario: A tooltip in an editor's table
 
@@ -163,17 +174,25 @@ Before it writes an article, `wiki deploy` SHALL parse the new text on the live 
 
 ### Requirement: The deploy plan is reviewable
 
-A dry run of `wiki deploy` SHALL NOT write to the wiki. It SHALL report the pages that it would write, grouped by kind of change (new pages, encounter tiers, field values, links, stable keys, categories, and structure), the live roots that generation kept because they match no generated entity, and the pages that are conflicts. Field values SHALL compare with link syntax ignored: a value whose links reach the same pages through other syntax is a link change. The dry run SHALL fail when a planned page is a conflict.
+A dry run of `wiki deploy` SHALL NOT write to the wiki. It SHALL report the pages that it would write, grouped by kind of change (new pages, encounter tiers, field values, links, stable keys, categories, and structure), the live roots that generation kept because they match no generated entity, and the pages that are conflicts.
 
 #### Scenario: Tier changes
 
 - **WHEN** the dry run covers a page whose type changes from Rare to Elite
 - **THEN** the report lists that page under encounter tier changes
 
+### Requirement: Deploy review distinguishes link syntax from values
+
+Field values SHALL compare with link syntax ignored: a value whose links reach the same pages through other syntax is a link change.
+
 #### Scenario: Link syntax only
 
 - **WHEN** a field changes from `[[The Brake]]` to `{{ZoneLink|stablekey=zone:brake}}`, and the link catalog places that key on `The Brake`
 - **THEN** the report lists the page under link changes and not under field value changes
+
+### Requirement: Dry runs fail on planned conflicts
+
+The dry run SHALL fail when a planned page is a conflict.
 
 #### Scenario: A page changed after the fetch
 

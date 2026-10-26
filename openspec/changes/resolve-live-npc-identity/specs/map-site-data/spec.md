@@ -1,9 +1,5 @@
 # Spec Delta
 
-## Evidence
-
-This modifies the existing requirements at `openspec/specs/map-site-data/spec.md:8-25,72-92`. Current name-only candidate and loot behavior is in `src/maps/src/lib/map/character-details.ts:28-71`, `src/maps/src/lib/components/map/popups/LiveNpcPopupContent.svelte:17-33,59-77`; data is prerendered by `src/maps/src/lib/map-world-data.server.ts:568-605`. Runtime names differ from curated names because extraction uses game statistics (`src/mods/InteractiveMapCompanion/src/Entities/EntityExtractor.cs:16`, `variants/main/unity/ExportedProject/Assets/Scripts/Assembly-CSharp/NPC.cs:518`) while the current name index uses `display_name` (`src/maps/src/lib/database.base.ts:1463`). Export provenance and variants are defined by `src/Assets/Editor/StableKeyGenerator.cs:155-183`; the existing 2 m placement policy is `src/mods/AdventureGuide/src/Navigation/DirectPlacementPolicy.cs:25-27`. The new behaviors below are proposed changes.
-
 ## MODIFIED Requirements
 
 ### Requirement: Legacy companion interfaces keep working
@@ -34,7 +30,7 @@ Every interface that a shipped companion mod build uses SHALL keep its behavior:
 
 ### Requirement: Popups show details from the prerendered page data
 
-The world map popups SHALL take drops and vendor stock from the prerendered `/map` data, without a further request. They SHALL show the same items that the map item search shows: items that the mapping hides from the map SHALL NOT appear. Live NPC popups SHALL prefer a uniquely resolved exported character's own drops; when identity is unresolved, they SHALL disclose that and show scene-preferred runtime-name candidates rather than claim exactness.
+The world map popups SHALL take drops and vendor stock from the prerendered `/map` data, without a further request. They SHALL show the same items that the map item search shows: items that the mapping hides from the map SHALL NOT appear. Live NPC popups SHALL prefer a uniquely resolved exported character's own drops. When identity is unresolved, they SHALL disclose that and show scene-preferred runtime-name candidates rather than claim exactness.
 
 #### Scenario: A spawn-point popup opens
 
@@ -92,13 +88,13 @@ The world map popups SHALL take drops and vendor stock from the prerendered `/ma
 #### Scenario: A known exact character has no visible drops
 
 - **WHEN** origin uniquely resolves a catalog character whose map-visible drop list is empty
-- **THEN** the popup says “No map-visible drops recorded.”
+- **THEN** the popup says "No map-visible drops recorded."
 - **AND** it does not substitute the drops of another character with the same runtime name
 
 #### Scenario: No exported fallback candidate exists
 
 - **WHEN** identity cannot resolve and the runtime-name index has no matching candidate
-- **THEN** the popup discloses unresolved identity and says “No matching character data.”
+- **THEN** the popup discloses unresolved identity and says "No matching character data."
 - **AND** it does not invent a loot list or claim that the NPC cannot drop anything
 
 #### Scenario: A single name-based candidate remains

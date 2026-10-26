@@ -22,17 +22,25 @@ The system SHALL render a data-backed character root from its stable character k
 
 ### Requirement: Character rendering exposes the complete required stat surface
 
-Character rendering SHALL show known mana, all seven primary attributes, initialized health and AC, four resistance ranges, class, base level, actual level bounds, base experience and effective XP multiplier. It SHALL distinguish base exported attributes from initialized effective stats without a repeated explanatory disclaimer. Known zero values SHALL remain zero. Null values SHALL NOT become invented zero values. Copy-dependent facts SHALL remain scoped to the copies or conditions that support them. Python and clean data SHALL own derived facts, not Lua formulas.
+Character rendering SHALL show known mana, all seven primary attributes, initialized health and AC, four resistance ranges, class, base level, actual level bounds, base experience and effective XP multiplier. It SHALL distinguish base exported attributes from initialized effective stats without a repeated explanatory disclaimer. Known zero values SHALL remain zero. Null values SHALL NOT become invented zero values.
 
 #### Scenario: Previously hidden character stats
 
 - **WHEN** an ordinary character has exported mana, Strength, Endurance, Dexterity, Agility, Intelligence, Wisdom and Charisma
 - **THEN** all eight values are available in the rendered stat surface, along with the known class and XP rows
 
+### Requirement: Copy-dependent character facts retain their source scope
+
+Copy-dependent facts SHALL remain scoped to the copies or conditions that support them.
+
 #### Scenario: Different classes within a deduplication group
 
 - **WHEN** relevant copies in one character group have different class values
 - **THEN** the page does not claim that the representative's class applies to every copy, and any shown variant retains its source conditions
+
+### Requirement: Derived character stats come from Python and clean data
+
+Python and clean data SHALL own derived character facts, not Lua formulas.
 
 #### Scenario: Level boundaries and reward multipliers
 
@@ -112,12 +120,16 @@ The ordinary character inventory SHALL exclude randomized SimPlayer generation a
 
 ### Requirement: Coordinate-key replacement requires native lineage proof
 
-The reconciler SHALL distinguish stable-key changes from identity continuity. Automatic coordinate-key replacement SHALL require unique native scene object identity in both retained snapshots, verified serialized GameObject/component continuity with a transform-only change, and a one-to-one correspondence of relevant dedup members and article roots. The proof SHALL bind before/after source hashes, builds, keys, transform and publication revisions. GUID equality alone, name matching, nearest coordinates and suffix stripping SHALL NOT establish continuity. No permanent alias SHALL conceal a key replacement.
+Automatic coordinate-key replacement SHALL require unique native scene object identity in both retained snapshots, verified serialized GameObject/component continuity with a transform-only change, and a one-to-one correspondence of relevant dedup members and article roots. The proof SHALL bind before/after source hashes, builds, keys, transform and publication revisions.
 
 #### Scenario: Proven movement
 
 - **WHEN** retained serialized scene evidence proves only the same object's transform moved, the coordinate key changes and dedup membership still maps one root to one root on the same page
 - **THEN** a guarded reconciliation changes only that call's stable key, preserves its editor fields and surrounding bytes, and records the proof in the rollback-capable run
+
+### Requirement: Coordinate-key changes cannot imply identity continuity
+
+The reconciler SHALL distinguish stable-key changes from identity continuity. GUID equality alone, name matching, nearest coordinates and suffix stripping SHALL NOT establish continuity. No permanent alias SHALL conceal a key replacement.
 
 #### Scenario: Recycled or ambiguous native identity
 
@@ -145,7 +157,16 @@ Generation SHALL enforce the configured UTF-8 module page limit and publish dete
 
 ### Requirement: Conversion acceptance covers the full corpus and guarded rollback
 
-Before broad conversion, every eligible ordinary character page SHALL have a final legacy-versus-candidate production text parse and reviewed text, links, images, categories and limit differences. The actual local MediaWiki UI SHALL have browser evidence and reviewed screenshots. Missing staged dependencies SHALL make a comparison provisional. Conversion SHALL reuse native revision-guarded edits, checkpointed manifests and rollback. A canary rollback SHALL be exercised before a separately approved broad pass.
+Before broad conversion, every eligible ordinary character page SHALL have a final legacy-versus-candidate production text parse and reviewed text, links, images, categories and limit differences. The actual local MediaWiki UI SHALL have browser evidence and reviewed screenshots. Missing staged dependencies SHALL make a comparison provisional.
+
+#### Scenario: Incomplete acceptance corpus
+
+- **WHEN** some generated roots, live legacy users, manual dispositions or actual-host limit results remain unaccounted for
+- **THEN** conversion cannot be declared complete and obsolete generation code is not removed
+
+### Requirement: Character conversion reuses guarded native rollback
+
+Conversion SHALL reuse native revision-guarded edits, checkpointed manifests and rollback. A canary rollback SHALL be exercised before a separately approved broad pass.
 
 #### Scenario: Editor saves after planning
 
@@ -157,10 +178,6 @@ Before broad conversion, every eligible ordinary character page SHALL have a fin
 - **WHEN** a migration stops after some successful writes
 - **THEN** the manifest identifies exactly those writes and rollback restores their original roots, captions, fallback fields, companions and prose only while their deployed revisions still match
 
-#### Scenario: Incomplete acceptance corpus
-
-- **WHEN** some generated roots, live legacy users, manual dispositions or actual-host limit results remain unaccounted for
-- **THEN** conversion cannot be declared complete and obsolete generation code is not removed
 
 ### Requirement: Shared refresh removal waits for every type cutover
 

@@ -2,7 +2,7 @@
 
 ### Requirement: Content that nothing spawns is marked unused
 
-The wiki SHALL mark a page about content that ships in the game files but that nothing in the current game spawns with a distinct `Historical Content` message. It SHALL not call that content removed. When the knowledge base of simulated-player chat lets chat name the content without being asked, the message SHALL say that simulated players can still name it in chat. The tooling SHALL derive that from the exported knowledge base, not from a hand-set flag. It SHALL place the page in `Category:Unused Content` and keep the rest of the page.
+The wiki SHALL mark a page about content that ships in the game files but that nothing in the current game spawns with a distinct `Historical Content` message. It SHALL not call that content removed. It SHALL place the page in `Category:Unused Content` and keep the rest of the page.
 
 #### Scenario: A character that nothing spawns
 
@@ -15,12 +15,6 @@ The wiki SHALL mark a page about content that ships in the game files but that n
 - **WHEN** the facts file records `Ancient Sentinel` as unused
 - **AND** its knowledge entry has a zone, so random guild questions can name it
 - **THEN** its page also says that simulated players can still name it in chat
-
-#### Scenario: A character that chat names only on request
-
-- **WHEN** the facts file records `Bazxzoth` as unused
-- **AND** its knowledge entry has no zone
-- **THEN** its page does not say that simulated players can name it in chat
 
 ### Requirement: Reviewed dispositions are applied with guards
 
@@ -52,3 +46,21 @@ The wiki tooling SHALL apply the pending notices, redirects, and disambiguation 
 
 - **WHEN** a reviewer rolls back an applied run
 - **THEN** every written page returns to its text before the run
+
+## ADDED Requirements
+
+### Requirement: Unused notices derive spontaneous chat visibility from exported knowledge
+
+When the knowledge base of simulated-player chat lets chat name unused content without being asked, the unused message SHALL say that simulated players can still name it in chat. The tooling SHALL derive that from the exported knowledge base, not from a hand-set flag.
+
+#### Scenario: A character that chat still names
+
+- **WHEN** the facts file records `Ancient Sentinel` as unused
+- **AND** its knowledge entry has a zone, so random guild questions can name it
+- **THEN** its page also says that simulated players can still name it in chat
+
+#### Scenario: A character that chat names only on request
+
+- **WHEN** the facts file records `Bazxzoth` as unused
+- **AND** its knowledge entry has no zone
+- **THEN** its page does not say that simulated players can name it in chat

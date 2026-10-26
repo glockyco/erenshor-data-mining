@@ -65,7 +65,7 @@ A view SHALL use its `stablekey` argument when one is given. Otherwise it SHALL 
 
 ### Requirement: Vendor stock shows what the vendors in the game sell
 
-The vendor stock view SHALL list the items that the copies of the vendor in the game sell, or what its generated copies sell when the export places none of them, and SHALL NOT list an item that only a copy that players never meet sells. An item that only some copies sell SHALL name the Reliquary furniture sets that place those copies, and generation SHALL fail when such an item has a seller that no furniture places. Each row SHALL show the item's kind, Furniture for a furniture set, Cosmetic for an item that a cosmetic slot gives an effect, and for a general item Mold, Crafting, Quest Item, or Lore when the data shows that use.
+The vendor stock view SHALL list the items that copies of the vendor in the game sell, or what its generated copies sell when the export places none, and SHALL NOT list an item sold only by a copy players never meet. An item sold by only some copies SHALL name the Reliquary furniture sets that place them. Generation SHALL fail when such an item has a seller that no furniture places.
 
 #### Scenario: A copy that players never meet
 
@@ -78,6 +78,10 @@ The vendor stock view SHALL list the items that the copies of the vendor in the 
 - **WHEN** `{{Vendor stock}}` is placed on the Summoned: Pocket Vendor page on the current main build
 - **THEN** it lists 11 items
 - **AND** each of the 5 items that only the Stone Vendor Set's placements sell names the Stone Vendor Set
+
+### Requirement: Vendor stock rows identify item kind and use
+
+Each vendor-stock row SHALL show the item's kind, Furniture for a furniture set, Cosmetic for an item that a cosmetic slot gives an effect, and for a general item Mold, Crafting, Quest Item, or Lore when the data shows that use.
 
 #### Scenario: A general item with a use
 

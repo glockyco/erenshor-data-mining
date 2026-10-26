@@ -26,7 +26,7 @@ The publisher SHALL require a nonempty explicit selection of exact wiki page tit
 
 ### Requirement: A prepared plan identifies exact writes
 
-Preparation SHALL produce a deterministic immutable plan and review artifacts containing every selected operation, dependency, local output, remote destination, exact payload hash, expected base, expected owned post-state, and recovery limit. The complete payloads SHALL be available for review. Selected tabs for one spreadsheet SHALL form one native atomic operation with a complete stable workbook preimage and exact request-body bytes. Provider-managed reference rebasing SHALL NOT be represented as a locally predicted formula postimage. No live mutation SHALL occur during preparation or dry run. Counts, command strings, or provisional render checks SHALL NOT substitute for exact payloads.
+Preparation SHALL produce a deterministic immutable plan and review artifacts listing every selected operation, dependency, local output, remote destination, exact payload hash, expected base, expected owned post-state and recovery limit. Complete payloads SHALL be available for review. Counts, command strings or provisional render checks SHALL NOT substitute for exact payloads. No live mutation SHALL occur during preparation or dry run.
 
 #### Scenario: Preview contains wiki, map, and sheet operations
 - **WHEN** an operator dry-runs a prepared plan
@@ -34,6 +34,10 @@ Preparation SHALL produce a deterministic immutable plan and review artifacts co
 - **AND** it includes exact atomic Sheets body bytes and size, the complete stable workbook preimage, typed owned values and final table ranges, and structural effects on surrounding content
 - **AND** it records fixed bases or explicit predecessor-receipt references
 - **AND** no live write occurs
+
+### Requirement: Prepared spreadsheet operations preserve the exact native batch
+
+Selected tabs for one spreadsheet SHALL form one native atomic operation with a complete stable workbook preimage and exact request-body bytes. Provider-managed reference rebasing SHALL NOT be represented as a locally predicted formula postimage.
 
 #### Scenario: A workbook payload is too large for terminal review
 - **WHEN** preparation or dry-run inspection includes a large stable workbook or typed row payload
@@ -129,7 +133,7 @@ The plan SHALL deterministically order selected data and shared link-catalog wri
 
 ### Requirement: People's prose requires separate review and regeneration
 
-The publisher SHALL preserve people's prose except for exact one-time replacements supplied in a separately reviewed variant-local edit file. It SHALL capture and hash the edit file's bytes once, parse that same capture, and require the source still to match the separate review digest before finalizing preparation. It SHALL bind that file and its review declaration to the plan. It SHALL NOT infer prose edits, copy those texts into tracked repository content, or treat general publish approval as permission to invent prose changes. Affected article deploys SHALL follow the reviewed prose edits, refetch, regeneration, and validation.
+The publisher SHALL preserve people's prose except for exact one-time replacements supplied in a separately reviewed variant-local edit file. It SHALL NOT infer prose edits, copy those texts into tracked repository content, or treat general publish approval as permission to invent prose changes. Affected article deploys SHALL follow the reviewed prose edits, refetch, regeneration, and validation.
 
 #### Scenario: Prose changes on a page with a generated root
 - **WHEN** a separately reviewed replacement and a generated-root update target the same article
@@ -148,6 +152,10 @@ The publisher SHALL preserve people's prose except for exact one-time replacemen
 - **WHEN** selection includes a prose file without a matching separate review declaration
 - **THEN** preparation rejects the prose operation
 - **AND** it does not synthesize or apply a replacement
+
+### Requirement: Prose review binds the same captured file bytes
+
+Preparation SHALL capture and hash the prose edit file's bytes once, parse that same capture, and require the source still to match the separate review digest before finalizing preparation. It SHALL bind that file and its review declaration to the plan.
 
 #### Scenario: The prose file changes during preparation
 - **WHEN** a file replacement occurs after its separate review digest was checked
@@ -185,13 +193,17 @@ For each selected maps publication, preparation SHALL run the existing build pat
 
 ### Requirement: A failed operation halts plan progression
 
-The coordinator SHALL execute operations through checked calls, not a shell chain that masks earlier failures. The first failed, partial, interrupted, blocked, or uncertain operation SHALL make the plan fail and stop progression to every not-yet-started operation, including independent surfaces. Existing operation-level partial results SHALL remain visible. Explicitly selected tabs for one spreadsheet SHALL execute through one provider-atomic batch, preserving each tab's native request order. Standalone multi-tab failure collection SHALL NOT continue a coordinated plan.
+The coordinator SHALL execute operations through checked calls, not a shell chain that masks earlier failures. The first failed, partial, interrupted, blocked or uncertain operation SHALL make the plan fail and stop progression to every not-yet-started operation, including independent surfaces. Existing operation-level partial results SHALL remain visible. Standalone multi-tab failure collection SHALL NOT continue a coordinated plan.
 
 #### Scenario: A middle command fails in the historical shell-chain order
 - **WHEN** wiki article deploy fails after earlier wiki work succeeded and sheets and maps are later in the plan
 - **THEN** no later sheet or map publication starts
 - **AND** the result reports the original failing command and known earlier writes
 - **AND** a successful final subprocess cannot mask the failure
+
+### Requirement: Selected spreadsheet tabs execute as one atomic batch
+
+Explicitly selected tabs for one spreadsheet SHALL execute through one provider-atomic batch, preserving each tab's native request order.
 
 #### Scenario: A selected spreadsheet batch is rejected
 - **WHEN** Google rejects one request in the approved atomic batch before applying it
@@ -205,7 +217,7 @@ The coordinator SHALL execute operations through checked calls, not a shell chai
 
 ### Requirement: Resume reconciles partial success and native recovery
 
-The coordinator SHALL persist operation intent before mutation and durable receipts afterward. It SHALL preserve existing wiki manifests as the authority for wiki rollback. Planned wiki source text, rollback preimages and manifest replacements SHALL be durable before provider mutation. Resume SHALL be explicit, reconcile completed results and remaining bases, skip verified successful writes, and refuse unknown outcomes or invalidated approval. The spreadsheet receipt SHALL retain the complete observed stable postimage after exact owned output and preservation checks. Resume SHALL compare that observed state, not a fabricated formula projection. It SHALL NOT automatically retry uncertain mutations, roll back later editor work, or promise unsupported cross-service rollback.
+Resume SHALL be explicit, reconcile completed results and remaining bases, skip verified successful writes, and refuse unknown outcomes or invalidated approval. It SHALL NOT automatically retry uncertain mutations, roll back later editor work, or promise unsupported cross-service rollback.
 
 #### Scenario: A wiki deploy is partially successful
 - **WHEN** a native wiki deploy writes some planned pages and then stops
@@ -218,11 +230,29 @@ The coordinator SHALL persist operation intent before mutation and durable recei
 - **THEN** the operation is uncertain until uniquely reconciled with provider evidence
 - **AND** it is not blindly repeated or described as successful
 
+### Requirement: Publication persists native intent and recovery before mutation
+
+The coordinator SHALL persist operation intent before mutation and durable receipts afterward. Existing wiki manifests SHALL remain the authority for wiki rollback. Planned wiki source text, rollback preimages and manifest replacements SHALL be durable before provider mutation.
+
 #### Scenario: A standalone wiki edit loses its acknowledgement
 - **WHEN** the native writer persists its request intent and the provider commits before a timeout or process interruption
 - **THEN** its native manifest retains an unresolved per-page mutation rather than reporting zero writes
 - **AND** rollback and conversion recovery refuse to skip or blindly repeat that page
 - **AND** rollback submits the preserved original preimage bytes and verifies stored text using MediaWiki's saved-text normalization
+
+### Requirement: Resume checks observed spreadsheet receipts
+
+The spreadsheet receipt SHALL retain the complete observed stable postimage after exact owned output and preservation checks. Resume SHALL compare that observed state, not a fabricated formula projection.
+
+#### Scenario: A provider rebases spreadsheet references
+
+- **WHEN** an atomic spreadsheet operation completes with provider-managed reference rebasing
+- **THEN** its receipt retains the complete observed stable postimage after owned-output and preservation checks
+- **AND** resume compares that observed state rather than a locally predicted formula result
+
+### Requirement: Resume refuses drift and unsupported recovery promises
+
+Resume SHALL refuse to overwrite later editor work and SHALL NOT promise unsupported cross-service rollback.
 
 #### Scenario: Completed work is changed before resume
 - **WHEN** a completed destination no longer matches its recorded receipt and expected content
