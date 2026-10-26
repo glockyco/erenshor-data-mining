@@ -146,7 +146,12 @@ def test_flake_builds_locked_python_and_bootstraps_mutable_tools() -> None:
     assert {"pyproject-build-systems", "pyproject-nix", "uv2nix"} <= lock["nodes"].keys()
 
     assert "assert assertPnpmVersion pkgs;" in flake
+    assert 'expected = "pnpm@${pkgs.pnpm_10_latest.version}"' in flake
+    assert flake.count("pkgs.pnpm_10_latest") == 4
+    assert "pkgs.pnpm_10\n" not in flake
     assert 'name = "erenshor-sync-pnpm-version"' in flake
+    assert 'package_manager="pnpm@${pkgs.pnpm_10_latest.version}"' in flake
+    assert "pnpm --version" not in flake
     assert "nix run .#sync-pnpm-version" in flake
     assert "pnpm install --frozen-lockfile" in flake
     assert "dotnet tool restore" in flake

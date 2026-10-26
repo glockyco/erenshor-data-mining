@@ -1,7 +1,7 @@
 {
   "name": "erenshor",
   "private": true,
-  "packageManager": "pnpm@10.34.0",
+  "packageManager": "pnpm@10.34.5",
   "scripts": {
     "prepare": "lefthook install --reset-hooks-path",
     "check": "pnpm --filter erenshor-maps check",
