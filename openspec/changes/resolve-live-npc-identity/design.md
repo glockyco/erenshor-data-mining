@@ -4,6 +4,22 @@
 
 See `proposal.md` — Why. This is planning only. The audit below was performed on the current tree and `variants/main/erenshor-main.sqlite`; it is not an in-game observation. Implementation must attach runtime and browser evidence before claiming end-to-end correctness.
 
+### Specification source references
+
+Startup rename reference: `variants/main/unity/ExportedProject/Assets/Scripts/Assembly-CSharp/NPC.cs:462-467`. Capture precedents: `src/mods/AdventureGuide/src/Navigation/NpcOrigins.cs:30-78` and `src/mods/AdventureGuide/src/Patches/NpcStartPatch.cs:21-29`. These references motivate the proposed capture behavior rather than establish that it is implemented.
+
+Baseline wire-contract references: `src/mods/InteractiveMapCompanion/src/Entities/EntityData.cs:8-39`, `src/mods/InteractiveMapCompanion/src/Protocol/MessageSerializer.cs:12-20` and `src/mods/InteractiveMapCompanion/src/Protocol/ProtocolVersion.cs:9`.
+
+Non-fatal negotiation reference: `src/maps/src/lib/map/live/connection.ts:129-145`.
+
+Prerendered-data reference: `src/maps/src/lib/map-world-data.server.ts:568-605`.
+
+Baseline candidate and loot references: `src/maps/src/lib/map/character-details.ts:28-71` and `src/maps/src/lib/components/map/popups/LiveNpcPopupContent.svelte:17-33,59-77`. Runtime-name extraction references: `src/mods/InteractiveMapCompanion/src/Entities/EntityExtractor.cs:16` and `variants/main/unity/ExportedProject/Assets/Scripts/Assembly-CSharp/NPC.cs:518`. The baseline display-name index is `src/maps/src/lib/database.base.ts:1463`. These references motivate the proposed runtime-name fallback rather than establish that it is implemented.
+
+Export identity and duplicate-suffix reference: `src/Assets/Editor/StableKeyGenerator.cs:155-183`.
+
+Placement-distance policy reference: `src/mods/AdventureGuide/src/Navigation/DirectPlacementPolicy.cs:25-27`.
+
 ### Legacy-plan audit
 
 The removed plan was read with `git show 47bda266:docs/plans/2026-08-05-live-npc-identity.md`. Its goal remains the issue's goal; its following premises and prescribed paths must not be copied uncritically.

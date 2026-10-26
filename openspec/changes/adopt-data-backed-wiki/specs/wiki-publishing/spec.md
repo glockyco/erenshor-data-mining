@@ -21,7 +21,7 @@ Generated game data SHALL reach the wiki only through the bot-owned Lua data mod
 
 ### Requirement: Only fields that people own can be overridden
 
-A data-backed template SHALL let an article override only the fields that people own: the image, the image caption, other sources, and the location, and on zone pages also the level, the type, the connections, and the map link. A parameter for any other field SHALL NOT change the rendered value, and the page SHALL join a tracking category that names the parameter. When an entry of other sources links an entity by its stable key, and the data module holds that entity as a source, the page SHALL join a tracking category for editor entries that the data covers.
+A data-backed template SHALL let an article override only the fields that people own: the image, the image caption, other sources, and the location, and on zone pages also the level, the type, the connections, and the map link. A parameter for any other field SHALL NOT change the rendered value, and the page SHALL join a tracking category that names the parameter.
 
 #### Scenario: An editor sets an owned field
 
@@ -33,6 +33,10 @@ A data-backed template SHALL let an article override only the fields that people
 - **WHEN** an item article passes `damage=99` to its data-backed template
 - **THEN** the infobox shows the damage from the data module
 - **AND** the page joins the tracking category for parameters that cannot override data
+
+### Requirement: Editor sources covered by data are tracked
+
+When an entry of other sources links an entity by its stable key, and the data module holds that entity as a source, the page SHALL join a tracking category for editor entries that the data covers.
 
 #### Scenario: The data catches up with an editor's source
 
@@ -109,7 +113,7 @@ Before it writes anything, `wiki deploy-repo-pages` SHALL check each module and 
 
 ### Requirement: Repository pages pass a render check before they are written
 
-Before it writes a module or template that main-namespace pages use, `wiki deploy-repo-pages` SHALL parse a selection of those pages twice on the live wiki: with the live text, and with the new text in its place through TemplateSandbox. By default, the selection SHALL cover every template, every filled template parameter, every `type` and `kind` value, and every entity kind and subtype that occurs on the pages that use it, each at least once. On request, the selection SHALL be every page that uses it. The command SHALL NOT write the page when a parse with the new text shows a script error or a missing template that the live parse does not show. It SHALL report each selected page whose visible text or categories differ. A dry run SHALL run the same check and report its results.
+Before it writes a module or template that main-namespace pages use, `wiki deploy-repo-pages` SHALL parse selected pages twice on the live wiki, with live text and with new text through TemplateSandbox. It SHALL block a write when only the new parse has a script error or missing template, and report each selected page whose visible text or categories differ. A dry run SHALL run the same check and report its results.
 
 #### Scenario: A module change causes a script error
 
@@ -122,6 +126,15 @@ Before it writes a module or template that main-namespace pages use, `wiki deplo
 - **WHEN** the new text of a template changes the visible text of a selected page without a script error
 - **THEN** the dry run lists the page with the removed and added lines
 
+#### Scenario: No page uses the template yet
+
+- **WHEN** no main-namespace page uses a template that the run would create
+- **THEN** the render check reports that it had no page to parse
+
+### Requirement: Render selection covers every page type
+
+The default render-check selection SHALL cover every template, every filled template parameter, every `type` and `kind` value, and every entity kind and subtype that occurs on pages using the changed module or template, each at least once. On request, the selection SHALL include every main-namespace page that uses it.
+
 #### Scenario: The selection covers every page type
 
 - **WHEN** a template is used by 800 pages, and only one of them passes `kind=Aura`
@@ -131,11 +144,6 @@ Before it writes a module or template that main-namespace pages use, `wiki deplo
 
 - **WHEN** the run asks for a full render check
 - **THEN** every main-namespace page that uses the changed page is parsed
-
-#### Scenario: No page uses the template yet
-
-- **WHEN** no main-namespace page uses a template that the run would create
-- **THEN** the render check reports that it had no page to parse
 
 ### Requirement: Data modules fit on a wiki page
 
@@ -148,7 +156,7 @@ Before it writes a module or template that main-namespace pages use, `wiki deplo
 
 ### Requirement: Hover tooltips open beside their link
 
-The item and ability tooltip gadget SHALL open a tooltip beside its link: on the right when the viewport has room, otherwise on the left. It SHALL keep the tooltip inside the viewport, limit its height to the viewport, and let it scroll. Only when neither side has room SHALL the tooltip open above or below the link. Keyboard focus SHALL open the tooltip at once and name it in the link's `aria-describedby`. Escape SHALL close the tooltip without moving focus. On a touch screen, hover tooltips SHALL stay closed, so that a tap follows the link.
+The item and ability tooltip gadget SHALL open a tooltip beside its link, on the right when the viewport has room, otherwise on the left. It SHALL keep the tooltip inside the viewport, limit its height to the viewport, and let it scroll. Only when neither side has room SHALL the tooltip open above or below the link.
 
 #### Scenario: A link in a table
 
@@ -165,6 +173,10 @@ The item and ability tooltip gadget SHALL open a tooltip beside its link: on the
 
 - **WHEN** a tooltip is taller than the viewport
 - **THEN** it stays inside the viewport and scrolls
+
+### Requirement: Tooltip interaction respects keyboard and touch input
+
+Keyboard focus SHALL open the tooltip at once and name it in the link's `aria-describedby`. Escape SHALL close the tooltip without moving focus. On a touch screen, hover tooltips SHALL stay closed so that a tap follows the link.
 
 #### Scenario: Keyboard use
 

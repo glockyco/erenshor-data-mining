@@ -23,11 +23,6 @@ The pipeline SHALL take the items of each special world drop roll from the expor
 
 The clean database SHALL hold one special world drop row for each item and roll. Each row SHALL state the selection chance per eligible kill at the default loot rate and without bonuses, before owned unique-item replacement, and the level that the killed character must strictly exceed. For a roll that picks from a pool, the chance of an item SHALL be the roll chance times the item's share of the pool entries. The mask branch split SHALL come from its code fact.
 
-The rows SHALL NOT imply that every loot-table host is eligible. A missing host, `DestroyOnDeath`, or an NPC's `DoNotLeaveCorpse` prevents all special rolls. Ordinary noncommon-drop caps do not limit special rolls.
-
-Special rolls SHALL be treated as independent checks, not as a categorical pool. Ordinary masks and the Molorai Mask are mutually exclusive branches of one mask check. Adding independent roll probabilities SHALL NOT be used to calculate the probability of at least one special drop.
-
-Server loot-rate, blessing and top-guild bonuses apply to the other special checks, but not to the mask check. Published default probabilities SHALL NOT be presented as bonus-adjusted probabilities.
 
 #### Scenario: A single-item roll
 
@@ -59,10 +54,33 @@ Server loot-rate, blessing and top-guild bonuses apply to the other special chec
 - **AND** the selection chance SHALL NOT be labelled an unconditional chance of receiving that mask
 - **AND** pickup SHALL NOT be modelled as another ownership check
 
+### Requirement: Special roll eligibility is independent of ordinary caps
+
+The rows SHALL NOT imply that every loot-table host is eligible. A missing host, `DestroyOnDeath`, or an NPC's `DoNotLeaveCorpse` prevents all special rolls. Ordinary noncommon-drop caps do not limit special rolls.
+
+#### Scenario: An ineligible host
+
+- WHEN a host is missing, has `DestroyOnDeath`, or is an NPC with `DoNotLeaveCorpse`
+- THEN no special roll is eligible
+
+### Requirement: Special roll probabilities preserve independent checks
+
+Special rolls SHALL be treated as independent checks, not as a categorical pool. Ordinary masks and the Molorai Mask are mutually exclusive branches of one mask check. Adding independent roll probabilities SHALL NOT be used to calculate the probability of at least one special drop.
+
 #### Scenario: Independent successes
 
 - **WHEN** two eligible special checks both succeed
 - **THEN** both selections are retained regardless of the ordinary noncommon-drop cap
+
+### Requirement: Default probabilities do not imply adjusted bonuses
+
+Server loot-rate, blessing and top-guild bonuses apply to the other special checks, but not to the mask check. Published default probabilities SHALL NOT be presented as bonus-adjusted probabilities.
+
+#### Scenario: A bonus changes the loot rate
+
+- WHEN a server loot-rate, blessing, or top-guild bonus applies
+- THEN the mask check remains unadjusted
+- AND published default probabilities are not labelled as bonus-adjusted
 
 ### Requirement: Disabled rolls produce no rows
 
@@ -80,7 +98,7 @@ A roll that a game flag disables in the shipping build SHALL produce no rows.
 
 ### Requirement: Item outputs show world drops as a source
 
-The wiki item page, the drop-chances sheet, the wiki's Lua item data, and the map item search SHALL show each special world drop row of an item as a world drop source with its default selection chance and level gate. They SHALL NOT attribute the drop to a specific character. Visitor-facing text SHALL use concise conventional drop-chance labels. The world-drop view SHALL use a concise default-rate note without technical eligibility or ownership-replacement disclaimers. Developer documentation SHALL retain the exact host, bonus, independence and unique-item replacement semantics.
+The wiki item page, the drop-chances sheet, the wiki's Lua item data, and the map item search SHALL show each special world drop row of an item as a world drop source with its default selection chance and level gate. They SHALL NOT attribute the drop to a specific character.
 
 #### Scenario: Crystallized Balance on the wiki
 
@@ -98,3 +116,21 @@ The wiki item page, the drop-chances sheet, the wiki's Lua item data, and the ma
 
 - **WHEN** the sheets are generated
 - **THEN** the drop-chances sheet has a world drop row for each special world drop row, with the level gate
+
+### Requirement: Visitor-facing world drop labels stay concise
+
+Visitor-facing text SHALL use concise conventional drop-chance labels. The world-drop view SHALL use a concise default-rate note without technical eligibility or ownership-replacement disclaimers.
+
+#### Scenario: Visitor-facing default-rate note
+
+- WHEN the world-drop view displays its default-rate note
+- THEN it uses a concise note without technical eligibility or ownership-replacement disclaimers
+
+### Requirement: Developer documentation retains world drop semantics
+
+Developer documentation SHALL retain the exact host, bonus, independence and unique-item replacement semantics.
+
+#### Scenario: Developer explanation of special rolls
+
+- WHEN developer documentation describes special world drops
+- THEN it retains the exact host, bonus, independence and unique-item replacement semantics

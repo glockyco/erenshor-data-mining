@@ -7,12 +7,31 @@ Defines the one encounter tier (npc, boss, elite, enemy) each character carries,
 
 ### Requirement: Every character has one encounter tier
 
-The clean database SHALL store one encounter tier per character: `npc`, `chest`, `boss`, `elite`, or `enemy`. A character of the TreasureChest faction SHALL be `chest`, and a deduplication group that mixes chests and other characters SHALL fail the build. Members of one deduplication group SHALL share the tier computed from all their spawns. Friendly characters SHALL be `npc`. A character SHALL be friendly when its faction is a good faction and its AggressiveTowards list names neither Player nor PC. A hostile character that the Chessboard event script spawns SHALL be `boss`. A raid scene SHALL be a scene whose PlanarMusicManager lists boss spawn points, or the scene of Vitheo's arena. A hostile character that spawns only in raid scenes SHALL be `boss` when the game names it as a raid boss, and `enemy` otherwise. The game names a raid boss when the character spawns at a PlanarMusicManager's BigBossSpawn or MidBossSpawns, or fights in an arena round that starts boss music (rounds 2, 5, 7, and 8). Elsewhere, the rule SHALL read the prefab BossXp, because the game raises the BossXp of every NPC of level 40 or higher. A hostile character SHALL be `boss` when its prefab BossXp is above 1 and it has at most one ordinary spawn placement, or when it has exactly one ordinary spawn placement. A hostile character with prefab BossXp above 1 and several ordinary placements SHALL be `elite`. Every other hostile character SHALL be `enemy`.
+The clean database SHALL store one encounter tier per character: `npc`, `chest`, `boss`, `elite`, or `enemy`. Members of one deduplication group SHALL share the tier computed from all their spawns.
+
+#### Scenario: Deduplicated character
+
+- WHEN several spawns belong to one deduplication group
+- THEN the group shares one tier computed from all its spawns
+
+### Requirement: Ordinary hostile placement tiers
+
+Outside raid-only spawns and Chessboard event spawns, the rule SHALL read the prefab BossXp, because the game raises the BossXp of every NPC of level 40 or higher. A hostile character SHALL be `boss` when its prefab BossXp is above 1 and it has at most one ordinary spawn placement, or when it has exactly one ordinary spawn placement.
 
 #### Scenario: Event-spawned boss
 
 - **WHEN** a hostile character outside the raid scenes has BossXp 3 and appears only through an event script
 - **THEN** its tier is `boss`
+
+#### Scenario: Single placement without BossXp
+
+- **WHEN** a hostile character has BossXp 0 and exactly one ordinary placement
+- **THEN** its tier is `boss`
+
+
+### Requirement: Repeated hostile placement tiers
+
+A hostile character with prefab BossXp above 1 and several ordinary placements SHALL be `elite`. Every other hostile character not classified as a boss SHALL be `enemy`.
 
 #### Scenario: Roaming named character
 
@@ -24,30 +43,41 @@ The clean database SHALL store one encounter tier per character: `npc`, `chest`,
 - **WHEN** a hostile level-42 character outside the raid scenes has BossXp 0 and 20 ordinary placements
 - **THEN** its tier is `enemy`
 
+### Requirement: Raid scene and boss identification
+
+A raid scene SHALL be a scene whose PlanarMusicManager lists boss spawn points, or the scene of Vitheo's arena. The game names a raid boss when the character spawns at a PlanarMusicManager's BigBossSpawn or MidBossSpawns, or fights in an arena round that starts boss music (rounds 2, 5, 7, and 8). A hostile character that spawns only in raid scenes SHALL be `boss` when the game names it as a raid boss, and `enemy` otherwise.
+
 #### Scenario: Add in a raid fight
 
 - **WHEN** a fight script in a raid plane spawns a character that no PlanarMusicManager list names
 - **THEN** its tier is `enemy`, whatever its BossXp
-
-#### Scenario: Chessboard piece
-
-- **WHEN** the Chessboard event spawns a class piece that has BossXp 0
-- **THEN** its tier is `boss`
 
 #### Scenario: Raid mid-boss
 
 - **WHEN** a character spawns at a spawn point in a PlanarMusicManager's MidBossSpawns
 - **THEN** its tier is `boss`
 
-#### Scenario: Single placement without BossXp
+### Requirement: Chessboard encounter tier
 
-- **WHEN** a hostile character has BossXp 0 and exactly one ordinary placement
+A hostile character that the Chessboard event script spawns SHALL be `boss`.
+
+#### Scenario: Chessboard piece
+
+- **WHEN** the Chessboard event spawns a class piece that has BossXp 0
 - **THEN** its tier is `boss`
+
+### Requirement: Friendly encounter tier
+
+Friendly characters SHALL be `npc`. A character SHALL be friendly when its faction is a good faction and its AggressiveTowards list names neither Player nor PC.
 
 #### Scenario: Good-faction character that attacks the player
 
 - **WHEN** a Villager-faction character is aggressive towards Player
 - **THEN** it is hostile, and its tier is not `npc`
+
+### Requirement: Chest encounter tier
+
+A character of the TreasureChest faction SHALL be `chest`, and a deduplication group that mixes chests and other characters SHALL fail the build.
 
 #### Scenario: Arena award chest
 

@@ -21,12 +21,25 @@ A test that replaces an external system the production code talks to (for exampl
 
 ### Requirement: A command's collaborators are substituted through their factory
 
-Each CLI command MUST build each client of an external system (such as the wiki's API or Google Sheets) in one factory, and that factory MUST accept the client as an override. A test that runs the command against a double of that client MUST pass the double through that override, not replace the factory with a function that skips it. Local resources a command assembles for itself (its database connection, storage, and generator context) are not external systems, and a test whose service is itself a double may supply them directly.
+Each CLI command SHALL build each client of an external system (such as the wiki's API or Google Sheets) in one factory, and that factory SHALL accept the client as an override. A test that runs the command against a double of that client SHALL pass the double through that override, not replace the factory with a function that skips it.
 
 #### Scenario: A test replaces a command's collaborator
 
 - **WHEN** a test runs a CLI command against a double instead of its real collaborator
 - **THEN** the double reaches the command through the factory's override, and the rest of the factory's construction runs as in production
+
+### Requirement: Local test resources may be supplied directly
+
+Local resources a command assembles for itself (its database connection, storage, and generator context) SHALL NOT be treated as external systems. A test whose service is itself a double SHALL be permitted to supply them directly.
+
+#### Scenario: A doubled service receives local resources
+
+- WHEN a test supplies a service double with a database connection, storage, or generator context
+- THEN it may supply those local resources directly
+
+### Requirement: Tests can detect forbidden collaborator construction
+
+A test that asserts a command does not build a collaborator SHALL be permitted to replace the factory with one that fails if called.
 
 #### Scenario: A test must prove a collaborator is never built
 
