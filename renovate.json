@@ -1,10 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["local>glockyco/renovate-config"],
-  "automerge": false,
-  "platformAutomerge": false,
   "labels": ["dependencies"],
-  "minimumReleaseAge": "3 days",
   "minimumReleaseAgeBehaviour": "timestamp-required",
   "internalChecksFilter": "strict",
   "major": {
@@ -12,7 +9,6 @@
   },
   "vulnerabilityAlerts": {
     "enabled": true,
-    "automerge": false,
     "dependencyDashboardApproval": false,
     "labels": ["dependencies", "security"]
   },
