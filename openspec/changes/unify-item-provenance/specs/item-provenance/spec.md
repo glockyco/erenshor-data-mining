@@ -62,7 +62,7 @@ The contract SHALL retain originating item keys, source identities, encountered 
 
 ### Requirement: Numeric semantics survive projection
 
-The contract and its output adapters SHALL distinguish exact, bounded, zero, unknown and inapplicable probabilities. They SHALL retain probability basis, quantities, guaranteed-pool semantics, expected counts and count distributions when available. Unknown values SHALL NOT become guaranteed, zero, or one by default.
+The selection and its public view SHALL distinguish exact, bounded, zero, unknown and inapplicable probabilities. The selection SHALL retain probability basis, quantities, guaranteed-pool semantics, expected counts and count distributions when available, and the public view SHALL retain the basis, the quantity range, the average and whether the item itself is guaranteed. Unknown values SHALL NOT become guaranteed, zero, or one by default.
 
 #### Scenario: Guaranteed pool contains several items
 
@@ -127,24 +127,24 @@ Every output SHALL use the same reviewed item lifecycle disposition. Missing acq
 - WHEN an item has no acquisition source and no reviewed retired disposition
 - THEN the system reports the unresolved or source-free state without inventing a removed-content fact
 
-### Requirement: Cross-output coverage conserves facts
+### Requirement: Coverage accounts for inputs and identities
 
-Build and generation validation SHALL account for every canonical acquisition/use identity and every mandatory dimension on each maintained output. A reversible grouping or explicit surface visibility disposition MAY account for a fact. Missing identities, probabilities, quantities, conditions, location relations or lifecycle dispositions SHALL fail validation. Independent input-to-contract coverage SHALL prevent all consumers agreeing on the same omission.
-
-#### Scenario: A source row remains but a condition disappears
-
-- WHEN an adapter emits a source identity without its mandatory furnishing, quest, actor-level or time condition
-- THEN coverage validation fails even though the output contains a nonempty source row
+The build SHALL account for every row of every input relation as used by a fact or excluded with a reason, and SHALL fail on a populated native input table it does not support. Each maintained output SHALL account for every public source and use identity as shown or left out with a reason. Coverage SHALL compare identities, not fields across outputs, and no output SHALL carry a field that only coverage reads.
 
 #### Scenario: A populated input family is discarded by the selector
 
-- WHEN an input-to-contract anti-join finds an unexplained acquisition or use record
+- WHEN an input row is neither used by a fact nor excluded with a reason
 - THEN database construction fails and names the input identity
 - AND positive controls distinguish genuinely empty input from a broken query
 
+#### Scenario: An output drops a public source
+
+- WHEN an output neither shows a public source nor records why it leaves it out
+- THEN its coverage check fails and names the source
+
 ### Requirement: Publication and rollback keep a coherent contract
 
-Consumers SHALL reject incompatible provenance schema versions. Rollback SHALL restore matching database and generated output versions. The public SQLite URL SHALL remain available. Low-level relations SHALL remain only where required as producer inputs, and obsolete schema SHALL NOT be retained solely as compatibility tables or views for unknown consumers.
+Consumers SHALL reject incompatible provenance schema versions. Rollback SHALL restore matching database and generated output versions. The map SHALL NOT publish the clean database file. Low-level relations SHALL remain only where required as producer inputs, and obsolete schema SHALL NOT be retained solely as compatibility tables or views for unknown consumers.
 
 #### Scenario: Reader and database versions differ
 
@@ -203,20 +203,31 @@ A configured quest reward SHALL NOT become an item acquisition solely because a 
 - WHEN a reward-granting route also marks another quest complete without executing that other quest's reward grant
 - THEN it does not create acquisitions for the other quest's configured rewards
 
-### Requirement: Shared facts are stored once
+### Requirement: Outputs receive only the public view
 
-The clean database SHALL store a location, condition or parameter that several facts share once, with the source or mechanism they share it through. A serialized payload SHALL NOT repeat a source's locations for each of its facts. The clean build and the map build SHALL fail when an output exceeds its size limit.
+The build SHALL derive one public view from the selection: the sources and uses a player can act on, the conditions a player must meet, each source's places once, the parameters pages show and each item's status. The clean database SHALL store the public view instead of the complete selection. Every maintained output SHALL read the public view and SHALL NOT decide again which facts or conditions players see.
 
 #### Scenario: A character drops several items
 
 - WHEN a character with several spawn points drops several items
-- THEN the clean database stores each spawn point once for that character
-- AND every drop of the character resolves to those spawn points
+- THEN the public view stores each spawn point once for that character
+- AND every drop of the character refers to those spawn points by key
 
-#### Scenario: A mechanism applies one formula to every input
+#### Scenario: A fact no player can act on
 
-- WHEN every input of a mechanism shares its formula and eligibility
-- THEN the clean database stores the formula and eligibility once for the mechanism
+- WHEN a fact is internal-only, unconfirmed, a native pool rate or has a zero chance
+- THEN no output receives it
+- AND the build report lists it with its reason
+
+#### Scenario: A condition that describes a mechanism
+
+- WHEN a fact carries a formula operand, a mechanism parameter or an ownership history condition
+- THEN the public view does not list it as a condition a player meets
+- AND a mechanism parameter that a page shows is stored once for the mechanism
+
+### Requirement: Builds fail when an output exceeds its size limit
+
+The clean build SHALL fail when the database exceeds its budget, and the map build SHALL fail when one of its files exceeds 25 MiB.
 
 #### Scenario: An output outgrows its limit
 

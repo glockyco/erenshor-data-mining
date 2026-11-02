@@ -7,10 +7,10 @@ Item acquisition is selected independently by article generation, Lua data, map 
 ## What Changes
 
 - Select acquisition and item-use facts once during clean database construction, without wiki or map visibility filtering.
-- Publish a versioned, stable-keyed contract for sources, outcomes, quantities, conditions, locations and reviewed lifecycle dispositions, with what several facts share stored once. The build checks which input rows each fact uses without publishing that evidence.
+- Derive one versioned, stable-keyed public view from the selection: the sources and uses a player can act on, the conditions a player must meet, each source's places once, and reviewed lifecycle dispositions. Every output reads only that view, and the clean database stores it instead of the complete selection. The build checks which input rows each fact uses without publishing that evidence, and reports what the public view leaves out.
 - Preserve encountered character copies separately from display representatives, item variants separately from page aliases, and random or unlocated sources separately from marker locations.
 - Migrate all maintained consumers, including existing parameter-based article generation during the transition. Remove their independent source-selection queries rather than retain a second implementation.
-- Add cross-output fact-coverage accounting that fails on silent loss, unsupported kinds, and contradictory or unresolved identities.
+- Add input accounting that fails on input rows the selector neither uses nor excludes, and identity coverage that fails when an output silently drops a public source or use.
 - Keep rendering, navigation ranking, and surface-specific grouping in their respective consumers.
 
 ## Capabilities
@@ -25,7 +25,7 @@ None. Existing publication and lifecycle contracts remain in force.
 
 ## Impact
 
-The processor, clean SQLite schema, database repositories, wiki article and Lua generators, vendor/world-drop views, map item sources and character loot, guide graph/compiler/JSON, obtainability queries, and Sheets source queries change together. SQLite publication stays at its current URL. Low-level relations remain only where they are producer inputs. Remove obsolete source-selection schema after the maintained cutover rather than preserve compatibility tables or views for unknown consumers.
+The processor, clean SQLite schema, database repositories, wiki article and Lua generators, vendor/world-drop views, map item sources and character loot, guide graph/compiler/JSON and the mod's data readers, obtainability queries, and Sheets source queries change together. The map stops publishing the clean database at `/db/erenshor.sqlite`, which no first-party code has read since September and no application requested in the last 30 days. Low-level relations remain only where they are producer inputs. Remove obsolete source-selection schema after the maintained cutover rather than preserve compatibility tables or views for unknown consumers.
 
 ## Goals and Non-Goals
 
