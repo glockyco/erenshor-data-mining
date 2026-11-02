@@ -26,6 +26,7 @@ from erenshor.domain.value_objects.item_public_view import (
     PublicUse,
     PublicView,
     condition_omission_reason,
+    drop_implied_gates,
     public_conditions,
 )
 
@@ -99,6 +100,11 @@ class _Places:
             raise ValueError(f"Place set {key} names two different sets of places")
         return key
 
+    def conditions(self, fact: ItemAcquisition | ItemUse, key: str | None) -> tuple[PublicCondition, ...]:
+        """A fact's public conditions, without the gates that each of its places already requires."""
+        implied_by = tuple(public_conditions(location.conditions) for location in self.sets.get(key or "", ()))
+        return drop_implied_gates(public_conditions(fact.conditions), implied_by)
+
     def places(self) -> tuple[PublicPlace, ...]:
         return tuple(
             PublicPlace(
@@ -126,7 +132,7 @@ def _fact_key(fact: ItemAcquisition | ItemUse) -> str:
     return fact.acquisition_key if isinstance(fact, ItemAcquisition) else fact.use_key
 
 
-def _source(fact: ItemAcquisition, place_set_key: str | None) -> PublicSource:
+def _source(fact: ItemAcquisition, place_set_key: str | None, conditions: tuple[PublicCondition, ...]) -> PublicSource:
     return PublicSource(
         fact.acquisition_key,
         fact.item_stable_key,
@@ -146,7 +152,7 @@ def _source(fact: ItemAcquisition, place_set_key: str | None) -> PublicSource:
         fact.expected_quantity,
         fact.guarantee_scope == "item",
         place_set_key,
-        public_conditions(fact.conditions),
+        conditions,
     )
 
 
@@ -223,9 +229,10 @@ def derive_public_view(
         if reason is not None:
             omissions.append(Omission(fact.acquisition_key, reason))
             continue
-        sources.append(_source(fact, places.key(fact)))
+        place_set = places.key(fact)
+        sources.append(_source(fact, place_set, places.conditions(fact, place_set)))
         public_keys.add(fact.acquisition_key)
-        _count_hidden(fact.conditions, hidden_conditions)
+        _count_hidden(fact.conditions, sources[-1].conditions, hidden_conditions)
     for bonus in bonuses.values():
         if bonus.acquisition_key in members:
             sources.append(_any_water(bonus, members[bonus.acquisition_key]))
@@ -247,6 +254,7 @@ def derive_public_view(
         if reason is not None:
             omissions.append(Omission(use.use_key, reason))
             continue
+        place_set = places.key(use)
         public_uses.append(
             PublicUse(
                 use.use_key,
@@ -260,11 +268,11 @@ def derive_public_view(
                 use.quantity_max,
                 use.mechanic,
                 use.outcome_key,
-                places.key(use),
-                public_conditions(use.conditions),
+                place_set,
+                places.conditions(use, place_set),
             )
         )
-        _count_hidden(use.conditions, hidden_conditions)
+        _count_hidden(use.conditions, public_uses[-1].conditions, hidden_conditions)
 
     public_mechanics = {source.mechanic for source in sources} | {use.mechanic for use in public_uses}
     parameters = tuple(
@@ -304,12 +312,16 @@ def derive_public_view(
     )
 
 
-def _count_hidden(conditions: tuple[ProvenanceCondition, ...], counter: Counter[tuple[str, str]]) -> None:
-    shown = {(atom.gate_key, atom.predicate, atom.phase, atom.value) for atom in public_conditions(conditions)}
+def _count_hidden(
+    conditions: tuple[ProvenanceCondition, ...], shown: tuple[PublicCondition, ...], counter: Counter[tuple[str, str]]
+) -> None:
+    kept = {(atom.gate_key, atom.predicate, atom.phase, atom.value) for atom in shown}
     for atom in conditions:
         reason = condition_omission_reason(atom)
-        if reason is None and (atom.gate_key, atom.predicate, atom.phase, atom.value) not in shown:
-            reason = "gate_with_hidden_alternative"
+        if reason is None and (atom.gate_key, atom.predicate, atom.phase, atom.value) not in kept:
+            # The gate had an alternative that needs nothing a player meets, or another gate or
+            # every place of the fact already requires it.
+            reason = "gate_hidden_or_implied"
         if reason is not None:
             counter[reason, atom.predicate] += 1
 

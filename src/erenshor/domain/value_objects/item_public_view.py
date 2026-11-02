@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -51,7 +51,8 @@ def public_conditions(conditions: tuple[ProvenanceCondition, ...]) -> tuple[Publ
     """Keep the gates a player meets.
 
     A gate with an alternative that holds only hidden atoms is left out, because one of its
-    alternatives needs nothing a player meets.
+    alternatives needs nothing a player meets. A gate that another gate implies is left out too,
+    such as a character's activation that its spawn point repeats.
     """
     gates: dict[tuple[str, str, str], dict[int, list[ProvenanceCondition]]] = {}
     for condition in conditions:
@@ -92,7 +93,64 @@ def public_conditions(conditions: tuple[ProvenanceCondition, ...]) -> tuple[Publ
                     )
                 )
         gate_index += 1
-    return tuple(result)
+    return drop_implied_gates(tuple(result))
+
+
+_Gate = tuple[frozenset[tuple[object, ...]], ...]
+
+
+def _gates(conditions: tuple[PublicCondition, ...]) -> dict[int, _Gate]:
+    alternatives: dict[int, dict[int, set[tuple[object, ...]]]] = {}
+    for atom in conditions:
+        identity = (
+            atom.predicate,
+            atom.reference_stable_key,
+            atom.reference_slot,
+            atom.actor,
+            atom.value,
+            atom.minimum,
+            atom.maximum,
+            atom.minimum_inclusive,
+            atom.maximum_inclusive,
+            atom.phase,
+        )
+        alternatives.setdefault(atom.gate_index, {}).setdefault(atom.alternative_index, set()).add(identity)
+    return {
+        index: tuple(frozenset(atoms) for _, atoms in sorted(groups.items()))
+        for index, groups in sorted(alternatives.items())
+    }
+
+
+def _implies(stronger: _Gate, weaker: _Gate) -> bool:
+    """Whether every alternative of one gate contains some alternative of the other."""
+    return all(any(alternative <= option for alternative in weaker) for option in stronger)
+
+
+def drop_implied_gates(
+    conditions: tuple[PublicCondition, ...], implied_by: tuple[tuple[PublicCondition, ...], ...] = ()
+) -> tuple[PublicCondition, ...]:
+    """Leave out each gate that another of its gates implies, or that every one of `implied_by` implies.
+
+    `implied_by` holds the conditions of the places a source can be used at, because a player at any
+    of them already meets what all of them require.
+    """
+    gates = _gates(conditions)
+    others = [list(_gates(place).values()) for place in implied_by]
+    kept: list[int] = []
+    for index, gate in gates.items():
+        # Of two gates that imply each other, the first stays.
+        if any(
+            other != index and _implies(gates[other], gate) and (other in kept or not _implies(gate, gates[other]))
+            for other in gates
+        ):
+            continue
+        if others and all(any(_implies(place_gate, gate) for place_gate in place) for place in others):
+            continue
+        kept.append(index)
+    renumbered = {old: new for new, old in enumerate(kept)}
+    return tuple(
+        replace(atom, gate_index=renumbered[atom.gate_index]) for atom in conditions if atom.gate_index in renumbered
+    )
 
 
 @dataclass(frozen=True, slots=True)

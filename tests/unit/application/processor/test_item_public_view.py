@@ -107,6 +107,30 @@ def test_a_gate_with_an_alternative_that_needs_nothing_visible_is_hidden() -> No
     assert {c.gate_index for c in conditions} == {0}
 
 
+def test_a_gate_that_another_gate_or_every_place_requires_is_shown_once() -> None:
+    def activation(gate: str) -> tuple[ProvenanceCondition, ...]:
+        return (
+            condition("quest_done", gate_key=gate, reference_stable_key="quest:claim"),
+            condition("room_furnished", gate_key=gate, atom_index=1, reference_stable_key="item:vendor set"),
+        )
+
+    furnished = condition("room_furnished", gate_key="furnishing", reference_stable_key="item:vendor set")
+    place = ProvenanceLocation("spawn", "spawn", conditions=(*activation("character"), *activation("spawn"), furnished))
+    level = condition("actor_level", actor="player", minimum=5)
+    result = view(
+        acquisition(
+            "stock", conditions=(*activation("character"), level), location_source_key="character:a", locations=(place,)
+        )
+    )
+    [source] = result.sources
+    assert [(c.gate_index, c.predicate) for c in source.conditions] == [(0, "actor_level")]
+    [stored] = result.places
+    assert [(c.gate_key, c.predicate) for c in stored.conditions] == [
+        ("character", "quest_done"),
+        ("character", "room_furnished"),
+    ]
+
+
 def test_catches_at_the_global_rate_become_one_any_water_source() -> None:
     bonus = acquisition(
         "bonus",
