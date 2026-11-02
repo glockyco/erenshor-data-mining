@@ -288,13 +288,33 @@ public class ItemSource
     [JsonIgnore]
     internal ItemUseFact? CanonicalUse { get; set; }
 
+    private string? _canonicalSourceId;
+
+    /// <summary>
+    /// The public source and place, or the public use, that this entry presents. Built on first
+    /// use, because the guide resolves thousands of per-place entries at startup and most are
+    /// never asked for their identity.
+    /// </summary>
     [JsonIgnore]
-    internal string? CanonicalSourceId { get; set; }
+    internal string? CanonicalSourceId
+    {
+        get =>
+            _canonicalSourceId ??=
+                CanonicalFact != null ? AcquisitionKey + "|" + (LocationKey ?? "")
+                : CanonicalUse != null ? UseKey
+                : null;
+        set => _canonicalSourceId = value;
+    }
+
+    internal ItemSource Copy()
+    {
+        var copy = (ItemSource)MemberwiseClone();
+        copy._canonicalSourceId = null;
+        return copy;
+    }
 
     [JsonIgnore]
     internal SpawnPoint? CanonicalSpawn => CanonicalLocation?.Spawn;
-
-    internal ItemSource Copy() => (ItemSource)MemberwiseClone();
 
     internal void ApplyPresentation(ItemSource source)
     {

@@ -364,7 +364,6 @@ public sealed partial class GuideData
                 if (!ItemUses.TryGetValue(source.UseKey, out var use))
                     throw new InvalidDataException($"Missing public item use: {source.UseKey}");
                 source.CanonicalUse = use;
-                source.CanonicalSourceId = source.UseKey;
             }
             if (source.AcquisitionKey == null)
                 continue;
@@ -387,8 +386,6 @@ public sealed partial class GuideData
                 resolved.Y = location?.Y;
                 resolved.Z = location?.Z;
                 resolved.EntryZoneLineKeys = location?.EntryZoneLineKeys;
-                resolved.CanonicalSourceId =
-                    source.AcquisitionKey + "|" + (location?.PlaceKey ?? "");
                 if (location?.Relation == "possible_treasure")
                 {
                     resolved.Type = "treasure_chest";
