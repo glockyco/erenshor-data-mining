@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING, Protocol, cast
 
 from erenshor.application.processor.npc_rewards import initialized_reward
 from erenshor.application.processor.npc_spawn import (
-    PLAYER_LEVEL_CAP,
     SpawnConstants,
     armor_class,
     balanced_hp,
@@ -23,6 +22,7 @@ from erenshor.application.processor.npc_spawn import (
     training_dummy_level,
 )
 from erenshor.application.wiki_lua.lua_writer import module_text
+from erenshor.domain.constants.levels import PLAYER_LEVEL_CAP
 from erenshor.domain.value_objects.npc_level import npc_level_bounds
 from erenshor.domain.value_objects.wiki_filename import picture_file_title
 

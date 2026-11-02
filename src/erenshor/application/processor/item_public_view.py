@@ -7,6 +7,7 @@ from collections import Counter
 from dataclasses import astuple, replace
 from typing import TYPE_CHECKING
 
+from erenshor.domain.constants.levels import PLAYER_LEVEL_CAP
 from erenshor.domain.value_objects.item_provenance import (
     ItemAcquisition,
     ItemDisposition,
@@ -106,6 +107,7 @@ class _Places:
         return drop_implied_gates(public_conditions(fact.conditions), implied_by)
 
     def places(self) -> tuple[PublicPlace, ...]:
+        """Each place once. A level window that ends at the level cap has no upper bound for players."""
         return tuple(
             PublicPlace(
                 key,
@@ -118,7 +120,7 @@ class _Places:
                 location.y,
                 location.z,
                 location.player_level_min,
-                location.player_level_max,
+                None if (location.player_level_max or 0) >= PLAYER_LEVEL_CAP else location.player_level_max,
                 location.source_copy_stable_key,
                 location.entry_zone_line_keys,
                 public_conditions(location.conditions),

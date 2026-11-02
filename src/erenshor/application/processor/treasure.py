@@ -15,8 +15,9 @@ from typing import TYPE_CHECKING
 
 from loguru import logger
 
+from erenshor.domain.constants.levels import PLAYER_LEVEL_CAP
+
 from .npc_spawn import (
-    PLAYER_LEVEL_CAP,
     SpawnConstants,
     armor_class,
     balanced_hp,

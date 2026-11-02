@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from erenshor.application.processor.npc_spawn import PLAYER_LEVEL_CAP, training_dummy_level
+from erenshor.application.processor.npc_spawn import training_dummy_level
+from erenshor.domain.constants.levels import PLAYER_LEVEL_CAP
 
 
 @dataclass(frozen=True, slots=True)

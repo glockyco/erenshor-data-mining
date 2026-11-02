@@ -41,10 +41,11 @@ from typing import TYPE_CHECKING, cast
 
 from loguru import logger
 
+from erenshor.domain.constants.levels import PLAYER_LEVEL_CAP
+
 from .model_images import PageCharacter, model_image_names
 from .npc_rewards import reward_columns
 from .npc_spawn import (
-    PLAYER_LEVEL_CAP,
     StartLevels,
     armor_class,
     attack_ability,

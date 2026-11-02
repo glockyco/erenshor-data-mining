@@ -138,9 +138,6 @@ def starts_before(order: tuple[str, ...], first: str, second: str) -> bool:
     return first in order and second in order and order.index(first) < order.index(second)
 
 
-# code-fact: player.level_cap
-PLAYER_LEVEL_CAP = 35
-
 # code-fact: test_dummy.start_takes_player_level
 # code-fact: test_dummy.start_level_cap
 _TRAINING_DUMMY_LEVEL_CAP = 42

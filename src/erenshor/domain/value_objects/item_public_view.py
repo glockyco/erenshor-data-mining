@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
 
+from erenshor.domain.constants.levels import PLAYER_LEVEL_CAP
+
 if TYPE_CHECKING:
     from erenshor.domain.value_objects.item_provenance import ProvenanceCondition
 
@@ -12,19 +14,43 @@ if TYPE_CHECKING:
 _OWNERSHIP_HISTORY = frozenset({"item_not_owned", "item_held", "key_held"})
 
 
+def _reaches_level_cap(condition: ProvenanceCondition) -> bool:
+    """A player level window that ends at the level cap, which no player passes."""
+    maximum = condition.maximum
+    return (
+        condition.predicate == "actor_level"
+        and condition.actor == "player"
+        and maximum is not None
+        and (maximum > PLAYER_LEVEL_CAP or (maximum == PLAYER_LEVEL_CAP and condition.maximum_inclusive))
+    )
+
+
+def _every_level(condition: ProvenanceCondition) -> bool:
+    """A player level window from level 1 to the level cap, which every player meets."""
+    minimum = condition.minimum
+    from_first_level = minimum is None or minimum < 1 or (minimum == 1 and condition.minimum_inclusive)
+    return (
+        condition.predicate == "actor_level"
+        and condition.actor == "player"
+        and from_first_level
+        and (condition.maximum is None or _reaches_level_cap(condition))
+    )
+
+
 def condition_omission_reason(condition: ProvenanceCondition) -> str | None:
     """Name why players don't see a condition, or return None when they do."""
-    if condition.phase == "mechanic_parameter":
-        return "mechanism_parameter"
-    if condition.predicate == "formula_operand":
-        return "formula_operand"
-    if condition.predicate == "source_replenishment":
-        return "source_replenishment"
-    if condition.predicate == "account_state" and condition.phase == "operation_outcome":
-        return "account_state_outcome"
-    if condition.phase == "source_initialization" and condition.predicate in _OWNERSHIP_HISTORY:
-        return "ownership_history"
-    return None
+    reasons = (
+        ("mechanism_parameter", condition.phase == "mechanic_parameter"),
+        ("formula_operand", condition.predicate == "formula_operand"),
+        ("source_replenishment", condition.predicate == "source_replenishment"),
+        ("account_state_outcome", condition.predicate == "account_state" and condition.phase == "operation_outcome"),
+        (
+            "ownership_history",
+            condition.phase == "source_initialization" and condition.predicate in _OWNERSHIP_HISTORY,
+        ),
+        ("every_player_level", _every_level(condition)),
+    )
+    return next((reason for reason, applies in reasons if applies), None)
 
 
 @dataclass(frozen=True, slots=True)
@@ -52,7 +78,8 @@ def public_conditions(conditions: tuple[ProvenanceCondition, ...]) -> tuple[Publ
 
     A gate with an alternative that holds only hidden atoms is left out, because one of its
     alternatives needs nothing a player meets. A gate that another gate implies is left out too,
-    such as a character's activation that its spawn point repeats.
+    such as a character's activation that its spawn point repeats. A player level window that
+    ends at the level cap keeps only its lower bound, because no player passes the cap.
     """
     gates: dict[tuple[str, str, str], dict[int, list[ProvenanceCondition]]] = {}
     for condition in conditions:
@@ -86,7 +113,7 @@ def public_conditions(conditions: tuple[ProvenanceCondition, ...]) -> tuple[Publ
                         atom.actor,
                         atom.value,
                         atom.minimum,
-                        atom.maximum,
+                        None if _reaches_level_cap(atom) else atom.maximum,
                         atom.minimum_inclusive,
                         atom.maximum_inclusive,
                         atom.phase,

@@ -107,6 +107,20 @@ def test_a_gate_with_an_alternative_that_needs_nothing_visible_is_hidden() -> No
     assert {c.gate_index for c in conditions} == {0}
 
 
+def test_a_player_level_window_that_ends_at_the_level_cap_keeps_only_its_lower_bound() -> None:
+    from_eight = condition("actor_level", gate_key="from eight", actor="player", minimum=8, maximum=35)
+    simulated = condition("actor_level", gate_key="simulated", actor="sim", minimum=27, maximum=35)
+    any_level = (
+        condition("actor_level", gate_key="routes", actor="sim", minimum=1, maximum=4),
+        condition("actor_level", gate_key="routes", group_index=1, actor="player", minimum=1, maximum=35),
+    )
+    conditions = public_conditions((from_eight, simulated, *any_level))
+    assert [(c.gate_key, c.actor, c.minimum, c.maximum) for c in conditions] == [
+        ("from eight", "player", 8, None),
+        ("simulated", "sim", 27, 35),
+    ]
+
+
 def test_a_gate_that_another_gate_or_every_place_requires_is_shown_once() -> None:
     def activation(gate: str) -> tuple[ProvenanceCondition, ...]:
         return (
