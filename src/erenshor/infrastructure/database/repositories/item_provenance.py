@@ -5,15 +5,18 @@ from __future__ import annotations
 import json
 import sqlite3
 from collections.abc import Callable, Iterable, Iterator
+from dataclasses import replace
 from typing import Literal, TypeVar
 
 from erenshor.domain.value_objects.item_provenance import (
     ItemAcquisition,
     ItemDisposition,
     ItemUse,
+    ProvenanceLocation,
     acquisition_from_dict,
     conditions_satisfiable,
     disposition_from_dict,
+    location_from_dict,
     use_from_dict,
     validate_provenance_metadata,
 )
@@ -42,6 +45,7 @@ class ItemProvenanceRepository:
         self._uses: tuple[ItemUse, ...] | None = None
         self._uses_by_item: dict[str, list[ItemUse]] = {}
         self._uses_by_target: dict[str, list[ItemUse]] = {}
+        self._locations: dict[str, tuple[ProvenanceLocation, ...]] | None = None
         try:
             with db.connect() as connection:
                 rows = connection.execute("SELECT * FROM item_provenance_meta").fetchall()
@@ -51,14 +55,36 @@ class ItemProvenanceRepository:
         except (sqlite3.Error, DatabaseConnectionError, ValueError) as error:
             raise RepositoryError(f"Unsupported item provenance schema: {error}") from error
 
+    def _source_locations(self) -> dict[str, tuple[ProvenanceLocation, ...]]:
+        """Decode each source's locations once, so every fact of the source shares the same objects."""
+        if self._locations is None:
+            rows: dict[str, list[ProvenanceLocation]] = {}
+            try:
+                with self._db.connect() as connection:
+                    for row in connection.execute(
+                        "SELECT * FROM item_source_locations ORDER BY source_key, location_key"
+                    ):
+                        data: dict[str, object] = dict(row)
+                        source = str(data.pop("source_key"))
+                        for field in ("conditions", "entry_zone_line_keys"):
+                            value = data[field]
+                            if not isinstance(value, str):
+                                raise ValueError(f"Location {field} must be JSON text")
+                            data[field] = json.loads(value)
+                        rows.setdefault(source, []).append(location_from_dict(data))
+            except (KeyError, ValueError) as error:
+                raise RepositoryError(f"Invalid item provenance location: {error}") from error
+            self._locations = {source: tuple(locations) for source, locations in rows.items()}
+        return self._locations
+
     def _load_facts(
         self,
         family: Literal["acquisition", "use"],
         decoder: Callable[[object], _Fact],
     ) -> tuple[_Fact, ...]:
         """Decode one immutable snapshot with each child relation loaded in bulk."""
+        sources = self._source_locations()
         conditions: dict[str, list[dict[str, object]]] = {}
-        locations: dict[str, list[dict[str, object]]] = {}
         try:
             with self._db.connect() as connection:
                 for row in connection.execute(
@@ -66,17 +92,6 @@ class ItemProvenanceRepository:
                     "ORDER BY owner_key, gate_key, group_index, atom_index, scope"
                 ):
                     conditions.setdefault(row["owner_key"], []).append(_database_condition(row))
-                for row in connection.execute(
-                    f"SELECT * FROM item_{family}_locations ORDER BY owner_key, location_key"
-                ):
-                    data: dict[str, object] = dict(row)
-                    owner_key = str(data.pop("owner_key"))
-                    for field in ("conditions", "entry_zone_line_keys"):
-                        value = data[field]
-                        if not isinstance(value, str):
-                            raise ValueError(f"Location {field} must be JSON text")
-                        data[field] = json.loads(value)
-                    locations.setdefault(owner_key, []).append(data)
                 facts = []
                 for row in connection.execute(f"SELECT * FROM item_{family}s ORDER BY item_stable_key, {family}_key"):
                     data = dict(row)
@@ -84,8 +99,13 @@ class ItemProvenanceRepository:
                     if not isinstance(identity, str):
                         raise ValueError("Fact identity must be text")
                     data["conditions"] = conditions.get(identity, ())
-                    data["locations"] = locations.get(identity, ())
-                    facts.append(decoder(data))
+                    data["locations"] = ()
+                    fact = decoder(data)
+                    if fact.location_source_key is not None:
+                        if fact.location_source_key not in sources:
+                            raise ValueError(f"{identity} names unknown location source {fact.location_source_key}")
+                        fact = replace(fact, locations=sources[fact.location_source_key])
+                    facts.append(fact)
             return tuple(facts)
         except (KeyError, ValueError) as error:
             raise RepositoryError(f"Invalid item provenance {family}: {error}") from error

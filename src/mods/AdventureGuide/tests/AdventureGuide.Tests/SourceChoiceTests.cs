@@ -17,8 +17,6 @@ public sealed class SourceChoiceTests
         var location = new SourceLocation
         {
             LocationKey = id,
-            PlacementKey = id,
-            GateScope = id,
             SourceCopyStableKey = actor,
             Relation = "fixed",
             Scene = "Reliquary",
@@ -379,28 +377,13 @@ public sealed class SourceChoiceTests
         Assert.Equal(2, Pair(a, b).Locations.Count);
     }
 
-    [Theory]
-    [InlineData("location")]
-    [InlineData("placement")]
-    [InlineData("gate_scope")]
-    public void OnlyExactOwnScopeBindingsAreNormalized(string binding)
+    [Fact]
+    public void OwnLocationScopeBindingsAreNormalized()
     {
         var a = Located("a");
         var b = Located("b");
-        a.CanonicalLocation!.PlacementKey = "placement:a";
-        b.CanonicalLocation!.PlacementKey = "placement:b";
-        a.CanonicalLocation.GateScope = "gate-scope:a";
-        b.CanonicalLocation.GateScope = "gate-scope:b";
         foreach (var source in new[] { a, b })
-        {
-            var location = source.CanonicalLocation!;
-            location.Conditions[0].Scope = binding switch
-            {
-                "placement" => location.PlacementKey!,
-                "gate_scope" => location.GateScope!,
-                _ => location.LocationKey,
-            };
-        }
+            source.CanonicalLocation!.Conditions[0].Scope = source.CanonicalLocation.LocationKey;
         Assert.Single(Pair(a, b).Locations);
     }
 
@@ -538,26 +521,6 @@ public sealed class SourceChoiceTests
         var a = Located("a");
         var b = Located("b");
         a.CanonicalLocation!.SourceCopyStableKey = b.CanonicalLocation!.SourceCopyStableKey = null;
-        Assert.Equal(2, Pair(a, b).Locations.Count);
-    }
-
-    [Fact]
-    public void RebindingOwnScopeAliasesDoesNotMergeIndependentGateFamilies()
-    {
-        var a = Located("a");
-        var b = Located("b");
-        a.CanonicalLocation!.PlacementKey = "placement:a";
-        b.CanonicalLocation!.PlacementKey = "placement:b";
-        a.CanonicalLocation.Conditions =
-        [
-            Condition("a", "same-label", 0, "A"),
-            Condition("placement:a", "same-label", 1, "B"),
-        ];
-        b.CanonicalLocation.Conditions =
-        [
-            Condition("b", "same-label", 0, "A"),
-            Condition("b", "same-label", 1, "B"),
-        ];
         Assert.Equal(2, Pair(a, b).Locations.Count);
     }
 

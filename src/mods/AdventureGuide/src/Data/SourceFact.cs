@@ -78,9 +78,6 @@ public sealed class SourceLocation
     [JsonProperty("zone_stable_key")]
     public string? ZoneStableKey { get; set; }
 
-    [JsonProperty("placement_key")]
-    public string? PlacementKey { get; set; }
-
     [JsonProperty("coordinate_stable_key")]
     public string? CoordinateStableKey { get; set; }
 
@@ -92,9 +89,6 @@ public sealed class SourceLocation
 
     [JsonProperty("z")]
     public float? Z { get; set; }
-
-    [JsonProperty("gate_scope")]
-    public string? GateScope { get; set; }
 
     [JsonProperty("player_level_min")]
     public int? PlayerLevelMin { get; set; }

@@ -54,6 +54,20 @@ def _facts(
     count: int | None = 3,
     phase: ConditionPhase = "availability",
 ) -> tuple[ItemAcquisition, ItemUse]:
+    acquisition, use = _build(count, phase)
+    _persist(writer, (acquisition,), (use,))
+    return acquisition, use
+
+
+def _persist(writer: Writer, acquisitions: tuple[ItemAcquisition, ...], uses: tuple[ItemUse, ...]) -> None:
+    builder = ProvenanceBuilder(writer.conn)
+    builder.acquisitions.extend(acquisitions)
+    builder.uses.extend(uses)
+    builder.persist()
+    writer.conn.commit()
+
+
+def _build(count: int | None = 3, phase: ConditionPhase = "availability") -> tuple[ItemAcquisition, ItemUse]:
     condition = ProvenanceCondition("quest", 0, 0, "quest_done", "quest:one", phase=phase)
     location_condition = ProvenanceCondition(
         "furnishing",
@@ -70,12 +84,10 @@ def _facts(
         "possible_treasure",
         "Scene",
         "zone:one",
-        "placement",
         "point:one",
         1.125,
         -2.25,
         3.5,
-        "placement",
         10,
         20,
         (location_condition,),
@@ -102,6 +114,7 @@ def _facts(
         count_distribution="[0.75,0.2,0.05]",
         guarantee_scope="pool",
         guaranteed_roll_count=count,
+        location_source_key="character:copy",
         conditions=(condition,),
         locations=(location,),
     )
@@ -117,14 +130,10 @@ def _facts(
         "bounded",
         "mechanic:one",
         acquisition.acquisition_key,
+        acquisition.location_source_key,
         acquisition.conditions,
         acquisition.locations,
     )
-    builder = ProvenanceBuilder(writer.conn)
-    builder.acquisitions.append(acquisition)
-    builder.uses.append(use)
-    builder.persist()
-    writer.conn.commit()
     return acquisition, use
 
 
@@ -158,19 +167,22 @@ def test_bulk_snapshot_preserves_each_getter_order_and_isolates_returned_lists(
     database: tuple[Writer, DatabaseConnection],
 ) -> None:
     writer, db = database
-    acquisition, use = _facts(writer)
+    acquisition, use = _build()
     writer.conn.execute("INSERT INTO items (stable_key, display_name, image_name) VALUES ('item:two', 'Two', '')")
     earlier_acquisition = replace(
-        acquisition, acquisition_key="acquisition:aaa", item_stable_key="item:two", conditions=(), locations=()
+        acquisition,
+        acquisition_key="acquisition:aaa",
+        item_stable_key="item:two",
+        location_source_key=None,
+        conditions=(),
+        locations=(),
     )
     later_acquisition = replace(acquisition, acquisition_key="acquisition:zzz")
-    earlier_use = replace(use, use_key="use:aaa", item_stable_key="item:two", conditions=(), locations=())
+    earlier_use = replace(
+        use, use_key="use:aaa", item_stable_key="item:two", location_source_key=None, conditions=(), locations=()
+    )
     later_use = replace(use, use_key="use:zzz")
-    builder = ProvenanceBuilder(writer.conn)
-    builder.acquisitions.extend((later_acquisition, earlier_acquisition))
-    builder.uses.extend((later_use, earlier_use))
-    builder.persist()
-    writer.conn.commit()
+    _persist(writer, (acquisition, later_acquisition, earlier_acquisition), (use, later_use, earlier_use))
     repository = ItemProvenanceRepository(db)
 
     acquisitions = repository.get_acquisitions("item:one")
@@ -262,13 +274,9 @@ def test_repository_rejects_malformed_schema_metadata(
         "UPDATE item_acquisition_conditions SET group_index=-1",
         "UPDATE item_acquisition_conditions SET phase='unknown_phase'",
         "ALTER TABLE item_acquisition_conditions RENAME COLUMN phase TO unsupported_phase",
-        "UPDATE item_acquisition_locations SET relation='unknown'",
-        "UPDATE item_acquisition_locations SET x='invalid'",
-        "UPDATE item_acquisition_locations SET conditions='{}'",
-        "UPDATE item_acquisition_locations SET entry_zone_line_keys='[null]'",
+        "DELETE FROM item_source_locations",
         "ALTER TABLE item_acquisitions ADD COLUMN unknown_mandatory TEXT",
         "ALTER TABLE item_acquisition_conditions ADD COLUMN unknown_mandatory TEXT",
-        "ALTER TABLE item_acquisition_locations ADD COLUMN unknown_mandatory TEXT",
         "ALTER TABLE item_acquisitions DROP COLUMN guaranteed_roll_count",
     ],
 )
@@ -290,7 +298,7 @@ def test_repository_rejects_malformed_acquisition_or_lost_dimensions(
         "UPDATE item_uses SET material_slot=-1",
         "UPDATE item_uses SET quantity_max='invalid'",
         "UPDATE item_use_conditions SET minimum_inclusive=2",
-        "UPDATE item_use_locations SET conditions='[null]'",
+        "DELETE FROM item_source_locations",
         "ALTER TABLE item_uses ADD COLUMN unknown_mandatory TEXT",
     ],
 )
@@ -307,6 +315,30 @@ def test_repository_rejects_malformed_uses_through_both_apis(
         repository.get_uses("item:one")
     with pytest.raises(RepositoryError, match="Invalid item provenance use"):
         repository.get_uses_targeting("item:one")
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "UPDATE item_source_locations SET relation='unknown'",
+        "UPDATE item_source_locations SET x='invalid'",
+        "UPDATE item_source_locations SET conditions='{}'",
+        "UPDATE item_source_locations SET conditions='[null]'",
+        "UPDATE item_source_locations SET entry_zone_line_keys='[null]'",
+        "ALTER TABLE item_source_locations ADD COLUMN unknown_mandatory TEXT",
+    ],
+)
+def test_repository_rejects_malformed_shared_locations_for_every_fact_family(
+    database: tuple[Writer, DatabaseConnection],
+    sql: str,
+) -> None:
+    writer, db = database
+    _facts(writer)
+    _corrupt(writer, sql)
+    with pytest.raises(RepositoryError, match="Invalid item provenance location"):
+        ItemProvenanceRepository(db).get_acquisitions("item:one")
+    with pytest.raises(RepositoryError, match="Invalid item provenance location"):
+        ItemProvenanceRepository(db).get_uses("item:one")
 
 
 @pytest.mark.parametrize(
@@ -375,7 +407,7 @@ def test_nested_location_conditions_use_strict_json_boolean_types(
     condition = asdict(acquisition.locations[0].conditions[0])
     condition["minimum_inclusive"] = 1
     writer.conn.execute(
-        "UPDATE item_acquisition_locations SET conditions=?",
+        "UPDATE item_source_locations SET conditions=?",
         (json.dumps([condition]),),
     )
     writer.conn.commit()
@@ -411,7 +443,7 @@ def test_repository_rejects_missing_or_unknown_phase_in_location_json(
     else:
         condition["phase"] = "unknown_phase"
     writer.conn.execute(
-        "UPDATE item_acquisition_locations SET conditions=?",
+        "UPDATE item_source_locations SET conditions=?",
         (json.dumps([condition]),),
     )
     writer.conn.commit()

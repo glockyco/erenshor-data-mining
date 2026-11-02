@@ -91,12 +91,20 @@ def _insert_fact(writer: Writer, fact: ItemAcquisition | ItemUse) -> None:
     _insert(writer, f"item_{family}s", data)
     for condition in conditions:
         _insert(writer, f"item_{family}_conditions", {"owner_key": key, **condition})
+    if not locations:
+        return
+    source = data["location_source_key"]
+    stored = writer.conn.execute("SELECT location_key FROM item_source_locations WHERE source_key=?", (source,))
+    stored_keys = sorted(row[0] for row in stored)
+    if stored_keys:
+        assert stored_keys == sorted(location["location_key"] for location in locations), f"{source} differs"
+        return
     for location in locations:
         _insert(
             writer,
-            f"item_{family}_locations",
+            "item_source_locations",
             {
-                "owner_key": key,
+                "source_key": source,
                 **location,
                 "conditions": json.dumps(location["conditions"]),
                 "entry_zone_line_keys": json.dumps(location["entry_zone_line_keys"]),
@@ -150,6 +158,7 @@ def _acquisition(key: str, kind: str, **values: Any) -> ItemAcquisition:
             "guarantee_scope": "pool_roll",
             "guaranteed_roll_count": 2 if kind == "character_drop" else None,
             "conditions": (_condition(), _condition(atom=1, predicate="room_furnished"), _condition(group=1)),
+            "location_source_key": "source:unlocated",
             "locations": (ProvenanceLocation(location_key="location:unlocated", relation="unlocated"),),
             **values,
         },
@@ -244,12 +253,10 @@ def canonical_facts(writer: Writer) -> tuple[list[ItemAcquisition], list[ItemUse
             relation="possible_treasure",
             scene="SceneWithoutWikiPage",
             zone_stable_key="zone:unpublished",
-            placement_key="placement:low",
             coordinate_stable_key="point:low",
             x=1.123456789,
             y=2.234567891,
             z=3.345678912,
-            gate_scope="placement:low",
             player_level_min=1,
             player_level_max=10,
             conditions=(_condition(scope="placement"),),
@@ -264,7 +271,9 @@ def canonical_facts(writer: Writer) -> tuple[list[ItemAcquisition], list[ItemUse
             source_copy_stable_key="character:backup",
         ),
     )
-    acquisitions[0] = _acquisition("acquisition:character_drop", "character_drop", locations=treasure)
+    acquisitions[0] = _acquisition(
+        "acquisition:character_drop", "character_drop", location_source_key="source:treasure", locations=treasure
+    )
     uses = [
         ItemUse(
             use_key=f"use:{kind}",
@@ -279,6 +288,7 @@ def canonical_facts(writer: Writer) -> tuple[list[ItemAcquisition], list[ItemUse
             mechanic="mechanic:fixture",
             outcome_key="acquisition:crafting",
             conditions=(_condition(),),
+            location_source_key="source:treasure",
             locations=treasure,
         )
         for kind in USE_KINDS
@@ -318,8 +328,8 @@ def _projected_contract(writer: Writer) -> dict[str, list[dict[str, Any]]]:
                     fact["conditions"].append(condition)
             fact["locations"] = []
             for row in locations:
-                if row["fact_type"] == family and row["owner_key"] == key:
-                    location = {k: v for k, v in row.items() if k not in {"fact_type", "owner_key"}}
+                if row["source_key"] == fact["location_source_key"]:
+                    location = {k: v for k, v in row.items() if k != "source_key"}
                     for field in ("conditions", "entry_zone_line_keys"):
                         location[field] = json.loads(location[field])
                     fact["locations"].append(location)
@@ -388,6 +398,7 @@ def test_normalized_item_sheets_conserve_every_dimension(
         "count_distribution",
         "guarantee_scope",
         "guaranteed_roll_count",
+        "location_source_key",
         "conditions",
         "locations",
     ],
@@ -466,6 +477,7 @@ def test_located_sheets_keep_unpublished_and_unlocated_sources(writer: Writer, s
         _acquisition(
             "located",
             kind,
+            location_source_key="source:place",
             locations=(
                 ProvenanceLocation(
                     location_key="place:fixture",

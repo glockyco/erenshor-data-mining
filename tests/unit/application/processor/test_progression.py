@@ -177,12 +177,13 @@ def location(
     atoms: tuple[ProvenanceCondition, ...] = (),
     **changes: object,
 ) -> None:
+    conn.execute("UPDATE item_acquisitions SET location_source_key='source:a' WHERE acquisition_key='a'")
     insert(
         conn,
-        "item_acquisition_locations",
+        "item_source_locations",
         **(
             {
-                "owner_key": "a",
+                "source_key": "source:a",
                 "location_key": "location",
                 "relation": "source",
                 "zone_stable_key": zone,

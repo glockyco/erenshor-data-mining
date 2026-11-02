@@ -217,12 +217,7 @@ public sealed class SourceChoice
     }
 
     private static bool OwnScope(string scope, SourceLocation location) =>
-        !string.IsNullOrEmpty(scope)
-        && (
-            scope == location.LocationKey
-            || scope == location.PlacementKey
-            || scope == location.GateScope
-        );
+        !string.IsNullOrEmpty(scope) && scope == location.LocationKey;
 
     private static string ConditionsKey(List<SourceCondition>? conditions, SourceLocation location)
     {

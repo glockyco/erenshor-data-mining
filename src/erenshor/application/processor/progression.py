@@ -241,7 +241,7 @@ class ProgressionBuilder:
                 )
             self.releases[row["character_stable_key"]][row["mechanism"], row["source_stable_key"]].append(row)
         self.acquisition_conditions = self.index("item_acquisition_conditions", "owner_key")
-        self.locations = self.index("item_acquisition_locations", "owner_key")
+        self.locations = self.index("item_source_locations", "source_key")
         self.route_conditions = self.index("quest_route_conditions", "route_key")
         self.kill_cache: dict[str, list[Way]] = {}
         self._standings: _Standings | None = None
@@ -778,7 +778,8 @@ class ProgressionBuilder:
             source = acquisition["source_stable_key"]
             conditions = self.conditions(node, self.acquisition_conditions.get(fact, []), fact, provenance=True)
             bases: list[Way] = []
-            locations = self.locations.get(fact, [])
+            source_key = acquisition["location_source_key"]
+            locations = self.locations.get(source_key, []) if source_key is not None else []
             if kind in {"character_drop", "vendor", "dialog"}:
                 source = acquisition["source_copy_stable_key"]
                 if source not in self.characters:

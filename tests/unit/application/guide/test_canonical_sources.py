@@ -74,6 +74,7 @@ def test_noncombat_actor_copy_is_preserved_without_a_combat_node(tmp_path, kind)
         "quest:reward" if kind == "quest_reward" else actor,
         source_copy_stable_key=actor,
         variant_key="2",
+        location_source_key=actor,
         locations=(ProvenanceLocation("trade-site", "fixed", scene="Town", x=4, y=5, z=6),),
     )
     metadata = (
@@ -129,12 +130,12 @@ def test_canonical_families_keep_actual_location_and_normalize_facts_once(tmp_pa
         quantity_max=4,
         quantity_kind="bounded",
         expected_quantity=3,
+        location_source_key="source:actual",
         locations=(
             ProvenanceLocation(
                 "location:actual",
                 "fixed",
                 scene="ActualScene",
-                placement_key="spawn:actual",
                 x=17,
                 y=18,
                 z=19,
@@ -195,8 +196,22 @@ def test_repeated_recipe_slots_mold_and_requested_output_quality_are_traversable
                 ProvenanceCondition("result-quality", 0, 0, "quality", value="normal", phase="operation_outcome"),
             ),
         ),
-        ItemAcquisition("material-source", "item:input", "vendor", "character:source", locations=(location,)),
-        ItemAcquisition("mold-source", "item:mold", "vendor", "character:source", locations=(location,)),
+        ItemAcquisition(
+            "material-source",
+            "item:input",
+            "vendor",
+            "character:source",
+            location_source_key="character:source",
+            locations=(location,),
+        ),
+        ItemAcquisition(
+            "mold-source",
+            "item:mold",
+            "vendor",
+            "character:source",
+            location_source_key="character:source",
+            locations=(location,),
+        ),
     ]
     materials = [
         ItemUse(
@@ -249,6 +264,7 @@ def test_item_operation_inputs_are_real_use_children(tmp_path, kind):
         "item:input",
         "item_bag",
         "bag:source",
+        location_source_key="bag:source",
         locations=(ProvenanceLocation("bag-location", "fixed", scene="Forest", x=1, y=2, z=3),),
     )
     use = ItemUse(

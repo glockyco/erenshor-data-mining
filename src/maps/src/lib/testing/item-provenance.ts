@@ -9,7 +9,7 @@ export function acquisition(overrides: Partial<ItemAcquisition> = {}): ItemAcqui
         probability_kind: 'bounded', probability_min: 2, probability_max: 8, probability_basis: 'per_kill',
         probability_stage: 'final_acquisition', quantity_min: 1, quantity_max: 3, quantity_kind: 'bounded',
         expected_quantity: 2, count_distribution: '[0.25,0.5,0.25]', guarantee_scope: 'successful_roll',
-        guaranteed_roll_count: null,
+        guaranteed_roll_count: null, location_source_key: 'character:fixture',
         conditions: [], locations: [],
         ...overrides
     };
@@ -23,8 +23,7 @@ export function condition(overrides: Partial<ProvenanceCondition> = {}): Provena
 
 export function location(overrides: Partial<ProvenanceLocation> = {}): ProvenanceLocation {
     return { location_key: 'location:fixture', relation: 'spawn', scene: 'Stowaway', zone_stable_key: 'zone:stowaway',
-        placement_key: 'character:fixture:spawn:fixture:direct', coordinate_stable_key: 'spawn:fixture',
-        x: 10, y: 20, z: 30, gate_scope: 'placement:fixture', player_level_min: 10, player_level_max: 35,
+        coordinate_stable_key: 'spawn:fixture', x: 10, y: 20, z: 30, player_level_min: 10, player_level_max: 35,
         conditions: [condition({ scope: 'location' })], entry_zone_line_keys: ['entrance:fixture'],
         source_copy_stable_key: 'character:fixture', ...overrides };
 }

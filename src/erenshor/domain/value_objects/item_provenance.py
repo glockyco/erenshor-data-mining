@@ -54,12 +54,10 @@ class ProvenanceLocation:
     relation: str
     scene: str | None = None
     zone_stable_key: str | None = None
-    placement_key: str | None = None
     coordinate_stable_key: str | None = None
     x: float | None = None
     y: float | None = None
     z: float | None = None
-    gate_scope: str | None = None
     player_level_min: int | None = None
     player_level_max: int | None = None
     conditions: tuple[ProvenanceCondition, ...] = ()
@@ -98,6 +96,8 @@ class ItemAcquisition:
     count_distribution: str | None = None
     guarantee_scope: str | None = None
     guaranteed_roll_count: int | None = None
+    # The source whose locations the fact shares, such as a character copy, mining node or mechanism.
+    location_source_key: str | None = None
     conditions: tuple[ProvenanceCondition, ...] = ()
     locations: tuple[ProvenanceLocation, ...] = ()
 
@@ -115,6 +115,7 @@ class ItemUse:
     quantity_kind: str = "unknown"
     mechanic: str | None = None
     outcome_key: str | None = None
+    location_source_key: str | None = None
     conditions: tuple[ProvenanceCondition, ...] = ()
     locations: tuple[ProvenanceLocation, ...] = ()
 
@@ -342,12 +343,10 @@ def location_from_dict(value: object) -> ProvenanceLocation:
         ),
         scene=_optional_text(data["scene"]),
         zone_stable_key=_optional_text(data["zone_stable_key"]),
-        placement_key=_optional_text(data["placement_key"]),
         coordinate_stable_key=_optional_text(data["coordinate_stable_key"]),
         x=_optional_number(data["x"]),
         y=_optional_number(data["y"]),
         z=_optional_number(data["z"]),
-        gate_scope=_optional_text(data["gate_scope"]),
         player_level_min=_optional_integer(data["player_level_min"]),
         player_level_max=_optional_integer(data["player_level_max"]),
         conditions=_conditions(data["conditions"]),
@@ -374,6 +373,14 @@ def _locations(value: object) -> tuple[ProvenanceLocation, ...]:
     if len({location.location_key for location in locations}) != len(locations):
         raise ValueError("Duplicate location identity")
     return locations
+
+
+def _location_source(data: Mapping[str, object]) -> tuple[str | None, tuple[ProvenanceLocation, ...]]:
+    key = _optional_text(data["location_source_key"])
+    locations = _locations(data["locations"])
+    if locations and key is None:
+        raise ValueError("A located fact names the source of its locations")
+    return key, locations
 
 
 def _interval(kind: str, minimum: float | None, maximum: float | None, *, probability: bool = False) -> None:
@@ -444,6 +451,7 @@ def acquisition_from_dict(value: object) -> ItemAcquisition:
     guarantee = _optional_text(data["guarantee_scope"])
     if guarantee is not None:
         _enum(guarantee, ("pool", "pool_roll", "item", "successful_roll", "successful_ui_transfer"))
+    location_source_key, locations = _location_source(data)
     return ItemAcquisition(
         acquisition_key=_text(data["acquisition_key"]),
         item_stable_key=_text(data["item_stable_key"]),
@@ -479,14 +487,16 @@ def acquisition_from_dict(value: object) -> ItemAcquisition:
         count_distribution=_count_distribution(data["count_distribution"]),
         guarantee_scope=guarantee,
         guaranteed_roll_count=_optional_integer(data["guaranteed_roll_count"]),
+        location_source_key=location_source_key,
         conditions=_conditions(data["conditions"]),
-        locations=_locations(data["locations"]),
+        locations=locations,
     )
 
 
 def use_from_dict(value: object) -> ItemUse:
     data = _record(value, ItemUse)
     quantity_kind, quantity_min, quantity_max = _quantity(data)
+    location_source_key, locations = _location_source(data)
     return ItemUse(
         use_key=_text(data["use_key"]),
         item_stable_key=_text(data["item_stable_key"]),
@@ -499,8 +509,9 @@ def use_from_dict(value: object) -> ItemUse:
         quantity_kind=quantity_kind,
         mechanic=_optional_text(data["mechanic"]),
         outcome_key=_optional_text(data["outcome_key"]),
+        location_source_key=location_source_key,
         conditions=_conditions(data["conditions"]),
-        locations=_locations(data["locations"]),
+        locations=locations,
     )
 
 

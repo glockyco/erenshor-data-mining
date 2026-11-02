@@ -33,8 +33,8 @@ def _delete_kind(connection: sqlite3.Connection, family: str, kind: str) -> None
         "use": ("item_uses", "use_key"),
     }[family]
     owners = f"SELECT {key} FROM {table} WHERE kind=?"
-    for child in (f"item_{family}_conditions", f"item_{family}_locations"):
-        connection.execute(f"DELETE FROM {child} WHERE owner_key IN ({owners})", (kind,))
+    # Locations belong to sources that other kinds may share, so only the facts' own rows go.
+    connection.execute(f"DELETE FROM item_{family}_conditions WHERE owner_key IN ({owners})", (kind,))
     if family == "acquisition":
         connection.execute(f"DELETE FROM item_acquisition_contributors WHERE acquisition_key IN ({owners})", (kind,))
     connection.execute(f"DELETE FROM {table} WHERE kind=?", (kind,))
@@ -623,8 +623,8 @@ def test_all_native_families_have_identity_and_dimension_coverage(
         ("DELETE FROM item_acquisition_conditions WHERE gate_key='time'", "conditions"),
         ("UPDATE item_acquisitions SET probability_min=NULL WHERE kind='fishing'", "probability_min"),
         (
-            "DELETE FROM item_acquisition_locations WHERE owner_key IN "
-            "(SELECT acquisition_key FROM item_acquisitions WHERE kind='mining')",
+            "DELETE FROM item_source_locations WHERE source_key IN "
+            "(SELECT location_source_key FROM item_acquisitions WHERE kind='mining')",
             "locations",
         ),
         ("DELETE FROM item_dispositions WHERE item_stable_key='item:reward'", "dispositions"),
@@ -639,12 +639,22 @@ def test_all_native_families_have_identity_and_dimension_coverage(
         ("UPDATE item_uses SET outcome_key=NULL WHERE kind='item_drop'", "outcome_key"),
         ("UPDATE item_acquisitions SET count_distribution=NULL WHERE kind='character_drop'", "count_distribution"),
         ("UPDATE item_acquisitions SET guarantee_scope=NULL WHERE kind='item_drop'", "guarantee_scope"),
-        ("UPDATE item_acquisition_locations SET x=x+1 WHERE relation='fixed'", "locations"),
-        ("UPDATE item_acquisition_locations SET entry_zone_line_keys='[]' WHERE relation='spawn'", "locations"),
-        ("UPDATE item_acquisition_locations SET conditions='[]' WHERE relation='spawn'", "locations"),
-        ("UPDATE item_acquisition_locations SET conditions='[]' WHERE location_key='desk:one'", "locations"),
-        ("UPDATE item_acquisition_locations SET player_level_min=NULL WHERE relation='possible_treasure'", "locations"),
-        ("UPDATE item_acquisition_locations SET source_copy_stable_key=NULL WHERE relation='interaction'", "locations"),
+        ("UPDATE item_source_locations SET x=x+1 WHERE relation='fixed'", "locations"),
+        ("UPDATE item_source_locations SET entry_zone_line_keys='[]' WHERE relation='spawn'", "locations"),
+        ("UPDATE item_source_locations SET conditions='[]' WHERE relation='spawn'", "locations"),
+        ("UPDATE item_source_locations SET conditions='[]' WHERE location_key='desk:one'", "locations"),
+        ("UPDATE item_source_locations SET player_level_min=NULL WHERE relation='possible_treasure'", "locations"),
+        ("UPDATE item_source_locations SET source_copy_stable_key=NULL WHERE relation='interaction'", "locations"),
+        (
+            "UPDATE item_acquisitions SET location_source_key=(SELECT MIN(location_source_key) FROM item_acquisitions "
+            "WHERE kind='vendor') WHERE kind='mining'",
+            "location_source_key",
+        ),
+        (
+            "INSERT INTO item_source_locations (source_key, location_key, relation, conditions, entry_zone_line_keys) "
+            "VALUES ('source:orphan', 'location:orphan', 'unlocated', '[]', '[]')",
+            "Orphan item provenance locations",
+        ),
     ],
 )
 def test_mutations_cannot_silently_drop_contract_dimensions(
@@ -798,7 +808,7 @@ def test_unlocated_copy_is_an_explicit_location_not_missing_coverage(native_inpu
     validate_item_provenance(native_inputs, builder, require_all_native_tables=False)
     assert (
         native_inputs.execute(
-            "SELECT count(*) FROM item_acquisition_locations WHERE relation='unlocated' "
+            "SELECT count(*) FROM item_source_locations WHERE relation='unlocated' "
             "AND source_copy_stable_key='character:b'"
         ).fetchone()[0]
         == 1
@@ -1030,8 +1040,8 @@ def test_ui_location_preserves_repeated_defeat_quantity_and_coverage(native_inpu
         "SELECT stable_key, 'current', json_array(wiki_page_name), '[]' FROM items"
     )
     validate_item_provenance(native_inputs, builder, require_all_native_tables=False)
-    owner, encoded = native_inputs.execute(
-        "SELECT owner_key, conditions FROM item_acquisition_locations WHERE location_key='desk:one'"
+    source, encoded = native_inputs.execute(
+        "SELECT source_key, conditions FROM item_source_locations WHERE location_key='desk:one'"
     ).fetchone()
     conditions = json.loads(encoded)
     defeats = [condition for condition in conditions if condition["predicate"] == "encounter_won"]
@@ -1041,8 +1051,8 @@ def test_ui_location_preserves_repeated_defeat_quantity_and_coverage(native_inpu
     assert defeats[0]["minimum"] == 9
     defeats[0]["minimum"] = 1
     native_inputs.execute(
-        "UPDATE item_acquisition_locations SET conditions=? WHERE owner_key=? AND location_key='desk:one'",
-        (json.dumps(conditions), owner),
+        "UPDATE item_source_locations SET conditions=? WHERE source_key=? AND location_key='desk:one'",
+        (json.dumps(conditions), source),
     )
     with pytest.raises(ValueError, match="locations"):
         validate_item_provenance(native_inputs, builder, require_all_native_tables=False)
@@ -1654,12 +1664,12 @@ def test_same_named_character_and_spawn_gates_preserve_independent_or_groups(
     )
     validate_item_provenance(native_inputs, builder, require_all_native_tables=False)
     rows = native_inputs.execute(
-        "SELECT l.owner_key, l.location_key, l.conditions FROM item_acquisition_locations l "
-        "JOIN item_acquisitions a ON a.acquisition_key=l.owner_key "
+        "SELECT DISTINCT l.source_key, l.location_key, l.conditions FROM item_source_locations l "
+        "JOIN item_acquisitions a ON a.location_source_key=l.source_key "
         "WHERE a.kind='character_drop' AND a.source_copy_stable_key='character:a' AND l.relation='spawn'"
     ).fetchall()
     assert len(rows) == 1
-    owner, location, serialized = rows[0]
+    source, location, serialized = rows[0]
     atoms = json.loads(serialized)
     character_gate = 'gate:["character","character:a",null,"unlock"]'
     spawn_gate = 'gate:["spawn_point","spawn:a",null,"unlock"]'
@@ -1669,8 +1679,8 @@ def test_same_named_character_and_spawn_gates_preserve_independent_or_groups(
     impossible_spawn = [{**atom, "predicate": "never"} if atom["gate_key"] == spawn_gate else atom for atom in atoms]
     assert not conditions_satisfiable(tuple(ProvenanceCondition(**atom) for atom in impossible_spawn))
     native_inputs.execute(
-        "UPDATE item_acquisition_locations SET conditions=? WHERE owner_key=? AND location_key=?",
-        (json.dumps([atom for atom in atoms if atom["gate_key"] != spawn_gate]), owner, location),
+        "UPDATE item_source_locations SET conditions=? WHERE source_key=? AND location_key=?",
+        (json.dumps([atom for atom in atoms if atom["gate_key"] != spawn_gate]), source, location),
     )
     with pytest.raises(ValueError, match="locations"):
         validate_item_provenance(native_inputs, builder, require_all_native_tables=False)
@@ -2385,7 +2395,7 @@ def test_encounter_state_is_local_to_the_actual_member_placement(
     }
     locations = connection.execute(
         "SELECT a.source_copy_stable_key,l.coordinate_stable_key,l.location_key,l.conditions "
-        "FROM item_acquisition_locations l JOIN item_acquisitions a ON a.acquisition_key=l.owner_key "
+        "FROM item_source_locations l JOIN item_acquisitions a ON a.location_source_key=l.source_key "
         "WHERE a.kind='vendor' AND a.item_stable_key='item:reward'"
     ).fetchall()
     assert len(locations) == 3
@@ -2447,19 +2457,19 @@ def test_account_state_location_atoms_preserve_the_native_scope_and_phase(
     connection, builder = claiming_encounter
     validate_item_provenance(connection, builder, require_all_native_tables=False)
     rows = connection.execute(
-        "SELECT l.owner_key,l.location_key,l.conditions FROM item_acquisition_locations l "
-        "JOIN item_acquisitions a ON a.acquisition_key=l.owner_key "
+        "SELECT l.source_key,l.location_key,l.conditions FROM item_source_locations l "
+        "JOIN item_acquisitions a ON a.location_source_key=l.source_key "
         "WHERE a.kind='vendor' AND a.item_stable_key='item:reward' AND l.coordinate_stable_key='spawn:a'"
     ).fetchall()
     assert len(rows) == 1
-    owner, location, serialized = rows[0]
+    source, location, serialized = rows[0]
     atoms = json.loads(serialized)
     selected = [atom for atom in atoms if atom["predicate"] == "account_state"]
     assert len(selected) == 1
     selected[0][field] = value
     connection.execute(
-        "UPDATE item_acquisition_locations SET conditions=? WHERE owner_key=? AND location_key=?",
-        (json.dumps(atoms), owner, location),
+        "UPDATE item_source_locations SET conditions=? WHERE source_key=? AND location_key=?",
+        (json.dumps(atoms), source, location),
     )
     with pytest.raises(ValueError, match="locations"):
         validate_item_provenance(connection, builder, require_all_native_tables=False)
@@ -2720,8 +2730,7 @@ def test_native_treasure_reading_flags_and_chest_tiers_require_every_possible_si
     for fact in ("treasure.zone_pool_by_level", "treasure.chest_tier_by_level", "player.level_cap"):
         _insert(connection, "code_facts", fact_id=fact, key="ok", value="true")
     connection.execute("DELETE FROM treasure_chest_possible_spawns")
-    connection.execute("DELETE FROM item_acquisition_locations WHERE coordinate_stable_key='treasure:one'")
-    connection.execute("DELETE FROM item_use_locations WHERE coordinate_stable_key='treasure:one'")
+    connection.execute("DELETE FROM item_source_locations WHERE coordinate_stable_key='treasure:one'")
     for chest, low, high, minimum, maximum in (
         ("character:treasurechest 0-10 1", 0, 10, 1, 9),
         ("character:treasurechest 10-20 1", 10, 20, 10, 19),
@@ -2981,8 +2990,7 @@ def registry_click_sources(
     for table in (
         "item_acquisition_conditions",
         "item_use_conditions",
-        "item_acquisition_locations",
-        "item_use_locations",
+        "item_source_locations",
         "item_acquisition_contributors",
         "item_uses",
         "item_acquisitions",
@@ -3163,8 +3171,7 @@ def disabled_preseed(
     for table in (
         "item_acquisition_conditions",
         "item_use_conditions",
-        "item_acquisition_locations",
-        "item_use_locations",
+        "item_source_locations",
         "item_acquisition_contributors",
         "item_uses",
         "item_acquisitions",
@@ -3416,8 +3423,7 @@ def test_common_world_bounds_and_native_coverage_use_only_loot_capable_contribut
     for table in (
         "item_acquisition_conditions",
         "item_use_conditions",
-        "item_acquisition_locations",
-        "item_use_locations",
+        "item_source_locations",
         "item_acquisition_contributors",
         "item_uses",
         "item_acquisitions",

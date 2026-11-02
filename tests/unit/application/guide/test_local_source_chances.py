@@ -70,6 +70,7 @@ def test_final_local_fishing_phases_are_not_replaced_or_maximized_again(tmp_path
             probability_max=chance,
             probability_basis="per_successful_catch",
             conditions=(ProvenanceCondition("time", 0, 0, "time_of_day", value=period, phase="operation_input"),),
+            location_source_key="water:test",
             locations=(ProvenanceLocation("actual-water", "fixed", scene="FishingScene", x=1, y=2, z=3),),
         )
         for period, chance in (("day", day), ("night", night))

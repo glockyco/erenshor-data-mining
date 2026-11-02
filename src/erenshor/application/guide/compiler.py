@@ -433,7 +433,7 @@ def _compile_item_sources(compiled: CompiledData) -> None:
                     ):
                         actual_positions.append(
                             SpawnPosition(
-                                compiled.node_key_to_id.get(location.placement_key) if location.placement_key else None,
+                                compiled.node_key_to_id.get(location.location_key),
                                 location.x,
                                 location.y,
                                 location.z,

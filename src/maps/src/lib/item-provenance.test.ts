@@ -16,6 +16,9 @@ import type { MapProvenanceCoverage } from './item-provenance-coverage.server';
 import type { ItemSourceRow } from './map-markers';
 import { acquisition, condition, location } from './testing/item-provenance';
 
+const updateUiLocations = (assignment: string) => `UPDATE item_source_locations SET ${assignment} WHERE source_key = `
+    + "(SELECT location_source_key FROM item_acquisitions WHERE acquisition_key = 'ui:fixture')";
+
 let SQL: SqlJsStatic;
 let database: Database;
 let repository: Repository;
@@ -95,8 +98,8 @@ describe('offline canonical map coverage', () => {
         expect(provider.getSourcesForItem('item:fixture relic').find((source) => source.kind === 'ui_grant')?.entries).toEqual(entrances);
         expect(Object.keys(ui.conditions[0]).sort()).toEqual(database.exec('PRAGMA table_info(item_acquisition_conditions)')[0].values
             .map((row) => row[1] as string).filter((key) => key !== 'owner_key').sort());
-        expect(Object.keys(ui.locations[0]).sort()).toEqual(database.exec('PRAGMA table_info(item_acquisition_locations)')[0].values
-            .map((row) => row[1] as string).filter((key) => key !== 'owner_key').sort());
+        expect(Object.keys(ui.locations[0]).sort()).toEqual(database.exec('PRAGMA table_info(item_source_locations)')[0].values
+            .map((row) => row[1] as string).filter((key) => key !== 'source_key').sort());
     });
 
     it('retains complete canonical facts through character, mining and fishing popup projections', async () => {
@@ -247,14 +250,14 @@ describe('offline canonical map coverage', () => {
                 const atom = { ...location.conditions[0] } as unknown as Record<string, unknown>;
                 if (mutation === 'invalid_phase') atom.phase = 'at_spawn';
                 else delete atom[mutation === 'condition_phase' ? 'phase' : 'reference_slot'];
-                mutated.run("UPDATE item_acquisition_locations SET conditions = ? WHERE owner_key = 'ui:fixture'", [JSON.stringify([atom])]);
+                mutated.run(updateUiLocations('conditions = ?'), [JSON.stringify([atom])]);
             } else if (mutation === 'entry_identity') {
-                mutated.run("UPDATE item_acquisition_locations SET entry_zone_line_keys = ? WHERE owner_key = 'ui:fixture'",
+                mutated.run(updateUiLocations('entry_zone_line_keys = ?'),
                     [JSON.stringify([location.entry_zone_line_keys[0], location.entry_zone_line_keys[0]])]);
             } else if (mutation === 'coordinates') {
-                mutated.run("UPDATE item_acquisition_locations SET x = 1 WHERE owner_key = 'ui:fixture'");
+                mutated.run(updateUiLocations('x = 1'));
             } else {
-                mutated.run("UPDATE item_acquisition_locations SET relation = 'inferred' WHERE owner_key = 'ui:fixture'");
+                mutated.run(updateUiLocations("relation = 'inferred'"));
             }
             expect(() => readItemAcquisitions(mutated)).toThrow('Invalid canonical');
         } finally {
@@ -297,7 +300,7 @@ describe('offline canonical map coverage', () => {
             else if (field === 'reference') invalid.reference_stable_key = 'quest:reliquary_claimed';
             else if (field === 'value') invalid.value = false;
             else invalid.phase = 'operation_input';
-            mutated.run("UPDATE item_acquisition_locations SET conditions = ? WHERE owner_key = 'ui:fixture'", [JSON.stringify([invalid])]);
+            mutated.run(updateUiLocations('conditions = ?'), [JSON.stringify([invalid])]);
             expect(() => readItemAcquisitions(mutated)).toThrow('Invalid canonical condition');
         } finally {
             mutated.close();

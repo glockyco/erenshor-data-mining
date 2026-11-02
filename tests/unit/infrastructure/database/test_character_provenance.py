@@ -128,6 +128,7 @@ def test_vendor_stock_uses_canonical_copy_and_location_gates(database: tuple[Wri
             "character:group",
             source_group_key="character:group",
             source_copy_stable_key="character:copy-a",
+            location_source_key="character:copy-a",
             locations=(ProvenanceLocation("furniture:a", "spawn", conditions=(furnished,)),),
         ),
         ItemAcquisition(
@@ -139,6 +140,7 @@ def test_vendor_stock_uses_canonical_copy_and_location_gates(database: tuple[Wri
             source_copy_stable_key="character:copy-b",
             variant_key="quest:unlock",
             conditions=(unlock,),
+            location_source_key="character:copy-b",
             locations=(
                 ProvenanceLocation("furniture:b", "spawn", conditions=(furnished,)),
                 ProvenanceLocation("outside:b", "spawn"),

@@ -671,8 +671,8 @@ def test_every_exported_subject_and_controller_names_its_complete_hierarchy(main
 
 def test_box_of_portals_keeps_the_claimed_desks_shared_gate(clean: sqlite3.Connection) -> None:
     locations = clean.execute(
-        "SELECT locations.conditions FROM item_acquisition_locations locations"
-        " JOIN item_acquisitions source ON source.acquisition_key=locations.owner_key"
+        "SELECT locations.conditions FROM item_source_locations locations"
+        " JOIN item_acquisitions source ON source.location_source_key=locations.source_key"
         " WHERE source.item_stable_key='item:gen - box of portals' AND source.kind='ui_grant'"
     ).fetchall()
     assert locations

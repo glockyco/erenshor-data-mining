@@ -2011,11 +2011,13 @@ CREATE TABLE item_acquisitions (
     expected_quantity REAL,
     count_distribution TEXT,
     guarantee_scope TEXT,
-    guaranteed_roll_count INTEGER
+    guaranteed_roll_count INTEGER,
+    location_source_key TEXT
 );
 CREATE INDEX item_acquisitions_item_idx ON item_acquisitions(item_stable_key);
 CREATE INDEX item_acquisitions_source_idx ON item_acquisitions(source_stable_key);
 CREATE INDEX item_acquisitions_copy_idx ON item_acquisitions(source_copy_stable_key);
+CREATE INDEX item_acquisitions_location_source_idx ON item_acquisitions(location_source_key);
 CREATE TABLE item_uses (
     use_key TEXT PRIMARY KEY NOT NULL,
     item_stable_key TEXT NOT NULL REFERENCES items(stable_key),
@@ -2027,7 +2029,8 @@ CREATE TABLE item_uses (
     quantity_max REAL,
     quantity_kind TEXT NOT NULL,
     mechanic TEXT,
-    outcome_key TEXT
+    outcome_key TEXT,
+    location_source_key TEXT
 );
 CREATE INDEX item_uses_item_idx ON item_uses(item_stable_key);
 CREATE INDEX item_uses_target_idx ON item_uses(target_stable_key);
@@ -2071,40 +2074,23 @@ CREATE TABLE item_use_conditions (
     ),
     PRIMARY KEY (owner_key, gate_key, group_index, atom_index, scope, phase)
 );
-CREATE TABLE item_acquisition_locations (
-    owner_key TEXT NOT NULL REFERENCES item_acquisitions(acquisition_key),
+-- The locations of each source, such as a character copy, mining node or mechanism. Every fact
+-- that names the source in location_source_key shares them, so they are stored once.
+CREATE TABLE item_source_locations (
+    source_key TEXT NOT NULL,
     location_key TEXT NOT NULL,
     relation TEXT NOT NULL,
     scene TEXT,
     zone_stable_key TEXT,
-    placement_key TEXT,
     coordinate_stable_key TEXT,
     x REAL, y REAL, z REAL,
-    gate_scope TEXT,
     player_level_min INTEGER,
     player_level_max INTEGER,
     conditions TEXT NOT NULL,
     entry_zone_line_keys TEXT NOT NULL,
     source_copy_stable_key TEXT,
-    PRIMARY KEY (owner_key, location_key)
-);
-CREATE TABLE item_use_locations (
-    owner_key TEXT NOT NULL REFERENCES item_uses(use_key),
-    location_key TEXT NOT NULL,
-    relation TEXT NOT NULL,
-    scene TEXT,
-    zone_stable_key TEXT,
-    placement_key TEXT,
-    coordinate_stable_key TEXT,
-    x REAL, y REAL, z REAL,
-    gate_scope TEXT,
-    player_level_min INTEGER,
-    player_level_max INTEGER,
-    conditions TEXT NOT NULL,
-    entry_zone_line_keys TEXT NOT NULL,
-    source_copy_stable_key TEXT,
-    PRIMARY KEY (owner_key, location_key)
-);
+    PRIMARY KEY (source_key, location_key)
+) WITHOUT ROWID;
 -- The characters whose loot rows a common world item summarizes.
 CREATE TABLE item_acquisition_contributors (
     acquisition_key TEXT NOT NULL REFERENCES item_acquisitions(acquisition_key),

@@ -248,6 +248,7 @@ def test_dialog_gift_keeps_payload_gates_and_canonical_furniture(
             quantity_min=1,
             quantity_max=1,
             quantity_kind="exact",
+            location_source_key="character:copy",
             locations=(ProvenanceLocation("room", "spawn", conditions=(furnished,)),),
         ),
     )
@@ -278,7 +279,11 @@ def test_trade_route_preserves_canonical_furniture_alternatives(database: tuple[
     reward = _reward("reward:slot2", "trade:slot2")
     _persist(
         writer,
-        replace(reward, locations=(ProvenanceLocation("room", "spawn", conditions=(furnished,)),)),
+        replace(
+            reward,
+            location_source_key="character:turnin",
+            locations=(ProvenanceLocation("room", "spawn", conditions=(furnished,)),),
+        ),
     )
 
     completions = [

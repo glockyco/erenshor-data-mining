@@ -389,6 +389,7 @@ def test_vendor_gate_alternatives_and_furniture_location_are_not_erased() -> Non
             ProvenanceCondition("unlock", 0, 0, "quest_done", "quest:a"),
             ProvenanceCondition("unlock", 1, 0, "quest_done", "quest:b"),
         ),
+        location_source_key="character:vendor",
         locations=(
             ProvenanceLocation(
                 "placement:room",
@@ -498,6 +499,7 @@ def test_container_pool_guarantee_does_not_guarantee_its_individual_item() -> No
     [
         "conditions",
         "locations",
+        "location_source_key",
         "probability_min",
         "quantity_min",
         "source_stable_key",
@@ -512,6 +514,7 @@ def test_article_provenance_coverage_rejects_lost_fact_dimensions(dimension: str
         quantity_max=2,
         quantity_kind="exact",
         conditions=(ProvenanceCondition("quest", 0, 0, "quest_done", "quest:unlock"),),
+        location_source_key="character:vendor_copy",
         locations=(ProvenanceLocation("unlocated:vendor", "unlocated"),),
     )
     sources = SourceInfo(acquisitions=(fact,))
@@ -559,6 +562,7 @@ def _global_fishing_sources() -> SourceInfo:
             _source(f"acq:water:{water}:{period}", item_key, "fishing", f"water:{water}", 1.25),
             probability_basis="per_successful_catch",
             conditions=(ProvenanceCondition("time", 0, 0, "time_of_day", value=period),),
+            location_source_key=f"water:{water}",
             locations=(
                 ProvenanceLocation(
                     f"location:{water}",
@@ -575,6 +579,7 @@ def _global_fishing_sources() -> SourceInfo:
             _source(f"acq:brake:{period}", item_key, "fishing", "water:brake_topright", chance),
             probability_basis="per_successful_catch",
             conditions=(ProvenanceCondition("time", 0, 0, "time_of_day", value=period),),
+            location_source_key="water:brake_topright",
             locations=(
                 ProvenanceLocation(
                     "location:brake",
@@ -736,6 +741,7 @@ def test_account_availability_uses_familiar_state_label_without_exposing_metadat
     )
     fact = replace(
         _source("acq:account", item.stable_key, "vendor", "character:vendor"),
+        location_source_key="character:vendor",
         locations=(
             ProvenanceLocation(
                 location_key,
@@ -780,6 +786,7 @@ def test_account_outcome_does_not_become_a_contradictory_availability_requiremen
     outcome = replace(availability, atom_index=1, value="true", phase="operation_outcome")
     fact = replace(
         _source("acq:account", item.stable_key, "character_drop", "character:source", 100),
+        location_source_key="character:source",
         locations=(
             ProvenanceLocation(
                 location_key,

@@ -68,9 +68,9 @@ def _insert_fact(writer: Writer, fact: ItemAcquisition | ItemUse) -> None:
     for location in locations:
         _insert(
             writer,
-            f"item_{family}_locations",
+            "item_source_locations",
             {
-                "owner_key": key,
+                "source_key": data["location_source_key"],
                 **location,
                 "conditions": json.dumps(location["conditions"]),
                 "entry_zone_line_keys": json.dumps(location["entry_zone_line_keys"]),
@@ -361,6 +361,7 @@ def test_obtainability_and_teaching_share_canonical_player_access(
             probability_min=probability,
             probability_max=probability,
             conditions=conditions,
+            location_source_key="character:panel" if locations else None,
             locations=locations,
         ),
     )

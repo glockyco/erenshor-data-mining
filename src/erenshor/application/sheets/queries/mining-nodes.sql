@@ -12,7 +12,7 @@ SELECT
 FROM item_acquisitions a
 LEFT JOIN mining_nodes m ON m.stable_key = a.source_stable_key
 LEFT JOIN items i ON i.stable_key = a.item_stable_key
-LEFT JOIN item_acquisition_locations l ON l.owner_key = a.acquisition_key
+LEFT JOIN item_source_locations l ON l.source_key = a.location_source_key
 LEFT JOIN zones z ON z.stable_key = l.zone_stable_key
 WHERE a.kind = 'mining'
     AND a.player_access_state = 'verified_player'

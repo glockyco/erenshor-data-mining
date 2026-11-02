@@ -202,18 +202,20 @@ class _Coverage:
         data.update(
             scene=row.get("scene"),
             zone_stable_key=self.zones.get(row.get("scene")),
-            placement_key=key,
             coordinate_stable_key=coordinate,
             x=row.get("x"),
             y=row.get("y"),
             z=row.get("z"),
-            gate_scope=key if conditions else None,
             player_level_min=row.get("player_level_min"),
             player_level_max=row.get("player_level_max"),
             conditions=conditions,
             entry_zone_line_keys=entries,
         )
         return data
+
+    @staticmethod
+    def located(source: str, locations: tuple[dict[str, Any], ...]) -> dict[str, Any]:
+        return {"location_source_key": source, "locations": locations}
 
     def encounter_atoms(self, spawn: str, scope: str) -> tuple[dict[str, Any], ...]:
         atoms: list[dict[str, Any]] = []
@@ -414,7 +416,7 @@ class _Coverage:
                         *ownership_conditions,
                         *(context if initializes else ()),
                     ),
-                    locations=self.placements(copy),
+                    **self.located(copy, self.placements(copy)),
                 )
         for item, rows in common.items():
             death_origins = (
@@ -507,7 +509,7 @@ class _Coverage:
                 source_copy_stable_key=copy,
                 probability_basis="not_applicable",
                 conditions=conditions,
-                locations=self.placements(copy),
+                **self.located(copy, self.placements(copy)),
             )
         variants = {r["resource_name"]: r for r in self.rows("quest_variants")}
         for row in self.rows("character_dialogs"):
@@ -544,7 +546,7 @@ class _Coverage:
                 variant_key=str(slot),
                 probability_basis="not_applicable",
                 conditions=conditions,
-                locations=self.placements(copy),
+                **self.located(copy, self.placements(copy)),
             )
 
     def enumerate_crafting(self) -> None:
@@ -674,7 +676,7 @@ class _Coverage:
                     source_group_key=self.groups[copy],
                     probability_basis="not_applicable",
                     conditions=conditions,
-                    locations=self.placements(copy),
+                    **self.located(copy, self.placements(copy)),
                 )
         for row in self.rows("quest_required_items"):
             variant, slot = row["quest_variant_resource_name"], row["required_slot"]
@@ -723,7 +725,7 @@ class _Coverage:
                     probability_basis=basis,
                     variant_key=period,
                     conditions=conditions,
-                    locations=(self.location(locations[source], source, "fixed", source),),
+                    **self.located(source, (self.location(locations[source], source, "fixed", source),)),
                 )
         for row in self.rows("fishing_bonus_catches"):
             item = row["item_stable_key"]
@@ -765,7 +767,9 @@ class _Coverage:
                     quantity=1,
                     probability_basis="not_applicable",
                     conditions=bag_conditions,
-                    locations=(self.location(row, key, "fixed", key, entries=self.entries("item_bag", key)),),
+                    **self.located(
+                        key, (self.location(row, key, "fixed", key, entries=self.entries("item_bag", key)),)
+                    ),
                 )
 
     def enumerate_operations(self) -> None:
@@ -875,7 +879,7 @@ class _Coverage:
                 "quantity": 1,
                 "mechanic": mechanic,
                 "conditions": (self.condition("zone", "zone_use", zone),),
-                "locations": (location,),
+                **self.located(location["location_key"], (location,)),
             }
             outcome = self.fact(
                 "acquisition",
@@ -974,7 +978,7 @@ class _Coverage:
                     material_slot=slot,
                     mechanic=_key("quality_offering", group),
                     conditions=conditions,
-                    locations=placements,
+                    **self.located(_key("quality_offering", group), placements),
                 )
             for gear in self.rows("items"):
                 if gear["required_slot"] in ("General", "Aura"):
@@ -990,7 +994,7 @@ class _Coverage:
                     quantity=1,
                     material_slot=2,
                     mechanic=_key("quality_offering", group),
-                    locations=placements,
+                    **self.located(_key("quality_offering", group), placements),
                     conditions=(
                         *conditions,
                         self.condition("eligible_quality", "quality", minimum=1, maximum=1, phase="operation_input"),
@@ -1061,7 +1065,7 @@ class _Coverage:
                 mechanic=_key("auction_house", route),
                 probability_basis="per_listing_opportunity",
                 conditions=conditions,
-                locations=locations,
+                **self.located("mechanic:auction_house", locations),
             )
 
     def enumerate_ui(self) -> None:
@@ -1148,7 +1152,7 @@ class _Coverage:
                 probability_basis="not_applicable",
                 guarantee_scope="successful_ui_transfer",
                 conditions=source_conditions,
-                locations=locations,
+                **self.located(source, locations),
             )
         for origin, reason in support.items():
             if origin not in consumed:
@@ -2351,6 +2355,13 @@ class _Coverage:
 
     def validate_contract(self, evidence: set[tuple[str, str, str]]) -> dict[str, int]:
         counts = {}
+        sources: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        for row in self.rows("item_source_locations"):
+            values = dict(row)
+            values["conditions"] = json.loads(values["conditions"])
+            values["entry_zone_line_keys"] = json.loads(values["entry_zone_line_keys"])
+            sources[values.pop("source_key")].append(values)
+        referenced: set[str] = set()
         for family, table, key_column in (
             ("acquisition", "item_acquisitions", "acquisition_key"),
             ("use", "item_uses", "use_key"),
@@ -2363,17 +2374,12 @@ class _Coverage:
                     f"unexpected={sorted(actual.keys() - expected.keys())!r}"
                 )
             conditions: dict[str, list[dict[str, Any]]] = defaultdict(list)
-            locations: dict[str, list[dict[str, Any]]] = defaultdict(list)
-            for table_suffix, grouped in (("conditions", conditions), ("locations", locations)):
-                for row in self.rows(f"item_{family}_{table_suffix}"):
-                    values = dict(row)
-                    owner = values.pop("owner_key")
-                    if owner not in actual:
-                        raise ValueError(f"Orphan item provenance {table_suffix}: {owner}")
-                    if table_suffix == "locations":
-                        values["conditions"] = json.loads(values["conditions"])
-                        values["entry_zone_line_keys"] = json.loads(values["entry_zone_line_keys"])
-                    grouped[owner].append(values)
+            for row in self.rows(f"item_{family}_conditions"):
+                values = dict(row)
+                owner = values.pop("owner_key")
+                if owner not in actual:
+                    raise ValueError(f"Orphan item provenance conditions: {owner}")
+                conditions[owner].append(values)
             for owner, data in expected.items():
                 for dimension, value in data.items():
                     if dimension in ("conditions", "locations"):
@@ -2382,13 +2388,21 @@ class _Coverage:
                         raise ValueError(
                             f"Item provenance {owner}: {dimension} expected {value!r}, got {actual[owner][dimension]!r}"
                         )
-                for dimension, grouped in (("conditions", conditions), ("locations", locations)):
+                source = actual[owner]["location_source_key"]
+                if source is not None:
+                    referenced.add(source)
+                for dimension, found_rows in (
+                    ("conditions", conditions[owner]),
+                    ("locations", sources.get(source, []) if source is not None else []),
+                ):
                     # JSON normalizes tuple/list and SQLite integer booleans without losing values.
                     wanted = sorted((_normalized(v) for v in data[dimension]), key=_json)
-                    found = sorted((_normalized(v) for v in grouped[owner]), key=_json)
+                    found = sorted((_normalized(v) for v in found_rows), key=_json)
                     if wanted != found:
                         raise ValueError(f"Item provenance {owner}: {dimension} differ")
             counts[family + "s"] = len(actual)
+        if sources.keys() - referenced:
+            raise ValueError(f"Orphan item provenance locations: {sorted(sources.keys() - referenced)!r}")
         if evidence != self.evidence:
             raise ValueError(
                 f"Item provenance evidence differs: missing={sorted(self.evidence - evidence)!r}, "

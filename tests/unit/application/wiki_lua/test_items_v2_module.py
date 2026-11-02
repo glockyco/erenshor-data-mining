@@ -63,6 +63,7 @@ class Provenance:
                 quantity_max=2,
                 quantity_kind="exact",
                 conditions=(condition, ProvenanceCondition("gate:time", 0, 0, "time_of_day", value="day")),
+                location_source_key="water:lake",
                 locations=(ProvenanceLocation("location:lake", "unlocated", conditions=(condition,)),),
             )
         ]
@@ -490,11 +491,20 @@ def test_native_references_cover_sources_targets_conditions_and_locations_withou
             copy,
             source_copy_stable_key=copy,
             conditions=(condition,),
+            location_source_key=copy,
             locations=(location,),
         )
     ]
     provenance.uses = [
-        ItemUse("use:quest", key, other_quest, "quest_requirement", conditions=(condition,), locations=(location,))
+        ItemUse(
+            "use:quest",
+            key,
+            other_quest,
+            "quest_requirement",
+            location_source_key=copy,
+            conditions=(condition,),
+            locations=(location,),
+        )
     ]
     data = build_items_v2_data(repo, provenance, build=BUILD, native_catalog=catalog)
     record = data.provenance[item_bucket(key)][key]

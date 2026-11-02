@@ -46,12 +46,10 @@ def _acquisition() -> ItemAcquisition:
         "possible_treasure",
         "Scene",
         "zone:scene",
-        "placement:copy",
         "point:copy",
         1.123456789,
         -2.25,
         3.75,
-        "placement:copy",
         10,
         25,
         (condition,),
@@ -80,6 +78,7 @@ def _acquisition() -> ItemAcquisition:
         '{"0":0.2,"1":0.3,"2":0.5}',
         "pool",
         3,
+        "character:copy",
         (condition,),
         (location,),
     )
@@ -99,6 +98,7 @@ def test_json_roundtrip_retains_every_fact_dimension() -> None:
         "bounded",
         "mechanic:one",
         acquisition.acquisition_key,
+        acquisition.location_source_key,
         acquisition.conditions,
         acquisition.locations,
     )

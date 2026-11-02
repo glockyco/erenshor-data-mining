@@ -53,13 +53,13 @@ return {
 				},
 				["item_stable_key"] = "item:arm - 19  - ancient guardian sleeve",
 				["kind"] = "vendor",
+				["location_source_key"] = 'character:captain  rowan "copy" & <test>',
 				["locations"] = {
 					{
 						["conditions"] = {},
 						["entry_zone_line_keys"] = {
 							'zone_line:entry  "one" & <test>',
 						},
-						["gate_scope"] = 'gate  "scope" & <test>',
 						["location_key"] = 'location  "quoted" & <test>',
 						["relation"] = "fixed",
 						["x"] = 1,

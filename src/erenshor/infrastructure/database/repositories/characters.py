@@ -732,26 +732,26 @@ class CharacterRepository(BaseRepository[Character]):
         """Project canonical offers with copy-local furniture and stock-unlock gates."""
         query = """
             WITH location_furniture AS (
-                SELECT l.owner_key, l.location_key,
+                SELECT l.source_key, l.location_key,
                     CASE WHEN COUNT(DISTINCT json_extract(atom.value, '$.reference_stable_key')) = 1
                     THEN MIN(json_extract(atom.value, '$.reference_stable_key')) END AS furniture_key
-                FROM item_acquisition_locations l
-                JOIN item_acquisitions a ON a.acquisition_key = l.owner_key AND a.kind = 'vendor'
+                FROM item_source_locations l
                 LEFT JOIN json_each(l.conditions) atom
                   ON json_extract(atom.value, '$.predicate') = 'room_furnished'
-                GROUP BY l.owner_key, l.location_key
+                WHERE l.source_key IN (SELECT location_source_key FROM item_acquisitions WHERE kind = 'vendor')
+                GROUP BY l.source_key, l.location_key
             ),
             furniture AS (
-                SELECT owner_key,
+                SELECT source_key,
                     CASE WHEN COUNT(*) = COUNT(furniture_key) AND COUNT(DISTINCT furniture_key) = 1
                     THEN MIN(furniture_key) END AS furniture_key
                 FROM location_furniture
-                GROUP BY owner_key
+                GROUP BY source_key
             )
             SELECT a.acquisition_key, a.source_group_key, a.source_copy_stable_key,
                 a.item_stable_key, f.furniture_key, q.reference_stable_key AS quest_key
             FROM item_acquisitions a
-            LEFT JOIN furniture f ON f.owner_key = a.acquisition_key
+            LEFT JOIN furniture f ON f.source_key = a.location_source_key
             LEFT JOIN item_acquisition_conditions q ON q.owner_key = a.acquisition_key
               AND q.gate_key = 'stock_unlock' AND q.predicate = 'quest_done'
             WHERE a.kind = 'vendor'

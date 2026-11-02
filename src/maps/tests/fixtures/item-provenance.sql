@@ -32,19 +32,27 @@ CREATE TABLE item_use_conditions (
         phase IN ('availability', 'source_initialization', 'operation_input', 'operation_outcome', 'mechanic_parameter')),
     PRIMARY KEY (owner_key, gate_key, group_index, atom_index, scope, phase)
 );
-CREATE TABLE item_acquisition_locations (
-    owner_key TEXT NOT NULL REFERENCES item_acquisitions(acquisition_key), location_key TEXT NOT NULL,
-    relation TEXT NOT NULL, scene TEXT, zone_stable_key TEXT, placement_key TEXT,
-    coordinate_stable_key TEXT, x REAL, y REAL, z REAL, gate_scope TEXT,
+-- The fixture stages each fact's locations, then publishes them once per source at the end.
+CREATE TABLE staged_acquisition_locations (
+    owner_key TEXT NOT NULL, location_key TEXT NOT NULL,
+    relation TEXT NOT NULL, scene TEXT, zone_stable_key TEXT,
+    coordinate_stable_key TEXT, x REAL, y REAL, z REAL,
     player_level_min INTEGER, player_level_max INTEGER, conditions TEXT NOT NULL,
     entry_zone_line_keys TEXT NOT NULL, source_copy_stable_key TEXT, PRIMARY KEY (owner_key, location_key)
 );
-CREATE TABLE item_use_locations (
-    owner_key TEXT NOT NULL REFERENCES item_uses(use_key), location_key TEXT NOT NULL,
-    relation TEXT NOT NULL, scene TEXT, zone_stable_key TEXT, placement_key TEXT,
-    coordinate_stable_key TEXT, x REAL, y REAL, z REAL, gate_scope TEXT,
+CREATE TABLE staged_use_locations (
+    owner_key TEXT NOT NULL, location_key TEXT NOT NULL,
+    relation TEXT NOT NULL, scene TEXT, zone_stable_key TEXT,
+    coordinate_stable_key TEXT, x REAL, y REAL, z REAL,
     player_level_min INTEGER, player_level_max INTEGER, conditions TEXT NOT NULL,
     entry_zone_line_keys TEXT NOT NULL, source_copy_stable_key TEXT, PRIMARY KEY (owner_key, location_key)
+);
+CREATE TABLE item_source_locations (
+    source_key TEXT NOT NULL, location_key TEXT NOT NULL,
+    relation TEXT NOT NULL, scene TEXT, zone_stable_key TEXT,
+    coordinate_stable_key TEXT, x REAL, y REAL, z REAL,
+    player_level_min INTEGER, player_level_max INTEGER, conditions TEXT NOT NULL,
+    entry_zone_line_keys TEXT NOT NULL, source_copy_stable_key TEXT, PRIMARY KEY (source_key, location_key)
 );
 CREATE TABLE item_acquisition_contributors (
     acquisition_key TEXT NOT NULL, character_stable_key TEXT NOT NULL,
@@ -151,28 +159,26 @@ INSERT INTO item_acquisitions VALUES
     'equipment:1', 'equipment', 'internal_only', 'not_applicable', NULL, NULL, NULL, 'final_acquisition', NULL, NULL, 'unknown', NULL, NULL, NULL),
     ('fishing:bonus', 'item:fixture fish', 'fishing_bonus', 'water:stowaway-fixture', NULL, NULL, 'bonus:1', 'bonus',
     'verified_player', 'bounded', 1, 4, 'per_successful_catch', 'native_pool', 1, 1, 'exact', NULL, NULL, NULL);
-INSERT INTO item_acquisition_locations
+INSERT INTO staged_acquisition_locations
 SELECT a.acquisition_key, 'placement:' || p.spawn_point_stable_key, 'spawn', p.scene, z.stable_key,
-    p.character_stable_key || ':' || p.spawn_point_stable_key || ':direct', p.spawn_point_stable_key,
-    p.x, p.y, p.z, p.character_stable_key || ':' || p.spawn_point_stable_key || ':direct', NULL, NULL, '[]', '[]', p.character_stable_key
+    p.spawn_point_stable_key, p.x, p.y, p.z, NULL, NULL, '[]', '[]', p.character_stable_key
 FROM item_acquisitions a JOIN map_character_spawns p ON p.character_stable_key = a.source_copy_stable_key
 JOIN zones z ON z.scene_name = p.scene;
-INSERT INTO item_acquisition_locations
+INSERT INTO staged_acquisition_locations
 SELECT a.acquisition_key, 'site:' || t.stable_key, 'possible_treasure', t.scene, z.stable_key,
-    t.stable_key, t.stable_key, t.x, t.y, t.z, t.stable_key,
-    s.player_level_min, s.player_level_max, '[]', '[]', a.source_copy_stable_key
+    t.stable_key, t.x, t.y, t.z, s.player_level_min, s.player_level_max, '[]', '[]', a.source_copy_stable_key
 FROM item_acquisitions a JOIN treasure_chest_possible_spawns s ON s.chest_character_stable_key = a.source_copy_stable_key
 JOIN treasure_locations t ON t.stable_key = s.treasure_location_stable_key JOIN zones z ON z.scene_name = t.scene;
-INSERT INTO item_acquisition_locations
-SELECT a.acquisition_key, 'fixed:' || p.stable_key, 'fixed', p.scene, z.stable_key, p.stable_key, p.stable_key,
-    p.x, p.y, p.z, NULL, NULL, NULL, '[]', '[]', NULL
+INSERT INTO staged_acquisition_locations
+SELECT a.acquisition_key, 'fixed:' || p.stable_key, 'fixed', p.scene, z.stable_key, p.stable_key,
+    p.x, p.y, p.z, NULL, NULL, '[]', '[]', NULL
 FROM item_acquisitions a JOIN (
     SELECT stable_key, scene, x, y, z FROM mining_nodes UNION ALL
     SELECT stable_key, scene, x, y, z FROM waters UNION ALL
     SELECT stable_key, scene, x, y, z FROM item_bags
 ) p ON p.stable_key = a.source_stable_key JOIN zones z ON z.scene_name = p.scene;
-INSERT INTO item_acquisition_locations VALUES
-    ('ui:fixture', 'room:unlocated', 'unlocated', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'room:1', 10, 35,
+INSERT INTO staged_acquisition_locations VALUES
+    ('ui:fixture', 'room:unlocated', 'unlocated', NULL, NULL, NULL, NULL, NULL, NULL, 10, 35,
     '[{"gate_key":"room","group_index":0,"atom_index":0,"predicate":"room_furnished","reference_stable_key":"item:furniture - wood training","reference_slot":"room:1","actor":"player","value":"placed","minimum":null,"maximum":null,"minimum_inclusive":true,"maximum_inclusive":true,"scope":"room:unlocated","phase":"availability"},{"gate_key":"claim","group_index":0,"atom_index":0,"predicate":"account_state","reference_stable_key":"account_state:reliquary_claimed","reference_slot":null,"actor":"account","value":"false","minimum":null,"maximum":null,"minimum_inclusive":true,"maximum_inclusive":true,"scope":"room:unlocated","phase":"availability"},{"gate_key":"claim","group_index":0,"atom_index":0,"predicate":"account_state","reference_stable_key":"account_state:reliquary_claimed","reference_slot":null,"actor":"account","value":"true","minimum":null,"maximum":null,"minimum_inclusive":true,"maximum_inclusive":true,"scope":"room:unlocated","phase":"operation_outcome"}]', '["zone-line:stowaway-fixture"]', NULL);
 INSERT INTO item_acquisition_conditions VALUES
     ('ui:fixture', 'eligibility', 0, 0, 'quest_done', 'quest:vendor-unlock', 'quest:1', 'player', 'complete', 1, 2, 1, 0, 'source', 'availability'),
@@ -184,16 +190,15 @@ INSERT INTO item_acquisitions VALUES
     'verified_player', 'not_applicable', NULL, NULL, NULL, 'final_acquisition', 1, 1, 'exact', NULL, NULL, NULL);
 INSERT INTO item_acquisition_conditions VALUES
     ('impossible:fixture', 'gate:impossible', 0, 0, 'never', NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, 'source', 'availability');
-INSERT INTO item_acquisition_locations
+INSERT INTO staged_acquisition_locations
 SELECT a.acquisition_key, 'broker:' || b.character_stable_key, 'interaction', p.scene, z.stable_key,
-    p.spawn_point_stable_key, p.spawn_point_stable_key, p.x, p.y, p.z, p.spawn_point_stable_key,
-    NULL, NULL, '[]', '[]', b.character_stable_key
+    p.spawn_point_stable_key, p.x, p.y, p.z, NULL, NULL, '[]', '[]', b.character_stable_key
 FROM item_acquisitions a CROSS JOIN auction_house_brokers b
 JOIN map_character_spawns p ON p.character_stable_key = b.character_stable_key
 JOIN zones z ON z.scene_name = p.scene WHERE a.kind = 'auction_house';
-INSERT INTO item_acquisition_locations
+INSERT INTO staged_acquisition_locations
 SELECT a.acquisition_key, 'broker:' || b.character_stable_key, 'interaction', NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '[]', '[]', b.character_stable_key
+    NULL, NULL, NULL, NULL, NULL, NULL, '[]', '[]', b.character_stable_key
 FROM item_acquisitions a CROSS JOIN auction_house_brokers b
 WHERE a.kind = 'auction_house' AND NOT EXISTS (
     SELECT 1 FROM map_character_spawns p WHERE p.character_stable_key = b.character_stable_key
@@ -205,16 +210,15 @@ INSERT INTO item_acquisition_conditions
 SELECT 'auction:' || rowid, 'level_player', 0, 0, 'actor_level', NULL, NULL, 'player', NULL,
     min_player_level, max_player_level, 1, 1, 'source', 'availability' FROM auction_house_items
 WHERE min_player_level IS NOT NULL OR max_player_level IS NOT NULL;
-INSERT INTO item_acquisition_locations
+INSERT INTO staged_acquisition_locations
 SELECT a.acquisition_key, 'turnin:' || p.spawn_point_stable_key, 'interaction', p.scene, z.stable_key,
-    p.spawn_point_stable_key, p.spawn_point_stable_key, p.x, p.y, p.z, p.spawn_point_stable_key,
-    NULL, NULL, '[]', '[]', p.character_stable_key
+    p.spawn_point_stable_key, p.x, p.y, p.z, NULL, NULL, '[]', '[]', p.character_stable_key
 FROM item_acquisitions a JOIN map_character_spawns p ON p.character_stable_key = 'character:breena carpenter'
 JOIN zones z ON z.scene_name = p.scene
 WHERE a.kind = 'quest_reward' AND a.source_stable_key = 'quest:vendor-unlock';
-INSERT INTO item_acquisition_locations
+INSERT INTO staged_acquisition_locations
 SELECT a.acquisition_key, 'zone:' || z.stable_key, 'mechanic_zone', NULL, z.stable_key,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '[]', '[]', NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, '[]', '[]', NULL
 FROM item_acquisitions a JOIN zones z ON z.stable_key = a.variant_key WHERE a.kind = 'item_conversion';
 INSERT INTO item_acquisition_conditions
 SELECT a.acquisition_key, 'zone', 0, 0, 'zone_use', a.variant_key, NULL, 'player', NULL,
@@ -227,7 +231,7 @@ WHERE kind = 'character_drop' AND source_copy_stable_key = 'character:fixture en
 UPDATE item_acquisitions SET probability_kind = 'exact', probability_min = 1.25, probability_max = 1.25,
     source_stable_key = NULL, variant_key = NULL, mechanic = 'fishing_global_replacement'
 WHERE acquisition_key = 'fishing:bonus';
-DELETE FROM item_acquisition_locations WHERE owner_key = 'fishing:bonus';
+DELETE FROM staged_acquisition_locations WHERE owner_key = 'fishing:bonus';
 UPDATE item_acquisitions SET probability_min = 7.1875, probability_max = 7.1875 WHERE acquisition_key = 'fishing:1';
 INSERT INTO item_acquisitions
 SELECT 'fishing:overlap-night', item_stable_key, kind, source_stable_key, source_group_key, source_copy_stable_key,
@@ -236,10 +240,10 @@ SELECT 'fishing:overlap-night', item_stable_key, kind, source_stable_key, source
     count_distribution, guarantee_scope, guaranteed_roll_count FROM item_acquisitions WHERE acquisition_key = 'fishing:1';
 INSERT INTO item_acquisition_conditions VALUES
     ('fishing:overlap-night', 'time', 0, 0, 'time_of_day', NULL, NULL, 'player', 'night', NULL, NULL, 1, 1, 'source', 'availability');
-INSERT INTO item_acquisition_locations
-SELECT 'fishing:overlap-night', location_key, relation, scene, zone_stable_key, placement_key,
-    coordinate_stable_key, x, y, z, gate_scope, player_level_min, player_level_max, conditions,
-    entry_zone_line_keys, source_copy_stable_key FROM item_acquisition_locations WHERE owner_key = 'fishing:1';
+INSERT INTO staged_acquisition_locations
+SELECT 'fishing:overlap-night', location_key, relation, scene, zone_stable_key,
+    coordinate_stable_key, x, y, z, player_level_min, player_level_max, conditions,
+    entry_zone_line_keys, source_copy_stable_key FROM staged_acquisition_locations WHERE owner_key = 'fishing:1';
 INSERT INTO waters (stable_key, scene, x, y, z, width, depth) VALUES
     ('water:pure-global-one', 'StowawayPortal', 10, 0, 20, 20, 20),
     ('water:pure-global-two', 'Brake', 30, 0, 40, 20, 20);
@@ -253,9 +257,9 @@ INSERT INTO item_acquisition_conditions
 SELECT acquisition_key, 'time', 0, 0, 'time_of_day', NULL, NULL, 'player',
     CASE variant_key WHEN 'DayFishable' THEN 'day' ELSE 'night' END, NULL, NULL, 1, 1, 'source', 'availability'
 FROM item_acquisitions WHERE acquisition_key LIKE 'global-final:%';
-INSERT INTO item_acquisition_locations
-SELECT a.acquisition_key, 'fixed:' || w.stable_key, 'fixed', w.scene, z.stable_key, w.stable_key, w.stable_key,
-    w.x, w.y, w.z, NULL, NULL, NULL, '[]', '[]', NULL
+INSERT INTO staged_acquisition_locations
+SELECT a.acquisition_key, 'fixed:' || w.stable_key, 'fixed', w.scene, z.stable_key, w.stable_key,
+    w.x, w.y, w.z, NULL, NULL, '[]', '[]', NULL
 FROM item_acquisitions a JOIN waters w ON w.stable_key = a.source_stable_key
 JOIN zones z ON z.scene_name = w.scene WHERE a.acquisition_key LIKE 'global-final:%';
 
@@ -283,11 +287,36 @@ INSERT INTO item_use_conditions VALUES
     ('use:fixture', 'quality', 0, 0, 'quality', NULL, 'slot:2', 'player', 'normal', 2, 5, 1, 0, 'source', 'operation_input'),
     ('use:fixture', 'quality', 0, 0, 'quality', NULL, 'slot:2', 'player', 'normal', 8, 10, 1, 1, 'source', 'operation_outcome'),
     ('use:fixture', 'chance', 0, 0, 'formula_operand', NULL, NULL, NULL, 'chance_per_pair', 0.25, 0.25, 1, 1, 'source', 'mechanic_parameter');
-INSERT INTO item_use_locations VALUES
-    ('use:fixture', 'zone:fixture', 'mechanic_zone', 'Stowaway', 'zone:stowaway', NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, '[]', '[]', NULL);
+INSERT INTO staged_use_locations VALUES
+    ('use:fixture', 'zone:fixture', 'mechanic_zone', 'Stowaway', 'zone:stowaway', NULL,
+    NULL, NULL, NULL, NULL, NULL, '[]', '[]', NULL);
 INSERT INTO item_acquisition_conditions VALUES
     ('drop:character:fixture enemy:item:fixture drop', 'ownership', 0, 0, 'item_not_owned',
     'item:fixture key', NULL, 'player', 'inventory', NULL, NULL, 1, 1, 'source', 'source_initialization'),
     ('drop:character:fixture enemy:item:fixture drop', 'ownership', 0, 0, 'item_held',
     'item:fixture key', NULL, 'player', 'inventory', 1, NULL, 1, 1, 'source', 'operation_input');
+
+-- A fact's location source is the set of its staged locations, so facts with the same locations share one source.
+ALTER TABLE item_acquisitions ADD COLUMN location_source_key TEXT;
+ALTER TABLE item_uses ADD COLUMN location_source_key TEXT;
+UPDATE item_acquisitions SET location_source_key = (
+    SELECT 'source:' || group_concat(location_key || '|' || COALESCE(player_level_min, '') || '|'
+        || COALESCE(player_level_max, '') || '|' || COALESCE(source_copy_stable_key, '') || '|' || conditions, ';')
+    FROM (SELECT * FROM staged_acquisition_locations s WHERE s.owner_key = item_acquisitions.acquisition_key
+        ORDER BY location_key))
+WHERE acquisition_key IN (SELECT owner_key FROM staged_acquisition_locations);
+UPDATE item_uses SET location_source_key = (
+    SELECT 'source:' || group_concat(location_key || '|' || COALESCE(player_level_min, '') || '|'
+        || COALESCE(player_level_max, '') || '|' || COALESCE(source_copy_stable_key, '') || '|' || conditions, ';')
+    FROM (SELECT * FROM staged_use_locations s WHERE s.owner_key = item_uses.use_key ORDER BY location_key))
+WHERE use_key IN (SELECT owner_key FROM staged_use_locations);
+INSERT OR IGNORE INTO item_source_locations
+SELECT a.location_source_key, s.location_key, s.relation, s.scene, s.zone_stable_key, s.coordinate_stable_key,
+    s.x, s.y, s.z, s.player_level_min, s.player_level_max, s.conditions, s.entry_zone_line_keys, s.source_copy_stable_key
+FROM staged_acquisition_locations s JOIN item_acquisitions a ON a.acquisition_key = s.owner_key;
+INSERT OR IGNORE INTO item_source_locations
+SELECT u.location_source_key, s.location_key, s.relation, s.scene, s.zone_stable_key, s.coordinate_stable_key,
+    s.x, s.y, s.z, s.player_level_min, s.player_level_max, s.conditions, s.entry_zone_line_keys, s.source_copy_stable_key
+FROM staged_use_locations s JOIN item_uses u ON u.use_key = s.owner_key;
+DROP TABLE staged_acquisition_locations;
+DROP TABLE staged_use_locations;

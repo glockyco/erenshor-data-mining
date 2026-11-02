@@ -72,6 +72,8 @@ class ProvenanceBuilder:
         self._character_locations: dict[str, tuple[ProvenanceLocation, ...]] = {}
         # The input rows of each fact by its key. The build checks them and does not store them.
         self.fact_evidence: dict[str, tuple[ProvenanceEvidence, ...]] = {}
+        # The locations of each source, which every fact of the source shares.
+        self.source_locations: dict[str, tuple[ProvenanceLocation, ...]] = {}
 
     def rows(self, table: str) -> list[dict[str, Any]]:
         if table not in self.tables:
@@ -138,18 +140,23 @@ class ProvenanceBuilder:
             relation,
             row.get("scene"),
             self._zones.get(str(row.get("scene"))),
-            key,
             coordinate,
             row.get("x"),
             row.get("y"),
             row.get("z"),
-            key if conditions else None,
             row.get("player_level_min"),
             row.get("player_level_max"),
             conditions,
             entries,
             row.get("character_stable_key") or row.get("chest_character_stable_key"),
         )
+
+    def located(self, source: str, locations: tuple[ProvenanceLocation, ...]) -> dict[str, Any]:
+        """Name a source's locations in a fact, storing them once for every fact of the source."""
+        known = self.source_locations.setdefault(source, locations)
+        if known != locations:
+            raise ValueError(f"Location source {source} names two different sets of locations")
+        return {"location_source_key": source, "locations": known}
 
     def encounter_conditions(self, spawn: str, scope: str) -> tuple[ProvenanceCondition, ...]:
         result = []
@@ -432,7 +439,7 @@ class ProvenanceBuilder:
                 guaranteed_roll_count=(
                     self._characters[copy]["guaranteed_drop_rolls"] if initializes and row["is_guaranteed"] else None
                 ),
-                locations=self.character_locations(copy),
+                **self.located(copy, self.character_locations(copy)),
                 conditions=(
                     *self.gate_conditions("character", copy),
                     *ownership_conditions,
@@ -533,7 +540,7 @@ class ProvenanceBuilder:
                 source_copy_stable_key=copy,
                 probability_basis="not_applicable",
                 conditions=conditions,
-                locations=self.character_locations(copy),
+                **self.located(copy, self.character_locations(copy)),
             )
         variants = {str(row["resource_name"]): row for row in self.rows("quest_variants")}
         for row in self.rows("character_dialogs"):
@@ -579,7 +586,7 @@ class ProvenanceBuilder:
                 variant_key=str(slot),
                 probability_basis="not_applicable",
                 conditions=conditions,
-                locations=self.character_locations(copy),
+                **self.located(copy, self.character_locations(copy)),
             )
 
     def crafting(self) -> None:
@@ -722,7 +729,7 @@ class ProvenanceBuilder:
                     source_group_key=self._groups[copy],
                     probability_basis="not_applicable",
                     conditions=conditions,
-                    locations=self.character_locations(copy),
+                    **self.located(copy, self.character_locations(copy)),
                 )
         variants = {str(row["resource_name"]): str(row["quest_stable_key"]) for row in self.rows("quest_variants")}
         for row in self.rows("quest_required_items"):
@@ -769,7 +776,7 @@ class ProvenanceBuilder:
                     probability_basis=basis,
                     variant_key=str(period) if period else None,
                     conditions=conditions,
-                    locations=(self._location(locations[source], source, "fixed", source),),
+                    **self.located(source, (self._location(locations[source], source, "fixed", source),)),
                 )
         for row in self.rows("fishing_bonus_catches"):
             item = str(row["item_stable_key"])
@@ -813,8 +820,9 @@ class ProvenanceBuilder:
                     quantity=1,
                     probability_basis="not_applicable",
                     conditions=bag_conditions,
-                    locations=(
-                        self._location(row, source, "fixed", source, entries=self._entries("item_bag", source)),
+                    **self.located(
+                        source,
+                        (self._location(row, source, "fixed", source, entries=self._entries("item_bag", source)),),
                     ),
                 )
 
@@ -921,7 +929,7 @@ class ProvenanceBuilder:
                 probability_basis="per_use",
                 mechanic=mechanic,
                 conditions=conditions,
-                locations=locations,
+                **self.located(locations[0].location_key, locations),
             )
             self.use(
                 "item_conversion",
@@ -933,7 +941,7 @@ class ProvenanceBuilder:
                 mechanic=mechanic,
                 outcome_key=fact.acquisition_key,
                 conditions=conditions,
-                locations=locations,
+                **self.located(locations[0].location_key, locations),
             )
         for row in self.rows("item_zone_restrictions"):
             item, zone = str(row["item_stable_key"]), str(row["zone_stable_key"])
@@ -1007,7 +1015,7 @@ class ProvenanceBuilder:
                     quantity_range=(1, None),
                     material_slot=slot,
                     mechanic=mechanic,
-                    locations=wells,
+                    **self.located(mechanic, wells),
                     conditions=operation,
                 )
             for gear in self.rows("items"):
@@ -1023,7 +1031,7 @@ class ProvenanceBuilder:
                     quantity=1,
                     material_slot=2,
                     mechanic=mechanic,
-                    locations=wells,
+                    **self.located(mechanic, wells),
                     conditions=(
                         *operation,
                         ProvenanceCondition(
@@ -1113,7 +1121,10 @@ class ProvenanceBuilder:
                 mechanic=identity("auction_house", route),
                 probability_basis="per_listing_opportunity",
                 conditions=tuple(conditions),
-                locations=locations or (ProvenanceLocation("auction_house:unlocated", "unlocated"),),
+                **self.located(
+                    "mechanic:auction_house",
+                    locations or (ProvenanceLocation("auction_house:unlocated", "unlocated"),),
+                ),
             )
 
     def ui_grants(self) -> None:
@@ -1182,7 +1193,7 @@ class ProvenanceBuilder:
                 probability_basis="not_applicable",
                 guarantee_scope="successful_ui_transfer",
                 conditions=conditions,
-                locations=locations,
+                **self.located(source, locations),
             )
 
     def smithing(self) -> None:
@@ -1790,17 +1801,25 @@ class ProvenanceBuilder:
                 self._insert(table, {column: data[column] for column in columns})
                 for condition in data["conditions"]:
                     self._insert(f"item_{family}_conditions", {"owner_key": owner, **condition})
-                for location_data in data["locations"]:
-                    location_data["conditions"] = _json(location_data["conditions"])
-                    location_data["entry_zone_line_keys"] = _json(location_data["entry_zone_line_keys"])
-                    self._insert(f"item_{family}_locations", {"owner_key": owner, **location_data})
+        sources: dict[str, tuple[ProvenanceLocation, ...]] = {}
+        located: tuple[ItemAcquisition | ItemUse, ...] = (*self.acquisitions, *self.uses)
+        for fact in located:
+            source = fact.location_source_key
+            if source is not None and sources.setdefault(source, fact.locations) != fact.locations:
+                raise ValueError(f"Location source {source} names two different sets of locations")
+        for source, locations in sorted(sources.items()):
+            for location in locations:
+                location_data = asdict(location)
+                location_data["conditions"] = _json(location_data["conditions"])
+                location_data["entry_zone_line_keys"] = _json(location_data["entry_zone_line_keys"])
+                self._insert("item_source_locations", {"source_key": source, **location_data})
         # A common world item lists the characters whose loot rows it summarizes.
         for fact in self.acquisitions:
             if fact.kind != "common_world_item":
                 continue
-            for source in self.fact_evidence.get(fact.acquisition_key, ()):
-                if source.input_relation == "loot_drops":
-                    character = str(json.loads(source.input_primary_key)[0])
+            for evidence in self.fact_evidence.get(fact.acquisition_key, ()):
+                if evidence.input_relation == "loot_drops":
+                    character = str(json.loads(evidence.input_primary_key)[0])
                     self.connection.execute(
                         "INSERT INTO item_acquisition_contributors VALUES (?,?) ON CONFLICT DO NOTHING",
                         (fact.acquisition_key, character),

@@ -8,7 +8,6 @@ local IDENTITY_ATTRIBUTES = {
 	["data-erenshor-reference-slot"] = true,
 	["data-erenshor-scope"] = true,
 	["data-erenshor-location"] = true,
-	["data-erenshor-gate-scope"] = true,
 	["data-erenshor-entry-zone-lines"] = true,
 	["data-erenshor-provenance"] = true,
 	["data-erenshor-acquisition-members"] = true,
@@ -499,8 +498,6 @@ local function locations(rows, references)
 			.. escape(location.location_key)
 			.. '" data-erenshor-source-copy-stable-key="'
 			.. escape(location.source_copy_stable_key)
-			.. '" data-erenshor-gate-scope="'
-			.. escape(location.gate_scope)
 			.. '" data-erenshor-entry-zone-lines="'
 			.. escape(entryKeys)
 			.. '">'

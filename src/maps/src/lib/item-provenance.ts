@@ -24,12 +24,10 @@ export interface ProvenanceLocation {
     relation: string;
     scene: string | null;
     zone_stable_key: string | null;
-    placement_key: string | null;
     coordinate_stable_key: string | null;
     x: number | null;
     y: number | null;
     z: number | null;
-    gate_scope: string | null;
     player_level_min: number | null;
     player_level_max: number | null;
     conditions: ProvenanceCondition[];
@@ -59,6 +57,7 @@ export interface ItemAcquisition {
     count_distribution: string | null;
     guarantee_scope: string | null;
     guaranteed_roll_count: number | null;
+    location_source_key: string | null;
     conditions: ProvenanceCondition[];
     locations: ProvenanceLocation[];
 }
@@ -84,6 +83,7 @@ export interface ItemUse {
     quantity_kind: string;
     mechanic: string | null;
     outcome_key: string | null;
+    location_source_key: string | null;
     conditions: ProvenanceCondition[];
     locations: ProvenanceLocation[];
 }
@@ -120,15 +120,14 @@ function query(db: Database, sql: string): SqlRow[] {
 }
 
 const CONDITION_COLUMNS = 'owner_key, gate_key, group_index, atom_index, predicate, reference_stable_key, reference_slot, actor, value, minimum, maximum, minimum_inclusive, maximum_inclusive, scope, phase';
-const LOCATION_COLUMNS = 'owner_key, location_key, relation, scene, zone_stable_key, placement_key, coordinate_stable_key, x, y, z, gate_scope, player_level_min, player_level_max, conditions, entry_zone_line_keys, source_copy_stable_key';
+const LOCATION_COLUMNS = 'source_key, location_key, relation, scene, zone_stable_key, coordinate_stable_key, x, y, z, player_level_min, player_level_max, conditions, entry_zone_line_keys, source_copy_stable_key';
 const PROVENANCE_COLUMNS: Record<string, string> = {
     item_provenance_meta: 'schema_version, game_build_id, input_digests',
-    item_acquisitions: 'acquisition_key, item_stable_key, kind, source_stable_key, source_group_key, source_copy_stable_key, variant_key, mechanic, player_access_state, probability_kind, probability_min, probability_max, probability_basis, probability_stage, quantity_min, quantity_max, quantity_kind, expected_quantity, count_distribution, guarantee_scope, guaranteed_roll_count',
-    item_uses: 'use_key, item_stable_key, target_stable_key, kind, variant_key, material_slot, quantity_min, quantity_max, quantity_kind, mechanic, outcome_key',
+    item_acquisitions: 'acquisition_key, item_stable_key, kind, source_stable_key, source_group_key, source_copy_stable_key, variant_key, mechanic, player_access_state, probability_kind, probability_min, probability_max, probability_basis, probability_stage, quantity_min, quantity_max, quantity_kind, expected_quantity, count_distribution, guarantee_scope, guaranteed_roll_count, location_source_key',
+    item_uses: 'use_key, item_stable_key, target_stable_key, kind, variant_key, material_slot, quantity_min, quantity_max, quantity_kind, mechanic, outcome_key, location_source_key',
     item_acquisition_conditions: CONDITION_COLUMNS,
     item_use_conditions: CONDITION_COLUMNS,
-    item_acquisition_locations: LOCATION_COLUMNS,
-    item_use_locations: LOCATION_COLUMNS,
+    item_source_locations: LOCATION_COLUMNS,
     item_dispositions: 'item_stable_key, disposition, reason, evidence, current_pages, former_pages'
 };
 
@@ -164,8 +163,8 @@ function validateScalarFact(row: SqlRow, family: 'acquisition' | 'use', identity
     }
     validateInterval(row, 'quantity');
     const textFields = family === 'acquisition'
-        ? ['source_stable_key', 'source_group_key', 'source_copy_stable_key', 'variant_key', 'mechanic', 'probability_basis', 'count_distribution', 'guarantee_scope']
-        : ['target_stable_key', 'variant_key', 'mechanic', 'outcome_key'];
+        ? ['source_stable_key', 'source_group_key', 'source_copy_stable_key', 'variant_key', 'mechanic', 'probability_basis', 'count_distribution', 'guarantee_scope', 'location_source_key']
+        : ['target_stable_key', 'variant_key', 'mechanic', 'outcome_key', 'location_source_key'];
     if (textFields.some((key) => row[key] !== null && (typeof row[key] !== 'string' || !row[key]))) {
         throw new Error(`Invalid canonical ${family} text`);
     }
@@ -203,7 +202,7 @@ const CONDITION_PREDICATES: Record<string, true> = { never: true, quest_done: tr
 const REFERENCE_PREDICATES: Record<string, true> = { quest_done: true, quest_not_done: true, room_furnished: true,
     key_held: true, item_held: true, item_not_owned: true, encounter_won: true, actor_class: true, account_state: true, zone_use: true };
 const CONDITION_KEYS = CONDITION_COLUMNS.split(', ').filter((key) => key !== 'owner_key').sort().join(',');
-const LOCATION_KEYS = LOCATION_COLUMNS.split(', ').filter((key) => key !== 'owner_key').sort().join(',');
+const LOCATION_KEYS = LOCATION_COLUMNS.split(', ').filter((key) => key !== 'source_key').sort().join(',');
 
 function decodeConditions(value: unknown): ProvenanceCondition[] {
     if (!Array.isArray(value)) throw new Error('Canonical conditions must be an array');
@@ -241,7 +240,7 @@ function decodeLocation(location: Record<string, unknown>): ProvenanceLocation {
     if (Object.keys(location).sort().join(',') !== LOCATION_KEYS ||
         typeof location.location_key !== 'string' || !location.location_key ||
         !['fixed', 'spawn', 'possible_treasure', 'unlocated', 'mechanic_zone', 'interaction'].includes(location.relation as string) ||
-        ['scene', 'zone_stable_key', 'placement_key', 'coordinate_stable_key', 'gate_scope', 'source_copy_stable_key']
+        ['scene', 'zone_stable_key', 'coordinate_stable_key', 'source_copy_stable_key']
             .some((key) => location[key] !== null && (typeof location[key] !== 'string' || !location[key])) ||
         ['x', 'y', 'z'].some((key) => location[key] !== null && (typeof location[key] !== 'number' || !Number.isFinite(location[key]))) ||
         (['x', 'y', 'z'].some((key) => location[key] === null) && ['x', 'y', 'z'].some((key) => location[key] !== null)) ||
@@ -280,14 +279,36 @@ export function assertProvenanceSchema(db: Database): void {
     }
 }
 
+// Each source's locations are decoded once and shared by every fact that names the source, so page
+// data that serializes facts refers to one array per source instead of repeating it.
+function readSourceLocations(db: Database): Map<string, ProvenanceLocation[]> {
+    const sources = new Map<string, ProvenanceLocation[]>();
+    for (const row of query(db, 'SELECT * FROM item_source_locations ORDER BY source_key, location_key')) {
+        const { source_key, ...location } = row;
+        if (typeof source_key !== 'string' || !source_key) throw new Error('Invalid canonical location source');
+        if (typeof location.conditions !== 'string' || typeof location.entry_zone_line_keys !== 'string') {
+            throw new Error(`Invalid location JSON: ${location.location_key}`);
+        }
+        let locations = sources.get(source_key);
+        if (!locations) sources.set(source_key, (locations = []));
+        locations.push(decodeLocation({ ...location, conditions: JSON.parse(location.conditions),
+            entry_zone_line_keys: JSON.parse(location.entry_zone_line_keys) }));
+    }
+    return sources;
+}
+
 function readFacts<T extends ItemAcquisition | ItemUse>(
     db: Database, family: 'acquisition' | 'use', identity: 'acquisition_key' | 'use_key'
 ): T[] {
     assertProvenanceSchema(db);
+    const sources = readSourceLocations(db);
     const byKey = new Map<string, T>();
     for (const row of query(db, `SELECT * FROM item_${family}s ORDER BY ${identity}`)) {
         validateScalarFact(row, family, identity);
-        const fact = { ...row, conditions: [], locations: [] } as unknown as T;
+        const source = row.location_source_key as string | null;
+        const locations = source === null ? [] : sources.get(source);
+        if (!locations) throw new Error(`Unknown location source of ${row[identity]}: ${source}`);
+        const fact = { ...row, conditions: [], locations } as unknown as T;
         byKey.set(row[identity] as string, fact);
     }
     for (const row of query(db, `SELECT * FROM item_${family}_conditions ORDER BY owner_key, gate_key, group_index, atom_index, scope, phase`)) {
@@ -299,16 +320,6 @@ function readFacts<T extends ItemAcquisition | ItemUse>(
         }
         fact.conditions.push(...decodeConditions([{ ...atom, minimum_inclusive: atom.minimum_inclusive === 1,
             maximum_inclusive: atom.maximum_inclusive === 1 }]));
-    }
-    for (const row of query(db, `SELECT * FROM item_${family}_locations ORDER BY owner_key, location_key`)) {
-        const { owner_key, ...location } = row;
-        const fact = byKey.get(owner_key as string);
-        if (!fact) throw new Error(`Orphan ${family} location: ${owner_key}`);
-        if (typeof location.conditions !== 'string' || typeof location.entry_zone_line_keys !== 'string') {
-            throw new Error(`Invalid ${family} location JSON: ${location.location_key}`);
-        }
-        fact.locations.push(decodeLocation({ ...location, conditions: JSON.parse(location.conditions),
-            entry_zone_line_keys: JSON.parse(location.entry_zone_line_keys) }));
     }
     return [...byKey.values()];
 }
