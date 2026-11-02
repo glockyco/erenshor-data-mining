@@ -1,5 +1,5 @@
 CREATE TABLE item_provenance_meta (schema_version INTEGER NOT NULL, game_build_id TEXT NOT NULL, input_digests TEXT NOT NULL);
-INSERT INTO item_provenance_meta VALUES (2, '10000001', '{}');
+INSERT INTO item_provenance_meta VALUES (3, '10000001', '{}');
 CREATE TABLE item_acquisitions (
     acquisition_key TEXT PRIMARY KEY NOT NULL, item_stable_key TEXT NOT NULL REFERENCES items(stable_key),
     kind TEXT NOT NULL, source_stable_key TEXT, source_group_key TEXT, source_copy_stable_key TEXT,

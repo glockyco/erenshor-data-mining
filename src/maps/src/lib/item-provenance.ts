@@ -89,7 +89,7 @@ export interface ItemUse {
 }
 
 // Mirrors PROVENANCE_SCHEMA_VERSION in src/erenshor/domain/value_objects/item_provenance.py.
-export const PROVENANCE_SCHEMA_VERSION = 2;
+export const PROVENANCE_SCHEMA_VERSION = 3;
 
 export interface ProvenanceMetadata {
     schema_version: typeof PROVENANCE_SCHEMA_VERSION;

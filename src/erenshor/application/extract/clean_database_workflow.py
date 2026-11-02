@@ -18,12 +18,14 @@ from typing import Protocol
 from loguru import logger
 
 from erenshor.application.processor.build import build as build_clean_db
+from erenshor.application.processor.item_public_view import report_path
 from erenshor.application.processor.pictures import CATALOG_DIRECTORY, prune_catalog
 from erenshor.infrastructure.config.paths import require_owned_write_path
 
-# 20% above the clean database's size when each fact is stored once. A database that outgrows it
-# has usually started to repeat facts, so the build stops before it publishes one.
-CLEAN_DATABASE_BUDGET_BYTES = 41_000_000
+# 20% above the clean database's size while it stores both the complete item facts and their
+# public view. A database that outgrows it has usually started to repeat facts, so the build
+# stops before it publishes one.
+CLEAN_DATABASE_BUDGET_BYTES = 54_600_000
 
 
 class CleanDatabaseBuilder(Protocol):
@@ -102,6 +104,10 @@ class CleanDatabaseWorkflow:
             self._validate_staged_output(staged_path)
             staged_path.replace(request.clean_db_path)
             logger.info(f"Clean DB published: {request.clean_db_path}")
+            # The builder reports what the public item view leaves out. It belongs to this database only.
+            staged_report = report_path(staged_path)
+            if staged_report.exists():
+                staged_report.replace(report_path(request.clean_db_path))
             removed = prune_catalog(request.images_dir / CATALOG_DIRECTORY, request.clean_db_path)
             logger.info(f"Picture catalog: removed {removed} files that the database no longer references")
             return CleanDatabaseResult(clean_db_path=request.clean_db_path)
@@ -110,6 +116,7 @@ class CleanDatabaseWorkflow:
                 shutil.rmtree(staged_path)
             else:
                 staged_path.unlink(missing_ok=True)
+            report_path(staged_path).unlink(missing_ok=True)
 
     @staticmethod
     def _make_staged_path(clean_db_path: Path) -> Path:

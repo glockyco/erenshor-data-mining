@@ -145,6 +145,26 @@ def test_a_database_above_its_budget_fails_and_names_its_size(tmp_path: Path) ->
     assert not list(tmp_path.glob(".database.sqlite.*.tmp"))
 
 
+def test_the_item_report_is_published_only_with_its_database(tmp_path: Path) -> None:
+    request = _request(tmp_path)
+    published = tmp_path / "database.sqlite.report.json"
+
+    def builder(**kwargs: object) -> None:
+        staged_path = kwargs["clean_db_path"]
+        assert isinstance(staged_path, Path)
+        _write_sqlite(staged_path)
+        staged_path.with_name(staged_path.name + ".report.json").write_text("new")
+
+    published.write_text("old")
+    with pytest.raises(CleanDatabaseWorkflowError, match="above its budget"):
+        CleanDatabaseWorkflow(builder, budget_bytes=1).run(request)
+    assert published.read_text() == "old"
+
+    CleanDatabaseWorkflow(builder).run(request)
+    assert published.read_text() == "new"
+    assert sorted(path.name for path in tmp_path.iterdir()) == ["database.sqlite", "database.sqlite.report.json"]
+
+
 def test_request_and_result_are_immutable(tmp_path: Path) -> None:
     request = _request(tmp_path)
     result = CleanDatabaseResult(clean_db_path=request.clean_db_path)

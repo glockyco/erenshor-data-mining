@@ -20,6 +20,8 @@ from erenshor.domain.value_objects.item_provenance import (
     fact_from_dict,
 )
 
+from .item_public_view import derive_public_view, write_public_view, write_report
+
 # code-fact: treasure.chest_break_roll
 # code-fact: treasure.strike_melee
 # code-fact: treasure.strike_bolt
@@ -1875,6 +1877,7 @@ def process_item_provenance(
     raw: sqlite3.Connection,
     *,
     reviewed_unreachable: frozenset[str],
+    report_path: Path,
 ) -> dict[str, object]:
     from erenshor.infrastructure.content_lifecycle import derive_item_dispositions, load_content_lifecycle
 
@@ -1894,11 +1897,16 @@ def process_item_provenance(
     builder.persist()
     lifecycle = load_content_lifecycle(lifecycle_path)
     current = {str(row["stable_key"]): row["wiki_page_name"] for row in builder.rows("items")}
-    for disposition in derive_item_dispositions(lifecycle, current):
+    dispositions = tuple(derive_item_dispositions(lifecycle, current))
+    for disposition in dispositions:
         data = asdict(disposition)
         data["current_pages"] = _json(data["current_pages"])
         data["former_pages"] = _json(data["former_pages"])
         _insert_row(connection, "item_dispositions", data)
+    view = derive_public_view(
+        builder.acquisitions, builder.uses, dispositions, builder.fact_evidence, builder.mechanic_conditions()
+    )
+    write_public_view(connection, view)
     # A digest describes a table's rows, not the order SQLite stores them in.
     digests = {
         table: hashlib.sha256(_json(sorted(_json(row) for row in rows)).encode()).hexdigest()
@@ -1921,6 +1929,7 @@ def process_item_provenance(
         lifecycle_path=lifecycle_path,
         require_all_native_tables=True,
     )
+    write_report(report_path, view)
     # The writer vacuums after this post-insert expansion.
     connection.commit()
     return audit

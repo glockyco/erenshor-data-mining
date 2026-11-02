@@ -49,6 +49,7 @@ from .gates import process_gates
 from .item_mechanics import process_item_mechanics
 from .item_models import process_item_models
 from .item_provenance import process_item_provenance
+from .item_public_view import report_path
 from .knowledge_base import process_knowledge_base
 from .mapping import load_mapping, validate_character_name_overrides
 from .navigation_contexts import process_zone_line_destinations
@@ -226,6 +227,7 @@ def build(
             mapping_json_path.parent / "content-lifecycle.json",
             raw,
             reviewed_unreachable=frozenset(key for key, rule in mapping.items() if rule["loot_unreachable"]),
+            report_path=report_path(clean_db_path),
         )
         logger.info(f"Item provenance input coverage: {provenance_report}")
 

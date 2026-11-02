@@ -2130,6 +2130,126 @@ CREATE TABLE item_dispositions (
     current_pages TEXT NOT NULL,
     former_pages TEXT NOT NULL
 );
+-- The public view: what a player can act on and the conditions they meet. Every product reads
+-- these tables and none of them decides again which facts or conditions players see.
+CREATE TABLE item_sources (
+    source_key TEXT PRIMARY KEY NOT NULL,
+    item_stable_key TEXT NOT NULL REFERENCES items(stable_key),
+    kind TEXT NOT NULL,
+    source_stable_key TEXT,
+    source_group_key TEXT,
+    source_copy_stable_key TEXT,
+    variant_key TEXT,
+    mechanic TEXT,
+    probability_kind TEXT NOT NULL,
+    probability_min REAL,
+    probability_max REAL,
+    probability_basis TEXT,
+    quantity_kind TEXT NOT NULL,
+    quantity_min REAL,
+    quantity_max REAL,
+    expected_quantity REAL,
+    guaranteed INTEGER NOT NULL CHECK (guaranteed IN (0, 1)),
+    place_set_key TEXT
+);
+CREATE INDEX item_sources_item_idx ON item_sources(item_stable_key);
+CREATE INDEX item_sources_source_idx ON item_sources(source_stable_key);
+CREATE INDEX item_sources_copy_idx ON item_sources(source_copy_stable_key);
+CREATE TABLE item_usages (
+    use_key TEXT PRIMARY KEY NOT NULL,
+    item_stable_key TEXT NOT NULL REFERENCES items(stable_key),
+    target_stable_key TEXT,
+    kind TEXT NOT NULL,
+    variant_key TEXT,
+    material_slot INTEGER,
+    quantity_kind TEXT NOT NULL,
+    quantity_min REAL,
+    quantity_max REAL,
+    mechanic TEXT,
+    outcome_key TEXT,
+    place_set_key TEXT
+);
+CREATE INDEX item_usages_item_idx ON item_usages(item_stable_key);
+CREATE INDEX item_usages_target_idx ON item_usages(target_stable_key);
+-- All gates of a source or use hold, and one alternative of each gate holds when all its atoms do.
+CREATE TABLE item_conditions (
+    owner_key TEXT NOT NULL,
+    gate_index INTEGER NOT NULL,
+    alternative_index INTEGER NOT NULL,
+    atom_index INTEGER NOT NULL,
+    gate_key TEXT NOT NULL,
+    predicate TEXT NOT NULL,
+    reference_stable_key TEXT,
+    reference_slot TEXT,
+    actor TEXT,
+    value TEXT,
+    minimum REAL,
+    maximum REAL,
+    minimum_inclusive INTEGER NOT NULL,
+    maximum_inclusive INTEGER NOT NULL,
+    phase TEXT NOT NULL,
+    PRIMARY KEY (owner_key, gate_index, alternative_index, atom_index)
+) WITHOUT ROWID;
+-- A source's places, or the subset of them that some of its facts can use, stored once per set.
+CREATE TABLE item_places (
+    place_set_key TEXT NOT NULL,
+    place_key TEXT NOT NULL,
+    relation TEXT NOT NULL,
+    scene TEXT,
+    zone_stable_key TEXT,
+    marker_stable_key TEXT,
+    x REAL, y REAL, z REAL,
+    player_level_min INTEGER,
+    player_level_max INTEGER,
+    source_copy_stable_key TEXT,
+    entry_zone_line_keys TEXT,
+    PRIMARY KEY (place_set_key, place_key)
+) WITHOUT ROWID;
+CREATE TABLE item_place_conditions (
+    place_set_key TEXT NOT NULL,
+    place_key TEXT NOT NULL,
+    gate_index INTEGER NOT NULL,
+    alternative_index INTEGER NOT NULL,
+    atom_index INTEGER NOT NULL,
+    gate_key TEXT NOT NULL,
+    predicate TEXT NOT NULL,
+    reference_stable_key TEXT,
+    reference_slot TEXT,
+    actor TEXT,
+    value TEXT,
+    minimum REAL,
+    maximum REAL,
+    minimum_inclusive INTEGER NOT NULL,
+    maximum_inclusive INTEGER NOT NULL,
+    phase TEXT NOT NULL,
+    PRIMARY KEY (place_set_key, place_key, gate_index, alternative_index, atom_index)
+) WITHOUT ROWID;
+-- The parameters and formula of a mechanism that every one of its facts shares, such as the
+-- Flame Wells' chance per stone pair.
+CREATE TABLE item_mechanism_parameters (
+    mechanic_key TEXT NOT NULL,
+    parameter_index INTEGER NOT NULL,
+    gate_key TEXT NOT NULL,
+    predicate TEXT NOT NULL,
+    value TEXT,
+    minimum REAL,
+    maximum REAL,
+    phase TEXT NOT NULL,
+    PRIMARY KEY (mechanic_key, parameter_index)
+) WITHOUT ROWID;
+-- The characters whose loot rows a common world item summarizes.
+CREATE TABLE item_source_contributors (
+    source_key TEXT NOT NULL REFERENCES item_sources(source_key),
+    character_stable_key TEXT NOT NULL,
+    PRIMARY KEY (source_key, character_stable_key)
+) WITHOUT ROWID;
+CREATE TABLE item_statuses (
+    item_stable_key TEXT PRIMARY KEY NOT NULL,
+    disposition TEXT NOT NULL CHECK (disposition IN ('current', 'removed', 'unobtainable', 'unused')),
+    reason TEXT,
+    current_pages TEXT NOT NULL,
+    former_pages TEXT NOT NULL
+);
 """
 
 
