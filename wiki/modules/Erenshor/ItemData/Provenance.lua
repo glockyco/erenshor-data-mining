@@ -43,26 +43,26 @@ local LABELS = {
 local USE_LABELS =
 	{ item_drop = "Can yield", spell_created = "Creates", item_conversion = "Converts to" }
 local PREDICATES = {
-	quest_done = "After completing",
-	quest_not_done = "Before completing",
+	quest_done = "Requires",
+	quest_not_done = "Only before",
 	item_held = "Requires",
-	key_held = "Requires key",
-	room_furnished = "Requires furnished room",
-	encounter_won = "After defeating",
-	never = "Unavailable",
+	key_held = "Requires",
+	room_furnished = "Requires the",
+	encounter_won = "Requires defeating",
+	never = "Never",
 	time_of_day = "Time",
-	actor_level = "Level",
+	actor_level = "Requires level",
 	actor_class = "Class",
-	item_not_owned = "Only while not owning",
+	item_not_owned = "Only if you don't have",
 	source_replenishment = "Replenishes while open",
 	route = "Route",
 	quality = "Quality",
-	zone_use = "When used in",
+	zone_use = "Only in",
 	formula_operand = "Chance",
 }
 local BASES = {
 	per_kill = "per kill",
-	per_successful_catch = "per successful catch",
+	per_successful_catch = "per catch",
 	per_node = "per node",
 	per_use = "per use",
 	per_listing_opportunity = "",
@@ -238,20 +238,21 @@ local function conditionRange(condition)
 		end
 		return ""
 	end
-	if minimum == maximum then
-		return number(minimum)
+	local closed = condition.minimum_inclusive ~= false and condition.maximum_inclusive ~= false
+	if minimum ~= nil and maximum ~= nil and closed then
+		return minimum == maximum and number(minimum)
+			or (number(minimum) .. "–" .. number(maximum))
 	end
-	if minimum == nil then
-		return (condition.maximum_inclusive == false and "below " or "at most ") .. number(maximum)
+	local parts = {}
+	if minimum ~= nil then
+		parts[#parts + 1] = condition.minimum_inclusive == false and ("above " .. number(minimum))
+			or (number(minimum) .. " or higher")
 	end
-	if maximum == nil then
-		return (condition.minimum_inclusive == false and "above " or "at least ") .. number(minimum)
+	if maximum ~= nil then
+		parts[#parts + 1] = condition.maximum_inclusive == false and ("below " .. number(maximum))
+			or (number(maximum) .. " or lower")
 	end
-	return (condition.minimum_inclusive == false and "above " or "")
-		.. number(minimum)
-		.. " to "
-		.. (condition.maximum_inclusive == false and "below " or "")
-		.. number(maximum)
+	return table.concat(parts, " and ")
 end
 
 local PHASE_GROUPS = {
@@ -271,12 +272,11 @@ local function accountConditionText(condition)
 	then
 		error("Unsupported ItemData account condition", 2)
 	end
-	return "Reliquary Hall "
-		.. (condition.value == "true" and "claimed" or "unclaimed")
-		.. " on this account"
+	return condition.value == "true" and "Requires a claimed Reliquary"
+		or "Only before claiming your Reliquary"
 end
 
-local function conditionText(condition, references)
+local function conditionText(condition, references, fact)
 	local account = condition.predicate == "account_state"
 	local text = account and accountConditionText(condition) or PREDICATES[condition.predicate]
 	if text == nil then
@@ -289,29 +289,37 @@ local function conditionText(condition, references)
 		text = "Improved result quality"
 	end
 	if condition.reference_stable_key and not account then
-		text = text .. ": " .. identity(condition.reference_stable_key, references)
+		text = text .. " " .. identity(condition.reference_stable_key, references)
 	end
 	if
 		condition.predicate == "room_furnished"
 		and condition.reference_slot
 		and condition.reference_slot ~= ""
 	then
-		text = text .. " (room " .. escape(condition.reference_slot) .. ")"
+		text = text .. " in room " .. escape(condition.reference_slot)
 	end
 	if condition.predicate == "actor_level" then
 		text = (
-			({ player = "Player", sim = "Simulated player", enemy = "Enemy" })[condition.actor]
-			or escape(words(condition.actor))
+			({
+				player = "Requires",
+				sim = "Requires simulated player",
+				sim_player = "Requires simulated player",
+				enemy = "Requires enemy",
+			})[condition.actor] or escape(words(condition.actor))
 		) .. " level"
 	elseif condition.predicate == "actor_class" then
-		local actor = ({ player = "Player", sim = "Simulated player", enemy = "Enemy" })[condition.actor]
+		local actor = ({
+			player = "Player",
+			sim = "Simulated player",
+			sim_player = "Simulated player",
+			enemy = "Enemy",
+		})[condition.actor]
 		if actor == nil then
 			error("Unsupported ItemData class actor: " .. tostring(condition.actor), 2)
 		end
-		text = actor .. " class"
-		if condition.reference_stable_key then
-			text = text .. ": " .. identity(condition.reference_stable_key, references)
-		end
+		local reference = identity(condition.reference_stable_key, references)
+		text = condition.actor == "player" and ("Requires the " .. reference .. " class")
+			or ("Requires a simulated player of class " .. reference)
 	elseif condition.actor and not account then
 		text = text .. " for " .. escape(words(condition.actor))
 	end
@@ -324,7 +332,7 @@ local function conditionText(condition, references)
 		condition.predicate == "route"
 		and condition.value == "normal_pointer_inventory_transfer"
 	then
-		text = "Drag into your inventory"
+		text = "Drag it into your inventory"
 	elseif
 		condition.predicate == "source_replenishment"
 		and condition.value == "while_source_active"
@@ -342,8 +350,8 @@ local function conditionText(condition, references)
 		if condition.predicate ~= "time_of_day" then
 			error("Unsupported ItemData condition value: " .. tostring(condition.predicate), 2)
 		end
-		text = condition.value == "day" and "During the day"
-			or condition.value == "night" and "At night"
+		text = condition.value == "day" and "Only during the day (6 AM to 10 PM)"
+			or condition.value == "night" and "Only at night (10 PM to 6 AM)"
 			or error("Unsupported ItemData time", 2)
 	end
 	local range = account and "" or conditionRange(condition)
@@ -352,6 +360,45 @@ local function conditionText(condition, references)
 		if PERCENT_FORMULAS[condition.value] then
 			text = text .. "%"
 		end
+	end
+	if
+		condition.predicate == "quality"
+		and condition.phase ~= "operation_outcome"
+		and condition.gate_key ~= "result_quality"
+		and condition.gate_key ~= "enhanced_quality"
+		and condition.gate_key ~= "output_quality"
+	then
+		local quality = condition.value and QUALITY_NAMES[string.lower(condition.value)]
+			or qualityRange(condition)
+		quality = string.gsub(quality, " to Improved %+", " to +")
+		local article = string.match(quality, "^[AEIOU]") and "an" or "a"
+		text = "Requires " .. article .. " " .. quality .. " item"
+	elseif condition.predicate == "room_furnished" and not condition.reference_slot then
+		text = text .. " in its room"
+	elseif
+		(condition.predicate == "item_held" or condition.predicate == "key_held")
+		and condition.minimum
+		and condition.minimum > 1
+	then
+		text = PREDICATES[condition.predicate]
+			.. " "
+			.. identity(condition.reference_stable_key, references)
+			.. " ×"
+			.. number(condition.minimum)
+	end
+	if
+		fact
+		and condition.predicate == "quest_not_done"
+		and fact.kind == "quest_reward"
+		and condition.reference_stable_key == fact.source_stable_key
+	then
+		text = "Once per character"
+	elseif
+		fact
+		and condition.predicate == "item_not_owned"
+		and condition.reference_stable_key == fact.item_stable_key
+	then
+		text = "Only if you don't have one"
 	end
 	return '<span data-erenshor-predicate="'
 		.. escape(condition.predicate)
@@ -384,7 +431,7 @@ local function conditionSections(out)
 	return preserveIdentities(table.concat(rendered, "<br />"))
 end
 
-function p.conditions(rows, references)
+function p.conditions(rows, references, fact)
 	local gates, gateOrder, gateGroups = {}, {}, {}
 	for _, condition in ipairs(rows or {}) do
 		local category = PHASE_GROUPS[condition.phase]
@@ -420,7 +467,7 @@ function p.conditions(rows, references)
 			end)
 			local parts = {}
 			for _, condition in ipairs(atoms) do
-				parts[#parts + 1] = conditionText(condition, references)
+				parts[#parts + 1] = conditionText(condition, references, fact)
 			end
 			alternatives[#alternatives + 1] = "(" .. table.concat(parts, " and ") .. ")"
 		end
@@ -481,9 +528,14 @@ local function locations(rows, references)
 				.. number(location.z)
 				.. ")"
 		end
-		local levels = interval(location.player_level_min, location.player_level_max)
+		local minimum, maximum = location.player_level_min, location.player_level_max
+		local levels = minimum
+				and (maximum == nil and (number(minimum) .. " or higher") or minimum == maximum and number(
+					minimum
+				) or (number(minimum) .. "–" .. number(maximum)))
+			or ""
 		if levels ~= "" then
-			parts[#parts + 1] = "player level " .. levels
+			parts[#parts + 1] = "level " .. levels
 		end
 		local conditions = p.conditions(location.conditions, references)
 		if conditions ~= "" then
@@ -532,7 +584,7 @@ local function facts(row, references, data)
 	if row.kind == "zone_restriction" and row.mechanic then
 		parts[#parts + 1] = "Outcome: " .. escape(words(row.mechanic))
 	end
-	local conditions = p.conditions(row.conditions, references)
+	local conditions = p.conditions(row.conditions, references, row)
 	if conditions ~= "" then
 		parts[#parts + 1] = conditions
 	end

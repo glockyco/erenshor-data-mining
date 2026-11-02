@@ -11,6 +11,8 @@ from typing import TYPE_CHECKING
 from erenshor.domain.value_objects.wiki_link import AbilityLink
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from erenshor.domain.entities.spell import Spell
 
 
@@ -131,3 +133,22 @@ def format_ability_link(spell: Spell | None, fallback_stable_key: str) -> str:
             stable_key=spell.stable_key,
         )
     )
+
+
+def join_requirements(phrases: Sequence[str]) -> str:
+    """Join condition phrases with "and", where single "requires" phrases share one "requires".
+
+    "requires A" and "requires B" read "requires A and B". A phrase with alternatives, such as
+    "requires A or B", keeps its own "requires" so that its "or" stays apart from the list.
+    """
+
+    def single(phrase: str) -> bool:
+        return phrase.startswith("requires ") and " or " not in phrase
+
+    required = [phrase.removeprefix("requires ") for phrase in phrases if single(phrase)]
+    merged = []
+    if required:
+        merged.append(
+            "requires " + (", ".join(required[:-1]) + " and " + required[-1] if len(required) > 1 else required[0])
+        )
+    return " and ".join([*merged, *(phrase for phrase in phrases if not single(phrase))])

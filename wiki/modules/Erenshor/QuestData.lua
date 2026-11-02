@@ -82,17 +82,17 @@ local function route(row, data)
 		for _, reference in ipairs(row.prerequisites) do
 			table.insert(quests, entity("quest", reference))
 		end
-		text = text .. ". Requires completion of " .. mw.text.listToText(quests)
+		text = text .. ". Requires " .. mw.text.listToText(quests)
 	end
 	if row.requiredItem then
 		text = text
-			.. ' (<span data-erenshor-quest-condition="carried">carrying '
+			.. ' (<span data-erenshor-quest-condition="carried">requires '
 			.. entity("item", row.requiredItem)
 			.. "</span>)"
 	end
 	if row.notOwnedItem then
 		text = text
-			.. ' (<span data-erenshor-quest-condition="not-owned">without '
+			.. ' (<span data-erenshor-quest-condition="not-owned">only if you don\'t have '
 			.. entity("item", row.notOwnedItem)
 			.. "</span>)"
 	end

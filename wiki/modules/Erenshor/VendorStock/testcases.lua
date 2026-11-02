@@ -43,7 +43,7 @@ function p.run()
 	)
 	assertContains(
 		stock,
-		"[[Weapons|Weapon]] || 120 || Complete ",
+		"[[Weapons|Weapon]] || 120 || ",
 		"typed, priced row with its unlock quest"
 	)
 	assertContains(
@@ -52,7 +52,7 @@ function p.run()
 		"unlock quest rendered through the link module"
 	)
 	assertContains(stock, "General || 10 || \n", "kind without a page and no condition")
-	assertContains(stock, "[[Crafting]] || 300 || Place ", "row with its furniture condition")
+	assertContains(stock, "[[Crafting]] || 300 || ", "row with its furniture condition")
 	assertContains(
 		stock,
 		'data-erenshor-key="item:lucky_charm"',

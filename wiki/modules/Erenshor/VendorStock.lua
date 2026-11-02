@@ -57,10 +57,15 @@ end
 local function conditionCell(row)
 	local conditions = {}
 	for _, quest in ipairs(row.quests or {}) do
-		table.insert(conditions, "Complete " .. Link.render({ kind = "quest", stablekey = quest }))
+		table.insert(conditions, "Requires " .. Link.render({ kind = "quest", stablekey = quest }))
 	end
 	for _, furniture in ipairs(row.furniture or {}) do
-		table.insert(conditions, "Place " .. Link.render({ kind = "item", stablekey = furniture }))
+		table.insert(
+			conditions,
+			"Requires the "
+				.. Link.render({ kind = "item", stablekey = furniture })
+				.. " in its room"
+		)
 	end
 	return table.concat(conditions, "<br>")
 end

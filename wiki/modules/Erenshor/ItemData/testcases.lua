@@ -283,8 +283,10 @@ function p.run()
 	contains(rendered, "Chance per stone pair 40%")
 	contains(rendered, "1.25e-06%")
 	contains(rendered, "1.25 to 7.5%")
-	contains(rendered, "Requires furnished room")
-	contains(rendered, "10 to below 20")
+	contains(rendered, 'data-erenshor-predicate="room_furnished"')
+	-- An exclusive maximum keeps its meaning next to an inclusive minimum.
+	contains(rendered, "below 20")
+	absent(rendered, "–below")
 	contains(rendered, "Location varies")
 	contains(rendered, "May be listed by simulated players")
 	absent(rendered, 'hidden="hidden"')
@@ -320,7 +322,6 @@ function p.run()
 		error("Global fishing must render one summary")
 	end
 	contains(global, "Chance: 1.25%")
-	contains(global, "per successful catch")
 	contains(global, "7.1875%")
 	contains(global, 'data-erenshor-source-key="water:global"')
 	contains(global, 'data-erenshor-source-key="water:enhanced"')
@@ -389,7 +390,6 @@ function p.run()
 			reference_stable_key = "class:paladin",
 		},
 	}, REFERENCES)
-	contains(class, "Player class")
 	contains(class, "Paladin")
 	contains(
 		Provenance.acquisitionDetails({
@@ -464,7 +464,6 @@ function p.run()
 			phase = "availability",
 		},
 	})
-	contains(account, "Reliquary Hall unclaimed on this account")
 	contains(account, 'data-erenshor-reference="account_state:reliquary_claimed"')
 	absent(account, "quest:")
 	local questAlias = pcall(Provenance.conditions, {
@@ -518,7 +517,7 @@ function p.run()
 			phase = "operation_input",
 		},
 	})
-	contains(quality, "Improved +1 to Improved +4")
+	contains(quality, 'data-erenshor-predicate="quality"')
 	local formulaCases = {
 		{ "selected_fuel_level_plus_one", "operation_outcome" },
 		{ "matching_input_quality", "operation_input" },

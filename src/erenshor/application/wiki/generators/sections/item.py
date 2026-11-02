@@ -16,12 +16,12 @@ Template structure:
 from __future__ import annotations
 
 import json
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from erenshor.application.wiki.generators.formatting import format_description, safe_str
+from erenshor.application.wiki.generators.formatting import format_description, join_requirements, safe_str
 from erenshor.application.wiki.generators.item_type_display import build_item_types
 from erenshor.application.wiki.generators.link_lists import fold_long_list
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from erenshor.domain.entities.item import Item
     from erenshor.domain.entities.item_stats import ItemStats
     from erenshor.domain.entities.spell import Spell
-    from erenshor.domain.value_objects.item_public_view import PublicCondition, PublicSource, PublicUse
+    from erenshor.domain.value_objects.item_public_view import PublicCondition, PublicPlace, PublicSource, PublicUse
     from erenshor.domain.value_objects.source_info import SourceInfo
 
 # Parameter names understood by the legacy Item/* class-restriction rows.  The
@@ -56,11 +56,38 @@ _QUALITY_NAMES = {
     **{name.lower(): name for name, _runtime_id in _QUALITY_RUNTIME_IDS},
     **{str(runtime_id): name for name, runtime_id in _QUALITY_RUNTIME_IDS},
 }
+# Quality gates that name what an operation makes, not what a player must bring.
+_QUALITY_OUTCOME_GATES = frozenset({"result_quality", "enhanced_quality", "output_quality"})
 
 
 def item_image_file(item: Item) -> str:
     """The file title of an item's icon, which its tooltip template shows."""
     return picture_file_title("icon", item.image_name, item.display_name, item.item_name)
+
+
+def _without_rooms(place: PublicPlace) -> tuple[str | None, str | None, tuple[PublicCondition, ...]]:
+    """A place's zone and conditions without the room each furnishing stands in."""
+    conditions = tuple(
+        replace(atom, gate_key="", reference_slot=None if atom.predicate == "room_furnished" else atom.reference_slot)
+        for atom in place.conditions
+    )
+    return (place.zone_stable_key, place.scene, conditions)
+
+
+def _copy_identity(fact: PublicSource) -> tuple[object, ...]:
+    """Everything an entry shows except its places, so copies of one source read as one entry."""
+    return (
+        fact.kind,
+        fact.source_stable_key,
+        fact.mechanic,
+        fact.probability_kind,
+        fact.probability_min,
+        fact.probability_max,
+        fact.probability_basis,
+        fact.quantity_min,
+        fact.quantity_max,
+        fact.conditions,
+    )
 
 
 def _level_range(atom: PublicCondition) -> str:
@@ -734,10 +761,16 @@ class ItemSectionGenerator(SectionGeneratorBase):
         return label
 
     def _quality_label(self, atom: PublicCondition) -> str:
-        label = {
-            "result_quality": "Result quality",
-            "enhanced_quality": "Improved result quality",
-        }.get(atom.gate_key, "Quality")
+        if atom.phase != "operation_outcome" and atom.gate_key not in _QUALITY_OUTCOME_GATES:
+            quality = _QUALITY_NAMES.get((atom.value or "").lower()) if atom.value else self._quality_range(atom)
+            if quality is None:
+                raise ValueError(f"Unsupported canonical item quality: {atom.value}")
+            if quality == "Any quality":
+                return "requires an item of any quality"
+            quality = quality.replace(" to Improved +", " to +")
+            article = "an" if quality[0] in "AEIOU" else "a"
+            return f"requires {article} {quality} item"
+        label = "Improved result quality" if atom.gate_key == "enhanced_quality" else "Result quality"
         if atom.actor:
             label += f" for {atom.actor.replace('_', ' ')}"
         if atom.value is not None:
@@ -779,9 +812,10 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "room_furnished": f"requires the {reference} in {room}",
             "encounter_won": f"requires defeating {reference}",
             "zone_use": f"only in {reference}",
-            "time_of_day": {"day": "only during the day", "night": "only at night"}.get(
-                atom.value or "", f"only during {atom.value}"
-            ),
+            "time_of_day": {
+                "day": "only during the day (6 AM to 10 PM)",
+                "night": "only at night (10 PM to 6 AM)",
+            }.get(atom.value or "", f"only during {atom.value}"),
             "never": "never",
         }
         if atom.predicate not in predicates:
@@ -797,14 +831,14 @@ class ItemSectionGenerator(SectionGeneratorBase):
             gates.setdefault(atom.gate_index, {}).setdefault(atom.alternative_index, []).append(text)
         parts = []
         for groups in gates.values():
-            alternatives = [" and ".join(texts) for _index, texts in sorted(groups.items())]
+            alternatives = [join_requirements(texts) for _index, texts in sorted(groups.items())]
             if len(alternatives) == 1:
                 parts.append(alternatives[0])
             elif all(text.startswith("requires ") and " and " not in text for text in alternatives):
                 parts.append("requires " + " or ".join(text.removeprefix("requires ") for text in alternatives))
             else:
                 parts.append("(" + " or ".join(alternatives) + ")")
-        return " and ".join(parts)
+        return join_requirements(parts)
 
     @staticmethod
     def _chance(fact: PublicSource) -> str:
@@ -821,7 +855,9 @@ class ItemSectionGenerator(SectionGeneratorBase):
         }.get(fact.probability_basis or "", "")
         return f"{chance} {basis}".strip()
 
-    def _source_entry(self, fact: PublicSource, sources: SourceInfo) -> str:
+    def _source_entry(self, facts: list[PublicSource], sources: SourceInfo) -> str:
+        """One entry for copies of a source that differ only in their places."""
+        fact = facts[0]
         fallback = {
             "character_drop": "Enemy drop",
             "common_world_item": "Any enemy with common drops",
@@ -857,18 +893,29 @@ class ItemSectionGenerator(SectionGeneratorBase):
                 quantity += f" to {fact.quantity_max:g}"
             if quantity != "1":
                 details.append(f"{quantity} items")
-        details.extend(self._condition_details(fact, sources))
+        places = tuple(place for copy in facts for place in sources.places.get(copy.place_set_key or "", ()))
+        details.extend(self._condition_details(fact, sources, places))
         return f"{entry} ({', '.join(details)})" if details else entry
 
-    def _condition_details(self, fact: PublicSource | PublicUse, sources: SourceInfo) -> list[str]:
+    def _condition_details(
+        self, fact: PublicSource | PublicUse, sources: SourceInfo, places: tuple[PublicPlace, ...] | None = None
+    ) -> list[str]:
         details = []
         if conditions := self._conditions(fact.conditions, sources, fact):
             details.append(conditions)
         locations = []
-        places = sources.places.get(fact.place_set_key or "", ())
+        if places is None:
+            places = sources.places.get(fact.place_set_key or "", ())
+        # Places of one zone that differ only in the room a furnishing stands in read as one place.
+        rooms: dict[tuple[str | None, str | None, tuple[PublicCondition, ...]], set[tuple[str | None, ...]]] = {}
+        for location in places:
+            slots = tuple(atom.reference_slot for atom in location.conditions if atom.predicate == "room_furnished")
+            rooms.setdefault(_without_rooms(location), set()).add(slots)
         for location in places:
             place = self._link(sources, location.zone_stable_key, location.scene or "")
-            if condition := self._conditions(location.conditions, sources, fact):
+            key = _without_rooms(location)
+            conditions = key[2] if len(rooms[key]) > 1 else location.conditions
+            if condition := self._conditions(conditions, sources, fact):
                 place = f"{place} ({condition})" if place else condition
             if place and place not in locations:
                 locations.append(place)
@@ -885,11 +932,11 @@ class ItemSectionGenerator(SectionGeneratorBase):
     def _format_sources(self, enriched: EnrichedItemData, kinds: tuple[str, ...]) -> str:
         if enriched.sources is None:
             return ""
-        return WIKITEXT_LINE_SEPARATOR.join(
-            self._source_entry(fact, enriched.sources)
-            for fact in sorted(self._acquisitions(enriched), key=lambda fact: fact.source_key)
-            if fact.kind in kinds
-        )
+        copies: dict[tuple[object, ...], list[PublicSource]] = {}
+        for fact in sorted(self._acquisitions(enriched), key=lambda fact: fact.source_key):
+            if fact.kind in kinds:
+                copies.setdefault(_copy_identity(fact), []).append(fact)
+        return WIKITEXT_LINE_SEPARATOR.join(self._source_entry(facts, enriched.sources) for facts in copies.values())
 
     def _format_guaranteed_drops(self, enriched: EnrichedItemData) -> str:
         """A guaranteed pool roll does not guarantee an individual item."""

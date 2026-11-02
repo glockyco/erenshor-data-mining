@@ -8,6 +8,8 @@ from collections.abc import Mapping, Sequence
 from typing import cast
 from urllib.parse import quote
 
+from erenshor.application.wiki.generators.formatting import join_requirements
+
 
 def _link(key: str, catalog: Mapping[str, Mapping[str, object]]) -> str:
     if key not in catalog:
@@ -124,21 +126,24 @@ def build_character_locations(
             row["playerLevelMax"] = source["player_level_max"]
             conditions.append(
                 {
-                    "text": (
-                        f"Possible treasure hunt for player levels "
-                        f"{source['player_level_min']}-{source['player_level_max']}"
-                    ),
+                    "text": f"Possible treasure hunt at level {source['player_level_min']}"
+                    + (" or higher" if source["player_level_max"] is None else f"\u2013{source['player_level_max']}"),
                 }
             )
         if source.get("night_spawn"):
             conditions.append(
-                {"text": "At night", "predicate": "time_of_day", "value": "night", "phase": "availability"}
+                {
+                    "text": "Night only: spawns 11 PM to 4 AM, leaves at 7 AM",
+                    "predicate": "time_of_day",
+                    "value": "night",
+                    "phase": "availability",
+                }
             )
         quest = source.get("spawn_upon_quest_complete_stable_key")
         if quest:
             conditions.append(
                 {
-                    "text": "After completing " + _link(str(quest), catalog),
+                    "text": "Requires " + _link(str(quest), catalog),
                     "predicate": "quest_done",
                     "reference_stable_key": quest,
                     "phase": "availability",
@@ -147,7 +152,7 @@ def build_character_locations(
         for stop_quest in cast("Sequence[str]", source["stop_quests"]):
             conditions.append(
                 {
-                    "text": "Before completing " + _link(str(stop_quest), catalog),
+                    "text": "Only before " + _link(str(stop_quest), catalog),
                     "predicate": "quest_not_done",
                     "reference_stable_key": stop_quest,
                     "phase": "availability",
@@ -180,7 +185,7 @@ def build_character_locations(
                 raise ValueError(f"{member}: furnished placement has no native room slot")
             conditions.append(
                 {
-                    "text": "Room " + str(slot) + " furnished with " + _link(str(furniture), catalog),
+                    "text": "Requires the " + _link(str(furniture), catalog) + " in room " + str(slot),
                     "predicate": "room_furnished",
                     "reference_stable_key": furniture,
                     "value": slot,
@@ -191,11 +196,18 @@ def build_character_locations(
             lambda: defaultdict(list)
         )
         for atom in cast("Sequence[Mapping[str, object]]", source["gates"]):
+            if (
+                atom["atom_kind"] == "room_furnished"
+                and atom["atom_stable_key"] == furniture
+                and atom.get("atom_slot") == source.get("furniture_slot")
+            ):
+                continue
             identity = (str(atom["subject_kind"]), str(atom["subject_stable_key"]), str(atom["gate"]))
             gates[identity][cast("int", atom["group_index"])].append(atom)
         for identity, alternatives in sorted(gates.items()):
             groups = [
-                " and ".join(_gate_text(atom, catalog) for atom in atoms) for _, atoms in sorted(alternatives.items())
+                join_requirements([_gate_text(atom, catalog) for atom in atoms])
+                for _, atoms in sorted(alternatives.items())
             ]
             conditions.append(
                 {

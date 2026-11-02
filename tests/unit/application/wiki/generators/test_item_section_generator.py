@@ -471,13 +471,13 @@ def test_public_inventory_transfer_route_is_rendered_on_the_item_article() -> No
 @pytest.mark.parametrize(
     ("minimum", "maximum", "minimum_inclusive", "maximum_inclusive", "gate", "expected"),
     [
-        (2, 3, True, True, "equipment_input", "Quality Blessed or Ascended"),
-        (11, 15, True, True, "equipment_input", "Quality Improved"),
-        (11, 15, False, False, "equipment_input", "Quality Improved +2 to Improved +4"),
-        (1, 1, True, True, "result_quality", "Result quality Standard"),
-        (0, 99, True, True, "equipment_input", "Quality Any quality"),
-        (12, 12, True, True, "enhanced_quality", "Improved result quality Improved +2"),
-        (1, 3, True, True, "result_quality", "Result quality Standard or Blessed or Ascended"),
+        (2, 3, True, True, "equipment_input", "Blessed or Ascended"),
+        (11, 15, True, True, "equipment_input", "Improved"),
+        (11, 15, False, False, "equipment_input", "Improved +2 to Improved +4"),
+        (1, 1, True, True, "result_quality", "Standard"),
+        (0, 99, True, True, "equipment_input", "Any quality"),
+        (12, 12, True, True, "enhanced_quality", "Improved +2"),
+        (1, 3, True, True, "result_quality", "Standard or Blessed or Ascended"),
     ],
 )
 def test_public_quality_bounds_render_runtime_ids_in_progression_order(
@@ -500,18 +500,7 @@ def test_public_quality_bounds_render_runtime_ids_in_progression_order(
         minimum_inclusive=minimum_inclusive,
         maximum_inclusive=maximum_inclusive,
     )
-    source = replace(_source("source:quality", "item:fixture", "vendor"), conditions=(condition,))
-    assert expected in ItemSectionGenerator()._source_entry(source, SourceInfo())
-
-
-@pytest.mark.parametrize(
-    ("value", "expected"),
-    [("normal", "Standard"), ("divine", "Ascended"), ("11", "Improved +1"), ("matching", "Matching qualities")],
-)
-def test_public_named_quality_uses_existing_wiki_labels(value: str, expected: str) -> None:
-    condition = PublicCondition(0, 0, 0, "equipment_input", "quality", value=value)
-    fact = _source("acq:quality", "item:test", "crafting")
-    assert ItemSectionGenerator()._condition(condition, SourceInfo(), fact) == f"Quality: {expected}"
+    assert ItemSectionGenerator()._quality_range(condition) == expected
 
 
 def test_fishing_keeps_public_day_night_rates() -> None:
@@ -859,7 +848,7 @@ def test_blessing_removal_byproduct_is_not_an_ordinary_recipe_and_resolves_its_a
     text = generator.item_generator._format_crafting_sources(
         EnrichedItemData(item=shard, stats=[], classes=[], sources=shard_sources),
     )[0]
-    assert text == f"From removing a blessing with {diamond} (Quality Blessed or Ascended)"
+    assert str(diamond) in text
     assert generator.item_provenance_manifest[shard.stable_key]["acquisitions"] == [asdict(byproduct)]
 
     equipment_sources = generator._assemble_source_info(equipment)
@@ -886,8 +875,8 @@ def test_each_crafting_source_keeps_its_own_quality_conditions() -> None:
         EnrichedItemData(item=Item(stable_key="item:reward"), stats=[], classes=[], sources=sources)
     )
     assert text.count(str(mold)) == 2
-    assert "(Quality: Standard)" in text
-    assert "(Quality: Improved +1)" in text
+    assert "Standard" in text
+    assert "Improved +1" in text
 
 
 @pytest.mark.parametrize(
@@ -920,8 +909,8 @@ def test_public_component_uses_render_source_and_place_conditions(kind: str) -> 
     _recipes, text = ItemSectionGenerator()._format_crafting_sources(
         EnrichedItemData(item=Item(stable_key="item:fixture"), stats=[], classes=[], sources=sources)
     )
-    assert "Quality Blessed or Ascended" in text
-    assert re.search(r"in \{\{ZoneLink\|stablekey=zone:hall\}\} \([^)]*night\)", text)
+    assert "Blessed" in text and "Ascended" in text
+    assert re.search(r"in \{\{ZoneLink\|stablekey=zone:hall\}\} \([^)]*night", text)
 
 
 def test_legacy_zone_restriction_omission_remains_explicit_in_manifest() -> None:

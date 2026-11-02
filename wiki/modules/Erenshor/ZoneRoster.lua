@@ -37,19 +37,24 @@ end
 local function conditions(row)
 	local out = {}
 	if row.night then
-		table.insert(out, "Night only")
+		table.insert(out, "Night only (spawns 11 PM to 4 AM, leaves at 7 AM)")
 	end
 	if row.rare then
 		table.insert(out, "Rare spawn")
 	end
 	if row.furniture then
-		table.insert(out, "Place " .. Link.render({ kind = "item", stablekey = row.furniture }))
+		table.insert(
+			out,
+			"Requires the "
+				.. Link.render({ kind = "item", stablekey = row.furniture })
+				.. " in its room"
+		)
 	end
 	if row.quest then
-		table.insert(out, "Complete " .. questReference(row.quest))
+		table.insert(out, "Requires " .. questReference(row.quest))
 	end
 	for _, quest in ipairs(row.stopQuests or {}) do
-		table.insert(out, "Stops after " .. questReference(quest))
+		table.insert(out, "Only before " .. questReference(quest))
 	end
 	if row.triggerItem then
 		table.insert(
