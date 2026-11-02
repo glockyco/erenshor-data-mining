@@ -63,6 +63,19 @@ def item_image_file(item: Item) -> str:
     return picture_file_title("icon", item.image_name, item.display_name, item.item_name)
 
 
+def _level_range(atom: PublicCondition) -> str:
+    """Level bounds in the map's wording: a closed range joined by an en dash, or "above 30" for an open one."""
+    low, high = atom.minimum, atom.maximum
+    if low is not None and high is not None and atom.minimum_inclusive and atom.maximum_inclusive:
+        return f"{low:g}" if low == high else f"{low:g}\u2013{high:g}"
+    parts = []
+    if low is not None:
+        parts.append(f"{low:g} or higher" if atom.minimum_inclusive else f"above {low:g}")
+    if high is not None:
+        parts.append(f"{high:g} or lower" if atom.maximum_inclusive else f"below {high:g}")
+    return " and ".join(parts)
+
+
 class ItemSectionGenerator(SectionGeneratorBase):
     """Render one item from canonical facts and resolved presentation links.
 
@@ -701,67 +714,96 @@ class ItemSectionGenerator(SectionGeneratorBase):
             return "Improved" if len(names) == 5 else f"{names[0]} to {names[-1]}"
         return " or ".join(names)
 
-    def _condition(self, atom: PublicCondition, sources: SourceInfo) -> str:
+    def _condition(self, atom: PublicCondition, sources: SourceInfo, fact: PublicSource | PublicUse) -> str:
+        """Word one stored requirement with the phrases the map uses, starting lowercase inside an entry."""
         if atom.predicate == "account_state":
-            labels: dict[tuple[str | None, str | None], str] = {
-                ("account_state:reliquary_claimed", "false"): "before claiming your Reliquary",
-                ("account_state:reliquary_claimed", "true"): "after claiming your Reliquary",
-            }
-            label = labels.get((atom.reference_stable_key, atom.value))
-            if label is None:
-                raise ValueError("Unsupported canonical account-state display label")
-            return label
-        if atom.predicate == "route" and atom.value == "normal_pointer_inventory_transfer":
-            return "Drag into your inventory"
+            return self._account_label(atom)
         if atom.predicate == "quality":
-            label = {
-                "result_quality": "Result quality",
-                "enhanced_quality": "Improved result quality",
-            }.get(atom.gate_key, "Quality")
-            if atom.actor:
-                label += f" for {atom.actor.replace('_', ' ')}"
-            if atom.value is not None:
-                quality = _QUALITY_NAMES.get(atom.value.lower())
-                if quality is None:
-                    raise ValueError(f"Unsupported canonical item quality: {atom.value}")
-                label += f": {quality}"
-            if atom.minimum is not None or atom.maximum is not None:
-                label += f" {self._quality_range(atom)}"
-            return label
-        reference = self._link(sources, atom.reference_stable_key, "the required condition")
-        predicates = {
-            "quest_done": f"after {reference}",
-            "quest_not_done": f"before completing {reference}",
-            "item_held": f"carrying {reference}",
-            "key_held": f"carrying {reference}",
-            "item_not_owned": f"without {reference}",
-            "room_furnished": f"after furnishing room {atom.reference_slot or ''} with {reference}",
-            "encounter_won": f"after defeating {reference}",
-            "zone_use": f"in {reference}",
-            "time_of_day": atom.value or "",
-            "never": "not available",
-        }
-        if atom.predicate in predicates:
-            return predicates[atom.predicate]
-        if atom.predicate == "actor_level":
-            actor = {"enemy": "enemy", "player": "player", "sim": "simulated player"}.get(atom.actor or "", "character")
-            bounds = []
-            if atom.minimum is not None:
-                bounds.append(f"{'at least' if atom.minimum_inclusive else 'above'} {atom.minimum:g}")
-            if atom.maximum is not None:
-                bounds.append(f"{'at most' if atom.maximum_inclusive else 'below'} {atom.maximum:g}")
-            return f"{actor} level " + " and ".join(bounds)
-        raise ValueError(f"Unsupported canonical item condition: {atom.predicate}")
+            return self._quality_label(atom)
+        return self._requirement(atom, sources, fact)
 
-    def _conditions(self, atoms: tuple[PublicCondition, ...], sources: SourceInfo) -> str:
+    @staticmethod
+    def _account_label(atom: PublicCondition) -> str:
+        labels: dict[tuple[str | None, str | None], str] = {
+            ("account_state:reliquary_claimed", "false"): "only before claiming your Reliquary",
+            ("account_state:reliquary_claimed", "true"): "requires a claimed Reliquary",
+        }
+        label = labels.get((atom.reference_stable_key, atom.value))
+        if label is None:
+            raise ValueError("Unsupported canonical account-state display label")
+        return label
+
+    def _quality_label(self, atom: PublicCondition) -> str:
+        label = {
+            "result_quality": "Result quality",
+            "enhanced_quality": "Improved result quality",
+        }.get(atom.gate_key, "Quality")
+        if atom.actor:
+            label += f" for {atom.actor.replace('_', ' ')}"
+        if atom.value is not None:
+            quality = _QUALITY_NAMES.get(atom.value.lower())
+            if quality is None:
+                raise ValueError(f"Unsupported canonical item quality: {atom.value}")
+            label += f": {quality}"
+        if atom.minimum is not None or atom.maximum is not None:
+            label += f" {self._quality_range(atom)}"
+        return label
+
+    def _requirement(self, atom: PublicCondition, sources: SourceInfo, fact: PublicSource | PublicUse) -> str:
+        if atom.predicate == "route" and atom.value == "normal_pointer_inventory_transfer":
+            return "drag it into your inventory"
+        if atom.predicate == "actor_level":
+            actor = {
+                "enemy": "enemy level",
+                "sim": "simulated player level",
+                "sim_player": "simulated player level",
+            }.get(atom.actor or "", "level")
+            return f"requires {actor} {_level_range(atom)}"
+        # A reward quest that must not be done yet only means its reward comes once.
+        own_quest = fact.kind == "quest_reward" and atom.reference_stable_key == getattr(
+            fact, "source_stable_key", None
+        )
+        if atom.predicate == "quest_not_done" and own_quest:
+            return "once per character"
+        reference = self._link(sources, atom.reference_stable_key, "the required condition")
+        if atom.predicate == "item_not_owned" and atom.reference_stable_key == fact.item_stable_key:
+            reference = "one"
+        count = f" ×{atom.minimum:g}" if atom.minimum is not None and atom.minimum > 1 else ""
+        room = f"room {atom.reference_slot}" if atom.reference_slot else "its room"
+        predicates = {
+            "quest_done": f"requires {reference}",
+            "quest_not_done": f"only before {reference}",
+            "item_held": f"requires {reference}{count}",
+            "key_held": f"requires {reference}{count}",
+            "item_not_owned": f"only if you don't have {reference}",
+            "room_furnished": f"requires the {reference} in {room}",
+            "encounter_won": f"requires defeating {reference}",
+            "zone_use": f"only in {reference}",
+            "time_of_day": {"day": "only during the day", "night": "only at night"}.get(
+                atom.value or "", f"only during {atom.value}"
+            ),
+            "never": "never",
+        }
+        if atom.predicate not in predicates:
+            raise ValueError(f"Unsupported canonical item condition: {atom.predicate}")
+        return predicates[atom.predicate]
+
+    def _conditions(
+        self, atoms: tuple[PublicCondition, ...], sources: SourceInfo, fact: PublicSource | PublicUse
+    ) -> str:
         gates: dict[int, dict[int, list[str]]] = {}
         for atom in atoms:
-            text = self._condition(atom, sources)
+            text = self._condition(atom, sources, fact)
             gates.setdefault(atom.gate_index, {}).setdefault(atom.alternative_index, []).append(text)
         parts = []
         for groups in gates.values():
             alternatives = [" and ".join(texts) for _index, texts in sorted(groups.items())]
-            parts.append("(" + " or ".join(alternatives) + ")" if len(alternatives) > 1 else alternatives[0])
+            if len(alternatives) == 1:
+                parts.append(alternatives[0])
+            elif all(text.startswith("requires ") and " and " not in text for text in alternatives):
+                parts.append("requires " + " or ".join(text.removeprefix("requires ") for text in alternatives))
+            else:
+                parts.append("(" + " or ".join(alternatives) + ")")
         return " and ".join(parts)
 
     @staticmethod
@@ -820,13 +862,13 @@ class ItemSectionGenerator(SectionGeneratorBase):
 
     def _condition_details(self, fact: PublicSource | PublicUse, sources: SourceInfo) -> list[str]:
         details = []
-        if conditions := self._conditions(fact.conditions, sources):
+        if conditions := self._conditions(fact.conditions, sources, fact):
             details.append(conditions)
         locations = []
         places = sources.places.get(fact.place_set_key or "", ())
         for location in places:
             place = self._link(sources, location.zone_stable_key, location.scene or "")
-            if condition := self._conditions(location.conditions, sources):
+            if condition := self._conditions(location.conditions, sources, fact):
                 place = f"{place} ({condition})" if place else condition
             if place and place not in locations:
                 locations.append(place)

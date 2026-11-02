@@ -18,20 +18,30 @@ def _link(key: str, catalog: Mapping[str, Mapping[str, object]]) -> str:
 
 
 def _gate_text(atom: Mapping[str, object], catalog: Mapping[str, Mapping[str, object]]) -> str:
+    """Word one requirement with the map's phrases, lowercase so it can join a sentence."""
     kind, key = atom["atom_kind"], str(atom["atom_stable_key"])
     if kind == "quest_done":
-        return "complete " + _link(key, catalog)
+        return "requires " + _link(key, catalog)
     if kind == "quest_not_done":
-        return "not complete " + _link(key, catalog)
+        return "only before " + _link(key, catalog)
     if kind in ("item_held", "key_held"):
-        return "carry " + _link(key, catalog)
+        return "requires " + _link(key, catalog)
     if kind == "room_furnished":
-        return "furnish room " + str(atom["atom_slot"]) + " with " + _link(key, catalog)
+        return "requires the " + _link(key, catalog) + " in room " + str(atom["atom_slot"])
     if kind == "encounter_won":
-        return "defeat " + _link(key, catalog)
+        return "requires defeating " + _link(key, catalog)
     if kind == "never":
-        return "unavailable"
+        return "never"
     raise ValueError(f"Unsupported shared placement gate {kind!r}")
+
+
+def _gate_sentence(groups: Sequence[str]) -> str:
+    """Alternatives read as "or". Single requirements share one "Requires"."""
+    if len(groups) > 1 and all(group.startswith("requires ") and " and " not in group for group in groups):
+        text = "requires " + " or ".join(group.removeprefix("requires ") for group in groups)
+    else:
+        text = " or ".join(f"({group})" if len(groups) > 1 and " and " in group else group for group in groups)
+    return text[0].upper() + text[1:]
 
 
 def _release_text(release: Mapping[str, object], catalog: Mapping[str, Mapping[str, object]]) -> str | None:
@@ -189,7 +199,7 @@ def build_character_locations(
             ]
             conditions.append(
                 {
-                    "text": "Requires " + " or ".join("(" + group + ")" for group in groups),
+                    "text": _gate_sentence(groups),
                     "native_gate": list(identity),
                 }
             )

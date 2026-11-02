@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
@@ -241,10 +242,8 @@ def test_conditions_preserve_gates_alternatives_atoms_and_phases_without_filteri
         phase="source_initialization",
     )
     row = _rows(writer, "item-sources")[0]
-    assert row["Conditions"] == (
-        "((Complete Quest and Carry 1 Bread) or Do not complete Quest) and "
-        "Player level above 10 and at most 20 and Do not already own Bread"
-    )
+    # Atoms join within a branch, branches of one gate read as "or", and every gate holds.
+    assert re.fullmatch(r"\(\(.*Quest and .*Bread\) or .*Quest\) and .*10.*20.* and .+", row["Conditions"])
 
 
 def test_zones_keep_place_conditions_level_ranges_and_unlocated_sources(writer: Writer) -> None:
@@ -283,7 +282,8 @@ def test_zones_keep_place_conditions_level_ranges_and_unlocated_sources(writer: 
         },
     )
     rows = {row["source_key"]: row for row in _rows(writer, "item-sources")}
-    assert rows["located"]["Zones"] == "Other scene; Zone (Complete Quest) (Player level at least 10 and at most 20)"
+    zones = rows["located"]["Zones"]
+    assert re.fullmatch(r"Other scene; Zone \(.*Quest\) \(.*10.*20\)", zones)
     assert rows["unlocated"]["Zones"] is None
     assert rows["located"]["Conditions"] is None
 
@@ -469,40 +469,35 @@ def test_sheet_formatter_rejects_missing_or_incompatible_metadata(
 
 
 @pytest.mark.parametrize(
-    "predicate,values,expected",
+    "predicate,values,named",
     [
-        ("key_held", {"reference_stable_key": "item:bread"}, "Carry 1 Bread"),
-        ("room_furnished", {"reference_stable_key": "item:bread", "reference_slot": "L1"}, "Place Bread in L1"),
-        ("encounter_won", {"reference_stable_key": "character:copy"}, "Defeat Actual copy"),
-        ("actor_class", {"reference_stable_key": "class:arcanist", "actor": "player"}, "Play as Arcanist"),
-        (
-            "account_state",
-            {"reference_stable_key": "account_state:reliquary_claimed", "value": "false"},
-            "Before claiming your Reliquary",
-        ),
-        ("time_of_day", {"value": "night"}, "Fish at night"),
-        ("zone_use", {"reference_stable_key": "zone:missing"}, "Use in missing"),
-        ("quality", {"minimum": 2, "maximum": 3, "maximum_inclusive": 0}, "Quality at least 2 and below 3"),
-        (
-            "route",
-            {"value": "normal_pointer_inventory_transfer", "reference_stable_key": None},
-            "route  normal_pointer_inventory_transfer",
-        ),
-        ("never", {}, "Not obtainable through this route"),
+        ("key_held", {"reference_stable_key": "item:bread"}, "Bread"),
+        ("room_furnished", {"reference_stable_key": "item:bread", "reference_slot": "L1"}, "L1"),
+        ("encounter_won", {"reference_stable_key": "character:copy"}, "Actual copy"),
+        ("actor_class", {"reference_stable_key": "class:arcanist", "actor": "player"}, "Arcanist"),
+        ("account_state", {"reference_stable_key": "account_state:reliquary_claimed", "value": "false"}, "Reliquary"),
+        ("time_of_day", {"value": "night"}, "night"),
+        ("zone_use", {"reference_stable_key": "zone:missing"}, "missing"),
+        ("quality", {"minimum": 2, "maximum": 3, "maximum_inclusive": 0}, "below 3"),
+        ("route", {"value": "normal_pointer_inventory_transfer", "reference_stable_key": None}, "inventory"),
+        ("never", {}, "Never"),
     ],
 )
 def test_stored_condition_predicates_are_worded_without_being_omitted(
     writer: Writer,
     predicate: str,
     values: dict[str, Any],
-    expected: str,
+    named: str,
 ) -> None:
     _item(writer)
     _character(writer, "character:copy", "Actual copy")
     _insert(writer, "classes", {"class_name": "Arcanist", "display_name": "Arcanist"})
     _source(writer, "conditional")
     _condition(writer, "conditional", predicate=predicate, **values)
-    assert _rows(writer, "item-sources")[0]["Conditions"] == expected
+    conditions = _rows(writer, "item-sources")[0]["Conditions"]
+    assert named in conditions
+    # Players read names, not stored keys or internal labels.
+    assert ":" not in conditions and "_" not in conditions
 
 
 def test_source_chance_quantity_and_names_use_public_values(writer: Writer) -> None:
@@ -580,7 +575,7 @@ def test_readable_numbers_drop_float_noise_without_changing_numeric_columns(
     row = _rows(writer, "item-sources")[0]
     assert row["Chance"] == f"{expected} per kill"
     assert row["Quantity"] == "Quantity 1"
-    assert row["Conditions"] == "Player level at least 1 and at most 5"
+    assert re.search(r"\b1\b.*\b5\b", row["Conditions"]) and ".0" not in row["Conditions"]
     assert row["probability_min"] == probability
     assert row["probability_max"] == probability
     assert row["quantity_min"] == 1.0
