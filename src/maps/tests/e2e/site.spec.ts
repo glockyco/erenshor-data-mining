@@ -64,6 +64,16 @@ test('home page renders fixture statistics and provenance', async ({ page }) => 
     await expect(page.getByText('January 1, 2020')).toBeVisible();
 });
 
+test('home page keeps its FAQ visible without FAQ rich-result markup', async ({ page }) => {
+    await page.goto('/');
+
+    const types = await page.locator('script[type="application/ld+json"]').evaluateAll((scripts) =>
+        scripts.map((script) => JSON.parse(script.textContent ?? '{}')['@type'])
+    );
+    expect(types).toEqual(['WebSite', 'WebApplication', 'VideoGame']);
+    await expect(page.getByText('Where do I find a specific enemy, NPC, or vendor?', { exact: true })).toBeVisible();
+});
+
 test('world map draws its canvas from prerendered fixture data', async ({ page, request }) => {
     const html = await (await request.get('/map')).text();
     expect(html).toContain('Fixture Enemy');

@@ -1,14 +1,11 @@
 /**
  * Landing-page FAQ content.
  *
- * Single source of truth for both the rendered FAQ (FaqSection renders each
- * answer segment as text or an anchor) and the FAQPage JSON-LD (the landing
- * page flattens the segments to plain text). Answers are answer-first and link
- * to the relevant tool or source so visitors are never left hanging.
+ * FaqSection renders each answer segment as text or an anchor. Answers link
+ * to the relevant tool or source.
  *
- * Items are ordered by category and FaqSection renders them as two grouped
- * clusters (tools first, then game). The JSON-LD builder reads only question
- * and answer, so `category` carries no SEO weight.
+ * Items are ordered by category and rendered as two grouped clusters:
+ * tools first, then game.
  */
 
 /** A run of answer text, or a link with display text and an href. */
