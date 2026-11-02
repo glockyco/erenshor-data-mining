@@ -24,6 +24,16 @@ from erenshor.domain.value_objects.item_provenance import (
 # code-fact: treasure.strike_melee
 # code-fact: treasure.strike_bolt
 _CHEST_LOOT_FACTS = ("treasure.chest_break_roll", "treasure.strike_melee", "treasure.strike_bolt")
+# The columns that define what a Flame Well takes and gives.
+_OFFERING_PARAMETERS = (
+    "first_item_stable_key",
+    "second_item_stable_key",
+    "chance_per_stone_pair",
+    "chance_per_improvement_level",
+    "enhance_chance_per_stone_pair",
+    "result_quality",
+    "enhanced_quality",
+)
 
 
 def identity(kind: str, *parts: object) -> str:
@@ -930,8 +940,12 @@ class ProvenanceBuilder:
                 mechanic=str(row["outcome"]),
                 conditions=(ProvenanceCondition("zone", 0, 0, "zone_use", zone),),
             )
-        for row in self.rows("quality_offerings"):
-            source = str(row["character_stable_key"])
+        for group, rows in self.quality_offering_groups().items():
+            row = rows[0]
+            copies = tuple(str(offering["character_stable_key"]) for offering in rows)
+            offered = tuple(self.evidence("quality_offerings", copy) for copy in copies)
+            wells = tuple(location for copy in copies for location in self.character_locations(copy))
+            mechanic = identity("quality_offering", group)
             operation: tuple[ProvenanceCondition, ...] = (
                 ProvenanceCondition(
                     "stone_counts",
@@ -981,13 +995,13 @@ class ProvenanceBuilder:
                 self.use(
                     "quality_offering",
                     str(row[column]),
-                    self._groups.get(source, source),
-                    primary=(source, slot),
-                    evidence=(self.evidence("quality_offerings", source),),
+                    group,
+                    primary=(group, slot),
+                    evidence=offered,
                     quantity_range=(1, None),
                     material_slot=slot,
-                    mechanic=identity("quality_offering", source),
-                    locations=self.character_locations(source),
+                    mechanic=mechanic,
+                    locations=wells,
                     conditions=operation,
                 )
             for gear in self.rows("items"):
@@ -997,13 +1011,13 @@ class ProvenanceBuilder:
                 self.use(
                     "quality_offering",
                     item,
-                    self._groups.get(source, source),
-                    primary=(source, item, "equipment"),
-                    evidence=(self.evidence("quality_offerings", source), self.evidence("items", item)),
+                    group,
+                    primary=(group, item, "equipment"),
+                    evidence=(*offered, self.evidence("items", item)),
                     quantity=1,
                     material_slot=2,
-                    mechanic=identity("quality_offering", source),
-                    locations=self.character_locations(source),
+                    mechanic=mechanic,
+                    locations=wells,
                     conditions=(
                         *operation,
                         ProvenanceCondition(
@@ -1036,6 +1050,22 @@ class ProvenanceBuilder:
                         ),
                     ),
                 )
+
+    def quality_offering_groups(self) -> dict[str, list[dict[str, Any]]]:
+        """The Flame Wells of each character group, which share one offering mechanic.
+
+        Every well of a group takes the same offering, so the group's uses list each
+        input once with all its wells as locations instead of once per well.
+        """
+        groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        for row in sorted(self.rows("quality_offerings"), key=lambda row: str(row["character_stable_key"])):
+            copy = str(row["character_stable_key"])
+            groups[self._groups.get(copy, copy)].append(row)
+        for group, rows in groups.items():
+            parameters = {tuple(row[column] for column in _OFFERING_PARAMETERS) for row in rows}
+            if len(parameters) != 1:
+                raise ValueError(f"The Flame Wells of {group} take different offerings, so they need one use each")
+        return dict(sorted(groups.items()))
 
     def starting_and_auctions(self) -> None:
         for row in self.rows("class_starting_items"):

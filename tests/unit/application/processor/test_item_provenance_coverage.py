@@ -881,6 +881,46 @@ def test_use_condition_and_location_coverage_is_independent(
         validate_item_provenance(connection, exclusions, require_all_native_tables=False)
 
 
+_OFFERING_COLUMNS = (
+    "first_item_stable_key, second_item_stable_key, chance_per_stone_pair, chance_per_improvement_level, "
+    "enhance_chance_per_stone_pair, result_quality, enhanced_quality"
+)
+
+
+def test_flame_wells_of_one_group_share_each_offering_use(native_inputs: sqlite3.Connection) -> None:
+    native_inputs.execute(
+        f"INSERT INTO quality_offerings (character_stable_key, {_OFFERING_COLUMNS}) "
+        f"SELECT 'character:b', {_OFFERING_COLUMNS} FROM quality_offerings WHERE character_stable_key='character:a'"
+    )
+    builder = ProvenanceBuilder(native_inputs)
+    builder.select()
+    offerings = [use for use in builder.uses if use.kind == "quality_offering"]
+    inputs = [(use.item_stable_key, use.material_slot) for use in offerings]
+    assert len(inputs) == len(set(inputs))
+    assert {use.target_stable_key for use in offerings} == {"character:a"}
+    for use in offerings:
+        assert {location.source_copy_stable_key for location in use.locations} == {"character:a", "character:b"}
+    builder.account_support_inputs()
+    builder.persist()
+    native_inputs.execute(
+        "INSERT INTO item_dispositions (item_stable_key, disposition, current_pages, former_pages) "
+        "SELECT stable_key, 'current', json_array(wiki_page_name), '[]' FROM items"
+    )
+    validate_item_provenance(native_inputs, builder.input_exclusions, require_all_native_tables=False)
+
+
+def test_flame_wells_of_one_group_must_take_one_offering(native_inputs: sqlite3.Connection) -> None:
+    native_inputs.execute(
+        f"INSERT INTO quality_offerings (character_stable_key, {_OFFERING_COLUMNS}) "
+        f"SELECT 'character:b', {_OFFERING_COLUMNS} FROM quality_offerings WHERE character_stable_key='character:a'"
+    )
+    native_inputs.execute(
+        "UPDATE quality_offerings SET chance_per_stone_pair=9 WHERE character_stable_key='character:b'"
+    )
+    with pytest.raises(ValueError, match="take different offerings"):
+        ProvenanceBuilder(native_inputs).select()
+
+
 @pytest.mark.parametrize("active_in_hierarchy", [0, 1])
 def test_box_of_portals_keeps_shared_quest_gate(native_inputs: sqlite3.Connection, active_in_hierarchy: int) -> None:
     native_inputs.execute("UPDATE items SET display_name='Box of Portals' WHERE stable_key='item:reward'")

@@ -897,9 +897,16 @@ class _Coverage:
                 mechanic=row["outcome"],
                 conditions=(self.condition("zone", "zone_use", zone),),
             )
-        for row in self.rows("quality_offerings"):
-            copy = row["character_stable_key"]
-            origin = self.origin("quality_offerings", copy)
+        wells: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        for offering in sorted(self.rows("quality_offerings"), key=lambda offering: offering["character_stable_key"]):
+            copy = offering["character_stable_key"]
+            wells[self.groups.get(copy, copy)].append(offering)
+        for group, rows in sorted(wells.items()):
+            row = rows[0]
+            origins = tuple(self.origin("quality_offerings", offering["character_stable_key"]) for offering in rows)
+            placements = tuple(
+                location for offering in rows for location in self.placements(offering["character_stable_key"])
+            )
             operation = (
                 self.condition(
                     "stone_counts",
@@ -946,16 +953,16 @@ class _Coverage:
                     "use",
                     "quality_offering",
                     row[column],
-                    self.groups.get(copy, copy),
-                    (copy, slot),
-                    origins=(origin,),
+                    group,
+                    (group, slot),
+                    origins=origins,
                     quantity_kind="bounded",
                     quantity_min=1,
                     quantity_max=None,
                     material_slot=slot,
-                    mechanic=_key("quality_offering", copy),
+                    mechanic=_key("quality_offering", group),
                     conditions=conditions,
-                    locations=self.placements(copy),
+                    locations=placements,
                 )
             for gear in self.rows("items"):
                 if gear["required_slot"] in ("General", "Aura"):
@@ -965,13 +972,13 @@ class _Coverage:
                     "use",
                     "quality_offering",
                     item,
-                    self.groups.get(copy, copy),
-                    (copy, item, "equipment"),
-                    origins=(origin, self.origin("items", item)),
+                    group,
+                    (group, item, "equipment"),
+                    origins=(*origins, self.origin("items", item)),
                     quantity=1,
                     material_slot=2,
-                    mechanic=_key("quality_offering", copy),
-                    locations=self.placements(copy),
+                    mechanic=_key("quality_offering", group),
+                    locations=placements,
                     conditions=(
                         *conditions,
                         self.condition("eligible_quality", "quality", minimum=1, maximum=1, phase="operation_input"),
