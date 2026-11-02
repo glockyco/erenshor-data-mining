@@ -120,6 +120,12 @@ droppers or enemy markers.
 Map builds write offline identity coverage outside the published site.
 Use its public source keys, display omission reasons and lifecycle records
 when diagnosing missing item results.
+Keep the public source keys in page data, because search and coverage use them
+as identities. Other joins in `item-source-page-data.ts` are page-local.
+Reuse the page's item and character metadata and marker positions rather
+than adding them to each source. Check the codec's presentation round trip
+when changing its fields or defaults, so compact encoding does not change
+conditions, links or location controls.
 Saved-return portals are conditional destinations, not fixed zone links, because
 their saved origin belongs to the character. Keep serialized defaults in offline
 coverage rather than using them to guess a return marker or connection.

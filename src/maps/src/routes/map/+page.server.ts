@@ -5,5 +5,5 @@ export const prerender = true;
 
 export const load = async () => {
     const data = await buildMapWorldData();
-    return { ...data, ...serializeItemSourcePageData(data.itemSources, data.markers) };
+    return { ...data, ...serializeItemSourcePageData(data.itemSources, data.markers, data.allItems) };
 };
