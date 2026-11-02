@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 import subprocess
 from io import BytesIO
@@ -12,7 +11,6 @@ from typing import Any
 
 import pytest
 
-from erenshor import __version__
 from erenshor.application.maps import publication
 from erenshor.cli.commands import maps
 from erenshor.infrastructure.config.schema import MapsConfig
@@ -94,40 +92,6 @@ def test_frozen_deploy_keeps_checked_owner_and_never_rebundles(tmp_path: Path, m
             tmp_path,
         )
     ]
-
-
-def test_remote_database_checks_body_without_following_a_different_host(monkeypatch: pytest.MonkeyPatch) -> None:
-    body = b"unchanged selected database"
-    reads = iter([body, b""])
-    response = SimpleNamespace(status=200, url="https://example.test/db/erenshor.sqlite", read=lambda _: next(reads))
-
-    class Response:
-        def __enter__(self) -> Any:
-            return response
-
-        def __exit__(self, *_: Any) -> None:
-            pass
-
-    requests = []
-
-    def read(request: Any, *, timeout: int) -> Response:
-        requests.append((request, timeout))
-        return Response()
-
-    monkeypatch.setattr(publication, "urlopen", read)
-    assert publication.remote_database_digest("https://example.test") == hashlib.sha256(body).hexdigest()
-    assert len(requests) == 1
-    request, timeout = requests[0]
-    assert timeout == 60
-    assert request.get_header("User-agent") == (
-        f"ErenshorPublisher/{__version__} (+https://github.com/glockyco/erenshor-data-mining)"
-    )
-    assert "Mozilla" not in request.get_header("User-agent")
-    assert request.get_header("Accept-encoding") == "identity"
-    assert request.get_header("Cache-control") == "no-cache"
-    response.url = "https://other.test/db/erenshor.sqlite"
-    with pytest.raises(ValueError, match="own unchanged body"):
-        publication.remote_database_digest("https://example.test")
 
 
 def test_manifest_follows_directory_aliases_and_rejects_ancestor_cycles(tmp_path: Path) -> None:

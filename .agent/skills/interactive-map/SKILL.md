@@ -24,15 +24,15 @@ description: Build, verify, deploy, or debug the interactive map. Use when chang
 For a coordinated publication, use the prepared `publish` workflow instead of
 chaining wiki, map, and Sheets deploy commands. Select map targets explicitly in
 the selection file. Preparation runs the checked maps build and freezes its
-Worker bundles, assets, database route, and native provenance for review.
+Worker bundles, assets, input snapshots, and native provenance for review.
 Review the complete artifact manifests and captured Cloudflare account,
 service, deployment, and version identities before approving the plan digest.
 Apply and resume never rebuild under that approval.
 
 Map deployment uses a preflight-and-postflight guard, not an atomic provider
 revision guard. Another writer can race the deployment. Resume verifies the
-recorded active version, its upload annotation, pinned artifact evidence, and
-the database body before skipping a completed target. After canonical success,
+recorded active version, its upload annotation, and pinned input and artifact
+evidence before skipping a completed target. After canonical success,
 resume only the remaining legacy operation through the same plan. A lost or
 unknown provider receipt requires reconciliation, not a blind redeploy.
 Provider recovery is a separately reviewed action using the recorded previous
@@ -49,8 +49,7 @@ Use the CLI rather than `pnpm dev` or `pnpm build`.
 It sets `ERENSHOR_MAPS_DATABASE_PATH` to the selected clean database.
 The Node-side `sql.js` repository reads that database during prerender and dev-server loads.
 Browser pages use prerendered data, not a browser database download.
-The prerendered `src/maps/src/routes/db/erenshor.sqlite/+server.ts` route still publishes unchanged bytes at `/db/erenshor.sqlite`.
-Keep this route for shipped companions and other database consumers.
+The clean database stays local to the build and is not published on either host.
 Remove any `.sqlite` under `src/maps/static/` if `maps dev` or `maps build` rejects a conflicting static file.
 `maps build` fails when a build file exceeds 25 MiB, because Cloudflare serves no larger file.
 Rebuild when `maps preview` or `maps deploy` reports stale inputs.
@@ -63,9 +62,9 @@ the narrow popup's full width for details. Files use the catalog pixel hash,
 shared pictures share files, and stale files are removed. A character with no
 portrait leaves no image slot; the map never uses wiki pictures as a fallback.
 
-The smoke test covers `/`, `/map`, `/maps/Stowaway`, marker popups, legacy `layers` query state, and the published database.
+The smoke test covers `/`, `/map`, `/maps/Stowaway`, marker popups, and legacy `layers` query state.
 It fails on site-initiated `.sqlite` requests.
-Extend it when changing a companion-facing URL or database contract.
+Extend it when changing a companion-facing URL or data contract.
 Before a smoke test replaces an open page, use the font-settling navigation helper.
 Hydration can start fonts after the load event, and replacing the document cancels them.
 

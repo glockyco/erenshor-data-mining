@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import shutil
 import sqlite3
 from pathlib import Path
 from types import SimpleNamespace
@@ -80,8 +79,7 @@ def prepared(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> SimpleNamespace
 
     def checked_build(_: Any) -> None:
         calls.append("build")
-        (build / "db").mkdir(parents=True)
-        shutil.copyfile(database, build / "db" / "erenshor.sqlite")
+        build.mkdir(parents=True)
         (build / "map.html").write_text("map document")
         build_info.write_build_info(
             build, build_info.compute_input_hashes(maps_source_dir=source, database_path=database)
@@ -101,7 +99,7 @@ def prepared(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> SimpleNamespace
     def deploy(_: Path, target: str, config: Path, bundle: Path, assets: Path, *, message: str) -> None:
         assert config.is_file() and bundle.is_file()
         assert assets != build
-        assert publication.verify_database(assets, database) == publication.sha256(database)
+        assert (assets / "map.html").read_text() == "map document"
         calls.append(target)
         current[target] = {
             "deployment_id": f"new-{target}",
@@ -112,7 +110,6 @@ def prepared(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> SimpleNamespace
     monkeypatch.setattr(publication, "freeze_worker", freeze_worker)
     monkeypatch.setattr(publication, "destination", destination)
     monkeypatch.setattr(publication, "current_deployment", lambda _, target: current[target])
-    monkeypatch.setattr(publication, "remote_database_digest", lambda _: publication.sha256(database))
     monkeypatch.setattr(publication, "deploy_frozen", deploy)
     run = tmp_path / "run"
     run.mkdir()
@@ -148,12 +145,15 @@ def test_same_size_tile_edit_invalidates_native_freshness(prepared: SimpleNamesp
     assert prepared.calls == ["build"]
 
 
-@pytest.mark.parametrize("which", ["source", "output", "frozen", "image", "lockfile", "legacy-config", "worker"])
+@pytest.mark.parametrize(
+    "which", ["source", "database", "output", "frozen", "image", "lockfile", "legacy-config", "worker"]
+)
 def test_every_source_and_output_byte_is_bound(prepared: SimpleNamespace, which: str) -> None:
     operation = prepared.operations[0]
     payload = operation["payload"]
     paths = {
         "source": prepared.source / "src" / "app.ts",
+        "database": prepared.database,
         "output": prepared.build / "map.html",
         "frozen": Path(payload["assets"]) / "map.html",
         "image": prepared.images / "catalog" / "item.png",
@@ -161,7 +161,11 @@ def test_every_source_and_output_byte_is_bound(prepared: SimpleNamespace, which:
         "legacy-config": prepared.source / "wrangler.legacy.jsonc",
         "worker": Path(payload["bundle"]),
     }
-    paths[which].write_bytes(b"changed")
+    if which == "database":
+        with sqlite3.connect(prepared.database) as connection:
+            connection.execute("INSERT INTO items VALUES (NULL, 1)")
+    else:
+        paths[which].write_bytes(b"changed")
     with pytest.raises(ValueError, match=r"changed|stale"):
         maps.check(prepared.ctx, operation, payload, {})
     assert prepared.calls == ["build"]
@@ -228,28 +232,70 @@ def test_lost_receipt_cannot_be_inferred_from_matching_bytes(
         maps.execute(prepared.ctx, operation, operation["payload"], {})
 
 
-def test_receipt_current_version_and_database_body_are_mandatory(
-    prepared: SimpleNamespace, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_receipt_current_version_is_mandatory(prepared: SimpleNamespace) -> None:
     operation = prepared.operations[0]
     receipt = maps.execute(prepared.ctx, operation, operation["payload"], {})
-    monkeypatch.setattr(publication, "remote_database_digest", lambda _: "other-bytes")
-    with pytest.raises(ValueError, match="Live map database bytes"):
-        maps.reconcile(prepared.ctx, operation, operation["payload"], receipt, {})
-    monkeypatch.setattr(publication, "remote_database_digest", lambda _: publication.sha256(prepared.database))
     prepared.current["canonical"] = {"deployment_id": "another", "versions": []}
     with pytest.raises(ValueError, match="changed before resume"):
         maps.reconcile(prepared.ctx, operation, operation["payload"], receipt, {})
 
 
-def test_database_prerender_bytes_are_exact(prepared: SimpleNamespace) -> None:
+def test_selected_database_is_pinned_without_publishing_it(prepared: SimpleNamespace) -> None:
+    canonical_receipt = {}
     for operation in prepared.operations:
-        assets = Path(operation["payload"]["assets"])
-        assert (assets / "db" / "erenshor.sqlite").read_bytes() == prepared.database.read_bytes()
-        assert operation["payload"]["database_route"]["path"] == "/db/erenshor.sqlite"
-    (prepared.build / "db" / "erenshor.sqlite").write_bytes(b"not selected DB")
-    with pytest.raises(ValueError, match="does not equal"):
-        publication.verify_database(prepared.build, prepared.database)
+        payload = operation["payload"]
+        assets = Path(payload["assets"])
+        assert not list(assets.rglob("*.sqlite"))
+        assert "database_route" not in payload
+        assert maps._snapshot(prepared.database) in payload["input_snapshots"]
+        receipt = maps.execute(
+            prepared.ctx,
+            operation,
+            payload,
+            {} if operation["target"] == "canonical" else {"map:canonical": canonical_receipt},
+        )
+        assert receipt["input_snapshots_digest"] == maps._digest(payload["input_snapshots"])
+        assert "database_sha256" not in receipt
+        canonical_receipt = receipt
+
+
+@pytest.mark.parametrize("version", [None, 1])
+def test_old_payload_schema_is_rejected(prepared: SimpleNamespace, version: int | None) -> None:
+    operation = prepared.operations[0]
+    payload = operation["payload"]
+    if version is None:
+        del payload["schema_version"]
+    else:
+        payload["schema_version"] = version
+    with pytest.raises(maps.MapGuardError, match="Unknown map payload schema"):
+        maps.execute(prepared.ctx, operation, payload, {})
+    assert prepared.calls == ["build"]
+
+
+@pytest.mark.parametrize("field", ["schema_version", "input_snapshots_digest"])
+def test_old_receipt_schema_is_rejected(prepared: SimpleNamespace, field: str) -> None:
+    operation = prepared.operations[0]
+    receipt = maps.execute(prepared.ctx, operation, operation["payload"], {})
+    del receipt[field]
+    receipt["database_sha256"] = publication.sha256(prepared.database)
+    with pytest.raises(ValueError, match="Unknown map receipt"):
+        maps.reconcile(prepared.ctx, operation, operation["payload"], receipt, {})
+
+
+def test_receipt_cannot_hide_different_build_inputs(prepared: SimpleNamespace) -> None:
+    operation = prepared.operations[0]
+    receipt = maps.execute(prepared.ctx, operation, operation["payload"], {})
+    receipt["input_snapshots_digest"] = "unreviewed"
+    with pytest.raises(ValueError, match="approved operation"):
+        maps.reconcile(prepared.ctx, operation, operation["payload"], receipt, {})
+
+
+def test_legacy_requires_canonical_receipt_for_same_inputs(prepared: SimpleNamespace) -> None:
+    canonical, legacy = prepared.operations
+    receipt = maps.execute(prepared.ctx, canonical, canonical["payload"], {})
+    receipt["input_snapshots_digest"] = "unreviewed"
+    with pytest.raises(maps.MapGuardError, match="Canonical predecessor receipt"):
+        maps.execute(prepared.ctx, legacy, legacy["payload"], {"map:canonical": receipt})
 
 
 def test_completed_receipt_cannot_hide_a_different_artifact_manifest(prepared: SimpleNamespace) -> None:

@@ -318,11 +318,3 @@ test('stored return portals have no serialized Hidden destination in either map 
     await expect(popup).not.toContainText('Hidden');
     await expect(popup.locator('a[href*="Hidden"]')).toHaveCount(0);
 });
-
-test('the clean database is published unchanged', async ({ request }) => {
-    const response = await request.get('/db/erenshor.sqlite');
-
-    expect(response.status()).toBe(200);
-    const header = new TextDecoder().decode((await response.body()).subarray(0, 16));
-    expect(header).toBe('SQLite format 3\0');
-});

@@ -49,4 +49,4 @@ If Unity reports `Unity licensing validation failed`, open Unity Hub, wait for l
 
 For new zones, follow `skill://tile-capture` to add capture bounds and tiles. Add the overview position using `skill://interactive-map`. Without a capture-config entry, the map omits the zone and its markers. Without an overview position, `/map` can fail. Restart the game between bounds discovery and `capture run` if auto-login waits for `MainCam`.
 
-Use `skill://sheets-queries` for sheet queries. The map keeps `/db/erenshor.sqlite` on both hosts. Do not create a database symlink in `src/maps/static/db`; the site publishes the database through its route. If the canonical Worker deploy succeeds and the legacy deploy fails, resume with `uv run erenshor -V {v} maps deploy --target legacy` after approval.
+Use `skill://sheets-queries` for sheet queries. The map reads the clean database only while building and does not publish it on either host. Do not create a database symlink in `src/maps/static/db`, because static assets are public. If the canonical Worker deploy succeeds and the legacy deploy fails, resume with `uv run erenshor -V {v} maps deploy --target legacy` after approval.

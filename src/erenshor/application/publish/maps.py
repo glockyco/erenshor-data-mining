@@ -22,6 +22,8 @@ RECOVERY = (
     "active version and approved asset evidence."
 )
 
+SCHEMA_VERSION = 2
+
 
 class MapGuardError(ValueError):
     """An observed pre-write conflict cannot have changed the provider."""
@@ -130,7 +132,6 @@ def prepare(ctx: CLIContext, selection: dict[str, Any], run_dir: Path) -> list[d
     if _build_source_snapshot(ctx, maps_dir, database, build_dir) != pinned_sources:
         raise ValueError("Map source bytes changed during the checked build. Prepare a new plan.")
     publication.assert_fresh(maps_dir, build_dir, database)
-    database_digest = publication.verify_database(build_dir, database)
     asset_manifest = publication.manifest(build_dir)
     frozen = run_dir / "maps"
     frozen.mkdir(parents=True, exist_ok=False)
@@ -147,6 +148,7 @@ def prepare(ctx: CLIContext, selection: dict[str, Any], run_dir: Path) -> list[d
         bundle_dir = frozen / target
         bundle = publication.freeze_worker(maps_dir, target, bundle_dir)
         payload = {
+            "schema_version": SCHEMA_VERSION,
             "target": target,
             "assets": str(assets),
             "bundle": str(bundle),
@@ -155,7 +157,6 @@ def prepare(ctx: CLIContext, selection: dict[str, Any], run_dir: Path) -> list[d
             "worker_manifest": publication.manifest(bundle_dir),
             "config_sha256": publication.sha256(config),
             "input_snapshots": snapshots,
-            "database_route": {"path": "/db/erenshor.sqlite", "sha256": database_digest},
             "native_build_info": build_info.read_build_info(assets),
             "guard": "preflight-and-postflight",
             "limitations": RECOVERY,
@@ -163,12 +164,12 @@ def prepare(ctx: CLIContext, selection: dict[str, Any], run_dir: Path) -> list[d
                 "upload frozen Worker without rebundling",
                 "upload frozen assets",
                 "activate version",
-                "verify version and database body",
+                "verify version and upload annotation",
             ],
             "asset_evidence": (
                 "Full local byte manifest and checked Wrangler upload are bound to an immutable "
-                "provider version by its workers/message annotation. The provider CLI does not "
-                "expose a downloadable asset manifest. The database body is checked directly on each host."
+                "provider version by its workers/message annotation, including the selected database "
+                "input snapshot. The provider CLI does not expose a downloadable asset manifest."
             ),
         }
         # Include the captured base so a later preparation of identical assets cannot
@@ -180,6 +181,7 @@ def prepare(ctx: CLIContext, selection: dict[str, Any], run_dir: Path) -> list[d
                 "assets": asset_manifest,
                 "worker": payload["worker_manifest"],
                 "config": payload["config_sha256"],
+                "inputs": _digest(snapshots),
             }
         )
         operations.append(
@@ -205,6 +207,9 @@ def _check_local(ctx: CLIContext, operation: dict[str, Any], payload: dict[str, 
     # Only the coordinator's concrete, launch-verified proof can extend byte
     # evidence across calls. Standalone callers always read the bytes themselves.
     from erenshor.application.publish.coordinator import ExecutionInputProof
+
+    if payload.get("schema_version") != SCHEMA_VERSION or "database_route" in payload:
+        raise MapGuardError("Unknown map payload schema. Prepare and review a new publication plan.")
 
     proof = operation.get("_input_proof")
     if isinstance(proof, ExecutionInputProof):
@@ -255,10 +260,6 @@ def _check_local(ctx: CLIContext, operation: dict[str, Any], payload: dict[str, 
         raise MapGuardError("Frozen Worker bytes changed after review")
     if snapshot(config)["sha256"] != payload["config_sha256"]:
         raise MapGuardError("Frozen Wrangler configuration changed after review")
-    database_digest = snapshot(database)["sha256"]
-    body = snapshot(assets)["files"].get("db/erenshor.sqlite")
-    if database_digest != payload["database_route"]["sha256"] or body is None or body["sha256"] != database_digest:
-        raise MapGuardError("Reviewed map database body changed")
     if isinstance(proof, ExecutionInputProof):
         proof.assert_unchanged(roots)
 
@@ -267,15 +268,20 @@ def _verify_receipt(
     maps_dir: Path, operation: dict[str, Any], payload: dict[str, Any], receipt: dict[str, Any]
 ) -> None:
     required = {
+        "schema_version",
         "operation_id",
         "destination",
         "deployment",
         "message",
         "asset_manifest_digest",
         "worker_manifest_digest",
-        "database_sha256",
+        "input_snapshots_digest",
     }
-    if not required <= receipt.keys():
+    if (
+        not required <= receipt.keys()
+        or receipt.get("schema_version") != SCHEMA_VERSION
+        or "database_sha256" in receipt
+    ):
         raise ValueError("Unknown map receipt. An unacknowledged deployment cannot be retried or adopted.")
     if (
         receipt["operation_id"] != operation["id"]
@@ -283,7 +289,7 @@ def _verify_receipt(
         or receipt["message"] != payload["message"]
         or receipt["asset_manifest_digest"] != _digest(payload["asset_manifest"])
         or receipt["worker_manifest_digest"] != _digest(payload["worker_manifest"])
-        or receipt["database_sha256"] != payload["database_route"]["sha256"]
+        or receipt["input_snapshots_digest"] != _digest(payload["input_snapshots"])
     ):
         raise ValueError("Map receipt does not identify the approved operation and asset bytes")
     current = publication.current_deployment(maps_dir, operation["target"])
@@ -292,9 +298,7 @@ def _verify_receipt(
     versions = current["versions"]
     if len(versions) != 1 or versions[0]["percentage"] != 100 or versions[0]["message"] != payload["message"]:
         raise ValueError("Cloudflare version does not uniquely identify the reviewed map upload")
-    if publication.remote_database_digest(operation["destination"]["url"]) != receipt["database_sha256"]:
-        raise ValueError("Live map database bytes differ from the reviewed clean database")
-    # Detect another deployment racing the postflight HTTP read too.
+    # Detect another deployment racing the postflight version inspection too.
     if publication.current_deployment(maps_dir, operation["target"]) != current:
         raise ValueError("Map provider changed during postflight asset verification")
 
@@ -314,10 +318,12 @@ def check(
                 current = publication.current_deployment(maps_dir, "canonical")
                 versions = current.get("versions", [])
                 if (
-                    receipt.get("operation_id") != dependency
+                    receipt.get("schema_version") != SCHEMA_VERSION
+                    or "database_sha256" in receipt
+                    or receipt.get("operation_id") != dependency
                     or current != receipt.get("deployment")
                     or receipt.get("asset_manifest_digest") != _digest(payload["asset_manifest"])
-                    or receipt.get("database_sha256") != payload["database_route"]["sha256"]
+                    or receipt.get("input_snapshots_digest") != _digest(payload["input_snapshots"])
                     or receipt.get("destination") != publication.destination(ctx, "canonical")
                     or len(versions) != 1
                     or versions[0]["percentage"] != 100
@@ -358,6 +364,7 @@ def execute(
         if deployment == operation["expected_base"]:
             raise ValueError("Wrangler did not return a uniquely identifiable new deployment")
         receipt = {
+            "schema_version": SCHEMA_VERSION,
             "operation_id": operation["id"],
             "destination": operation["destination"],
             "deployment": deployment,
@@ -365,7 +372,7 @@ def execute(
             "message": payload["message"],
             "asset_manifest_digest": _digest(payload["asset_manifest"]),
             "worker_manifest_digest": _digest(payload["worker_manifest"]),
-            "database_sha256": payload["database_route"]["sha256"],
+            "input_snapshots_digest": _digest(payload["input_snapshots"]),
             "guard": "preflight-and-postflight",
         }
         evidence["provider_receipt"] = receipt

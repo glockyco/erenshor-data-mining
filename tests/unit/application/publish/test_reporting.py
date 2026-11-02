@@ -123,6 +123,7 @@ def large_report() -> dict[str, Any]:
     maps = operation(
         "map",
         {
+            "schema_version": 2,
             "assets": "$RUN/maps/build",
             "bundle": "$RUN/maps/worker.js",
             "config": "$RUN/maps/wrangler.jsonc",
@@ -130,7 +131,6 @@ def large_report() -> dict[str, Any]:
             "asset_manifest": files,
             "worker_manifest": {"worker.js": {"sha256": "bundle-digest", "size": 500}},
             "input_snapshots": [{"path": f"$REPO/images/{name}", **entry} for name, entry in files.items()],
-            "database_route": {"path": "/db/erenshor.sqlite", "sha256": "database-digest"},
             "native_build_info": {"code": "code-digest", "data": "database-digest", "tiles": "tile-digest"},
             "guard": "preflight-and-postflight",
             "limitations": "Concurrent writers may race. No provider-downloadable asset manifest.",
@@ -222,7 +222,6 @@ def test_map_inventory_references_preserve_asset_bundle_database_and_source_dige
         json.dumps(original["payload"]["worker_manifest"], sort_keys=True, separators=(",", ":")).encode()
     )
     assert payload["bundle_sha256"] == "bundle-digest"
-    assert payload["database_route"]["sha256"] == "database-digest"
     assert payload["native_build_info"] == original["payload"]["native_build_info"]
     assert payload["config_sha256"] == "config-digest"
 

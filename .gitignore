@@ -841,8 +841,6 @@ variants/
 
 # Export artifacts
 *.sqlite
-# The maps route that publishes the database is source, not an export.
-!src/maps/src/routes/db/erenshor.sqlite/
 export_*.log
 unity_*.log
 

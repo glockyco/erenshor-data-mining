@@ -12,8 +12,6 @@ from typing import TYPE_CHECKING, Any
 from urllib.parse import quote, urlencode, urlsplit
 from urllib.request import Request, urlopen
 
-from erenshor import __version__
-
 from . import build_info
 
 if TYPE_CHECKING:
@@ -272,32 +270,3 @@ def deploy_frozen(maps_dir: Path, target: str, config: Path, bundle: Path, asset
     command = _deploy_command("site" if target == "canonical" else target, dry_run=False)
     command[command.index("--config") + 1] = str(config)
     _run([*command, str(bundle), "--no-bundle", "--assets", str(assets), "--message", message], maps_dir)
-
-
-def verify_database(build_dir: Path, database: Path) -> str:
-    """Require the prerendered compatibility URL to contain unchanged database bytes."""
-    body = build_dir / "db" / "erenshor.sqlite"
-    expected = sha256(database)
-    if not body.is_file() or sha256(body) != expected:
-        raise ValueError("Prerendered /db/erenshor.sqlite does not equal the selected clean database")
-    return expected
-
-
-def remote_database_digest(url: str) -> str:
-    """Read the public compatibility route without introducing an HTTP writer."""
-    # Public hosts can reject urllib's default signature before serving their assets.
-    request = Request(
-        f"{url}/db/erenshor.sqlite",
-        headers={
-            "Cache-Control": "no-cache",
-            "Accept-Encoding": "identity",
-            "User-Agent": (f"ErenshorPublisher/{__version__} (+https://github.com/glockyco/erenshor-data-mining)"),
-        },
-    )
-    digest = hashlib.sha256()
-    with urlopen(request, timeout=60) as response:
-        if response.status != 200 or response.url != f"{url}/db/erenshor.sqlite":
-            raise ValueError("Map database URL did not return its own unchanged body")
-        for chunk in iter(lambda: response.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()

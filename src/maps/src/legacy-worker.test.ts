@@ -13,7 +13,6 @@ const resources = [
     ['/service-worker.js', 'application/javascript'],
     ['/_app/immutable/entry/start.js', 'application/javascript'],
     ['/_app/data/default.json', 'application/json'],
-    ['/db/erenshor.sqlite', 'application/vnd.sqlite3'],
     ['/tiles/Abyssal/0/0/0.webp', 'image/webp']
 ] as const;
 

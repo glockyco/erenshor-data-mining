@@ -1,13 +1,13 @@
 # map-site-data Specification
 
 ## Purpose
-Defines how the interactive map site delivers game data to the browser: the build computes all page data from the clean database, the site publishes that database for other consumers, and no page downloads it.
+Defines how the interactive map site delivers game data to the browser: the build computes all page data from the local clean database, and no page downloads it.
 
 ## Requirements
 
 ### Requirement: Legacy companion interfaces keep working
 
-Every interface that a shipped companion mod build uses SHALL keep its behavior: the `/map` document on both hosts with its `layers` and `sel` query parameters, including layer keys that earlier site versions wrote, the live-entity WebSocket messages on port 18585 for `/map`, the player-position WebSocket messages on port 18584 for `/maps/[mapName]`, and the `/db/erenshor.sqlite` resource.
+Every interface that a shipped companion mod build uses SHALL keep its behavior: the `/map` document on both hosts with its `layers` and `sel` query parameters, including layer keys that earlier site versions wrote, the live-entity WebSocket messages on port 18585 for `/map`, and the player-position WebSocket messages on port 18584 for `/maps/[mapName]`.
 
 #### Scenario: A shipped overlay hides the spawn markers
 
@@ -24,20 +24,14 @@ Every interface that a shipped companion mod build uses SHALL keep its behavior:
 - **WHEN** a zone page receives a player-position message on port 18584
 - **THEN** the page shows the player marker at that position
 
-### Requirement: The site publishes the clean database
+### Requirement: The clean database stays a local build input
 
-The map build output SHALL contain the selected variant's clean database at `/db/erenshor.sqlite`, byte-identical to the source file. The build output SHALL contain no other `.sqlite` file.
+The map build output SHALL contain no `.sqlite` file. Neither host SHALL publish the clean database.
 
 #### Scenario: Build output is inspected
 
 - **WHEN** `maps build` completes
-- **THEN** `db/erenshor.sqlite` in the build directory has the same bytes as the selected variant's clean database
-- **AND** the build directory contains no other file that ends in `.sqlite`
-
-#### Scenario: An external consumer downloads the database
-
-- **WHEN** a client requests `/db/erenshor.sqlite` from a deployed host
-- **THEN** the response is a valid SQLite database
+- **THEN** the build directory contains no file that ends in `.sqlite`
 
 #### Scenario: A database file remains in the static assets
 
@@ -107,7 +101,7 @@ The service worker SHALL delete any cache that an earlier version created for th
 #### Scenario: A variant build runs
 
 - **WHEN** a user runs `erenshor -V playtest maps build`
-- **THEN** the prerendered data and the published database come from `variants/playtest/erenshor-playtest.sqlite`
+- **THEN** the prerendered data comes from `variants/playtest/erenshor-playtest.sqlite`
 - **AND** the maps source directory is unchanged after the command exits
 
 #### Scenario: The database path is not set

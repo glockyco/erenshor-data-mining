@@ -32,19 +32,14 @@ Defines the browser smoke test that the maps CI leaf runs, so that a runtime fai
 - **WHEN** `/map?layers=-sp,-spr,-spu,-npc` leaves any spawn layer visible
 - **THEN** the maps leaf fails and names the visible layer
 
-### Requirement: The smoke test guards the published database
+### Requirement: The smoke test guards against browser database downloads
 
-The browser smoke test SHALL fail when any checked page or the service worker requests a `.sqlite` resource. It SHALL also fail when `/db/erenshor.sqlite` is not served as a valid SQLite database.
+The browser smoke test SHALL fail when any checked page or the service worker requests a `.sqlite` resource.
 
 #### Scenario: A page requests the database
 
 - **WHEN** a checked page requests a URL that ends in `.sqlite`
 - **THEN** the maps leaf fails and reports the URL
-
-#### Scenario: The published database is missing
-
-- **WHEN** `/db/erenshor.sqlite` does not return a body that starts with the SQLite file header
-- **THEN** the maps leaf fails
 
 ### Requirement: Chromium is a checked precondition
 
