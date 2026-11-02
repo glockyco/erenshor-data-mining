@@ -375,7 +375,7 @@ def test_scripted_trigger_rows_preserve_items_bounds_and_identity(processed_db):
                   trigger_bounds_center_y, trigger_bounds_center_z,
                   trigger_bounds_extents_x, trigger_bounds_extents_y,
                   trigger_bounds_extents_z
-           FROM character_spawns ORDER BY rowid"""
+           FROM character_spawns ORDER BY spawn_point_stable_key"""
     ).fetchall()
     shivunax = next(row for row in rows if row[1] == "dyn:shivunax")
     bad = [row for row in rows if row[1] in {"dyn:bad:1", "dyn:bad:2"}]

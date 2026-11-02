@@ -1899,8 +1899,10 @@ def process_item_provenance(
         data["current_pages"] = _json(data["current_pages"])
         data["former_pages"] = _json(data["former_pages"])
         _insert_row(connection, "item_dispositions", data)
+    # A digest describes a table's rows, not the order SQLite stores them in.
     digests = {
-        table: hashlib.sha256(_json(rows).encode()).hexdigest() for table, rows in sorted(builder.tables.items())
+        table: hashlib.sha256(_json(sorted(_json(row) for row in rows)).encode()).hexdigest()
+        for table, rows in sorted(builder.tables.items())
     }
     digests["content_lifecycle"] = hashlib.sha256(lifecycle_path.read_bytes()).hexdigest()
     digests["item_access_evidence"] = hashlib.sha256(evidence_path.read_bytes()).hexdigest()

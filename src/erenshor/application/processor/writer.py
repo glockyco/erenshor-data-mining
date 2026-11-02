@@ -166,7 +166,7 @@ CREATE TABLE mining_node_items (
     item_stable_key         TEXT NOT NULL,
     drop_chance             REAL,
     PRIMARY KEY (mining_node_stable_key, item_stable_key)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE treasure_locations (
     stable_key  TEXT PRIMARY KEY NOT NULL,
@@ -193,7 +193,7 @@ CREATE TABLE water_fishables (
     item_stable_key     TEXT NOT NULL,
     drop_chance         REAL,
     PRIMARY KEY (water_stable_key, type, item_stable_key)
-);
+) WITHOUT ROWID;
 
 -- is_usable says whether players can use a line. unusable_reason gives the
 -- reviewed reason of a mapping.json exclusion or the missing physical input
@@ -237,7 +237,7 @@ CREATE TABLE planning_portal_slots (
     slot TEXT NOT NULL,
     slot_kind TEXT NOT NULL CHECK (slot_kind IN ('dedicated', 'rune')),
     PRIMARY KEY (zone_line_stable_key, slot)
-);
+) WITHOUT ROWID;
 
 -- The raw capability audit: zoning needs both the trigger callback and the
 -- enabled FixedUpdate transition. Consumers read is_usable, which also holds
@@ -298,7 +298,7 @@ CREATE TABLE target_entries (
     target_stable_key       TEXT NOT NULL,
     zone_line_stable_key    TEXT NOT NULL REFERENCES zone_lines (stable_key),
     PRIMARY KEY (target_stable_key, zone_line_stable_key)
-);
+) WITHOUT ROWID;
 
 -- One row per record of barriers.toml. Gates that a barrier causes are named
 -- by barrier_key, its first object.
@@ -326,7 +326,7 @@ CREATE TABLE scripted_event_conditions (
     atom_kind           TEXT NOT NULL,
     atom_stable_key     TEXT NOT NULL,
     PRIMARY KEY (event_key, group_index, atom_index)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE game_constants (
     key         TEXT PRIMARY KEY NOT NULL,
@@ -345,7 +345,7 @@ CREATE TABLE code_facts (
     value       TEXT,
     value_type  TEXT,
     PRIMARY KEY (fact_id, key)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE code_facts_meta (
     assembly_sha256       TEXT,
@@ -416,7 +416,7 @@ CREATE TABLE books (
     page_number     INTEGER NOT NULL,
     page_content    TEXT,
     PRIMARY KEY (book_title, page_number)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE classes (
     class_name          TEXT PRIMARY KEY NOT NULL,
@@ -438,7 +438,7 @@ CREATE TABLE class_starting_items (
     item_stable_key TEXT NOT NULL,
     sort_order      INTEGER NOT NULL,
     PRIMARY KEY (class_name, sort_order)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE guild_topics (
     stable_key              TEXT PRIMARY KEY NOT NULL,
@@ -501,7 +501,7 @@ CREATE TABLE zone_atlas_neighbors (
     zone_atlas_id               TEXT NOT NULL,
     neighbor_zone_stable_key    TEXT NOT NULL,
     PRIMARY KEY (zone_atlas_id, neighbor_zone_stable_key)
-);
+) WITHOUT ROWID;
 
 -- -------------------------------------------------------------------------
 -- Factions
@@ -547,7 +547,7 @@ CREATE TABLE image_sources (
     image_hash  TEXT NOT NULL REFERENCES images (image_hash),
     source      TEXT NOT NULL,
     PRIMARY KEY (image_hash, source)
-);
+) WITHOUT ROWID;
 
 -- Every wiki file title that a wiki page names for a picture, with the first
 -- entity that names it in the order item, spell, skill, stance, character.
@@ -567,7 +567,7 @@ CREATE TABLE item_renders (
     body        TEXT CHECK (body IN ('male', 'female')),
     image_hash  TEXT NOT NULL REFERENCES images (image_hash),
     PRIMARY KEY (stable_key, title)
-);
+) WITHOUT ROWID;
 
 -- -------------------------------------------------------------------------
 -- Items
@@ -676,13 +676,13 @@ CREATE TABLE item_stats (
     resist_scaling      REAL,
     mitigation_scaling  REAL,
     PRIMARY KEY (item_stable_key, quality)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE item_classes (
     item_stable_key TEXT NOT NULL,
     class_name      TEXT NOT NULL,
     PRIMARY KEY (item_stable_key, class_name)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE crafting_recipes (
     recipe_item_stable_key      TEXT NOT NULL,
@@ -690,7 +690,7 @@ CREATE TABLE crafting_recipes (
     material_item_stable_key    TEXT NOT NULL,
     material_quantity           INTEGER,
     PRIMARY KEY (recipe_item_stable_key, material_slot)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE crafting_rewards (
     recipe_item_stable_key  TEXT NOT NULL,
@@ -698,7 +698,7 @@ CREATE TABLE crafting_rewards (
     reward_item_stable_key  TEXT NOT NULL,
     reward_quantity         INTEGER,
     PRIMARY KEY (recipe_item_stable_key, reward_slot)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE item_drops (
     source_item_stable_key  TEXT NOT NULL,
@@ -707,7 +707,7 @@ CREATE TABLE item_drops (
     drop_probability        REAL,
     is_guaranteed           INTEGER,
     PRIMARY KEY (source_item_stable_key, dropped_item_stable_key, pool_stable_key)
-);
+) WITHOUT ROWID;
 
 -- Successful random listing routes, not the final draw after retry exhaustion.
 -- Bounds apply only to the actor named by the column; NULL means unrestricted.
@@ -719,7 +719,7 @@ CREATE TABLE auction_house_items (
     min_player_level INTEGER,
     max_player_level INTEGER,
     PRIMARY KEY (item_stable_key, route)
-);
+) WITHOUT ROWID;
 
 -- NPCDialogManager recognizes these exported GameObject identities as brokers.
 CREATE TABLE auction_house_brokers (
@@ -743,7 +743,7 @@ CREATE TABLE special_world_drops (
     drop_probability        REAL NOT NULL,
     min_level_exclusive     INTEGER NOT NULL,
     PRIMARY KEY (item_stable_key, pool)
-);
+) WITHOUT ROWID;
 
 -- The descendants of the slot transforms of the player's male and female bodies,
 -- and the mask objects, that equipping an item turns on by its
@@ -757,7 +757,7 @@ CREATE TABLE item_model_parts (
     part        TEXT NOT NULL,
     meshes      TEXT NOT NULL,
     PRIMARY KEY (body, slot, position)
-);
+) WITHOUT ROWID;
 
 -- The furnishings of the Reliquary planning table's slots. Building a slot
 -- turns on the furnishing whose name is the furniture set's
@@ -768,7 +768,7 @@ CREATE TABLE planning_table_furnishings (
     furnishing      TEXT NOT NULL,
     renderer_count  INTEGER NOT NULL,
     PRIMARY KEY (scene, slot, furnishing)
-);
+) WITHOUT ROWID;
 
 -- Items that a game mechanic turns into another item, such as the
 -- Chessboard giving back a mold for the Candlekeeper figurine.
@@ -778,7 +778,7 @@ CREATE TABLE item_conversions (
     zone_stable_key         TEXT NOT NULL,
     mechanic                TEXT NOT NULL,
     PRIMARY KEY (input_item_stable_key, output_item_stable_key, mechanic)
-);
+) WITHOUT ROWID;
 
 -- Items that can replace a fishing catch in any water. chance_per_catch is
 -- in percent.
@@ -794,7 +794,7 @@ CREATE TABLE item_zone_restrictions (
     zone_stable_key     TEXT NOT NULL,
     outcome             TEXT NOT NULL,
     PRIMARY KEY (item_stable_key, zone_stable_key)
-);
+) WITHOUT ROWID;
 
 -- Characters that bless one offered piece of equipment for equal numbers of
 -- the two items. Chances are out of 100: chance_per_stone_pair per pair plus
@@ -820,7 +820,7 @@ CREATE TABLE spell_created_items (
     grant_fact_id           TEXT NOT NULL,
     quantity                INTEGER NOT NULL CHECK (quantity > 0),
     PRIMARY KEY (source_item_stable_key, created_item_stable_key)
-);
+) WITHOUT ROWID;
 
 -- -------------------------------------------------------------------------
 -- Spells
@@ -928,7 +928,7 @@ CREATE TABLE spell_classes (
     spell_stable_key    TEXT NOT NULL,
     class_name          TEXT NOT NULL,
     PRIMARY KEY (spell_stable_key, class_name)
-);
+) WITHOUT ROWID;
 
 -- -------------------------------------------------------------------------
 -- Skills
@@ -1061,27 +1061,27 @@ CREATE TABLE quest_required_items (
     item_stable_key             TEXT NOT NULL,
     quantity                    INTEGER NOT NULL DEFAULT 1,
     PRIMARY KEY (quest_variant_resource_name, required_slot)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE quest_faction_affects (
     quest_variant_resource_name TEXT NOT NULL,
     faction_stable_key          TEXT NOT NULL,
     modifier_value              INTEGER,
     PRIMARY KEY (quest_variant_resource_name, faction_stable_key)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE quest_complete_other_quests (
     quest_variant_resource_name TEXT NOT NULL,
     completed_quest_stable_key  TEXT NOT NULL,
     PRIMARY KEY (quest_variant_resource_name, completed_quest_stable_key)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE quest_character_roles (
     quest_stable_key        TEXT NOT NULL,
     character_stable_key    TEXT NOT NULL,
     role                    TEXT NOT NULL,
     PRIMARY KEY (quest_stable_key, character_stable_key, role)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE quest_completion_sources (
     quest_stable_key    TEXT NOT NULL,
@@ -1126,7 +1126,7 @@ CREATE TABLE quest_route_conditions (
     atom_kind TEXT NOT NULL CHECK (atom_kind IN ('quest_done', 'quest_not_done', 'item_not_owned', 'item_held')),
     atom_stable_key TEXT NOT NULL,
     PRIMARY KEY (route_key, gate_key, group_index, atom_index)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE progression_nodes (
     stable_key TEXT PRIMARY KEY NOT NULL,
@@ -1148,7 +1148,7 @@ CREATE TABLE progression_ways (
     depth INTEGER CHECK (depth >= 0),
     PRIMARY KEY (node_stable_key, way_key),
     CHECK ((tier IS NULL) = (depth IS NULL))
-);
+) WITHOUT ROWID;
 -- The clean facts that produced a way, such as an item acquisition key.
 CREATE TABLE progression_way_facts (
     node_stable_key TEXT NOT NULL,
@@ -1156,7 +1156,7 @@ CREATE TABLE progression_way_facts (
     fact TEXT NOT NULL,
     PRIMARY KEY (node_stable_key, way_key, fact),
     FOREIGN KEY (node_stable_key, way_key) REFERENCES progression_ways(node_stable_key, way_key)
-);
+) WITHOUT ROWID;
 CREATE INDEX progression_way_facts_fact_idx ON progression_way_facts(fact);
 CREATE TABLE progression_needs (
     node_stable_key TEXT NOT NULL,
@@ -1174,7 +1174,7 @@ CREATE TABLE progression_needs (
     PRIMARY KEY (node_stable_key, way_key, need_index),
     FOREIGN KEY (node_stable_key, way_key) REFERENCES progression_ways(node_stable_key, way_key),
     CHECK (need_stable_key IS NOT NULL OR condition_key IS NOT NULL)
-);
+) WITHOUT ROWID;
 CREATE INDEX progression_needs_target_idx ON progression_needs(need_stable_key);
 CREATE TABLE progression_meta (
     contract_version INTEGER NOT NULL,
@@ -1209,14 +1209,14 @@ CREATE TABLE authored_sim_references (
     source_scene_path           TEXT NOT NULL,
     authored_sim_stable_key     TEXT NOT NULL REFERENCES authored_sims (stable_key),
     PRIMARY KEY (source_component_key, reference_index)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE authored_sim_equipment (
     authored_sim_stable_key     TEXT NOT NULL REFERENCES authored_sims (stable_key),
     position                    INTEGER NOT NULL,
     item_stable_key             TEXT REFERENCES items (stable_key),
     PRIMARY KEY (authored_sim_stable_key, position)
-);
+) WITHOUT ROWID;
 
 -- Zone-wide eligibility is not a fixed placement. Runtime cosmetic equipment,
 -- the recent successful-spawn scene history, and registered SpawnPoints remain
@@ -1242,7 +1242,7 @@ CREATE TABLE zone_wide_spawn_candidates (
     weight                 INTEGER NOT NULL CHECK (weight > 0),
     total_weight           INTEGER NOT NULL CHECK (total_weight >= weight),
     PRIMARY KEY (rule_id, character_stable_key)
-);
+) WITHOUT ROWID;
 
 -- A scene with authored SpawnPoints can qualify when at least one registers at
 -- runtime. The enabled count describes the asset, not the player's live scene.
@@ -1254,7 +1254,7 @@ CREATE TABLE zone_wide_spawn_zones (
                                    enabled_spawn_point_count BETWEEN 0 AND authored_spawn_point_count
                                ),
     PRIMARY KEY (rule_id, zone_stable_key)
-);
+) WITHOUT ROWID;
 
 -- -------------------------------------------------------------------------
 -- Characters
@@ -1465,6 +1465,8 @@ CREATE TABLE character_spawns (
     -- The planning-table room slot (L1-L4 or R1-R4) containing this furnishing.
     -- Set exactly when furniture_item_stable_key is set.
     furniture_slot TEXT,
+    -- The key keeps its rowid table because spawn_point_stable_key and is_directly_placed may be
+    -- NULL, which a WITHOUT ROWID table rejects.
     PRIMARY KEY (character_stable_key, spawn_point_stable_key, is_directly_placed)
 );
 
@@ -1476,14 +1478,14 @@ CREATE TABLE encounter_placements (
     context_kind TEXT NOT NULL CHECK (context_kind IN ('account_claim')),
     post_completion_role TEXT NOT NULL CHECK (post_completion_role IN ('player_home')),
     PRIMARY KEY (encounter_key, member_spawn_stable_key)
-);
+) WITHOUT ROWID;
 CREATE TABLE encounter_conditions (
     encounter_key TEXT NOT NULL,
     state_scope TEXT NOT NULL CHECK (state_scope IN ('account', 'character')),
     state_key TEXT NOT NULL,
     required_value TEXT NOT NULL,
     PRIMARY KEY (encounter_key, state_scope, state_key)
-);
+) WITHOUT ROWID;
 CREATE TABLE encounter_completions (
     encounter_key TEXT NOT NULL,
     event_kind TEXT NOT NULL,
@@ -1491,7 +1493,7 @@ CREATE TABLE encounter_completions (
     state_key TEXT NOT NULL,
     result_value TEXT NOT NULL,
     PRIMARY KEY (encounter_key, event_kind, state_scope, state_key)
-);
+) WITHOUT ROWID;
 CREATE TABLE encounter_event_conditions (
     encounter_key TEXT NOT NULL,
     event_kind TEXT NOT NULL,
@@ -1499,7 +1501,7 @@ CREATE TABLE encounter_event_conditions (
     state_key TEXT NOT NULL,
     required_value TEXT NOT NULL,
     PRIMARY KEY (encounter_key, event_kind, state_scope, state_key)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE character_damage_releases (
     character_stable_key TEXT NOT NULL REFERENCES characters(stable_key),
@@ -1510,7 +1512,7 @@ CREATE TABLE character_damage_releases (
     can_release INTEGER NOT NULL CHECK (can_release IN (0, 1)),
     controller_enabled INTEGER NOT NULL CHECK (controller_enabled IN (0, 1)),
     PRIMARY KEY (character_stable_key, mechanism, source_stable_key, condition_kind, condition_stable_key)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE character_chained_spawns (
     parent_stable_key  TEXT NOT NULL,
@@ -1518,7 +1520,7 @@ CREATE TABLE character_chained_spawns (
     source_script      TEXT NOT NULL,
     source_field       TEXT NOT NULL,
     PRIMARY KEY (parent_stable_key, child_stable_key, source_script, source_field)
-);
+) WITHOUT ROWID;
 
 -- What a dynamic or chained placement needs of other characters, from the
 -- summoned_by rules of dynamic-spawn-catalog.toml. 'alive' and 'dialog' rows are
@@ -1534,7 +1536,7 @@ CREATE TABLE character_summons (
     summoner_index         INTEGER NOT NULL,
     summoner_stable_key    TEXT NOT NULL REFERENCES characters (stable_key),
     PRIMARY KEY (character_stable_key, spawn_point_stable_key, source_field, summoner_index, summoner_stable_key)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE spawn_point_patrol_points (
     spawn_point_stable_key  TEXT NOT NULL,
@@ -1543,20 +1545,20 @@ CREATE TABLE spawn_point_patrol_points (
     y                       REAL,
     z                       REAL,
     PRIMARY KEY (spawn_point_stable_key, sequence_index)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE spawn_point_stop_quests (
     spawn_point_stable_key  TEXT NOT NULL,
     quest_stable_key        TEXT NOT NULL,
     PRIMARY KEY (spawn_point_stable_key, quest_stable_key)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE spawnpoint_essential_links (
     source_spawn_point_stable_key      TEXT NOT NULL,
     essential_spawn_point_stable_key   TEXT NOT NULL,
     source_scene                       TEXT,
     PRIMARY KEY (source_spawn_point_stable_key, essential_spawn_point_stable_key)
-);
+) WITHOUT ROWID;
 
 -- level_min/level_max: the dig levels [level_min, level_max) that spawn the
 -- chest at the site. player_level_min/player_level_max: the player levels,
@@ -1574,7 +1576,7 @@ CREATE TABLE treasure_chest_possible_spawns (
     y                            REAL,
     z                            REAL,
     PRIMARY KEY (chest_character_stable_key, treasure_location_stable_key)
-);
+) WITHOUT ROWID;
 
 -- One row per number of waves that a dug-up treasure chest has spawned.
 -- strike_break_chance is the chance that a strike then breaks the chest open.
@@ -1611,7 +1613,7 @@ CREATE TABLE treasure_guardian_scaling (
     resist_min                    INTEGER NOT NULL,
     resist_max                    INTEGER NOT NULL,
     PRIMARY KEY (guardian_character_stable_key, player_level)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE character_ae_events (
     character_stable_key         TEXT NOT NULL REFERENCES characters (stable_key),
@@ -1628,7 +1630,7 @@ CREATE TABLE character_ae_events (
     lifetap_heal_mod             REAL,
     trigger_only                 INTEGER,
     PRIMARY KEY (character_stable_key, component_type)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE ae_event_mutations (
     character_stable_key          TEXT,
@@ -1640,6 +1642,7 @@ CREATE TABLE ae_event_mutations (
     resist_modifier_formula       TEXT,
     other_field_formulas           TEXT,
     documented_limitation         TEXT,
+    -- The key keeps its rowid table because character_stable_key and trigger_condition may be NULL.
     PRIMARY KEY (script_type, character_stable_key, trigger_condition)
 );
 
@@ -1663,7 +1666,7 @@ CREATE TABLE loot_drops (
     is_visible               INTEGER,
     zone                    TEXT,
     PRIMARY KEY (character_stable_key, item_stable_key)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE arena_rounds (
     stable_key                        TEXT PRIMARY KEY,
@@ -1690,7 +1693,7 @@ CREATE TABLE arena_round_enemies (
     sequence_index          INTEGER NOT NULL,
     enemy_character_stable_key TEXT NOT NULL,
     PRIMARY KEY (arena_round_stable_key, sequence_index)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE character_dialogs (
     character_stable_key        TEXT NOT NULL,
@@ -1706,82 +1709,82 @@ CREATE TABLE character_dialogs (
     required_quest_stable_key   TEXT,
     spawn_character_stable_key  TEXT,
     PRIMARY KEY (character_stable_key, dialog_index)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE character_attack_skills (
     character_stable_key    TEXT NOT NULL,
     skill_stable_key        TEXT NOT NULL,
     PRIMARY KEY (character_stable_key, skill_stable_key)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE character_attack_spells (
     character_stable_key    TEXT NOT NULL,
     spell_stable_key        TEXT NOT NULL,
     PRIMARY KEY (character_stable_key, spell_stable_key)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE character_buff_spells (
     character_stable_key    TEXT NOT NULL,
     spell_stable_key        TEXT NOT NULL,
     PRIMARY KEY (character_stable_key, spell_stable_key)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE character_heal_spells (
     character_stable_key    TEXT NOT NULL,
     spell_stable_key        TEXT NOT NULL,
     PRIMARY KEY (character_stable_key, spell_stable_key)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE character_group_heal_spells (
     character_stable_key    TEXT NOT NULL,
     spell_stable_key        TEXT NOT NULL,
     PRIMARY KEY (character_stable_key, spell_stable_key)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE character_cc_spells (
     character_stable_key    TEXT NOT NULL,
     spell_stable_key        TEXT NOT NULL,
     PRIMARY KEY (character_stable_key, spell_stable_key)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE character_taunt_spells (
     character_stable_key    TEXT NOT NULL,
     spell_stable_key        TEXT NOT NULL,
     PRIMARY KEY (character_stable_key, spell_stable_key)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE character_vendor_items (
     character_stable_key    TEXT NOT NULL,
     item_slot              INTEGER NOT NULL,
     item_stable_key         TEXT NOT NULL,
     PRIMARY KEY (character_stable_key, item_slot)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE character_aggressive_factions (
     character_stable_key    TEXT NOT NULL,
     faction_name            TEXT NOT NULL,
     PRIMARY KEY (character_stable_key, faction_name)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE character_allied_factions (
     character_stable_key    TEXT NOT NULL,
     faction_name            TEXT NOT NULL,
     PRIMARY KEY (character_stable_key, faction_name)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE character_faction_modifiers (
     character_stable_key    TEXT NOT NULL,
     faction_stable_key      TEXT NOT NULL,
     modifier_value          INTEGER,
     PRIMARY KEY (character_stable_key, faction_stable_key)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE character_death_shouts (
     character_stable_key    TEXT NOT NULL,
     sequence_index          INTEGER NOT NULL,
     shout_text              TEXT,
     PRIMARY KEY (character_stable_key, sequence_index)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE character_vendor_quest_unlocks (
     character_stable_key    TEXT NOT NULL,
@@ -1789,7 +1792,7 @@ CREATE TABLE character_vendor_quest_unlocks (
     quest_slot             INTEGER NOT NULL,
     quest_variant_resource_name TEXT NOT NULL REFERENCES quest_variants(resource_name),
     PRIMARY KEY (character_stable_key, quest_slot)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE character_quest_manager_quests (
     character_stable_key    TEXT NOT NULL,
@@ -1797,7 +1800,7 @@ CREATE TABLE character_quest_manager_quests (
     quest_slot             INTEGER NOT NULL,
     quest_variant_resource_name TEXT NOT NULL REFERENCES quest_variants(resource_name),
     PRIMARY KEY (character_stable_key, quest_slot)
-);
+) WITHOUT ROWID;
 
 -- -------------------------------------------------------------------------
 -- Knowledge base of simulated-player chat, as the game ships it. Chat reads
@@ -1819,7 +1822,7 @@ CREATE TABLE knowledge_entry_drops (
     position        INTEGER NOT NULL,
     item_name       TEXT NOT NULL,
     PRIMARY KEY (entry_position, position)
-);
+) WITHOUT ROWID;
 
 -- Every prefab character that matches the prefab file name in prefab_path,
 -- the NPC name, and the level of an entry. Twin prefabs link both keys, and
@@ -1828,7 +1831,7 @@ CREATE TABLE knowledge_entry_characters (
     entry_position        INTEGER NOT NULL REFERENCES knowledge_entries (position),
     character_stable_key  TEXT NOT NULL REFERENCES characters (stable_key),
     PRIMARY KEY (entry_position, character_stable_key)
-);
+) WITHOUT ROWID;
 
 -- -------------------------------------------------------------------------
 -- Coordinates view (mirrors raw DB view, updated to snake_case tables)
@@ -1981,7 +1984,7 @@ CREATE TABLE item_access_observations (
     replenishment TEXT NOT NULL,
     receipt TEXT NOT NULL,
     PRIMARY KEY (component_type, slot, assembly_sha256)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE item_provenance_meta (
     schema_version INTEGER NOT NULL,
@@ -2053,7 +2056,7 @@ CREATE TABLE item_acquisition_conditions (
         phase IN ('availability', 'source_initialization', 'operation_input', 'operation_outcome', 'mechanic_parameter')
     ),
     PRIMARY KEY (owner_key, gate_key, group_index, atom_index, scope, phase)
-);
+) WITHOUT ROWID;
 CREATE TABLE item_use_conditions (
     owner_key TEXT NOT NULL REFERENCES item_uses(use_key),
     gate_key TEXT NOT NULL,
@@ -2073,7 +2076,7 @@ CREATE TABLE item_use_conditions (
         phase IN ('availability', 'source_initialization', 'operation_input', 'operation_outcome', 'mechanic_parameter')
     ),
     PRIMARY KEY (owner_key, gate_key, group_index, atom_index, scope, phase)
-);
+) WITHOUT ROWID;
 -- The conditions that every fact of a mechanism with several facts shares, such as a formula. Readers
 -- add them to the conditions of each fact whose mechanic is the mechanism, so they are stored once.
 CREATE TABLE item_mechanic_conditions (
