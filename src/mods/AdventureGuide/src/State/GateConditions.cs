@@ -9,6 +9,7 @@ public interface IGateFacts
     string? ReadCharacterZoneState(string key);
     UnityEngine.Vector3? ReadCharacterPositionState(string key);
     int PlayerLevel { get; }
+    int Hour { get; }
     int ItemCount(string itemStableKey);
     bool IsOnKeyring(string gameId);
     string? StoredItemIn(string slot);

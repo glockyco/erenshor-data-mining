@@ -17,6 +17,7 @@ from erenshor.domain.value_objects.item_provenance import (
 )
 
 from .fixtures import build_graph, character_node, item_node, load_canonical_sources, quest_node
+from .test_canonical_sources import _resolved_source
 
 
 def _fixture():
@@ -78,7 +79,7 @@ def test_final_local_fishing_phases_are_not_replaced_or_maximized_again(tmp_path
     ]
     load_canonical_sources(tmp_path, graph, facts, [_required()])
     payload = _payload(graph)
-    sources = payload["quests"][0]["required_items"][0]["sources"]
+    sources = [_resolved_source(payload, ref) for ref in payload["quests"][0]["required_items"][0]["sources"]]
     assert {row["time_restriction"]: row["chance"] for row in sources} == {
         period: chance for period, chance in (("day", day), ("night", night)) if chance is not None and chance > 0
     }
@@ -86,8 +87,9 @@ def test_final_local_fishing_phases_are_not_replaced_or_maximized_again(tmp_path
         period = row["time_restriction"]
         assert row[f"{period}_chance"] == row["chance"]
         assert row["night_chance" if period == "day" else "day_chance"] == 0
-        assert row["location_key"] == "actual-water"
-        assert payload["_source_facts"][row["acquisition_key"]]["probability_stage"] == "final_acquisition"
+        [place] = payload["_place_sets"][row["place_set_key"]]
+        assert place["place_key"] == "actual-water"
+        assert row["kind"] == "fishing"
 
 
 @pytest.mark.parametrize("kind,source", [("character_drop", "character:test"), ("mining", "mining:test")])
@@ -105,12 +107,13 @@ def test_unknown_and_tiny_positive_local_odds_survive(tmp_path, kind, source, ch
     )
     load_canonical_sources(tmp_path, graph, [fact], [_required()])
     payload = _payload(graph)
-    [row] = payload["quests"][0]["required_items"][0]["sources"]
+    [reference] = payload["quests"][0]["required_items"][0]["sources"]
+    row = _resolved_source(payload, reference)
     if chance is None:
         assert "chance" not in row
     else:
         assert row["chance"] == chance
-    assert payload["_source_facts"]["actual"]["probability_min"] == chance
+    assert row.get("chance") == chance
 
 
 def test_known_zero_is_excluded_by_the_shared_selector(tmp_path):
@@ -126,7 +129,26 @@ def test_known_zero_is_excluded_by_the_shared_selector(tmp_path):
     )
     load_canonical_sources(tmp_path, graph, [fact], [_required()])
     assert "sources" not in _payload(graph)["quests"][0]["required_items"][0]
-    assert graph.source_exclusions["zero"] == "not_actionable_canonical_acquisition"
+
+
+def test_unlocated_fishing_rate_applies_in_both_time_windows(tmp_path):
+    graph = _fixture()
+    fact = ItemAcquisition(
+        "global",
+        "item:catch",
+        "fishing",
+        None,
+        mechanic="fishing_global_replacement",
+        probability_kind="exact",
+        probability_min=0.125,
+        probability_max=0.125,
+    )
+    load_canonical_sources(tmp_path, graph, [fact], [_required()])
+    source = _payload(graph)["_sources"]["global"]
+    assert source["name"] == "Any water"
+    assert source["chance"] == source["day_chance"] == source["night_chance"] == 0.125
+    assert source["place_set_key"] is None
+    assert source["conditions"] == []
 
 
 @pytest.mark.parametrize("keywords", ["papers,leave", None])
@@ -144,5 +166,7 @@ def test_selected_native_dialog_copy_and_index_preserve_keyword(tmp_path, keywor
         "INSERT INTO character_dialogs(character_stable_key,dialog_index,keywords) VALUES ('character:test',1,'WRONG');"
     )
     load_canonical_sources(tmp_path, graph, [fact], [_required()], metadata)
-    [row] = _payload(graph)["quests"][0]["required_items"][0]["sources"]
+    payload = _payload(graph)
+    [reference] = payload["quests"][0]["required_items"][0]["sources"]
+    row = _resolved_source(payload, reference)
     assert row.get("keyword") == ("papers" if keywords else None)

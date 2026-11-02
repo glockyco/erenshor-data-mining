@@ -65,7 +65,7 @@ public sealed class RecipeInputPresentationTests
     [InlineData("variant")]
     [InlineData("quality")]
     [InlineData("condition")]
-    [InlineData("external_scope")]
+    [InlineData("public_condition")]
     [InlineData("recipe_input")]
     [InlineData("source")]
     public void Distinct_material_contexts_do_not_disappear_into_one_row(string difference)
@@ -89,8 +89,8 @@ public sealed class RecipeInputPresentationTests
             case "condition":
                 other.Condition = 1;
                 break;
-            case "external_scope":
-                other.CanonicalUse!.Conditions.Add(new() { Scope = "external:room" });
+            case "public_condition":
+                other.CanonicalUse!.Conditions.Add(new() { Predicate = "room_furnished" });
                 break;
             case "recipe_input":
                 other.CanonicalUse!.Kind = "crafting_recipe";
@@ -105,8 +105,8 @@ public sealed class RecipeInputPresentationTests
             row => Assert.Same(first, row.Primary),
             row => Assert.Same(other, row.Primary)
         );
-        if (difference == "external_scope")
-            Assert.Equal("external:room", Assert.Single(other.CanonicalUse!.Conditions).Scope);
+        if (difference == "public_condition")
+            Assert.Equal("room_furnished", Assert.Single(other.CanonicalUse!.Conditions).Predicate);
     }
 
     [Fact]

@@ -16,7 +16,7 @@ public sealed class SourceChoiceTests
     {
         var location = new SourceLocation
         {
-            LocationKey = id,
+            PlaceKey = id,
             SourceCopyStableKey = actor,
             Relation = "fixed",
             Scene = "Reliquary",
@@ -24,19 +24,15 @@ public sealed class SourceChoiceTests
             X = 269.0176086425781f,
             Y = 1.4423997402191162f,
             Z = 338.504638671875f,
-            Conditions = [Atom(id, slot)],
+            Conditions = [Atom(slot)],
         };
         var fact = new SourceFact
         {
             AcquisitionKey = acquisition,
             ItemStableKey = "item:fish - octorunner",
-            SourceGroupKey = "character:vendor:shared presentation group",
-            SourceCopyStableKey = actor,
             Locations = [location],
-            ProbabilityKind = "exact",
-            ProbabilityMin = 0.00001,
-            ProbabilityMax = 0.00001,
-            ProbabilityBasis = "per_purchase",
+            Chance = 0.00001,
+            ChanceMax = 0.00001,
         };
         return new ItemSource
         {
@@ -59,14 +55,13 @@ public sealed class SourceChoiceTests
         };
     }
 
-    private static SourceCondition Atom(string scope, string slot = "L2") =>
+    private static SourceCondition Atom(string slot = "L2") =>
         new()
         {
             GateKey = "furniture",
             Predicate = "room_furnished",
             ReferenceStableKey = "item:furniture - stone vendor",
             ReferenceSlot = slot,
-            Scope = scope,
             Phase = "availability",
         };
 
@@ -108,11 +103,11 @@ public sealed class SourceChoiceTests
         string directId = "placement:[\"" + Actor + "\",null,1]";
         var spawned = Located(spawnedId);
         var direct = Located(directId);
-        spawned.CanonicalLocation!.CoordinateStableKey = "spawn:reliquary:269.02:1.44:338.50";
+        spawned.CanonicalLocation!.MarkerStableKey = "spawn:reliquary:269.02:1.44:338.50";
         spawned.CanonicalLocation.Conditions[0].GateKey =
             "gate:[spawn_point,spawn:reliquary:269.02:1.44:338.50,furnishing]";
-        direct.CanonicalLocation!.CoordinateStableKey = Actor;
-        direct.CanonicalLocation.Conditions[0].GroupIndex = 17;
+        direct.CanonicalLocation!.MarkerStableKey = Actor;
+        direct.CanonicalLocation.Conditions[0].AlternativeIndex = 17;
         direct.CanonicalLocation.Conditions[0].AtomIndex = 22;
         var fact = spawned.CanonicalFact;
         var originalLocation = spawned.CanonicalLocation;
@@ -135,12 +130,10 @@ public sealed class SourceChoiceTests
         Assert.Same(child, choice.Primary.Children![0]);
         Assert.Equal(spawnedId, spawned.LocationKey);
         Assert.Equal(directId, direct.LocationKey);
-        Assert.Equal(spawnedId, originalCondition.Scope);
-        Assert.Equal(directId, direct.CanonicalLocation.Conditions[0].Scope);
         Assert.Equal(Acquisition + "|" + spawnedId, spawned.MakeSourceId());
         Assert.Equal(Acquisition + "|" + directId, direct.MakeSourceId());
-        Assert.Equal(0.00001, fact!.ProbabilityMin);
-        Assert.Equal("per_purchase", fact.ProbabilityBasis);
+        Assert.Equal(0.00001, fact!.Chance);
+        Assert.Equal(0.00001, fact.ChanceMax);
     }
 
     [Fact]
@@ -332,7 +325,6 @@ public sealed class SourceChoiceTests
     [InlineData("minimum_inclusive")]
     [InlineData("maximum_inclusive")]
     [InlineData("phase")]
-    [InlineData("scope")]
     public void EverySemanticConditionFieldMatters(string difference)
     {
         var a = Located("a");
@@ -370,39 +362,18 @@ public sealed class SourceChoiceTests
             case "phase":
                 atom.Phase = "operation_outcome";
                 break;
-            case "scope":
-                atom.Scope = "encounter:another actor";
-                break;
         }
         Assert.Equal(2, Pair(a, b).Locations.Count);
     }
 
     [Fact]
-    public void OwnLocationScopeBindingsAreNormalized()
+    public void Public_gate_indices_not_gate_labels_define_independent_requirements()
     {
         var a = Located("a");
         var b = Located("b");
-        foreach (var source in new[] { a, b })
-            source.CanonicalLocation!.Conditions[0].Scope = source.CanonicalLocation.LocationKey;
-        Assert.Single(Pair(a, b).Locations);
-    }
-
-    [Fact]
-    public void EqualExternalScopesStayEqualButUnrelatedScopesAreNotRebound()
-    {
-        var a = Located("a");
-        var b = Located("b");
-        a.CanonicalLocation!.Conditions[0].Scope = "account:shared";
-        b.CanonicalLocation!.Conditions[0].Scope = "account:shared";
-        Assert.Single(Pair(a, b).Locations);
-
-        var other = Located("other");
-        other.CanonicalLocation!.Conditions[0].Scope = "account:other";
-        Assert.Equal(2, Pair(a, other).Locations.Count);
-
-        var crossBound = Located("cross");
-        crossBound.CanonicalLocation!.Conditions[0].Scope = a.LocationKey!;
-        Assert.Equal(2, Pair(Located("a"), crossBound).Locations.Count);
+        a.CanonicalLocation!.Conditions = [Condition(0, 0, "A"), Condition(0, 1, "B")];
+        b.CanonicalLocation!.Conditions = [Condition(0, 0, "A"), Condition(1, 0, "B")];
+        Assert.Equal(2, Pair(a, b).Locations.Count);
     }
 
     [Fact]
@@ -412,52 +383,47 @@ public sealed class SourceChoiceTests
         var b = Located("b");
         a.CanonicalLocation!.Conditions =
         [
-            Condition("a", "first", 0, "A"),
-            Condition("a", "first", 0, "B"),
-            Condition("a", "first", 1, "C"),
-            Condition("a", "second", 0, "D"),
+            Condition(0, 0, "A"),
+            Condition(0, 0, "B"),
+            Condition(0, 1, "C"),
+            Condition(1, 0, "D"),
         ];
         b.CanonicalLocation!.Conditions =
         [
-            Condition("b", "renamed-second", 33, "D"),
-            Condition("b", "renamed-first", 12, "C"),
-            Condition("b", "renamed-first", 19, "B"),
-            Condition("b", "renamed-first", 19, "A"),
+            Condition(9, 33, "D"),
+            Condition(5, 12, "C"),
+            Condition(5, 19, "B"),
+            Condition(5, 19, "A"),
         ];
         Assert.Single(Pair(a, b).Locations);
 
         var differentGroups = Located("c");
         differentGroups.CanonicalLocation!.Conditions =
         [
-            Condition("c", "first", 0, "A"),
-            Condition("c", "first", 1, "B"),
-            Condition("c", "first", 1, "C"),
-            Condition("c", "second", 0, "D"),
+            Condition(0, 0, "A"),
+            Condition(0, 1, "B"),
+            Condition(0, 1, "C"),
+            Condition(1, 0, "D"),
         ];
         Assert.Equal(2, Pair(a, differentGroups).Locations.Count);
 
         var flattenedFamily = Located("d");
         flattenedFamily.CanonicalLocation!.Conditions =
         [
-            Condition("d", "one", 0, "A"),
-            Condition("d", "one", 0, "B"),
-            Condition("d", "one", 1, "C"),
-            Condition("d", "one", 2, "D"),
+            Condition(0, 0, "A"),
+            Condition(0, 0, "B"),
+            Condition(0, 1, "C"),
+            Condition(0, 2, "D"),
         ];
         Assert.Equal(2, Pair(a, flattenedFamily).Locations.Count);
     }
 
-    private static SourceCondition Condition(
-        string scope,
-        string gate,
-        int group,
-        string reference
-    ) =>
+    private static SourceCondition Condition(int gate, int alternative, string reference) =>
         new()
         {
-            Scope = scope,
-            GateKey = gate,
-            GroupIndex = group,
+            GateIndex = gate,
+            GateKey = "provenance",
+            AlternativeIndex = alternative,
             AtomIndex = reference[0],
             Predicate = "quest_done",
             ReferenceStableKey = "quest:" + reference,
@@ -471,9 +437,9 @@ public sealed class SourceChoiceTests
     {
         var a = Located("a");
         var b = Located("b");
-        var first = Atom("encounter:global");
-        first.Phase = "initialization";
-        var second = Atom("encounter:global");
+        var first = Atom();
+        first.Phase = "source_initialization";
+        var second = Atom();
         second.Phase = "operation_outcome";
         if (owner == "fact")
         {

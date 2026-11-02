@@ -37,6 +37,8 @@ uv run erenshor guide export-mod
 
 The exporter reads the selected variant's clean database and writes [quest_guides/quest-guide.json](../../../quest_guides/quest-guide.json), which the mod embeds at build time. Generate it only from a complete clean build. Keep reviewed presentation overrides in [quest_guides/graph_overrides.toml](../../../quest_guides/graph_overrides.toml), not in generated output.
 
+The guide reads public item sources, expands their shared place sets at load, and evaluates their typed conditions against live game state.
+
 ## Development and releases
 
 [src/Config/GuideConfig.cs](src/Config/GuideConfig.cs) defines settings. [src/Navigation](src/Navigation) handles routes and source selection. [src/State](src/State) reads live quest and tracking state.

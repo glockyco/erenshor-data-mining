@@ -88,7 +88,7 @@ internal static class SourceListText
         string? slot = null;
         foreach (var condition in source.CanonicalLocation.Conditions)
         {
-            if (condition.Phase != "availability" || condition.Predicate != "room_furnished")
+            if (condition.Predicate != "room_furnished")
                 continue;
             if (slot != null && slot != condition.ReferenceSlot)
                 return null;

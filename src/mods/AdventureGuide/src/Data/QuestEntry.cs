@@ -173,12 +173,8 @@ public sealed class CompletionSource
     public string? Note { get; set; }
 }
 
-/// <summary>
-/// Unified obtainability source with inline level and count data.
-/// Replaces DropSource, VendorSource, FishingSource, MiningSource,
-/// BagSource, CraftingSource, and QuestRewardSource.
-/// </summary>
-public sealed class ItemSource
+/// <summary>A resolved per-place source or a path-specific ingredient requirement.</summary>
+public class ItemSource
 {
     [JsonProperty("type")]
     public string Type { get; set; } = "";
@@ -249,7 +245,7 @@ public sealed class ItemSource
     [JsonProperty("acquisition_key")]
     public string? AcquisitionKey { get; set; }
 
-    [JsonProperty("location_key")]
+    [JsonIgnore]
     public string? LocationKey { get; set; }
 
     [JsonProperty("use_key")]
@@ -297,6 +293,32 @@ public sealed class ItemSource
 
     [JsonIgnore]
     internal SpawnPoint? CanonicalSpawn => CanonicalLocation?.Spawn;
+
+    internal ItemSource Copy() => (ItemSource)MemberwiseClone();
+
+    internal void ApplyPresentation(ItemSource source)
+    {
+        Type = source.Type;
+        Name = source.Name;
+        Level = source.Level;
+        LevelMax = source.LevelMax;
+        Chance = source.Chance;
+        ChanceMax = source.ChanceMax;
+        DayChance = source.DayChance;
+        NightChance = source.NightChance;
+        TimeRestriction = source.TimeRestriction;
+        SourceKey = source.SourceKey;
+        QuestKey = source.QuestKey;
+        NodeCount = source.NodeCount;
+        SpawnCount = source.SpawnCount;
+        RecipeKey = source.RecipeKey;
+        Instruction = source.Instruction;
+        Keyword = source.Keyword;
+        Condition = source.Condition;
+        ItemStableKey = source.ItemStableKey;
+        Quantity = source.Quantity;
+        OutputQuality = source.OutputQuality;
+    }
 
     /// <summary>Identity for fixed sources and the active treasure dig site.</summary>
     public string? MakeSourceId() =>

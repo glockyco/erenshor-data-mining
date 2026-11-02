@@ -16,6 +16,7 @@ public sealed class SavedReturnRouteTests
         public string? ReturnScene = "A";
         public Vector3? ReturnLanding = new Vector3(11, 12, 13);
         public int PlayerLevel => 1;
+        public int Hour => 12;
 
         public bool IsQuestCompleted(string questDbName) => false;
 

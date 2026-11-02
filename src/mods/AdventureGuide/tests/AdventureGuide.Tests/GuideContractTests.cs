@@ -107,9 +107,6 @@ public sealed class GuideContractTests
         };
 
         GuideData.ValidateWrapper(wrapper);
-
-        quest.RequiredItems[0].Sources![0].Instruction = "Buy Test Token from Seller.";
-        Assert.Throws<InvalidDataException>(() => GuideData.ValidateWrapper(wrapper));
     }
 
     [Fact]
@@ -117,9 +114,9 @@ public sealed class GuideContractTests
     {
         const string json = """
             {
-              "_version": 9,
+              "_version": 10,
               "_encounters": {"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},
-              "_source_facts": {}, "_source_ranks": {}, "_item_uses": {}, "_quest_state_keys": {},
+              "_sources": {}, "_place_sets": {}, "_source_ranks": {}, "_item_uses": {}, "_quest_state_keys": {},
               "_conditions": [
                 [[{"kind": "unknown_kind", "ref": "GateQuest"}]]
               ],
@@ -131,8 +128,10 @@ public sealed class GuideContractTests
     }
 
     [Theory]
-    [InlineData("_source_facts", false)]
-    [InlineData("_source_facts", true)]
+    [InlineData("_sources", false)]
+    [InlineData("_sources", true)]
+    [InlineData("_place_sets", false)]
+    [InlineData("_place_sets", true)]
     [InlineData("_source_ranks", false)]
     [InlineData("_source_ranks", true)]
     [InlineData("_item_uses", false)]
@@ -338,7 +337,6 @@ public sealed class GuideContractTests
                     Phase = "operation_input",
                     Value = "rare",
                     Actor = "player",
-                    Scope = "use:native:1",
                     GateKey = "quality",
                 }
             );

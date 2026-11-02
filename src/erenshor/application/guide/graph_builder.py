@@ -11,7 +11,7 @@ import sqlite3
 from pathlib import Path
 
 from erenshor.infrastructure.database.connection import DatabaseConnection
-from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
+from erenshor.infrastructure.database.repositories.item_public_view import ItemPublicViewRepository
 
 from .canonical_sources import add_canonical_sources
 from .edge_builder import build_edges
@@ -35,7 +35,7 @@ def build_graph(db_path: Path) -> EntityGraph:
         scene_to_zone = _build_scene_to_zone(conn)
         build_nodes(conn, graph, scene_to_zone)
         build_edges(conn, graph, scene_to_zone)
-        add_canonical_sources(ItemProvenanceRepository(database), conn, graph)
+        add_canonical_sources(ItemPublicViewRepository(database), conn, graph)
         graph.group_furnishing_characters()
         for placement in graph.encounters["encounter_placements"]:
             member = str(placement["member_spawn_stable_key"])

@@ -221,5 +221,11 @@ def test_shipped_resource_has_exact_native_controller_coverage():
             assert placement["activations"] == expected
     fee1 = payload["_gate_items"][arena["offerings"][0]["item_stable_key"]]
     fee2 = payload["_gate_items"][arena["offerings"][1]["item_stable_key"]]
-    assert any(source["source_key"] == "character:arenachest 8" for source in fee1["sources"])
-    assert any(source["source_key"] == "character:arenachest 1" for source in fee2["sources"])
+    assert any(
+        payload["_sources"][source["acquisition_key"]]["source_key"] == "character:arenachest 8"
+        for source in fee1["sources"]
+    )
+    assert any(
+        payload["_sources"][source["acquisition_key"]]["source_key"] == "character:arenachest 1"
+        for source in fee2["sources"]
+    )

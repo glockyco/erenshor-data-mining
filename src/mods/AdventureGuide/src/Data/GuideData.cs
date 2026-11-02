@@ -162,7 +162,7 @@ public sealed partial class GuideData
 
         data.Encounters = wrapper.Encounters!;
         data.EncounterProjection = new State.EncounterProjection(data, data.Encounters);
-        data.LoadSourceFacts(wrapper);
+        data.LoadPublicSources(wrapper);
         data.LoadDestinationContexts(wrapper);
         data.LoadActivations(wrapper);
         return data;
@@ -176,7 +176,7 @@ public sealed partial class GuideData
         !_byDBName.ContainsKey(dbName) && !_excludedQuests.Contains(dbName);
 
     /// <summary>The quest-guide.json schema version that this build reads.</summary>
-    internal const int SchemaVersion = 9;
+    internal const int SchemaVersion = 10;
 
     internal static void ValidateWrapper(GuideWrapper wrapper)
     {
@@ -227,7 +227,7 @@ public sealed partial class GuideData
         if (wrapper.Encounters == null)
             throw new InvalidDataException("Quest guide has no encounter payload");
         wrapper.Encounters.Validate(wrapper.Quests);
-        ValidateSourceFacts(wrapper);
+        ValidatePublicSources(wrapper);
         ValidateDestinationContexts(wrapper);
 
         if (wrapper.ExcludedQuests != null)
@@ -486,13 +486,11 @@ public sealed partial class GuideData
                         source.SourceKey?.StartsWith("item:", StringComparison.Ordinal) != true
                         || string.IsNullOrWhiteSpace(source.Name)
                         || string.IsNullOrWhiteSpace(source.Instruction)
-                        || source.Children == null
+                        || source.Children == null && source is not SourceFact
                     )
                         throw new InvalidDataException($"{questKey} has invalid item use");
                     break;
             }
-            if (source.Type == "vendor" && source.Instruction != $"Buy {itemName}.")
-                throw new InvalidDataException($"{questKey} has invalid vendor instruction");
 
             ValidateSources(
                 source.Children,
@@ -534,20 +532,20 @@ public sealed partial class GuideData
             night == 0 ? "day"
             : day == 0 ? "night"
             : null;
-        // Canonical acquisitions keep one identity per phase, with their own final odds.
-        double? expectedChance =
-            source.AcquisitionKey != null
-                ? day > 0
-                    ? day
-                    : night
-                : day == night
-                    ? day
-                    : null;
+        // Public fishing sources carry one final phase's odds.
+        bool publicSource = source is SourceFact || source.AcquisitionKey != null;
+        double? expectedChance = publicSource
+            ? day > 0
+                ? day
+                : night
+            : day == night
+                ? day
+                : null;
         if (
             source.TimeRestriction != restriction
             || source.Chance != expectedChance
-            || source.AcquisitionKey == null && source.ChanceMax != null
-            || source.AcquisitionKey != null && day > 0 && night > 0 && day != night
+            || !publicSource && source.ChanceMax != null
+            || publicSource && day > 0 && night > 0 && day != night
         )
             throw new InvalidDataException($"{questKey} has inconsistent fishing chances");
     }

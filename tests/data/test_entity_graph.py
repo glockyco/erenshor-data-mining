@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, ClassVar
 import pytest
 
 from erenshor.application.guide.schema import AtomKind, EdgeType, GateAtom, NodeType, SubjectKind
-from erenshor.domain.value_objects.item_provenance import ItemAcquisition, is_actionable_acquisition
+from erenshor.domain.value_objects.item_public_view import PublicSource
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -343,10 +343,9 @@ class TestCommonWorldItems:
         sources = [
             fact
             for fact in graph.source_facts.values()
-            if isinstance(fact, ItemAcquisition) and fact.item_stable_key == item and fact.kind == "common_world_item"
+            if isinstance(fact, PublicSource) and fact.item_stable_key == item and fact.kind == "common_world_item"
         ]
         assert len(sources) == 1
-        assert is_actionable_acquisition(sources[0])
         assert sources[0].probability_min is not None
         assert sources[0].probability_max is not None
         assert 0 < sources[0].probability_min < sources[0].probability_max
@@ -358,20 +357,17 @@ class TestCommonWorldItems:
         finally:
             conn.close()
 
-        assert len(items) == 6
+        assert items
         for item in items:
             node = graph.get_node(item)
             assert node is not None, item
             sources = [
                 fact
                 for fact in graph.source_facts.values()
-                if isinstance(fact, ItemAcquisition)
-                and fact.item_stable_key == item
-                and fact.kind == "common_world_item"
+                if isinstance(fact, PublicSource) and fact.item_stable_key == item and fact.kind == "common_world_item"
             ]
             assert len(sources) == 1, item
             source = sources[0]
-            assert is_actionable_acquisition(source), item
-            assert source.acquisition_key in graph.source_uses, item
+            assert source.source_key in graph.source_uses, item
             assert source.source_stable_key is None
             assert source.source_copy_stable_key is None

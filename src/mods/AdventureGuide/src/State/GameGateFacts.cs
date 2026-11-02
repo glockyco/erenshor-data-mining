@@ -18,6 +18,8 @@ public sealed class GameGateFacts : IGateFacts
 
     public int PlayerLevel => _state.PlayerLevel;
 
+    public int Hour => GameData.Time.GetHour();
+
     public int ItemCount(string itemStableKey) => _state.CountItem(itemStableKey);
 
     public bool IsOnKeyring(string gameId) =>

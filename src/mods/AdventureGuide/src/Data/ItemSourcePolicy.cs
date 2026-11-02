@@ -123,8 +123,8 @@ internal static class ItemSourcePolicy
             || x.VariantKey != y.VariantKey
             || x.Conditions.Count != 0
             || y.Conditions.Count != 0
-            || x.Locations.Count != 0
-            || y.Locations.Count != 0
+            || x.PlaceSetKey != null
+            || y.PlaceSetKey != null
         )
             return false;
         return SameInputSources(a.Children, b.Children);

@@ -107,36 +107,29 @@ public sealed class CanonicalSourceNavigationTests
         string kind = "character_drop"
     )
     {
-        var fact = new SourceFact
+        var fact = new SourceFact { Kind = kind };
+        fact.ApplyPresentation(source);
+        if (source.LocationKey != null)
         {
-            AcquisitionKey = source.AcquisitionKey!,
-            ItemStableKey = source.ItemStableKey!,
-            Kind = kind,
-            PlayerAccessState = "verified_player",
-            ProbabilityKind = "exact",
-            ProbabilityStage = "final_acquisition",
-            ProbabilityMin = 100,
-            ProbabilityMax = 100,
-            QuantityMin = 1,
-            QuantityMax = 1,
-            Locations =
-                source.LocationKey == null
-                    ? []
-                    :
-                    [
-                        new()
-                        {
-                            LocationKey = source.LocationKey,
-                            Relation = "fixed",
-                            Scene = source.Scene,
-                            X = source.X,
-                            Y = source.Y,
-                            Z = source.Z,
-                            EntryZoneLineKeys = source.EntryZoneLineKeys ?? [],
-                        },
-                    ],
-        };
-        wrapper.SourceFacts.Add(fact.AcquisitionKey, fact);
+            fact.PlaceSetKey = "places:" + source.AcquisitionKey;
+            var places = new List<SourceLocation>
+            {
+                new()
+                {
+                    PlaceKey = source.LocationKey,
+                    Relation = "fixed",
+                    Scene = source.Scene,
+                    Zone = source.Zone,
+                    X = source.X,
+                    Y = source.Y,
+                    Z = source.Z,
+                    EntryZoneLineKeys = source.EntryZoneLineKeys ?? [],
+                },
+            };
+            wrapper.PlaceSets.Add(fact.PlaceSetKey, places);
+            fact.Locations = places;
+        }
+        wrapper.Sources.Add(source.AcquisitionKey!, fact);
         return fact;
     }
 
@@ -164,18 +157,21 @@ public sealed class CanonicalSourceNavigationTests
         second.AcquisitionKey = first.AcquisitionKey;
         second.ItemStableKey = first.ItemStableKey;
         var fact = AddFact(wrapper, first);
-        fact.Locations.Add(
-            new()
-            {
-                LocationKey = second.LocationKey!,
-                Relation = "fixed",
-                Scene = second.Scene,
-                X = second.X,
-                Y = second.Y,
-                Z = second.Z,
-                EntryZoneLineKeys = second.EntryZoneLineKeys ?? [],
-            }
-        );
+        wrapper.Quests![0].Steps![0].Sources!.Remove(second);
+        wrapper
+            .PlaceSets[fact.PlaceSetKey!]
+            .Add(
+                new()
+                {
+                    PlaceKey = second.LocationKey!,
+                    Relation = "fixed",
+                    Scene = second.Scene,
+                    X = second.X,
+                    Y = second.Y,
+                    Z = second.Z,
+                    EntryZoneLineKeys = second.EntryZoneLineKeys ?? [],
+                }
+            );
         return fact;
     }
 
@@ -190,9 +186,8 @@ public sealed class CanonicalSourceNavigationTests
         var quest = Quest(first, second, other);
         var wrapper = Wrapper(quest);
         var fact = AddPlacementPair(wrapper, first, second);
-        fact.ProbabilityMin = 0.00001;
-        fact.ProbabilityMax = 0.00001;
-        fact.ProbabilityBasis = "per_native_roll";
+        fact.Chance = 0.00001;
+        fact.ChanceMax = 0.00001;
         fact.Locations[0]
             .Conditions.Add(
                 new()
@@ -201,7 +196,6 @@ public sealed class CanonicalSourceNavigationTests
                     Predicate = "actor_level",
                     Actor = "player",
                     Minimum = 20,
-                    Scope = first.LocationKey!,
                     Phase = "availability",
                 }
             );
@@ -213,7 +207,6 @@ public sealed class CanonicalSourceNavigationTests
                     Predicate = "actor_level",
                     Actor = "player",
                     Maximum = 19,
-                    Scope = second.LocationKey!,
                     Phase = "availability",
                 }
             );
@@ -248,10 +241,8 @@ public sealed class CanonicalSourceNavigationTests
             Assert.Single(highLevel.Step.Sources!).MakeSourceId()
         );
         Assert.Equal("item:crafted key", highLevel.Step.TargetKey);
-        Assert.Equal(0.00001, fact.ProbabilityMin);
-        Assert.Equal(0.00001, fact.ProbabilityMax);
-        Assert.Equal("per_native_roll", fact.ProbabilityBasis);
-        Assert.Equal("final_acquisition", fact.ProbabilityStage);
+        Assert.Equal(0.00001, fact.Chance);
+        Assert.Equal(0.00001, fact.ChanceMax);
     }
 
     [Fact]
@@ -378,7 +369,6 @@ public sealed class CanonicalSourceNavigationTests
                 Predicate = "item_held",
                 ReferenceStableKey = "item:entry key",
                 Actor = "player",
-                Scope = "acquisition",
                 Phase = "availability",
             }
         );
@@ -435,7 +425,6 @@ public sealed class CanonicalSourceNavigationTests
                 Predicate = "actor_level",
                 Actor = "player",
                 Minimum = 20,
-                Scope = "acquisition",
                 Phase = "availability",
             }
         );
@@ -600,7 +589,6 @@ public sealed class CanonicalSourceNavigationTests
                 Predicate = "actor_level",
                 Actor = "player",
                 Minimum = 20,
-                Scope = "acquisition",
                 Phase = "availability",
             }
         );
@@ -741,7 +729,7 @@ public sealed class CanonicalSourceNavigationTests
         Assert.NotNull(stream);
         using var reader = new StreamReader(stream);
         var data = GuideData.Parse(reader.ReadToEnd());
-        var location = data.SourceFacts[
+        var location = data.Sources[
                 "acquisition:[\"character_drop\",\"character:acceptor\",\"item:gen - cod - pg 3\"]"
             ]
             .Locations.Single();

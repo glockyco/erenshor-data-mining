@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from enum import IntEnum
 from typing import TYPE_CHECKING
 
-from erenshor.domain.value_objects.item_provenance import ItemAcquisition, ItemUse
+from erenshor.domain.value_objects.item_public_view import PublicPlace, PublicSource, PublicUse
 
 from .schema import (
     Activation,
@@ -135,7 +135,6 @@ class SourceSite:
     time_restriction: str | None = None
     note: str | None = None
     provenance_key: str | None = None
-    location_key: str | None = None
 
 
 # A condition is a tuple of groups and holds when every atom of one group holds.
@@ -182,13 +181,14 @@ class CompiledData:
     subject_conditions: list[SubjectCondition] = field(default_factory=list)
     # Index by kind, subject key and spawn point or vendor item.
     condition_by_subject: dict[tuple[SubjectKind, str, str | None], int] = field(default_factory=dict)
-    source_facts: dict[str, ItemAcquisition | ItemUse] = field(default_factory=dict)
+    source_facts: dict[str, PublicSource | PublicUse] = field(default_factory=dict)
+    source_places: dict[str, tuple[PublicPlace, ...]] = field(default_factory=dict)
     source_ranks: dict[str, tuple[int, int]] = field(default_factory=dict)
-    source_uses: dict[str, list[ItemUse]] = field(default_factory=dict)
-    quest_uses: dict[tuple[str, str], list[ItemUse]] = field(default_factory=dict)
+    source_uses: dict[str, list[PublicUse]] = field(default_factory=dict)
+    quest_uses: dict[tuple[str, str], list[PublicUse]] = field(default_factory=dict)
     encounters: dict[str, list[dict[str, object]]] = field(default_factory=dict)
     zone_line_destination_contexts: dict[str, dict[str, object]] = field(default_factory=dict)
-    acquisitions_by_item: dict[str, list[ItemAcquisition]] = field(default_factory=dict)
+    acquisitions_by_item: dict[str, list[PublicSource]] = field(default_factory=dict)
     source_metadata: dict[str, Edge] = field(default_factory=dict)
     activations: dict[str, Activation] = field(default_factory=dict)
     placement_activations: dict[str, tuple[ActivationRef, ...]] = field(default_factory=dict)
@@ -215,19 +215,20 @@ def compile_graph(graph: EntityGraph) -> CompiledData:
 
     compiled = CompiledData()
     compiled.source_facts = graph.source_facts
+    compiled.source_places = graph.source_places
     compiled.source_ranks = graph.source_ranks
     compiled.source_uses = graph.source_uses
     compiled.quest_uses = graph.quest_uses
     compiled.encounters = graph.encounters
     compiled.zone_line_destination_contexts = graph.zone_line_destination_contexts
     for key, fact in graph.source_facts.items():
-        if isinstance(fact, ItemAcquisition) and key not in graph.source_exclusions:
+        if isinstance(fact, PublicSource) and key not in graph.source_exclusions:
             compiled.acquisitions_by_item.setdefault(fact.item_stable_key, []).append(fact)
     compiled.source_metadata = {
         edge.provenance_key: edge
         for edge in graph.all_edges()
         if edge.provenance_key is not None
-        and isinstance(graph.source_facts.get(edge.provenance_key), ItemAcquisition)
+        and isinstance(graph.source_facts.get(edge.provenance_key), PublicSource)
         and edge.type != EdgeType.CRAFTED_FROM
     }
     _compile_nodes(graph, compiled)
@@ -421,39 +422,20 @@ def _compile_item_sources(compiled: CompiledData) -> None:
             source_node = compiled.nodes[edge.source_id]
             if edge.provenance_key is not None:
                 fact = compiled.source_facts.get(edge.provenance_key)
-                if not isinstance(fact, ItemAcquisition):
+                if not isinstance(fact, PublicSource):
                     raise ValueError(f"Source edge has no canonical acquisition: {edge.provenance_key}")
-                for location in fact.locations or (None,):
-                    actual_positions = []
-                    if (
-                        location is not None
-                        and location.x is not None
-                        and location.y is not None
-                        and location.z is not None
-                    ):
-                        actual_positions.append(
-                            SpawnPosition(
-                                compiled.node_key_to_id.get(location.location_key),
-                                location.x,
-                                location.y,
-                                location.z,
-                            )
-                        )
-                    sources.append(
-                        SourceSite(
-                            source_id=edge.source_id,
-                            source_type=source_node.node_type,
-                            edge_type=edge.edge_type,
-                            scene=location.scene if location is not None else None,
-                            positions=actual_positions,
-                            keyword=edge.keyword,
-                            chance=edge.chance,
-                            time_restriction=edge.time_restriction,
-                            note=edge.note,
-                            provenance_key=edge.provenance_key,
-                            location_key=location.location_key if location is not None else None,
-                        )
+                sources.append(
+                    SourceSite(
+                        source_id=edge.source_id,
+                        source_type=source_node.node_type,
+                        edge_type=edge.edge_type,
+                        keyword=edge.keyword,
+                        chance=edge.chance,
+                        time_restriction=edge.time_restriction,
+                        note=edge.note,
+                        provenance_key=edge.provenance_key,
                     )
+                )
                 continue
             positions: list[SpawnPosition] = []
             for source_edge_id in compiled.forward_adjacency[edge.source_id]:

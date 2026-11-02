@@ -147,34 +147,31 @@ public sealed class RequirementResolverTests
         {
             source.AcquisitionKey = "acquisition:" + source.SourceKey;
             source.LocationKey = "location:" + source.SourceKey;
-            wrapper.SourceFacts.Add(
+            string places = "places:" + source.SourceKey;
+            wrapper.Sources.Add(
                 source.AcquisitionKey,
                 new SourceFact
                 {
-                    AcquisitionKey = source.AcquisitionKey,
+                    Type = source.Type,
+                    SourceKey = source.SourceKey,
                     ItemStableKey = "item:runner",
                     Kind = "character_drop",
-                    SourceStableKey = source.SourceKey,
-                    SourceCopyStableKey = source.SourceKey,
-                    PlayerAccessState = "verified_player",
-                    ProbabilityKind = "unknown",
-                    ProbabilityStage = "final_acquisition",
-                    QuantityKind = "unknown",
-                    Locations =
-                    [
-                        new SourceLocation
-                        {
-                            LocationKey = source.LocationKey,
-                            Relation = "spawn",
-                            Scene = spawn.Scene,
-                            X = spawn.X,
-                            Y = spawn.Y,
-                            Z = spawn.Z,
-                            SourceCopyStableKey = source.SourceKey,
-                        },
-                    ],
+                    PlaceSetKey = places,
                 }
             );
+            wrapper.PlaceSets[places] =
+            [
+                new SourceLocation
+                {
+                    PlaceKey = source.LocationKey,
+                    Relation = "spawn",
+                    Scene = spawn.Scene,
+                    X = spawn.X,
+                    Y = spawn.Y,
+                    Z = spawn.Z,
+                    SourceCopyStableKey = source.SourceKey,
+                },
+            ];
         }
         var data = GuideData.FromWrapper(wrapper);
         var resolver = Resolver(data);

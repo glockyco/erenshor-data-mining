@@ -59,41 +59,6 @@ def _database_gates(conn: sqlite3.Connection) -> dict[tuple[str, str, str | None
     }
 
 
-def _source_condition(conn: sqlite3.Connection, guide: dict[str, Any], source: dict[str, Any]) -> Condition | None:
-    """Resolve the selected canonical acquisition and its exact placement."""
-    if "acquisition_key" not in source:
-        return _condition(guide, source.get("condition"))
-    fact = guide["_source_facts"][source["acquisition_key"]]
-    atoms = list(fact["conditions"])
-    if "location_key" in source:
-        locations = [location for location in fact["locations"] if location["location_key"] == source["location_key"]]
-        assert len(locations) == 1, source
-        atoms.extend(locations[0]["conditions"])
-    db_names = dict(conn.execute("SELECT stable_key, db_name FROM quests"))
-    gates: dict[tuple[str, str], dict[int, set[Atom]]] = defaultdict(lambda: defaultdict(set))
-    for atom in atoms:
-        if atom["phase"] != "availability":
-            continue
-        predicate = atom["predicate"]
-        key = atom["reference_stable_key"]
-        ref = db_names[key] if predicate in ("quest_done", "quest_not_done") else key
-        quantity = atom["minimum"] if predicate == "encounter_won" and atom["minimum"] is not None else 1
-        gates[(atom["scope"], atom["gate_key"])][atom["group_index"]].add(
-            (predicate, ref, atom["reference_slot"], quantity)
-        )
-    if not gates:
-        return None
-    groups: Condition = [frozenset()]
-    for alternatives in gates.values():
-        groups = [
-            group | frozenset(alternative)
-            for group in groups
-            for alternative in alternatives.values()
-            if not any(atom[0] == "never" for atom in alternative)
-        ]
-    return groups
-
-
 def _guide_conditions(
     conn: sqlite3.Connection, graph: EntityGraph, guide: dict[str, Any]
 ) -> dict[Subject, list[Condition | None]]:
@@ -127,17 +92,6 @@ def _guide_conditions(
                 assert len(copies) == 1, (character, spawn_key, copies)
                 result[("character", next(iter(copies)), None)].append(condition)
             result[("spawn_point", spawn_key, None)].append(condition)
-    item_sources: list[tuple[str, dict[str, Any]]] = [
-        (item, source) for item, value in guide["_gate_items"].items() for source in value.get("sources", [])
-    ]
-    for quest in guide["quests"]:
-        for required in quest.get("required_items", []):
-            item_sources += [(required["item_stable_key"], source) for source in required.get("sources", [])]
-    for item, source in item_sources:
-        if source.get("type") == "vendor":
-            result[("vendor_item", source["source_key"], item)].append(_source_condition(conn, guide, source))
-        elif source.get("type") == "pickup":
-            result[("item_bag", source["source_key"], None)].append(_source_condition(conn, guide, source))
     return result
 
 
@@ -158,3 +112,57 @@ def test_every_database_gate_reaches_the_guide(main_clean_db: Path, graph: Entit
                 missing.append(f"{kind} {subject} {item or ''} {gate}: {condition}")
     assert checked > 100
     assert not missing, "\n".join(missing[:20])
+
+
+@pytest.mark.parametrize("persisted", [False, True], ids=["generated", "published"])
+def test_public_sources_and_shared_places_are_serialized_once(
+    main_clean_db: Path, graph: EntityGraph, guide: dict[str, Any], persisted: bool
+) -> None:
+    import json
+    from dataclasses import asdict
+    from pathlib import Path
+
+    from erenshor.application.guide.schema import NodeType
+    from erenshor.infrastructure.database.connection import DatabaseConnection
+    from erenshor.infrastructure.database.repositories.item_public_view import ItemPublicViewRepository
+
+    if persisted:
+
+        def unique_object(entries: list[tuple[str, Any]]) -> dict[str, Any]:
+            assert len(entries) == len({key for key, _ in entries})
+            return dict(entries)
+
+        path = Path(__file__).resolve().parents[2] / "quest_guides" / "quest-guide.json"
+        guide = json.loads(path.read_text(), object_pairs_hook=unique_object)
+
+    with DatabaseConnection(main_clean_db, read_only=True) as database:
+        repository = ItemPublicViewRepository(database)
+        sources = repository.sources()
+        places = {key: repository.places(key) for key in {source.place_set_key for source in sources}}
+    guided_items = {node.key for node in graph.nodes_of_type(NodeType.ITEM)}
+    expected = {source.source_key: source for source in sources if source.item_stable_key in guided_items}
+    assert expected
+    assert set(guide["_sources"]) == set(expected)
+    assert guide["_version"] == 10
+    assert "_source_facts" not in guide
+    place_sets = {source.place_set_key for source in expected.values() if source.place_set_key is not None}
+    assert set(guide["_place_sets"]) == place_sets
+    for key, source in expected.items():
+        entry = guide["_sources"][key]
+        entity_key = source.source_copy_stable_key or source.source_stable_key
+        if entity_key is not None:
+            assert entry["source_key"] == entity_key
+        assert entry["kind"] == source.kind
+        assert entry["place_set_key"] == source.place_set_key
+        assert entry["conditions"] == [asdict(atom) for atom in source.conditions]
+        assert not {"children", "operation_use_keys", "acquisition_key", "location_key", "x", "y", "z"} & entry.keys()
+    for key in place_sets:
+        entries = guide["_place_sets"][key]
+        expected_places = places[key]
+        assert len(entries) == len({place.place_key for place in expected_places})
+        assert {entry["place_key"] for entry in entries} == {place.place_key for place in expected_places}
+        by_key = {place.place_key: place for place in expected_places}
+        for entry in entries:
+            public = by_key[entry["place_key"]]
+            assert entry["marker_stable_key"] == public.marker_stable_key
+            assert entry["conditions"] == [asdict(atom) for atom in public.conditions]

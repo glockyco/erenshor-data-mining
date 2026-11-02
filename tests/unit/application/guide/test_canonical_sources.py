@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, replace
+from dataclasses import replace
 
 import pytest
 
-from erenshor.application.guide.canonical_sources import source_coverage_report
 from erenshor.application.guide.compiler import compile_graph
 from erenshor.application.guide.mod_writer import serialize_mod_guide
 from erenshor.application.guide.schema import Node, NodeType
@@ -17,6 +16,7 @@ from erenshor.domain.value_objects.item_provenance import (
     ProvenanceCondition,
     ProvenanceLocation,
 )
+from erenshor.domain.value_objects.item_public_view import PublicUse
 
 from .fixtures import build_graph, character_node, item_node, load_canonical_sources, quest_node
 
@@ -60,7 +60,20 @@ def _payload(graph):
 
 
 def _sources(payload):
-    return next(quest for quest in payload["quests"] if quest["db_name"] == "MAIN")["required_items"][0]["sources"]
+    references = next(quest for quest in payload["quests"] if quest["db_name"] == "MAIN")["required_items"][0][
+        "sources"
+    ]
+    return [_resolved_source(payload, reference) for reference in references]
+
+
+def _resolved_source(payload, reference):
+    source = {**payload["_sources"][reference["acquisition_key"]], **reference}
+    if "children" in source:
+        source["children"] = [
+            {**child, "children": [_resolved_source(payload, nested) for nested in child.get("children", [])]}
+            for child in source["children"]
+        ]
+    return source
 
 
 @pytest.mark.parametrize("kind", ["quest_reward", "dialog", "vendor"])
@@ -88,14 +101,14 @@ def test_noncombat_actor_copy_is_preserved_without_a_combat_node(tmp_path, kind)
     payload = _payload(graph)
     [source] = _sources(payload)
     assert source["source_key"] == actor
-    assert source["acquisition_key"] == fact.acquisition_key
-    assert source["location_key"] == "trade-site"
+    [place] = payload["_place_sets"][source["place_set_key"]]
+    assert place["place_key"] == "trade-site"
     assert graph.get_node(actor).invulnerable
     if kind == "quest_reward":
         assert source["quest_key"] == "quest:reward"
         reward_quest = next(quest for quest in payload["quests"] if quest["db_name"] == "REWARD")
         assert reward_quest["rewards"]["item_stable_key"] == "item:result"
-    assert graph.source_facts[fact.acquisition_key] == fact
+    assert graph.source_facts["noncombat"].source_key == "noncombat"
 
 
 @pytest.mark.parametrize(
@@ -148,28 +161,30 @@ def test_canonical_families_keep_actual_location_and_normalize_facts_once(tmp_pa
     [row] = _sources(payload)
     assert row["type"] == expected
     assert (row["chance"], row["chance_max"]) == (0.00001, 0.00002)
-    assert (row["acquisition_key"], row["location_key"], row["scene"], row["x"], row["y"], row["z"]) == (
-        "actual",
+    [place] = payload["_place_sets"][row["place_set_key"]]
+    assert (place["place_key"], place["scene"], place["x"], place["y"], place["z"]) == (
         "location:actual",
         "ActualScene",
         17,
         18,
         19,
     )
-    assert row["entry_zone_line_keys"] == ["line:actual"]
-    assert "provenance" not in row and "uses" not in row
-    assert payload["_version"] == 9
-    assert payload["_source_facts"]["actual"] == json.loads(json.dumps(asdict(fact)))
+    assert place["entry_zone_line_keys"] == ["line:actual"]
+    assert not {"acquisition_key", "location_key", "scene", "x", "y", "z", "children"}.intersection(
+        payload["_sources"]["actual"]
+    )
+    assert payload["_version"] == 10
+    assert "_source_facts" not in payload
     assert payload["_item_uses"]["required"]["material_slot"] == 3
 
 
-def test_the_auction_house_is_never_a_guide_source(tmp_path):
+def test_public_auction_house_is_a_guide_source(tmp_path):
     graph = _graph()
     fact = ItemAcquisition("listed", "item:result", "auction_house", "mechanic:auction_house")
     load_canonical_sources(tmp_path, graph, [fact], [_required()])
-    assert graph.source_exclusions["listed"] == "auction_house_random_stock"
-    [main] = [quest for quest in _payload(graph)["quests"] if quest["db_name"] == "MAIN"]
-    assert not main["required_items"][0].get("sources")
+    [source] = _sources(_payload(graph))
+    assert source["type"] == "auction_house"
+    assert source["source_key"] == "mechanic:auction_house"
 
 
 def test_repeated_recipe_slots_mold_and_requested_output_quality_are_traversable(tmp_path):
@@ -250,9 +265,11 @@ def test_repeated_recipe_slots_mold_and_requested_output_quality_are_traversable
     }
     for ingredient in source["children"]:
         assert ingredient["type"] == "ingredient"
-        assert ingredient["children"][0]["location_key"] == "vendor-location"
+        nested = ingredient["children"][0]
+        [place] = payload["_place_sets"][nested["place_set_key"]]
+        assert place["place_key"] == "vendor-location"
     assert {payload["_item_uses"][f"material:{slot}"]["material_slot"] for slot in (1, 2)} == {1, 2}
-    assert "wrong-quality" not in payload["_source_facts"]
+    assert "wrong-quality" in payload["_sources"]
 
 
 @pytest.mark.parametrize("kind", ["item_drop", "spell_created", "item_conversion"])
@@ -365,7 +382,12 @@ def test_native_requirement_bundles_aggregate_without_losing_slots(tmp_path, slo
         assert {source["acquisition_key"] for source in row["sources"]} == {
             f"vendor:{row['item_stable_key']}:{alternative}" for alternative in ("first", "second")
         }
-    assert payload["_item_uses"] == {use.use_key: json.loads(json.dumps(asdict(use))) for use in uses}
+    for use in uses:
+        serialized = payload["_item_uses"][use.use_key]
+        assert serialized["material_slot"] == use.material_slot
+        assert serialized["quantity_min"] == serialized["quantity_max"] == use.quantity_min
+        assert serialized["variant_key"] == use.variant_key
+        assert "mechanic" not in serialized
 
 
 def test_native_requirement_aggregation_keeps_requested_quality_separate(tmp_path):
@@ -407,7 +429,20 @@ def test_native_requirement_aggregation_keeps_requested_quality_separate(tmp_pat
 def test_native_requirement_aggregation_rejects_nonintegral_slot_quantities(quantity):
     graph = _graph()
     graph.quest_uses[("quest:main", "item:result")] = [
-        replace(_required(), quantity_min=quantity, quantity_max=quantity)
+        PublicUse(
+            "required",
+            "item:result",
+            "quest:main",
+            "quest_requirement",
+            None,
+            3,
+            "exact",
+            quantity,
+            quantity,
+            None,
+            None,
+            None,
+        )
     ]
     with pytest.raises(ValueError, match="Quest requirement has no integer quantity: required"):
         _payload(graph)
@@ -417,65 +452,43 @@ def test_native_requirement_aggregation_rejects_nonintegral_slot_quantities(quan
 def test_native_requirement_aggregation_rejects_uncertain_slot_quantities(maximum, kind):
     graph = _graph()
     graph.quest_uses[("quest:main", "item:result")] = [
-        replace(_required(), quantity_min=1, quantity_max=maximum, quantity_kind=kind)
+        PublicUse(
+            "required",
+            "item:result",
+            "quest:main",
+            "quest_requirement",
+            None,
+            3,
+            kind,
+            1,
+            maximum,
+            None,
+            None,
+            None,
+        )
     ]
     with pytest.raises(ValueError, match="integer quantity"):
         _payload(graph)
 
 
-def test_actor_qualifiers_and_initialization_are_annotations_with_exact_phase_and_scope(tmp_path):
+def test_public_conditions_preserve_indices_actors_bounds_and_phases(tmp_path):
     graph = _graph()
     conditions = (
-        ProvenanceCondition(
-            "account",
-            0,
-            0,
-            "account_state",
-            "account_state:reliquary_claimed",
-            actor="account",
-            value="false",
-            scope="placement:actual",
-        ),
-        ProvenanceCondition(
-            "result",
-            0,
-            0,
-            "account_state",
-            "account_state:reliquary_claimed",
-            actor="account",
-            value="true",
-            scope="placement:actual",
-            phase="operation_outcome",
-        ),
-        ProvenanceCondition("sim", 0, 0, "actor_level", actor="sim", minimum=20),
-        ProvenanceCondition("class", 0, 0, "actor_class", "class:warrior", actor="sim"),
-        ProvenanceCondition("route", 0, 0, "route", value="replacement"),
-        ProvenanceCondition("initial", 0, 0, "item_not_owned", "item:result", phase="source_initialization"),
+        ProvenanceCondition("level", 0, 0, "actor_level", actor="player", minimum=20),
+        ProvenanceCondition("quality", 0, 0, "quality", value="perfect", phase="operation_outcome"),
     )
     fact = ItemAcquisition("actual", "item:result", "vendor", "character:source", conditions=conditions)
     load_canonical_sources(tmp_path, graph, [fact], [_required()])
-    actual = _payload(graph)["_source_facts"]["actual"]["conditions"]
-    assert [(row["predicate"], row["actor"], row["value"], row["phase"], row["scope"]) for row in actual] == [
-        (row.predicate, row.actor, row.value, row.phase, row.scope)
-        for row in sorted(conditions, key=lambda atom: (atom.gate_key, atom.group_index, atom.atom_index, atom.scope))
-    ]
-
-
-def test_source_coverage_accounts_for_every_input(tmp_path):
-    graph = _graph()
-    base = ItemAcquisition("verified", "item:result", "vendor", "character:source")
-    facts = [
-        base,
-        replace(base, acquisition_key="unconfirmed", player_access_state="unconfirmed_player"),
-        replace(base, acquisition_key="internal", player_access_state="internal_only"),
-        replace(base, acquisition_key="zero", probability_kind="exact", probability_min=0, probability_max=0),
-    ]
-    load_canonical_sources(tmp_path, graph, facts, [_required()])
-    report = source_coverage_report(graph)
-    assert report["acquisitions"]["represented"] == 1
-    assert report["acquisitions"]["excluded"] == 3
-    assert report["uses"]["represented"] == 1
-    assert set(_payload(graph)["_source_facts"]) == {"verified"}
+    payload = _payload(graph)
+    actual = payload["_sources"]["actual"]["conditions"]
+    assert {row["predicate"] for row in actual} == {"actor_level", "quality"}
+    assert all({"gate_index", "alternative_index", "atom_index", "phase"} <= row.keys() for row in actual)
+    assert all(not {"scope", "group_index"}.intersection(row) for row in actual)
+    level = next(row for row in actual if row["predicate"] == "actor_level")
+    assert (level["actor"], level["minimum"]) == ("player", 20)
+    quality = next(row for row in actual if row["predicate"] == "quality")
+    assert (quality["value"], quality["phase"]) == ("perfect", "operation_outcome")
+    assert "_source_facts" not in payload
 
 
 def test_no_location_native_actions_do_not_borrow_graph_coordinates(tmp_path):
@@ -526,7 +539,7 @@ def test_smithing_byproduct_keeps_equipment_and_fuel_as_alternatives(tmp_path):
     assert set(source["operation_use_keys"]) == {use.use_key for use in uses}
     assert [child["use_key"] for child in source["children"]] == ["smithing:0"]
     assert {key for key in payload["_item_uses"] if key.startswith("smithing:")} == {use.use_key for use in uses}
-    assert payload["_source_facts"][fact.acquisition_key]["conditions"][0]["phase"] == "operation_input"
+    assert payload["_sources"][fact.acquisition_key]["conditions"][0]["phase"] == "operation_input"
 
 
 @pytest.mark.parametrize("quantity,kind", [(None, "unknown"), (1.5, "exact")])

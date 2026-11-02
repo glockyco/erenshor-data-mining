@@ -60,6 +60,14 @@ public static class GameData
     public static UnityEngine.Component? GM;
     public static CharacterSlot? CurrentCharacterSlot;
     public static Stats? PlayerStats;
+    public static GameClock Time = new();
+}
+
+public sealed class GameClock
+{
+    public int Hour = 12;
+
+    public int GetHour() => Hour;
 }
 
 public sealed class CharacterSlot

@@ -17,7 +17,7 @@ from dataclasses import astuple, replace
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from erenshor.domain.value_objects.item_provenance import ItemAcquisition, ItemUse
+    from erenshor.domain.value_objects.item_public_view import PublicPlace, PublicSource, PublicUse
 
     from .schema import Edge, EdgeType, Gate, Node, NodeType, SubjectKind
 
@@ -49,6 +49,7 @@ class EntityGraph:
         "quest_uses",
         "source_exclusions",
         "source_facts",
+        "source_places",
         "source_ranks",
         "source_uses",
         "zone_line_destination_contexts",
@@ -65,12 +66,13 @@ class EntityGraph:
         self._quest_db_names: dict[str, str] = {}
         # Targets that only some zone lines into their scene reach, by target key.
         self._entries: dict[str, list[str]] = defaultdict(list)
-        self.source_facts: dict[str, ItemAcquisition | ItemUse] = {}
+        self.source_facts: dict[str, PublicSource | PublicUse] = {}
+        self.source_places: dict[str, tuple[PublicPlace, ...]] = {}
         self.source_exclusions: dict[str, str] = {}
         # The lowest progression rank (tier, depth) of each acquisition's ways to its item.
         self.source_ranks: dict[str, tuple[int, int]] = {}
-        self.source_uses: dict[str, list[ItemUse]] = {}
-        self.quest_uses: dict[tuple[str, str], list[ItemUse]] = {}
+        self.source_uses: dict[str, list[PublicUse]] = {}
+        self.quest_uses: dict[tuple[str, str], list[PublicUse]] = {}
         self.encounters: dict[str, list[dict[str, object]]] = {
             family: []
             for family in (

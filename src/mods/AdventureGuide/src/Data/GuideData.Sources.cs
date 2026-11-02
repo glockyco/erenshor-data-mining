@@ -4,8 +4,10 @@ namespace AdventureGuide.Data;
 
 public sealed partial class GuideData
 {
-    public IReadOnlyDictionary<string, SourceFact> SourceFacts { get; private set; } =
+    public IReadOnlyDictionary<string, SourceFact> Sources { get; private set; } =
         new Dictionary<string, SourceFact>(StringComparer.Ordinal);
+    public IReadOnlyDictionary<string, List<SourceLocation>> PlaceSets { get; private set; } =
+        new Dictionary<string, List<SourceLocation>>(StringComparer.Ordinal);
     public IReadOnlyDictionary<string, ItemUseFact> ItemUses { get; private set; } =
         new Dictionary<string, ItemUseFact>(StringComparer.Ordinal);
     public IReadOnlyDictionary<string, SourceRank> SourceRanks { get; private set; } =
@@ -14,51 +16,30 @@ public sealed partial class GuideData
         StringComparer.Ordinal
     );
 
-    private static void ValidateSourceFacts(GuideWrapper wrapper)
+    private static void ValidatePublicSources(GuideWrapper wrapper)
     {
         if (
-            wrapper.SourceFacts == null
+            wrapper.Sources == null
+            || wrapper.PlaceSets == null
             || wrapper.ItemUses == null
             || wrapper.QuestStateKeys == null
         )
             throw new InvalidDataException(
-                "Canonical source tables and quest-state keys are required"
+                "Public sources, places, uses and quest-state keys are required"
             );
-        foreach (var pair in wrapper.SourceFacts)
+        foreach (var pair in wrapper.Sources)
         {
-            var fact = pair.Value;
+            var source = pair.Value;
             if (
-                fact == null
+                source == null
                 || string.IsNullOrWhiteSpace(pair.Key)
-                || pair.Key != fact.AcquisitionKey
-                || string.IsNullOrWhiteSpace(fact.ItemStableKey)
+                || string.IsNullOrWhiteSpace(source.ItemStableKey)
+                || string.IsNullOrWhiteSpace(source.Kind)
+                || source.Conditions == null
+                || source.PlaceSetKey != null && !wrapper.PlaceSets.ContainsKey(source.PlaceSetKey)
             )
-                throw new InvalidDataException("Invalid canonical acquisition identity");
-            if (
-                fact.PlayerAccessState
-                    is not (
-                        "verified_player"
-                        or "unconfirmed_player"
-                        or "internal_only"
-                        or "non_acquirable"
-                    )
-                || fact.ProbabilityStage is not ("native_pool" or "final_acquisition")
-                || fact.ProbabilityKind
-                    is not ("exact" or "bounded" or "unknown" or "not_applicable")
-            )
-                throw new InvalidDataException($"Invalid canonical source semantics: {pair.Key}");
-            if (fact.PlayerAccessState == "verified_player" && !SupportedAcquisitionKind(fact.Kind))
-                throw new InvalidDataException(
-                    $"unsupported canonical acquisition kind: {fact.Kind}"
-                );
-            ValidateRange(fact.ProbabilityMin, fact.ProbabilityMax, 100, pair.Key);
-            ValidateRange(fact.QuantityMin, fact.QuantityMax, null, pair.Key);
-            if (fact.ExpectedQuantity is double expected && (!Finite(expected) || expected < 0))
-                throw new InvalidDataException($"Invalid canonical expected quantity: {pair.Key}");
-            if (fact.Conditions == null || fact.Locations == null)
-                throw new InvalidDataException(
-                    $"Canonical source children are required: {pair.Key}"
-                );
+                throw new InvalidDataException($"Invalid public source: {pair.Key}");
+            ValidateSources(new List<ItemSource> { source }, source.Name ?? "", pair.Key);
         }
         foreach (var pair in wrapper.ItemUses)
         {
@@ -68,7 +49,7 @@ public sealed partial class GuideData
                 || pair.Key != use.UseKey
                 || string.IsNullOrWhiteSpace(use.ItemStableKey)
                 || use.Conditions == null
-                || use.Locations == null
+                || use.PlaceSetKey != null && !wrapper.PlaceSets.ContainsKey(use.PlaceSetKey)
                 || use.MaterialSlot < 0
             )
                 throw new InvalidDataException("Invalid canonical item-use identity");
@@ -156,10 +137,7 @@ public sealed partial class GuideData
     {
         string? quality = null;
         foreach (var condition in use.Conditions)
-            if (
-                condition.Predicate == "quality"
-                && condition.Phase is "availability" or "operation_input"
-            )
+            if (condition.Predicate == "quality")
             {
                 if (condition.Value == null || (quality != null && quality != condition.Value))
                     throw new InvalidDataException("Invalid native requirement quality");
@@ -229,15 +207,16 @@ public sealed partial class GuideData
                     throw new InvalidDataException("Native requirement has no collect step");
     }
 
-    private void LoadSourceFacts(GuideWrapper wrapper)
+    private void LoadPublicSources(GuideWrapper wrapper)
     {
-        SourceFacts = wrapper.SourceFacts!;
-        ItemUses = wrapper.ItemUses!;
-        SourceRanks = wrapper.SourceRanks!;
+        Sources = wrapper.Sources;
+        PlaceSets = wrapper.PlaceSets;
+        ItemUses = wrapper.ItemUses;
+        SourceRanks = wrapper.SourceRanks;
         foreach (var pair in SourceRanks)
-            if (!SourceFacts.ContainsKey(pair.Key) || pair.Value.Tier < 0 || pair.Value.Depth < 0)
+            if (!Sources.ContainsKey(pair.Key) || pair.Value.Tier < 0 || pair.Value.Depth < 0)
                 throw new InvalidDataException($"Invalid source rank: {pair.Key}");
-        _questStateKeys = wrapper.QuestStateKeys!;
+        _questStateKeys = wrapper.QuestStateKeys;
         var lines = new Dictionary<string, int>(StringComparer.Ordinal);
         for (int index = 0; index < ZoneLines.Count; index++)
             if (!string.IsNullOrEmpty(ZoneLines[index].StableKey))
@@ -247,16 +226,14 @@ public sealed partial class GuideData
         foreach (var spawn in spawns)
             if (!string.IsNullOrEmpty(spawn.StableKey))
                 placements.TryAdd(spawn.StableKey, spawn);
-        foreach (var fact in SourceFacts.Values)
+        foreach (var places in PlaceSets.Values)
         {
-            fact.AvailabilityGates = CompileSourceConditions(fact.Conditions);
-            foreach (var location in fact.Locations)
+            var identities = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var location in places)
             {
                 ValidateLocation(location);
-                if (!fact.LocationsByKey.TryAdd(location.LocationKey, location))
-                    throw new InvalidDataException(
-                        $"Duplicate canonical source location: {location.LocationKey}"
-                    );
+                if (!identities.Add(location.PlaceKey))
+                    throw new InvalidDataException($"Duplicate public place: {location.PlaceKey}");
                 location.AvailabilityGates = CompileSourceConditions(location.Conditions);
                 if (
                     location.Scene != null
@@ -271,17 +248,17 @@ public sealed partial class GuideData
                     {
                         if (!lines.TryGetValue(entry, out int index))
                             throw new InvalidDataException(
-                                $"Missing canonical source entrance: {entry}"
+                                $"Missing public place entrance: {entry}"
                             );
                         entries!.Add(index);
                     }
                     SpawnPoint? original = null;
-                    string? coordinateKey = location.CoordinateStableKey;
-                    if (coordinateKey != null)
-                        placements.TryGetValue(coordinateKey, out original);
+                    if (location.MarkerStableKey != null)
+                        placements.TryGetValue(location.MarkerStableKey, out original);
                     location.Spawn = new SpawnPoint
                     {
-                        StableKey = original?.StableKey ?? location.LocationKey,
+                        StableKey =
+                            original?.StableKey ?? location.MarkerStableKey ?? location.PlaceKey,
                         Scene = location.Scene,
                         X = location.X.Value,
                         Y = location.Y.Value,
@@ -295,71 +272,46 @@ public sealed partial class GuideData
                 }
             }
         }
-        foreach (var use in ItemUses.Values)
+        foreach (var source in Sources.Values)
         {
-            CompileSourceConditions(use.Conditions);
-            foreach (var location in use.Locations)
-            {
-                ValidateLocation(location);
-                CompileSourceConditions(location.Conditions);
-            }
+            source.AvailabilityGates = CompileSourceConditions(source.Conditions);
+            source.Locations =
+                source.PlaceSetKey == null
+                    ? Array.Empty<SourceLocation>()
+                    : PlaceSets[source.PlaceSetKey];
         }
+        foreach (var use in ItemUses.Values)
+            CompileSourceConditions(use.Conditions);
         foreach (var quest in All)
         {
             if (quest.RequiredItems != null)
                 foreach (var item in quest.RequiredItems)
-                    BindSourceFacts(item.Sources);
+                    ResolveSources(item.Sources);
             if (quest.Steps != null)
                 foreach (var step in quest.Steps)
-                    BindSourceFacts(step.Sources);
+                    ResolveSources(step.Sources);
         }
         foreach (var item in GateItems.Values)
-            BindSourceFacts(item.Sources);
+            ResolveSources(item.Sources);
     }
 
-    private void BindSourceFacts(List<ItemSource>? sources)
+    private void ResolveSources(List<ItemSource>? sources)
     {
         if (sources == null)
             return;
-        foreach (var source in sources)
+        for (int index = 0; index < sources.Count; index++)
         {
-            if (source.AcquisitionKey != null)
-            {
-                if (
-                    !SourceFacts.TryGetValue(source.AcquisitionKey, out var fact)
-                    || fact.PlayerAccessState != "verified_player"
-                    || fact.ProbabilityStage != "final_acquisition"
-                    || fact.ProbabilityMax is <= 0
-                )
-                    throw new InvalidDataException(
-                        $"Missing or non-actionable source acquisition: {source.AcquisitionKey}"
-                    );
-                source.CanonicalFact = fact;
-                source.Rank = SourceRanks.TryGetValue(source.AcquisitionKey, out var rank)
-                    ? rank
-                    : null;
-                if (source.LocationKey != null)
-                {
-                    if (!fact.LocationsByKey.TryGetValue(source.LocationKey, out var location))
-                        throw new InvalidDataException(
-                            $"Missing canonical source location: {source.LocationKey}"
-                        );
-                    source.CanonicalLocation = location;
-                }
-                else if (source.X.HasValue || source.Y.HasValue || source.Z.HasValue)
-                    throw new InvalidDataException(
-                        "Positioned canonical source requires a location identity"
-                    );
-                source.CanonicalSourceId = source.AcquisitionKey + "|" + (source.LocationKey ?? "");
-            }
-            else if (source.LocationKey != null)
-                throw new InvalidDataException("Source location requires an acquisition identity");
+            var source = sources[index];
+            // A graph can share a source object between several ingredient paths.
+            if (source.CanonicalFact != null)
+                continue;
+            ResolveSources(source.Children);
             if (source.UseKey != null)
             {
                 if (!ItemUses.TryGetValue(source.UseKey, out var use))
-                    throw new InvalidDataException($"Missing canonical item use: {source.UseKey}");
+                    throw new InvalidDataException($"Missing public item use: {source.UseKey}");
                 source.CanonicalUse = use;
-                source.CanonicalSourceId ??= source.UseKey;
+                source.CanonicalSourceId = source.UseKey;
             }
             if (source.OperationUseKeys != null)
                 foreach (string key in source.OperationUseKeys)
@@ -368,27 +320,55 @@ public sealed partial class GuideData
                         || !ItemUses.TryGetValue(key, out var input)
                         || input.OutcomeKey != source.AcquisitionKey
                     )
-                        throw new InvalidDataException($"Unbound canonical operation input: {key}");
-            BindSourceFacts(source.Children);
+                        throw new InvalidDataException($"Unbound public operation input: {key}");
+            if (source.AcquisitionKey == null)
+                continue;
+            if (!Sources.TryGetValue(source.AcquisitionKey, out var fact))
+                throw new InvalidDataException($"Missing public source: {source.AcquisitionKey}");
+            source.ApplyPresentation(fact);
+            source.CanonicalFact = fact;
+            source.Rank = SourceRanks.TryGetValue(source.AcquisitionKey, out var rank)
+                ? rank
+                : null;
+            var template = source.Copy();
+            int count = Math.Max(1, fact.Locations.Count);
+            for (int place = 0; place < count; place++)
+            {
+                var resolved = place == 0 ? source : template.Copy();
+                var location = fact.Locations.Count == 0 ? null : fact.Locations[place];
+                resolved.CanonicalLocation = location;
+                resolved.LocationKey = location?.PlaceKey;
+                resolved.Scene = location?.Scene;
+                resolved.Zone = location?.Zone;
+                resolved.X = location?.X;
+                resolved.Y = location?.Y;
+                resolved.Z = location?.Z;
+                resolved.EntryZoneLineKeys = location?.EntryZoneLineKeys;
+                resolved.CanonicalSourceId =
+                    source.AcquisitionKey + "|" + (location?.PlaceKey ?? "");
+                if (location?.Relation == "possible_treasure")
+                {
+                    resolved.Type = "treasure_chest";
+                    resolved.Name = "Treasure map chest";
+                    resolved.Instruction = "Read a Treasure Map and dig at the marked spot.";
+                    resolved.Level = location.PlayerLevelMin;
+                    resolved.LevelMax = location.PlayerLevelMax;
+                }
+                if (place > 0)
+                    sources.Insert(++index, resolved);
+            }
         }
     }
 
     private SourceGate[] CompileSourceConditions(List<SourceCondition> conditions)
     {
-        var identities = new HashSet<(string, string, string, int, int)>();
-        var gates =
-            new Dictionary<(string, string), SortedDictionary<int, List<SourceCondition>>>();
+        var identities = new HashSet<(int, int, int)>();
+        var gates = new SortedDictionary<int, SortedDictionary<int, List<SourceCondition>>>();
         foreach (var atom in conditions)
         {
             ValidateSourceCondition(atom);
-            if (
-                !identities.Add(
-                    (atom.Scope, atom.GateKey, atom.Phase, atom.GroupIndex, atom.AtomIndex)
-                )
-            )
+            if (!identities.Add((atom.GateIndex, atom.AlternativeIndex, atom.AtomIndex)))
                 throw new InvalidDataException("Duplicate canonical source condition");
-            if (atom.Phase != "availability")
-                continue;
             if (atom.Predicate is "quest_done" or "quest_not_done")
             {
                 if (!_questStateKeys.TryGetValue(atom.ReferenceStableKey!, out var dbName))
@@ -409,11 +389,10 @@ public sealed partial class GuideData
                 atom.GameId = item.GameId;
             }
             atom.GuidanceAtom = SourceGuidanceAtom(atom);
-            var identity = (atom.Scope, atom.GateKey);
-            if (!gates.TryGetValue(identity, out var groups))
-                gates.Add(identity, groups = new());
-            if (!groups.TryGetValue(atom.GroupIndex, out var group))
-                groups.Add(atom.GroupIndex, group = new());
+            if (!gates.TryGetValue(atom.GateIndex, out var groups))
+                gates.Add(atom.GateIndex, groups = new());
+            if (!groups.TryGetValue(atom.AlternativeIndex, out var group))
+                groups.Add(atom.AlternativeIndex, group = new());
             group.Add(atom);
         }
         var result = new SourceGate[gates.Count];
@@ -470,7 +449,6 @@ public sealed partial class GuideData
                 Actor = atom.Actor,
                 Value = atom.Value,
                 Phase = atom.Phase,
-                Scope = atom.Scope,
                 GameId = atom.GameId,
             }
             : null;
@@ -481,8 +459,8 @@ public sealed partial class GuideData
         if (
             atom == null
             || string.IsNullOrWhiteSpace(atom.GateKey)
-            || string.IsNullOrWhiteSpace(atom.Scope)
-            || atom.GroupIndex < 0
+            || atom.GateIndex < 0
+            || atom.AlternativeIndex < 0
             || atom.AtomIndex < 0
         )
             throw new InvalidDataException("Invalid canonical source condition identity");
@@ -586,7 +564,7 @@ public sealed partial class GuideData
     {
         if (
             location == null
-            || string.IsNullOrWhiteSpace(location.LocationKey)
+            || string.IsNullOrWhiteSpace(location.PlaceKey)
             || location.Conditions == null
             || location.EntryZoneLineKeys == null
             || location.Relation
@@ -617,31 +595,7 @@ public sealed partial class GuideData
             );
         if (location.Relation == "unlocated" && any)
             throw new InvalidDataException("Unlocated canonical source cannot invent coordinates");
-        foreach (var atom in location.Conditions)
-            if (atom.Predicate == "account_state" && atom.Scope != location.LocationKey)
-                throw new InvalidDataException(
-                    "Canonical account condition must retain its actual location scope"
-                );
     }
-
-    private static bool SupportedAcquisitionKind(string kind) =>
-        kind
-            is "character_drop"
-                or "vendor"
-                or "dialog"
-                or "crafting"
-                or "quest_reward"
-                or "mining"
-                or "fishing"
-                or "item_bag"
-                or "item_drop"
-                or "spell_created"
-                or "item_conversion"
-                or "common_world_item"
-                or "special_world_drop"
-                or "fishing_bonus"
-                or "starting_class"
-                or "ui_grant";
 
     private static bool Finite(double value) => !double.IsNaN(value) && !double.IsInfinity(value);
 
@@ -665,8 +619,12 @@ public sealed partial class GuideData
 
 internal sealed partial class GuideWrapper
 {
-    [JsonProperty("_source_facts"), JsonRequired]
-    public Dictionary<string, SourceFact> SourceFacts { get; set; } = new(StringComparer.Ordinal);
+    [JsonProperty("_sources"), JsonRequired]
+    public Dictionary<string, SourceFact> Sources { get; set; } = new(StringComparer.Ordinal);
+
+    [JsonProperty("_place_sets"), JsonRequired]
+    public Dictionary<string, List<SourceLocation>> PlaceSets { get; set; } =
+        new(StringComparer.Ordinal);
 
     [JsonProperty("_source_ranks"), JsonRequired]
     public Dictionary<string, SourceRank> SourceRanks { get; set; } = new(StringComparer.Ordinal);

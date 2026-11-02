@@ -138,18 +138,14 @@ public sealed partial class GateConditions
                 Facts
             ) == (atom.Value == "true"),
             "actor_level" when atom.Actor == "player" => Within(Facts.PlayerLevel, atom),
-            // These describe the source actor, action or encounter, not a player-state unlock.
+            // These describe the selected action, source actor or requested quality.
             "actor_level"
             or "actor_class"
             or "encounter_won"
             or "quality"
             or "route"
-            or "zone_use"
-            or "source_replenishment"
-            or "formula_operand" => true,
-            "time_of_day" => throw new InvalidOperationException(
-                "Fishing time belongs to operation input, not availability"
-            ),
+            or "zone_use" => true,
+            "time_of_day" => ItemSourcePolicy.IsFishingDay(Facts.Hour) == (atom.Value == "day"),
             _ => throw new InvalidOperationException(
                 $"Unsupported canonical availability predicate: {atom.Predicate}"
             ),

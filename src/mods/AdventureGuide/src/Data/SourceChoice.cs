@@ -181,12 +181,11 @@ public sealed class SourceChoice
         )
             return false;
 
-        // Scope rebinding is safe only after the actor and physical context agree.
-        return ConditionsKey(x.Conditions, x) == ConditionsKey(y.Conditions, y)
-            && ConditionsKey(a.CanonicalFact?.Conditions, x)
-                == ConditionsKey(b.CanonicalFact?.Conditions, y)
-            && ConditionsKey(a.CanonicalUse?.Conditions, x)
-                == ConditionsKey(b.CanonicalUse?.Conditions, y);
+        return ConditionsKey(x.Conditions) == ConditionsKey(y.Conditions)
+            && ConditionsKey(a.CanonicalFact?.Conditions)
+                == ConditionsKey(b.CanonicalFact?.Conditions)
+            && ConditionsKey(a.CanonicalUse?.Conditions)
+                == ConditionsKey(b.CanonicalUse?.Conditions);
     }
 
     private static bool Finite(float? value) =>
@@ -216,22 +215,17 @@ public sealed class SourceChoice
         return true;
     }
 
-    private static bool OwnScope(string scope, SourceLocation location) =>
-        !string.IsNullOrEmpty(scope) && scope == location.LocationKey;
-
-    private static string ConditionsKey(List<SourceCondition>? conditions, SourceLocation location)
+    private static string ConditionsKey(List<SourceCondition>? conditions)
     {
         if (conditions == null || conditions.Count == 0)
             return "";
-        var families = new Dictionary<(string Scope, string Gate), Dictionary<int, List<string>>>();
+        var families = new Dictionary<int, Dictionary<int, List<string>>>();
         foreach (var atom in conditions)
         {
-            bool own = OwnScope(atom.Scope, location);
-            var family = (atom.Scope, atom.GateKey);
-            if (!families.TryGetValue(family, out var groups))
-                families.Add(family, groups = new());
-            if (!groups.TryGetValue(atom.GroupIndex, out var atoms))
-                groups.Add(atom.GroupIndex, atoms = new());
+            if (!families.TryGetValue(atom.GateIndex, out var groups))
+                families.Add(atom.GateIndex, groups = new());
+            if (!groups.TryGetValue(atom.AlternativeIndex, out var atoms))
+                groups.Add(atom.AlternativeIndex, atoms = new());
             var key = new StringBuilder();
             Field(key, atom.Predicate);
             Field(key, atom.ReferenceStableKey);
@@ -242,8 +236,6 @@ public sealed class SourceChoice
             Field(key, atom.Maximum?.ToString("R", CultureInfo.InvariantCulture));
             key.Append(atom.MinimumInclusive ? '1' : '0');
             key.Append(atom.MaximumInclusive ? '1' : '0');
-            key.Append(own ? '1' : '0');
-            Field(key, own ? null : atom.Scope);
             Field(key, atom.Phase);
             atoms.Add(key.ToString());
         }

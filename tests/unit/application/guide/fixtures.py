@@ -9,10 +9,11 @@ from erenshor.application.guide.canonical_sources import add_canonical_sources
 from erenshor.application.guide.graph import EntityGraph
 from erenshor.application.guide.schema import AtomKind, Edge, Gate, GateAtom, Node, NodeType, SubjectKind
 from erenshor.application.processor.item_provenance import ProvenanceBuilder
+from erenshor.application.processor.item_public_view import derive_public_view, write_public_view
 from erenshor.application.processor.writer import Writer
-from erenshor.domain.value_objects.item_provenance import PROVENANCE_SCHEMA_VERSION
+from erenshor.domain.value_objects.item_provenance import PROVENANCE_SCHEMA_VERSION, ItemDisposition
 from erenshor.infrastructure.database.connection import DatabaseConnection
-from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
+from erenshor.infrastructure.database.repositories.item_public_view import ItemPublicViewRepository
 
 if TYPE_CHECKING:
     from erenshor.domain.value_objects.item_provenance import ItemAcquisition, ItemUse
@@ -111,8 +112,18 @@ def load_canonical_sources(
     builder.uses.extend(uses or [])
     builder.persist()
     conn.executescript(raw_outcomes_sql)
+    write_public_view(
+        conn,
+        derive_public_view(
+            acquisitions,
+            uses or [],
+            [ItemDisposition(key, "current", "fixture") for key in sorted(item_keys)],
+            {},
+            {},
+        ),
+    )
     conn.commit()
     conn.close()
     with DatabaseConnection(path, read_only=True) as database, database.connect() as connection:
-        add_canonical_sources(ItemProvenanceRepository(database), connection, graph)
+        add_canonical_sources(ItemPublicViewRepository(database), connection, graph)
     graph.build_indexes()

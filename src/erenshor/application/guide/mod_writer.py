@@ -13,7 +13,7 @@ from collections import defaultdict
 from dataclasses import asdict
 from typing import TYPE_CHECKING, Any, cast
 
-from erenshor.domain.value_objects.item_provenance import ItemAcquisition, ItemUse, is_actionable_acquisition
+from erenshor.domain.value_objects.item_public_view import PublicSource, PublicUse
 
 from .compiler import CompiledData, Condition, edge_type_byte, node_type_byte
 from .schema import AtomKind, Edge, EdgeType, GateAtom, Node, NodeType, SubjectKind
@@ -65,7 +65,7 @@ def build_mod_guide(
     zone_lines = _ordered_zone_lines(nodes)
     line_index = {line.key: index for index, line in enumerate(zone_lines)}
     result: dict[str, Any] = {
-        "_version": 9,
+        "_version": 10,
         "_zone_lookup": _zone_lookup(nodes),
         "_conditions": [_condition_payload(graph, condition) for condition in compiled.conditions],
         "_gate_items": _gate_items(graph, nodes, compiled, compiled_nodes, reward_by_item),
@@ -98,12 +98,14 @@ def build_mod_guide(
             for quest in quests
         ],
     }
-    _normalize_source_tables(result, compiled)
+    _normalize_source_tables(result, compiled, nodes)
     quest_keys = {
         atom.reference_stable_key
-        for key in (*result["_source_facts"], *result["_item_uses"])
-        for fact in (compiled.source_facts[key],)
-        for atom in (*fact.conditions, *(atom for location in fact.locations for atom in location.conditions))
+        for fact in _selected_facts(compiled)
+        for atom in (
+            *fact.conditions,
+            *(atom for place in compiled.source_places.get(fact.place_set_key or "", ()) for atom in place.conditions),
+        )
         if atom.predicate in {"quest_done", "quest_not_done"} and atom.reference_stable_key is not None
     }
     quest_keys.update(
@@ -387,10 +389,15 @@ def _gate_items(
         | {
             atom.reference_stable_key
             for fact in _selected_facts(compiled)
-            for atom in (*fact.conditions, *(atom for location in fact.locations for atom in location.conditions))
-            if atom.phase == "availability"
-            and atom.predicate in {"item_held", "key_held", "room_furnished"}
-            and atom.reference_stable_key is not None
+            for atom in (
+                *fact.conditions,
+                *(
+                    atom
+                    for place in compiled.source_places.get(fact.place_set_key or "", ())
+                    for atom in place.conditions
+                ),
+            )
+            if atom.predicate in {"item_held", "key_held", "room_furnished"} and atom.reference_stable_key is not None
         }
         | {
             offering.item_stable_key
@@ -687,7 +694,7 @@ def _required_items(
         if quest_key != quest.key:
             continue
         canonical_items.add(item_key)
-        grouped: dict[tuple[str | None, str | None], list[ItemUse]] = {}
+        grouped: dict[tuple[str | None, str | None], list[PublicUse]] = {}
         for use in sorted(uses, key=lambda use: use.use_key):
             grouped.setdefault((use.variant_key, _requested_quality(use)), []).append(use)
         for (variant, quality), members in grouped.items():
@@ -1318,12 +1325,12 @@ def _sanitize(value: Any) -> Any:
         return None
     if isinstance(value, dict):
         return {key: _sanitize(item) for key, item in value.items()}
-    if isinstance(value, list):
+    if isinstance(value, (list, tuple)):
         return [_sanitize(item) for item in value]
     return value
 
 
-def _requested_quality(use: ItemUse) -> str | None:
+def _requested_quality(use: PublicUse) -> str | None:
     values = {
         atom.value
         for atom in use.conditions
@@ -1342,6 +1349,7 @@ def _canonical_item_sources(
     visiting: frozenset[str],
     *,
     requested_quality: str | None = None,
+    include_inputs: bool = True,
 ) -> list[dict[str, Any]]:
     """Expand source choices by path, retaining exact native acquisition and use identities."""
     if item_key in visiting:
@@ -1365,6 +1373,7 @@ def _canonical_item_sources(
         "fishing_bonus": "fishing_bonus",
         "starting_class": "starting_class",
         "ui_grant": "ui_grant",
+        "auction_house": "auction_house",
     }
     names = {
         "common_world_item": "Any enemy with common drops",
@@ -1372,10 +1381,9 @@ def _canonical_item_sources(
         "fishing_bonus": "Any fishing catch",
         "starting_class": "Starting equipment",
         "ui_grant": "Native interface",
+        "auction_house": "Auction House",
     }
-    for fact in sorted(compiled.acquisitions_by_item.get(item_key, ()), key=lambda fact: fact.acquisition_key):
-        if not is_actionable_acquisition(fact):
-            continue
+    for fact in sorted(compiled.acquisitions_by_item.get(item_key, ()), key=lambda fact: fact.source_key):
         if fact.kind not in types:
             raise ValueError(f"unsupported canonical acquisition kind: {fact.kind}")
         if fact.kind == "quest_reward" and fact.source_stable_key == exclude_quest_key:
@@ -1388,158 +1396,166 @@ def _canonical_item_sources(
         if requested_quality is not None and qualities and requested_quality not in qualities:
             continue
         if len(qualities) > 1:
-            raise ValueError(f"Ambiguous produced quality: {fact.acquisition_key}")
+            raise ValueError(f"Ambiguous produced quality: {fact.source_key}")
         source_key = fact.source_copy_stable_key or fact.source_stable_key
-        metadata = compiled.source_metadata.get(fact.acquisition_key)
+        metadata = compiled.source_metadata.get(fact.source_key)
         source = nodes.get(source_key) if source_key is not None else None
         if source is None and metadata is not None:
             source = nodes.get(metadata.source)
         name = source.display_name if source is not None else names.get(fact.kind, nodes[item_key].display_name)
-        locations = fact.locations or (None,)
-        for location in locations:
-            value: dict[str, Any] = {
-                "type": types[fact.kind],
-                "name": name,
-                "acquisition_key": fact.acquisition_key,
-                "item_stable_key": item_key,
+        if fact.kind == "fishing" and fact.mechanic == "fishing_global_replacement":
+            name = "Any water"
+        value: dict[str, Any] = {
+            "type": types[fact.kind],
+            "name": name,
+            "acquisition_key": fact.source_key,
+            "item_stable_key": item_key,
+        }
+        _put_if(value, "source_key", source_key)
+        _put_if(value, "quantity", fact.quantity_min)
+        _put_if(value, "output_quality", next(iter(qualities), None))
+        _put_if(value, "chance", fact.probability_min)
+        _put_if(value, "chance_max", fact.probability_max)
+        if fact.kind == "special_world_drop":
+            minimum = next(
+                (
+                    math.ceil(atom.minimum) if atom.minimum_inclusive else math.floor(atom.minimum) + 1
+                    for atom in fact.conditions
+                    if atom.predicate == "actor_level" and atom.actor == "enemy" and atom.minimum is not None
+                ),
+                None,
+            )
+            _put_if(value, "level", minimum)
+        if fact.kind == "quest_reward":
+            value["quest_key"] = fact.source_stable_key
+        if fact.kind == "crafting" and fact.mechanic != "remove_blessing":
+            value["recipe_key"] = f"recipe:{fact.source_stable_key}"
+        if source is not None:
+            level = _interaction_level(source) if value["type"] in _INTERACTION_SOURCE_TYPES else source.level
+            _put_if(value, "level", level if level is not None and level > 0 else None)
+        if metadata is not None:
+            _put_if(value, "keyword", metadata.keyword)
+            _put_if(value, "instruction", metadata.note)
+        if fact.kind == "vendor":
+            value["instruction"] = f"Buy {nodes[item_key].display_name}."
+        if fact.kind in {"item_drop", "spell_created", "item_conversion"}:
+            value["instruction"] = f"Use {name}."
+        if fact.kind == "crafting" and fact.mechanic == "remove_blessing":
+            value["type"] = "item_use"
+            value["instruction"] = f"Use {name} with eligible equipment and forge fuel to remove its blessing."
+            value["operation_use_keys"] = [use.use_key for use in compiled.source_uses.get(fact.source_key, ())]
+        period = next((atom.value for atom in fact.conditions if atom.predicate == "time_of_day"), None)
+        _put_if(value, "time_restriction", period)
+        if fact.kind == "fishing" and period in {"day", "night"}:
+            value[f"{period}_chance"] = fact.probability_min
+            value["night_chance" if period == "day" else "day_chance"] = 0
+        elif fact.kind == "fishing":
+            value["day_chance"] = fact.probability_min
+            value["night_chance"] = fact.probability_min
+        value["place_set_key"] = fact.place_set_key
+        children = []
+        for use in sorted(
+            compiled.source_uses.get(fact.source_key, ()) if include_inputs else (), key=lambda use: use.use_key
+        ):
+            # Equipment and fuel choices are alternatives, not an AND list.
+            # Their full phaseful records remain referenced as preparation.
+            if fact.mechanic == "remove_blessing" and use.mechanic != "blessing_removal_material":
+                continue
+            ingredient = nodes.get(use.item_stable_key)
+            if ingredient is None:
+                raise ValueError(f"Canonical operation input missing: {use.use_key}")
+            child: dict[str, Any] = {
+                "type": "ingredient",
+                "name": ingredient.display_name,
+                "item_stable_key": ingredient.key,
+                "use_key": use.use_key,
+                "quantity": use.quantity_min if use.quantity_min is not None else 1,
+                "children": _canonical_item_sources(
+                    compiled,
+                    ingredient.key,
+                    nodes,
+                    exclude_quest_key,
+                    visiting,
+                    requested_quality=_requested_quality(use),
+                ),
             }
-            _put_if(value, "source_key", source_key)
-            _put_if(value, "quantity", fact.quantity_min)
-            _put_if(value, "output_quality", next(iter(qualities), None))
-            _put_if(value, "chance", fact.probability_min)
-            _put_if(value, "chance_max", fact.probability_max)
-            if fact.kind == "special_world_drop":
-                minimum = next(
-                    (
-                        math.ceil(atom.minimum) if atom.minimum_inclusive else math.floor(atom.minimum) + 1
-                        for atom in fact.conditions
-                        if atom.predicate == "actor_level" and atom.actor == "enemy" and atom.minimum is not None
-                    ),
-                    None,
-                )
-                _put_if(value, "level", minimum)
-            if fact.kind == "quest_reward":
-                value["quest_key"] = fact.source_stable_key
-            if fact.kind == "crafting" and fact.mechanic != "remove_blessing":
-                value["recipe_key"] = f"recipe:{fact.source_stable_key}"
-            if source is not None:
-                level = _interaction_level(source) if value["type"] in _INTERACTION_SOURCE_TYPES else source.level
-                _put_if(value, "level", level if level is not None and level > 0 else None)
-            if metadata is not None:
-                _put_if(value, "keyword", metadata.keyword)
-                _put_if(value, "instruction", metadata.note)
-            if fact.kind == "vendor":
-                value["instruction"] = f"Buy {nodes[item_key].display_name}."
-            if fact.kind in {"item_drop", "spell_created", "item_conversion"}:
-                value["instruction"] = f"Use {name}."
-            if fact.kind == "crafting" and fact.mechanic == "remove_blessing":
-                value["type"] = "item_use"
-                value["instruction"] = f"Use {name} with eligible equipment and forge fuel to remove its blessing."
-                value["operation_use_keys"] = [
-                    use.use_key for use in compiled.source_uses.get(fact.acquisition_key, ())
-                ]
-            period = next((atom.value for atom in fact.conditions if atom.predicate == "time_of_day"), None)
-            _put_if(value, "time_restriction", period)
-            if fact.kind == "fishing" and period in {"day", "night"}:
-                value[f"{period}_chance"] = fact.probability_min
-                value["night_chance" if period == "day" else "day_chance"] = 0
-            if location is not None:
-                value["location_key"] = location.location_key
-                _put_if(value, "scene", location.scene)
-                zone = nodes.get(location.zone_stable_key) if location.zone_stable_key is not None else None
-                _put_if(value, "zone", zone.display_name if zone is not None else None)
-                for axis in ("x", "y", "z"):
-                    _put_if(value, axis, getattr(location, axis))
-                if location.entry_zone_line_keys:
-                    value["entry_zone_line_keys"] = list(location.entry_zone_line_keys)
-                if location.relation == "possible_treasure":
-                    value.update(
-                        type="treasure_chest",
-                        name="Treasure map chest",
-                        instruction="Read a Treasure Map and dig at the marked spot.",
-                    )
-                    _put_if(value, "level", location.player_level_min)
-                    _put_if(value, "level_max", location.player_level_max)
-            children = []
-            for use in sorted(compiled.source_uses.get(fact.acquisition_key, ()), key=lambda use: use.use_key):
-                # Equipment and fuel choices are alternatives, not an AND list.
-                # Their full phaseful records remain referenced as preparation.
-                if fact.mechanic == "remove_blessing" and use.mechanic != "blessing_removal_material":
-                    continue
-                ingredient = nodes.get(use.item_stable_key)
-                if ingredient is None:
-                    raise ValueError(f"Canonical operation input missing: {use.use_key}")
-                child: dict[str, Any] = {
-                    "type": "ingredient",
-                    "name": ingredient.display_name,
-                    "item_stable_key": ingredient.key,
-                    "use_key": use.use_key,
-                    "quantity": use.quantity_min if use.quantity_min is not None else 1,
-                    "children": _canonical_item_sources(
-                        compiled,
-                        ingredient.key,
-                        nodes,
-                        exclude_quest_key,
-                        visiting,
-                        requested_quality=_requested_quality(use),
-                    ),
-                }
-                child_id = compiled.node_key_to_id[ingredient.key]
-                authored = _authored_item_sources(
-                    compiled, child_id, {node.node_id: node for node in compiled.nodes}, nodes
-                )
-                child["children"].extend(_with_source_conditions(authored, ingredient, compiled))
-                _sort_sources(child["children"])
-                _put_if(child, "output_quality", _requested_quality(use))
-                children.append(child)
-            if children:
-                value["children"] = children
-            result.append(value)
+            child_id = compiled.node_key_to_id[ingredient.key]
+            authored = _authored_item_sources(
+                compiled, child_id, {node.node_id: node for node in compiled.nodes}, nodes
+            )
+            child["children"].extend(_with_source_conditions(authored, ingredient, compiled))
+            _sort_sources(child["children"])
+            _put_if(child, "output_quality", _requested_quality(use))
+            children.append(child)
+        if children:
+            value["children"] = children
+        result.append(value)
     _sort_sources(result)
     return result
 
 
-def _normalize_source_tables(result: dict[str, Any], compiled: CompiledData) -> None:
-    """Emit each referenced typed record once."""
-    acquisition_keys: set[str] = set()
+def _normalize_source_tables(result: dict[str, Any], compiled: CompiledData, nodes: dict[str, Node]) -> None:
+    """Store public sources and shared places once, with path-specific references."""
     use_keys: set[str] = set()
 
     def visit(value: Any) -> None:
         if isinstance(value, dict):
-            if "acquisition_key" in value:
-                acquisition_keys.add(value["acquisition_key"])
             if "use_key" in value:
                 use_keys.add(value["use_key"])
             use_keys.update(value.get("use_keys", ()))
             use_keys.update(value.get("operation_use_keys", ()))
-            for member in value.values():
+            for member in tuple(value.values()):
                 visit(member)
+            if "acquisition_key" in value:
+                reference = {
+                    key: member
+                    for key, member in value.items()
+                    if key in {"acquisition_key", "children", "operation_use_keys"}
+                }
+                value.clear()
+                value.update(reference)
         elif isinstance(value, list):
             for member in value:
                 visit(member)
 
     visit(result)
-    # An input's outcome is a real canonical reference even when a quality filter hid its source choice.
-    for key in sorted(use_keys):
-        use = compiled.source_facts.get(key)
-        if not isinstance(use, ItemUse):
-            raise ValueError(f"Missing canonical use: {key}")
-        if use.outcome_key is not None:
-            acquisition_keys.add(use.outcome_key)
-    facts = {}
-    for key in sorted(acquisition_keys):
-        fact = compiled.source_facts.get(key)
-        if not isinstance(fact, ItemAcquisition):
-            raise ValueError(f"Missing canonical acquisition: {key}")
-        facts[key] = asdict(fact)
-    uses = {key: asdict(compiled.source_facts[key]) for key in sorted(use_keys)}
-    result["_source_facts"] = facts
+    sources = {}
+    for item_key in sorted(compiled.acquisitions_by_item):
+        for value in _canonical_item_sources(compiled, item_key, nodes, "", frozenset(), include_inputs=False):
+            key = value.pop("acquisition_key")
+            fact = compiled.source_facts[key]
+            assert isinstance(fact, PublicSource)
+            value.pop("children", None)
+            value.pop("operation_use_keys", None)
+            value["kind"] = fact.kind
+            value["conditions"] = [asdict(atom) for atom in fact.conditions]
+            sources[key] = value
+    result["_sources"] = dict(sorted(sources.items()))
+    place_sets = {
+        fact.place_set_key
+        for facts in compiled.acquisitions_by_item.values()
+        for fact in facts
+        if fact.place_set_key is not None
+    }
+    result["_place_sets"] = {
+        key: [
+            {
+                **{field: value for field, value in asdict(place).items() if field != "place_set_key"},
+                "zone": nodes[place.zone_stable_key].display_name if place.zone_stable_key in nodes else None,
+            }
+            for place in compiled.source_places[key]
+        ]
+        for key in sorted(place_sets)
+    }
     result["_source_ranks"] = {
         key: {"tier": compiled.source_ranks[key][0], "depth": compiled.source_ranks[key][1]}
-        for key in facts
+        for key in sources
         if key in compiled.source_ranks
     }
-    result["_item_uses"] = uses
+    result["_item_uses"] = {
+        key: {field: value for field, value in asdict(compiled.source_facts[key]).items() if field != "mechanic"}
+        for key in sorted(use_keys)
+    }
 
 
 def _authored_item_sources(
@@ -1608,7 +1624,7 @@ def _authored_item_sources(
     return result
 
 
-def _selected_facts(compiled: CompiledData) -> Iterable[ItemAcquisition | ItemUse]:
+def _selected_facts(compiled: CompiledData) -> Iterable[PublicSource | PublicUse]:
     for facts in compiled.acquisitions_by_item.values():
         yield from facts
     for uses in compiled.source_uses.values():

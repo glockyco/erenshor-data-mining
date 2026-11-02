@@ -10,6 +10,7 @@ internal sealed class GateTestFacts : IGateFacts
     public HashSet<string> Keyring { get; } = new(StringComparer.OrdinalIgnoreCase);
     public Dictionary<string, string> Rooms { get; } = new(StringComparer.OrdinalIgnoreCase);
     public bool AccountClaimed { get; set; }
+    public int Hour { get; set; } = 12;
     public string? ReturnZone { get; set; }
     public UnityEngine.Vector3? ReturnLanding { get; set; }
     public int PlayerLevel { get; set; }
@@ -59,7 +60,7 @@ public sealed class GateConditionsTests
             ? "Place Portal stone in a rune slot on your planning table."
             : "Place Portal stone in the planning-table slot for Test destination.";
         string json = """
-            {"_version":9,"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},"_source_facts":{},"_source_ranks":{},"_item_uses":{},"_quest_state_keys":{},"quests":[],"_conditions":[[[{"kind":"planning_slot_item","ref":"item:key","slot":"SLOT","instruction":INSTRUCTION}]]],
+            {"_version":10,"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},"_sources":{},"_place_sets":{},"_source_ranks":{},"_item_uses":{},"_quest_state_keys":{},"quests":[],"_conditions":[[[{"kind":"planning_slot_item","ref":"item:key","slot":"SLOT","instruction":INSTRUCTION}]]],
              "_zone_line_destination_contexts":{},
              "_gate_items":{"item:key":{"name":"Portal stone","game_id":"134379"}}}
             """.Replace("SLOT", slot).Replace(
@@ -114,7 +115,7 @@ public sealed class GateConditionsTests
     public void Stored_portal_item_rejects_missing_instruction(string? instruction)
     {
         string json = """
-            {"_version":9,"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},"_source_facts":{},"_source_ranks":{},"_item_uses":{},"_quest_state_keys":{},"quests":[],"_conditions":[[[{"kind":"planning_slot_item","ref":"item:key","slot":"Rune1","instruction":INSTRUCTION}]]],
+            {"_version":10,"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},"_sources":{},"_place_sets":{},"_source_ranks":{},"_item_uses":{},"_quest_state_keys":{},"quests":[],"_conditions":[[[{"kind":"planning_slot_item","ref":"item:key","slot":"Rune1","instruction":INSTRUCTION}]]],
              "_zone_line_destination_contexts":{},
              "_gate_items":{"item:key":{"name":"Portal stone","game_id":"2096280"}}}
             """.Replace("INSTRUCTION", Newtonsoft.Json.JsonConvert.SerializeObject(instruction));
@@ -125,7 +126,7 @@ public sealed class GateConditionsTests
     public void Stored_portal_item_rejects_absent_instruction_property()
     {
         const string json = """
-            {"_version":9,"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},"_source_facts":{},"_source_ranks":{},"_item_uses":{},"_quest_state_keys":{},"quests":[],"_conditions":[[[{"kind":"planning_slot_item","ref":"item:key","slot":"Rune1"}]]],
+            {"_version":10,"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},"_sources":{},"_place_sets":{},"_source_ranks":{},"_item_uses":{},"_quest_state_keys":{},"quests":[],"_conditions":[[[{"kind":"planning_slot_item","ref":"item:key","slot":"Rune1"}]]],
              "_zone_line_destination_contexts":{},
              "_gate_items":{"item:key":{"name":"Portal stone","game_id":"2096280"}}}
             """;
@@ -305,7 +306,7 @@ public sealed class GateConditionsTests
     {
         string property = quantity.HasValue ? ",\"quantity\":" + quantity.Value : "";
         string json = """
-            {"_version":9,"_zone_line_destination_contexts":{},"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},"_source_facts":{},"_source_ranks":{},"_item_uses":{},"_quest_state_keys":{},"quests":[],
+            {"_version":10,"_zone_line_destination_contexts":{},"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},"_sources":{},"_place_sets":{},"_source_ranks":{},"_item_uses":{},"_quest_state_keys":{},"quests":[],
              "_conditions":[[[{"kind":"encounter_won","ref":"REFERENCE"QUANTITY}]]]}
             """.Replace("QUANTITY", property).Replace("REFERENCE", reference);
         var data = GuideData.Parse(json);
