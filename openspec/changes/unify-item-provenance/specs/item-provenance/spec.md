@@ -202,3 +202,23 @@ A configured quest reward SHALL NOT become an item acquisition solely because a 
 
 - WHEN a reward-granting route also marks another quest complete without executing that other quest's reward grant
 - THEN it does not create acquisitions for the other quest's configured rewards
+
+### Requirement: Shared facts are stored once
+
+The clean database SHALL store a location, condition or parameter that several facts share once, with the source or mechanism they share it through. A serialized payload SHALL NOT repeat a source's locations for each of its facts. The clean build and the map build SHALL fail when an output exceeds its size limit.
+
+#### Scenario: A character drops several items
+
+- WHEN a character with several spawn points drops several items
+- THEN the clean database stores each spawn point once for that character
+- AND every drop of the character resolves to those spawn points
+
+#### Scenario: A mechanism applies one formula to every input
+
+- WHEN every input of a mechanism shares its formula and eligibility
+- THEN the clean database stores the formula and eligibility once for the mechanism
+
+#### Scenario: An output outgrows its limit
+
+- WHEN the clean database exceeds its budget or a map build file exceeds 25 MiB
+- THEN the build fails and names the file and its size

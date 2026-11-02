@@ -7,7 +7,7 @@ Item acquisition is selected independently by article generation, Lua data, map 
 ## What Changes
 
 - Select acquisition and item-use facts once during clean database construction, without wiki or map visibility filtering.
-- Publish a versioned, stable-keyed contract for sources, outcomes, quantities, conditions, locations, evidence, and reviewed lifecycle dispositions.
+- Publish a versioned, stable-keyed contract for sources, outcomes, quantities, conditions, locations and reviewed lifecycle dispositions, with what several facts share stored once. The build checks which input rows each fact uses without publishing that evidence.
 - Preserve encountered character copies separately from display representatives, item variants separately from page aliases, and random or unlocated sources separately from marker locations.
 - Migrate all maintained consumers, including existing parameter-based article generation during the transition. Remove their independent source-selection queries rather than retain a second implementation.
 - Add cross-output fact-coverage accounting that fails on silent loss, unsupported kinds, and contradictory or unresolved identities.

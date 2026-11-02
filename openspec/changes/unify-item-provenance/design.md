@@ -47,9 +47,10 @@ The authoritative relations are:
 
 - `item_acquisitions`: `acquisition_key`, `item_stable_key`, `kind`, `source_stable_key`, `source_group_key`, `source_copy_stable_key`, `variant_key`, `mechanic`, `player_access_state`, `probability_kind`, `probability_min`, `probability_max`, `probability_basis`, `probability_stage`, `quantity_min`, `quantity_max`, `quantity_kind`, `expected_quantity`, `count_distribution`, and `guarantee_scope`. `player_access_state` is `verified_player`, `unconfirmed_player`, `internal_only`, or `non_acquirable`. `probability_stage` separates `native_pool` evidence from `final_acquisition` rates, preventing double counting of replacement mechanisms. Mechanic and UI sources have their own stable source identity. Source keys are nullable only for genuinely global/random mechanisms, never because a link page is absent.
 - `item_acquisition_conditions`: acquisition key plus the existing gate/group/atom algebra, typed references and numeric bounds. All gates hold, and within a gate any group holds when all its atoms hold. Add typed day/night, actor-level, quality, zone-use, and route predicates where acquisition facts need them. Do not encode these as English strings. Copy, placement, and route scope remain explicit so alternatives cannot accidentally become conjunctions.
-- `item_acquisition_locations`: acquisition key, location key, relation (`fixed`, `spawn`, `possible_treasure`, `interaction`, `mechanic_zone`, or `unlocated`), scene/zone references, placement key, coordinate reference, gate scope, and eligible player-level interval. An unlocated relation carries no fabricated coordinate. Broker interaction locations describe access to an auction route, not guaranteed stock. Possible treasure locations remain per site, not a min/max envelope over unrelated eligibility ranges.
+- `item_source_locations`: source key, location key, relation (`fixed`, `spawn`, `possible_treasure`, `interaction`, `mechanic_zone`, or `unlocated`), scene/zone references, coordinate reference, eligible player-level interval and local conditions, stored once per source as section 7 describes. A fact names its source in `location_source_key`. An unlocated relation carries no fabricated coordinate. Broker interaction locations describe access to an auction route, not guaranteed stock. Possible treasure locations remain per site, not a min/max envelope over unrelated eligibility ranges.
+- `item_mechanic_conditions`: mechanism key plus the condition algebra, for conditions that every fact of a mechanism shares.
 - `item_uses`: `use_key`, input item key, target key, kind, variant key, material slot, quantity bounds, mechanic and outcome identity. Attach typed conditions and locations through equivalent child relations. Crafting recipes and reward slots, quest variants and required slots, item conversion, smithing, quality offerings, and item-use zone restrictions remain separately addressable. Acquisition and use rows share mechanism identity where they are opposite projections of one operation.
-- `item_provenance_evidence`: owner key, input relation, and complete input primary key. Multiple evidence rows are allowed for one semantic fact. Common-world summaries retain contributing copy outcomes here, not as individual dropper acquisitions.
+- Evidence of which input rows each fact uses stays in the build, as section 7 describes. `item_acquisition_contributors` holds the characters that contribute to each common world item, not as individual dropper acquisitions.
 - `item_dispositions`: stable item identity, disposition (`current`, `removed`, `unobtainable`, `unused`), reviewed reason/evidence, and current/former page relations. Preserve records for removed identities absent from `items`. Unknown acquisition coverage is a build error or explicit unresolved coverage, never evidence of removal.
 - `item_provenance_meta`: schema version, source game build, and input digests including reviewed lifecycle input.
 
@@ -109,6 +110,31 @@ Each adapter emits a build-time coverage manifest keyed by acquisition/use ID an
 Coverage manifests and anti-joins are offline generation/test artifacts, not runtime publication data. Do not add diagnostic coverage rows, instrumentation, allocations or per-frame validation to live C# source ranking, navigation or rendering hot paths. Runtime payloads carry only the identity and factual fields their real consumers require. Contract tests inspect those payloads offline. Publication approval and browser/game acceptance remain separate gates from fact-contract validation.
 
 Independent fixtures and input-to-contract anti-joins establish completeness. Consumer-to-consumer equality alone is insufficient because all consumers could omit the same input. Compare identity sets and typed values before formatting, not rounded strings or row counts alone. Assert positive control counts for every populated source family. Include fixtures for repeated reward slots, same-name different keys, copy-specific loot rates, default classes, missing wiki pages, all auction routes, disjoint treasure intervals, furniture gates, unknown locations, common-world mixed flags, exact/unknown/zero rates, and lifecycle states. Mutation tests remove a condition, quantity, probability, location, source ID or whole kind and require the coverage check to fail.
+
+### 7. Each fact stored once, within the publication limits
+
+A fact stores only what belongs to it. What it shares with the other facts of its source or mechanism is stored once, with that source or mechanism, because per-fact copies grew the clean database from 13.5 MB to 246 MB and the map page past Cloudflare's limit of 25 MiB for one file. The measured causes are in the table at the end of this section.
+
+- Locations belong to their source: the encountered character copy, chest copy, mining node, water, broker or mechanism. `item_source_locations` holds each source's locations once, keyed by the source and the location, and a fact names its source in `location_source_key`. The readers give every fact of a source the same location objects, so a serialized payload can refer to them once.
+- A location stores its identity once, in `location_key`. `placement_key` and `gate_scope` repeated it.
+- Conditions that every fact of a mechanism shares, such as the Flame Well formula and eligibility and the loot rate context, are stored once in `item_mechanic_conditions`, keyed by the mechanism. Loot facts name the loot roll as their mechanism.
+- Quality offerings have one use per input item and slot for the Flame Well group, whose nine wells are its locations.
+- The build keeps the evidence of which input rows each fact uses in memory. Its completeness check and its comparison with the independent derivation read it there, and the clean database doesn't store it. `item_acquisition_contributors` holds the characters that contribute to each common world item, which the wiki's character data reads.
+- Tables with a composite primary key are `WITHOUT ROWID`, so SQLite doesn't store the key a second time in an index.
+- The guide data refers to each source's locations once. Today it writes one source entry per acquisition and location in `quests` and `_gate_items`, and every location again in `_source_facts`.
+- The clean build fails when the database exceeds its budget, set 20% above its size after this section lands. The map build fails when one of its files exceeds 25 MiB, so the build finds an oversized file before a deploy does.
+
+Measured on scratch copies of the clean database of game build 24405256, each step after the steps above it:
+
+| Cause | Saves |
+|---|---|
+| Quality offerings written once per equipment item and well | 79.2 MB |
+| Locations repeated for each fact of a source | 42.8 MB |
+| Evidence stored per fact | 78.1 MB |
+| Rate conditions repeated for each drop | 6.7 MB |
+| Composite keys stored twice | 4.9 MB |
+
+The database then measures about 34 MB, which is still above 25 MiB. Task 4.9 decides how `/db/erenshor.sqlite` is served at its URL, and task 4.8 how the map page carries item sources within the limit. The same commit grew the guide's `quest_guides/quest-guide.json` from 2.0 MB to 51 MB, and it measures 42 MB now. Its source entries take 14.1 MB of `quests`, and the locations take 12.4 MB of the 16.1 MB of `_source_facts`.
 
 ## Verification and Precise Test Homes
 
