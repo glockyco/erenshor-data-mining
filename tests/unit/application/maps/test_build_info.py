@@ -138,3 +138,15 @@ def test_read_build_info_rejects_blank_hashes(tmp_path: Path) -> None:
     (build_dir / build_info.BUILD_INFO_NAME).write_text('{"code": "abc", "data": "", "tiles": "jkl"}\n')
 
     assert build_info.read_build_info(build_dir) is None
+
+
+def test_a_build_file_above_the_limit_fails_and_is_named_with_its_size(tmp_path: Path) -> None:
+    build_dir = tmp_path / "build"
+    (build_dir / "db").mkdir(parents=True)
+    (build_dir / "db" / "erenshor.sqlite").write_bytes(b"x" * 11)
+    (build_dir / "index.html").write_bytes(b"x" * 10)
+
+    build_info.require_files_within_limit(build_dir, limit=11)
+    with pytest.raises(build_info.OversizedFileError, match=r"db/erenshor.sqlite \(11 bytes\)") as error:
+        build_info.require_files_within_limit(build_dir, limit=10)
+    assert "index.html" not in str(error.value)

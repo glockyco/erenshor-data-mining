@@ -125,6 +125,26 @@ def test_invalid_builder_output_fails_and_cleans_staging(
     assert not list(tmp_path.glob(".database.sqlite.*.tmp"))
 
 
+def test_a_database_above_its_budget_fails_and_names_its_size(tmp_path: Path) -> None:
+    request = _request(tmp_path)
+    request.clean_db_path.write_bytes(b"old")
+
+    def builder(**kwargs: object) -> None:
+        staged_path = kwargs["clean_db_path"]
+        assert isinstance(staged_path, Path)
+        _write_sqlite(staged_path)
+
+    builder(clean_db_path=tmp_path / "measured.sqlite")
+    size = (tmp_path / "measured.sqlite").stat().st_size
+    CleanDatabaseWorkflow(builder, budget_bytes=size).run(request)
+    request.clean_db_path.write_bytes(b"old")
+    with pytest.raises(CleanDatabaseWorkflowError, match=f"is {size} bytes, above its budget of {size - 1} bytes"):
+        CleanDatabaseWorkflow(builder, budget_bytes=size - 1).run(request)
+
+    assert request.clean_db_path.read_bytes() == b"old"
+    assert not list(tmp_path.glob(".database.sqlite.*.tmp"))
+
+
 def test_request_and_result_are_immutable(tmp_path: Path) -> None:
     request = _request(tmp_path)
     result = CleanDatabaseResult(clean_db_path=request.clean_db_path)

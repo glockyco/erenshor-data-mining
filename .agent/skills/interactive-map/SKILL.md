@@ -52,6 +52,7 @@ Browser pages use prerendered data, not a browser database download.
 The prerendered `src/maps/src/routes/db/erenshor.sqlite/+server.ts` route still publishes unchanged bytes at `/db/erenshor.sqlite`.
 Keep this route for shipped companions and other database consumers.
 Remove any `.sqlite` under `src/maps/static/` if `maps dev` or `maps build` rejects a conflicting static file.
+`maps build` fails when a build file exceeds 25 MiB, because Cloudflare serves no larger file.
 Rebuild when `maps preview` or `maps deploy` reports stale inputs.
 
 `maps dev` and `maps build` generate catalog-backed WebP sets incrementally:

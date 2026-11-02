@@ -21,6 +21,10 @@ from erenshor.application.processor.build import build as build_clean_db
 from erenshor.application.processor.pictures import CATALOG_DIRECTORY, prune_catalog
 from erenshor.infrastructure.config.paths import require_owned_write_path
 
+# 20% above the clean database's size when each fact is stored once. A database that outgrows it
+# has usually started to repeat facts, so the build stops before it publishes one.
+CLEAN_DATABASE_BUDGET_BYTES = 41_000_000
+
 
 class CleanDatabaseBuilder(Protocol):
     """Production clean-database builder surface used by the workflow."""
@@ -64,8 +68,11 @@ class CleanDatabaseResult:
 class CleanDatabaseWorkflow:
     """Build into a sibling temporary path and atomically publish the result."""
 
-    def __init__(self, builder: CleanDatabaseBuilder = build_clean_db) -> None:
+    def __init__(
+        self, builder: CleanDatabaseBuilder = build_clean_db, *, budget_bytes: int = CLEAN_DATABASE_BUDGET_BYTES
+    ) -> None:
         self._builder = builder
+        self._budget_bytes = budget_bytes
 
     def run(self, request: CleanDatabaseRequest) -> CleanDatabaseResult:
         """Run the production builder and publish only a successful output.
@@ -116,8 +123,7 @@ class CleanDatabaseWorkflow:
         staged_path.unlink()
         return staged_path
 
-    @staticmethod
-    def _validate_staged_output(staged_path: Path) -> None:
+    def _validate_staged_output(self, staged_path: Path) -> None:
         if not staged_path.exists():
             raise CleanDatabaseWorkflowError(f"Clean database builder did not produce an output: {staged_path}")
         if not staged_path.is_file():
@@ -136,9 +142,16 @@ class CleanDatabaseWorkflow:
             raise CleanDatabaseWorkflowError(
                 f"Clean database builder produced an invalid SQLite database: {staged_path}"
             )
+        size = staged_path.stat().st_size
+        if size > self._budget_bytes:
+            raise CleanDatabaseWorkflowError(
+                f"The clean database is {size} bytes, above its budget of {self._budget_bytes} bytes: {staged_path}"
+            )
+        logger.info(f"Clean DB size: {size} bytes of a {self._budget_bytes} byte budget")
 
 
 __all__ = [
+    "CLEAN_DATABASE_BUDGET_BYTES",
     "CleanDatabaseBuilder",
     "CleanDatabaseRequest",
     "CleanDatabaseResult",

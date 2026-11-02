@@ -24,6 +24,7 @@ If rip reports an unreadable old `Packages/manifest.json`, repair it before retr
 4. Run `uv run erenshor -V {v} extract code-facts`. Resolve changed matcher bindings against the shipped assembly. Follow `skill://code-facts`.
 5. Run `uv run erenshor -V {v} extract build`. The build requires the code-facts tables. It writes the clean database and adds it to the build's backup.
 6. If the build rejects a stale `expected_npc_name`, review the new raw NPC name. Update or remove that `mapping.json` override, then rebuild. Fix processor errors at their source in `src/erenshor/application/processor/`.
+7. If the build stops because the clean database exceeds its budget, find the tables that grew with `sqlite3 <database> "SELECT name, SUM(pgsize) FROM dbstat GROUP BY name ORDER BY 2 DESC LIMIT 20"`. Raise `CLEAN_DATABASE_BUDGET_BYTES` in `src/erenshor/application/extract/clean_database_workflow.py` only for new game data, because a table that repeats facts also grows the map, the wiki modules and the guide.
 
 If Unity reports `Unity licensing validation failed`, open Unity Hub, wait for licensing, and retry export. If exported data still shows the old build, rerip and export before rebuilding.
 

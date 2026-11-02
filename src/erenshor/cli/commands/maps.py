@@ -363,6 +363,7 @@ def build(
 
         logger.info("Running Vite build")
         _run(["pnpm", "exec", "vite", "build"], maps_dir, env=site_env)
+        build_info.require_files_within_limit(build_dir)
         hashes = build_info.compute_input_hashes(maps_source_dir=maps_dir, database_path=db_path)
         build_info.write_build_info(build_dir, hashes)
         console.print()

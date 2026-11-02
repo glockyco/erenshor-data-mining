@@ -23,10 +23,28 @@ _CONFIG_FILES = (
     "wrangler.jsonc",
 )
 _ROOT_CONFIG_FILES = ("pnpm-lock.yaml",)
+# Cloudflare serves no static asset larger than 25 MiB.
+FILE_LIMIT_BYTES = 25 * 1024 * 1024
 
 
 class TileInputError(ValueError):
     """Raised when the map tile tree cannot produce a deployable build."""
+
+
+class OversizedFileError(ValueError):
+    """Raised when a build file is larger than one file Cloudflare serves."""
+
+
+def require_files_within_limit(build_dir: Path, limit: int = FILE_LIMIT_BYTES) -> None:
+    """Fail the build that writes a file a deploy would reject."""
+    oversized = sorted(
+        (str(path.relative_to(build_dir)), size)
+        for path in build_dir.rglob("*")
+        if path.is_file() and (size := path.stat().st_size) > limit
+    )
+    if oversized:
+        files = ", ".join(f"{name} ({size} bytes)" for name, size in oversized)
+        raise OversizedFileError(f"Build files exceed the {limit} byte limit of one file: {files}")
 
 
 def validate_tile_files(maps_source_dir: Path) -> None:
