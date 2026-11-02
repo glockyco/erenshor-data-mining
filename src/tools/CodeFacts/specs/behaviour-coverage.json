@@ -372,7 +372,7 @@
         "Inventory.HasItem"
       ],
       "classification": "core",
-      "component": "LootTableListener and processor/item_provenance_coverage.py unique-item replacement rules"
+      "component": "LootTableListener and processor/item_provenance.py ProvenanceBuilder.loot and ProvenanceBuilder.ownership_replacement, covered directly by tests/unit/application/processor/test_item_provenance_coverage.py::test_unique_loot_requires_native_ownership_replacement_condition"
     },
     "MalarothFeed": {
       "apis": [

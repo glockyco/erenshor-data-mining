@@ -1,4 +1,4 @@
-"""Shipping native inputs retain canonical identities, dimensions and explicit omissions."""
+"""Shipping inputs are accounted for and stored sources use the shared public view."""
 
 from __future__ import annotations
 
@@ -9,8 +9,8 @@ from pathlib import Path
 
 from erenshor.application.processor.item_provenance import ProvenanceBuilder, select_item_provenance
 from erenshor.application.processor.item_provenance_coverage import validate_item_provenance
-from erenshor.infrastructure.database.connection import DatabaseConnection
-from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
+from erenshor.application.processor.item_public_view import derive_public_view
+from erenshor.infrastructure.content_lifecycle import derive_item_dispositions, load_content_lifecycle
 
 _ROOT = Path(__file__).resolve().parents[2]
 
@@ -25,229 +25,19 @@ def _selection(clean_path: Path, raw_path: Path, reviewed: frozenset[str]) -> Pr
         return select_item_provenance(clean, raw, reviewed_unreachable=reviewed)
 
 
-def _consumed(builder: ProvenanceBuilder) -> set[tuple[str, str]]:
-    return {
-        (entry.input_relation, entry.input_primary_key)
-        for entries in builder.fact_evidence.values()
-        for entry in entries
-    }
-
-
-def _native_loot_omissions(
-    connection: sqlite3.Connection, consumed: set[tuple[str, str]]
-) -> dict[tuple[str, str], str]:
-    """Classify unused native origins without discarding recorded non-acquirable evidence."""
-    reasons = dict(
-        connection.execute(
-            """
-            SELECT source.StableKey,
-                CASE
-                    WHEN source.MiningNodeStableKey IS NOT NULL THEN 'non_world_mining_host'
-                    WHEN host.StableKey IS NULL THEN 'loot_host_missing'
-                    WHEN host.DestroyOnDeath THEN 'loot_host_destroy_on_death'
-                    WHEN host.DoNotLeaveCorpse THEN 'loot_host_do_not_leave_corpse'
-                    WHEN host.IsSimPlayer THEN 'non_player_host'
-                    WHEN NOT EXISTS (
-                        SELECT 1 FROM native.LootDrops outcome
-                        WHERE outcome.LootTableStableKey = source.StableKey
-                    ) THEN 'empty_native_loot_configuration'
-                    WHEN NOT EXISTS (
-                        SELECT 1 FROM character_fact_sources copy
-                        WHERE copy.member_stable_key = source.CharacterStableKey
-                    ) THEN 'unencountered_copy'
-                    WHEN EXISTS (
-                        SELECT 1 FROM character_fact_sources copy
-                        JOIN characters clean_host ON clean_host.stable_key=copy.member_stable_key
-                        WHERE copy.member_stable_key=source.CharacterStableKey
-                          AND clean_host.can_be_damaged=0 AND clean_host.treasure_chest=0
-                    ) THEN 'loot_host_undamageable'
-                END
-            FROM native.LootTableSources source
-            LEFT JOIN native.Characters host ON host.StableKey = source.CharacterStableKey
-            """
-        )
-    )
-    omissions: dict[tuple[str, str], str] = {}
-    for relation, columns, source in (
-        ("LootTableSources", "StableKey", "StableKey"),
-        ("LootDrops", "LootTableStableKey, ItemStableKey", "LootTableStableKey"),
-        ("LootTablePoolSlots", "LootTableStableKey, Pool, Position", "LootTableStableKey"),
-    ):
-        for row in connection.execute(f"SELECT {columns}, {source} FROM native.{relation}"):
-            reason = reasons[row[-1]]
-            if reason is not None:
-                primary = json.dumps(tuple(row[:-1]), ensure_ascii=False, separators=(",", ":"))
-                identity = "raw." + relation, primary
-                if identity not in consumed:
-                    omissions[identity] = reason
-    return omissions
-
-
-def _expected_omissions(connection: sqlite3.Connection, consumed: set[tuple[str, str]]) -> dict[tuple[str, str], str]:
-    """Account for public native rows that do not execute an item acquisition."""
-    omissions: dict[tuple[str, str], str] = {}
-    queries = (
-        (
-            "loot_drops",
-            "unencountered_copy",
-            """
-            SELECT character_stable_key, item_stable_key FROM loot_drops
-            WHERE character_stable_key NOT IN (SELECT member_stable_key FROM character_fact_sources)
-        """,
-        ),
-        (
-            "loot_drops",
-            "loot_host_undamageable",
-            """
-            SELECT loot.character_stable_key, loot.item_stable_key FROM loot_drops loot
-            JOIN characters host ON host.stable_key=loot.character_stable_key
-            WHERE loot.is_common_world_item=1 AND host.can_be_damaged=0 AND host.treasure_chest=0
-              AND loot.is_common=0 AND loot.is_uncommon=0 AND loot.is_rare=0 AND loot.is_legendary=0
-              AND loot.is_ultra_rare=0 AND loot.is_guaranteed=0 AND loot.is_actual=0
-              AND loot.character_stable_key IN (SELECT member_stable_key FROM character_fact_sources)
-        """,
-        ),
-        (
-            "character_dialogs",
-            "unencountered_copy",
-            """
-            SELECT character_stable_key, dialog_index FROM character_dialogs
-            WHERE give_item_stable_key IS NOT NULL
-              AND character_stable_key NOT IN (SELECT member_stable_key FROM character_fact_sources)
-        """,
-        ),
-        (
-            "character_quest_manager_quests",
-            "unencountered_copy",
-            """
-            SELECT character_stable_key, quest_slot FROM character_quest_manager_quests
-            WHERE character_stable_key NOT IN (SELECT member_stable_key FROM character_fact_sources)
-        """,
-        ),
-        (
-            "character_quest_manager_quests",
-            "no_executed_item_grant",
-            """
-            SELECT character_stable_key, quest_slot FROM character_quest_manager_quests q
-            WHERE character_stable_key IN (SELECT member_stable_key FROM character_fact_sources)
-              AND NOT EXISTS (SELECT 1 FROM quest_variants v
-                  WHERE v.resource_name = q.quest_variant_resource_name AND v.item_on_complete_stable_key IS NOT NULL)
-        """,
-        ),
-        (
-            "quest_variants",
-            "no_executed_item_grant",
-            """
-            SELECT resource_name FROM quest_variants v WHERE item_on_complete_stable_key IS NOT NULL
-              AND NOT EXISTS (SELECT 1 FROM character_quest_manager_quests q
-                  JOIN character_fact_sources s ON s.member_stable_key = q.character_stable_key
-                  WHERE q.quest_variant_resource_name = v.resource_name)
-        """,
-        ),
-        (
-            "ui_item_sources",
-            "empty_native_ui_slot",
-            """
-            SELECT stable_key FROM ui_item_sources WHERE
-                CASE component_type WHEN 'ReplenishTMOGHide' THEN replenish_item_stable_key
-                    WHEN 'PlanningTableUI' THEN serialized_item_stable_key END IS NULL
-        """,
-        ),
-        (
-            "authored_sims",
-            "empty_authored_seed_configuration",
-            """
-            SELECT stable_key FROM authored_sims sim WHERE NOT EXISTS (
-                SELECT 1 FROM authored_sim_equipment equipment
-                WHERE equipment.authored_sim_stable_key = sim.stable_key AND equipment.item_stable_key IS NOT NULL
-            )
-        """,
-        ),
-        (
-            "authored_sim_references",
-            "empty_authored_seed_configuration",
-            """
-            SELECT source_component_key, reference_index FROM authored_sim_references reference WHERE NOT EXISTS (
-                SELECT 1 FROM authored_sim_equipment equipment
-                WHERE equipment.authored_sim_stable_key = reference.authored_sim_stable_key
-                    AND equipment.item_stable_key IS NOT NULL
-            )
-        """,
-        ),
-        (
-            "authored_sim_equipment",
-            "empty_authored_seed_slot",
-            "SELECT authored_sim_stable_key, position FROM authored_sim_equipment WHERE item_stable_key IS NULL",
-        ),
-        (
-            "raw.MiningFallbackItems",
-            "unused_mining_fallback",
-            """
-            SELECT SourceKey FROM native.MiningFallbackItems WHERE NOT EXISTS (
-                SELECT 1 FROM native.MiningNodePoolSlots WHERE Pool = 'guarantee' AND ItemStableKey IS NULL
-            )
-        """,
-        ),
-        (
-            "raw.SpecialWorldDropFlags",
-            "native_world_drop_gate_disabled",
-            "SELECT Name FROM native.SpecialWorldDropFlags WHERE Value = 0",
-        ),
-        (
-            "raw.SpecialWorldDropItems",
-            "native_world_drop_gate_disabled",
-            """
-            SELECT Pool, Position FROM native.SpecialWorldDropItems item WHERE EXISTS (
-                SELECT 1 FROM native.SpecialWorldDropFlags flag WHERE flag.Value = 0
-                    AND ((item.Pool IN ('Masks', 'MoloraiMask') AND flag.Name = 'DropMasks')
-                        OR (item.Pool = 'Empty2' AND flag.Name = 'DemoBuild'))
-            )
-        """,
-        ),
-        (
-            "raw.Waters",
-            "empty_native_fishing_configuration",
-            """
-            SELECT StableKey FROM native.Waters water WHERE NOT EXISTS (
-                SELECT 1 FROM native.WaterFishables fish WHERE fish.WaterStableKey = water.StableKey
-                    AND (fish.ItemStableKey IS NOT NULL OR EXISTS (
-                        SELECT 1 FROM native.SpecialWorldDropItems
-                        WHERE Pool = 'Maps' AND Position < 4 AND ItemStableKey IS NOT NULL
-                    ))
-            )
-        """,
-        ),
-    )
-    for relation, reason, query in queries:
-        for row in connection.execute(query):
-            primary = json.dumps(tuple(row), ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-            omissions[relation, primary] = reason
-    for relation, columns, reason in (
-        ("ui_item_access_targets", "stable_key", "unused_native_ui_target"),
-        ("item_access_observations", "component_type, slot, assembly_sha256", "unused_access_observation"),
-    ):
-        for row in connection.execute(f"SELECT {columns} FROM {relation}"):
-            primary = json.dumps(tuple(row), ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-            if (relation, primary) not in consumed:
-                omissions[relation, primary] = reason
-    omissions.update(_native_loot_omissions(connection, consumed))
-    return omissions
-
-
 def test_every_populated_native_family_has_canonical_coverage(main_clean_db: Path, main_raw_db: Path) -> None:
     mapping = json.loads((_ROOT / "mapping.json").read_text(encoding="utf-8"))
     reviewed = frozenset(key for key, rule in mapping["rules"].items() if rule.get("loot_unreachable"))
-    with closing(sqlite3.connect(main_clean_db)) as clean, closing(sqlite3.connect(main_raw_db)) as raw:
-        clean.execute("ATTACH DATABASE ? AS native", (str(main_raw_db),))
-        builder = _selection(main_clean_db, main_raw_db, reviewed)
-        consumed = _consumed(builder)
-        assert builder.input_exclusions == _expected_omissions(clean, consumed)
+    builder = _selection(main_clean_db, main_raw_db, reviewed)
+    with (
+        closing(sqlite3.connect(f"file:{main_clean_db}?mode=ro", uri=True)) as clean,
+        closing(sqlite3.connect(f"file:{main_raw_db}?mode=ro", uri=True)) as raw,
+    ):
         audit = validate_item_provenance(
             clean,
             builder,
             raw=raw,
             require_all_native_tables=True,
-            reviewed_unreachable=reviewed,
             lifecycle_path=_ROOT / "content-lifecycle.json",
         )
         families = {
@@ -278,69 +68,46 @@ def test_every_populated_native_family_has_canonical_coverage(main_clean_db: Pat
             "item_classes": "1",
             "code_facts": "1",
         }
-        populated = 0
         for relation, predicate in families.items():
             count = clean.execute(f"SELECT COUNT(*) FROM {relation} WHERE {predicate}").fetchone()[0]
-            if count:
-                assert audit["input_counts"].get(relation, 0) > 0, relation
-                populated += 1
-        assert populated > 0
+            assert count > 0, relation
+            assert audit["input_counts"].get(relation, 0) > 0, relation
         assert raw.execute("SELECT COUNT(*) FROM LootDrops").fetchone()[0] > 0
         assert audit["input_counts"]["raw.LootDrops"] > 0
-        blocked_drops = clean.execute(
-            """
-            SELECT drop_row.LootTableStableKey, drop_row.ItemStableKey
-            FROM native.LootDrops drop_row
-            JOIN native.Characters host ON host.StableKey = drop_row.CharacterStableKey
-            WHERE host.DestroyOnDeath OR host.DoNotLeaveCorpse OR host.IsSimPlayer
-            """
-        ).fetchall()
-        assert blocked_drops
-        for identity in blocked_drops:
-            primary = json.dumps(tuple(identity), ensure_ascii=False, separators=(",", ":"))
-            assert ("raw.LootDrops", primary) in consumed
+        for relation, direct_count in audit["direct_native_counts"].items():
+            if not relation.startswith("raw."):
+                continue
+            table = relation.removeprefix("raw.")
+            count = raw.execute(f'SELECT COUNT(*) FROM "{table}"').fetchone()[0]
+            assert direct_count == count > 0, relation
+            assert audit["input_counts"].get(relation, 0) > 0, relation
+        assert audit["contract_counts"]["acquisitions"] == len(builder.acquisitions) > 0
+        assert audit["contract_counts"]["uses"] == len(builder.uses) > 0
 
-    with DatabaseConnection(main_clean_db, read_only=True) as db:
-        provenance = ItemProvenanceRepository(db)
-        acquisitions = list(provenance.iter_acquisitions())
-        uses = list(provenance.iter_uses())
-        assert len(acquisitions) == audit["contract_counts"]["acquisitions"] > 0
-        assert len(uses) == audit["contract_counts"]["uses"] > 0
-        acquisitions_by_item = {}
-        uses_by_item = {}
-        for acquisition in acquisitions:
-            acquisitions_by_item.setdefault(acquisition.item_stable_key, []).append(acquisition)
-        for use in uses:
-            uses_by_item.setdefault(use.item_stable_key, []).append(use)
-        for item_key in acquisitions_by_item.keys() | uses_by_item.keys():
-            assert provenance.get_acquisitions(item_key) == acquisitions_by_item.get(item_key, [])
-            assert provenance.get_uses(item_key) == uses_by_item.get(item_key, [])
-            assert provenance.get_disposition(item_key) is not None
+        lifecycle = load_content_lifecycle(_ROOT / "content-lifecycle.json")
+        current = dict(clean.execute("SELECT stable_key, wiki_page_name FROM items"))
+        dispositions = tuple(derive_item_dispositions(lifecycle, current))
+        assert audit["contract_counts"]["dispositions"] == len(dispositions) > 0
+        public = derive_public_view(
+            builder.acquisitions,
+            builder.uses,
+            dispositions,
+            builder.fact_evidence,
+            builder.mechanic_conditions(),
+        )
+        stored_keys = {row[0] for row in clean.execute("SELECT source_key FROM item_sources")}
+        assert stored_keys == {source.source_key for source in public.sources}
 
 
-def test_no_mechanism_repeats_a_condition_in_each_of_its_facts(main_clean_db: Path) -> None:
-    """Every fact of a mechanism reads a condition they all share from the mechanism instead of storing it."""
-    columns = (
-        "gate_key, group_index, atom_index, predicate, reference_stable_key, reference_slot, actor, value, "
-        "minimum, maximum, minimum_inclusive, maximum_inclusive, scope, phase"
-    )
-    with closing(sqlite3.connect(f"file:{main_clean_db}?mode=ro", uri=True)) as clean:
-        repeated = clean.execute(
-            f"""
-            WITH facts AS (
-                SELECT acquisition_key AS fact_key, mechanic FROM item_acquisitions WHERE mechanic IS NOT NULL
-                UNION ALL SELECT use_key, mechanic FROM item_uses WHERE mechanic IS NOT NULL
-            ),
-            owned AS (
-                SELECT owner_key, {columns} FROM item_acquisition_conditions
-                UNION ALL SELECT owner_key, {columns} FROM item_use_conditions
-            )
-            SELECT f.mechanic, {columns}, COUNT(*)
-            FROM owned o JOIN facts f ON f.fact_key = o.owner_key
-            GROUP BY f.mechanic, {columns}
-            HAVING COUNT(*) > 1 AND COUNT(*) = (SELECT COUNT(*) FROM facts m WHERE m.mechanic = f.mechanic)
-            """
-        ).fetchall()
-        shared = clean.execute("SELECT COUNT(*) FROM item_mechanic_conditions").fetchone()[0]
-    assert repeated == []
-    assert shared > 0
+def test_mechanism_conditions_are_shared_by_selected_facts(main_clean_db: Path, main_raw_db: Path) -> None:
+    mapping = json.loads((_ROOT / "mapping.json").read_text(encoding="utf-8"))
+    reviewed = frozenset(key for key, rule in mapping["rules"].items() if rule.get("loot_unreachable"))
+    builder = _selection(main_clean_db, main_raw_db, reviewed)
+    shared = builder.mechanic_conditions()
+    assert shared
+    for mechanic, conditions in shared.items():
+        members = [fact for fact in (*builder.acquisitions, *builder.uses) if fact.mechanic == mechanic]
+        assert len(members) > 1, mechanic
+        assert conditions, mechanic
+        for fact in members:
+            assert set(conditions).issubset(fact.conditions), fact

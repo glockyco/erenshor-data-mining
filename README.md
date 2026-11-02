@@ -69,6 +69,7 @@ Nix owns the pnpm version. Keep its toolchain on the patched 10.x line rather th
 ## Troubleshooting
 
 - `erenshor status` shows tool paths, installs, and database state. Logs are in `.erenshor/logs/` and `variants/<variant>/logs/`.
+- If the clean build reports an unaccounted item input, use its relation and primary key to find the row. The provenance builder must attach it to a fact or exclude it with a reason. The accounting check does not select the facts again.
 - If Git hooks fail with exit 127, your Git client runs them outside the dev shell. Hook jobs that need project tools go through `scripts/with-dev-env.sh`.
 - If the live map does not connect, check that the game runs InteractiveMapCompanion.
 

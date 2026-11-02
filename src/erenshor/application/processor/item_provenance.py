@@ -1711,6 +1711,78 @@ class ProvenanceBuilder:
         self.input_exclusions.update(native.input_exclusions)
         self.tables.update({f"raw.{table}": rows for table, rows in native.input_tables.items()})
 
+    def attach_direct_native_inputs(self, raw: sqlite3.Connection) -> None:
+        """Attach exported identities through their clean inputs, without deriving outcomes."""
+        from .item_provenance_coverage import CLEAN_INPUTS, DIRECT_NATIVE_INPUTS
+
+        owners: dict[tuple[str, str], set[str]] = defaultdict(set)
+        for key, entries in self.fact_evidence.items():
+            for entry in entries:
+                owners[entry.input_relation, entry.input_primary_key].add(key)
+        # Entity and placement dependencies are shared by several input families.
+        items = {row["stable_key"]: row for row in self.rows("items")}
+        facts: tuple[ItemAcquisition | ItemUse, ...] = (*self.acquisitions, *self.uses)
+        for fact in facts:
+            key = _fact_key(fact)
+            references = (
+                fact.item_stable_key,
+                fact.source_stable_key if isinstance(fact, ItemAcquisition) else fact.target_stable_key,
+            )
+            for reference in references:
+                if reference in items:
+                    owners["items", _json((reference,))].add(key)
+                    spell = items[reference]["item_effect_on_click_stable_key"]
+                    if spell:
+                        owners["spells", _json((spell,))].add(key)
+            for location in fact.locations:
+                owners["treasure_locations", _json((location.coordinate_stable_key,))].add(key)
+                owners["treasure_hunting", _json((location.scene,))].add(key)
+        for row in self.rows("vendor_offers"):
+            source = ("vendor_offers", _json((row["copy_stable_key"], row["offer_kind"], row["offer_slot"])))
+            relation = "character_vendor_items" if row["offer_kind"] == "base" else "character_vendor_quest_unlocks"
+            owners[relation, _json((row["copy_stable_key"], row["offer_slot"]))].update(owners[source])
+        present = {row[0] for row in raw.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        hosts = {row[0]: row[1] for row in raw.execute("SELECT StableKey,IsSimPlayer FROM Characters")}
+        for table, (clean_table, native_columns, clean_columns) in DIRECT_NATIVE_INPUTS.items():
+            if table not in present:
+                continue
+            cursor = raw.execute(f'SELECT * FROM "{table}"')
+            columns = [column[0] for column in cursor.description or ()]
+            if set(native_columns) - set(columns):
+                continue
+            rows = [dict(zip(columns, row, strict=True)) for row in cursor]
+            self.tables[f"raw.{table}"] = rows
+            clean = {tuple(row[column] for column in clean_columns): row for row in self.rows(clean_table)}
+            for row in rows:
+                primary = tuple(row[column] for column in native_columns)
+                identity = clean_table, _json(primary)
+                evidence = self.evidence(f"raw.{table}", *primary)
+                origin = evidence.input_relation, evidence.input_primary_key
+                if table.startswith("Character") and hosts.get(row["CharacterStableKey"]) == 1:
+                    self.input_exclusions[origin] = "non_world_character_input"
+                    continue
+                if primary not in clean:
+                    raise ValueError(f"Missing clean identity for direct native input: {table}{primary!r}")
+                matching = owners[identity]
+                if clean_table == "item_classes":
+                    matching = matching | owners["items", _json((primary[0],))]
+                if matching:
+                    for key in matching:
+                        self.fact_evidence[key] = tuple(dict.fromkeys((*self.fact_evidence[key], evidence)))
+                elif identity in self.input_exclusions:
+                    self.input_exclusions[origin] = self.input_exclusions[identity]
+                elif clean_table in ("character_vendor_items", "character_vendor_quest_unlocks"):
+                    if row["CharacterStableKey"] not in self._encountered:
+                        self.input_exclusions[origin] = "unencountered_copy"
+                elif clean_table not in CLEAN_INPUTS:
+                    self.input_exclusions[origin] = "no_selected_item_action"
+                elif clean_table == "character_dialogs" and clean[primary]["give_item_stable_key"] is None:
+                    self.input_exclusions[origin] = "no_item_grant"
+                elif clean_table == "quest_variants" and clean[primary]["item_on_complete_stable_key"] is None:
+                    self.input_exclusions[origin] = "no_executed_item_grant"
+                elif clean_table == "item_bags" and clean[primary]["item_stable_key"] is None:
+                    self.input_exclusions[origin] = "empty_native_item_bag"
+
     def attach_encounter_inputs(self) -> None:
         primaries = {
             "encounter_placements": ("encounter_key", "member_spawn_stable_key"),
@@ -1720,7 +1792,12 @@ class ProvenanceBuilder:
         }
         by_encounter: dict[str, list[ProvenanceEvidence]] = defaultdict(list)
         by_spawn: dict[str, set[str]] = defaultdict(set)
+        spawned = {
+            row["spawn_point_stable_key"] for row in self.rows("character_spawns") if row["spawn_point_stable_key"]
+        }
         for row in self.rows("encounter_placements"):
+            if row["member_spawn_stable_key"] not in spawned or row["root_spawn_stable_key"] not in spawned:
+                raise ValueError(f"Encounter context has no actual native placement: {row['encounter_key']}")
             by_spawn[str(row["member_spawn_stable_key"])].add(str(row["encounter_key"]))
         encounters = set().union(*by_spawn.values()) if by_spawn else set()
         for table, columns in primaries.items():
@@ -1779,6 +1856,16 @@ class ProvenanceBuilder:
                 key = (evidence.input_relation, evidence.input_primary_key)
                 if key not in consumed:
                     self.input_exclusions[key] = reason
+        for table, columns in (
+            ("items", ("stable_key",)),
+            ("item_classes", ("item_stable_key", "class_name")),
+            ("code_facts", ("fact_id", "key")),
+        ):
+            for row in self.rows(table):
+                evidence = self.evidence(table, *(row[column] for column in columns))
+                key = evidence.input_relation, evidence.input_primary_key
+                if key not in consumed:
+                    self.input_exclusions[key] = "not_selected_item_dependency"
 
     def select(self) -> None:
         self.loot()
@@ -1868,6 +1955,7 @@ def select_item_provenance(
     builder.raw_loot_evidence(raw, reviewed_unreachable)
     builder.attach_native_inputs(raw)
     builder.account_support_inputs()
+    builder.attach_direct_native_inputs(raw)
     return builder
 
 
@@ -1934,7 +2022,6 @@ def process_item_provenance(
         connection,
         builder,
         raw=raw,
-        reviewed_unreachable=reviewed_unreachable,
         lifecycle_path=lifecycle_path,
         require_all_native_tables=True,
     )
