@@ -39,7 +39,8 @@
         </a>
 
         <div class="flex items-center gap-2.5 min-[480px]:gap-[22px]">
-            <nav class="hidden flex-wrap gap-[22px] text-[0.95rem] min-[880px]:flex">
+            <!-- With the compendium switcher, five links fit on one line from about 910 px. -->
+            <nav class="hidden flex-wrap gap-[22px] text-[0.95rem] min-[960px]:flex">
                 {#each nav as item (item.href)}
                     <a
                         href={item.href}
@@ -52,7 +53,7 @@
 
             <!-- The line has the same space on both sides, and the switcher sits beside Ko-fi. -->
             <div
-                class="flex items-center gap-2.5 min-[480px]:gap-[15px] min-[880px]:border-l min-[880px]:border-line min-[880px]:pl-[22px]"
+                class="flex items-center gap-2.5 min-[480px]:gap-[15px] min-[960px]:border-l min-[960px]:border-line min-[960px]:pl-[22px]"
             >
                 {#each community as s (s.href)}
                     <a
@@ -80,7 +81,7 @@
                 onclick={() => (open = !open)}
                 aria-label="Menu"
                 aria-expanded={open}
-                class="grid h-9 w-9 place-items-center text-ink min-[880px]:hidden"
+                class="grid h-9 w-9 place-items-center text-ink min-[960px]:hidden"
             >
                 <svg
                     viewBox="0 0 24 24"
@@ -102,7 +103,7 @@
 
     {#if open}
         <nav
-            class="flex flex-col gap-1 border-t border-line bg-surface px-7 py-3 min-[880px]:hidden"
+            class="flex flex-col gap-1 border-t border-line bg-surface px-7 py-3 min-[960px]:hidden"
         >
             {#each nav as item (item.href)}
                 <a
