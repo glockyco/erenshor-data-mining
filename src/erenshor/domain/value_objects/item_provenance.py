@@ -9,7 +9,7 @@ from collections.abc import Mapping
 from dataclasses import asdict, dataclass, fields
 from typing import Literal, cast
 
-PROVENANCE_SCHEMA_VERSION = 2
+PROVENANCE_SCHEMA_VERSION = 3
 
 PlayerAccessState = Literal["verified_player", "unconfirmed_player", "internal_only", "non_acquirable"]
 ProbabilityKind = Literal["exact", "bounded", "unknown", "not_applicable"]

@@ -198,12 +198,23 @@ def derive_public_view(
         and fact.mechanic == "fishing_global_replacement"
         and fact.probability_kind == "exact"
     }
+    # An operation whose every alternative for one of its inputs is a retired or unused item, such
+    # as a mold no player can get, gives nothing a player can act on.
+    alternatives: dict[str, dict[tuple[str, int | None], bool]] = {}
+    for use in uses:
+        if use.outcome_key is not None:
+            roles = alternatives.setdefault(use.outcome_key, {})
+            role = (use.kind, use.material_slot)
+            roles[role] = roles.get(role, False) or use.item_stable_key in current
+    blocked = {outcome for outcome, roles in alternatives.items() if not all(roles.values())}
     places = _Places()
     sources: list[PublicSource] = []
     public_keys: set[str] = set()
     members: dict[str, list[ItemAcquisition]] = {}
     for fact in acquisitions:
         reason = _hidden_reason(fact) or _unreachable_reason(fact, current)
+        if reason is None and fact.acquisition_key in blocked:
+            reason = "input_not_current"
         bonus = bonuses.get(fact.item_stable_key)
         if reason is None and bonus is not None and _is_global_catch(fact, bonus):
             members.setdefault(bonus.acquisition_key, []).append(fact)

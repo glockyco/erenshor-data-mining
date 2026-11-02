@@ -166,6 +166,26 @@ def test_a_fact_that_can_use_only_some_places_names_that_subset_once() -> None:
     )
 
 
+def test_an_operation_needs_a_current_item_for_each_of_its_inputs() -> None:
+    result = view(
+        acquisition("molded", kind="crafting", source_stable_key="item:retired"),
+        acquisition("offered", kind="crafting", source_stable_key="item:well"),
+        uses=(
+            ItemUse("mold", "item:retired", "item:retired", "crafting_recipe", outcome_key="molded"),
+            ItemUse("material", ITEM, "item:retired", "crafting_material", material_slot=1, outcome_key="molded"),
+            ItemUse("retired offer", "item:retired", "item:well", "quality_offering", outcome_key="offered"),
+            ItemUse("current offer", ITEM, "item:well", "quality_offering", outcome_key="offered"),
+        ),
+    )
+    assert [source.source_key for source in result.sources] == ["offered"]
+    assert reasons(result) == {
+        "molded": "input_not_current",
+        "mold": "item_not_current",
+        "material": "outcome_not_public",
+        "retired offer": "item_not_current",
+    }
+
+
 def test_a_use_whose_outcome_is_hidden_is_hidden() -> None:
     result = view(
         acquisition("outcome", player_access_state="internal_only"),
