@@ -475,7 +475,6 @@ public sealed partial class GuideData
                     if (
                         source.Chance == null
                         || source.Level is not >= 0
-                        || source.LevelMax == null
                         || source.SourceKey?.StartsWith("character:", StringComparison.Ordinal)
                             != true
                         || string.IsNullOrWhiteSpace(source.Instruction)

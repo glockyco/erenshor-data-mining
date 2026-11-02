@@ -2,6 +2,9 @@
 
 ## v2026.1017.0
 
+- Word quest, item, room and encounter requirements as the interactive map and the wiki do, such as "Requires Claiming the Reliquary".
+- Show fishing hours and the current time on the game's 12-hour clock, and say when a night spawn appears and when it leaves.
+- Show the top treasure chest as "Dig at level 30 or higher".
 - When a quest target is locked, point the arrow at what you need first, such as a key, another quest or a boss.
 - Show which fee, feed or figurine summons arena fights, Malaroth bosses and chessboard pieces.
 - Lead the arrow to where you use a fee, feed or figurine.

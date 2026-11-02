@@ -649,7 +649,7 @@ public sealed class TrackerWindow
                     continue;
 
                 // Show only the first blocking prerequisite
-                row.PrerequisiteLabel = $"Requires: {pre.QuestName}##prereq{pre.QuestKey}";
+                row.PrerequisiteLabel = $"Requires {pre.QuestName}##prereq{pre.QuestKey}";
                 row.PrerequisiteQuest = requiredQuest;
                 break;
             }

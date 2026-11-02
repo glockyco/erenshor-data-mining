@@ -112,6 +112,25 @@ public sealed class RespawnPolicyTests
     }
 
     [Theory]
+    [InlineData(0, 5)]
+    [InlineData(12, 5)]
+    [InlineData(21, 5)]
+    [InlineData(23, 59)]
+    public void Night_status_clock_round_trips_the_game_hour_and_minute(int hour, int minute)
+    {
+        string status = RespawnTimerText.NightOnly(hour, minute);
+        string clock = status.Substring(status.LastIndexOf('\n') + 1);
+        clock = clock.Substring(clock.IndexOf(':') + 1).Trim();
+        var time = DateTime.ParseExact(
+            clock,
+            "h:mm tt",
+            System.Globalization.CultureInfo.InvariantCulture
+        );
+        Assert.Equal(hour, time.Hour);
+        Assert.Equal(minute, time.Minute);
+    }
+
+    [Theory]
     [InlineData("Chosen Fawn ", "Chosen Fawn")]
     [InlineData("Kio The Darkbringer", "Kio the Darkbringer")]
     public void Target_name_ignores_case_and_surrounding_spaces(string npcName, string expected)

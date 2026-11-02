@@ -15,7 +15,7 @@ internal enum SpawnPointPhase
     /// </summary>
     Withheld,
 
-    /// <summary>A night-only point outside the 23:00-03:59 spawn window.</summary>
+    /// <summary>A night-only point outside the 11 PM to 4 AM spawn window.</summary>
     NightLocked,
 
     /// <summary>
@@ -68,8 +68,8 @@ internal readonly struct SpawnPointFacts
 internal static class SpawnPointPolicy
 {
     /// <summary>
-    /// SpawnPoint.Update spawns a night-only NPC only after 22:59 and before
-    /// 04:00. It despawns a living one from 07:00 until 22:59.
+    /// SpawnPoint.Update spawns a night-only NPC from 11 PM until 4 AM.
+    /// A living one is removed at 7 AM.
     /// </summary>
     public static bool IsNightSpawnHour(int hour) => hour > 22 || hour < 4;
 

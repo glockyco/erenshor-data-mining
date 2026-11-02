@@ -294,14 +294,13 @@ public sealed class GateConditionsTests
     }
 
     [Theory]
-    [InlineData(null, 1, "character:raval", "Defeat Raval")]
-    [InlineData(1, 1, "character:raval", "Defeat Raval")]
-    [InlineData(9, 9, "character:stardust", "Defeat all 9 Stardust")]
-    public void Defeat_quantity_is_read_from_wire_and_shown_without_blocking(
+    [InlineData(null, 1, "character:raval")]
+    [InlineData(1, 1, "character:raval")]
+    [InlineData(9, 9, "character:stardust")]
+    public void Defeat_quantity_is_read_from_wire_and_retained_without_blocking(
         int? quantity,
         int expected,
-        string reference,
-        string description
+        string reference
     )
     {
         string property = quantity.HasValue ? ",\"quantity\":" + quantity.Value : "";
@@ -314,7 +313,7 @@ public sealed class GateConditionsTests
         Assert.Equal(expected, atom.Quantity);
         var gates = new GateConditions(data, new GateTestFacts());
         Assert.True(gates.IsAvailable(0));
-        Assert.Equal(description, gates.Describe(Assert.Single(gates.Explain(0))));
+        Assert.Same(atom, Assert.Single(gates.Explain(0)));
     }
 
     [Fact]

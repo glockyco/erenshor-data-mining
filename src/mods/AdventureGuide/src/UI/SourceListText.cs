@@ -111,12 +111,12 @@ internal static class SourceListText
         if (source.Type == "fishing")
         {
             if (source.TimeRestriction == "day")
-                return $"Day only (06:00-21:59) · {Percent(source.DayChance!.Value)} per successful catch";
+                return $"Day only (6 AM to 10 PM) · {Percent(source.DayChance!.Value)} per catch";
             if (source.TimeRestriction == "night")
-                return $"Night only (22:00-05:59) · {Percent(source.NightChance!.Value)} per successful catch";
+                return $"Night only (10 PM to 6 AM) · {Percent(source.NightChance!.Value)} per catch";
             return source.DayChance == source.NightChance
-                ? $"{Percent(source.DayChance!.Value)} per successful catch"
-                : $"Day {Percent(source.DayChance!.Value)} / night {Percent(source.NightChance!.Value)} per successful catch";
+                ? $"{Percent(source.DayChance!.Value)} per catch"
+                : $"Day {Percent(source.DayChance!.Value)} / night {Percent(source.NightChance!.Value)} per catch";
         }
         if (source.Chance is not double chance)
             return null;
@@ -124,9 +124,12 @@ internal static class SourceListText
             source.ChanceMax is double maximum && maximum != chance
                 ? $"{Percent(chance)} to {Percent(maximum)}"
                 : Percent(chance);
-        return source.Type == "treasure_chest"
-            ? $"{odds} · Dig at Lv {source.Level}-{source.LevelMax}"
-            : odds;
+        if (source.Type != "treasure_chest")
+            return odds;
+        string level = source.LevelMax is int maximumLevel
+            ? $"{source.Level}–{maximumLevel}"
+            : $"{source.Level} or higher";
+        return $"{odds} · Dig at level {level}";
     }
 
     private static string Percent(double chance) =>

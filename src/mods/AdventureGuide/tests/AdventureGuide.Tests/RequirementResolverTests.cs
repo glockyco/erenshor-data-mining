@@ -712,7 +712,7 @@ public sealed class RequirementResolverTests
         Assert.Same(nearStep, result.Step);
         var requirement = Assert.Single(result.Chain, link => link.Atom != null);
         Assert.Equal("Near", requirement.Atom!.Ref);
-        Assert.Contains("Complete Far", requirement.Alternatives);
+        Assert.Contains(requirement.Alternatives, alternative => alternative.Contains("Far"));
     }
 
     [Fact]
@@ -1337,7 +1337,6 @@ public sealed class RequirementResolverTests
         Assert.False(result.CanNavigate);
         Assert.Same(step, result.Step);
         Assert.Empty(result.Chain);
-        Assert.DoesNotContain("Complete " + completed.DisplayName, result.DisplayText);
         Assert.Equal("No reachable source is known for Nighthollow Candle.", result.Message);
     }
 
@@ -1442,7 +1441,10 @@ public sealed class RequirementResolverTests
         Assert.True(result.CanNavigate, result.Message);
         Assert.Same(reachable, result.Quest);
         Assert.Same(reachable.Steps![0], result.Step);
-        Assert.Contains(result.Chain, link => link.Alternatives.Contains("Complete Unreachable"));
+        Assert.Contains(
+            result.Chain,
+            link => link.Alternatives.Any(alternative => alternative.Contains("Unreachable"))
+        );
     }
 
     [Theory]

@@ -201,11 +201,11 @@ public class ItemSource
     [JsonProperty("chance_max")]
     public double? ChanceMax { get; set; }
 
-    /// <summary>Percent per successful catch in the water's daytime pool.</summary>
+    /// <summary>Percent per catch in the water's daytime pool.</summary>
     [JsonProperty("day_chance")]
     public double? DayChance { get; set; }
 
-    /// <summary>Percent per successful catch in the water's nighttime pool.</summary>
+    /// <summary>Percent per catch in the water's nighttime pool.</summary>
     [JsonProperty("night_chance")]
     public double? NightChance { get; set; }
 

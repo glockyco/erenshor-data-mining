@@ -32,5 +32,5 @@ internal static class RespawnTimerText
 
     /// <summary>Night-only status with the current game time.</summary>
     public static string NightOnly(int hour, int minute) =>
-        $"Night only (23:00-04:00)\nNow: {hour}:{minute:D2}";
+        $"Night only: spawns 11 PM to 4 AM, leaves at 7 AM\nNow: {(hour % 12 == 0 ? 12 : hour % 12)}:{minute:D2} {(hour < 12 ? "AM" : "PM")}";
 }

@@ -159,6 +159,17 @@ public sealed class SpecialItemSourceTests
     }
 
     [Fact]
+    public void Treasure_chest_allows_an_open_level_bracket()
+    {
+        var chest = Chest();
+        chest.LevelMax = null;
+        Validate(chest);
+        var parsed = JsonConvert.DeserializeObject<ItemSource>(JsonConvert.SerializeObject(chest))!;
+        Assert.Equal(chest.Level, parsed.Level);
+        Assert.Null(parsed.LevelMax);
+    }
+
+    [Fact]
     public void Treasure_chest_requires_ordered_bracket_chance_and_instruction()
     {
         var chest = Chest();
@@ -207,11 +218,10 @@ public sealed class SpecialItemSourceTests
     }
 
     [Fact]
-    public void Random_source_text_uses_percent_not_fraction_and_chest_bracket()
+    public void Random_source_text_uses_percent_not_fraction()
     {
         Assert.Contains("0.1%", SourceListText.OptionOdds(WorldDrop()));
         Assert.Contains("1.25%", SourceListText.OptionOdds(FishingBonus()));
-        Assert.Contains("30-35", SourceListText.OptionOdds(Chest()));
         Assert.Contains("56.57%", SourceListText.OptionOdds(Chest()));
     }
 

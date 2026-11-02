@@ -14,12 +14,10 @@ public sealed class ZoneLineAlternativeLabelsTests
         var selectable = row.Selectable;
         var text = row.Text;
         var tip = row.Tooltip;
-        var req = row.Requirement("A quest", "QUEST");
         labels.Row(0, "Stowaway", 120.4f);
         Assert.Same(selectable, row.Selectable);
         Assert.Same(text, row.Text);
         Assert.Same(tip, row.Tooltip);
-        Assert.Same(req, row.Requirement("A quest", "QUEST"));
     }
 
     [Fact]

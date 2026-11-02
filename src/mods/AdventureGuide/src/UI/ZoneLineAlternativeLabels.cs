@@ -32,7 +32,6 @@ internal sealed class ZoneLineAlternativeLabels
     {
         private readonly int _stepOrder;
         private readonly int _index;
-        private readonly Dictionary<(string Name, string Key), string> _requirements = new();
         private string? _destination;
         private double _distance;
         public string Text { get; private set; } = "";
@@ -56,16 +55,6 @@ internal sealed class ZoneLineAlternativeLabels
             _distance = rounded;
             Selectable = ZoneLineLabels.Selectable(destination, (float)rounded, _stepOrder, _index);
             Text = Selectable.Substring(0, Selectable.LastIndexOf("###", StringComparison.Ordinal));
-        }
-
-        public string Requirement(string name, string key)
-        {
-            if (!_requirements.TryGetValue((name, key), out var label))
-            {
-                label = $"Requires: \"{name}\"##rq_{_stepOrder}_{_index}_{key}";
-                _requirements.Add((name, key), label);
-            }
-            return label;
         }
     }
 }

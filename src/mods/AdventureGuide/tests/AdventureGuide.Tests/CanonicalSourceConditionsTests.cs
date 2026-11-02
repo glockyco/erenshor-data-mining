@@ -279,8 +279,12 @@ public sealed class CanonicalSourceConditionsTests
         Assert.Throws<InvalidDataException>(() => GuideData.FromWrapper(wrapper));
     }
 
-    [Fact]
-    public void Possible_treasure_places_keep_existing_chest_presentation_and_navigation_identity()
+    [Theory]
+    [InlineData(20)]
+    [InlineData(null)]
+    public void Possible_treasure_places_keep_existing_chest_presentation_and_navigation_identity(
+        int? levelMaximum
+    )
     {
         var wrapper = Wrapper();
         var source = wrapper.Sources["source:test"];
@@ -296,7 +300,7 @@ public sealed class CanonicalSourceConditionsTests
                 Relation = "possible_treasure",
                 Scene = "A",
                 PlayerLevelMin = 10,
-                PlayerLevelMax = 20,
+                PlayerLevelMax = levelMaximum,
             },
         ];
         var resolved = Source(GuideData.FromWrapper(wrapper));
@@ -304,7 +308,7 @@ public sealed class CanonicalSourceConditionsTests
         Assert.Equal("Treasure map chest", resolved.Name);
         Assert.Equal("Read a Treasure Map and dig at the marked spot.", resolved.Instruction);
         Assert.Equal(10, resolved.Level);
-        Assert.Equal(20, resolved.LevelMax);
+        Assert.Equal(levelMaximum, resolved.LevelMax);
         Assert.Equal(5, resolved.Chance);
         Assert.Equal("treasure:dig-site", resolved.MakeSourceId());
         Assert.Null(resolved.CanonicalSpawn);

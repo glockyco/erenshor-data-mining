@@ -270,17 +270,17 @@ public sealed partial class GateConditions
             );
         return atom.Kind switch
         {
-            GateAtomKind.QuestDone => "Complete " + name,
-            GateAtomKind.QuestNotDone => "Before completing " + name,
+            GateAtomKind.QuestDone => "Requires " + name,
+            GateAtomKind.QuestNotDone => "Only before " + name,
             GateAtomKind.ItemHeld => DescribeItemRequirement(atom.Ref, name),
             GateAtomKind.KeyHeld => DescribeItemRequirement(atom.Ref, name),
-            GateAtomKind.RoomFurnished => name + " in a Reliquary room",
+            GateAtomKind.RoomFurnished => "Requires the " + name + " in a Reliquary room",
             GateAtomKind.AccountState => atom.Value == "false"
-                ? "Before claiming your Reliquary"
-                : "Claim your Reliquary",
+                ? "Only before claiming your Reliquary"
+                : "Requires a claimed Reliquary",
             GateAtomKind.EncounterWon => atom.Quantity > 1
-                ? "Defeat all " + atom.Quantity + " " + name
-                : "Defeat " + name,
+                ? "Requires defeating all " + atom.Quantity + " " + name
+                : "Requires defeating " + name,
             _ => throw new InvalidOperationException($"Unknown gate atom kind '{atom.Kind}'"),
         };
     }
