@@ -43,6 +43,7 @@
             Link="Shared/Input/KeyboardInput.cs"
         />
         <Compile Include="../../src/Data/GuideData.cs" Link="Data/GuideData.cs" />
+        <Compile Include="../../src/Data/GuideJsonReader.cs" Link="Data/GuideJsonReader.cs" />
         <Compile Include="../../src/Data/QuestEntry.cs" Link="Data/QuestEntry.cs" />
         <Compile Include="../../src/Data/CharacterStableKey.cs" Link="Data/CharacterStableKey.cs" />
         <Compile Include="../../src/Data/FurnishingPolicy.cs" Link="Data/FurnishingPolicy.cs" />

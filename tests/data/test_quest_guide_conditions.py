@@ -8,10 +8,12 @@ satisfy one group of every such gate.
 from __future__ import annotations
 
 import sqlite3
+import struct
 from collections import defaultdict
 from typing import TYPE_CHECKING, Any
 
 import pytest
+from tests.unit.application.guide.wire import character_spawns, decode_mod_guide
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -74,7 +76,8 @@ def _guide_conditions(
     characters_by_spawn: dict[str, set[str]] = defaultdict(set)
     for character, spawn in conn.execute("SELECT character_stable_key, spawn_point_stable_key FROM character_spawns"):
         characters_by_spawn[spawn].add(character)
-    for character, entries in guide["_character_spawns"].items():
+    for character in guide["_character_spawns"]:
+        entries = character_spawns(guide, character)
         # The writer orders placements by scene, position, and spawn point key.
         spawns = []
         for edge in graph.out_edges(character, EdgeType.HAS_SPAWN):
@@ -118,51 +121,126 @@ def test_every_database_gate_reaches_the_guide(main_clean_db: Path, graph: Entit
 def test_public_sources_and_shared_places_are_serialized_once(
     main_clean_db: Path, graph: EntityGraph, guide: dict[str, Any], persisted: bool
 ) -> None:
-    import json
     from dataclasses import asdict
     from pathlib import Path
 
-    from erenshor.application.guide.schema import NodeType
+    from erenshor.domain.value_objects.item_public_view import PublicCondition
     from erenshor.infrastructure.database.connection import DatabaseConnection
     from erenshor.infrastructure.database.repositories.item_public_view import ItemPublicViewRepository
 
     if persisted:
-
-        def unique_object(entries: list[tuple[str, Any]]) -> dict[str, Any]:
-            assert len(entries) == len({key for key, _ in entries})
-            return dict(entries)
-
         path = Path(__file__).resolve().parents[2] / "quest_guides" / "quest-guide.json"
-        guide = json.loads(path.read_text(), object_pairs_hook=unique_object)
+        guide = decode_mod_guide(path.read_text())
+
+    item_keys = set(guide["_gate_items"])
+    use_keys: set[str] = set()
+    acquisition_keys: set[str] = set()
+
+    def references(value: Any) -> None:
+        if isinstance(value, dict):
+            if value.get("item_stable_key"):
+                item_keys.add(value["item_stable_key"])
+            if value.get("target_type") == "item":
+                item_keys.add(value["target_key"])
+            if value.get("use_key"):
+                use_keys.add(value["use_key"])
+            use_keys.update(value.get("use_keys", ()))
+            if "acquisition_key" in value:
+                key = value["acquisition_key"]
+                acquisition_keys.add(key)
+                item_keys.add(guide["_sources"][key]["item_stable_key"])
+            assert "operation_use_keys" not in value
+            for child in value.values():
+                references(child)
+        elif isinstance(value, list):
+            for child in value:
+                references(child)
+
+    references(guide["quests"])
+    references(guide["_gate_items"])
+    assert set(guide["_item_uses"]) == use_keys
 
     with DatabaseConnection(main_clean_db, read_only=True) as database:
         repository = ItemPublicViewRepository(database)
         sources = repository.sources()
-        places = {key: repository.places(key) for key in {source.place_set_key for source in sources}}
-    guided_items = {node.key for node in graph.nodes_of_type(NodeType.ITEM)}
-    expected = {source.source_key: source for source in sources if source.item_stable_key in guided_items}
+        expected = {source.source_key: source for source in sources if source.item_stable_key in item_keys}
+        place_sets = {source.place_set_key for source in expected.values() if source.place_set_key is not None}
+        place_sets.update(
+            use["place_set_key"] for use in guide["_item_uses"].values() if use.get("place_set_key") is not None
+        )
+        places = {key: repository.places(key) for key in place_sets}
+
     assert expected
+    assert len(guide["_sources"]) == len(expected)
     assert set(guide["_sources"]) == set(expected)
-    assert guide["_version"] == 10
+    assert acquisition_keys <= expected.keys()
+    assert guide["_version"] == 11
     assert "_source_facts" not in guide
-    place_sets = {source.place_set_key for source in expected.values() if source.place_set_key is not None}
+    assert "_source_ranks" not in guide
     assert set(guide["_place_sets"]) == place_sets
+
+    def conditions(value: dict[str, Any]) -> tuple[PublicCondition, ...]:
+        return tuple(
+            PublicCondition(**{"gate_index": 0, "alternative_index": 0, "atom_index": 0, **atom})
+            for atom in value.get("conditions", [])
+        )
+
     for key, source in expected.items():
         entry = guide["_sources"][key]
         entity_key = source.source_copy_stable_key or source.source_stable_key
-        if entity_key is not None:
-            assert entry["source_key"] == entity_key
+        assert entry.get("source_key") == entity_key
+        assert entry["item_stable_key"] == source.item_stable_key
         assert entry["kind"] == source.kind
-        assert entry["place_set_key"] == source.place_set_key
-        assert entry["conditions"] == [asdict(atom) for atom in source.conditions]
+        assert entry.get("place_set_key") == source.place_set_key
+        assert entry.get("chance") == source.probability_min
+        assert entry.get("chance_max") == source.probability_max
+        assert entry.get("quantity") == source.quantity_min
+        assert conditions(entry) == source.conditions
+        if key in graph.source_ranks:
+            tier, depth = graph.source_ranks[key]
+            assert entry["rank"] == {"tier": tier, "depth": depth}
+        else:
+            assert "rank" not in entry
         assert not {"children", "operation_use_keys", "acquisition_key", "location_key", "x", "y", "z"} & entry.keys()
+
+    markers = {
+        spawn["stable_key"] for character in guide["_character_spawns"] for spawn in character_spawns(guide, character)
+    }
     for key in place_sets:
         entries = guide["_place_sets"][key]
         expected_places = places[key]
-        assert len(entries) == len({place.place_key for place in expected_places})
-        assert {entry["place_key"] for entry in entries} == {place.place_key for place in expected_places}
-        by_key = {place.place_key: place for place in expected_places}
-        for entry in entries:
-            public = by_key[entry["place_key"]]
-            assert entry["marker_stable_key"] == public.marker_stable_key
-            assert entry["conditions"] == [asdict(atom) for atom in public.conditions]
+        assert len(entries) == len(expected_places)
+        assert [entry["place_key"] for entry in entries] == [str(index) for index in range(len(expected_places))]
+        for entry, public in zip(entries, expected_places, strict=True):
+            assert conditions(entry) == public.conditions
+            expected_place = {
+                field: value
+                for field, value in asdict(public).items()
+                if field not in {"place_set_key", "place_key", "conditions"}
+                and value is not None
+                and not (field == "entry_zone_line_keys" and not value)
+            }
+            expected_place["entry_zone_line_keys"] = list(public.entry_zone_line_keys)
+            if not expected_place["entry_zone_line_keys"]:
+                del expected_place["entry_zone_line_keys"]
+            if public.marker_stable_key in markers:
+                for field in ("scene", "x", "y", "z", "zone_stable_key"):
+                    expected_place.pop(field, None)
+                assert not {"scene", "x", "y", "z", "zone", "zone_stable_key"} & entry.keys()
+            elif public.zone_stable_key is not None:
+                zone = graph.get_node(public.zone_stable_key)
+                if zone is not None:
+                    expected_place["zone"] = zone.display_name
+            if persisted:
+                for field in ("x", "y", "z"):
+                    if field in expected_place:
+                        assert struct.pack("f", entry[field]) == struct.pack("f", expected_place[field])
+                        expected_place[field] = entry[field]
+            actual_place = {
+                field: value
+                for field, value in entry.items()
+                if field not in {"place_key", "conditions"}
+                and value is not None
+                and not (field == "entry_zone_line_keys" and not value)
+            }
+            assert actual_place == expected_place

@@ -64,6 +64,7 @@ internal sealed class SourceGate
     public SourceGate(SourceCondition[][] alternatives) => Alternatives = alternatives;
 }
 
+[JsonConverter(typeof(GuideRowConverter))]
 public sealed class SourceLocation
 {
     [JsonProperty("place_key")]

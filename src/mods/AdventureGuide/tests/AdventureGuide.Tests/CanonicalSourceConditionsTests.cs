@@ -157,10 +157,10 @@ public sealed class CanonicalSourceConditionsTests
     public void Public_JSON_resolves_references_in_quests_gate_items_and_nested_children()
     {
         const string json = """
-            {"_version":10,"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},
-             "_sources":{"source:test":{"type":"auction_house","kind":"auction_house","name":"Auction House","item_stable_key":"item:result","place_set_key":"places:test","conditions":[]}},
+            {"_version":11,"_encounters":{"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},
+             "_sources":{"source:test":{"type":"auction_house","kind":"auction_house","name":"Auction House","item_stable_key":"item:result","place_set_key":"places:test","conditions":[],"rank":{"tier":2,"depth":3}}},
              "_place_sets":{"places:test":[{"place_key":"place:test","relation":"fixed","scene":"A","zone":"A zone","marker_stable_key":"spawn:test","x":1,"y":2,"z":3,"conditions":[],"entry_zone_line_keys":[]}]},
-             "_source_ranks":{"source:test":{"tier":2,"depth":3}},"_item_uses":{},"_quest_state_keys":{},"_zone_line_destination_contexts":{},
+             "_item_uses":{},"_quest_state_keys":{},"_zone_line_destination_contexts":{},
              "_gate_items":{"item:result":{"name":"Result","sources":[{"acquisition_key":"source:test"}]}},
              "quests":[{"stable_key":"quest:test","db_name":"Test","display_name":"Test","required_items":[{"item_stable_key":"item:result","item_name":"Result","sources":[{"type":"ingredient","children":[{"acquisition_key":"source:test"}]}]}],
               "steps":[{"order":1,"action":"obtain","description":"Obtain Result.","sources":[{"acquisition_key":"source:test"}]}]}]}
@@ -308,22 +308,6 @@ public sealed class CanonicalSourceConditionsTests
         Assert.Equal(5, resolved.Chance);
         Assert.Equal("treasure:dig-site", resolved.MakeSourceId());
         Assert.Null(resolved.CanonicalSpawn);
-    }
-
-    [Theory]
-    [InlineData(null)]
-    [InlineData("other")]
-    public void Operation_inputs_cannot_bind_to_another_outcome(string? outcome)
-    {
-        var wrapper = Wrapper();
-        wrapper.Quests![0].RequiredItems![0].Sources![0].OperationUseKeys = ["input"];
-        wrapper.ItemUses["input"] = new()
-        {
-            UseKey = "input",
-            ItemStableKey = "item:material",
-            OutcomeKey = outcome,
-        };
-        Assert.Throws<InvalidDataException>(() => GuideData.FromWrapper(wrapper));
     }
 
     [Theory]

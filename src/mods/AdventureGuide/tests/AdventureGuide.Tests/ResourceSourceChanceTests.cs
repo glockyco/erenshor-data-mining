@@ -11,10 +11,10 @@ public sealed class ResourceSourceChanceTests
         var data = GuideData.Parse(
             $$"""
             {
-              "_version": 10,
+              "_version": 11,
               "_encounters": {"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},
               "_zone_line_destination_contexts": {},
-              "_sources": {}, "_place_sets": {}, "_source_ranks": {}, "_item_uses": {}, "_quest_state_keys": {},
+              "_sources": {}, "_place_sets": {}, "_item_uses": {}, "_quest_state_keys": {},
               "quests": [{
                 "stable_key": "quest:fishing", "db_name": "Fishing", "display_name": "Fishing",
                 "steps": [{

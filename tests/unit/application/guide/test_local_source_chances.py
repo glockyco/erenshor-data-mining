@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-import json
-
 import pytest
 
 from erenshor.application.guide.compiler import compile_graph
-from erenshor.application.guide.mod_writer import serialize_mod_guide
+from erenshor.application.guide.mod_writer import build_mod_guide
 from erenshor.application.guide.schema import Node, NodeType
 from erenshor.domain.value_objects.item_provenance import (
     ItemAcquisition,
@@ -31,7 +29,7 @@ def _fixture():
 
 
 def _payload(graph):
-    return json.loads(serialize_mod_guide(graph, compile_graph(graph)))
+    return build_mod_guide(graph, compile_graph(graph))
 
 
 def _required():
@@ -88,7 +86,7 @@ def test_final_local_fishing_phases_are_not_replaced_or_maximized_again(tmp_path
         assert row[f"{period}_chance"] == row["chance"]
         assert row["night_chance" if period == "day" else "day_chance"] == 0
         [place] = payload["_place_sets"][row["place_set_key"]]
-        assert place["place_key"] == "actual-water"
+        assert place["place_key"] == "0"
         assert row["kind"] == "fishing"
 
 
@@ -147,8 +145,8 @@ def test_unlocated_fishing_rate_applies_in_both_time_windows(tmp_path):
     source = _payload(graph)["_sources"]["global"]
     assert source["name"] == "Any water"
     assert source["chance"] == source["day_chance"] == source["night_chance"] == 0.125
-    assert source["place_set_key"] is None
-    assert source["conditions"] == []
+    assert source.get("place_set_key") is None
+    assert source.get("conditions", []) == []
 
 
 @pytest.mark.parametrize("keywords", ["papers,leave", None])

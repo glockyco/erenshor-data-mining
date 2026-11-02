@@ -10,8 +10,6 @@ public sealed partial class GuideData
         new Dictionary<string, List<SourceLocation>>(StringComparer.Ordinal);
     public IReadOnlyDictionary<string, ItemUseFact> ItemUses { get; private set; } =
         new Dictionary<string, ItemUseFact>(StringComparer.Ordinal);
-    public IReadOnlyDictionary<string, SourceRank> SourceRanks { get; private set; } =
-        new Dictionary<string, SourceRank>(StringComparer.Ordinal);
     private IReadOnlyDictionary<string, string> _questStateKeys = new Dictionary<string, string>(
         StringComparer.Ordinal
     );
@@ -39,6 +37,8 @@ public sealed partial class GuideData
                 || source.PlaceSetKey != null && !wrapper.PlaceSets.ContainsKey(source.PlaceSetKey)
             )
                 throw new InvalidDataException($"Invalid public source: {pair.Key}");
+            if (source.Rank is { } rank && (rank.Tier < 0 || rank.Depth < 0))
+                throw new InvalidDataException($"Invalid source rank: {pair.Key}");
             ValidateSources(new List<ItemSource> { source }, source.Name ?? "", pair.Key);
         }
         foreach (var pair in wrapper.ItemUses)
@@ -212,10 +212,6 @@ public sealed partial class GuideData
         Sources = wrapper.Sources;
         PlaceSets = wrapper.PlaceSets;
         ItemUses = wrapper.ItemUses;
-        SourceRanks = wrapper.SourceRanks;
-        foreach (var pair in SourceRanks)
-            if (!Sources.ContainsKey(pair.Key) || pair.Value.Tier < 0 || pair.Value.Depth < 0)
-                throw new InvalidDataException($"Invalid source rank: {pair.Key}");
         _questStateKeys = wrapper.QuestStateKeys;
         var lines = new Dictionary<string, int>(StringComparer.Ordinal);
         for (int index = 0; index < ZoneLines.Count; index++)
@@ -224,13 +220,44 @@ public sealed partial class GuideData
         var placements = new Dictionary<string, SpawnPoint>(StringComparer.Ordinal);
         foreach (var spawns in CharacterSpawns.Values)
         foreach (var spawn in spawns)
-            if (!string.IsNullOrEmpty(spawn.StableKey))
-                placements.TryAdd(spawn.StableKey, spawn);
+        {
+            if (string.IsNullOrEmpty(spawn.StableKey))
+                continue;
+            if (placements.TryGetValue(spawn.StableKey, out var previous))
+            {
+                if (
+                    !string.Equals(previous.Scene, spawn.Scene, StringComparison.OrdinalIgnoreCase)
+                    || previous.X != spawn.X
+                    || previous.Y != spawn.Y
+                    || previous.Z != spawn.Z
+                )
+                    throw new InvalidDataException($"Conflicting spawn marker: {spawn.StableKey}");
+            }
+            else
+                placements.Add(spawn.StableKey, spawn);
+        }
         foreach (var places in PlaceSets.Values)
         {
             var identities = new HashSet<string>(StringComparer.Ordinal);
             foreach (var location in places)
             {
+                if (location == null)
+                    throw new InvalidDataException("Invalid canonical source location");
+                SpawnPoint? original = null;
+                if (location.MarkerStableKey != null)
+                {
+                    if (placements.TryGetValue(location.MarkerStableKey, out original))
+                        RestoreMarkerLocation(location, original);
+                    else if (
+                        location.Scene == null
+                        || !location.X.HasValue
+                        || !location.Y.HasValue
+                        || !location.Z.HasValue
+                    )
+                        throw new InvalidDataException(
+                            $"Missing public place marker: {location.MarkerStableKey}"
+                        );
+                }
                 ValidateLocation(location);
                 if (!identities.Add(location.PlaceKey))
                     throw new InvalidDataException($"Duplicate public place: {location.PlaceKey}");
@@ -252,9 +279,6 @@ public sealed partial class GuideData
                             );
                         entries!.Add(index);
                     }
-                    SpawnPoint? original = null;
-                    if (location.MarkerStableKey != null)
-                        placements.TryGetValue(location.MarkerStableKey, out original);
                     location.Spawn = new SpawnPoint
                     {
                         StableKey =
@@ -282,30 +306,59 @@ public sealed partial class GuideData
         }
         foreach (var use in ItemUses.Values)
             CompileSourceConditions(use.Conditions);
+        var resolvedLists = new HashSet<List<ItemSource>>();
         foreach (var quest in All)
         {
             if (quest.RequiredItems != null)
                 foreach (var item in quest.RequiredItems)
-                    ResolveSources(item.Sources);
+                    ResolveSources(item.Sources, resolvedLists);
             if (quest.Steps != null)
                 foreach (var step in quest.Steps)
-                    ResolveSources(step.Sources);
+                    ResolveSources(step.Sources, resolvedLists);
         }
         foreach (var item in GateItems.Values)
-            ResolveSources(item.Sources);
+            ResolveSources(item.Sources, resolvedLists);
     }
 
-    private void ResolveSources(List<ItemSource>? sources)
+    private void RestoreMarkerLocation(SourceLocation location, SpawnPoint spawn)
     {
-        if (sources == null)
+        if (
+            location.Scene != null
+                && !string.Equals(location.Scene, spawn.Scene, StringComparison.OrdinalIgnoreCase)
+            || location.X.HasValue && location.X != spawn.X
+            || location.Y.HasValue && location.Y != spawn.Y
+            || location.Z.HasValue && location.Z != spawn.Z
+        )
+            throw new InvalidDataException($"Conflicting public place marker: {spawn.StableKey}");
+        location.Scene ??= spawn.Scene;
+        location.X ??= spawn.X;
+        location.Y ??= spawn.Y;
+        location.Z ??= spawn.Z;
+        if (!ZoneLookup.TryGetValue(spawn.Scene, out var zone))
+        {
+            if (location.Zone == null || location.ZoneStableKey == null)
+                throw new InvalidDataException($"Missing public place zone for {spawn.StableKey}");
+            return;
+        }
+        if (
+            location.Zone != null && location.Zone != zone.DisplayName
+            || location.ZoneStableKey != null && location.ZoneStableKey != zone.StableKey
+        )
+            throw new InvalidDataException($"Conflicting public place zone for {spawn.StableKey}");
+        location.Zone ??= zone.DisplayName;
+        location.ZoneStableKey ??= zone.StableKey;
+    }
+
+    private void ResolveSources(List<ItemSource>? sources, HashSet<List<ItemSource>> resolvedLists)
+    {
+        if (sources == null || !resolvedLists.Add(sources))
             return;
         for (int index = 0; index < sources.Count; index++)
         {
             var source = sources[index];
-            // A graph can share a source object between several ingredient paths.
-            if (source.CanonicalFact != null)
-                continue;
-            ResolveSources(source.Children);
+            // Shared objects can occur in different lists. Expand every list once
+            // so each path retains every place of its sources.
+            ResolveSources(source.Children, resolvedLists);
             if (source.UseKey != null)
             {
                 if (!ItemUses.TryGetValue(source.UseKey, out var use))
@@ -313,23 +366,13 @@ public sealed partial class GuideData
                 source.CanonicalUse = use;
                 source.CanonicalSourceId = source.UseKey;
             }
-            if (source.OperationUseKeys != null)
-                foreach (string key in source.OperationUseKeys)
-                    if (
-                        source.AcquisitionKey == null
-                        || !ItemUses.TryGetValue(key, out var input)
-                        || input.OutcomeKey != source.AcquisitionKey
-                    )
-                        throw new InvalidDataException($"Unbound public operation input: {key}");
             if (source.AcquisitionKey == null)
                 continue;
             if (!Sources.TryGetValue(source.AcquisitionKey, out var fact))
                 throw new InvalidDataException($"Missing public source: {source.AcquisitionKey}");
             source.ApplyPresentation(fact);
             source.CanonicalFact = fact;
-            source.Rank = SourceRanks.TryGetValue(source.AcquisitionKey, out var rank)
-                ? rank
-                : null;
+            source.Rank = fact.Rank;
             var template = source.Copy();
             int count = Math.Max(1, fact.Locations.Count);
             for (int place = 0; place < count; place++)
@@ -625,9 +668,6 @@ internal sealed partial class GuideWrapper
     [JsonProperty("_place_sets"), JsonRequired]
     public Dictionary<string, List<SourceLocation>> PlaceSets { get; set; } =
         new(StringComparer.Ordinal);
-
-    [JsonProperty("_source_ranks"), JsonRequired]
-    public Dictionary<string, SourceRank> SourceRanks { get; set; } = new(StringComparer.Ordinal);
 
     [JsonProperty("_item_uses"), JsonRequired]
     public Dictionary<string, ItemUseFact> ItemUses { get; set; } = new(StringComparer.Ordinal);

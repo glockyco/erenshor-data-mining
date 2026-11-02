@@ -171,7 +171,7 @@ public sealed class SourceChoiceTests
     [InlineData("quantity")]
     [InlineData("condition")]
     [InlineData("item")]
-    [InlineData("operation_input")]
+    [InlineData("operation_context")]
     [InlineData("child_use")]
     [InlineData("child_quantity")]
     [InlineData("child_quality")]
@@ -214,8 +214,8 @@ public sealed class SourceChoiceTests
             case "item":
                 b.ItemStableKey = "item:other";
                 break;
-            case "operation_input":
-                b.OperationUseKeys = ["use:operation:1"];
+            case "operation_context":
+                b.OperationContext = 1;
                 break;
             case "child_use":
                 b.Children[0].UseKey = "use:material:1";
@@ -495,8 +495,6 @@ public sealed class SourceChoiceTests
     {
         var a = Located("a");
         var b = Located("b");
-        a.OperationUseKeys = ["use:input:0", "use:input:1"];
-        b.OperationUseKeys = ["use:input:1", "use:input:0"];
         a.Children =
         [
             new() { AcquisitionKey = "acquisition:input:a", UseKey = "use:input:0" },

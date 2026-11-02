@@ -91,21 +91,21 @@ public sealed partial class GuideData
             throw new InvalidDataException("Failed to load embedded quest-guide.json");
         }
 
-        // Deserialize straight from the resource stream. Reading the ~2 MB
-        // file into a string first builds two UTF-16 copies of it at startup,
-        // and the game's managed heap does not shrink back after such a peak.
         using var reader = new StreamReader(stream);
-        using var json = new JsonTextReader(reader);
-        var wrapper =
-            JsonSerializer.CreateDefault().Deserialize<GuideWrapper>(json)
-            ?? throw new InvalidDataException("Failed to deserialize quest-guide.json");
-        return FromWrapper(wrapper);
+        return Read(reader);
     }
 
     internal static GuideData Parse(string json)
     {
+        using var reader = new StringReader(json);
+        return Read(reader);
+    }
+
+    private static GuideData Read(TextReader reader)
+    {
+        using var json = new GuideJsonReader(reader);
         var wrapper =
-            JsonConvert.DeserializeObject<GuideWrapper>(json)
+            JsonSerializer.CreateDefault().Deserialize<GuideWrapper>(json)
             ?? throw new InvalidDataException("Failed to deserialize quest-guide.json");
         return FromWrapper(wrapper);
     }
@@ -176,7 +176,7 @@ public sealed partial class GuideData
         !_byDBName.ContainsKey(dbName) && !_excludedQuests.Contains(dbName);
 
     /// <summary>The quest-guide.json schema version that this build reads.</summary>
-    internal const int SchemaVersion = 10;
+    internal const int SchemaVersion = 11;
 
     internal static void ValidateWrapper(GuideWrapper wrapper)
     {
@@ -184,6 +184,7 @@ public sealed partial class GuideData
             throw new InvalidDataException(
                 $"Unsupported quest guide schema version {wrapper.Version}. Expected {SchemaVersion}"
             );
+        wrapper.ResolveSpawnPoints();
         if (wrapper.Quests == null)
             throw new InvalidDataException("Quest guide has no quests collection");
 
@@ -560,8 +561,14 @@ internal sealed partial class GuideWrapper
     [JsonProperty("_zone_lookup")]
     public Dictionary<string, ZoneInfo>? ZoneLookup { get; set; }
 
-    [JsonProperty("_character_spawns")]
+    [JsonIgnore]
     public Dictionary<string, List<SpawnPoint>>? CharacterSpawns { get; set; }
+
+    [JsonProperty("_character_spawns")]
+    public Dictionary<string, List<int>>? CharacterSpawnIndexes { get; set; }
+
+    [JsonProperty("_spawn_points")]
+    public List<SpawnPoint>? SpawnPoints { get; set; }
 
     [JsonProperty("_encounter_tiers")]
     public Dictionary<string, string>? EncounterTiers { get; set; }
@@ -589,6 +596,33 @@ internal sealed partial class GuideWrapper
 
     [JsonProperty("quests")]
     public List<QuestEntry>? Quests { get; set; }
+
+    internal void ResolveSpawnPoints()
+    {
+        if (CharacterSpawnIndexes == null)
+            return;
+        if (CharacterSpawns != null || SpawnPoints == null)
+            throw new InvalidDataException("Invalid character spawn representations");
+        var characters = new Dictionary<string, List<SpawnPoint>>(StringComparer.Ordinal);
+        foreach (var pair in CharacterSpawnIndexes)
+        {
+            if (pair.Value == null)
+                throw new InvalidDataException($"Character has no spawn indexes: {pair.Key}");
+            var spawns = new List<SpawnPoint>(pair.Value.Count);
+            foreach (int index in pair.Value)
+            {
+                if (index < 0 || index >= SpawnPoints.Count || SpawnPoints[index] == null)
+                    throw new InvalidDataException(
+                        $"Character spawn index {index} is out of range"
+                    );
+                // Runtime placement identity remains specific to each character occurrence.
+                spawns.Add(SpawnPoints[index].Copy());
+            }
+            characters.Add(pair.Key, spawns);
+        }
+        CharacterSpawns = characters;
+        CharacterSpawnIndexes = null;
+    }
 }
 
 /// <summary>Zone metadata from the lookup table.</summary>
@@ -618,6 +652,7 @@ public sealed class FurnitureSetInfo
 }
 
 /// <summary>A character spawn point with coordinates.</summary>
+[JsonConverter(typeof(GuideRowConverter))]
 public sealed class SpawnPoint
 {
     [JsonProperty("stable_key")]
@@ -652,6 +687,8 @@ public sealed class SpawnPoint
 
     [JsonProperty("activations")]
     public List<ActivationReference>? Activations { get; set; }
+
+    internal SpawnPoint Copy() => (SpawnPoint)MemberwiseClone();
 }
 
 /// <summary>A zone transition point.</summary>

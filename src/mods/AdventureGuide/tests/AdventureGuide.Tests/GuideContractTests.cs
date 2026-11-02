@@ -20,6 +20,27 @@ public sealed class GuideContractTests
     }
 
     [Fact]
+    public void Embedded_shipping_guide_loads_through_the_stream_reader()
+    {
+        var data = GuideData.Load(AdventureGuide.Config.NullModLogger.Instance);
+        Assert.NotEmpty(data.All);
+        Assert.NotEmpty(data.CharacterSpawns);
+        Assert.NotEmpty(data.Sources);
+    }
+
+    [Theory]
+    [InlineData(7)]
+    [InlineData(10)]
+    [InlineData(12)]
+    public void Validation_rejects_other_schema_versions(int version)
+    {
+        var error = Assert.Throws<InvalidDataException>(() =>
+            GuideData.ValidateWrapper(new GuideWrapper { Version = version })
+        );
+        Assert.Contains($"Unsupported quest guide schema version {version}", error.Message);
+    }
+
+    [Fact]
     public void Validation_rejects_cross_namespace_quest_identity_collisions()
     {
         var wrapper = new GuideWrapper
@@ -114,9 +135,9 @@ public sealed class GuideContractTests
     {
         const string json = """
             {
-              "_version": 10,
+              "_version": 11,
               "_encounters": {"encounter_placements":[],"encounter_conditions":[],"encounter_completions":[],"encounter_event_conditions":[]},
-              "_sources": {}, "_place_sets": {}, "_source_ranks": {}, "_item_uses": {}, "_quest_state_keys": {},
+              "_sources": {}, "_place_sets": {}, "_item_uses": {}, "_quest_state_keys": {},
               "_conditions": [
                 [[{"kind": "unknown_kind", "ref": "GateQuest"}]]
               ],
@@ -132,8 +153,6 @@ public sealed class GuideContractTests
     [InlineData("_sources", true)]
     [InlineData("_place_sets", false)]
     [InlineData("_place_sets", true)]
-    [InlineData("_source_ranks", false)]
-    [InlineData("_source_ranks", true)]
     [InlineData("_item_uses", false)]
     [InlineData("_item_uses", true)]
     [InlineData("_quest_state_keys", false)]
@@ -158,17 +177,23 @@ public sealed class GuideContractTests
         );
     }
 
-    [Fact]
-    public void Loading_rejects_a_rank_for_an_unknown_acquisition()
+    [Theory]
+    [InlineData(-1, 0)]
+    [InlineData(0, -1)]
+    public void Loading_rejects_a_negative_acquisition_rank(int tier, int depth)
     {
-        var payload = Newtonsoft.Json.Linq.JObject.FromObject(
-            TestData.NativeRequirements(("item:runner", null, [4]))
-        );
-        payload["_source_ranks"] = Newtonsoft.Json.Linq.JObject.Parse(
-            """{"acquisition:unknown": {"tier": 1, "depth": 1}}"""
-        );
+        var wrapper = TestData.NativeRequirements(("item:runner", null, [4]));
+        wrapper.Sources["acquisition:test"] = new()
+        {
+            Kind = "auction_house",
+            Type = "auction_house",
+            ItemStableKey = "item:runner",
+            Rank = new() { Tier = tier, Depth = depth },
+        };
 
-        Assert.Throws<InvalidDataException>(() => GuideData.Parse(payload.ToString()));
+        Assert.Throws<InvalidDataException>(() =>
+            GuideData.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(wrapper))
+        );
     }
 
     [Fact]

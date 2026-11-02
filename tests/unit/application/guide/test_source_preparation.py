@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import sqlite3
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -12,7 +11,7 @@ import pytest
 from erenshor.application.guide.combat_guidance import combat_preparations
 from erenshor.application.guide.compiler import compile_graph
 from erenshor.application.guide.graph_overrides import merge_overrides
-from erenshor.application.guide.mod_writer import serialize_mod_guide
+from erenshor.application.guide.mod_writer import build_mod_guide
 from erenshor.application.guide.schema import Edge, EdgeType
 
 from .fixtures import build_graph, character_node, item_node, quest_node
@@ -52,7 +51,7 @@ def _database(path: Path) -> sqlite3.Connection:
 
 
 def _sources(graph: EntityGraph) -> dict[str, dict[str, Any]]:
-    payload = json.loads(serialize_mod_guide(graph, compile_graph(graph)))
+    payload = build_mod_guide(graph, compile_graph(graph))
     return {source["source_key"]: source for source in payload["quests"][0]["required_items"][0]["sources"]}
 
 

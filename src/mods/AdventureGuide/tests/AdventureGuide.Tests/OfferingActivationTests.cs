@@ -32,6 +32,34 @@ public sealed class OfferingActivationTests
         bool expected
     ) => Assert.Equal(expected, SpawnMarkerPolicy.ShowsPlacement(offering, alive));
 
+    [Fact]
+    public void Shared_wire_spawns_keep_activation_character_bindings_distinct()
+    {
+        var wrapper = Fixture();
+        foreach (var offering in wrapper.Activations!["activation:test"].Offerings)
+            offering.Spawns.Add(new() { Character = "character:other enemy", Quantity = 1 });
+        wrapper.SpawnPoints =
+        [
+            wrapper.CharacterSpawns!["character:chest"][0],
+            wrapper.CharacterSpawns["character:enemy"][0],
+        ];
+        var shared = new List<int> { 1 };
+        wrapper.CharacterSpawnIndexes = new()
+        {
+            ["character:chest"] = [0],
+            ["character:enemy"] = shared,
+            ["character:other enemy"] = shared,
+        };
+        wrapper.CharacterSpawns = null;
+        var data = GuideData.FromWrapper(wrapper);
+        var first = data.CharacterSpawns["character:enemy"][0];
+        var second = data.CharacterSpawns["character:other enemy"][0];
+        Assert.NotSame(first, second);
+        Assert.Equal("character:enemy", data.ActivationCharacter(first));
+        Assert.Equal("character:other enemy", data.ActivationCharacter(second));
+        Assert.Equal(first.Activations, second.Activations);
+    }
+
     [Theory]
     [InlineData("key")]
     [InlineData("index")]

@@ -15,9 +15,11 @@ from erenshor.application.guide.graph_validation import (
     _item_obtainability_level,
     _LevelContext,
 )
-from erenshor.application.guide.mod_writer import serialize_mod_guide
+from erenshor.application.guide.mod_writer import build_mod_guide
 from erenshor.application.guide.node_builder import _add_native_activations
 from erenshor.application.guide.schema import Edge, EdgeType, Node, NodeType
+
+from .wire import character_spawns, decode_mod_guide
 
 
 @pytest.fixture
@@ -83,7 +85,7 @@ def _payload(native):
     conn, graph, _ = native
     _add_native_activations(conn, graph)
     graph.build_indexes()
-    return json.loads(serialize_mod_guide(graph, compile_graph(graph)))
+    return build_mod_guide(graph, compile_graph(graph))
 
 
 def test_native_rounds_bind_all_occurrences_and_reward_roles(native):
@@ -92,13 +94,14 @@ def test_native_rounds_bind_all_occurrences_and_reward_roles(native):
     assert len(arena["offerings"]) == 8
     assert arena["offerings"][0]["spawns"] == [{"character": "character:enemy", "quantity": 2}]
     assert [offer["item_stable_key"] for offer in arena["offerings"]] == [f"item:fee{i}" for i in range(1, 9)]
-    refs = payload["_character_spawns"]["character:enemy"][0]["activations"]
-    assert [ref["offering"] for ref in refs] == list(range(8))
+    refs = character_spawns(payload, "character:enemy")[0]["activations"]
+    assert [ref.get("offering", 0) for ref in refs] == list(range(8))
     assert {ref["role"] for ref in refs} == {"spawn"}
     for index in range(8):
         chest = f"character:chest{index + 1}"
         assert arena["offerings"][index]["reward"] == chest
-        assert payload["_character_spawns"][chest][0]["activations"] == [
+        refs = character_spawns(payload, chest)[0]["activations"]
+        assert [{**ref, "offering": ref.get("offering", 0)} for ref in refs] == [
             {"key": "activation:VithArena:ArenaScene:ARENA EVENT", "offering": index, "role": "reward"}
         ]
     assert set(payload["_gate_items"]) == {
@@ -119,7 +122,7 @@ def test_trigger_offerings_group_by_controller_site_and_random_choice(native):
     [random] = [offer for offer in board["offerings"] if offer["random"]]
     assert len(random["spawns"]) == 6
     assert all(spawn["quantity"] == 1 for spawn in random["spawns"])
-    assert all(offer["reward"] is None for offer in board["offerings"])
+    assert all(offer.get("reward") is None for offer in board["offerings"])
 
 
 def test_unbound_controller_placement_fails(native):
@@ -180,7 +183,7 @@ def test_chest_fee_level_follows_previous_offering_without_cycle(native):
 
 def test_shipped_resource_has_exact_native_controller_coverage():
     path = Path(__file__).resolve().parents[4] / "quest_guides/quest-guide.json"
-    payload = json.loads(path.read_text())
+    payload = decode_mod_guide(path.read_text())
     assert len(payload["quests"]) == 190
     for quest in payload["quests"]:
         assert quest["stable_key"].startswith("quest:")
@@ -193,14 +196,14 @@ def test_shipped_resource_has_exact_native_controller_coverage():
     assert len(controllers) == 3
     assert sorted(len(controller["offerings"]) for controller in controllers.values()) == [2, 7, 8]
     counts = dict.fromkeys(("VithArena", "MalarothFeed", "Chessboard"), 0)
-    for placements in payload["_character_spawns"].values():
-        for placement in placements:
+    for character in payload["_character_spawns"]:
+        for placement in character_spawns(payload, character):
             if placement.get("source_script") in counts:
                 assert placement["activations"]
                 counts[placement["source_script"]] += 1
     assert counts == {"VithArena": 20, "MalarothFeed": 2, "Chessboard": 12}
     [board] = [controller for controller in controllers.values() if controller["script"] == "Chessboard"]
-    [random] = [offer for offer in board["offerings"] if offer["random"]]
+    [random] = [offer for offer in board["offerings"] if offer.get("random", False)]
     assert len(random["spawns"]) == 6
     assert board["display_name"] == "game board"
     assert board["site"]["bounds"]["extents"]["x"] > 0
@@ -208,17 +211,18 @@ def test_shipped_resource_has_exact_native_controller_coverage():
     arena = controllers[arena_key]
     assert arena["offerings"][3]["spawns"] == [{"character": "character:wandering champion", "quantity": 2}]
     assert arena["offerings"][5]["spawns"] == [{"character": "character:wandering champion", "quantity": 3}]
-    for character, placements in payload["_character_spawns"].items():
-        for placement in placements:
+    for character in payload["_character_spawns"]:
+        for placement in character_spawns(payload, character):
             if placement.get("source_script") != "VithArena":
                 continue
             expected = []
             for index, offer in enumerate(arena["offerings"]):
                 if any(spawn["character"] == character for spawn in offer["spawns"]):
                     expected.append({"key": arena_key, "offering": index, "role": "spawn"})
-                if offer["reward"] == character:
+                if offer.get("reward") == character:
                     expected.append({"key": arena_key, "offering": index, "role": "reward"})
-            assert placement["activations"] == expected
+            refs = placement["activations"]
+            assert [{**ref, "offering": ref.get("offering", 0)} for ref in refs] == expected
     fee1 = payload["_gate_items"][arena["offerings"][0]["item_stable_key"]]
     fee2 = payload["_gate_items"][arena["offerings"][1]["item_stable_key"]]
     assert any(

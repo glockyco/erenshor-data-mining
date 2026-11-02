@@ -200,11 +200,9 @@ def test_missing_required_column_fails_even_when_empty(conn):
 
 @pytest.mark.parametrize("gated", [False, True])
 def test_schema_eight_preserves_all_encounter_rows_and_exact_stored_return_line(conn, gated):
-    import json
-
     from erenshor.application.guide.compiler import compile_graph
     from erenshor.application.guide.encounter_contexts import read_zone_line_destination_contexts
-    from erenshor.application.guide.mod_writer import serialize_mod_guide
+    from erenshor.application.guide.mod_writer import build_mod_guide
     from erenshor.application.guide.schema import Node, NodeType, SubjectKind
 
     from .fixtures import build_graph, quest_gate, quest_node
@@ -250,7 +248,7 @@ def test_schema_eight_preserves_all_encounter_rows_and_exact_stored_return_line(
     )
     graph.encounters = read_encounter_contexts(conn)
     graph.zone_line_destination_contexts = read_zone_line_destination_contexts(conn, graph)
-    payload = json.loads(serialize_mod_guide(graph, compile_graph(graph)))
+    payload = build_mod_guide(graph, compile_graph(graph))
     assert payload["_encounters"] == graph.encounters
     assert len(payload["_encounters"]["encounter_placements"]) == 5
     assert payload["_quest_state_keys"] == {_QUEST: "UNRELATED_DB_NAME"}

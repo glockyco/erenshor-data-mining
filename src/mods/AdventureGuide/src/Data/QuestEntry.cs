@@ -251,8 +251,8 @@ public class ItemSource
     [JsonProperty("use_key")]
     public string? UseKey { get; set; }
 
-    [JsonProperty("operation_use_keys")]
-    public string[]? OperationUseKeys { get; set; }
+    [JsonProperty("operation_context")]
+    public int OperationContext { get; set; }
 
     [JsonProperty("item_stable_key")]
     public string? ItemStableKey { get; set; }
@@ -279,8 +279,8 @@ public class ItemSource
     internal SourceFact? CanonicalFact { get; set; }
 
     /// <summary>Progression rank of this acquisition, when the progression build reaches it.</summary>
-    [JsonIgnore]
-    internal SourceRank? Rank { get; set; }
+    [JsonProperty("rank")]
+    public SourceRank? Rank { get; set; }
 
     [JsonIgnore]
     internal SourceLocation? CanonicalLocation { get; set; }
@@ -316,6 +316,7 @@ public class ItemSource
         Keyword = source.Keyword;
         Condition = source.Condition;
         ItemStableKey = source.ItemStableKey;
+        OperationContext = source.OperationContext;
         Quantity = source.Quantity;
         OutputQuality = source.OutputQuality;
     }

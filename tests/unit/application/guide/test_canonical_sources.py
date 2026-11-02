@@ -2,23 +2,23 @@
 
 from __future__ import annotations
 
-import json
 from dataclasses import replace
 
 import pytest
 
 from erenshor.application.guide.compiler import compile_graph
-from erenshor.application.guide.mod_writer import serialize_mod_guide
-from erenshor.application.guide.schema import Node, NodeType
+from erenshor.application.guide.mod_writer import build_mod_guide, serialize_mod_guide
+from erenshor.application.guide.schema import Edge, EdgeType, Node, NodeType
 from erenshor.domain.value_objects.item_provenance import (
     ItemAcquisition,
     ItemUse,
     ProvenanceCondition,
     ProvenanceLocation,
 )
-from erenshor.domain.value_objects.item_public_view import PublicUse
+from erenshor.domain.value_objects.item_public_view import PublicCondition, PublicUse
 
-from .fixtures import build_graph, character_node, item_node, load_canonical_sources, quest_node
+from .fixtures import build_graph, character_node, item_node, load_canonical_sources, quest_node, spawn_node
+from .wire import assert_wire_roundtrip
 
 
 def _graph():
@@ -56,7 +56,7 @@ def _required(key="required", variant=None, quality=None):
 
 
 def _payload(graph):
-    return json.loads(serialize_mod_guide(graph, compile_graph(graph)))
+    return build_mod_guide(graph, compile_graph(graph))
 
 
 def _sources(payload):
@@ -102,7 +102,7 @@ def test_noncombat_actor_copy_is_preserved_without_a_combat_node(tmp_path, kind)
     [source] = _sources(payload)
     assert source["source_key"] == actor
     [place] = payload["_place_sets"][source["place_set_key"]]
-    assert place["place_key"] == "trade-site"
+    assert place["place_key"] == "0"
     assert graph.get_node(actor).invulnerable
     if kind == "quest_reward":
         assert source["quest_key"] == "quest:reward"
@@ -163,7 +163,7 @@ def test_canonical_families_keep_actual_location_and_normalize_facts_once(tmp_pa
     assert (row["chance"], row["chance_max"]) == (0.00001, 0.00002)
     [place] = payload["_place_sets"][row["place_set_key"]]
     assert (place["place_key"], place["scene"], place["x"], place["y"], place["z"]) == (
-        "location:actual",
+        "0",
         "ActualScene",
         17,
         18,
@@ -173,7 +173,7 @@ def test_canonical_families_keep_actual_location_and_normalize_facts_once(tmp_pa
     assert not {"acquisition_key", "location_key", "scene", "x", "y", "z", "children"}.intersection(
         payload["_sources"]["actual"]
     )
-    assert payload["_version"] == 10
+    assert payload["_version"] == 11
     assert "_source_facts" not in payload
     assert payload["_item_uses"]["required"]["material_slot"] == 3
 
@@ -267,7 +267,7 @@ def test_repeated_recipe_slots_mold_and_requested_output_quality_are_traversable
         assert ingredient["type"] == "ingredient"
         nested = ingredient["children"][0]
         [place] = payload["_place_sets"][nested["place_set_key"]]
-        assert place["place_key"] == "vendor-location"
+        assert place["place_key"] == "0"
     assert {payload["_item_uses"][f"material:{slot}"]["material_slot"] for slot in (1, 2)} == {1, 2}
     assert "wrong-quality" in payload["_sources"]
 
@@ -384,9 +384,9 @@ def test_native_requirement_bundles_aggregate_without_losing_slots(tmp_path, slo
         }
     for use in uses:
         serialized = payload["_item_uses"][use.use_key]
-        assert serialized["material_slot"] == use.material_slot
+        assert serialized.get("material_slot", 0) == use.material_slot
         assert serialized["quantity_min"] == serialized["quantity_max"] == use.quantity_min
-        assert serialized["variant_key"] == use.variant_key
+        assert serialized.get("variant_key") == use.variant_key
         assert "mechanic" not in serialized
 
 
@@ -482,7 +482,17 @@ def test_public_conditions_preserve_indices_actors_bounds_and_phases(tmp_path):
     payload = _payload(graph)
     actual = payload["_sources"]["actual"]["conditions"]
     assert {row["predicate"] for row in actual} == {"actor_level", "quality"}
-    assert all({"gate_index", "alternative_index", "atom_index", "phase"} <= row.keys() for row in actual)
+    assert [
+        (row.get("gate_index", 0), row.get("alternative_index", 0), row.get("atom_index", 0)) for row in actual
+    ] == [(0, 0, 0), (1, 0, 0)]
+    assert all("phase" in row for row in actual)
+    assert all(
+        value != 0
+        for row in actual
+        for key, value in row.items()
+        if key in {"gate_index", "alternative_index", "atom_index"}
+    )
+    assert all(not {"minimum_inclusive", "maximum_inclusive"} & row.keys() for row in actual)
     assert all(not {"scope", "group_index"}.intersection(row) for row in actual)
     level = next(row for row in actual if row["predicate"] == "actor_level")
     assert (level["actor"], level["minimum"]) == ("player", 20)
@@ -536,9 +546,10 @@ def test_smithing_byproduct_keeps_equipment_and_fuel_as_alternatives(tmp_path):
     [source] = _sources(payload)
     assert source["type"] == "item_use"
     assert "recipe_key" not in source
-    assert set(source["operation_use_keys"]) == {use.use_key for use in uses}
+    assert "operation_use_keys" not in source
+    assert source["operation_context"] > 0
     assert [child["use_key"] for child in source["children"]] == ["smithing:0"]
-    assert {key for key in payload["_item_uses"] if key.startswith("smithing:")} == {use.use_key for use in uses}
+    assert {key for key in payload["_item_uses"] if key.startswith("smithing:")} == {"smithing:0"}
     assert payload["_sources"][fact.acquisition_key]["conditions"][0]["phase"] == "operation_input"
 
 
@@ -570,4 +581,141 @@ def test_each_source_carries_the_lowest_rank_of_its_acquisitions_ways_to_its_ite
     )
     load_canonical_sources(tmp_path, graph, [ranked, unranked], [_required()], raw_outcomes_sql=sql)
 
-    assert _payload(graph)["_source_ranks"] == {"ranked": {"tier": 4, "depth": 12}}
+    payload = _payload(graph)
+    assert "_source_ranks" not in payload
+    assert payload["_sources"]["ranked"]["rank"] == {"tier": 4, "depth": 12}
+    assert "rank" not in payload["_sources"]["unranked"]
+
+
+def test_wire_roundtrip_preserves_all_sources_for_referenced_items_only(tmp_path):
+    graph = _graph()
+    graph.add_node(item_node("item:unrelated"))
+    facts = [
+        ItemAcquisition(
+            "chosen",
+            "item:result",
+            "item_conversion",
+            "item:input",
+            variant_key="chosen",
+            conditions=(ProvenanceCondition("quality", 0, 0, "quality", value="perfect", phase="operation_outcome"),),
+        ),
+        ItemAcquisition(
+            "excluded-variant",
+            "item:result",
+            "ui_grant",
+            None,
+            conditions=(ProvenanceCondition("quality", 0, 0, "quality", value="normal", phase="operation_outcome"),),
+        ),
+        ItemAcquisition(
+            "recursive-source",
+            "item:input",
+            "vendor",
+            "character:source",
+            location_source_key="character:source",
+            locations=(
+                ProvenanceLocation("first-place", "fixed", scene="Town", x=1, y=2, z=3),
+                ProvenanceLocation("second-place", "fixed", scene="Forest", x=4, y=5, z=6),
+            ),
+        ),
+        ItemAcquisition("recursive-alternative", "item:input", "ui_grant", None),
+        ItemAcquisition("unrelated", "item:unrelated", "ui_grant", None),
+    ]
+    use = ItemUse(
+        "conversion-input",
+        "item:input",
+        "item:result",
+        "item_conversion",
+        variant_key="chosen",
+        outcome_key="chosen",
+        quantity_min=1,
+        quantity_max=1,
+        quantity_kind="exact",
+    )
+    load_canonical_sources(tmp_path, graph, facts, [_required(quality="perfect"), use])
+    compiled = compile_graph(graph)
+    semantic = build_mod_guide(graph, compiled)
+    serialized = serialize_mod_guide(graph, compiled)
+    assert serialized == serialize_mod_guide(graph, compiled)
+    assert_wire_roundtrip(serialized, semantic)
+    assert set(semantic["_sources"]) == {
+        "chosen",
+        "excluded-variant",
+        "recursive-source",
+        "recursive-alternative",
+    }
+    [source] = _sources(semantic)
+    assert source["acquisition_key"] == "chosen"
+    assert {nested["acquisition_key"] for nested in source["children"][0]["children"]} == {
+        "recursive-source",
+        "recursive-alternative",
+    }
+    places = semantic["_place_sets"][semantic["_sources"]["recursive-source"]["place_set_key"]]
+    assert [place["place_key"] for place in places] == ["0", "1"]
+    public_places = graph.source_places[semantic["_sources"]["recursive-source"]["place_set_key"]]
+    assert [place["scene"] for place in places] == [place.scene for place in public_places]
+    assert set(semantic["_item_uses"]) == {"required", "conversion-input"}
+
+
+def test_marker_backed_places_omit_only_recoverable_fields_and_keep_public_conditions(tmp_path):
+    graph = _graph()
+    graph.add_node(spawn_node("spawn:source", scene="Town", x=1, y=2, z=3))
+    graph.add_node(Node("zone:town", NodeType.ZONE, "Town", scene="Town"))
+    graph.add_edge(Edge("character:source", "spawn:source", EdgeType.HAS_SPAWN))
+    graph.build_indexes()
+    fact = ItemAcquisition(
+        "located",
+        "item:result",
+        "vendor",
+        "character:source",
+        location_source_key="character:source",
+        locations=(
+            ProvenanceLocation("first", "fixed", scene="Town", x=1, y=2, z=3),
+            ProvenanceLocation("second", "fixed", scene="Town", x=4, y=5, z=6),
+        ),
+    )
+    load_canonical_sources(tmp_path, graph, [fact], [_required()])
+    public = graph.source_facts["located"]
+    assert public.place_set_key is not None
+    condition = PublicCondition(
+        1,
+        2,
+        3,
+        "bounded",
+        "actor_level",
+        actor="player",
+        minimum=4,
+        maximum=9,
+        minimum_inclusive=False,
+        maximum_inclusive=False,
+    )
+    places = graph.source_places[public.place_set_key]
+    graph.source_places[public.place_set_key] = (
+        replace(
+            places[0],
+            marker_stable_key="spawn:source",
+            zone_stable_key="zone:town",
+            conditions=(condition,),
+        ),
+        replace(
+            places[1],
+            marker_stable_key="spawn:not-exported",
+            zone_stable_key="zone:town",
+            conditions=(condition,),
+        ),
+    )
+    compiled = compile_graph(graph)
+    semantic = build_mod_guide(graph, compiled)
+    first, second = semantic["_place_sets"][public.place_set_key]
+    assert [first["place_key"], second["place_key"]] == ["0", "1"]
+    assert not {"scene", "x", "y", "z", "zone", "zone_stable_key"} & first.keys()
+    assert second["scene"] == "Town"
+    assert second["zone"] == "Town"
+    assert second["zone_stable_key"] == "zone:town"
+    for place in (first, second):
+        [atom] = place["conditions"]
+        assert PublicCondition(**atom) == condition
+        assert atom["minimum_inclusive"] is atom["maximum_inclusive"] is False
+        assert (atom["gate_index"], atom["alternative_index"], atom["atom_index"]) == (1, 2, 3)
+        assert all(value is not None for value in atom.values())
+        assert place.get("entry_zone_line_keys", []) == []
+    assert_wire_roundtrip(serialize_mod_guide(graph, compiled), semantic)

@@ -112,7 +112,7 @@ public sealed class SourceChoice
         && a.Type == b.Type
         && a.RecipeKey == b.RecipeKey
         && a.QuestKey == b.QuestKey
-        && SameStrings(a.OperationUseKeys, b.OperationUseKeys)
+        && a.OperationContext == b.OperationContext
         && SameChildUses(a.Children, b.Children);
 
     private static bool SameChildUses(List<ItemSource>? a, List<ItemSource>? b)

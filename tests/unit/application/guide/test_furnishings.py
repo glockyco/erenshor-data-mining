@@ -4,6 +4,8 @@ from erenshor.application.guide.graph_validation import _best_interaction_zone_k
 from erenshor.application.guide.mod_writer import build_mod_guide
 from erenshor.application.guide.schema import AtomKind, Edge, EdgeType, Gate, GateAtom, Node, NodeType, SubjectKind
 
+from .wire import character_spawns
+
 
 def _member(graph: EntityGraph, key: str, item: str, slot: str) -> None:
     graph.add_node(Node(key, NodeType.CHARACTER, "Golem", zone_key="zone:reliquary"))
@@ -72,7 +74,7 @@ def test_ungated_zone_level_and_completion_preferred_and_furnishing_condition_em
     assert _estimate_quest_level(quest, graph, medians, {}, zones, quest_levels={}, item_cache={}) == 20
     guide = build_mod_guide(graph, compile_graph(graph))
     assert guide["_furniture_sets"] == {"item:smithy": {"display_name": "Smithy Set"}}
-    spawn = guide["_character_spawns"]["character:golem"][0]
+    spawn = character_spawns(guide, "character:golem")[0]
     assert guide["_conditions"][spawn["condition"]] == [
         [{"kind": "room_furnished", "ref": "item:smithy", "slot": "L1"}]
     ]
@@ -107,7 +109,7 @@ def test_grouped_character_activity_stays_on_each_original_placement() -> None:
     graph.build_indexes()
     assert not graph.gates_for(SubjectKind.CHARACTER, "character:golem")
     guide = build_mod_guide(graph, compile_graph(graph))
-    entries = guide["_character_spawns"]["character:golem"]
+    entries = character_spawns(guide, "character:golem")
     assert len(entries) == 2
     conditions = [guide["_conditions"][entry["condition"]] for entry in entries]
     assert conditions == [

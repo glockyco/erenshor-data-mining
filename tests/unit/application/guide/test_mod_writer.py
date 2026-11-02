@@ -24,6 +24,7 @@ from erenshor.application.guide.schema import (
 )
 
 from .fixtures import build_graph, character_node, item_node, quest_gate, quest_node, spawn_node
+from .wire import PLACE_FIELDS, SPAWN_FIELDS, assert_wire_roundtrip, character_spawns, decode_mod_guide
 
 
 def _fixture() -> tuple[EntityGraph, dict[str, object]]:
@@ -376,7 +377,7 @@ def test_build_mod_guide_emits_zone_character_and_gate_conditions() -> None:
         "level_min": 5,
         "level_max": 20,
     }
-    assert data["_character_spawns"]["char:mob"] == [
+    assert character_spawns(data, "char:mob") == [
         {
             "stable_key": "spawn:mob:one",
             "scene": "AshenScene",
@@ -384,10 +385,9 @@ def test_build_mod_guide_emits_zone_character_and_gate_conditions() -> None:
             "y": 11,
             "z": 12,
             "night_spawn": True,
-            "is_directly_placed": False,
         }
     ]
-    [unlockable] = data["_character_spawns"]["char:unlockable"]
+    [unlockable] = character_spawns(data, "char:unlockable")
     assert unlockable["source_script"] == "VithArenaFight"
     # The spawn starts after MAIN, and MAIN alone also activates the character,
     # so the placement needs nothing else.
@@ -412,8 +412,8 @@ def test_defeat_quantity_reaches_the_serialized_compatibility_condition(quantity
             ((GateAtom(AtomKind.ENCOUNTER_WON, "character:stardust", quantity=quantity),),),
         )
     )
-    data = json.loads(serialize_mod_guide(graph, compile_graph(graph)))
-    [placement] = data["_character_spawns"]["char:mob"]
+    data = build_mod_guide(graph, compile_graph(graph))
+    [placement] = character_spawns(data, "char:mob")
     expected: dict[str, object] = {"kind": "encounter_won", "ref": "character:stardust"}
     if quantity > 1:
         expected["quantity"] = quantity
@@ -785,6 +785,9 @@ def test_serialize_mod_guide_is_compact_deterministic_and_json() -> None:
     assert " : " not in first
     parsed = json.loads(first)
     assert all(math.isfinite(value) for value in _finite_floats(parsed))
+    assert_wire_roundtrip(first, build_mod_guide(graph, compiled))
+    assert next(iter(parsed)) == "_strings"
+    assert parsed["_strings"]
 
 
 def _finite_floats(value: object) -> list[float]:
@@ -1076,6 +1079,141 @@ def test_placements_index_their_entry_lines_and_keys_name_their_door_zones() -> 
 
     data = build_mod_guide(graph, compile_graph(graph))
 
-    [placement] = data["_character_spawns"]["char:demon"]
+    [placement] = character_spawns(data, "char:demon")
     assert [data["_zone_lines"][index]["x"] for index in placement["entries"]] == [2]
     assert data["_gate_items"]["item:key"]["door_zones"] == ["Island Tomb"]
+
+
+def test_wire_decoder_expands_pooled_names_values_native_references_and_masked_rows() -> None:
+    spawn = {"scene": "Town", "stable_key": "spawn:shared", "x": 1, "y": 2, "z": 3}
+    place = {
+        "marker_stable_key": "spawn:shared",
+        "place_key": "0",
+        "scene": "Town",
+        "source_copy_stable_key": "character:copy",
+        "x": 1,
+        "y": 2,
+        "z": 3,
+    }
+
+    def masked(value: dict[str, object], fields: tuple[str, ...]) -> list[object]:
+        return [
+            sum(1 << index for index, field in enumerate(fields) if field in value),
+            *(value[field] for field in fields if field in value),
+        ]
+
+    encoded = {
+        "_strings": ["~literal", "pooled-property", "pooled-value"],
+        "_version": 11,
+        "~1": "~2",
+        "literal": "~0",
+        "object": {"$id": "1", "name": "~2"},
+        "same_object": {"$ref": "1"},
+        "list": {"$id": "2", "$values": [{"$ref": "1"}]},
+        "same_list": {"$ref": "2"},
+        "_spawn_points": [masked(spawn, SPAWN_FIELDS)],
+        "_character_spawns": {"character:copy": [0]},
+        "_place_sets": {"places:one": [masked(place, PLACE_FIELDS)]},
+    }
+    decoded = decode_mod_guide(json.dumps(encoded))
+    assert decoded["pooled-property"] == "pooled-value"
+    assert decoded["literal"] == "~literal"
+    assert decoded["object"] is decoded["same_object"]
+    assert decoded["list"] is decoded["same_list"]
+    assert decoded["list"][0] is decoded["object"]
+    assert character_spawns(decoded, "character:copy") == [spawn]
+    assert decoded["_place_sets"]["places:one"] == [place]
+    assert "_strings" not in decoded
+
+
+def test_wire_decoder_accepts_unpooled_schema_eleven_object_rows() -> None:
+    guide = {
+        "_version": 11,
+        "_spawn_points": [{"stable_key": "spawn:one", "scene": "Town", "x": 1, "y": 2, "z": 3}],
+        "_character_spawns": {"character:one": [0]},
+        "_place_sets": {"places:one": [{"place_key": "0", "relation": "fixed", "scene": "Town"}]},
+    }
+    assert decode_mod_guide(json.dumps(guide)) == guide
+
+
+def test_shared_spawn_indexes_deduplicate_payloads_not_marker_identity() -> None:
+    graph = build_graph(
+        quest_node("quest:gate", "GATE"),
+        *(character_node(f"character:{index}") for index in range(3)),
+        spawn_node("spawn:shared", x=1.23456789123, y=-5.67891234567, z=9.12345678912),
+        edges=[Edge(f"character:{index}", "spawn:shared", EdgeType.HAS_SPAWN) for index in range(3)],
+        gates=[quest_gate(SubjectKind.CHARACTER, "character:2", ("quest:gate",))],
+    )
+    compiled = compile_graph(graph)
+    semantic = build_mod_guide(graph, compiled)
+    wire = decode_mod_guide(serialize_mod_guide(graph, compiled))
+    assert len(wire["_spawn_points"]) == 2
+    assert wire["_character_spawns"]["character:0"] == wire["_character_spawns"]["character:1"]
+    assert wire["_character_spawns"]["character:0"] != wire["_character_spawns"]["character:2"]
+    assert {spawn["stable_key"] for spawn in wire["_spawn_points"]} == {"spawn:shared"}
+    assert "condition" not in character_spawns(wire, "character:0")[0]
+    assert "condition" in character_spawns(wire, "character:2")[0]
+    assert all("night_spawn" not in spawn and "is_directly_placed" not in spawn for spawn in wire["_spawn_points"])
+    assert_wire_roundtrip(serialize_mod_guide(graph, compiled), semantic)
+
+
+def test_wire_pools_literal_tilde_strings_and_omits_nulls_and_empty_condition_lists() -> None:
+    graph, nodes = _fixture()
+    main = nodes["main"]
+    assert isinstance(main, Node)
+    main.description = "~literal description"
+    graph.add_node(character_node("~literal-key", encounter_tier="boss"))
+    graph.add_node(quest_node("quest:duplicate", "DUPLICATE"))
+    graph.add_edge(Edge("quest:duplicate", "item:alpha", EdgeType.REQUIRES_ITEM, quantity=2))
+    graph.build_indexes()
+    compiled = compile_graph(graph)
+    serialized = serialize_mod_guide(graph, compiled)
+    wire = json.loads(serialized)
+    assert "~literal description" in wire["_strings"]
+    assert _main_entry(decode_mod_guide(serialized))["description"] == "~literal description"
+    assert decode_mod_guide(serialized)["_encounter_tiers"]["~literal-key"] == "boss"
+    assert all(f'"{name}":' in serialized for name in ("$id", "$ref", "$values"))
+
+    def assert_compact(value: object) -> None:
+        assert value is not None
+        if isinstance(value, dict):
+            for key, child in value.items():
+                if key in {"$id", "$ref"}:
+                    assert isinstance(child, str) and not child.startswith("~")
+                if key in {"conditions", "entry_zone_line_keys"}:
+                    assert child
+                assert_compact(child)
+        elif isinstance(value, list):
+            for child in value:
+                assert_compact(child)
+
+    assert_compact(wire)
+    assert_compact(decode_mod_guide(serialized))
+    assert_wire_roundtrip(serialized, build_mod_guide(graph, compiled))
+
+
+def test_wire_does_not_share_equal_shaped_unrelated_dtos_or_empty_lists() -> None:
+    from erenshor.application.guide.wire import encode_guide
+
+    guide = {
+        "_version": 11,
+        "_character_spawns": {},
+        "_place_sets": {},
+        "_zone_lookup": {"Town": {"display_name": "Shared name"}},
+        "_furniture_sets": {"item:furniture": {"display_name": "Shared name"}},
+        "_zone_lines": [],
+        "_conditions": [],
+        "quests": [{"flags": {}, "rewards": {}}],
+    }
+    encoded = encode_guide(guide)
+    serialized = json.dumps(encoded)
+    decoded = decode_mod_guide(serialized)
+    zone = decoded["_zone_lookup"]["Town"]
+    furniture = decoded["_furniture_sets"]["item:furniture"]
+    assert zone == furniture
+    assert zone is not furniture
+    assert decoded["_zone_lines"] == decoded["_conditions"]
+    assert decoded["_zone_lines"] is not decoded["_conditions"]
+    assert decoded["quests"][0]["flags"] == decoded["quests"][0]["rewards"]
+    assert decoded["quests"][0]["flags"] is not decoded["quests"][0]["rewards"]
+    assert '"$ref"' not in serialized

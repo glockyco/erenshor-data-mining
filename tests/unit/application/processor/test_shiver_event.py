@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import json
 import sqlite3
 from itertools import combinations
 from typing import TYPE_CHECKING
 
 import pytest
+from tests.unit.application.guide.wire import decode_mod_guide
 
 from erenshor.application.guide.compiler import compile_graph
 from erenshor.application.guide.edge_builder import (
@@ -242,7 +242,7 @@ def test_serialized_parent_keeps_four_conversation_subquests_as_completion_steps
     _add_quest_chain_edges(conn, graph)
     graph.build_indexes()
     assert not graph.out_edges(SHIVER_MEET_ALL, EdgeType.REQUIRES_QUEST)
-    payload = json.loads(serialize_mod_guide(graph, compile_graph(graph)))
+    payload = decode_mod_guide(serialize_mod_guide(graph, compile_graph(graph)))
     entries = {quest["stable_key"]: quest for quest in payload["quests"]}
     parent = entries[SHIVER_MEET_ALL]
     assert parent["acquisition"] == [

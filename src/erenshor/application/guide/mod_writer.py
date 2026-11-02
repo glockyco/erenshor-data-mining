@@ -13,7 +13,7 @@ from collections import defaultdict
 from dataclasses import asdict
 from typing import TYPE_CHECKING, Any, cast
 
-from erenshor.domain.value_objects.item_public_view import PublicSource, PublicUse
+from erenshor.domain.value_objects.item_public_view import PublicCondition, PublicSource, PublicUse
 
 from .compiler import CompiledData, Condition, edge_type_byte, node_type_byte
 from .schema import AtomKind, Edge, EdgeType, GateAtom, Node, NodeType, SubjectKind
@@ -65,7 +65,7 @@ def build_mod_guide(
     zone_lines = _ordered_zone_lines(nodes)
     line_index = {line.key: index for index, line in enumerate(zone_lines)}
     result: dict[str, Any] = {
-        "_version": 10,
+        "_version": 11,
         "_zone_lookup": _zone_lookup(nodes),
         "_conditions": [_condition_payload(graph, condition) for condition in compiled.conditions],
         "_gate_items": _gate_items(graph, nodes, compiled, compiled_nodes, reward_by_item),
@@ -122,7 +122,13 @@ def build_mod_guide(
 
 def serialize_mod_guide(graph: EntityGraph, compiled: CompiledData, excluded_quest_db_names: Iterable[str] = ()) -> str:
     """Build and compactly serialize the quest data deterministically."""
-    return json.dumps(build_mod_guide(graph, compiled, excluded_quest_db_names), separators=(",", ":"), allow_nan=False)
+    from .wire import encode_guide
+
+    return json.dumps(
+        encode_guide(build_mod_guide(graph, compiled, excluded_quest_db_names)),
+        separators=(",", ":"),
+        allow_nan=False,
+    )
 
 
 def _excluded_quests(excluded_quest_db_names: Iterable[str], db_names: dict[str, str | None]) -> list[str]:
@@ -1443,7 +1449,6 @@ def _canonical_item_sources(
         if fact.kind == "crafting" and fact.mechanic == "remove_blessing":
             value["type"] = "item_use"
             value["instruction"] = f"Use {name} with eligible equipment and forge fuel to remove its blessing."
-            value["operation_use_keys"] = [use.use_key for use in compiled.source_uses.get(fact.source_key, ())]
         period = next((atom.value for atom in fact.conditions if atom.predicate == "time_of_day"), None)
         _put_if(value, "time_restriction", period)
         if fact.kind == "fishing" and period in {"day", "night"}:
@@ -1457,8 +1462,7 @@ def _canonical_item_sources(
         for use in sorted(
             compiled.source_uses.get(fact.source_key, ()) if include_inputs else (), key=lambda use: use.use_key
         ):
-            # Equipment and fuel choices are alternatives, not an AND list.
-            # Their full phaseful records remain referenced as preparation.
+            # Equipment and fuel choices are alternatives, not mandatory ingredients.
             if fact.mechanic == "remove_blessing" and use.mechanic != "blessing_removal_material":
                 continue
             ingredient = nodes.get(use.item_stable_key)
@@ -1495,66 +1499,151 @@ def _canonical_item_sources(
 
 
 def _normalize_source_tables(result: dict[str, Any], compiled: CompiledData, nodes: dict[str, Node]) -> None:
-    """Store public sources and shared places once, with path-specific references."""
+    """Carry the public facts reachable from guide items and their requirements."""
     use_keys: set[str] = set()
+    item_keys: set[str] = set()
 
-    def visit(value: Any) -> None:
+    def references(value: Any) -> None:
         if isinstance(value, dict):
-            if "use_key" in value:
+            if value.get("item_stable_key"):
+                item_keys.add(value["item_stable_key"])
+            if value.get("target_type") == "item" and value.get("target_key"):
+                item_keys.add(value["target_key"])
+            if value.get("use_key"):
                 use_keys.add(value["use_key"])
             use_keys.update(value.get("use_keys", ()))
-            use_keys.update(value.get("operation_use_keys", ()))
+            for member in value.values():
+                references(member)
+        elif isinstance(value, list):
+            for member in value:
+                references(member)
+
+    gate_keys = {
+        atom.ref
+        for condition in compiled.conditions
+        for group in condition
+        for atom in group
+        if atom.kind in {AtomKind.ITEM_HELD, AtomKind.KEY_HELD, AtomKind.ROOM_FURNISHED, AtomKind.PLANNING_SLOT_ITEM}
+    }
+    gate_keys.update(
+        offering.item_stable_key for activation in compiled.activations.values() for offering in activation.offerings
+    )
+    references(result["quests"])
+    visited_gates: set[str] = set()
+    while True:
+        for key in sorted(gate_keys - visited_gates):
+            references(result["_gate_items"][key])
+            item_keys.add(key)
+            visited_gates.add(key)
+        facts = [fact for key in sorted(item_keys) for fact in compiled.acquisitions_by_item.get(key, ())]
+        conditions = [
+            atom
+            for fact in (*facts, *(compiled.source_facts[key] for key in sorted(use_keys)))
+            for atom in (
+                *fact.conditions,
+                *(
+                    atom
+                    for place in compiled.source_places.get(fact.place_set_key or "", ())
+                    for atom in place.conditions
+                ),
+            )
+        ]
+        gate_keys.update(
+            atom.reference_stable_key
+            for atom in conditions
+            if atom.predicate in {"item_held", "key_held", "room_furnished"} and atom.reference_stable_key is not None
+        )
+        if gate_keys == visited_gates:
+            break
+    result["_gate_items"] = {key: result["_gate_items"][key] for key in sorted(gate_keys)}
+
+    def normalize(value: Any) -> None:
+        if isinstance(value, dict):
             for member in tuple(value.values()):
-                visit(member)
+                normalize(member)
             if "acquisition_key" in value:
-                reference = {
-                    key: member
-                    for key, member in value.items()
-                    if key in {"acquisition_key", "children", "operation_use_keys"}
-                }
+                reference = {key: member for key, member in value.items() if key in {"acquisition_key", "children"}}
                 value.clear()
                 value.update(reference)
         elif isinstance(value, list):
             for member in value:
-                visit(member)
+                normalize(member)
 
-    visit(result)
+    normalize(result)
     sources = {}
-    for item_key in sorted(compiled.acquisitions_by_item):
+    operation_contexts: dict[tuple[str, ...], int] = {}
+    for item_key in sorted(item_keys):
         for value in _canonical_item_sources(compiled, item_key, nodes, "", frozenset(), include_inputs=False):
             key = value.pop("acquisition_key")
             fact = compiled.source_facts[key]
             assert isinstance(fact, PublicSource)
             value.pop("children", None)
-            value.pop("operation_use_keys", None)
             value["kind"] = fact.kind
-            value["conditions"] = [asdict(atom) for atom in fact.conditions]
+            value["conditions"] = [_source_condition(atom) for atom in fact.conditions]
+            if rank := compiled.source_ranks.get(key):
+                value["rank"] = {"tier": rank[0], "depth": rank[1]}
+            if fact.mechanic == "remove_blessing":
+                inputs = tuple(sorted(use.use_key for use in compiled.source_uses.get(key, ())))
+                if inputs:
+                    # Choice grouping only compares these sets. It never reads
+                    # the records for equipment and fuel alternatives.
+                    value["operation_context"] = operation_contexts.setdefault(inputs, len(operation_contexts) + 1)
             sources[key] = value
     result["_sources"] = dict(sorted(sources.items()))
     place_sets = {
         fact.place_set_key
-        for facts in compiled.acquisitions_by_item.values()
-        for fact in facts
+        for key in item_keys
+        for fact in compiled.acquisitions_by_item.get(key, ())
         if fact.place_set_key is not None
     }
+    for use_key in use_keys:
+        place_set_key = compiled.source_facts[use_key].place_set_key
+        if place_set_key is not None:
+            place_sets.add(place_set_key)
+    markers = {spawn["stable_key"] for spawns in result["_character_spawns"].values() for spawn in spawns}
     result["_place_sets"] = {
         key: [
             {
-                **{field: value for field, value in asdict(place).items() if field != "place_set_key"},
-                "zone": nodes[place.zone_stable_key].display_name if place.zone_stable_key in nodes else None,
+                **{
+                    field: value
+                    for field, value in asdict(place).items()
+                    if field not in {"place_set_key", "conditions", "place_key"}
+                    and not (
+                        place.marker_stable_key in markers and field in {"scene", "x", "y", "z", "zone_stable_key"}
+                    )
+                },
+                "place_key": str(index),
+                "conditions": [_source_condition(atom) for atom in place.conditions],
+                **(
+                    {"zone": nodes[place.zone_stable_key].display_name}
+                    if place.marker_stable_key not in markers and place.zone_stable_key in nodes
+                    else {}
+                ),
             }
-            for place in compiled.source_places[key]
+            for index, place in enumerate(compiled.source_places[key])
         ]
         for key in sorted(place_sets)
     }
-    result["_source_ranks"] = {
-        key: {"tier": compiled.source_ranks[key][0], "depth": compiled.source_ranks[key][1]}
-        for key in sources
-        if key in compiled.source_ranks
-    }
     result["_item_uses"] = {
-        key: {field: value for field, value in asdict(compiled.source_facts[key]).items() if field != "mechanic"}
+        key: {
+            **{
+                field: value
+                for field, value in asdict(compiled.source_facts[key]).items()
+                if field not in {"mechanic", "conditions"}
+            },
+            "conditions": [_source_condition(atom) for atom in compiled.source_facts[key].conditions],
+        }
         for key in sorted(use_keys)
+    }
+
+
+def _source_condition(atom: PublicCondition) -> dict[str, Any]:
+    return {
+        key: value
+        for key, value in asdict(atom).items()
+        if value is not None
+        and not (key in {"minimum_inclusive", "maximum_inclusive"} and value is True)
+        and not (key in {"gate_index", "alternative_index", "atom_index"} and value == 0)
     }
 
 
