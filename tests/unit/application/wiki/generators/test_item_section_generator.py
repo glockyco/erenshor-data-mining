@@ -17,7 +17,6 @@ from erenshor.domain.value_objects.item_provenance import (
     ItemDisposition,
     ItemUse,
     ProvenanceCondition,
-    ProvenanceEvidence,
     ProvenanceLocation,
     fact_to_dict,
 )
@@ -514,7 +513,6 @@ def test_article_provenance_coverage_rejects_lost_fact_dimensions(dimension: str
         quantity_kind="exact",
         conditions=(ProvenanceCondition("quest", 0, 0, "quest_done", "quest:unlock"),),
         locations=(ProvenanceLocation("unlocated:vendor", "unlocated"),),
-        evidence=(ProvenanceEvidence("vendor_offers", "copy,item,quest"),),
     )
     sources = SourceInfo(acquisitions=(fact,))
     generator = ItemSectionGenerator()
@@ -830,10 +828,6 @@ def test_blessing_removal_byproduct_is_not_an_ordinary_recipe_and_resolves_its_a
                 maximum=3,
                 phase="operation_input",
             ),
-        ),
-        evidence=(
-            ProvenanceEvidence("raw.NativeItemBindings", "GameManager.PlanarShard"),
-            ProvenanceEvidence("items", diamond_key),
         ),
     )
     use = ItemUse(

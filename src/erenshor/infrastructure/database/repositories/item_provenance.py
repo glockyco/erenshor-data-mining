@@ -59,7 +59,6 @@ class ItemProvenanceRepository:
         """Decode one immutable snapshot with each child relation loaded in bulk."""
         conditions: dict[str, list[dict[str, object]]] = {}
         locations: dict[str, list[dict[str, object]]] = {}
-        evidence: dict[str, list[dict[str, object]]] = {}
         try:
             with self._db.connect() as connection:
                 for row in connection.execute(
@@ -78,12 +77,6 @@ class ItemProvenanceRepository:
                             raise ValueError(f"Location {field} must be JSON text")
                         data[field] = json.loads(value)
                     locations.setdefault(owner_key, []).append(data)
-                for row in connection.execute(
-                    "SELECT * FROM item_provenance_evidence ORDER BY owner_key, input_relation, input_primary_key"
-                ):
-                    data = dict(row)
-                    owner_key = str(data.pop("owner_key"))
-                    evidence.setdefault(owner_key, []).append(data)
                 facts = []
                 for row in connection.execute(f"SELECT * FROM item_{family}s ORDER BY item_stable_key, {family}_key"):
                     data = dict(row)
@@ -92,7 +85,6 @@ class ItemProvenanceRepository:
                         raise ValueError("Fact identity must be text")
                     data["conditions"] = conditions.get(identity, ())
                     data["locations"] = locations.get(identity, ())
-                    data["evidence"] = evidence.get(identity, ())
                     facts.append(decoder(data))
             return tuple(facts)
         except (KeyError, ValueError) as error:
@@ -137,17 +129,16 @@ class ItemProvenanceRepository:
         )
 
     def get_common_world_character_keys(self) -> frozenset[str]:
-        """Resolve contributing copies through canonical evidence, not an independent loot selector."""
+        """Resolve contributing copies through the canonical contributors, not an independent loot selector."""
         with self._db.connect() as connection:
             rows = connection.execute(
                 "SELECT DISTINCT ld.character_stable_key "
                 "FROM item_acquisitions a "
-                "JOIN item_provenance_evidence e ON e.owner_key = a.acquisition_key "
-                "JOIN loot_drops ld ON ld.character_stable_key = json_extract(e.input_primary_key, '$[0]') "
-                "AND ld.item_stable_key = json_extract(e.input_primary_key, '$[1]') "
+                "JOIN item_acquisition_contributors c ON c.acquisition_key = a.acquisition_key "
+                "JOIN loot_drops ld ON ld.character_stable_key = c.character_stable_key "
+                "AND ld.item_stable_key = a.item_stable_key "
                 "WHERE a.kind = 'common_world_item' AND a.player_access_state = 'verified_player' "
-                "AND a.probability_stage = 'final_acquisition' AND e.input_relation = 'loot_drops' "
-                "AND ld.drop_probability > 0 "
+                "AND a.probability_stage = 'final_acquisition' AND ld.drop_probability > 0 "
                 "ORDER BY ld.character_stable_key"
             ).fetchall()
         return frozenset(str(row[0]) for row in rows)

@@ -15,7 +15,6 @@ from erenshor.domain.value_objects.item_provenance import (
     ItemAcquisition,
     ItemUse,
     ProvenanceCondition,
-    ProvenanceEvidence,
     ProvenanceLocation,
 )
 
@@ -142,7 +141,6 @@ def test_canonical_families_keep_actual_location_and_normalize_facts_once(tmp_pa
                 entry_zone_line_keys=("line:actual",),
             ),
         ),
-        evidence=(ProvenanceEvidence("native_relation", '["actual"]'),),
     )
     load_canonical_sources(tmp_path, graph, [fact], [_required()])
     payload = _payload(graph)
@@ -160,10 +158,7 @@ def test_canonical_families_keep_actual_location_and_normalize_facts_once(tmp_pa
     assert row["entry_zone_line_keys"] == ["line:actual"]
     assert "provenance" not in row and "uses" not in row
     assert payload["_version"] == 9
-    assert payload["_source_facts"]["actual"] == {
-        key: json.loads(json.dumps(value)) for key, value in asdict(fact).items() if key != "evidence"
-    }
-    assert "evidence" not in json.dumps(payload)
+    assert payload["_source_facts"]["actual"] == json.loads(json.dumps(asdict(fact)))
     assert payload["_item_uses"]["required"]["material_slot"] == 3
 
 
@@ -354,10 +349,7 @@ def test_native_requirement_bundles_aggregate_without_losing_slots(tmp_path, slo
         assert {source["acquisition_key"] for source in row["sources"]} == {
             f"vendor:{row['item_stable_key']}:{alternative}" for alternative in ("first", "second")
         }
-    assert payload["_item_uses"] == {
-        use.use_key: {key: json.loads(json.dumps(value)) for key, value in asdict(use).items() if key != "evidence"}
-        for use in uses
-    }
+    assert payload["_item_uses"] == {use.use_key: json.loads(json.dumps(asdict(use))) for use in uses}
 
 
 def test_native_requirement_aggregation_keeps_requested_quality_separate(tmp_path):
@@ -453,7 +445,7 @@ def test_actor_qualifiers_and_initialization_are_annotations_with_exact_phase_an
     ]
 
 
-def test_source_coverage_accounts_for_every_input_without_runtime_evidence(tmp_path):
+def test_source_coverage_accounts_for_every_input(tmp_path):
     graph = _graph()
     base = ItemAcquisition("verified", "item:result", "vendor", "character:source")
     facts = [

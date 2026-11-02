@@ -219,7 +219,6 @@ def test_common_pool_named_drops_preserve_native_copy_dimensions(main_raw_db: Pa
                 assert fact.probability_max == chance
                 assert fact.expected_quantity == expected
                 assert fact.count_distribution == distribution
-                assert any(evidence.input_relation == "raw.LootDrops" for evidence in fact.evidence)
                 excluded_compared += 1
             for copy, group, chance, expected, distribution, guaranteed, rolls in rows:
                 fact = by_copy[copy]
@@ -234,7 +233,6 @@ def test_common_pool_named_drops_preserve_native_copy_dimensions(main_raw_db: Pa
                 assert fact.count_distribution == distribution
                 assert fact.guarantee_scope == ("pool" if guaranteed else None)
                 assert fact.guaranteed_roll_count == (rolls if guaranteed else None)
-                assert fact.evidence
                 compared += 1
         assert compared > 0
         assert excluded_compared > 0

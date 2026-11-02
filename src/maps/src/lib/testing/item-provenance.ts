@@ -10,7 +10,7 @@ export function acquisition(overrides: Partial<ItemAcquisition> = {}): ItemAcqui
         probability_stage: 'final_acquisition', quantity_min: 1, quantity_max: 3, quantity_kind: 'bounded',
         expected_quantity: 2, count_distribution: '[0.25,0.5,0.25]', guarantee_scope: 'successful_roll',
         guaranteed_roll_count: null,
-        conditions: [], locations: [], evidence: [{ input_relation: 'fixture', input_primary_key: 'row:1' }],
+        conditions: [], locations: [],
         ...overrides
     };
 }

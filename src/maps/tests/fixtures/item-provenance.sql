@@ -1,5 +1,5 @@
 CREATE TABLE item_provenance_meta (schema_version INTEGER NOT NULL, game_build_id TEXT NOT NULL, input_digests TEXT NOT NULL);
-INSERT INTO item_provenance_meta VALUES (1, '10000001', '{}');
+INSERT INTO item_provenance_meta VALUES (2, '10000001', '{}');
 CREATE TABLE item_acquisitions (
     acquisition_key TEXT PRIMARY KEY NOT NULL, item_stable_key TEXT NOT NULL REFERENCES items(stable_key),
     kind TEXT NOT NULL, source_stable_key TEXT, source_group_key TEXT, source_copy_stable_key TEXT,
@@ -46,9 +46,9 @@ CREATE TABLE item_use_locations (
     player_level_min INTEGER, player_level_max INTEGER, conditions TEXT NOT NULL,
     entry_zone_line_keys TEXT NOT NULL, source_copy_stable_key TEXT, PRIMARY KEY (owner_key, location_key)
 );
-CREATE TABLE item_provenance_evidence (
-    owner_key TEXT NOT NULL, input_relation TEXT NOT NULL, input_primary_key TEXT NOT NULL,
-    PRIMARY KEY (owner_key, input_relation, input_primary_key)
+CREATE TABLE item_acquisition_contributors (
+    acquisition_key TEXT NOT NULL, character_stable_key TEXT NOT NULL,
+    PRIMARY KEY (acquisition_key, character_stable_key)
 );
 CREATE TABLE item_dispositions (
     item_stable_key TEXT PRIMARY KEY NOT NULL, disposition TEXT NOT NULL,
@@ -177,8 +177,6 @@ INSERT INTO item_acquisition_locations VALUES
 INSERT INTO item_acquisition_conditions VALUES
     ('ui:fixture', 'eligibility', 0, 0, 'quest_done', 'quest:vendor-unlock', 'quest:1', 'player', 'complete', 1, 2, 1, 0, 'source', 'availability'),
     ('ui:fixture', 'eligibility', 1, 0, 'actor_class', 'class:paladin', 'class:1', 'player', 'Paladin', NULL, NULL, 1, 1, 'source', 'availability');
-INSERT INTO item_provenance_evidence
-SELECT acquisition_key, 'fixture_acquisition', acquisition_key FROM item_acquisitions;
 INSERT INTO item_acquisitions VALUES
     ('unconfirmed:fixture', 'item:fixture relic', 'ui_grant', 'native:unknown', NULL, NULL, 'unknown', 'unknown',
     'unconfirmed_player', 'unknown', NULL, NULL, NULL, 'final_acquisition', NULL, NULL, 'unknown', NULL, NULL, NULL),
@@ -260,9 +258,6 @@ SELECT a.acquisition_key, 'fixed:' || w.stable_key, 'fixed', w.scene, z.stable_k
     w.x, w.y, w.z, NULL, NULL, NULL, '[]', '[]', NULL
 FROM item_acquisitions a JOIN waters w ON w.stable_key = a.source_stable_key
 JOIN zones z ON z.scene_name = w.scene WHERE a.acquisition_key LIKE 'global-final:%';
-INSERT INTO item_provenance_evidence
-SELECT acquisition_key, 'fixture_acquisition', acquisition_key FROM item_acquisitions
-WHERE acquisition_key = 'fishing:overlap-night' OR acquisition_key LIKE 'global-final:%';
 
 UPDATE item_dispositions SET disposition = 'removed', reason = 'Reviewed retired fixture',
     evidence = 'fixture:lifecycle', current_pages = '[]', former_pages = '["Wood Training Set"]'
@@ -279,8 +274,6 @@ INSERT INTO item_acquisitions VALUES
     ('lifecycle:hidden-retired', 'item:fixture meditate retired', 'vendor', 'character-group:breena', 'character-group:breena',
     'character:breena carpenter', 'retired-variant', 'vendor', 'verified_player', 'not_applicable', NULL, NULL,
     'not_applicable', 'final_acquisition', 1, 1, 'exact', NULL, NULL, NULL, NULL);
-INSERT INTO item_provenance_evidence
-SELECT acquisition_key, 'fixture_acquisition', acquisition_key FROM item_acquisitions WHERE acquisition_key LIKE 'lifecycle:%';
 INSERT INTO items VALUES ('item:fixture unknown', 'Unknown Fixture', NULL, NULL, 1, 0);
 INSERT INTO item_dispositions VALUES ('item:fixture unknown', 'current', NULL, NULL, '[]', '[]');
 INSERT INTO item_uses VALUES
@@ -293,7 +286,6 @@ INSERT INTO item_use_conditions VALUES
 INSERT INTO item_use_locations VALUES
     ('use:fixture', 'zone:fixture', 'mechanic_zone', 'Stowaway', 'zone:stowaway', NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, '[]', '[]', NULL);
-INSERT INTO item_provenance_evidence VALUES ('use:fixture', 'fixture_use', '["item:fixture ore",2]');
 INSERT INTO item_acquisition_conditions VALUES
     ('drop:character:fixture enemy:item:fixture drop', 'ownership', 0, 0, 'item_not_owned',
     'item:fixture key', NULL, 'player', 'inventory', NULL, NULL, 1, 1, 'source', 'source_initialization'),

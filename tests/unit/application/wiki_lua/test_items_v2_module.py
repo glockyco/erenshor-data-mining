@@ -19,7 +19,6 @@ from erenshor.domain.value_objects.item_provenance import (
     ItemDisposition,
     ItemUse,
     ProvenanceCondition,
-    ProvenanceEvidence,
     ProvenanceLocation,
     fact_to_dict,
 )
@@ -65,7 +64,6 @@ class Provenance:
                 quantity_kind="exact",
                 conditions=(condition, ProvenanceCondition("gate:time", 0, 0, "time_of_day", value="day")),
                 locations=(ProvenanceLocation("location:lake", "unlocated", conditions=(condition,)),),
-                evidence=(ProvenanceEvidence("water_fishables", "lake|day|2"),),
             )
         ]
         self.uses = [ItemUse("use:quest:slot:3", key, "quest:offering", "quest_requirement", material_slot=3)]
@@ -109,8 +107,6 @@ def test_versioned_writer_preserves_full_identity_dimensions_and_picture_titles(
         "per_successful_catch",
         "location:lake",
         "unlocated",
-        "water_fishables",
-        "lake|day|2",
         "use:quest:slot:3",
         "material_slot",
     ):

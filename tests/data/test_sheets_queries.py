@@ -40,7 +40,6 @@ ALL_QUERIES = [
     "item-bags",
     "item-conditions",
     "item-dispositions",
-    "item-evidence",
     "item-locations",
     "item-uses",
     "items",

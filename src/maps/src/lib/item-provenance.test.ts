@@ -8,7 +8,7 @@ import initSqlJs from 'sql.js/dist/sql-wasm.js';
 import type { Database, SqlJsStatic } from 'sql.js/dist/sql-wasm.js';
 import { getMapsDatabasePath } from './database-path.server';
 import { Repository } from './database.node';
-import { assertProvenanceSchema, readItemAcquisitions, readItemDispositions, readItemUses, conditionLines, probabilityText, quantityText, isActionableAcquisition, conditionsSatisfiable } from './item-provenance';
+import { assertProvenanceSchema, readItemAcquisitions, readItemDispositions, readItemUses, conditionLines, probabilityText, quantityText, isActionableAcquisition, conditionsSatisfiable, PROVENANCE_SCHEMA_VERSION } from './item-provenance';
 import { ItemSearchProvider } from './map/search/item-source-provider';
 import { indexCharacterDetails } from './map/character-details';
 import { buildMapProvenanceCoverage, writeMapProvenanceManifest } from './item-provenance-coverage.server';
@@ -45,7 +45,7 @@ describe('offline canonical map coverage', () => {
         const omitted: Record<string, number> = {};
         let hidden = 0;
         for (const fact of facts) {
-            expect(Object.keys(fact).filter((key) => !['conditions', 'locations', 'evidence'].includes(key)).sort()).toEqual(expectedColumns);
+            expect(Object.keys(fact).filter((key) => !['conditions', 'locations'].includes(key)).sort()).toEqual(expectedColumns);
             const projected = rows.filter((row) => row.acquisitionKey === fact.acquisition_key);
             const disposition = lifecycle.get(fact.item_stable_key)!;
             if (disposition.disposition !== 'current') {
@@ -91,7 +91,6 @@ describe('offline canonical map coverage', () => {
         const ui = rows.find((row) => row.kind === 'ui_grant')!.provenance;
         expect(ui.conditions).toHaveLength(2);
         expect(ui.locations[0].conditions).toHaveLength(3);
-        expect(ui.evidence).toHaveLength(1);
         expect(ui.locations[0].entry_zone_line_keys).toHaveLength(1);
         expect(provider.getSourcesForItem('item:fixture relic').find((source) => source.kind === 'ui_grant')?.entries).toEqual(entrances);
         expect(Object.keys(ui.conditions[0]).sort()).toEqual(database.exec('PRAGMA table_info(item_acquisition_conditions)')[0].values
@@ -138,17 +137,18 @@ describe('offline canonical map coverage', () => {
 
     it('fails closed on missing, duplicated and unsupported schema versions', () => {
         const missing = new SQL.Database();
+        const required = `schema version ${PROVENANCE_SCHEMA_VERSION}`;
         expect(() => assertProvenanceSchema(missing)).toThrow();
         missing.run('CREATE TABLE item_provenance_meta (schema_version INTEGER)');
-        expect(() => assertProvenanceSchema(missing)).toThrow('schema version 1');
-        missing.run('INSERT INTO item_provenance_meta VALUES (2)');
-        expect(() => assertProvenanceSchema(missing)).toThrow('schema version 1');
-        missing.run('UPDATE item_provenance_meta SET schema_version = 1');
+        expect(() => assertProvenanceSchema(missing)).toThrow(required);
+        missing.run('INSERT INTO item_provenance_meta VALUES (?)', [PROVENANCE_SCHEMA_VERSION - 1]);
+        expect(() => assertProvenanceSchema(missing)).toThrow(required);
+        missing.run('UPDATE item_provenance_meta SET schema_version = ?', [PROVENANCE_SCHEMA_VERSION]);
         expect(() => assertProvenanceSchema(missing)).toThrow();
         expect(() => assertProvenanceSchema(database)).not.toThrow();
         expect(() => readItemAcquisitions(missing)).toThrow();
-        missing.run('INSERT INTO item_provenance_meta VALUES (1)');
-        expect(() => assertProvenanceSchema(missing)).toThrow('schema version 1');
+        missing.run('INSERT INTO item_provenance_meta VALUES (?)', [PROVENANCE_SCHEMA_VERSION]);
+        expect(() => assertProvenanceSchema(missing)).toThrow(required);
         missing.close();
     });
 

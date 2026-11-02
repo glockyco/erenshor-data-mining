@@ -10,6 +10,7 @@ from erenshor.application.guide.graph import EntityGraph
 from erenshor.application.guide.schema import AtomKind, Edge, Gate, GateAtom, Node, NodeType, SubjectKind
 from erenshor.application.processor.item_provenance import ProvenanceBuilder
 from erenshor.application.processor.writer import Writer
+from erenshor.domain.value_objects.item_provenance import PROVENANCE_SCHEMA_VERSION
 from erenshor.infrastructure.database.connection import DatabaseConnection
 from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
 
@@ -104,7 +105,7 @@ def load_canonical_sources(
         "INSERT INTO items (stable_key,display_name,image_name) VALUES (?,?,?)",
         [(key, key, key) for key in sorted(item_keys)],
     )
-    conn.execute("INSERT INTO item_provenance_meta VALUES (1,'fixture','{}')")
+    conn.execute("INSERT INTO item_provenance_meta VALUES (?,'fixture','{}')", (PROVENANCE_SCHEMA_VERSION,))
     builder = ProvenanceBuilder(conn)
     builder.acquisitions.extend(acquisitions)
     builder.uses.extend(uses or [])

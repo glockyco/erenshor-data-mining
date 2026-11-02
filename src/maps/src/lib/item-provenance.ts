@@ -61,7 +61,6 @@ export interface ItemAcquisition {
     guaranteed_roll_count: number | null;
     conditions: ProvenanceCondition[];
     locations: ProvenanceLocation[];
-    evidence: { input_relation: string; input_primary_key: string }[];
 }
 
 export interface ItemDisposition {
@@ -87,11 +86,13 @@ export interface ItemUse {
     outcome_key: string | null;
     conditions: ProvenanceCondition[];
     locations: ProvenanceLocation[];
-    evidence: { input_relation: string; input_primary_key: string }[];
 }
 
+// Mirrors PROVENANCE_SCHEMA_VERSION in src/erenshor/domain/value_objects/item_provenance.py.
+export const PROVENANCE_SCHEMA_VERSION = 2;
+
 export interface ProvenanceMetadata {
-    schema_version: 1;
+    schema_version: typeof PROVENANCE_SCHEMA_VERSION;
     game_build_id: string;
     input_digests: Record<string, string>;
 }
@@ -128,7 +129,6 @@ const PROVENANCE_COLUMNS: Record<string, string> = {
     item_use_conditions: CONDITION_COLUMNS,
     item_acquisition_locations: LOCATION_COLUMNS,
     item_use_locations: LOCATION_COLUMNS,
-    item_provenance_evidence: 'owner_key, input_relation, input_primary_key',
     item_dispositions: 'item_stable_key, disposition, reason, evidence, current_pages, former_pages'
 };
 
@@ -258,8 +258,8 @@ function decodeLocation(location: Record<string, unknown>): ProvenanceLocation {
 
 export function readProvenanceMetadata(db: Database): ProvenanceMetadata {
     const rows = query(db, 'SELECT * FROM item_provenance_meta');
-    if (rows.length !== 1 || rows[0].schema_version !== 1) {
-        throw new Error('Map requires item provenance schema version 1. Regenerate the clean database.');
+    if (rows.length !== 1 || rows[0].schema_version !== PROVENANCE_SCHEMA_VERSION) {
+        throw new Error(`Map requires item provenance schema version ${PROVENANCE_SCHEMA_VERSION}. Regenerate the clean database.`);
     }
     const row = rows[0];
     if (Object.keys(row).sort().join(',') !== 'game_build_id,input_digests,schema_version' ||
@@ -270,7 +270,7 @@ export function readProvenanceMetadata(db: Database): ProvenanceMetadata {
         Object.entries(digests).some(([key, value]) => !key || typeof value !== 'string' || !/^[0-9a-f]{64}$/.test(value))) {
         throw new Error('Invalid canonical provenance input digests');
     }
-    return { schema_version: 1, game_build_id: row.game_build_id, input_digests: digests as Record<string, string> };
+    return { schema_version: PROVENANCE_SCHEMA_VERSION, game_build_id: row.game_build_id, input_digests: digests as Record<string, string> };
 }
 
 export function assertProvenanceSchema(db: Database): void {
@@ -287,7 +287,7 @@ function readFacts<T extends ItemAcquisition | ItemUse>(
     const byKey = new Map<string, T>();
     for (const row of query(db, `SELECT * FROM item_${family}s ORDER BY ${identity}`)) {
         validateScalarFact(row, family, identity);
-        const fact = { ...row, conditions: [], locations: [], evidence: [] } as unknown as T;
+        const fact = { ...row, conditions: [], locations: [] } as unknown as T;
         byKey.set(row[identity] as string, fact);
     }
     for (const row of query(db, `SELECT * FROM item_${family}_conditions ORDER BY owner_key, gate_key, group_index, atom_index, scope, phase`)) {
@@ -309,17 +309,6 @@ function readFacts<T extends ItemAcquisition | ItemUse>(
         }
         fact.locations.push(decodeLocation({ ...location, conditions: JSON.parse(location.conditions),
             entry_zone_line_keys: JSON.parse(location.entry_zone_line_keys) }));
-    }
-    for (const row of query(db, 'SELECT * FROM item_provenance_evidence ORDER BY owner_key, input_relation, input_primary_key')) {
-        if (Object.keys(row).sort().join(',') !== 'input_primary_key,input_relation,owner_key' ||
-            typeof row.owner_key !== 'string' || !row.owner_key ||
-            typeof row.input_relation !== 'string' || !row.input_relation ||
-            typeof row.input_primary_key !== 'string' || !row.input_primary_key) {
-            throw new Error('Invalid canonical evidence');
-        }
-        const fact = byKey.get(row.owner_key as string);
-        if (fact) fact.evidence.push({ input_relation: row.input_relation as string,
-            input_primary_key: row.input_primary_key as string });
     }
     return [...byKey.values()];
 }

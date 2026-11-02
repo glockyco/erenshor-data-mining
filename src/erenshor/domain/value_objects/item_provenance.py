@@ -9,7 +9,7 @@ from collections.abc import Mapping
 from dataclasses import asdict, dataclass, fields
 from typing import Literal, cast
 
-PROVENANCE_SCHEMA_VERSION = 1
+PROVENANCE_SCHEMA_VERSION = 2
 
 PlayerAccessState = Literal["verified_player", "unconfirmed_player", "internal_only", "non_acquirable"]
 ProbabilityKind = Literal["exact", "bounded", "unknown", "not_applicable"]
@@ -69,6 +69,8 @@ class ProvenanceLocation:
 
 @dataclass(frozen=True, slots=True)
 class ProvenanceEvidence:
+    """An input row that a fact comes from. The build checks it and does not publish it."""
+
     input_relation: str
     input_primary_key: str
 
@@ -98,7 +100,6 @@ class ItemAcquisition:
     guaranteed_roll_count: int | None = None
     conditions: tuple[ProvenanceCondition, ...] = ()
     locations: tuple[ProvenanceLocation, ...] = ()
-    evidence: tuple[ProvenanceEvidence, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -116,7 +117,6 @@ class ItemUse:
     outcome_key: str | None = None
     conditions: tuple[ProvenanceCondition, ...] = ()
     locations: tuple[ProvenanceLocation, ...] = ()
-    evidence: tuple[ProvenanceEvidence, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -135,8 +135,7 @@ def _record(
     | type[ItemUse]
     | type[ItemDisposition]
     | type[ProvenanceCondition]
-    | type[ProvenanceLocation]
-    | type[ProvenanceEvidence],
+    | type[ProvenanceLocation],
 ) -> Mapping[str, object]:
     if not isinstance(value, Mapping) or not all(isinstance(key, str) for key in value):
         raise ValueError(f"{cls.__name__}: expected an object")
@@ -370,23 +369,11 @@ def location_from_dict(value: object) -> ProvenanceLocation:
     return location
 
 
-def evidence_from_dict(value: object) -> ProvenanceEvidence:
-    data = _record(value, ProvenanceEvidence)
-    return ProvenanceEvidence(_text(data["input_relation"]), _text(data["input_primary_key"]))
-
-
 def _locations(value: object) -> tuple[ProvenanceLocation, ...]:
     locations = tuple(location_from_dict(location) for location in _sequence(value))
     if len({location.location_key for location in locations}) != len(locations):
         raise ValueError("Duplicate location identity")
     return locations
-
-
-def _evidence(value: object) -> tuple[ProvenanceEvidence, ...]:
-    evidence = tuple(evidence_from_dict(entry) for entry in _sequence(value))
-    if len(set(evidence)) != len(evidence):
-        raise ValueError("Duplicate evidence identity")
-    return evidence
 
 
 def _interval(kind: str, minimum: float | None, maximum: float | None, *, probability: bool = False) -> None:
@@ -494,7 +481,6 @@ def acquisition_from_dict(value: object) -> ItemAcquisition:
         guaranteed_roll_count=_optional_integer(data["guaranteed_roll_count"]),
         conditions=_conditions(data["conditions"]),
         locations=_locations(data["locations"]),
-        evidence=_evidence(data["evidence"]),
     )
 
 
@@ -515,7 +501,6 @@ def use_from_dict(value: object) -> ItemUse:
         outcome_key=_optional_text(data["outcome_key"]),
         conditions=_conditions(data["conditions"]),
         locations=_locations(data["locations"]),
-        evidence=_evidence(data["evidence"]),
     )
 
 

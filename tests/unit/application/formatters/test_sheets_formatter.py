@@ -6,6 +6,7 @@ import pytest
 from sqlalchemy import create_engine, text
 
 from erenshor.application.formatters.sheets import SheetsFormatter
+from erenshor.domain.value_objects.item_provenance import PROVENANCE_SCHEMA_VERSION
 
 
 @pytest.fixture
@@ -17,7 +18,7 @@ def test_db(tmp_path: Path):
     # Create test table
     with engine.connect() as conn:
         conn.execute(text("CREATE TABLE item_provenance_meta (schema_version INTEGER NOT NULL)"))
-        conn.execute(text("INSERT INTO item_provenance_meta VALUES (1)"))
+        conn.execute(text("INSERT INTO item_provenance_meta VALUES (:version)"), {"version": PROVENANCE_SCHEMA_VERSION})
         conn.execute(
             text(
                 """

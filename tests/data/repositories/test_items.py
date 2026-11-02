@@ -60,7 +60,6 @@ def _insert_fact(writer: Writer, fact: ItemAcquisition | ItemUse) -> None:
     data: dict[str, Any] = fact_to_dict(fact)
     conditions = data.pop("conditions")
     locations = data.pop("locations")
-    evidence = data.pop("evidence")
     family = "acquisition" if isinstance(fact, ItemAcquisition) else "use"
     key = fact.acquisition_key if isinstance(fact, ItemAcquisition) else fact.use_key
     _insert(writer, f"item_{family}s", data)
@@ -77,8 +76,6 @@ def _insert_fact(writer: Writer, fact: ItemAcquisition | ItemUse) -> None:
                 "entry_zone_line_keys": json.dumps(location["entry_zone_line_keys"]),
             },
         )
-    for row in evidence:
-        _insert(writer, "item_provenance_evidence", {"owner_key": key, **row})
 
 
 def _item(writer: Writer, key: str, name: str | None = None, **metadata: object) -> None:

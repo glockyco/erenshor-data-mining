@@ -2105,14 +2105,12 @@ CREATE TABLE item_use_locations (
     source_copy_stable_key TEXT,
     PRIMARY KEY (owner_key, location_key)
 );
-CREATE TABLE item_provenance_evidence (
-    owner_key TEXT NOT NULL,
-    input_relation TEXT NOT NULL,
-    input_primary_key TEXT NOT NULL,
-    PRIMARY KEY (owner_key, input_relation, input_primary_key)
-);
-CREATE INDEX item_provenance_evidence_input_idx
-    ON item_provenance_evidence(input_relation, input_primary_key);
+-- The characters whose loot rows a common world item summarizes.
+CREATE TABLE item_acquisition_contributors (
+    acquisition_key TEXT NOT NULL REFERENCES item_acquisitions(acquisition_key),
+    character_stable_key TEXT NOT NULL,
+    PRIMARY KEY (acquisition_key, character_stable_key)
+) WITHOUT ROWID;
 CREATE TABLE item_dispositions (
     item_stable_key TEXT PRIMARY KEY NOT NULL,
     disposition TEXT NOT NULL CHECK (disposition IN ('current', 'removed', 'unobtainable', 'unused')),

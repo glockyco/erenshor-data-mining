@@ -1,4 +1,4 @@
-"""Schema1 facts preserve every dimension and reject malformed contracts."""
+"""Provenance facts preserve every dimension and reject malformed contracts."""
 
 from __future__ import annotations
 
@@ -15,7 +15,6 @@ from erenshor.domain.value_objects.item_provenance import (
     ItemDisposition,
     ItemUse,
     ProvenanceCondition,
-    ProvenanceEvidence,
     ProvenanceLocation,
     conditions_satisfiable,
     fact_from_dict,
@@ -83,7 +82,6 @@ def _acquisition() -> ItemAcquisition:
         3,
         (condition,),
         (location,),
-        (ProvenanceEvidence("loot_drops", '["copy","item"]'),),
     )
 
 
@@ -103,7 +101,6 @@ def test_json_roundtrip_retains_every_fact_dimension() -> None:
         acquisition.acquisition_key,
         acquisition.conditions,
         acquisition.locations,
-        acquisition.evidence,
     )
     disposition = ItemDisposition("item:one", "current", "Reviewed", "review:one", ("Current",), ("Former",))
     for fact in (acquisition, use, disposition):
@@ -163,7 +160,6 @@ def test_decoder_rejects_every_missing_acquisition_dimension(field: str) -> None
         ("count_distribution", "null"),
         ("conditions", {}),
         ("locations", "none"),
-        ("evidence", ["untyped"]),
     ],
 )
 def test_decoder_rejects_malformed_acquisition_fields(field: str, value: object) -> None:
@@ -210,8 +206,6 @@ def test_probability_interval_semantics_are_validated(kind: str, minimum: object
         ("locations", "player_level_max", 0),
         ("locations", "entry_zone_line_keys", [None]),
         ("locations", "conditions", [None]),
-        ("evidence", "input_relation", ""),
-        ("evidence", "input_primary_key", 123),
     ],
 )
 def test_decoder_rejects_malformed_children(family: str, field: str, value: object) -> None:
@@ -223,7 +217,7 @@ def test_decoder_rejects_malformed_children(family: str, field: str, value: obje
         fact_from_dict(data)
 
 
-@pytest.mark.parametrize("family", [None, "conditions", "locations", "evidence"])
+@pytest.mark.parametrize("family", [None, "conditions", "locations"])
 def test_decoder_rejects_unknown_mandatory_fields(family: str | None) -> None:
     data = asdict(_acquisition())
     if family is None:
@@ -236,7 +230,7 @@ def test_decoder_rejects_unknown_mandatory_fields(family: str | None) -> None:
         fact_from_dict(data)
 
 
-@pytest.mark.parametrize("family", ["conditions", "locations", "evidence"])
+@pytest.mark.parametrize("family", ["conditions", "locations"])
 def test_decoder_rejects_duplicate_child_identities(family: str) -> None:
     data = asdict(_acquisition())
     data[family] = [data[family][0], data[family][0]]
@@ -260,11 +254,11 @@ def test_shared_schema_version_is_strict(version: object) -> None:
     "metadata",
     [
         {},
-        {"schema_version": 1},
-        {"schema_version": 1, "game_build_id": "", "input_digests": "{}"},
-        {"schema_version": 1, "game_build_id": "build", "input_digests": "[]"},
-        {"schema_version": 1, "game_build_id": "build", "input_digests": '{"items":"bad"}'},
-        {"schema_version": 1, "game_build_id": "build", "input_digests": "{}", "future": True},
+        {"schema_version": PROVENANCE_SCHEMA_VERSION},
+        {"schema_version": PROVENANCE_SCHEMA_VERSION, "game_build_id": "", "input_digests": "{}"},
+        {"schema_version": PROVENANCE_SCHEMA_VERSION, "game_build_id": "build", "input_digests": "[]"},
+        {"schema_version": PROVENANCE_SCHEMA_VERSION, "game_build_id": "build", "input_digests": '{"items":"bad"}'},
+        {"schema_version": PROVENANCE_SCHEMA_VERSION, "game_build_id": "build", "input_digests": "{}", "future": True},
     ],
 )
 def test_metadata_rejects_invalid_contracts(metadata: object) -> None:
@@ -352,7 +346,7 @@ def test_nonacquisition_facts_reject_every_missing_or_unknown_dimension(fact: It
         fact_from_dict(data)
 
 
-@pytest.mark.parametrize("family", ["conditions", "locations", "evidence"])
+@pytest.mark.parametrize("family", ["conditions", "locations"])
 def test_child_codecs_reject_every_lost_dimension(family: str) -> None:
     original = asdict(_acquisition())
     for field in original[family][0]:

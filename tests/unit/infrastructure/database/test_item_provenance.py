@@ -18,7 +18,6 @@ from erenshor.domain.value_objects.item_provenance import (
     ItemAcquisition,
     ItemUse,
     ProvenanceCondition,
-    ProvenanceEvidence,
     ProvenanceLocation,
 )
 from erenshor.infrastructure.database.connection import DatabaseConnection
@@ -105,7 +104,6 @@ def _facts(
         guaranteed_roll_count=count,
         conditions=(condition,),
         locations=(location,),
-        evidence=(ProvenanceEvidence("fixture", '["item:one","copy"]'),),
     )
     use = ItemUse(
         "use:one",
@@ -121,7 +119,6 @@ def _facts(
         acquisition.acquisition_key,
         acquisition.conditions,
         acquisition.locations,
-        acquisition.evidence,
     )
     builder = ProvenanceBuilder(writer.conn)
     builder.acquisitions.append(acquisition)
@@ -199,7 +196,16 @@ def test_bulk_snapshot_preserves_each_getter_order_and_isolates_returned_lists(
     assert repository.get_uses_targeting("missing") == []
 
 
-@pytest.mark.parametrize("versions", [[], [0], [2], [1, 1]])
+@pytest.mark.parametrize(
+    "versions",
+    [
+        [],
+        [0],
+        [PROVENANCE_SCHEMA_VERSION - 1],
+        [PROVENANCE_SCHEMA_VERSION + 1],
+        [PROVENANCE_SCHEMA_VERSION, PROVENANCE_SCHEMA_VERSION],
+    ],
+)
 def test_repository_rejects_missing_duplicate_or_incompatible_metadata(
     database: tuple[Writer, DatabaseConnection],
     versions: list[int],
@@ -260,11 +266,9 @@ def test_repository_rejects_malformed_schema_metadata(
         "UPDATE item_acquisition_locations SET x='invalid'",
         "UPDATE item_acquisition_locations SET conditions='{}'",
         "UPDATE item_acquisition_locations SET entry_zone_line_keys='[null]'",
-        "UPDATE item_provenance_evidence SET input_relation=''",
         "ALTER TABLE item_acquisitions ADD COLUMN unknown_mandatory TEXT",
         "ALTER TABLE item_acquisition_conditions ADD COLUMN unknown_mandatory TEXT",
         "ALTER TABLE item_acquisition_locations ADD COLUMN unknown_mandatory TEXT",
-        "ALTER TABLE item_provenance_evidence ADD COLUMN unknown_mandatory TEXT",
         "ALTER TABLE item_acquisitions DROP COLUMN guaranteed_roll_count",
     ],
 )

@@ -7,6 +7,7 @@ import sqlite3
 from contextlib import closing
 from pathlib import Path
 
+from erenshor.application.processor.item_provenance import ProvenanceBuilder, select_item_provenance
 from erenshor.application.processor.item_provenance_coverage import validate_item_provenance
 from erenshor.infrastructure.database.connection import DatabaseConnection
 from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
@@ -14,7 +15,27 @@ from erenshor.infrastructure.database.repositories.item_provenance import ItemPr
 _ROOT = Path(__file__).resolve().parents[2]
 
 
-def _native_loot_omissions(connection: sqlite3.Connection) -> dict[tuple[str, str], str]:
+def _selection(clean_path: Path, raw_path: Path, reviewed: frozenset[str]) -> ProvenanceBuilder:
+    """Repeat the clean build's selection in memory, because the database does not store which rows facts use."""
+    with (
+        closing(sqlite3.connect(f"file:{clean_path}?mode=ro", uri=True)) as clean,
+        closing(sqlite3.connect(f"file:{raw_path}?mode=ro", uri=True)) as raw,
+    ):
+        clean.row_factory = raw.row_factory = sqlite3.Row
+        return select_item_provenance(clean, raw, reviewed_unreachable=reviewed)
+
+
+def _consumed(builder: ProvenanceBuilder) -> set[tuple[str, str]]:
+    return {
+        (entry.input_relation, entry.input_primary_key)
+        for entries in builder.fact_evidence.values()
+        for entry in entries
+    }
+
+
+def _native_loot_omissions(
+    connection: sqlite3.Connection, consumed: set[tuple[str, str]]
+) -> dict[tuple[str, str], str]:
     """Classify unused native origins without discarding recorded non-acquirable evidence."""
     reasons = dict(
         connection.execute(
@@ -46,14 +67,6 @@ def _native_loot_omissions(connection: sqlite3.Connection) -> dict[tuple[str, st
             """
         )
     )
-    consumed = set(
-        connection.execute(
-            """
-            SELECT input_relation, input_primary_key FROM item_provenance_evidence
-            WHERE input_relation IN ('raw.LootDrops', 'raw.LootTableSources', 'raw.LootTablePoolSlots')
-            """
-        )
-    )
     omissions: dict[tuple[str, str], str] = {}
     for relation, columns, source in (
         ("LootTableSources", "StableKey", "StableKey"),
@@ -70,7 +83,7 @@ def _native_loot_omissions(connection: sqlite3.Connection) -> dict[tuple[str, st
     return omissions
 
 
-def _expected_omissions(connection: sqlite3.Connection) -> dict[tuple[str, str], str]:
+def _expected_omissions(connection: sqlite3.Connection, consumed: set[tuple[str, str]]) -> dict[tuple[str, str], str]:
     """Account for public native rows that do not execute an item acquisition."""
     omissions: dict[tuple[str, str], str] = {}
     queries = (
@@ -215,13 +228,9 @@ def _expected_omissions(connection: sqlite3.Connection) -> dict[tuple[str, str],
     ):
         for row in connection.execute(f"SELECT {columns} FROM {relation}"):
             primary = json.dumps(tuple(row), ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-            used = connection.execute(
-                "SELECT COUNT(*) FROM item_provenance_evidence WHERE input_relation = ? AND input_primary_key = ?",
-                (relation, primary),
-            ).fetchone()[0]
-            if not used:
+            if (relation, primary) not in consumed:
                 omissions[relation, primary] = reason
-    omissions.update(_native_loot_omissions(connection))
+    omissions.update(_native_loot_omissions(connection, consumed))
     return omissions
 
 
@@ -230,9 +239,12 @@ def test_every_populated_native_family_has_canonical_coverage(main_clean_db: Pat
     reviewed = frozenset(key for key, rule in mapping["rules"].items() if rule.get("loot_unreachable"))
     with closing(sqlite3.connect(main_clean_db)) as clean, closing(sqlite3.connect(main_raw_db)) as raw:
         clean.execute("ATTACH DATABASE ? AS native", (str(main_raw_db),))
+        builder = _selection(main_clean_db, main_raw_db, reviewed)
+        consumed = _consumed(builder)
+        assert builder.input_exclusions == _expected_omissions(clean, consumed)
         audit = validate_item_provenance(
             clean,
-            _expected_omissions(clean),
+            builder,
             raw=raw,
             require_all_native_tables=True,
             reviewed_unreachable=reviewed,
@@ -286,16 +298,7 @@ def test_every_populated_native_family_has_canonical_coverage(main_clean_db: Pat
         assert blocked_drops
         for identity in blocked_drops:
             primary = json.dumps(tuple(identity), ensure_ascii=False, separators=(",", ":"))
-            assert (
-                clean.execute(
-                    """
-                SELECT COUNT(*) FROM item_provenance_evidence
-                WHERE input_relation = 'raw.LootDrops' AND input_primary_key = ?
-                """,
-                    (primary,),
-                ).fetchone()[0]
-                > 0
-            )
+            assert ("raw.LootDrops", primary) in consumed
 
     with DatabaseConnection(main_clean_db, read_only=True) as db:
         provenance = ItemProvenanceRepository(db)

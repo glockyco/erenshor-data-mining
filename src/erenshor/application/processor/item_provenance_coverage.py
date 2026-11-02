@@ -9,16 +9,28 @@ from collections import Counter, defaultdict
 from collections.abc import Mapping
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
 
 from erenshor.domain.value_objects.item_provenance import (
     ItemAcquisition,
     ItemUse,
     ProvenanceCondition,
+    ProvenanceEvidence,
     ProvenanceLocation,
 )
 
 InputIdentity = tuple[str, str]
+
+
+class ProvenanceSelection(Protocol):
+    """What the builder selected: the input rows of each fact and the rows it excluded."""
+
+    @property
+    def input_exclusions(self) -> Mapping[InputIdentity, str]: ...
+
+    @property
+    def fact_evidence(self) -> Mapping[str, tuple[ProvenanceEvidence, ...]]: ...
+
 
 _CHEST_LOOT_FACTS = ("treasure.chest_break_roll", "treasure.strike_melee", "treasure.strike_bolt")
 
@@ -2337,7 +2349,7 @@ class _Coverage:
                 for origin in origins:
                     self.exclude(origin, "no_located_item_action")
 
-    def validate_contract(self) -> dict[str, int]:
+    def validate_contract(self, evidence: set[tuple[str, str, str]]) -> dict[str, int]:
         counts = {}
         for family, table, key_column in (
             ("acquisition", "item_acquisitions", "acquisition_key"),
@@ -2364,7 +2376,7 @@ class _Coverage:
                     grouped[owner].append(values)
             for owner, data in expected.items():
                 for dimension, value in data.items():
-                    if dimension in ("conditions", "locations", "evidence"):
+                    if dimension in ("conditions", "locations"):
                         continue
                     if actual[owner][dimension] != value:
                         raise ValueError(
@@ -2377,13 +2389,21 @@ class _Coverage:
                     if wanted != found:
                         raise ValueError(f"Item provenance {owner}: {dimension} differ")
             counts[family + "s"] = len(actual)
-        actual_evidence = {
-            (r["owner_key"], r["input_relation"], r["input_primary_key"]) for r in self.rows("item_provenance_evidence")
-        }
-        if actual_evidence != self.evidence:
+        if evidence != self.evidence:
             raise ValueError(
-                f"Item provenance evidence differs: missing={sorted(self.evidence - actual_evidence)!r}, "
-                f"unexpected={sorted(actual_evidence - self.evidence)!r}"
+                f"Item provenance evidence differs: missing={sorted(self.evidence - evidence)!r}, "
+                f"unexpected={sorted(evidence - self.evidence)!r}"
+            )
+        contributors = {
+            (owner, str(json.loads(primary)[0]))
+            for owner, relation, primary in self.evidence
+            if relation == "loot_drops" and self.expected[owner][1]["kind"] == "common_world_item"
+        }
+        stored = {(r["acquisition_key"], r["character_stable_key"]) for r in self.rows("item_acquisition_contributors")}
+        if stored != contributors:
+            raise ValueError(
+                f"Item provenance contributors differ: missing={sorted(contributors - stored)!r}, "
+                f"unexpected={sorted(stored - contributors)!r}"
             )
         return counts
 
@@ -2468,14 +2488,14 @@ def _normalized(value: object) -> Any:
 
 def validate_item_provenance(
     connection: sqlite3.Connection,
-    exclusions: Mapping[tuple[str, str], str],
+    selection: ProvenanceSelection,
     *,
     require_all_native_tables: bool,
     raw: sqlite3.Connection | None = None,
     reviewed_unreachable: frozenset[str] = frozenset(),
     lifecycle_path: Path | None = None,
 ) -> dict[str, object]:
-    """Reject missing origins, facts or typed dimensions using native table identities."""
+    """Reject missing origins, facts, typed dimensions or input rows using native table identities."""
     if require_all_native_tables and raw is None:
         raise ValueError("Full native item coverage requires a raw database")
     coverage = _Coverage(connection)
@@ -2502,9 +2522,16 @@ def validate_item_provenance(
     missing = coverage.inputs - consumed - coverage.excluded.keys()
     if missing:
         raise ValueError(f"Unaccounted native item provenance inputs: {sorted(missing)!r}")
-    if dict(exclusions) != coverage.excluded:
-        raise ValueError(f"Item provenance exclusions differ: expected={coverage.excluded!r}, got={dict(exclusions)!r}")
-    counts = coverage.validate_contract()
+    exclusions = dict(selection.input_exclusions)
+    if exclusions != coverage.excluded:
+        raise ValueError(f"Item provenance exclusions differ: expected={coverage.excluded!r}, got={exclusions!r}")
+    counts = coverage.validate_contract(
+        {
+            (owner, entry.input_relation, entry.input_primary_key)
+            for owner, entries in selection.fact_evidence.items()
+            for entry in entries
+        }
+    )
     counts["dispositions"] = coverage.validate_dispositions(lifecycle_path)
     input_counts = Counter(relation for relation, _ in coverage.inputs)
     return {

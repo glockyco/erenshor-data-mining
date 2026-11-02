@@ -45,6 +45,10 @@ def _json(value: object) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
+def _fact_key(fact: ItemAcquisition | ItemUse) -> str:
+    return fact.acquisition_key if isinstance(fact, ItemAcquisition) else fact.use_key
+
+
 class ProvenanceBuilder:
     def __init__(self, connection: sqlite3.Connection) -> None:
         self.connection = connection
@@ -66,6 +70,8 @@ class ProvenanceBuilder:
         self._items = {str(row["stable_key"]): row for row in self.rows("items")}
         self._facts = {(str(row["fact_id"]), str(row["key"])): str(row["value"]) for row in self.rows("code_facts")}
         self._character_locations: dict[str, tuple[ProvenanceLocation, ...]] = {}
+        # The input rows of each fact by its key. The build checks them and does not store them.
+        self.fact_evidence: dict[str, tuple[ProvenanceEvidence, ...]] = {}
 
     def rows(self, table: str) -> list[dict[str, Any]]:
         if table not in self.tables:
@@ -257,7 +263,6 @@ class ProvenanceBuilder:
             quantity_min=quantity,
             quantity_max=quantity,
             quantity_kind="exact" if quantity is not None else "unknown",
-            evidence=evidence,
             **kwargs,
         )
         if quantity is None and fact.count_distribution is not None:
@@ -275,6 +280,7 @@ class ProvenanceBuilder:
         if chance is not None and chance <= 0:
             fact = replace(fact, player_access_state="non_acquirable")
         self.acquisitions.append(fact)
+        self.fact_evidence[fact.acquisition_key] = evidence
         return fact
 
     def use(
@@ -297,10 +303,10 @@ class ProvenanceBuilder:
             quantity_min=quantity_range[0] if quantity_range is not None else quantity,
             quantity_max=quantity_range[1] if quantity_range is not None else quantity,
             quantity_kind="bounded" if quantity_range is not None else "exact" if quantity is not None else "unknown",
-            evidence=evidence,
             **kwargs,
         )
         self.uses.append(fact)
+        self.fact_evidence[fact.use_key] = evidence
         return fact
 
     def require_facts(self, *fact_ids: str) -> tuple[ProvenanceEvidence, ...]:
@@ -1543,11 +1549,11 @@ class ProvenanceBuilder:
         self.tables["raw.LootDrops"] = native
         self.tables["raw.Characters"] = list(hosts.values())
         items = {str(row["stable_key"]) for row in self.rows("items")}
-        facts_by_input: dict[str, list[int]] = defaultdict(list)
-        for index, fact in enumerate(self.acquisitions):
-            for evidence in fact.evidence:
-                if evidence.input_relation == "loot_drops":
-                    facts_by_input[evidence.input_primary_key].append(index)
+        facts_by_input: dict[str, list[str]] = defaultdict(list)
+        for fact in self.acquisitions:
+            for source in self.fact_evidence[fact.acquisition_key]:
+                if source.input_relation == "loot_drops":
+                    facts_by_input[source.input_primary_key].append(fact.acquisition_key)
         clean_loot = {
             (str(row["character_stable_key"]), str(row["item_stable_key"])) for row in self.rows("loot_drops")
         }
@@ -1555,10 +1561,8 @@ class ProvenanceBuilder:
             copy, item = str(row["CharacterStableKey"]), str(row["ItemStableKey"])
             evidence = self.evidence("raw.LootDrops", row["LootTableStableKey"], item)
             clean_identity = _json((copy, item))
-            for index in facts_by_input.get(clean_identity, ()):
-                self.acquisitions[index] = replace(
-                    self.acquisitions[index], evidence=(*self.acquisitions[index].evidence, evidence)
-                )
+            for key in facts_by_input.get(clean_identity, ()):
+                self.fact_evidence[key] = (*self.fact_evidence[key], evidence)
             if clean_identity in facts_by_input:
                 continue
             if (copy, item) in clean_loot:
@@ -1644,10 +1648,9 @@ class ProvenanceBuilder:
         )
         for index, use in enumerate(self.uses):
             if use.mechanic in ("remove_blessing", "blessing_removal_material", "blessing_removal_fuel"):
-                self.uses[index] = replace(
-                    use,
-                    outcome_key=outcome.acquisition_key,
-                    evidence=tuple(dict.fromkeys((*use.evidence, evidence, *proof))),
+                self.uses[index] = replace(use, outcome_key=outcome.acquisition_key)
+                self.fact_evidence[use.use_key] = tuple(
+                    dict.fromkeys((*self.fact_evidence[use.use_key], evidence, *proof))
                 )
 
     def attach_native_inputs(self, raw: sqlite3.Connection) -> None:
@@ -1655,44 +1658,41 @@ class ProvenanceBuilder:
 
         native = NativeItemInputs(raw, unavailable_loot_copies=frozenset(self._encountered - self._loot_capable))
         self.smithing_byproducts(raw)
-
-        def attach[T: (ItemAcquisition, ItemUse)](family: list[T]) -> None:
-            for index, fact in enumerate(family):
-                evidence = list(fact.evidence)
-                loot_pairs = {
-                    tuple(json.loads(source.input_primary_key))
-                    for source in fact.evidence
-                    if source.input_relation == "loot_drops"
-                }
-                if isinstance(fact, ItemAcquisition) and fact.kind == "character_drop":
-                    loot_pairs.add((fact.source_copy_stable_key, fact.item_stable_key))
-                for primary in sorted(loot_pairs):
-                    evidence.extend(native.evidence_for("character_drop", primary))
-                if isinstance(fact, ItemAcquisition):
-                    if fact.kind in ("mining", "fishing"):
-                        primary = (
-                            (fact.source_stable_key, fact.variant_key, fact.item_stable_key)
-                            if fact.kind == "fishing"
-                            else (fact.source_stable_key, fact.item_stable_key)
-                        )
-                    elif fact.kind == "fishing_bonus":
-                        primary = (fact.item_stable_key,)
-                    elif fact.kind == "special_world_drop":
-                        primary = (fact.item_stable_key, fact.variant_key)
-                    elif fact.kind == "item_drop":
-                        primary = (fact.source_stable_key, fact.item_stable_key, fact.variant_key)
-                    else:
-                        primary = ()
+        facts: tuple[ItemAcquisition | ItemUse, ...] = (*self.acquisitions, *self.uses)
+        for fact in facts:
+            key = _fact_key(fact)
+            evidence = list(self.fact_evidence[key])
+            loot_pairs = {
+                tuple(json.loads(source.input_primary_key))
+                for source in self.fact_evidence[key]
+                if source.input_relation == "loot_drops"
+            }
+            if isinstance(fact, ItemAcquisition) and fact.kind == "character_drop":
+                loot_pairs.add((fact.source_copy_stable_key, fact.item_stable_key))
+            for primary in sorted(loot_pairs):
+                evidence.extend(native.evidence_for("character_drop", primary))
+            if isinstance(fact, ItemAcquisition):
+                if fact.kind in ("mining", "fishing"):
+                    primary = (
+                        (fact.source_stable_key, fact.variant_key, fact.item_stable_key)
+                        if fact.kind == "fishing"
+                        else (fact.source_stable_key, fact.item_stable_key)
+                    )
+                elif fact.kind == "fishing_bonus":
+                    primary = (fact.item_stable_key,)
+                elif fact.kind == "special_world_drop":
+                    primary = (fact.item_stable_key, fact.variant_key)
                 elif fact.kind == "item_drop":
-                    primary = (fact.item_stable_key, fact.target_stable_key, fact.variant_key)
+                    primary = (fact.source_stable_key, fact.item_stable_key, fact.variant_key)
                 else:
                     primary = ()
-                if primary:
-                    evidence.extend(native.evidence_for(fact.kind, primary))
-                family[index] = replace(fact, evidence=tuple(dict.fromkeys(evidence)))
-
-        attach(self.acquisitions)
-        attach(self.uses)
+            elif fact.kind == "item_drop":
+                primary = (fact.item_stable_key, fact.target_stable_key, fact.variant_key)
+            else:
+                primary = ()
+            if primary:
+                evidence.extend(native.evidence_for(fact.kind, primary))
+            self.fact_evidence[key] = tuple(dict.fromkeys(evidence))
         native.finalize()
         self.input_exclusions.update(native.input_exclusions)
         self.tables.update({f"raw.{table}": rows for table, rows in native.input_tables.items()})
@@ -1716,38 +1716,32 @@ class ProvenanceBuilder:
                     raise ValueError(f"Encounter configuration has no placement: {encounter}")
                 by_encounter[encounter].append(self.evidence(table, *(row[column] for column in columns)))
         consumed: set[str] = set()
-
-        def attach[T: (ItemAcquisition, ItemUse)](family: list[T]) -> None:
-            for index, fact in enumerate(family):
-                matching = {
-                    encounter
-                    for location in fact.locations
-                    for encounter in by_spawn.get(str(location.coordinate_stable_key), ())
-                }
-                if not matching:
-                    continue
-                consumed.update(matching)
-                evidence = list(fact.evidence)
-                for encounter in sorted(matching):
-                    evidence.extend(by_encounter[encounter])
-                family[index] = replace(fact, evidence=tuple(dict.fromkeys(evidence)))
-
-        attach(self.acquisitions)
-        attach(self.uses)
+        facts: tuple[ItemAcquisition | ItemUse, ...] = (*self.acquisitions, *self.uses)
+        for fact in facts:
+            matching = {
+                encounter
+                for location in fact.locations
+                for encounter in by_spawn.get(str(location.coordinate_stable_key), ())
+            }
+            if not matching:
+                continue
+            consumed.update(matching)
+            key = _fact_key(fact)
+            evidence = list(self.fact_evidence[key])
+            for encounter in sorted(matching):
+                evidence.extend(by_encounter[encounter])
+            self.fact_evidence[key] = tuple(dict.fromkeys(evidence))
         for encounter in encounters - consumed:
-            for evidence in by_encounter[encounter]:
-                self.input_exclusions[(evidence.input_relation, evidence.input_primary_key)] = "no_located_item_action"
+            for entry in by_encounter[encounter]:
+                self.input_exclusions[(entry.input_relation, entry.input_primary_key)] = "no_located_item_action"
 
     def account_support_inputs(self) -> None:
         self.attach_encounter_inputs()
         consumed = {
             (evidence.input_relation, evidence.input_primary_key)
-            for fact in self.acquisitions
-            for evidence in fact.evidence
+            for entries in self.fact_evidence.values()
+            for evidence in entries
         }
-        consumed.update(
-            (evidence.input_relation, evidence.input_primary_key) for use in self.uses for evidence in use.evidence
-        )
         for row in self.rows("character_quest_manager_quests"):
             evidence = self.evidence("character_quest_manager_quests", row["character_stable_key"], row["quest_slot"])
             key = (evidence.input_relation, evidence.input_primary_key)
@@ -1788,9 +1782,9 @@ class ProvenanceBuilder:
     def persist(self) -> None:
         for family, facts, cls in (("acquisition", self.acquisitions, ItemAcquisition), ("use", self.uses, ItemUse)):
             table = "item_acquisitions" if family == "acquisition" else "item_uses"
-            columns = [field.name for field in fields(cls) if field.name not in ("conditions", "locations", "evidence")]
+            columns = [field.name for field in fields(cls) if field.name not in ("conditions", "locations")]
             for fact in facts:
-                owner = fact.acquisition_key if isinstance(fact, ItemAcquisition) else fact.use_key
+                owner = _fact_key(fact)
                 data = asdict(fact)
                 fact_from_dict(data)
                 self._insert(table, {column: data[column] for column in columns})
@@ -1800,16 +1794,38 @@ class ProvenanceBuilder:
                     location_data["conditions"] = _json(location_data["conditions"])
                     location_data["entry_zone_line_keys"] = _json(location_data["entry_zone_line_keys"])
                     self._insert(f"item_{family}_locations", {"owner_key": owner, **location_data})
-                for evidence in fact.evidence:
+        # A common world item lists the characters whose loot rows it summarizes.
+        for fact in self.acquisitions:
+            if fact.kind != "common_world_item":
+                continue
+            for source in self.fact_evidence.get(fact.acquisition_key, ()):
+                if source.input_relation == "loot_drops":
+                    character = str(json.loads(source.input_primary_key)[0])
                     self.connection.execute(
-                        "INSERT INTO item_provenance_evidence VALUES (?,?,?) ON CONFLICT DO NOTHING",
-                        (owner, evidence.input_relation, evidence.input_primary_key),
+                        "INSERT INTO item_acquisition_contributors VALUES (?,?) ON CONFLICT DO NOTHING",
+                        (fact.acquisition_key, character),
                     )
 
     def _insert(self, table: str, data: dict[str, object]) -> None:
-        self.connection.execute(
-            f"INSERT INTO {table} ({','.join(data)}) VALUES ({','.join('?' for _ in data)})", tuple(data.values())
-        )
+        _insert_row(self.connection, table, data)
+
+
+def _insert_row(connection: sqlite3.Connection, table: str, data: dict[str, object]) -> None:
+    connection.execute(
+        f"INSERT INTO {table} ({','.join(data)}) VALUES ({','.join('?' for _ in data)})", tuple(data.values())
+    )
+
+
+def select_item_provenance(
+    connection: sqlite3.Connection, raw: sqlite3.Connection, *, reviewed_unreachable: frozenset[str]
+) -> ProvenanceBuilder:
+    """Select every item fact with the input rows it comes from, in memory and without writing them."""
+    builder = ProvenanceBuilder(connection)
+    builder.select()
+    builder.raw_loot_evidence(raw, reviewed_unreachable)
+    builder.attach_native_inputs(raw)
+    builder.account_support_inputs()
+    return builder
 
 
 def process_item_provenance(
@@ -1827,15 +1843,13 @@ def process_item_provenance(
     access_evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
     if access_evidence.get("schema_version") != 1:
         raise ValueError("Unsupported item access evidence schema")
-    builder = ProvenanceBuilder(connection)
     for observation in access_evidence["observations"]:
-        builder._insert(
-            "item_access_observations", {"assembly_sha256": access_evidence["assembly_sha256"], **observation}
+        _insert_row(
+            connection,
+            "item_access_observations",
+            {"assembly_sha256": access_evidence["assembly_sha256"], **observation},
         )
-    builder.select()
-    builder.raw_loot_evidence(raw, reviewed_unreachable)
-    builder.attach_native_inputs(raw)
-    builder.account_support_inputs()
+    builder = select_item_provenance(connection, raw, reviewed_unreachable=reviewed_unreachable)
     builder.persist()
     lifecycle = load_content_lifecycle(lifecycle_path)
     current = {str(row["stable_key"]): row["wiki_page_name"] for row in builder.rows("items")}
@@ -1843,7 +1857,7 @@ def process_item_provenance(
         data = asdict(disposition)
         data["current_pages"] = _json(data["current_pages"])
         data["former_pages"] = _json(data["former_pages"])
-        builder._insert("item_dispositions", data)
+        _insert_row(connection, "item_dispositions", data)
     digests = {
         table: hashlib.sha256(_json(rows).encode()).hexdigest() for table, rows in sorted(builder.tables.items())
     }
@@ -1858,7 +1872,7 @@ def process_item_provenance(
     )
     audit = validate_item_provenance(
         connection,
-        builder.input_exclusions,
+        builder,
         raw=raw,
         reviewed_unreachable=reviewed_unreachable,
         lifecycle_path=lifecycle_path,

@@ -1500,7 +1500,7 @@ def _canonical_item_sources(
 
 
 def _normalize_source_tables(result: dict[str, Any], compiled: CompiledData) -> None:
-    """Emit each referenced typed record once, keeping evidence strictly offline."""
+    """Emit each referenced typed record once."""
     acquisition_keys: set[str] = set()
     use_keys: set[str] = set()
 
@@ -1531,11 +1531,8 @@ def _normalize_source_tables(result: dict[str, Any], compiled: CompiledData) -> 
         fact = compiled.source_facts.get(key)
         if not isinstance(fact, ItemAcquisition):
             raise ValueError(f"Missing canonical acquisition: {key}")
-        facts[key] = {name: value for name, value in asdict(fact).items() if name != "evidence"}
-    uses = {
-        key: {name: value for name, value in asdict(compiled.source_facts[key]).items() if name != "evidence"}
-        for key in sorted(use_keys)
-    }
+        facts[key] = asdict(fact)
+    uses = {key: asdict(compiled.source_facts[key]) for key in sorted(use_keys)}
     result["_source_facts"] = facts
     result["_source_ranks"] = {
         key: {"tier": compiled.source_ranks[key][0], "depth": compiled.source_ranks[key][1]}

@@ -112,7 +112,10 @@ The overlay has crashed with deck.gl 9.4.0 and luma.gl 9.4.2 on Direct3D 11.
 
 Item acquisition and popup loot come only from the persisted provenance contract.
 Regenerate the clean database when its schema version is missing or unsupported.
-Inspect the acquisition, typed condition, location and evidence records together.
+Inspect the acquisition, typed condition and location records together.
+The clean database does not store which input rows a fact comes from. To see them, rerun
+`select_item_provenance` in `src/erenshor/application/processor/item_provenance.py` against
+the clean and raw databases and read the builder's `fact_evidence`.
 The map keeps native-pool chances separate from final acquisition probabilities.
 Common world drops use the chance range stored in canonical acquisition facts.
 They do not create named droppers or enemy markers.

@@ -12,7 +12,6 @@ from erenshor.application.wiki_lua.world_drops import (
 from erenshor.domain.value_objects.item_provenance import (
     ItemAcquisition,
     ProvenanceCondition,
-    ProvenanceEvidence,
     fact_to_dict,
 )
 
@@ -33,7 +32,6 @@ def _drop(key: str, item: str, chance: float, level: int = 0) -> ItemAcquisition
                 "enemy_level", 0, 0, "actor_level", actor="enemy", minimum=level, minimum_inclusive=False
             ),
         ),
-        evidence=(ProvenanceEvidence("special_world_drops", key),),
     )
 
 
@@ -60,7 +58,7 @@ def test_distinct_equal_chance_pools_keep_independent_rows_and_offline_identitie
     assert [row["fact"] for row in manifest["acquisitions"]] == [fact_to_dict(fact) for fact in drops]
 
 
-def test_nonpublic_native_and_zero_chance_evidence_remains_in_manifest() -> None:
+def test_nonpublic_native_and_zero_chance_drops_remain_in_manifest() -> None:
     drops = [
         replace(_drop("roll:native", "item:stone", 5), probability_stage="native_pool"),
         replace(_drop("roll:internal", "item:stone", 5), player_access_state="internal_only"),
@@ -79,7 +77,7 @@ def test_unknown_final_probability_fails_instead_of_inventing_a_chance() -> None
         build_world_drop_rows([fact])
 
 
-@pytest.mark.parametrize("dimension", ["conditions", "variant_key", "probability_min", "evidence"])
+@pytest.mark.parametrize("dimension", ["conditions", "variant_key", "probability_min"])
 def test_world_drop_manifest_rejects_lost_dimensions(dimension: str) -> None:
     fact = _drop("roll:map", "item:map", 0.625)
     manifest = world_drop_manifest([fact], {"item:map"})

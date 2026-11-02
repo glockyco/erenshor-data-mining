@@ -19,7 +19,6 @@ from erenshor.domain.value_objects.item_provenance import (
     ItemDisposition,
     ItemUse,
     ProvenanceCondition,
-    ProvenanceEvidence,
     ProvenanceLocation,
     fact_to_dict,
 )
@@ -87,7 +86,6 @@ def _insert_fact(writer: Writer, fact: ItemAcquisition | ItemUse) -> None:
     data: dict[str, Any] = fact_to_dict(fact)
     conditions = data.pop("conditions")
     locations = data.pop("locations")
-    evidence = data.pop("evidence")
     family = "acquisition" if isinstance(fact, ItemAcquisition) else "use"
     key = fact.acquisition_key if isinstance(fact, ItemAcquisition) else fact.use_key
     _insert(writer, f"item_{family}s", data)
@@ -104,8 +102,6 @@ def _insert_fact(writer: Writer, fact: ItemAcquisition | ItemUse) -> None:
                 "entry_zone_line_keys": json.dumps(location["entry_zone_line_keys"]),
             },
         )
-    for record in evidence:
-        _insert(writer, "item_provenance_evidence", {"owner_key": key, **record})
 
 
 def _condition(group: int = 0, atom: int = 0, **values: Any) -> ProvenanceCondition:
@@ -155,7 +151,6 @@ def _acquisition(key: str, kind: str, **values: Any) -> ItemAcquisition:
             "guaranteed_roll_count": 2 if kind == "character_drop" else None,
             "conditions": (_condition(), _condition(atom=1, predicate="room_furnished"), _condition(group=1)),
             "locations": (ProvenanceLocation(location_key="location:unlocated", relation="unlocated"),),
-            "evidence": (ProvenanceEvidence("fixture_inputs", key),),
             **values,
         },
     )
@@ -242,10 +237,6 @@ def canonical_facts(writer: Writer) -> tuple[list[ItemAcquisition], list[ItemUse
         probability_kind="bounded",
         probability_min=0.123456789,
         probability_max=0.987654321,
-        evidence=(
-            ProvenanceEvidence("loot_drops", '["character:swap-one","item:bread"]'),
-            ProvenanceEvidence("loot_drops", '["character:swap-two","item:bread"]'),
-        ),
     )
     treasure = (
         ProvenanceLocation(
@@ -289,7 +280,6 @@ def canonical_facts(writer: Writer) -> tuple[list[ItemAcquisition], list[ItemUse
             outcome_key="acquisition:crafting",
             conditions=(_condition(),),
             locations=treasure,
-            evidence=(ProvenanceEvidence("fixture_uses", kind),),
         )
         for kind in USE_KINDS
     ]
@@ -313,7 +303,6 @@ def _projected_contract(writer: Writer) -> dict[str, list[dict[str, Any]]]:
     """Reassemble normalized sheet rows for an offline lossless coverage assertion."""
     conditions = _rows(writer, "item-conditions")
     locations = _rows(writer, "item-locations")
-    evidence = _rows(writer, "item-evidence")
     result: dict[str, list[dict[str, Any]]] = {}
     for family in ("acquisition", "use"):
         facts = _rows(writer, f"item-{family}s")
@@ -334,9 +323,6 @@ def _projected_contract(writer: Writer) -> dict[str, list[dict[str, Any]]]:
                     for field in ("conditions", "entry_zone_line_keys"):
                         location[field] = json.loads(location[field])
                     fact["locations"].append(location)
-            fact["evidence"] = [
-                {k: v for k, v in row.items() if k != "owner_key"} for row in evidence if row["owner_key"] == key
-            ]
         result[family] = facts
     result["disposition"] = _rows(writer, "item-dispositions")
     for disposition in result["disposition"]:
@@ -404,7 +390,6 @@ def test_normalized_item_sheets_conserve_every_dimension(
         "guaranteed_roll_count",
         "conditions",
         "locations",
-        "evidence",
     ],
 )
 def test_offline_coverage_rejects_a_lost_acquisition_dimension(
@@ -428,7 +413,7 @@ def test_offline_coverage_rejects_a_missing_kind(
         _assert_coverage(projected, canonical_facts)
 
 
-def test_drop_sheet_keeps_common_world_evidence_without_named_swapped_sources(
+def test_drop_sheet_keeps_common_world_items_without_named_swapped_sources(
     writer: Writer,
     canonical_facts: tuple[list[ItemAcquisition], list[ItemUse], list[ItemDisposition]],
 ) -> None:
@@ -441,11 +426,6 @@ def test_drop_sheet_keeps_common_world_evidence_without_named_swapped_sources(
     assert world[0]["source_copy_stable_key"] is None
     own = {row["source_copy_stable_key"]: row["Drop Chance (%)"] for row in rows if row["Source Type"] == "Character"}
     assert own == {"character:copy": 12.345678901, "character:backup": 27.891234567}
-    evidence = [row for row in _rows(writer, "item-evidence") if row["owner_key"] == world[0]["acquisition_key"]]
-    assert {row["input_primary_key"] for row in evidence} == {
-        '["character:swap-one","item:bread"]',
-        '["character:swap-two","item:bread"]',
-    }
     assert "acquisition:zero" not in {row["acquisition_key"] for row in rows}
 
 
@@ -564,7 +544,6 @@ def test_sheet_formatter_rejects_missing_or_incompatible_provenance(
         "outcome_key",
         "conditions",
         "locations",
-        "evidence",
     ],
 )
 def test_offline_coverage_rejects_a_lost_use_dimension(
