@@ -6,11 +6,9 @@ local p = {}
 local IDENTITY_ATTRIBUTES = {
 	["data-erenshor-reference"] = true,
 	["data-erenshor-reference-slot"] = true,
-	["data-erenshor-scope"] = true,
 	["data-erenshor-location"] = true,
 	["data-erenshor-entry-zone-lines"] = true,
 	["data-erenshor-provenance"] = true,
-	["data-erenshor-acquisition-members"] = true,
 	["data-erenshor-source-copy-stable-key"] = true,
 }
 
@@ -121,14 +119,6 @@ local QUALITY_NAMES = {
 for _, quality in ipairs(QUALITY_ORDER) do
 	QUALITY_NAMES[tostring(quality.runtimeId)] = quality.name
 	QUALITY_NAMES[string.lower(quality.name)] = quality.name
-end
-
-local function public(row)
-	return row.player_access_state == "verified_player" and row.probability_stage ~= "native_pool"
-end
-
-local function auditDisposition(row)
-	return row.probability_stage == "native_pool" and "native_pool" or row.player_access_state
 end
 
 local function words(v)
@@ -271,14 +261,13 @@ local PHASE_GROUPS = {
 	operation_outcome = "outcomes",
 	mechanic_parameter = "parameters",
 }
-local OWNERSHIP_PREDICATES = { item_held = true, item_not_owned = true, key_held = true }
 
 local function accountConditionText(condition)
 	if
 		condition.actor ~= "account"
 		or condition.reference_stable_key ~= "account_state:reliquary_claimed"
 		or (condition.value ~= "true" and condition.value ~= "false")
-		or (condition.phase ~= "availability" and condition.phase ~= "operation_outcome")
+		or condition.phase ~= "availability"
 	then
 		error("Unsupported ItemData account condition", 2)
 	end
@@ -287,153 +276,97 @@ local function accountConditionText(condition)
 		.. " on this account"
 end
 
-function p.conditions(rows, references)
-	local gates, gateOrder, gateGroups = {}, {}, {}
-	for _, condition in ipairs(rows or {}) do
-		local phase = condition.phase
-		local category = PHASE_GROUPS[phase]
-		if category == nil then
-			error("Unsupported ItemData condition phase: " .. tostring(phase), 2)
+local function conditionText(condition, references)
+	local account = condition.predicate == "account_state"
+	local text = account and accountConditionText(condition) or PREDICATES[condition.predicate]
+	if text == nil then
+		error("Unsupported ItemData condition: " .. tostring(condition.predicate), 2)
+	end
+	if condition.gate_key == "result_quality" and not account then
+		text = "Result quality"
+	end
+	if condition.gate_key == "enhanced_quality" and not account then
+		text = "Improved result quality"
+	end
+	if condition.reference_stable_key and not account then
+		text = text .. ": " .. identity(condition.reference_stable_key, references)
+	end
+	if
+		condition.predicate == "room_furnished"
+		and condition.reference_slot
+		and condition.reference_slot ~= ""
+	then
+		text = text .. " (room " .. escape(condition.reference_slot) .. ")"
+	end
+	if condition.predicate == "actor_level" then
+		text = (
+			({ player = "Player", sim = "Simulated player", enemy = "Enemy" })[condition.actor]
+			or escape(words(condition.actor))
+		) .. " level"
+	elseif condition.predicate == "actor_class" then
+		local actor = ({ player = "Player", sim = "Simulated player", enemy = "Enemy" })[condition.actor]
+		if actor == nil then
+			error("Unsupported ItemData class actor: " .. tostring(condition.actor), 2)
 		end
-		if
-			not (
-				phase == "source_initialization"
-				and (
-					OWNERSHIP_PREDICATES[condition.predicate]
-					or condition.predicate == "formula_operand"
-				)
-			)
-		then
-			local gate = phase .. "\0" .. condition.gate_key
-			if gates[gate] == nil then
-				gates[gate] = {}
-				gateGroups[gate] = category
-				gateOrder[#gateOrder + 1] = gate
-			end
-			local groups = gates[gate]
-			local index = condition.group_index
-			if groups[index] == nil then
-				groups[index] = {}
-			end
-			groups[index][#groups[index] + 1] = condition
+		text = actor .. " class"
+		if condition.reference_stable_key then
+			text = text .. ": " .. identity(condition.reference_stable_key, references)
+		end
+	elseif condition.actor and not account then
+		text = text .. " for " .. escape(words(condition.actor))
+	end
+	if condition.predicate == "formula_operand" then
+		text = FORMULAS[condition.value]
+		if text == nil then
+			error("Unsupported ItemData formula: " .. tostring(condition.value), 2)
+		end
+	elseif
+		condition.predicate == "route"
+		and condition.value == "normal_pointer_inventory_transfer"
+	then
+		text = "Drag into your inventory"
+	elseif
+		condition.predicate == "source_replenishment"
+		and condition.value == "while_source_active"
+	then
+		text = "Replenishes while open"
+	elseif condition.predicate == "quality" and condition.value then
+		local quality = QUALITY_NAMES[string.lower(condition.value)]
+		if quality == nil then
+			error("Unsupported ItemData quality: " .. tostring(condition.value), 2)
+		end
+		text = text .. ": " .. quality
+	elseif condition.predicate == "room_furnished" and condition.value then
+		text = text .. ": " .. escape(condition.value)
+	elseif condition.value and not account then
+		if condition.predicate ~= "time_of_day" then
+			error("Unsupported ItemData condition value: " .. tostring(condition.predicate), 2)
+		end
+		text = condition.value == "day" and "During the day"
+			or condition.value == "night" and "At night"
+			or error("Unsupported ItemData time", 2)
+	end
+	local range = account and "" or conditionRange(condition)
+	if range ~= "" then
+		text = text .. " " .. range
+		if PERCENT_FORMULAS[condition.value] then
+			text = text .. "%"
 		end
 	end
-	local out = { requirements = {}, initialization = {}, outcomes = {}, parameters = {} }
-	for _, gate in ipairs(gateOrder) do
-		local indices = {}
-		for index in pairs(gates[gate]) do
-			indices[#indices + 1] = index
-		end
-		table.sort(indices)
-		local alternatives = {}
-		for _, index in ipairs(indices) do
-			local atoms = gates[gate][index]
-			table.sort(atoms, function(a, b)
-				return a.atom_index < b.atom_index
-			end)
-			local parts = {}
-			for _, condition in ipairs(atoms) do
-				local account = condition.predicate == "account_state"
-				local text = account and accountConditionText(condition)
-					or PREDICATES[condition.predicate]
-				if text == nil then
-					error("Unsupported ItemData condition: " .. tostring(condition.predicate), 2)
-				end
-				if condition.gate_key == "result_quality" and not account then
-					text = "Result quality"
-				end
-				if condition.gate_key == "enhanced_quality" and not account then
-					text = "Improved result quality"
-				end
-				if condition.reference_stable_key and not account then
-					text = text .. ": " .. identity(condition.reference_stable_key, references)
-				end
-				if
-					condition.predicate == "room_furnished"
-					and condition.reference_slot
-					and condition.reference_slot ~= ""
-				then
-					text = text .. " (room " .. escape(condition.reference_slot) .. ")"
-				end
-				if condition.predicate == "actor_level" then
-					text = (
-						({ player = "Player", sim = "Simulated player", enemy = "Enemy" })[condition.actor]
-						or escape(words(condition.actor))
-					) .. " level"
-				elseif condition.predicate == "actor_class" then
-					local actor = ({ player = "Player", sim = "Simulated player", enemy = "Enemy" })[condition.actor]
-					if actor == nil then
-						error("Unsupported ItemData class actor: " .. tostring(condition.actor), 2)
-					end
-					text = actor .. " class"
-					if condition.reference_stable_key then
-						text = text .. ": " .. identity(condition.reference_stable_key, references)
-					end
-				elseif condition.actor and not account then
-					text = text .. " for " .. escape(words(condition.actor))
-				end
-				if condition.predicate == "formula_operand" then
-					text = FORMULAS[condition.value]
-					if text == nil then
-						error("Unsupported ItemData formula: " .. tostring(condition.value), 2)
-					end
-				elseif
-					condition.predicate == "route"
-					and condition.value == "normal_pointer_inventory_transfer"
-				then
-					text = "Drag into your inventory"
-				elseif
-					condition.predicate == "source_replenishment"
-					and condition.value == "while_source_active"
-				then
-					text = "Replenishes while open"
-				elseif condition.predicate == "quality" and condition.value then
-					local quality = QUALITY_NAMES[string.lower(condition.value)]
-					if quality == nil then
-						error("Unsupported ItemData quality: " .. tostring(condition.value), 2)
-					end
-					text = text .. ": " .. quality
-				elseif condition.predicate == "room_furnished" and condition.value then
-					text = text .. ": " .. escape(condition.value)
-				elseif condition.value and not account then
-					if condition.predicate ~= "time_of_day" then
-						error(
-							"Unsupported ItemData condition value: "
-								.. tostring(condition.predicate),
-							2
-						)
-					end
-					text = condition.value == "day" and "During the day"
-						or condition.value == "night" and "At night"
-						or error("Unsupported ItemData time", 2)
-				end
-				local range = account and "" or conditionRange(condition)
-				if range ~= "" then
-					text = text .. " " .. range
-					if PERCENT_FORMULAS[condition.value] then
-						text = text .. "%"
-					end
-				end
-				parts[#parts + 1] = '<span data-erenshor-predicate="'
-					.. escape(condition.predicate)
-					.. '" data-erenshor-phase="'
-					.. escape(condition.phase)
-					.. '" data-erenshor-scope="'
-					.. escape(condition.scope)
-					.. '" data-erenshor-reference="'
-					.. escape(condition.reference_stable_key)
-					.. '" data-erenshor-reference-slot="'
-					.. escape(condition.reference_slot)
-					.. '">'
-					.. text
-					.. "</span>"
-			end
-			alternatives[#alternatives + 1] = "(" .. table.concat(parts, " and ") .. ")"
-		end
-		local bucket = out[gateGroups[gate]]
-		local gateText = table.concat(alternatives, " or ")
-		bucket[#bucket + 1] = #alternatives > 1 and ("(" .. gateText .. ")") or gateText
-	end
+	return '<span data-erenshor-predicate="'
+		.. escape(condition.predicate)
+		.. '" data-erenshor-phase="'
+		.. escape(condition.phase)
+		.. '" data-erenshor-reference="'
+		.. escape(condition.reference_stable_key)
+		.. '" data-erenshor-reference-slot="'
+		.. escape(condition.reference_slot)
+		.. '">'
+		.. text
+		.. "</span>"
+end
+
+local function conditionSections(out)
 	local rendered = {}
 	if #out.requirements > 0 then
 		rendered[#rendered + 1] = table.concat(out.requirements, " and ")
@@ -449,6 +382,73 @@ function p.conditions(rows, references)
 		end
 	end
 	return preserveIdentities(table.concat(rendered, "<br />"))
+end
+
+function p.conditions(rows, references)
+	local gates, gateOrder, gateGroups = {}, {}, {}
+	for _, condition in ipairs(rows or {}) do
+		local category = PHASE_GROUPS[condition.phase]
+		if category == nil then
+			error("Unsupported ItemData condition phase: " .. tostring(condition.phase), 2)
+		end
+		local gate = condition.gate_index
+		if gates[gate] == nil then
+			gates[gate] = {}
+			gateGroups[gate] = category
+			gateOrder[#gateOrder + 1] = gate
+		end
+		local groups = gates[gate]
+		local index = condition.alternative_index
+		if groups[index] == nil then
+			groups[index] = {}
+		end
+		groups[index][#groups[index] + 1] = condition
+	end
+	table.sort(gateOrder)
+	local out = { requirements = {}, initialization = {}, outcomes = {}, parameters = {} }
+	for _, gate in ipairs(gateOrder) do
+		local indices = {}
+		for index in pairs(gates[gate]) do
+			indices[#indices + 1] = index
+		end
+		table.sort(indices)
+		local alternatives = {}
+		for _, index in ipairs(indices) do
+			local atoms = gates[gate][index]
+			table.sort(atoms, function(a, b)
+				return a.atom_index < b.atom_index
+			end)
+			local parts = {}
+			for _, condition in ipairs(atoms) do
+				parts[#parts + 1] = conditionText(condition, references)
+			end
+			alternatives[#alternatives + 1] = "(" .. table.concat(parts, " and ") .. ")"
+		end
+		local bucket = out[gateGroups[gate]]
+		local gateText = table.concat(alternatives, " or ")
+		bucket[#bucket + 1] = #alternatives > 1 and ("(" .. gateText .. ")") or gateText
+	end
+	return conditionSections(out)
+end
+
+function p.parameters(rows, references)
+	local out = { requirements = {}, initialization = {}, outcomes = {}, parameters = {} }
+	local ordered = {}
+	for _, parameter in ipairs(rows or {}) do
+		ordered[#ordered + 1] = parameter
+	end
+	table.sort(ordered, function(a, b)
+		return a.parameter_index < b.parameter_index
+	end)
+	for _, parameter in ipairs(ordered) do
+		local category = PHASE_GROUPS[parameter.phase]
+		if category == nil then
+			error("Unsupported ItemData parameter phase: " .. tostring(parameter.phase), 2)
+		end
+		local entries = out[category]
+		entries[#entries + 1] = "(" .. conditionText(parameter, references) .. ")"
+	end
+	return conditionSections(out)
 end
 
 local function locations(rows, references)
@@ -495,7 +495,7 @@ local function locations(rows, references)
 		end
 		local entryKeys = table.concat(entries, "|")
 		out[#out + 1] = '<span data-erenshor-location="'
-			.. escape(location.location_key)
+			.. escape(location.place_key)
 			.. '" data-erenshor-source-copy-stable-key="'
 			.. escape(location.source_copy_stable_key)
 			.. '" data-erenshor-entry-zone-lines="'
@@ -507,7 +507,7 @@ local function locations(rows, references)
 	return table.concat(out, "<br />")
 end
 
-local function facts(row, references)
+local function facts(row, references, data)
 	local parts = {}
 	local amount = interval(row.quantity_min, row.quantity_max)
 	if amount ~= "" then
@@ -519,42 +519,6 @@ local function facts(row, references)
 	if row.expected_quantity ~= nil then
 		parts[#parts + 1] = "Average yield: " .. number(row.expected_quantity)
 	end
-	if row.count_distribution then
-		local distribution = mw.text.jsonDecode(row.count_distribution)
-		local isArray = row.count_distribution:match("^%s*%[") ~= nil
-		local counts = {}
-		for key, chance in pairs(distribution) do
-			local count = tonumber(key)
-			if count ~= nil and isArray then
-				count = count - 1
-			end
-			if
-				count == nil
-				or count < 0
-				or count ~= math.floor(count)
-				or type(chance) ~= "number"
-				or chance < 0
-				or chance > 1
-			then
-				error("Unsupported ItemData count distribution", 2)
-			end
-			counts[#counts + 1] = { count = count, chance = chance, key = tostring(key) }
-		end
-		if #counts == 0 then
-			error("Empty ItemData count distribution", 2)
-		end
-		table.sort(counts, function(a, b)
-			return a.count < b.count or (a.count == b.count and a.key < b.key)
-		end)
-		local outcomes = {}
-		for _, outcome in ipairs(counts) do
-			outcomes[#outcomes + 1] = number(outcome.count)
-				.. " ("
-				.. number(outcome.chance * 100)
-				.. "%)"
-		end
-		parts[#parts + 1] = "Yield: " .. table.concat(outcomes, ", ")
-	end
 	if row.probability_kind == "exact" or row.probability_kind == "bounded" then
 		local chance = interval(row.probability_min, row.probability_max)
 		parts[#parts + 1] = "Chance: " .. chance .. "%"
@@ -562,18 +526,8 @@ local function facts(row, references)
 	if BASES[row.probability_basis] and BASES[row.probability_basis] ~= "" then
 		parts[#parts + 1] = BASES[row.probability_basis]
 	end
-	if row.guarantee_scope == "pool" or row.guarantee_scope == "pool_roll" then
-		parts[#parts + 1] = row.guaranteed_roll_count
-				and ("Guaranteed pool rolls: " .. tostring(row.guaranteed_roll_count))
-			or "Guaranteed pool roll"
-	elseif row.guarantee_scope == "item" then
+	if row.guaranteed then
 		parts[#parts + 1] = "Guaranteed item"
-	elseif row.guarantee_scope == "successful_roll" then
-		parts[#parts + 1] = "Guaranteed after a successful roll"
-	elseif row.guarantee_scope == "successful_ui_transfer" then
-		parts[#parts + 1] = "Available from the panel"
-	elseif row.guarantee_scope then
-		error("Unsupported ItemData guarantee: " .. tostring(row.guarantee_scope), 2)
 	end
 	if row.kind == "zone_restriction" and row.mechanic then
 		parts[#parts + 1] = "Outcome: " .. escape(words(row.mechanic))
@@ -582,74 +536,31 @@ local function facts(row, references)
 	if conditions ~= "" then
 		parts[#parts + 1] = conditions
 	end
-	local place = locations(row.locations, references)
+	local parameters = p.parameters(
+		data and data.mechanism_parameters and data.mechanism_parameters[row.mechanic],
+		references
+	)
+	if parameters ~= "" then
+		parts[#parts + 1] = parameters
+	end
+	local place = locations(data and data.places and data.places[row.place_set_key], references)
 	if place ~= "" then
 		parts[#parts + 1] = place
 	end
 	return table.concat(parts, "<br />")
 end
 
-function p.acquisitionDetails(row, references)
-	return preserveIdentities(facts(row, references))
+function p.acquisitionDetails(row, references, data)
+	return preserveIdentities(facts(row, references, data))
 end
 
 function p.locations(rows, references)
 	return preserveIdentities(locations(rows, references))
 end
 
-local function globalFishing(data)
-	local bonus, members = nil, {}
-	for _, row in ipairs(data.acquisitions or {}) do
-		if row.kind == "fishing_bonus" and row.probability_stage == "native_pool" then
-			if bonus ~= nil or row.probability_min ~= row.probability_max then
-				return nil, {}
-			end
-			bonus = row.probability_min
-		end
-	end
-	if bonus == nil then
-		return nil, members
-	end
-	for _, row in ipairs(data.acquisitions or {}) do
-		if
-			public(row)
-			and row.kind == "fishing"
-			and row.probability_min == bonus
-			and row.probability_max == bonus
-		then
-			members[row.acquisition_key] = true
-		end
-	end
-	return bonus, members
-end
-
--- Coverage is a machine-readable audit, never a claim that an internal route gives an item to players.
-function p.coverage(data, resolveOutcome)
-	local out = {}
-	local _, grouped = globalFishing(data)
-	for _, row in ipairs(data.acquisitions or {}) do
-		out[row.acquisition_key] = grouped[row.acquisition_key] and "grouped_global_fishing"
-			or (public(row) and "rendered" or auditDisposition(row))
-	end
-	for _, row in ipairs(data.uses or {}) do
-		if row.outcome_key and resolveOutcome == nil then
-			error("ItemData coverage requires canonical outcome resolver", 2)
-		end
-		local outcome = row.outcome_key and resolveOutcome(row)
-		out[row.use_key] = outcome and not public(outcome) and auditDisposition(outcome)
-			or "rendered"
-	end
-	return out
-end
-
 function p.covered(data, item, kind, source)
-	for _, row in ipairs(data.acquisitions or {}) do
-		if
-			row.item_stable_key == item
-			and row.kind == kind
-			and row.source_stable_key == source
-			and public(row)
-		then
+	for _, row in ipairs(data.sources or {}) do
+		if row.item_stable_key == item and row.kind == kind and row.source_stable_key == source then
 			return true
 		end
 	end
@@ -658,11 +569,13 @@ end
 
 function p.render(data, resolveOutcome)
 	local rows = {}
-	local function put(row, isUse, outcome, outcomeReferences)
-		local key = isUse and row.use_key or row.acquisition_key
+	local function put(row, isUse, outcome, outcomeReferences, outcomeData)
+		local key = isUse and row.use_key or row.source_key
 		local target = isUse and row.target_stable_key or row.source_stable_key
 		local source = identity(target, data.references)
-		if row.kind == "special_world_drop" then
+		if row.kind == "fishing" and row.mechanic == "fishing_global_replacement" then
+			source = "Any water"
+		elseif row.kind == "special_world_drop" then
 			source = "Any enemy"
 		elseif row.kind == "common_world_item" then
 			source = "Any enemy with common drops"
@@ -682,13 +595,13 @@ function p.render(data, resolveOutcome)
 		local attributes = ' data-erenshor-provenance="'
 			.. escape(key)
 			.. '" data-erenshor-'
-			.. (isUse and "use-key" or "acquisition-key")
+			.. (isUse and "use-key" or "source-key")
 			.. '="'
 			.. escape(key)
 			.. '"'
 		attributes = attributes
 			.. " data-erenshor-"
-			.. (isUse and "target-key" or "source-key")
+			.. (isUse and "target-key" or "source-stable-key")
 			.. '="'
 			.. escape(target)
 			.. '"'
@@ -709,7 +622,7 @@ function p.render(data, resolveOutcome)
 					.. '"'
 			end
 		end
-		local details = facts(row, data.references)
+		local details = facts(row, data.references, data)
 		if row.kind == "special_world_drop" then
 			details = details .. "<br />At the default loot rate."
 		end
@@ -722,10 +635,10 @@ function p.render(data, resolveOutcome)
 			end
 			details = details
 				.. '<div class="item-data-outcome" data-erenshor-outcome-key="'
-				.. escape(outcome.acquisition_key)
+				.. escape(outcome.source_key)
 				.. '">'
 				.. produced
-				.. facts(outcome, outcomeReferences)
+				.. facts(outcome, outcomeReferences, outcomeData)
 				.. "</div>"
 		end
 		local label = (isUse and USE_LABELS[row.kind])
@@ -750,51 +663,18 @@ function p.render(data, resolveOutcome)
 			.. details
 			.. "</td></tr>"
 	end
-	local audit = {}
-	local bonus, grouped = globalFishing(data)
-	local groupKeys = {}
-	for key in pairs(grouped) do
-		groupKeys[#groupKeys + 1] = key
+	for _, row in ipairs(data.sources or {}) do
+		put(row, false)
 	end
-	table.sort(groupKeys)
-	if #groupKeys > 0 then
-		rows[#rows + 1] = '<tr data-erenshor-acquisition-members="'
-			.. escape(mw.text.jsonEncode(groupKeys))
-			.. '"><th scope="row">Fished in</th><td>Any water</td><td>Chance: '
-			.. number(bonus)
-			.. "% per successful catch</td></tr>"
-	end
-	local function auditOnly(key, isUse, reason)
-		audit[#audit + 1] = '<span hidden="hidden" style="display:none" data-erenshor-'
-			.. (isUse and "use-key" or "acquisition-key")
-			.. '="'
-			.. escape(key)
-			.. '" data-erenshor-disposition="'
-			.. escape(reason)
-			.. '"></span>'
-	end
-	for _, row in ipairs(data.acquisitions or {}) do
-		if grouped[row.acquisition_key] then
-			auditOnly(row.acquisition_key, false, "grouped_global_fishing")
-		elseif public(row) then
-			put(row, false)
-		else
-			auditOnly(row.acquisition_key, false, auditDisposition(row))
-		end
-	end
-	for _, row in ipairs(data.uses or {}) do
-		local outcome, outcomeReferences
+	for _, row in ipairs(data.usages or {}) do
+		local outcome, outcomeReferences, outcomeData
 		if row.outcome_key then
 			if resolveOutcome == nil then
 				error("ItemData use requires canonical outcome resolver", 2)
 			end
-			outcome, outcomeReferences = resolveOutcome(row)
+			outcome, outcomeReferences, outcomeData = resolveOutcome(row)
 		end
-		if outcome and not public(outcome) then
-			auditOnly(row.use_key, true, auditDisposition(outcome))
-		else
-			put(row, true, outcome, outcomeReferences)
-		end
+		put(row, true, outcome, outcomeReferences, outcomeData)
 	end
 	local rendered = ""
 	if #rows > 0 then
@@ -802,7 +682,7 @@ function p.render(data, resolveOutcome)
 			.. table.concat(rows, "\n")
 			.. "</table></div>"
 	end
-	return preserveIdentities(rendered .. table.concat(audit, ""))
+	return preserveIdentities(rendered)
 end
 
 p.identity = identity

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable
 from dataclasses import dataclass
 from types import SimpleNamespace
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any
 
 from erenshor.application.processor.npc_spawn import SpawnConstants
 from erenshor.domain.entities.character import Character
@@ -13,13 +13,69 @@ from erenshor.domain.entities.skill import Skill
 from erenshor.domain.entities.spell import Spell
 from erenshor.domain.entities.stance import Stance
 from erenshor.domain.entities.zone import Zone
-from erenshor.domain.value_objects.item_provenance import (
-    ItemAcquisition,
-    ItemDisposition,
-    ItemUse,
-    conditions_satisfiable,
+from erenshor.domain.value_objects.item_public_view import (
+    ItemStatus,
+    MechanismParameter,
+    PublicPlace,
+    PublicSource,
+    PublicUse,
 )
 from erenshor.domain.value_objects.wiki_link import AbilityLink
+
+
+def public_source(
+    source_key: str,
+    item_stable_key: str,
+    kind: str,
+    source_stable_key: str | None,
+    **fields: Any,
+) -> PublicSource:
+    return PublicSource(
+        **{
+            "source_key": source_key,
+            "item_stable_key": item_stable_key,
+            "kind": kind,
+            "source_stable_key": source_stable_key,
+            "source_group_key": None,
+            "source_copy_stable_key": None,
+            "variant_key": None,
+            "mechanic": None,
+            "probability_kind": "unknown",
+            "probability_min": None,
+            "probability_max": None,
+            "probability_basis": None,
+            "quantity_kind": "unknown",
+            "quantity_min": None,
+            "quantity_max": None,
+            "expected_quantity": None,
+            "guaranteed": False,
+            "place_set_key": None,
+        }
+        | fields
+    )
+
+
+def public_use(
+    use_key: str, item_stable_key: str, target_stable_key: str | None, kind: str, **fields: Any
+) -> PublicUse:
+    return PublicUse(
+        **{
+            "use_key": use_key,
+            "item_stable_key": item_stable_key,
+            "target_stable_key": target_stable_key,
+            "kind": kind,
+            "variant_key": None,
+            "material_slot": None,
+            "quantity_kind": "unknown",
+            "quantity_min": None,
+            "quantity_max": None,
+            "mechanic": None,
+            "outcome_key": None,
+            "place_set_key": None,
+        }
+        | fields
+    )
+
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.item_stats import ItemStats
@@ -42,74 +98,68 @@ class FakeProgressionRepository:
         return self.ways.get(key, ())
 
 
-class FakeItemProvenanceRepository:
+class FakeItemPublicViewRepository:
     def __init__(
         self,
         item_keys: list[str],
-        acquisitions: list[ItemAcquisition] | None = None,
-        uses: list[ItemUse] | None = None,
-        dispositions: list[ItemDisposition] | None = None,
+        *,
+        sources: list[PublicSource] | None = None,
+        uses: list[PublicUse] | None = None,
+        statuses: list[ItemStatus] | None = None,
         common_world_characters: frozenset[str] = frozenset(),
+        places: tuple[PublicPlace, ...] = (),
     ) -> None:
-        self._acquisitions = acquisitions or []
+        self._sources = sources or []
         self._uses = uses or []
         self._common_world_characters = common_world_characters
-        self._dispositions = {
+        self._places = places
+        self._statuses = {
             row.item_stable_key: row
             for row in (
-                dispositions
-                if dispositions is not None
-                else [ItemDisposition(key, "current", current_pages=(key.removeprefix("item:"),)) for key in item_keys]
+                statuses
+                if statuses is not None
+                else [ItemStatus(key, "current", None, current_pages=(key.removeprefix("item:"),)) for key in item_keys]
             )
         }
 
-    def get_acquisitions(self, item_key: str) -> list[ItemAcquisition]:
-        return [row for row in self._acquisitions if row.item_stable_key == item_key]
+    def sources(self) -> tuple[PublicSource, ...]:
+        return tuple(self._sources)
 
-    def get_character_drop_acquisitions(self, actual_copy_keys: Iterable[str]) -> list[ItemAcquisition]:
+    def source(self, key: str) -> PublicSource | None:
+        return next((row for row in self._sources if row.source_key == key), None)
+
+    def sources_for_item(self, item_key: str) -> tuple[PublicSource, ...]:
+        return tuple(row for row in self._sources if row.item_stable_key == item_key)
+
+    def sources_from_copies(self, actual_copy_keys: Iterable[str]) -> tuple[PublicSource, ...]:
         copies = set(actual_copy_keys)
-        return [
-            row for row in self._acquisitions if row.kind == "character_drop" and row.source_copy_stable_key in copies
-        ]
+        return tuple(row for row in self._sources if row.source_copy_stable_key in copies)
 
-    def get_uses(self, item_key: str) -> list[ItemUse]:
-        return [row for row in self._uses if row.item_stable_key == item_key]
+    def uses(self) -> tuple[PublicUse, ...]:
+        return tuple(self._uses)
 
-    def get_uses_targeting(self, target_key: str) -> list[ItemUse]:
-        return [row for row in self._uses if row.target_stable_key == target_key]
+    def uses_for_item(self, item_key: str) -> tuple[PublicUse, ...]:
+        return tuple(row for row in self._uses if row.item_stable_key == item_key)
 
-    def get_disposition(self, item_key: str) -> ItemDisposition | None:
-        return self._dispositions.get(item_key)
+    def uses_targeting(self, target_key: str) -> tuple[PublicUse, ...]:
+        return tuple(row for row in self._uses if row.target_stable_key == target_key)
 
-    def get_player_access(self, item_key: str) -> Literal["verified_player", "unconfirmed_player", "no_verified_path"]:
-        disposition = self.get_disposition(item_key)
-        if disposition is None or disposition.disposition != "current":
-            return "no_verified_path"
-        for access in ("verified_player", "unconfirmed_player"):
-            if any(
-                fact.player_access_state == access
-                and fact.probability_stage == "final_acquisition"
-                and not (fact.probability_max is not None and fact.probability_max <= 0)
-                and conditions_satisfiable(fact.conditions)
-                and (
-                    not fact.locations
-                    or any(conditions_satisfiable(fact.conditions + location.conditions) for location in fact.locations)
-                )
-                for fact in self.get_acquisitions(item_key)
-            ):
-                return access
-        return "no_verified_path"
+    def status(self, item_key: str) -> ItemStatus | None:
+        return self._statuses.get(item_key)
 
-    def iter_acquisitions(self) -> Iterator[ItemAcquisition]:
-        return iter(self._acquisitions)
+    def statuses(self) -> tuple[ItemStatus, ...]:
+        return tuple(sorted(self._statuses.values(), key=lambda row: row.item_stable_key))
 
-    def iter_uses(self) -> Iterator[ItemUse]:
-        return iter(self._uses)
+    def places(self, place_set_key: str | None) -> tuple[PublicPlace, ...]:
+        return tuple(row for row in self._places if row.place_set_key == place_set_key)
 
-    def iter_dispositions(self) -> Iterator[ItemDisposition]:
-        return iter(sorted(self._dispositions.values(), key=lambda row: row.item_stable_key))
+    def parameters(self, mechanic_key: str | None) -> tuple[MechanismParameter, ...]:
+        return ()
 
-    def get_common_world_character_keys(self) -> frozenset[str]:
+    def contributors(self, source_key: str) -> tuple[str, ...]:
+        return ()
+
+    def common_world_contributors(self) -> frozenset[str]:
         return self._common_world_characters
 
 

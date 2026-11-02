@@ -2,26 +2,20 @@
 
 from __future__ import annotations
 
-import json
 import sqlite3
 from collections.abc import Iterator
 from contextlib import closing
+from dataclasses import asdict
 from typing import TYPE_CHECKING, Any
 
 import pytest
 
 from erenshor.application.processor.writer import Writer
 from erenshor.domain.entities.item import Item
-from erenshor.domain.value_objects.item_provenance import (
-    PROVENANCE_SCHEMA_VERSION,
-    ItemAcquisition,
-    ItemUse,
-    ProvenanceCondition,
-    ProvenanceLocation,
-    fact_to_dict,
-)
+from erenshor.domain.value_objects.item_provenance import PROVENANCE_SCHEMA_VERSION
+from erenshor.domain.value_objects.item_public_view import PublicSource, PublicUse
 from erenshor.infrastructure.database.connection import DatabaseConnection, DatabaseConnectionError
-from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
+from erenshor.infrastructure.database.repositories.item_public_view import ItemPublicViewRepository
 from erenshor.infrastructure.database.repositories.items import ItemRepository
 from erenshor.infrastructure.database.repository import RepositoryError
 
@@ -56,26 +50,63 @@ def _insert(writer: Writer, table: str, values: dict[str, object]) -> None:
     )
 
 
-def _insert_fact(writer: Writer, fact: ItemAcquisition | ItemUse) -> None:
-    data: dict[str, Any] = fact_to_dict(fact)
+def _insert_fact(writer: Writer, fact: PublicSource | PublicUse) -> None:
+    data: dict[str, Any] = asdict(fact)
     conditions = data.pop("conditions")
-    locations = data.pop("locations")
-    family = "acquisition" if isinstance(fact, ItemAcquisition) else "use"
-    key = fact.acquisition_key if isinstance(fact, ItemAcquisition) else fact.use_key
-    _insert(writer, f"item_{family}s", data)
+    key = fact.source_key if isinstance(fact, PublicSource) else fact.use_key
+    _insert(writer, "item_sources" if isinstance(fact, PublicSource) else "item_usages", data)
     for condition in conditions:
-        _insert(writer, f"item_{family}_conditions", {"owner_key": key, **condition})
-    for location in locations:
-        _insert(
-            writer,
-            "item_source_locations",
+        _insert(writer, "item_conditions", {"owner_key": key, **condition})
+
+
+def _source(key: str, item: str, kind: str, source: str | None = None, **fields: Any) -> PublicSource:
+    return PublicSource(
+        **(
             {
-                "source_key": data["location_source_key"],
-                **location,
-                "conditions": json.dumps(location["conditions"]),
-                "entry_zone_line_keys": json.dumps(location["entry_zone_line_keys"]),
-            },
+                "source_key": key,
+                "item_stable_key": item,
+                "kind": kind,
+                "source_stable_key": source,
+                "source_group_key": None,
+                "source_copy_stable_key": None,
+                "variant_key": None,
+                "mechanic": None,
+                "probability_kind": "not_applicable",
+                "probability_min": None,
+                "probability_max": None,
+                "probability_basis": None,
+                "quantity_kind": "exact",
+                "quantity_min": 1,
+                "quantity_max": 1,
+                "expected_quantity": 1,
+                "guaranteed": False,
+                "place_set_key": None,
+            }
+            | fields
         )
+    )
+
+
+def _use(key: str, item: str, target: str, kind: str, **fields: Any) -> PublicUse:
+    return PublicUse(
+        **(
+            {
+                "use_key": key,
+                "item_stable_key": item,
+                "target_stable_key": target,
+                "kind": kind,
+                "variant_key": None,
+                "material_slot": None,
+                "quantity_kind": "exact",
+                "quantity_min": 1,
+                "quantity_max": 1,
+                "mechanic": None,
+                "outcome_key": None,
+                "place_set_key": None,
+            }
+            | fields
+        )
+    )
 
 
 def _item(writer: Writer, key: str, name: str | None = None, **metadata: object) -> None:
@@ -272,103 +303,24 @@ def test_source_projections_require_supported_canonical_schema(tmp_path: Path, v
 
 
 @pytest.mark.parametrize(
-    ("access", "stage", "disposition", "probability", "conditions", "locations", "expected"),
-    [
-        ("verified_player", "final_acquisition", "current", 25, (), (), True),
-        ("verified_player", "final_acquisition", None, 25, (), (), False),
-        ("verified_player", "final_acquisition", "removed", 25, (), (), False),
-        ("unconfirmed_player", "final_acquisition", "current", 25, (), (), False),
-        ("internal_only", "final_acquisition", "current", 25, (), (), False),
-        ("non_acquirable", "final_acquisition", "current", 25, (), (), False),
-        ("verified_player", "native_pool", "current", 25, (), (), False),
-        ("verified_player", "final_acquisition", "current", 0, (), (), False),
-        (
-            "verified_player",
-            "final_acquisition",
-            "current",
-            25,
-            (ProvenanceCondition("gate", 0, 0, "never"),),
-            (),
-            False,
-        ),
-        (
-            "verified_player",
-            "final_acquisition",
-            "current",
-            25,
-            (
-                ProvenanceCondition("gate", 0, 0, "never"),
-                ProvenanceCondition("gate", 1, 0, "quest_done", "quest:open"),
-            ),
-            (),
-            True,
-        ),
-        (
-            "verified_player",
-            "final_acquisition",
-            "current",
-            25,
-            (ProvenanceCondition("level", 0, 0, "actor_level", actor="player", minimum=20, maximum=10),),
-            (),
-            False,
-        ),
-        (
-            "verified_player",
-            "final_acquisition",
-            "current",
-            25,
-            (),
-            (ProvenanceLocation("closed", "fixed", conditions=(ProvenanceCondition("gate", 0, 0, "never"),)),),
-            False,
-        ),
-        (
-            "verified_player",
-            "final_acquisition",
-            "current",
-            25,
-            (),
-            (
-                ProvenanceLocation("closed", "fixed", conditions=(ProvenanceCondition("gate", 0, 0, "never"),)),
-                ProvenanceLocation("open", "fixed"),
-            ),
-            True,
-        ),
-    ],
+    ("has_source", "disposition", "expected"),
+    [(True, "current", True), (False, "current", False), (False, None, False), (False, "removed", False)],
 )
-def test_obtainability_and_teaching_share_canonical_player_access(
+def test_obtainability_and_teaching_share_public_status_and_sources(
     *,
     canonical_writer: Writer,
     tmp_path: Path,
-    access: Any,
-    stage: Any,
+    has_source: bool,
     disposition: str | None,
-    probability: float,
-    conditions: tuple[ProvenanceCondition, ...],
-    locations: tuple[ProvenanceLocation, ...],
     expected: bool,
 ) -> None:
     _item(canonical_writer, "item:scroll", teach_spell_stable_key="spell:learn", teach_skill_stable_key="skill:learn")
-    _insert_fact(
-        canonical_writer,
-        ItemAcquisition(
-            "origin",
-            "item:scroll",
-            "ui_grant",
-            "character:panel",
-            player_access_state=access,
-            probability_stage=stage,
-            probability_kind="exact",
-            probability_min=probability,
-            probability_max=probability,
-            conditions=conditions,
-            location_source_key="character:panel" if locations else None,
-            locations=locations,
-        ),
-    )
+    if has_source:
+        _insert_fact(canonical_writer, _source("origin", "item:scroll", "ui_grant", "character:panel"))
     if disposition is not None:
         _insert(
             canonical_writer,
-            "item_dispositions",
+            "item_statuses",
             {
                 "item_stable_key": "item:scroll",
                 "disposition": disposition,
@@ -411,7 +363,7 @@ def test_crafting_recipe_preserves_slots_and_displays_only_actionable_rewards(
     ):
         _insert_fact(
             canonical_writer,
-            ItemUse(
+            _use(
                 f"material:{slot}",
                 item_key,
                 "item:recipe",
@@ -422,10 +374,10 @@ def test_crafting_recipe_preserves_slots_and_displays_only_actionable_rewards(
                 quantity_kind="exact",
             ),
         )
-    for slot, quantity in ((10, 9), (2, 4), (1, 2)):
+    for slot, quantity in ((10, 9), (1, 2)):
         _insert_fact(
             canonical_writer,
-            ItemAcquisition(
+            _source(
                 f"outcome:{slot}",
                 "item:reward",
                 "crafting",
@@ -434,12 +386,11 @@ def test_crafting_recipe_preserves_slots_and_displays_only_actionable_rewards(
                 quantity_min=quantity,
                 quantity_max=quantity,
                 quantity_kind="exact",
-                player_access_state="non_acquirable" if slot == 2 else "verified_player",
             ),
         )
         _insert_fact(
             canonical_writer,
-            ItemUse(
+            _use(
                 f"recipe:{slot}",
                 "item:recipe",
                 "item:reward",
@@ -453,7 +404,7 @@ def test_crafting_recipe_preserves_slots_and_displays_only_actionable_rewards(
         )
     _insert_fact(
         canonical_writer,
-        ItemUse(
+        _use(
             "unrelated",
             "item:other",
             "item:recipe",
@@ -480,15 +431,11 @@ def test_crafting_recipe_preserves_slots_and_displays_only_actionable_rewards(
         ("item:reward", 9),
     ]
     assert repo.get_crafting_recipe("item:other") is None
-    provenance = ItemProvenanceRepository(DatabaseConnection(tmp_path / "canonical.sqlite", read_only=True))
-    assert {fact.variant_key for fact in provenance.get_uses("item:recipe")} == {"1", "2", "10"}
-    assert {
-        (fact.variant_key, fact.quantity_min, fact.player_access_state)
-        for fact in provenance.get_acquisitions("item:reward")
-    } == {
-        ("1", 2, "verified_player"),
-        ("2", 4, "non_acquirable"),
-        ("10", 9, "verified_player"),
+    public = ItemPublicViewRepository(DatabaseConnection(tmp_path / "canonical.sqlite", read_only=True))
+    assert {fact.variant_key for fact in public.uses_for_item("item:recipe")} == {"1", "10"}
+    assert {(fact.variant_key, fact.quantity_min) for fact in public.sources_for_item("item:reward")} == {
+        ("1", 2),
+        ("10", 9),
     }
 
 
@@ -500,7 +447,7 @@ def test_crafting_recipe_rejects_an_unlinked_canonical_outcome(
     _item(canonical_writer, "item:reward")
     _insert_fact(
         canonical_writer,
-        ItemUse(
+        _use(
             "recipe:1",
             "item:recipe",
             "item:reward",
@@ -537,7 +484,7 @@ def test_crafting_recipe_does_not_invent_quantities(
     if kind == "material":
         _insert_fact(
             canonical_writer,
-            ItemUse(
+            _use(
                 "material:1",
                 "item:component",
                 "item:recipe",
@@ -551,7 +498,7 @@ def test_crafting_recipe_does_not_invent_quantities(
     else:
         _insert_fact(
             canonical_writer,
-            ItemAcquisition(
+            _source(
                 "outcome:1",
                 "item:component",
                 "crafting",
@@ -564,7 +511,7 @@ def test_crafting_recipe_does_not_invent_quantities(
         )
         _insert_fact(
             canonical_writer,
-            ItemUse(
+            _use(
                 "recipe:1",
                 "item:recipe",
                 "item:component",

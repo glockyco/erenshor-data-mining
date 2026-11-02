@@ -16,6 +16,7 @@ Template structure:
 from __future__ import annotations
 
 import json
+from dataclasses import asdict
 from typing import TYPE_CHECKING
 
 from loguru import logger
@@ -25,13 +26,7 @@ from erenshor.application.wiki.generators.item_type_display import build_item_ty
 from erenshor.application.wiki.generators.link_lists import fold_long_list
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
 from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
-from erenshor.domain.value_objects.item_provenance import (
-    PROVENANCE_SCHEMA_VERSION,
-    ItemAcquisition,
-    ProvenanceCondition,
-    fact_to_dict,
-    is_actionable_acquisition,
-)
+from erenshor.domain.value_objects.item_provenance import PROVENANCE_SCHEMA_VERSION
 from erenshor.domain.value_objects.wiki_filename import picture_file_title
 from erenshor.domain.value_objects.wiki_link import AbilityLink
 from erenshor.shared.game_constants import LONG_NAME_FONT_SIZE, LONG_NAME_THRESHOLD, WIKITEXT_LINE_SEPARATOR
@@ -41,12 +36,26 @@ if TYPE_CHECKING:
     from erenshor.domain.entities.item import Item
     from erenshor.domain.entities.item_stats import ItemStats
     from erenshor.domain.entities.spell import Spell
+    from erenshor.domain.value_objects.item_public_view import PublicCondition, PublicSource, PublicUse
     from erenshor.domain.value_objects.source_info import SourceInfo
 
 # Parameter names understood by the legacy Item/* class-restriction rows.  The
 # game renamed Duelist to Windblade; the live templates still spell the
 # parameter "duelist".
 _LEGACY_CLASS_PARAMS = ("arcanist", "duelist", "druid", "paladin", "reaver", "stormcaller")
+_QUALITY_RUNTIME_IDS = (
+    ("Standard", 1),
+    *((f"Improved +{level}", 10 + level) for level in range(1, 6)),
+    ("Blessed", 2),
+    ("Ascended", 3),
+)
+_QUALITY_NAMES = {
+    "normal": "Standard",
+    "divine": "Ascended",
+    "matching": "Matching qualities",
+    **{name.lower(): name for name, _runtime_id in _QUALITY_RUNTIME_IDS},
+    **{str(runtime_id): name for name, runtime_id in _QUALITY_RUNTIME_IDS},
+}
 
 
 def item_image_file(item: Item) -> str:
@@ -375,7 +384,14 @@ class ItemSectionGenerator(SectionGeneratorBase):
             ingredient_links = [f"{quantity}x {link!s}" for link, quantity in enriched.sources.recipe_ingredients]
             ingredients = "<br>".join(ingredient_links)
 
-            rewards = "<br>".join(f"{quantity}x {link}" for link, quantity in enriched.sources.crafting_results)
+            reward_uses = sorted(
+                (use for use in enriched.sources.uses if use.kind == "crafting_recipe"),
+                key=lambda use: (int(use.variant_key or ""), use.use_key),
+            )
+            rewards = "<br>".join(
+                self._qualified_entry(f"{quantity}x {link}", use, enriched.sources)
+                for (link, quantity), use in zip(enriched.sources.crafting_results, reward_uses, strict=True)
+            )
 
         mold_context = {
             "icon": item_image_file(item),
@@ -651,19 +667,41 @@ class ItemSectionGenerator(SectionGeneratorBase):
         }
 
     @staticmethod
-    def _acquisitions(enriched: EnrichedItemData) -> tuple[ItemAcquisition, ...]:
-        if enriched.sources is None:
-            return ()
-        if enriched.sources.disposition is not None and enriched.sources.disposition.disposition != "current":
-            return ()
-        return tuple(fact for fact in enriched.sources.acquisitions if is_actionable_acquisition(fact))
+    def _acquisitions(enriched: EnrichedItemData) -> tuple[PublicSource, ...]:
+        return enriched.sources.acquisitions if enriched.sources is not None else ()
 
     @staticmethod
     def _link(sources: SourceInfo, key: str | None, fallback: str) -> str:
         link = sources.links.get(key or "")
         return str(link) if link is not None else fallback
 
-    def _condition(self, atom: ProvenanceCondition, sources: SourceInfo) -> str:
+    @staticmethod
+    def _quality_range(atom: PublicCondition) -> str:
+        names = [
+            name
+            for name, runtime_id in _QUALITY_RUNTIME_IDS
+            if (
+                atom.minimum is None
+                or runtime_id > atom.minimum
+                or (runtime_id == atom.minimum and atom.minimum_inclusive)
+            )
+            and (
+                atom.maximum is None
+                or runtime_id < atom.maximum
+                or (runtime_id == atom.maximum and atom.maximum_inclusive)
+            )
+        ]
+        if not names:
+            raise ValueError("Unsupported canonical item quality bounds")
+        if len(names) == len(_QUALITY_RUNTIME_IDS):
+            return "Any quality"
+        if len(names) == 1:
+            return names[0]
+        if all(name.startswith("Improved +") for name in names):
+            return "Improved" if len(names) == 5 else f"{names[0]} to {names[-1]}"
+        return " or ".join(names)
+
+    def _condition(self, atom: PublicCondition, sources: SourceInfo) -> str:
         if atom.predicate == "account_state":
             labels: dict[tuple[str | None, str | None], str] = {
                 ("account_state:reliquary_claimed", "false"): "before claiming your Reliquary",
@@ -672,7 +710,24 @@ class ItemSectionGenerator(SectionGeneratorBase):
             label = labels.get((atom.reference_stable_key, atom.value))
             if label is None:
                 raise ValueError("Unsupported canonical account-state display label")
-            return "" if atom.phase == "operation_outcome" else label
+            return label
+        if atom.predicate == "route" and atom.value == "normal_pointer_inventory_transfer":
+            return "Drag into your inventory"
+        if atom.predicate == "quality":
+            label = {
+                "result_quality": "Result quality",
+                "enhanced_quality": "Improved result quality",
+            }.get(atom.gate_key, "Quality")
+            if atom.actor:
+                label += f" for {atom.actor.replace('_', ' ')}"
+            if atom.value is not None:
+                quality = _QUALITY_NAMES.get(atom.value.lower())
+                if quality is None:
+                    raise ValueError(f"Unsupported canonical item quality: {atom.value}")
+                label += f": {quality}"
+            if atom.minimum is not None or atom.maximum is not None:
+                label += f" {self._quality_range(atom)}"
+            return label
         reference = self._link(sources, atom.reference_stable_key, "the required condition")
         predicates = {
             "quest_done": f"after {reference}",
@@ -684,7 +739,6 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "encounter_won": f"after defeating {reference}",
             "zone_use": f"in {reference}",
             "time_of_day": atom.value or "",
-            "quality": f"{atom.value or ''} quality",
             "never": "not available",
         }
         if atom.predicate in predicates:
@@ -697,16 +751,13 @@ class ItemSectionGenerator(SectionGeneratorBase):
             if atom.maximum is not None:
                 bounds.append(f"{'at most' if atom.maximum_inclusive else 'below'} {atom.maximum:g}")
             return f"{actor} level " + " and ".join(bounds)
-        if atom.predicate == "formula_operand":
-            return ""
         raise ValueError(f"Unsupported canonical item condition: {atom.predicate}")
 
-    def _conditions(self, atoms: tuple[ProvenanceCondition, ...], sources: SourceInfo) -> str:
-        gates: dict[tuple[str, str], dict[int, list[str]]] = {}
+    def _conditions(self, atoms: tuple[PublicCondition, ...], sources: SourceInfo) -> str:
+        gates: dict[int, dict[int, list[str]]] = {}
         for atom in atoms:
             text = self._condition(atom, sources)
-            if text:
-                gates.setdefault((atom.scope, atom.gate_key), {}).setdefault(atom.group_index, []).append(text)
+            gates.setdefault(atom.gate_index, {}).setdefault(atom.alternative_index, []).append(text)
         parts = []
         for groups in gates.values():
             alternatives = [" and ".join(texts) for _index, texts in sorted(groups.items())]
@@ -714,7 +765,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         return " and ".join(parts)
 
     @staticmethod
-    def _chance(fact: ItemAcquisition) -> str:
+    def _chance(fact: PublicSource) -> str:
         if fact.probability_min is None or fact.probability_kind not in ("exact", "bounded"):
             return ""
         chance = f"{fact.probability_min:.3g}%"
@@ -728,7 +779,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         }.get(fact.probability_basis or "", "")
         return f"{chance} {basis}".strip()
 
-    def _source_entry(self, fact: ItemAcquisition, sources: SourceInfo) -> str:
+    def _source_entry(self, fact: PublicSource, sources: SourceInfo) -> str:
         fallback = {
             "character_drop": "Enemy drop",
             "common_world_item": "Any enemy with common drops",
@@ -741,11 +792,9 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "item_conversion": "Item conversion",
             "mining": "Mining",
             "fishing": "Fishing",
-            "fishing_bonus": "Any water",
             "item_bag": "Ground pickup",
             "starting_class": "Starting inventory",
             "ui_grant": "Interface grant",
-            "internal_equipment": "Simulated-player equipment",
         }.get(fact.kind)
         if fallback is None:
             raise ValueError(f"Unsupported canonical item source: {fact.kind}")
@@ -754,6 +803,8 @@ class ItemSectionGenerator(SectionGeneratorBase):
                 "cosmetic_panel": "Cosmetic panel",
                 "planning_table": "Planning table",
             }.get(fact.mechanic or "", fallback)
+        if fact.mechanic == "fishing_global_replacement":
+            fallback = "Any water"
         entry = self._link(sources, fact.source_stable_key, fallback)
         details = []
         if chance := self._chance(fact):
@@ -764,10 +815,16 @@ class ItemSectionGenerator(SectionGeneratorBase):
                 quantity += f" to {fact.quantity_max:g}"
             if quantity != "1":
                 details.append(f"{quantity} items")
+        details.extend(self._condition_details(fact, sources))
+        return f"{entry} ({', '.join(details)})" if details else entry
+
+    def _condition_details(self, fact: PublicSource | PublicUse, sources: SourceInfo) -> list[str]:
+        details = []
         if conditions := self._conditions(fact.conditions, sources):
             details.append(conditions)
         locations = []
-        for location in fact.locations:
+        places = sources.places.get(fact.place_set_key or "", ())
+        for location in places:
             place = self._link(sources, location.zone_stable_key, location.scene or "")
             if condition := self._conditions(location.conditions, sources):
                 place = f"{place} ({condition})" if place else condition
@@ -775,8 +832,12 @@ class ItemSectionGenerator(SectionGeneratorBase):
                 locations.append(place)
         if locations:
             details.append("in " + " or ".join(locations))
-        elif fact.locations and all(location.relation == "unlocated" for location in fact.locations):
+        elif places and all(location.relation == "unlocated" for location in places):
             details.append("location unknown")
+        return details
+
+    def _qualified_entry(self, entry: str, fact: PublicSource | PublicUse, sources: SourceInfo) -> str:
+        details = self._condition_details(fact, sources)
         return f"{entry} ({', '.join(details)})" if details else entry
 
     def _format_sources(self, enriched: EnrichedItemData, kinds: tuple[str, ...]) -> str:
@@ -784,7 +845,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             return ""
         return WIKITEXT_LINE_SEPARATOR.join(
             self._source_entry(fact, enriched.sources)
-            for fact in sorted(self._acquisitions(enriched), key=lambda fact: fact.acquisition_key)
+            for fact in sorted(self._acquisitions(enriched), key=lambda fact: fact.source_key)
             if fact.kind in kinds
         )
 
@@ -793,12 +854,11 @@ class ItemSectionGenerator(SectionGeneratorBase):
         if enriched.sources is None:
             return ""
         return "<br>".join(
-            self._link(enriched.sources, use.target_stable_key, "Item")
+            self._qualified_entry(self._link(enriched.sources, use.target_stable_key, "Item"), use, enriched.sources)
             for use in enriched.sources.uses
             if use.kind == "item_drop"
             and (outcome := enriched.sources.outcomes.get(use.outcome_key or "")) is not None
-            and outcome.probability_kind == "exact"
-            and outcome.probability_min == 100
+            and outcome.guaranteed
         )
 
     def _format_drop_rates(self, enriched: EnrichedItemData) -> str:
@@ -813,7 +873,8 @@ class ItemSectionGenerator(SectionGeneratorBase):
                 raise ValueError(f"Canonical item-drop use has no outcome: {use.use_key}")
             entry = self._link(enriched.sources, use.target_stable_key, "Item")
             chance = self._chance(outcome)
-            entries.append(f"{entry} ({chance})" if chance else entry)
+            details = ([chance] if chance else []) + self._condition_details(use, enriched.sources)
+            entries.append(f"{entry} ({', '.join(details)})" if details else entry)
         return "<br>".join(entries)
 
     def _format_vendor_sources(self, enriched: EnrichedItemData) -> str:
@@ -831,68 +892,8 @@ class ItemSectionGenerator(SectionGeneratorBase):
     def _format_mining(self, enriched: EnrichedItemData) -> str:
         return self._format_sources(enriched, ("mining",))
 
-    @staticmethod
-    def _fishing_summary_groups(
-        sources: SourceInfo,
-    ) -> dict[tuple[str, float], tuple[list[ItemAcquisition], list[ItemAcquisition]]]:
-        """Group final replacement-only catches while keeping their native evidence distinct."""
-        if sources.disposition is not None and sources.disposition.disposition != "current":
-            return {}
-        bonuses: dict[tuple[str, float], list[ItemAcquisition]] = {}
-        for fact in sources.acquisitions:
-            if (
-                fact.kind == "fishing_bonus"
-                and fact.probability_stage == "native_pool"
-                and fact.player_access_state == "verified_player"
-                and fact.probability_kind == "exact"
-                and fact.probability_min is not None
-                and fact.probability_min > 0
-                and fact.probability_max in (None, fact.probability_min)
-                and not fact.conditions
-            ):
-                bonuses.setdefault((fact.item_stable_key, fact.probability_min), []).append(fact)
-        groups: dict[tuple[str, float], tuple[list[ItemAcquisition], list[ItemAcquisition]]] = {}
-        for fact in sorted(sources.acquisitions, key=lambda candidate: candidate.acquisition_key):
-            if (
-                fact.kind != "fishing"
-                or fact.probability_stage != "final_acquisition"
-                or fact.player_access_state != "verified_player"
-                or fact.probability_kind != "exact"
-                or fact.probability_min is None
-                or fact.probability_max not in (None, fact.probability_min)
-                or any(atom.predicate != "time_of_day" for atom in fact.conditions)
-                or any(location.conditions for location in fact.locations)
-            ):
-                continue
-            key = (fact.item_stable_key, fact.probability_min)
-            if key in bonuses:
-                groups.setdefault(key, ([], bonuses[key]))[0].append(fact)
-        return groups
-
-    @classmethod
-    def _fishing_group_manifest(cls, sources: SourceInfo) -> list[dict[str, object]]:
-        return [
-            {
-                "item_stable_key": item_key,
-                "chance": chance,
-                "member_acquisition_keys": [fact.acquisition_key for fact in members],
-                "native_pool_acquisition_keys": sorted(fact.acquisition_key for fact in native),
-            }
-            for (item_key, chance), (members, native) in sorted(cls._fishing_summary_groups(sources).items())
-        ]
-
     def _format_fishing(self, enriched: EnrichedItemData) -> str:
-        if enriched.sources is None:
-            return ""
-        groups = self._fishing_summary_groups(enriched.sources)
-        grouped_ids = {fact.acquisition_key for members, _native in groups.values() for fact in members}
-        entries = [
-            self._source_entry(fact, enriched.sources)
-            for fact in sorted(self._acquisitions(enriched), key=lambda candidate: candidate.acquisition_key)
-            if fact.kind in ("fishing", "fishing_bonus") and fact.acquisition_key not in grouped_ids
-        ]
-        entries.extend(f"Any water ({chance:.3g}% per catch)" for _item_key, chance in sorted(groups))
-        return WIKITEXT_LINE_SEPARATOR.join(entries)
+        return self._format_sources(enriched, ("fishing",))
 
     def _format_item_bags(self, enriched: EnrichedItemData) -> str:
         return self._format_sources(enriched, ("item_bag",))
@@ -904,7 +905,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         if enriched.sources is None:
             return ("", "")
         requirements = [
-            self._link(enriched.sources, use.target_stable_key, "Quest")
+            self._qualified_entry(self._link(enriched.sources, use.target_stable_key, "Quest"), use, enriched.sources)
             for use in enriched.sources.uses
             if use.kind == "quest_requirement"
         ]
@@ -913,16 +914,23 @@ class ItemSectionGenerator(SectionGeneratorBase):
     def _format_crafting_sources(self, enriched: EnrichedItemData) -> tuple[str, str]:
         if enriched.sources is None:
             return ("", "")
-        active_recipes = {fact.source_stable_key for fact in self._acquisitions(enriched) if fact.kind == "crafting"}
-        recipes = [
-            " + ".join([str(mold), *(f"{quantity}x {link}" for link, quantity in recipe.materials)])
+        recipe_entries = {
+            mold.stable_key: " + ".join([str(mold), *(f"{quantity}x {link}" for link, quantity in recipe.materials)])
             for mold, recipe in enriched.sources.recipes
-            if mold.stable_key in active_recipes
-        ]
+        }
+        recipes = []
         for fact in self._acquisitions(enriched):
-            if fact.kind == "crafting" and fact.mechanic == "remove_blessing":
+            if fact.kind != "crafting":
+                continue
+            if fact.mechanic == "remove_blessing":
                 source = self._link(enriched.sources, fact.source_stable_key, "")
-                recipes.append(f"From removing a blessing with {source}" if source else "From removing a blessing")
+                entry = f"From removing a blessing with {source}" if source else "From removing a blessing"
+            else:
+                recipe_entry = recipe_entries.get(fact.source_stable_key)
+                if recipe_entry is None:
+                    raise ValueError(f"Canonical crafting source has no recipe presentation: {fact.source_key}")
+                entry = recipe_entry
+            recipes.append(self._qualified_entry(entry, fact, enriched.sources))
         components = []
         prefixes = {
             "crafting_material": "",
@@ -934,11 +942,11 @@ class ItemSectionGenerator(SectionGeneratorBase):
         for use in enriched.sources.uses:
             if use.kind in prefixes:
                 link = self._link(enriched.sources, use.target_stable_key, "item")
-                components.append(prefixes[use.kind] + link)
+                components.append(self._qualified_entry(prefixes[use.kind] + link, use, enriched.sources))
         return ("<br>".join(recipes), "<br>".join(components))
 
     def provenance_manifest(self, sources: SourceInfo) -> dict[str, object]:
-        """Retain full source identities and typed dimensions outside published articles."""
+        """Retain public source identities, conditions and places outside published articles."""
         acquisition_fields = {
             "character_drop": "source",
             "common_world_item": "source",
@@ -951,13 +959,11 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "spell_created": "itemusesource",
             "mining": "miningsource",
             "fishing": "fishingsource",
-            "fishing_bonus": "fishingsource",
             "auction_house": "auctionhousesource",
             "item_bag": "itembagsource",
             "starting_class": "startingsource",
             "ui_grant": "itemusesource",
             "item_conversion": "itemusesource",
-            "internal_equipment": None,
         }
         use_fields = {
             "crafting_material": "componentfor",
@@ -974,41 +980,24 @@ class ItemSectionGenerator(SectionGeneratorBase):
         for fact in sources.acquisitions:
             if fact.kind not in acquisition_fields:
                 raise ValueError(f"Unsupported canonical item source: {fact.kind}")
-            reason = None
             field = acquisition_fields[fact.kind]
-            if sources.disposition is not None and sources.disposition.disposition != "current":
-                reason = "Reviewed non-current lifecycle content does not advertise acquisition sources."
-            elif fact.player_access_state != "verified_player":
-                reason = "Only verified player sources are advertised."
-            elif fact.probability_stage != "final_acquisition":
-                reason = "Native-pool evidence is not an additional final acquisition."
-            elif (fact.probability_max is not None and fact.probability_max <= 0) or any(
-                atom.predicate == "never" for atom in fact.conditions
-            ):
-                reason = "Unsatisfiable acquisitions are evidence, not player sources."
-            elif field is None:
-                reason = "Internal equipment is audit-only."
-            presentation[fact.acquisition_key] = {"field": field if reason is None else None, "reason": reason}
+            presentation[fact.source_key] = {"field": field, "reason": None}
         for use in sources.uses:
             if use.kind not in use_fields:
                 raise ValueError(f"Unsupported canonical item use: {use.kind}")
-            field = use_fields[use.kind]
+            use_field = use_fields[use.kind]
             presentation[use.use_key] = {
-                "field": field,
-                "reason": None if field else "The legacy item template has no zone-restriction parameter.",
+                "field": use_field,
+                "reason": None if use_field else "The legacy item template has no zone-restriction parameter.",
             }
         manifest: dict[str, object] = {
             "schema_version": PROVENANCE_SCHEMA_VERSION,
-            "disposition": fact_to_dict(sources.disposition) if sources.disposition is not None else None,
-            "acquisitions": [fact_to_dict(fact) for fact in sources.acquisitions],
-            "outcomes": [fact_to_dict(fact) for _key, fact in sorted(sources.outcomes.items())],
-            "uses": [fact_to_dict(fact) for fact in sources.uses],
+            "disposition": asdict(sources.disposition) if sources.disposition is not None else None,
+            "acquisitions": [asdict(fact) for fact in sources.acquisitions],
+            "outcomes": [asdict(fact) for _key, fact in sorted(sources.outcomes.items())],
+            "uses": [asdict(fact) for fact in sources.uses],
+            "places": {key: [asdict(place) for place in places] for key, places in sorted(sources.places.items())},
             "presentation": presentation,
-            "fishing_groups": self._fishing_group_manifest(sources),
-            "concise_dimensions": (
-                "Legacy parameters show concise source and recipe descriptions. Copy, variant, evidence, "
-                "probability-stage, quantity-distribution and location identities remain in this offline manifest."
-            ),
         }
         self.validate_provenance_manifest(sources, manifest)
         return manifest
@@ -1017,11 +1006,11 @@ class ItemSectionGenerator(SectionGeneratorBase):
     def validate_provenance_manifest(cls, sources: SourceInfo, manifest: dict[str, object]) -> None:
         """Fail offline coverage when any canonical fact or dimension is lost."""
         expected = {
-            "disposition": fact_to_dict(sources.disposition) if sources.disposition is not None else None,
-            "acquisitions": [fact_to_dict(fact) for fact in sources.acquisitions],
-            "uses": [fact_to_dict(fact) for fact in sources.uses],
-            "outcomes": [fact_to_dict(fact) for _key, fact in sorted(sources.outcomes.items())],
-            "fishing_groups": cls._fishing_group_manifest(sources),
+            "disposition": asdict(sources.disposition) if sources.disposition is not None else None,
+            "acquisitions": [asdict(fact) for fact in sources.acquisitions],
+            "uses": [asdict(fact) for fact in sources.uses],
+            "outcomes": [asdict(fact) for _key, fact in sorted(sources.outcomes.items())],
+            "places": {key: [asdict(place) for place in places] for key, places in sorted(sources.places.items())},
         }
         for family, facts in expected.items():
             if json.dumps(manifest.get(family), sort_keys=True) != json.dumps(facts, sort_keys=True):

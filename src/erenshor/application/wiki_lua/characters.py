@@ -22,14 +22,13 @@ from erenshor.application.processor.npc_spawn import (
     starts_before,
     training_dummy_level,
 )
-from erenshor.application.wiki_lua.lua_writer import module_text, shared_module_text
-from erenshor.domain.value_objects.item_provenance import is_actionable_acquisition
+from erenshor.application.wiki_lua.lua_writer import module_text
 from erenshor.domain.value_objects.npc_level import npc_level_bounds
 from erenshor.domain.value_objects.wiki_filename import picture_file_title
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.character import Character
-    from erenshor.domain.value_objects.item_provenance import ItemAcquisition
+    from erenshor.domain.value_objects.item_public_view import PublicPlace, PublicSource
 
 
 class CharacterDataRepository(Protocol):
@@ -193,12 +192,13 @@ def build_character_records(
     repository: CharacterDataRepository,
     *,
     locations_by_character: Mapping[str, Sequence[Mapping[str, object]]],
-    acquisitions_by_character: Mapping[str, Sequence[ItemAcquisition]],
+    acquisitions_by_character: Mapping[str, Sequence[PublicSource]],
     catalog: Mapping[str, Mapping[str, object]],
     class_labels: Mapping[str, Mapping[str, object]],
     constants: SpawnConstants,
     mitigations: Mapping[str, float],
     build: Mapping[str, object],
+    places_by_set: Mapping[str, Sequence[PublicPlace]] | None = None,
     guardian_keys: frozenset[str] = frozenset(),
     summoned_by_character: Mapping[str, Sequence[Mapping[str, object]]] | None = None,
     common_world_characters: frozenset[str] = frozenset(),
@@ -275,9 +275,9 @@ def build_character_records(
                 )
             if acquisition.source_copy_stable_key not in member_keys:
                 raise ValueError(f"{key}: canonical loot has no supporting fact-source copy")
-            if acquisition.acquisition_key in relation_keys:
-                raise ValueError(f"{key}: duplicate canonical loot relation {acquisition.acquisition_key}")
-            relation_keys.add(acquisition.acquisition_key)
+            if acquisition.source_key in relation_keys:
+                raise ValueError(f"{key}: duplicate canonical loot relation {acquisition.source_key}")
+            relation_keys.add(acquisition.source_key)
             item = _reference(acquisition.item_stable_key, catalog)
             disposition = item.get("disposition")
             if (
@@ -287,13 +287,7 @@ def build_character_records(
                 raise ValueError(f"{key}: missing or mismatched canonical item disposition")
             if disposition.get("disposition") not in ("current", "removed", "unobtainable", "unused"):
                 raise ValueError(f"{key}: unsupported canonical item disposition")
-            loot.append(
-                asdict(acquisition)
-                | {
-                    "item": item,
-                    "actionable": disposition["disposition"] == "current" and is_actionable_acquisition(acquisition),
-                }
-            )
+            loot.append(asdict(acquisition) | {"item": item})
         records[key] = {
             "stableKey": key,
             "name": representative.display_name,
@@ -314,7 +308,12 @@ def build_character_records(
                 for identity in sorted(abilities_by_usage, key=lambda value: (value[0], value[1], str(value[2])))
             ],
             "locations": locations,
-            "loot": sorted(loot, key=lambda relation: str(relation["acquisition_key"])),
+            "loot": sorted(loot, key=lambda relation: str(relation["source_key"])),
+            "places": {
+                source.place_set_key: [asdict(place) for place in (places_by_set or {}).get(source.place_set_key, ())]
+                for source in acquisitions_by_character.get(key, ())
+                if source.place_set_key is not None
+            },
             "summonedBy": list((summoned_by_character or {}).get(key, ())),
             "commonWorldDrops": key in common_world_characters,
             "build": dict(build),
@@ -342,8 +341,12 @@ def character_module_texts(records: Mapping[str, Mapping[str, object]], max_page
     pending = sorted(grouped.items())
     while pending:
         bucket, rows = pending.pop()
-        # Every loot fact of a character copy shares the copy's locations, which the module writes once.
-        text = shared_module_text(dict(rows), table="locations", field="locations", key_field="location_source_key")
+        places: dict[str, object] = {}
+        owners = {}
+        for key, row in rows.items():
+            places.update(cast("Mapping[str, object]", row.get("places", {})))
+            owners[key] = {field: value for field, value in row.items() if field != "places"}
+        text = module_text({"byKey": owners, "places": places})
         if len(text.encode()) > max_page_bytes:
             if len(rows) == 1 or len(bucket) == 64:
                 raise ValueError(f"Character record cannot fit page byte limit: {next(iter(rows))}")
@@ -352,7 +355,7 @@ def character_module_texts(records: Mapping[str, Mapping[str, object]], max_page
                 children[hashlib.sha256(key.encode()).hexdigest()[: len(bucket) + 1]][key] = record
             pending.extend(sorted(children.items()))
             continue
-        modules["Characters/" + bucket] = text
+        modules["CharactersV2/" + bucket] = text
         for key, record in rows.items():
             for supported in (key, *cast("Sequence[object]", record.get("memberKeys", ()))):
                 if not isinstance(supported, str) or not supported.startswith("character:"):
@@ -361,7 +364,7 @@ def character_module_texts(records: Mapping[str, Mapping[str, object]], max_page
                 if supported in by_key and by_key[supported] != target:
                     raise ValueError(f"Character member belongs to multiple representatives: {supported}")
                 by_key[supported] = target
-    modules["Characters"] = module_text({"schemaVersion": 1, "byKey": by_key})
+    modules["CharactersV2"] = module_text({"schemaVersion": 2, "byKey": by_key})
     for title, text in modules.items():
         if len(text.encode()) > max_page_bytes:
             raise ValueError(f"Module:Erenshor/Data/{title} exceeds {max_page_bytes} bytes")

@@ -4,18 +4,18 @@ from loguru import logger
 
 from erenshor.domain.entities.quest import Quest
 from erenshor.domain.value_objects.faction import FactionModifier
-from erenshor.domain.value_objects.item_provenance import ItemAcquisition
+from erenshor.domain.value_objects.item_public_view import PublicSource
 from erenshor.infrastructure.database.connection import DatabaseConnection
-from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
+from erenshor.infrastructure.database.repositories.item_public_view import ItemPublicViewRepository
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
 
 class QuestRepository(BaseRepository[Quest]):
     """Read quest entities and panels with canonical item acquisition and use facts."""
 
-    def __init__(self, db: DatabaseConnection, *, provenance_repo: ItemProvenanceRepository | None = None) -> None:
+    def __init__(self, db: DatabaseConnection, *, public_view: ItemPublicViewRepository | None = None) -> None:
         super().__init__(db)
-        self._provenance_repository = provenance_repo
+        self._public_view = public_view
 
     def get_quests_for_wiki_generation(self) -> list[Quest]:
         """Get all quests for local Lua data module generation."""
@@ -95,12 +95,12 @@ class QuestRepository(BaseRepository[Quest]):
                 for row in routes
                 if row["phase"] == "start" and row["method"] == "partial_turnin"
             }
-            if self._provenance_repository is None:
-                self._provenance_repository = ItemProvenanceRepository(self.db)
-            provenance = self._provenance_repository
-            acquisitions = [fact for fact in provenance.iter_acquisitions() if fact.kind in {"quest_reward", "dialog"}]
-            uses = [fact for fact in provenance.iter_uses() if fact.kind == "quest_requirement"]
-            rewards: dict[tuple[str, str], list[ItemAcquisition]] = {}
+            if self._public_view is None:
+                self._public_view = ItemPublicViewRepository(self.db)
+            public_view = self._public_view
+            acquisitions = [fact for fact in public_view.sources() if fact.kind in {"quest_reward", "dialog"}]
+            uses = [fact for fact in public_view.uses() if fact.kind == "quest_requirement"]
+            rewards: dict[tuple[str, str], list[PublicSource]] = {}
             for fact in acquisitions:
                 if (
                     fact.kind == "quest_reward"
@@ -202,22 +202,25 @@ class QuestRepository(BaseRepository[Quest]):
             raise RepositoryError(f"Failed to retrieve quest panels: {e}") from e
 
     @staticmethod
-    def _reward_quantity(fact: ItemAcquisition) -> int:
+    def _reward_quantity(fact: PublicSource) -> int:
         if fact.quantity_min is None or fact.quantity_min != fact.quantity_max:
-            raise RepositoryError(f"Quest item grant {fact.acquisition_key} has no exact quantity")
+            raise RepositoryError(f"Quest item grant {fact.source_key} has no exact quantity")
         return int(fact.quantity_min)
 
-    @staticmethod
     def _append_item_route(
+        self,
         panels: dict[str, list[dict[str, object]]],
         quest_key: str,
         route: dict[str, object],
-        fact: ItemAcquisition,
+        fact: PublicSource,
     ) -> None:
-        """Furniture is a property of the canonical grant's alternative placements."""
+        """Furniture is a property of the public grant's alternative placements."""
+        assert self._public_view is not None
+        condition_sets = [
+            (*fact.conditions, *place.conditions) for place in self._public_view.places(fact.place_set_key)
+        ] or [fact.conditions]
         alternatives = [
-            [atom for atom in (*fact.conditions, *location.conditions) if atom.predicate == "room_furnished"]
-            for location in fact.locations
+            [atom for atom in conditions if atom.predicate == "room_furnished"] for conditions in condition_sets
         ]
         if not alternatives or any(not atoms for atoms in alternatives):
             panels[quest_key].append(route)
@@ -236,7 +239,7 @@ class QuestRepository(BaseRepository[Quest]):
         self,
         panels: dict[str, list[dict[str, object]]],
         routes: list[dict[str, object]],
-        acquisitions: list[ItemAcquisition],
+        acquisitions: list[PublicSource],
     ) -> None:
         """Join route facts to wiki representatives and placement qualifiers."""
         representatives = {
@@ -284,8 +287,8 @@ class QuestRepository(BaseRepository[Quest]):
             if field in target and target[field] != atom["atom_stable_key"]:
                 raise RepositoryError(f"Cannot present multiple {field} conditions for route {atom['route_key']}")
             target[field] = atom["atom_stable_key"]
-        trade_rewards: dict[tuple[str | None, str | None, str | None], list[ItemAcquisition]] = {}
-        dialog_rewards: dict[tuple[str | None, str | None], ItemAcquisition] = {}
+        trade_rewards: dict[tuple[str | None, str | None, str | None], list[PublicSource]] = {}
+        dialog_rewards: dict[tuple[str | None, str | None], PublicSource] = {}
         for fact in acquisitions:
             if fact.kind == "quest_reward":
                 trade_rewards.setdefault(
@@ -300,7 +303,7 @@ class QuestRepository(BaseRepository[Quest]):
             and (route["quest_stable_key"], route["source_stable_key"], route["variant_resource_name"]) in trade_rewards
         }
         generic_rows: set[tuple[object, ...]] = set()
-        grants: list[tuple[str, dict[str, object], ItemAcquisition]] = []
+        grants: list[tuple[str, dict[str, object], PublicSource]] = []
         for route in routes:
             quest = str(route["quest_stable_key"])
             if quest not in panels:
@@ -339,7 +342,7 @@ class QuestRepository(BaseRepository[Quest]):
                                 "sourceKind": "character",
                                 "sourceCopy": source,
                                 "mechanic": fact.mechanic,
-                                "acquisitionKey": fact.acquisition_key,
+                                "acquisitionKey": fact.source_key,
                                 "item": fact.item_stable_key,
                                 "quantity": self._reward_quantity(fact),
                             },
@@ -358,7 +361,7 @@ class QuestRepository(BaseRepository[Quest]):
             gift = dialog_rewards.get((source, str(route["dialog_index"])))
             if route["phase"] == "completion" and gift is not None:
                 row.update(
-                    item=gift.item_stable_key, quantity=self._reward_quantity(gift), acquisitionKey=gift.acquisition_key
+                    item=gift.item_stable_key, quantity=self._reward_quantity(gift), acquisitionKey=gift.source_key
                 )
                 self._append_item_route(panels, quest, row, gift)
                 continue
@@ -367,5 +370,5 @@ class QuestRepository(BaseRepository[Quest]):
                 panels[quest].append(row)
             else:
                 panels[quest].extend(row | qualifier for qualifier in qualifiers)
-        for quest, row, fact in sorted(grants, key=lambda grant: (grant[2].item_stable_key, grant[2].acquisition_key)):
+        for quest, row, fact in sorted(grants, key=lambda grant: (grant[2].item_stable_key, grant[2].source_key)):
             self._append_item_route(panels, quest, row, fact)

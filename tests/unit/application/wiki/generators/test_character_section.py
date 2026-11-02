@@ -118,7 +118,7 @@ def test_mixed_dynamic_and_ordinary_spawns_keep_ordinary_chance_and_coords() -> 
     assert "1%" not in content
 
 
-def test_character_loot_drop_fields_render_rates_refs_and_guaranteed_pool() -> None:
+def test_character_loot_renders_public_rates_without_inventing_pool_or_equipped_guarantees() -> None:
     character = make_character(
         display_name="Faerie Trickster",
         npc_name="Faerie Trickster",
@@ -156,54 +156,13 @@ def test_character_loot_drop_fields_render_rates_refs_and_guaranteed_pool() -> N
 
     rates = content.split("|droprates=", 1)[1].split("\n", 1)[0]
     assert rates.index("Alpha Armor") < rates.index("Beta Blade") < rates.index("Common Coin")
-    assert (
-        "If Faerie Trickster has {{ItemLink|Beta Blade|image=Beta Blade icon.png}} equipped, it is guaranteed to drop."
-        in content
-    )
+    assert "equipped, it is guaranteed to drop" not in content
     assert (
         "If the player is already holding {{ItemLink|Alpha Armor|image=Alpha Armor icon.png}} in their inventory, "
         "another will not drop." in content
     )
     assert "|guaranteeddrops=\n" in content
-
-    two_guaranteed = [
-        drops[0],
-        LootDropDisplayInfo(
-            item_link=drops[1].item_link,
-            drop_probability=drops[1].drop_probability,
-            is_guaranteed=True,
-            is_visible=drops[1].is_visible,
-            item_unique=drops[1].item_unique,
-        ),
-        drops[2],
-    ]
-    guaranteed_content = CharacterSectionGenerator().generate_template(
-        EnrichedCharacterData(character=character, spawn_infos=[], spells=[], loot_drops=two_guaranteed),
-        page_title="Faerie Trickster",
-    )
-    guaranteed = guaranteed_content.split("|guaranteeddrops=", 1)[1].split("\n", 1)[0]
-    assert guaranteed == (
-        "{{ItemLink|Alpha Armor|image=Alpha Armor icon.png}}<br>{{ItemLink|Beta Blade|image=Beta Blade icon.png}}"
-    )
-    assert "|guaranteedrolls=" not in guaranteed_content
-
-    two_rolls = character.model_copy(update={"guaranteed_drop_rolls": 2})
-    rolled_content = CharacterSectionGenerator().generate_template(
-        EnrichedCharacterData(character=two_rolls, spawn_infos=[], spells=[], loot_drops=two_guaranteed),
-        page_title="Faerie Trickster",
-    )
-    assert (
-        "|guaranteeddrops={{ItemLink|Alpha Armor|image=Alpha Armor icon.png}}"
-        "<br>{{ItemLink|Beta Blade|image=Beta Blade icon.png}}\n|guaranteedrolls=Two\n"
-    ) in rolled_content
-
-    # Without a shown pool there is nothing for the label to describe.
-    no_pool_content = CharacterSectionGenerator().generate_template(
-        EnrichedCharacterData(character=two_rolls, spawn_infos=[], spells=[], loot_drops=drops),
-        page_title="Faerie Trickster",
-    )
-    assert "|guaranteedrolls=" not in no_pool_content
-    assert "|guaranteeddrops=\n|droprates=" in no_pool_content
+    assert "|guaranteedrolls=" not in content
 
 
 def _treasure_site(zone: str, role: str) -> CharacterSpawnInfo:

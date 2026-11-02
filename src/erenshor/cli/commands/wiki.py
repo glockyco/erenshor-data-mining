@@ -117,7 +117,7 @@ from erenshor.infrastructure.database.connection import DatabaseConnection
 from erenshor.infrastructure.database.repositories.build_metadata import BuildMetadataRepository
 from erenshor.infrastructure.database.repositories.characters import CharacterRepository
 from erenshor.infrastructure.database.repositories.factions import FactionRepository
-from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
+from erenshor.infrastructure.database.repositories.item_public_view import ItemPublicViewRepository
 from erenshor.infrastructure.database.repositories.items import ItemRepository
 from erenshor.infrastructure.database.repositories.progression import ProgressionRepository
 from erenshor.infrastructure.database.repositories.quests import QuestRepository
@@ -260,17 +260,17 @@ def _create_wiki_composition(
     storage = storage or WikiStorage(variant_config.resolved_wiki(cli_ctx.repo_root))
     maps_source_dir = variant_config.maps.resolved_source_dir(cli_ctx.repo_root)
     zone_positions_path = maps_source_dir / "src" / "lib" / "data" / "zone-positions.json"
-    provenance_repo = ItemProvenanceRepository(database)
+    public_view = ItemPublicViewRepository(database)
     context = GeneratorContext(
-        item_repo=ItemRepository(database, provenance_repo=provenance_repo),
-        item_provenance_repo=provenance_repo,
-        character_repo=CharacterRepository(database),
+        item_repo=ItemRepository(database, public_view=public_view),
+        item_public_view=public_view,
+        character_repo=CharacterRepository(database, public_view=public_view),
         spell_repo=SpellRepository(database),
         skill_repo=SkillRepository(database),
         stance_repo=StanceRepository(database),
         faction_repo=FactionRepository(database),
         spawn_repo=SpawnPointRepository(database),
-        quest_repo=QuestRepository(database, provenance_repo=provenance_repo),
+        quest_repo=QuestRepository(database, public_view=public_view),
         zone_repo=ZoneRepository(database),
         storage=storage,
         class_display=ClassDisplayNameService(database),
@@ -440,7 +440,7 @@ _LuaRepositories = tuple[
     ClassDisplayNameService,
     BuildMetadataRepository,
     TreasureRepository,
-    ItemProvenanceRepository,
+    ItemPublicViewRepository,
     ProgressionRepository,
 ]
 
@@ -452,20 +452,20 @@ def _create_lua_repositories(cli_ctx: CLIContext, *, repositories: _LuaRepositor
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     db_path = variant_config.resolved_database(cli_ctx.repo_root)
     db_connection = DatabaseConnection(db_path, read_only=True)
-    provenance_repo = ItemProvenanceRepository(db_connection)
+    public_view = ItemPublicViewRepository(db_connection)
     return (
-        ItemRepository(db_connection, provenance_repo=provenance_repo),
-        CharacterRepository(db_connection),
+        ItemRepository(db_connection, public_view=public_view),
+        CharacterRepository(db_connection, public_view=public_view),
         SpellRepository(db_connection),
         SkillRepository(db_connection),
         StanceRepository(db_connection),
-        QuestRepository(db_connection, provenance_repo=provenance_repo),
+        QuestRepository(db_connection, public_view=public_view),
         ZoneRepository(db_connection),
         FactionRepository(db_connection),
         ClassDisplayNameService(db_connection),
         BuildMetadataRepository(db_connection),
         TreasureRepository(db_connection),
-        provenance_repo,
+        public_view,
         ProgressionRepository(db_connection),
     )
 
@@ -695,7 +695,7 @@ def generate_lua(ctx: typer.Context) -> None:
             class_display,
             build_repo,
             treasure_repo,
-            provenance_repo,
+            public_view,
             progression_repo,
         ) = _create_lua_repositories(cli_ctx)
         result = generate_lua_data_modules(
@@ -710,7 +710,7 @@ def generate_lua(ctx: typer.Context) -> None:
             class_display=class_display,
             build_repo=build_repo,
             treasure_repo=treasure_repo,
-            provenance_repo=provenance_repo,
+            public_view=public_view,
             progression_repo=progression_repo,
             lifecycle=_load_retired_lifecycle(cli_ctx),
             output_root=output_root,

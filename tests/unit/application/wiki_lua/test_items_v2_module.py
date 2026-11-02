@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import hashlib
-from dataclasses import replace
+from dataclasses import asdict, replace
 from pathlib import Path
 
 import pytest
-from tests.unit.application.wiki_lua.fakes import FakeItemRepository, make_item
+from tests.unit.application.wiki_lua.fakes import FakeItemRepository, make_item, public_source, public_use
 
 from erenshor.application.wiki_lua.items_v2 import (
     build_items_v2_data,
@@ -14,13 +14,13 @@ from erenshor.application.wiki_lua.items_v2 import (
     write_items_v2_modules,
 )
 from erenshor.application.wiki_lua.lua_writer import module_text
-from erenshor.domain.value_objects.item_provenance import (
-    ItemAcquisition,
-    ItemDisposition,
-    ItemUse,
-    ProvenanceCondition,
-    ProvenanceLocation,
-    fact_to_dict,
+from erenshor.domain.value_objects.item_public_view import (
+    ItemStatus,
+    MechanismParameter,
+    PublicCondition,
+    PublicPlace,
+    PublicSource,
+    PublicUse,
 )
 from erenshor.infrastructure.content_lifecycle import ContentLifecycle, LifecyclePage
 
@@ -43,12 +43,12 @@ class CompleteItems(FakeItemRepository):
 
 class Provenance:
     def __init__(self, key: str) -> None:
-        self.disposition = ItemDisposition(key, "current", former_pages=("Former Sword",))
-        self.extra_dispositions: list[ItemDisposition] = []
-        condition = ProvenanceCondition("gate:room", 0, 0, "room_furnished", "item:furniture", reference_slot="1")
-        self.acquisitions = [
-            ItemAcquisition(
-                "acquisition:fishing:day",
+        self.status_record = ItemStatus(key, "current", None, former_pages=("Former Sword",))
+        self.extra_statuses: list[ItemStatus] = []
+        condition = PublicCondition(0, 0, 0, "gate:room", "room_furnished", "item:furniture", reference_slot="1")
+        self.source_records = [
+            public_source(
+                "source:fishing:day",
                 key,
                 "fishing",
                 "water:lake",
@@ -58,25 +58,78 @@ class Provenance:
                 probability_min=0.002,
                 probability_max=0.002,
                 probability_basis="per_successful_catch",
-                probability_stage="final_acquisition",
                 quantity_min=2,
                 quantity_max=2,
                 quantity_kind="exact",
-                conditions=(condition, ProvenanceCondition("gate:time", 0, 0, "time_of_day", value="day")),
-                location_source_key="water:lake",
-                locations=(ProvenanceLocation("location:lake", "unlocated", conditions=(condition,)),),
+                place_set_key="places:lake",
+                conditions=(condition, PublicCondition(1, 0, 0, "gate:time", "time_of_day", value="day")),
             )
         ]
-        self.uses = [ItemUse("use:quest:slot:3", key, "quest:offering", "quest_requirement", material_slot=3)]
+        self.use_records = [public_use("use:quest:slot:3", key, "quest:offering", "quest_requirement", material_slot=3)]
+        self.place_records = [
+            PublicPlace(
+                "places:lake",
+                "location:lake",
+                "unlocated",
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                conditions=(condition,),
+            )
+        ]
+        self.parameter_records: list[MechanismParameter] = []
 
-    def iter_dispositions(self) -> list[ItemDisposition]:
-        return ([] if self.disposition is None else [self.disposition]) + self.extra_dispositions
+    def statuses(self) -> list[ItemStatus]:
+        return ([] if self.status_record is None else [self.status_record]) + self.extra_statuses
 
-    def iter_acquisitions(self) -> list[ItemAcquisition]:
-        return self.acquisitions
+    def sources(self) -> list[PublicSource]:
+        return self.source_records
 
-    def iter_uses(self) -> list[ItemUse]:
-        return self.uses
+    def uses(self) -> list[PublicUse]:
+        return self.use_records
+
+    def places(self, key: str | None) -> tuple[PublicPlace, ...]:
+        return tuple(place for place in self.place_records if place.place_set_key == key)
+
+    def parameters(self, key: str | None) -> tuple[MechanismParameter, ...]:
+        return tuple(parameter for parameter in self.parameter_records if parameter.mechanic_key == key)
+
+
+def test_public_schema_hoists_places_and_parameters_without_complete_fact_dimensions() -> None:
+    repo = repository()
+    key = repo.get_items_for_wiki_generation()[0].stable_key
+    public = Provenance(key)
+    public.source_records[0] = replace(public.source_records[0], mechanic="fishing")
+    public.parameter_records = [
+        MechanismParameter("fishing", 0, "formula", "fishing_skill", "catch formula", None, None, "availability")
+    ]
+    data = build_items_v2_data(repo, public, build=BUILD, native_catalog=CATALOG)
+    assert data.index["schemaVersion"] == 2
+    assert data.index["provenanceSchemaVersion"] == 2
+    owner = data.provenance[item_bucket(key)][key]
+    assert owner["places"] == {"places:lake": [asdict(public.place_records[0])]}
+    assert owner["sources"] == [asdict(public.source_records[0])]
+    assert owner["mechanism_parameters"] == {"fishing": [asdict(public.parameter_records[0])]}
+    assert owner["usages"] == [asdict(public.use_records[0])]
+    assert owner["status"] == asdict(public.status_record)
+    modules = generate_items_v2_modules(repo, public, build=BUILD, native_catalog=CATALOG)
+    assert modules[f"ItemProvenanceV2/{item_bucket(key)}.lua"] == module_text(
+        {
+            "byKey": {
+                key: {field: value for field, value in owner.items() if field not in {"places", "mechanism_parameters"}}
+            },
+            "places": owner["places"],
+            "mechanism_parameters": owner["mechanism_parameters"],
+        }
+    )
+    for retired in ("player_access_state", "probability_stage", "count_distribution", "actionable"):
+        assert retired not in modules[f"ItemProvenanceV2/{item_bucket(key)}.lua"]
 
 
 def repository() -> CompleteItems:
@@ -89,22 +142,21 @@ def test_versioned_writer_preserves_full_identity_dimensions_and_picture_titles(
     key = repo.get_items_for_wiki_generation()[0].stable_key
     modules = generate_items_v2_modules(repo, Provenance(key), build=BUILD, native_catalog=CATALOG)
     bucket = item_bucket(key)
-    assert set(modules) == {"ItemsV2.lua", f"ItemsV2/{bucket}.lua", f"ItemProvenanceV1/{bucket}.lua"}
+    assert set(modules) == {"ItemsV2.lua", f"ItemsV2/{bucket}.lua", f"ItemProvenanceV2/{bucket}.lua"}
     entity = modules[f"ItemsV2/{bucket}.lua"]
-    facts = modules[f"ItemProvenanceV1/{bucket}.lua"]
+    facts = modules[f"ItemProvenanceV2/{bucket}.lua"]
     assert '["itemDbIndex"] = 0' in entity
     assert "Sword of Flames render (female).png" in entity
     assert "Sword of Flames screenshot.png" in entity
     assert "Former Sword" in entity
     assert "wornEffect" in entity and "spell:worn" in entity
     for value in (
-        "acquisition:fishing:day",
+        "source:fishing:day",
         "source_copy_stable_key",
         "day:slot:2",
         "room_furnished",
         "time_of_day",
         "0.002",
-        "final_acquisition",
         "per_successful_catch",
         "location:lake",
         "unlocated",
@@ -131,21 +183,21 @@ def test_serialization_is_deterministic_without_collapsing_equal_fact_values() -
     repo = repository()
     key = repo.get_items_for_wiki_generation()[0].stable_key
     provenance = Provenance(key)
-    provenance.acquisitions.append(
-        replace(provenance.acquisitions[0], acquisition_key="acquisition:fishing:night", variant_key="night:slot:2")
+    provenance.source_records.append(
+        replace(provenance.source_records[0], source_key="acquisition:fishing:night", variant_key="night:slot:2")
     )
     first = generate_items_v2_modules(repo, provenance, build=BUILD, native_catalog=CATALOG)
-    provenance.acquisitions.reverse()
+    provenance.source_records.reverse()
     assert generate_items_v2_modules(repo, provenance, build=BUILD, native_catalog=CATALOG) == first
-    assert "acquisition:fishing:night" in first[f"ItemProvenanceV1/{item_bucket(key)}.lua"]
+    assert "acquisition:fishing:night" in first[f"ItemProvenanceV2/{item_bucket(key)}.lua"]
     record = build_items_v2_data(repo, provenance, build=BUILD, native_catalog=CATALOG).provenance[item_bucket(key)][
         key
     ]
-    assert record["acquisitions"] == [
-        fact_to_dict(value) for value in sorted(provenance.acquisitions, key=lambda row: row.acquisition_key)
+    assert record["sources"] == [
+        asdict(value) for value in sorted(provenance.source_records, key=lambda row: row.source_key)
     ]
-    assert record["uses"] == [fact_to_dict(value) for value in provenance.uses]
-    assert record["disposition"] == fact_to_dict(provenance.disposition)
+    assert record["usages"] == [asdict(value) for value in provenance.use_records]
+    assert record["status"] == asdict(provenance.status_record)
 
 
 @pytest.mark.parametrize("defect", ["missing_disposition", "wrong_item", "duplicate", "missing_index", "missing_build"])
@@ -155,11 +207,11 @@ def test_incomplete_or_ambiguous_contract_fails_closed(defect: str) -> None:
     provenance = Provenance(key)
     build = BUILD
     if defect == "missing_disposition":
-        provenance.disposition = None  # type: ignore[assignment]
+        provenance.status_record = None  # type: ignore[assignment]
     elif defect == "wrong_item":
-        provenance.acquisitions[0] = replace(provenance.acquisitions[0], item_stable_key="item:other")
+        provenance.source_records[0] = replace(provenance.source_records[0], item_stable_key="item:other")
     elif defect == "duplicate":
-        provenance.acquisitions *= 2
+        provenance.source_records *= 2
     elif defect == "missing_index":
         repo.get_items_for_wiki_generation()[0].item_db_index = None
     elif defect == "missing_build":
@@ -172,7 +224,7 @@ def test_reviewed_notice_enriches_but_cannot_override_canonical_lifecycle() -> N
     repo = repository()
     key = repo.get_items_for_wiki_generation()[0].stable_key
     provenance = Provenance(key)
-    provenance.disposition = replace(provenance.disposition, disposition="removed")
+    provenance.status_record = replace(provenance.status_record, disposition="removed")
     page = LifecyclePage(
         title="Sword of Flames",
         stable_key=key,
@@ -192,7 +244,7 @@ def test_reviewed_notice_enriches_but_cannot_override_canonical_lifecycle() -> N
         "date": "2026-10-01",
         "url": "https://example.com/patch",
     }
-    provenance.disposition = replace(provenance.disposition, disposition="current")
+    provenance.status_record = replace(provenance.status_record, disposition="current")
     with pytest.raises(ValueError, match="disagrees with canonical"):
         build_items_v2_data(repo, provenance, build=BUILD, lifecycle=lifecycle, native_catalog=CATALOG)
 
@@ -228,7 +280,7 @@ def test_hidden_container_rewards_keep_exact_outcome_lookup_without_article_reco
     repo = repository()
     key = repo.get_items_for_wiki_generation()[0].stable_key
     provenance = Provenance(key)
-    outcome = ItemAcquisition(
+    outcome = public_source(
         "acquisition:hidden:slot:1",
         "item:hidden",
         "item_drop",
@@ -236,29 +288,27 @@ def test_hidden_container_rewards_keep_exact_outcome_lookup_without_article_reco
         probability_kind="exact",
         probability_min=12.5,
         probability_max=12.5,
-        guarantee_scope="pool",
-        guaranteed_roll_count=1,
     )
-    provenance.acquisitions.append(outcome)
-    provenance.uses.append(
-        ItemUse("use:hidden:slot:1", key, "item:hidden", "item_drop", outcome_key=outcome.acquisition_key)
+    provenance.source_records.append(outcome)
+    provenance.use_records.append(
+        public_use("use:hidden:slot:1", key, "item:hidden", "item_drop", outcome_key=outcome.source_key)
     )
-    provenance.extra_dispositions.append(ItemDisposition("item:hidden", "current"))
+    provenance.extra_statuses.append(ItemStatus("item:hidden", "current", None))
     data = build_items_v2_data(repo, provenance, build=BUILD, native_catalog=CATALOG)
     assert "item:hidden" not in data.index["byKey"]
-    assert data.index["outcomeItemByKey"] == {outcome.acquisition_key: "item:hidden"}
+    assert data.index["outcomeItemByKey"] == {outcome.source_key: "item:hidden"}
     hidden_bucket = data.index["provenanceByKey"]["item:hidden"]
-    assert data.provenance[hidden_bucket]["item:hidden"]["acquisitions"] == [fact_to_dict(outcome)]
+    assert data.provenance[hidden_bucket]["item:hidden"]["sources"] == [asdict(outcome)]
     modules = generate_items_v2_modules(repo, provenance, build=BUILD, native_catalog=CATALOG)
-    assert f"ItemProvenanceV1/{hidden_bucket}.lua" in modules
+    assert f"ItemProvenanceV2/{hidden_bucket}.lua" in modules
 
 
 def test_versioned_provenance_preserves_probability_ranges_and_all_canonical_use_kinds() -> None:
     repo = repository()
     key = repo.get_items_for_wiki_generation()[0].stable_key
     provenance = Provenance(key)
-    provenance.acquisitions = [
-        ItemAcquisition(
+    provenance.source_records = [
+        public_source(
             "common-world:range",
             key,
             "common_world_item",
@@ -268,8 +318,8 @@ def test_versioned_provenance_preserves_probability_ranges_and_all_canonical_use
             probability_max=0.987,
         ),
     ]
-    provenance.uses = [
-        ItemUse(
+    provenance.use_records = [
+        public_use(
             f"use:{kind}:{slot}",
             key,
             "item:target",
@@ -292,21 +342,23 @@ def test_versioned_provenance_preserves_probability_ranges_and_all_canonical_use
     ]
     data = build_items_v2_data(repo, provenance, build=BUILD, native_catalog=CATALOG)
     record = data.provenance[item_bucket(key)][key]
-    assert record["acquisitions"] == [fact_to_dict(provenance.acquisitions[0])]
-    assert record["uses"] == [fact_to_dict(value) for value in sorted(provenance.uses, key=lambda value: value.use_key)]
+    assert record["sources"] == [asdict(provenance.source_records[0])]
+    assert record["usages"] == [
+        asdict(value) for value in sorted(provenance.use_records, key=lambda value: value.use_key)
+    ]
 
 
 def test_historical_only_dispositions_have_provenance_buckets_without_entity_records() -> None:
     repo = repository()
     key = repo.get_items_for_wiki_generation()[0].stable_key
     provenance = Provenance(key)
-    historical = ItemDisposition(
+    historical = ItemStatus(
         "item:historical-only",
         "removed",
         reason="Reviewed removed content",
         former_pages=("Historical Item",),
     )
-    provenance.extra_dispositions.append(historical)
+    provenance.extra_statuses.append(historical)
 
     data = build_items_v2_data(repo, provenance, build=BUILD, native_catalog=CATALOG)
 
@@ -314,14 +366,16 @@ def test_historical_only_dispositions_have_provenance_buckets_without_entity_rec
     bucket = data.index["provenanceByKey"][historical.item_stable_key]
     assert historical.item_stable_key not in data.items.get(bucket, {})
     assert data.provenance[bucket][historical.item_stable_key] == {
-        "acquisitions": [],
-        "uses": [],
-        "disposition": fact_to_dict(historical),
+        "sources": [],
+        "usages": [],
+        "status": asdict(historical),
         "references": {},
+        "places": {},
+        "mechanism_parameters": {},
     }
     modules = generate_items_v2_modules(repo, provenance, build=BUILD, native_catalog=CATALOG)
-    assert f"ItemProvenanceV1/{bucket}.lua" in modules
-    provenance.extra_dispositions.reverse()
+    assert f"ItemProvenanceV2/{bucket}.lua" in modules
+    provenance.extra_statuses.reverse()
     assert generate_items_v2_modules(repo, provenance, build=BUILD, native_catalog=CATALOG) == modules
 
 
@@ -329,7 +383,7 @@ def test_duplicate_canonical_dispositions_fail_closed() -> None:
     repo = repository()
     key = repo.get_items_for_wiki_generation()[0].stable_key
     provenance = Provenance(key)
-    provenance.extra_dispositions.append(provenance.disposition)
+    provenance.extra_statuses.append(provenance.status_record)
     with pytest.raises(ValueError, match="duplicate canonical disposition"):
         generate_items_v2_modules(repo, provenance, build=BUILD, native_catalog=CATALOG)
 
@@ -338,7 +392,7 @@ def test_byproduct_outcome_lookup_uses_actual_acquisition_owner_not_use_target()
     repo = repository()
     key = repo.get_items_for_wiki_generation()[0].stable_key
     provenance = Provenance(key)
-    outcome = ItemAcquisition(
+    outcome = public_source(
         "acquisition:remove-blessing:shard",
         "item:physical-shard",
         "crafting",
@@ -348,27 +402,27 @@ def test_byproduct_outcome_lookup_uses_actual_acquisition_owner_not_use_target()
         quantity_max=1,
         quantity_kind="exact",
     )
-    use = ItemUse(
+    use = public_use(
         "use:remove-blessing:operation",
         key,
         "item:removal-diamond",
         "smithing",
         mechanic="remove_blessing",
-        outcome_key=outcome.acquisition_key,
+        outcome_key=outcome.source_key,
     )
-    provenance.acquisitions.append(outcome)
-    provenance.uses.append(use)
-    provenance.extra_dispositions.extend(
-        [ItemDisposition("item:physical-shard", "current"), ItemDisposition("item:removal-diamond", "current")]
+    provenance.source_records.append(outcome)
+    provenance.use_records.append(use)
+    provenance.extra_statuses.extend(
+        [ItemStatus("item:physical-shard", "current", None), ItemStatus("item:removal-diamond", "current", None)]
     )
 
     data = build_items_v2_data(repo, provenance, build=BUILD, native_catalog=CATALOG)
 
-    assert data.index["outcomeItemByKey"] == {outcome.acquisition_key: outcome.item_stable_key}
+    assert data.index["outcomeItemByKey"] == {outcome.source_key: outcome.item_stable_key}
     owner = data.index["outcomeItemByKey"][use.outcome_key]
     bucket = data.index["provenanceByKey"][owner]
-    assert data.provenance[bucket][owner]["acquisitions"] == [fact_to_dict(outcome)]
-    assert fact_to_dict(use) in data.provenance[item_bucket(key)][key]["uses"]
+    assert data.provenance[bucket][owner]["sources"] == [asdict(outcome)]
+    assert asdict(use) in data.provenance[item_bucket(key)][key]["usages"]
     assert owner != use.target_stable_key
     assert owner not in data.index["byKey"]
     assert data.provenance[bucket][owner]["references"] == {
@@ -383,7 +437,7 @@ def test_outcome_owner_index_rejects_unknown_or_nonacquisition_references(outcom
     repo = repository()
     key = repo.get_items_for_wiki_generation()[0].stable_key
     provenance = Provenance(key)
-    provenance.uses.append(ItemUse("use:missing-outcome", key, key, "smithing", outcome_key=outcome_key))
+    provenance.use_records.append(public_use("use:missing-outcome", key, key, "smithing", outcome_key=outcome_key))
     with pytest.raises(ValueError, match="Missing canonical acquisition outcomes"):
         generate_items_v2_modules(repo, provenance, build=BUILD, native_catalog=CATALOG)
 
@@ -392,9 +446,9 @@ def test_outcome_owner_index_rejects_ambiguous_acquisition_identity() -> None:
     repo = repository()
     key = repo.get_items_for_wiki_generation()[0].stable_key
     provenance = Provenance(key)
-    outcome = provenance.acquisitions[0]
-    provenance.acquisitions.append(replace(outcome, item_stable_key="item:other-owner"))
-    provenance.uses.append(ItemUse("use:ambiguous", key, key, "smithing", outcome_key=outcome.acquisition_key))
+    outcome = provenance.source_records[0]
+    provenance.source_records.append(replace(outcome, item_stable_key="item:other-owner"))
+    provenance.use_records.append(public_use("use:ambiguous", key, key, "smithing", outcome_key=outcome.source_key))
     with pytest.raises(ValueError, match="duplicate canonical fact identity"):
         generate_items_v2_modules(repo, provenance, build=BUILD, native_catalog=CATALOG)
 
@@ -412,9 +466,9 @@ def split_fixture() -> tuple[CompleteItems, Provenance, tuple[str, str]]:
     else:
         raise AssertionError("No split fixture collision")
     for key in (first, second):
-        provenance.extra_dispositions.append(ItemDisposition(key, "current"))
-        provenance.acquisitions.append(
-            replace(provenance.acquisitions[0], acquisition_key=f"acquisition:{key}", item_stable_key=key)
+        provenance.extra_statuses.append(ItemStatus(key, "current", None))
+        provenance.source_records.append(
+            replace(provenance.source_records[0], source_key=f"acquisition:{key}", item_stable_key=key)
         )
     return repo, provenance, (first, second)
 
@@ -423,30 +477,40 @@ def test_adaptive_provenance_split_preserves_every_owner_and_fact_once() -> None
     repo, provenance, owners = split_fixture()
     data = build_items_v2_data(repo, provenance, build=BUILD, native_catalog=CATALOG)
     budget = max(
-        len(module_text({key: record}).encode())
+        len(
+            module_text(
+                {
+                    "byKey": {
+                        key: {
+                            field: value
+                            for field, value in record.items()
+                            if field not in {"places", "mechanism_parameters"}
+                        }
+                    },
+                    "places": record["places"],
+                    "mechanism_parameters": record["mechanism_parameters"],
+                }
+            ).encode()
+        )
         for records in data.provenance.values()
         for key, record in records.items()
     )
     modules = generate_items_v2_modules(repo, provenance, build=BUILD, max_page_bytes=budget, native_catalog=CATALOG)
-    relation_modules = {name: text for name, text in modules.items() if name.startswith("ItemProvenanceV1/")}
-    assert f"ItemProvenanceV1/{item_bucket(owners[0])}.lua" not in relation_modules
+    relation_modules = {name: text for name, text in modules.items() if name.startswith("ItemProvenanceV2/")}
+    assert f"ItemProvenanceV2/{item_bucket(owners[0])}.lua" not in relation_modules
     for owner in owners:
         shard = hashlib.sha256(owner.encode()).hexdigest()[:3]
-        assert owner in relation_modules[f"ItemProvenanceV1/{shard}.lua"]
+        assert owner in relation_modules[f"ItemProvenanceV2/{shard}.lua"]
         assert f'["{owner}"] = "{shard}"' in modules["ItemsV2.lua"]
-    for acquisition in provenance.acquisitions:
+    for acquisition in provenance.source_records:
         assert (
-            sum(
-                text.count(f'["acquisition_key"] = "{acquisition.acquisition_key}"')
-                for text in relation_modules.values()
-            )
-            == 1
+            sum(text.count(f'["source_key"] = "{acquisition.source_key}"') for text in relation_modules.values()) == 1
         )
-    for disposition in provenance.iter_dispositions():
+    for disposition in provenance.statuses():
         assert sum(text.count(f'["{disposition.item_stable_key}"] = {{') for text in relation_modules.values()) == 1
     assert all(len(text.encode()) <= budget for text in relation_modules.values())
-    provenance.acquisitions.reverse()
-    provenance.extra_dispositions.reverse()
+    provenance.source_records.reverse()
+    provenance.extra_statuses.reverse()
     assert (
         generate_items_v2_modules(repo, provenance, build=BUILD, max_page_bytes=budget, native_catalog=CATALOG)
         == modules
@@ -475,41 +539,48 @@ def test_native_references_cover_sources_targets_conditions_and_locations_withou
     }
     item.assign_quest_on_read_stable_key = quest
     provenance = Provenance(key)
-    condition = ProvenanceCondition("gate:quest", 0, 0, "quest_done", quest)
-    location = ProvenanceLocation(
+    condition = PublicCondition(0, 0, 0, "gate:quest", "quest_done", quest)
+    location = PublicPlace(
+        "places:raider",
         "location:raider",
         "fixed",
-        zone_stable_key="zone:elderstone",
-        source_copy_stable_key=copy,
-        conditions=(ProvenanceCondition("gate:local", 0, 0, "quest_not_done", other_quest),),
+        None,
+        "zone:elderstone",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        copy,
+        conditions=(PublicCondition(0, 0, 0, "gate:local", "quest_not_done", other_quest),),
     )
-    provenance.acquisitions = [
-        ItemAcquisition(
+    provenance.place_records = [location]
+    provenance.source_records = [
+        public_source(
             "acquisition:raider",
             key,
             "character_drop",
             copy,
             source_copy_stable_key=copy,
             conditions=(condition,),
-            location_source_key=copy,
-            locations=(location,),
+            place_set_key="places:raider",
         )
     ]
-    provenance.uses = [
-        ItemUse(
+    provenance.use_records = [
+        public_use(
             "use:quest",
             key,
             other_quest,
             "quest_requirement",
-            location_source_key=copy,
+            place_set_key="places:raider",
             conditions=(condition,),
-            locations=(location,),
         )
     ]
     data = build_items_v2_data(repo, provenance, build=BUILD, native_catalog=catalog)
     record = data.provenance[item_bucket(key)][key]
-    assert record["acquisitions"] == [fact_to_dict(provenance.acquisitions[0])]
-    assert record["uses"] == [fact_to_dict(provenance.uses[0])]
+    assert record["sources"] == [asdict(provenance.source_records[0])]
+    assert record["usages"] == [asdict(provenance.use_records[0])]
     assert record["references"] == {
         copy: {"key": copy, "name": "A Highwayman Raider"},
         quest: {"key": quest, "name": "A Retired Locksmith"},
@@ -524,31 +595,25 @@ def test_unknown_native_references_fail_closed_at_every_item_path(path: str) -> 
     item = repo.get_items_for_wiki_generation()[0]
     provenance = Provenance(item.stable_key)
     unknown = "quest:unknown"
-    acquisition = provenance.acquisitions[0]
+    acquisition = provenance.source_records[0]
     if path == "source":
         acquisition = replace(acquisition, source_stable_key=unknown)
     elif path == "copy":
         acquisition = replace(acquisition, source_copy_stable_key=unknown)
     elif path == "target":
-        provenance.uses[0] = replace(provenance.uses[0], target_stable_key=unknown)
+        provenance.use_records[0] = replace(provenance.use_records[0], target_stable_key=unknown)
     elif path == "condition":
-        acquisition = replace(acquisition, conditions=(ProvenanceCondition("gate", 0, 0, "quest_done", unknown),))
+        acquisition = replace(acquisition, conditions=(PublicCondition(0, 0, 0, "gate", "quest_done", unknown),))
     elif path == "location":
-        acquisition = replace(
-            acquisition, locations=(ProvenanceLocation("location", "fixed", source_copy_stable_key=unknown),)
-        )
+        provenance.place_records[0] = replace(provenance.place_records[0], source_copy_stable_key=unknown)
     elif path == "local_condition":
-        acquisition = replace(
-            acquisition,
-            locations=(
-                ProvenanceLocation(
-                    "location", "fixed", conditions=(ProvenanceCondition("gate", 0, 0, "quest_done", unknown),)
-                ),
-            ),
+        provenance.place_records[0] = replace(
+            provenance.place_records[0],
+            conditions=(PublicCondition(0, 0, 0, "gate", "quest_done", unknown),),
         )
     else:
         item.complete_on_read_stable_key = unknown
-    provenance.acquisitions[0] = acquisition
+    provenance.source_records[0] = acquisition
     with pytest.raises(ValueError, match="unknown native quest"):
         build_items_v2_data(repo, provenance, build=BUILD, native_catalog=CATALOG)
 

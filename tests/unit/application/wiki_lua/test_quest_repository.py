@@ -6,11 +6,12 @@ from pathlib import Path
 import pytest
 
 from erenshor.application.processor.item_provenance import ProvenanceBuilder
+from erenshor.application.processor.item_public_view import derive_public_view, write_public_view
 from erenshor.application.processor.quest_routes import process_quest_routes
 from erenshor.application.processor.writer import Writer
-from erenshor.domain.value_objects.item_provenance import PROVENANCE_SCHEMA_VERSION
+from erenshor.domain.value_objects.item_provenance import PROVENANCE_SCHEMA_VERSION, ItemDisposition
 from erenshor.infrastructure.database.connection import DatabaseConnection
-from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
+from erenshor.infrastructure.database.repositories.item_public_view import ItemPublicViewRepository
 from erenshor.infrastructure.database.repositories.quests import QuestRepository
 
 
@@ -109,7 +110,11 @@ def _panel_rows(writer: Writer, repo: QuestRepository) -> dict[str, list[dict[st
     builder = ProvenanceBuilder(writer.conn)
     builder.quests()
     builder.vendors_and_dialog()
-    builder.persist()
+    statuses = [ItemDisposition(str(row[0]), "current") for row in writer.conn.execute("SELECT stable_key FROM items")]
+    write_public_view(
+        writer.conn,
+        derive_public_view(builder.acquisitions, builder.uses, statuses, {}, builder.mechanic_conditions()),
+    )
     writer.conn.execute(
         "INSERT OR IGNORE INTO character_quest_manager_quests "
         "SELECT s.source_stable_key, s.quest_stable_key, "
@@ -373,7 +378,7 @@ def test_requirement_provenance_resolves_to_a_real_quest_identity(panel_db: tupl
     )
 
     _panel_rows(writer, repo)
-    sources = ItemProvenanceRepository(repo.db).get_uses("item:eye")
+    sources = ItemPublicViewRepository(repo.db).uses_for_item("item:eye")
     known_quests = {quest.stable_key for quest in repo.get_quests_for_wiki_generation()}
 
     assert [source.target_stable_key for source in sources] == ["quest:one"]

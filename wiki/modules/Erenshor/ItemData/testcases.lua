@@ -35,8 +35,8 @@ function p.shards()
 		local relation =
 			ItemData.provenance({ stableKey = split.key, provenanceShard = split.shard })
 		local seen = 0
-		for _, acquisition in ipairs(relation.acquisitions) do
-			if acquisition.acquisition_key ~= split.fact then
+		for _, acquisition in ipairs(relation.sources) do
+			if acquisition.source_key ~= split.fact then
 				error("ItemData provenance split selected another owner's fact")
 			end
 			seen = seen + 1
@@ -59,48 +59,52 @@ function p.nativeReferences()
 	}
 	local data = {
 		references = references,
-		acquisitions = {
+		sources = {
 			{
-				acquisition_key = "acquisition:native-reference",
+				source_key = "acquisition:native-reference",
 				kind = "character_drop",
 				source_stable_key = copy,
 				source_copy_stable_key = copy,
-				player_access_state = "verified_player",
 				conditions = {
 					{
 						gate_key = "native-quest",
-						group_index = 0,
+						alternative_index = 0,
+						gate_index = 0,
 						atom_index = 0,
 						phase = "availability",
 						predicate = "quest_done",
 						reference_stable_key = quest,
 					},
 				},
-				locations = {
-					{
-						location_key = "location:native-reference",
-						relation = "fixed",
-						source_copy_stable_key = copy,
-						zone_stable_key = "zone:PortAzure",
-						conditions = {
-							{
-								gate_key = "local-quest",
-								group_index = 0,
-								atom_index = 0,
-								phase = "availability",
-								predicate = "quest_not_done",
-								reference_stable_key = target,
-							},
-						},
-					},
-				},
+				place_set_key = "native-reference",
 			},
 		},
-		uses = {
+		usages = {
 			{
 				use_key = "use:native-reference",
 				kind = "quest_requirement",
 				target_stable_key = target,
+			},
+		},
+	}
+	data.places = {
+		["native-reference"] = {
+			{
+				place_key = "location:native-reference",
+				relation = "fixed",
+				source_copy_stable_key = copy,
+				zone_stable_key = "zone:PortAzure",
+				conditions = {
+					{
+						gate_index = 0,
+						gate_key = "local-quest",
+						alternative_index = 0,
+						atom_index = 0,
+						phase = "availability",
+						predicate = "quest_not_done",
+						reference_stable_key = target,
+					},
+				},
 			},
 		},
 	}
@@ -270,85 +274,65 @@ function p.run()
 	local data = ItemData.provenance(ItemData.resolve("item:magical_bag"))
 	local rendered = Provenance.render(data, ItemData.outcome)
 	for _, key in ipairs({ "acq:bag-day", "acq:bag-night", "acq:bag-room", "acq:bag-auction" }) do
-		contains(rendered, 'data-erenshor-acquisition-key="' .. key .. '"')
+		contains(rendered, 'data-erenshor-source-key="' .. key .. '"')
 	end
 	contains(rendered, 'data-erenshor-use-key="use:bag-recipe"')
 	contains(rendered, 'data-erenshor-use-key="use:bag-yield"')
 	contains(rendered, 'data-erenshor-outcome-key="acq:fixture-yield"')
 	contains(rendered, "12.5%")
-	contains(rendered, "Guaranteed pool rolls: 2")
+	contains(rendered, "Chance per stone pair 40%")
 	contains(rendered, "1.25e-06%")
 	contains(rendered, "1.25 to 7.5%")
 	contains(rendered, "Requires furnished room")
 	contains(rendered, "10 to below 20")
 	contains(rendered, "Location varies")
 	contains(rendered, "May be listed by simulated players")
-	contains(rendered, 'data-erenshor-disposition="internal_only"')
-	contains(rendered, 'data-erenshor-disposition="unconfirmed_player"')
-	contains(rendered, 'data-erenshor-disposition="native_pool"')
-	absent(rendered, "secret_table")
-	absent(rendered, "secret-fixture")
-	local coverage = Provenance.coverage(data, ItemData.outcome)
-	if coverage["acq:bag-day"] ~= "rendered" or coverage["acq:bag-internal"] ~= "internal_only" then
-		error("Canonical coverage audit changed")
+	absent(rendered, 'hidden="hidden"')
+	absent(rendered, "data-erenshor-disposition")
+	for _, row in ipairs(data.sources) do
+		contains(rendered, 'data-erenshor-source-key="' .. row.source_key .. '"')
+	end
+	for _, row in ipairs(data.usages) do
+		contains(rendered, 'data-erenshor-use-key="' .. row.use_key .. '"')
 	end
 	local global = Provenance.render({
-		acquisitions = {
+		sources = {
 			{
-				acquisition_key = "bonus",
-				kind = "fishing_bonus",
-				probability_stage = "native_pool",
-				probability_min = 1.25,
-				probability_max = 1.25,
-			},
-			{
-				acquisition_key = "water:day",
+				source_key = "water:global",
 				kind = "fishing",
-				player_access_state = "verified_player",
+				mechanic = "fishing_global_replacement",
 				probability_kind = "exact",
+				probability_basis = "per_successful_catch",
 				probability_min = 1.25,
 				probability_max = 1.25,
 			},
 			{
-				acquisition_key = "water:night",
+				source_key = "water:enhanced",
 				kind = "fishing",
-				player_access_state = "verified_player",
-				probability_kind = "exact",
-				probability_min = 1.25,
-				probability_max = 1.25,
-			},
-			{
-				acquisition_key = "water:enhanced",
-				kind = "fishing",
-				player_access_state = "verified_player",
 				probability_kind = "exact",
 				probability_min = 7.1875,
 				probability_max = 7.1875,
 			},
 		},
-		uses = {},
+		usages = {},
 	})
 	if count(global, "Any water") ~= 1 then
 		error("Global fishing must render one summary")
 	end
-	contains(global, "1.25% per successful catch")
+	contains(global, "Chance: 1.25%")
+	contains(global, "per successful catch")
 	contains(global, "7.1875%")
-	contains(global, 'data-erenshor-acquisition-key="water:day"')
-	contains(global, 'data-erenshor-acquisition-key="water:night"')
-	contains(global, 'data-erenshor-acquisition-key="water:enhanced"')
-	contains(global, 'data-erenshor-disposition="grouped_global_fishing"')
+	contains(global, 'data-erenshor-source-key="water:global"')
+	contains(global, 'data-erenshor-source-key="water:enhanced"')
+	if count(global, '<th scope="row">Fished in</th>') ~= 2 then
+		error("Every public fishing source must render its own row")
+	end
+	absent(global, 'hidden="hidden"')
 	local phased = Provenance.conditions({
 		{
-			gate_key = "ownership",
-			group_index = 0,
-			atom_index = 0,
-			phase = "source_initialization",
-			predicate = "item_not_owned",
-			reference_stable_key = "item:magical_bag",
-		},
-		{
 			gate_key = "input",
-			group_index = 0,
+			alternative_index = 0,
+			gate_index = 0,
 			atom_index = 0,
 			phase = "operation_input",
 			predicate = "item_held",
@@ -357,59 +341,47 @@ function p.run()
 		},
 		{
 			gate_key = "output",
-			group_index = 0,
+			alternative_index = 0,
+			gate_index = 1,
 			atom_index = 0,
 			phase = "operation_outcome",
 			predicate = "quality",
 			value = "blessed",
 		},
-		{
-			gate_key = "chance",
-			group_index = 0,
-			atom_index = 0,
-			phase = "mechanic_parameter",
-			predicate = "formula_operand",
-			value = "chance_per_stone_pair",
-			minimum = 40,
-		},
 	}, REFERENCES)
-	absent(phased, "Only while not owning")
 	contains(phased, 'data-erenshor-phase="operation_input"')
 	contains(phased, 'data-erenshor-phase="operation_outcome"')
 	contains(phased, "Result:")
-	contains(phased, "Mechanics:")
-	contains(phased, "40%")
 	local bounded = Provenance.render({
-		acquisitions = {
+		sources = {
 			{
-				acquisition_key = "bounded",
+				source_key = "bounded",
 				kind = "vendor",
-				player_access_state = "verified_player",
 				probability_kind = "not_applicable",
 				quantity_kind = "bounded",
 				quantity_min = 1,
 			},
 		},
-		uses = {},
+		usages = {},
 	})
 	contains(bounded, "Quantity: at least 1")
 	local unknown = Provenance.render({
-		acquisitions = {
+		sources = {
 			{
-				acquisition_key = "unknown",
+				source_key = "unknown",
 				kind = "vendor",
-				player_access_state = "verified_player",
 				probability_kind = "unknown",
 				quantity_kind = "unknown",
 			},
 		},
-		uses = {},
+		usages = {},
 	})
 	absent(unknown, "Quantity:")
 	local class = Provenance.conditions({
 		{
 			gate_key = "class",
-			group_index = 0,
+			alternative_index = 0,
+			gate_index = 0,
 			atom_index = 0,
 			phase = "availability",
 			predicate = "actor_class",
@@ -432,25 +404,12 @@ function p.run()
 	)
 	contains(
 		Provenance.locations({
-			{ location_key = "formatter-fixture", relation = "unlocated", conditions = {} },
+			{ place_key = "formatter-fixture", relation = "unlocated", conditions = {} },
 		}),
 		"Location varies"
 	)
-	contains(
-		Provenance.acquisitionDetails({ count_distribution = '{"2":0.25,"0":0.75}' }),
-		"Yield: 0 (75%), 2 (25%)"
-	)
-	contains(
-		Provenance.acquisitionDetails({ count_distribution = "[0.75,0,0.25]" }),
-		"Yield: 0 (75%), 1 (0%), 2 (25%)"
-	)
-	local legacyDistribution = pcall(
-		Provenance.acquisitionDetails,
-		{ count_distribution = '[{"Count":0,"Chance":"75%"}]' }
-	)
-	if legacyDistribution then
-		error("Legacy count objects are not the canonical distribution contract")
-	end
+	contains(Provenance.acquisitionDetails({ guaranteed = true }), "Guaranteed item")
+	absent(Provenance.acquisitionDetails({ guaranteed = false }), "Guaranteed item")
 	local exactKey =
 		ItemData.renderArgs(frame, { stablekey = "item:arm - 19  - ancient guardian sleeve" })
 	contains(exactKey, 'data-erenshor-key="item:arm - 19&#32;&#32;- ancient guardian sleeve"')
@@ -464,7 +423,8 @@ function p.run()
 	local gates = Provenance.conditions({
 		{
 			gate_key = "time",
-			group_index = 0,
+			alternative_index = 0,
+			gate_index = 0,
 			atom_index = 0,
 			phase = "availability",
 			predicate = "time_of_day",
@@ -472,15 +432,17 @@ function p.run()
 		},
 		{
 			gate_key = "time",
-			group_index = 1,
+			alternative_index = 1,
+			gate_index = 0,
 			atom_index = 0,
 			phase = "availability",
 			predicate = "time_of_day",
 			value = "night",
 		},
 		{
-			gate_key = "level",
-			group_index = 0,
+			gate_key = "time",
+			gate_index = 1,
+			alternative_index = 0,
 			atom_index = 0,
 			phase = "availability",
 			predicate = "actor_level",
@@ -492,70 +454,39 @@ function p.run()
 	local account = Provenance.conditions({
 		{
 			gate_key = "claim",
-			group_index = 0,
+			alternative_index = 0,
+			gate_index = 0,
 			atom_index = 0,
 			predicate = "account_state",
 			actor = "account",
 			reference_stable_key = "account_state:reliquary_claimed",
 			value = "false",
 			phase = "availability",
-			scope = "claim-location",
-		},
-		{
-			gate_key = "claim",
-			group_index = 0,
-			atom_index = 0,
-			predicate = "account_state",
-			actor = "account",
-			reference_stable_key = "account_state:reliquary_claimed",
-			value = "true",
-			phase = "operation_outcome",
-			scope = "claim-location",
 		},
 	})
 	contains(account, "Reliquary Hall unclaimed on this account")
-	contains(account, "Result:")
-	contains(account, "Reliquary Hall claimed on this account")
 	contains(account, 'data-erenshor-reference="account_state:reliquary_claimed"')
-	contains(account, 'data-erenshor-scope="claim-location"')
 	absent(account, "quest:")
 	local questAlias = pcall(Provenance.conditions, {
 		{
 			gate_key = "claim",
-			group_index = 0,
+			alternative_index = 0,
+			gate_index = 0,
 			atom_index = 0,
 			predicate = "account_state",
 			actor = "account",
 			reference_stable_key = "quest:reliquary_claimed",
 			value = "false",
 			phase = "availability",
-			scope = "claim-location",
 		},
 	})
 	if questAlias then
 		error("Account claim state must not accept a quest alias")
 	end
-	local outcomeAlias = pcall(Provenance.conditions, {
-		{
-			gate_key = "claim",
-			group_index = 0,
-			atom_index = 0,
-			predicate = "account_state",
-			actor = "account",
-			reference_stable_key = "account_state:reliquary_claimed",
-			value = "true",
-			phase = "outcome",
-			scope = "claim-location",
-		},
-	})
-	if outcomeAlias then
-		error("Account claim state must use operation_outcome, not an outcome alias")
-	end
-	local forge = Provenance.conditions({
+	local forge = Provenance.parameters({
 		{
 			gate_key = "fuel",
-			group_index = 0,
-			atom_index = 0,
+			parameter_index = 0,
 			predicate = "formula_operand",
 			value = "fuel_level",
 			minimum = 0,
@@ -564,38 +495,30 @@ function p.run()
 		},
 		{
 			gate_key = "counts",
-			group_index = 0,
-			atom_index = 0,
+			parameter_index = 1,
 			predicate = "formula_operand",
 			value = "equal_positive_stone_counts",
 			minimum = 1,
 			phase = "operation_input",
-		},
-		{
-			gate_key = "quality",
-			group_index = 0,
-			atom_index = 0,
-			predicate = "quality",
-			minimum = 11,
-			maximum = 14,
-			phase = "operation_input",
-		},
-		{
-			gate_key = "calibration",
-			group_index = 0,
-			atom_index = 0,
-			predicate = "formula_operand",
-			value = "initial_owned_unique_item_count",
-			minimum = 0,
-			phase = "source_initialization",
 		},
 	})
 	contains(forge, "Fuel level 0")
 	absent(forge, "Fuel level 0%")
 	contains(forge, "Equal-sized stacks of both stones at least 1 each")
 	absent(forge, "each%")
-	contains(forge, "Improved +1 to Improved +4")
-	absent(forge, "initial_owned_unique_item_count")
+	local quality = Provenance.conditions({
+		{
+			gate_index = 0,
+			gate_key = "quality",
+			alternative_index = 0,
+			atom_index = 0,
+			predicate = "quality",
+			minimum = 11,
+			maximum = 14,
+			phase = "operation_input",
+		},
+	})
+	contains(quality, "Improved +1 to Improved +4")
 	local formulaCases = {
 		{ "selected_fuel_level_plus_one", "operation_outcome" },
 		{ "matching_input_quality", "operation_input" },
@@ -609,11 +532,10 @@ function p.run()
 		},
 	}
 	for _, case in ipairs(formulaCases) do
-		local shown = Provenance.conditions({
+		local shown = Provenance.parameters({
 			{
 				gate_key = "operation",
-				group_index = 0,
-				atom_index = 0,
+				parameter_index = 0,
 				predicate = "formula_operand",
 				value = case[1],
 				phase = case[2],
@@ -624,23 +546,21 @@ function p.run()
 		end
 	end
 	local byproduct = {
-		acquisition_key = "byproduct-fixture",
+		source_key = "byproduct-fixture",
 		item_stable_key = "item:bear_pelt",
 		kind = "crafting",
 		source_stable_key = "item:bear_meat",
 		mechanic = "remove_blessing",
 		variant_key = "blessing_removal_byproduct",
-		player_access_state = "verified_player",
 		probability_kind = "not_applicable",
-		probability_stage = "final_acquisition",
 		quantity_kind = "exact",
 		quantity_min = 1,
 		quantity_max = 1,
 	}
 	local operation = Provenance.render({
 		references = REFERENCES,
-		acquisitions = { byproduct },
-		uses = {
+		sources = { byproduct },
+		usages = {
 			{
 				use_key = "removal-fixture",
 				item_stable_key = "item:bear_meat",

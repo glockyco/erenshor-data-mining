@@ -1,5 +1,6 @@
-from dataclasses import replace
+from dataclasses import asdict, replace
 from types import SimpleNamespace
+from typing import Any
 
 import pytest
 
@@ -12,13 +13,12 @@ from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.entities.spell import Spell
 from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
-from erenshor.domain.value_objects.item_provenance import (
-    ItemAcquisition,
-    ItemDisposition,
-    ItemUse,
-    ProvenanceCondition,
-    ProvenanceLocation,
-    fact_to_dict,
+from erenshor.domain.value_objects.item_public_view import (
+    ItemStatus,
+    PublicCondition,
+    PublicPlace,
+    PublicSource,
+    PublicUse,
 )
 from erenshor.domain.value_objects.proc_info import ProcInfo
 from erenshor.domain.value_objects.source_info import SourceInfo
@@ -280,17 +280,63 @@ def _source(
     kind: str,
     source: str | None = None,
     chance: float | None = None,
-) -> ItemAcquisition:
-    return ItemAcquisition(
-        key,
-        item,
-        kind,
-        source,
+) -> PublicSource:
+    return PublicSource(
+        source_key=key,
+        item_stable_key=item,
+        kind=kind,
+        source_stable_key=source,
+        source_group_key=None,
+        source_copy_stable_key=None,
+        variant_key=None,
+        mechanic=None,
         probability_kind="unknown" if chance is None else "exact",
         probability_min=chance,
         probability_max=chance,
         probability_basis="per_kill",
+        quantity_kind="exact",
+        quantity_min=1,
+        quantity_max=1,
+        expected_quantity=1,
+        guaranteed=chance == 100,
+        place_set_key=None,
     )
+
+
+def _place(key: str, relation: str, **fields: Any) -> PublicPlace:
+    values: dict[str, Any] = {
+        "place_set_key": "places:fixture",
+        "place_key": key,
+        "relation": relation,
+        "scene": None,
+        "zone_stable_key": None,
+        "marker_stable_key": None,
+        "x": None,
+        "y": None,
+        "z": None,
+        "player_level_min": None,
+        "player_level_max": None,
+        "source_copy_stable_key": None,
+    }
+    return PublicPlace(**(values | fields))
+
+
+def _use(key: str, item: str, target: str, kind: str, **fields: Any) -> PublicUse:
+    values: dict[str, Any] = {
+        "use_key": key,
+        "item_stable_key": item,
+        "target_stable_key": target,
+        "kind": kind,
+        "variant_key": None,
+        "material_slot": None,
+        "quantity_kind": "exact",
+        "quantity_min": 1,
+        "quantity_max": 1,
+        "mechanic": None,
+        "outcome_key": None,
+        "place_set_key": None,
+    }
+    return PublicUse(**(values | fields))
 
 
 @pytest.mark.parametrize("eligible", [False, True])
@@ -330,7 +376,7 @@ def test_item_source_preserves_small_world_chances_and_enemy_gate() -> None:
         replace(
             _source("acq:1", item.stable_key, "special_world_drop", chance=0.05),
             conditions=(
-                ProvenanceCondition("level", 0, 0, "actor_level", actor="enemy", minimum=30, minimum_inclusive=False),
+                PublicCondition(0, 0, 0, "level", "actor_level", actor="enemy", minimum=30, minimum_inclusive=False),
             ),
         ),
         _source("acq:2", item.stable_key, "special_world_drop", chance=0.625),
@@ -371,7 +417,7 @@ def test_common_world_bounds_and_distinct_copy_sources_survive_folding() -> None
     assert result.count("Any enemy with common drops (0.1% to 0.9% per kill)") == 1
     for link in links.values():
         assert result.count(str(link)) == 1
-    assert generator.provenance_manifest(sources)["acquisitions"] == [fact_to_dict(fact) for fact in facts]
+    assert generator.provenance_manifest(sources)["acquisitions"] == [asdict(fact) for fact in facts]
 
 
 def test_vendor_gate_alternatives_and_furniture_location_are_not_erased() -> None:
@@ -386,20 +432,18 @@ def test_vendor_gate_alternatives_and_furniture_location_are_not_erased() -> Non
     fact = replace(
         _source("acq:vendor", item.stable_key, "vendor", "character:vendor"),
         conditions=(
-            ProvenanceCondition("unlock", 0, 0, "quest_done", "quest:a"),
-            ProvenanceCondition("unlock", 1, 0, "quest_done", "quest:b"),
+            PublicCondition(0, 0, 0, "unlock", "quest_done", "quest:a"),
+            PublicCondition(0, 1, 0, "unlock", "quest_done", "quest:b"),
         ),
-        location_source_key="character:vendor",
-        locations=(
-            ProvenanceLocation(
-                "placement:room",
-                "spawn",
-                zone_stable_key="zone:hall",
-                conditions=(ProvenanceCondition("furniture", 0, 0, "room_furnished", "item:furniture", "L1"),),
-            ),
-        ),
+        place_set_key="places:fixture",
     )
-    sources = SourceInfo(acquisitions=(fact,), links=links)
+    place = _place(
+        "placement:room",
+        "spawn",
+        zone_stable_key="zone:hall",
+        conditions=(PublicCondition(0, 0, 0, "furniture", "room_furnished", "item:furniture", "L1"),),
+    )
+    sources = SourceInfo(acquisitions=(fact,), links=links, places={"places:fixture": (place,)})
     result = ItemSectionGenerator().generate_template(
         EnrichedItemData(item=item, stats=[], classes=[], sources=sources),
         "Test",
@@ -408,32 +452,82 @@ def test_vendor_gate_alternatives_and_furniture_location_are_not_erased() -> Non
     assert "after furnishing room L1 with {{ItemLink|stablekey=item:furniture}}" in result
 
 
-def test_fishing_keeps_day_night_final_rates_and_hides_native_pool_evidence() -> None:
+def test_public_inventory_transfer_route_is_rendered_on_the_item_article() -> None:
+    item = Item(stable_key="item:portals", item_name="Box of Portals")
+    source = replace(
+        _source("source:portals", item.stable_key, "ui_grant"),
+        conditions=(PublicCondition(0, 0, 0, "route", "route", value="normal_pointer_inventory_transfer"),),
+    )
+    text = ItemSectionGenerator().generate_template(
+        EnrichedItemData(item=item, stats=[], classes=[], sources=SourceInfo(acquisitions=(source,))),
+        "Box of Portals",
+    )
+    assert "Drag into your inventory" in text
+    assert "normal_pointer_inventory_transfer" not in text
+
+
+@pytest.mark.parametrize(
+    ("minimum", "maximum", "minimum_inclusive", "maximum_inclusive", "gate", "expected"),
+    [
+        (2, 3, True, True, "equipment_input", "Quality Blessed or Ascended"),
+        (11, 15, True, True, "equipment_input", "Quality Improved"),
+        (11, 15, False, False, "equipment_input", "Quality Improved +2 to Improved +4"),
+        (1, 1, True, True, "result_quality", "Result quality Standard"),
+        (0, 99, True, True, "equipment_input", "Quality Any quality"),
+        (12, 12, True, True, "enhanced_quality", "Improved result quality Improved +2"),
+        (1, 3, True, True, "result_quality", "Result quality Standard or Blessed or Ascended"),
+    ],
+)
+def test_public_quality_bounds_render_runtime_ids_in_progression_order(
+    *,
+    minimum: float,
+    maximum: float,
+    minimum_inclusive: bool,
+    maximum_inclusive: bool,
+    gate: str,
+    expected: str,
+) -> None:
+    condition = PublicCondition(
+        0,
+        0,
+        0,
+        gate,
+        "quality",
+        minimum=minimum,
+        maximum=maximum,
+        minimum_inclusive=minimum_inclusive,
+        maximum_inclusive=maximum_inclusive,
+    )
+    source = replace(_source("source:quality", "item:fixture", "vendor"), conditions=(condition,))
+    assert expected in ItemSectionGenerator()._source_entry(source, SourceInfo())
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [("normal", "Standard"), ("divine", "Ascended"), ("11", "Improved +1"), ("matching", "Matching qualities")],
+)
+def test_public_named_quality_uses_existing_wiki_labels(value: str, expected: str) -> None:
+    condition = PublicCondition(0, 0, 0, "equipment_input", "quality", value=value)
+    assert ItemSectionGenerator()._condition(condition, SourceInfo()) == f"Quality: {expected}"
+
+
+def test_fishing_keeps_public_day_night_rates() -> None:
     item = Item(stable_key="item:fish", item_name="Fish")
     facts = tuple(
         replace(
             _source(f"acq:{period}", item.stable_key, "fishing", chance=chance),
             probability_basis="per_successful_catch",
-            conditions=(ProvenanceCondition("time", 0, 0, "time_of_day", value=period),),
+            conditions=(PublicCondition(0, 0, 0, "time", "time_of_day", value=period),),
         )
         for period, chance in (("day", 10), ("night", 30))
     )
-    native = replace(
-        facts[0],
-        acquisition_key="acq:native",
-        probability_stage="native_pool",
-        probability_min=99,
-        probability_max=99,
-    )
-    sources = SourceInfo(acquisitions=(*facts, native))
+    sources = SourceInfo(acquisitions=facts)
     result = ItemSectionGenerator().generate_template(
         EnrichedItemData(item=item, stats=[], classes=[], sources=sources),
         "Fish",
     )
     assert "10% per catch, day" in result
     assert "30% per catch, night" in result
-    assert "99%" not in result
-    assert len(ItemSectionGenerator().provenance_manifest(sources)["acquisitions"]) == 3
 
 
 def test_article_assembler_enumerates_every_canonical_recipe_without_raw_sql() -> None:
@@ -455,14 +549,13 @@ def test_article_assembler_enumerates_every_canonical_recipe_without_raw_sql() -
     generator.item_provenance_manifest = {}
     generator._item_source_links = {"item:mold_a": mold_a, "item:mold_b": mold_b}
     generator.context = SimpleNamespace(
-        item_provenance_repo=SimpleNamespace(
-            get_acquisitions=lambda _key: facts,
-            get_uses=lambda _key: [],
-            get_disposition=lambda key: ItemDisposition(
+        item_public_view=SimpleNamespace(
+            sources_for_item=lambda _key: facts,
+            uses_for_item=lambda _key: [],
+            status=lambda key: ItemStatus(
                 key,
                 "current",
                 reason="Current exported identity",
-                evidence="reviewed lifecycle input",
                 current_pages=("Reward",),
                 former_pages=("Former Reward",),
             ),
@@ -471,21 +564,21 @@ def test_article_assembler_enumerates_every_canonical_recipe_without_raw_sql() -
     )
     sources = generator._assemble_source_info(item)
     assert sources.disposition is not None
-    assert generator.item_provenance_manifest[item.stable_key]["disposition"] == fact_to_dict(sources.disposition)
+    assert generator.item_provenance_manifest[item.stable_key]["disposition"] == asdict(sources.disposition)
     enriched = EnrichedItemData(item=item, stats=[], classes=[], sources=sources)
     text = generator.item_generator._format_crafting_sources(enriched)[0]
     assert str(mold_a) in text and str(mold_b) in text
     assert f"2x {material_a}" in text and f"3x {material_b}" in text
-    assert generator.item_provenance_manifest[item.stable_key]["acquisitions"] == [fact_to_dict(fact) for fact in facts]
+    assert generator.item_provenance_manifest[item.stable_key]["acquisitions"] == [asdict(fact) for fact in facts]
 
 
 def test_container_pool_guarantee_does_not_guarantee_its_individual_item() -> None:
     item = Item(stable_key="item:container", item_name="Container")
-    outcome = replace(_source("acq:drop", "item:reward", "item_drop", item.stable_key, 25), guarantee_scope="pool")
-    use = ItemUse("use:drop", item.stable_key, "item:reward", "item_drop", outcome_key=outcome.acquisition_key)
+    outcome = _source("acq:drop", "item:reward", "item_drop", item.stable_key, 25)
+    use = _use("use:drop", item.stable_key, "item:reward", "item_drop", outcome_key=outcome.source_key)
     sources = SourceInfo(
         uses=(use,),
-        outcomes={outcome.acquisition_key: outcome},
+        outcomes={outcome.source_key: outcome},
         links={"item:reward": ItemLink("Reward", "Reward", stable_key="item:reward")},
     )
     enriched = EnrichedItemData(item=item, stats=[], classes=[], sources=sources)
@@ -498,8 +591,7 @@ def test_container_pool_guarantee_does_not_guarantee_its_individual_item() -> No
     "dimension",
     [
         "conditions",
-        "locations",
-        "location_source_key",
+        "place_set_key",
         "probability_min",
         "quantity_min",
         "source_stable_key",
@@ -513,9 +605,8 @@ def test_article_provenance_coverage_rejects_lost_fact_dimensions(dimension: str
         quantity_min=2,
         quantity_max=2,
         quantity_kind="exact",
-        conditions=(ProvenanceCondition("quest", 0, 0, "quest_done", "quest:unlock"),),
-        location_source_key="character:vendor_copy",
-        locations=(ProvenanceLocation("unlocated:vendor", "unlocated"),),
+        conditions=(PublicCondition(0, 0, 0, "quest", "quest_done", "quest:unlock"),),
+        place_set_key="places:fixture",
     )
     sources = SourceInfo(acquisitions=(fact,))
     generator = ItemSectionGenerator()
@@ -534,18 +625,13 @@ def test_article_provenance_coverage_rejects_lost_source_kind() -> None:
         generator.validate_provenance_manifest(sources, manifest)
 
 
-def test_native_ui_source_has_familiar_label_and_unconfirmed_paths_are_not_advertised() -> None:
+def test_public_ui_source_keeps_familiar_label() -> None:
     item = Item(stable_key="item:token", item_name="Token")
     fact = replace(
         _source("acq:ui", item.stable_key, "ui_grant", "ui:scene:path:ReplenishTMOGHide"),
         mechanic="cosmetic_panel",
     )
-    sources = SourceInfo(
-        acquisitions=(
-            fact,
-            replace(fact, acquisition_key="acq:unconfirmed", player_access_state="unconfirmed_player"),
-        )
-    )
+    sources = SourceInfo(acquisitions=(fact,))
     result = ItemSectionGenerator().generate_template(
         EnrichedItemData(item=item, stats=[], classes=[], sources=sources),
         "Token",
@@ -557,48 +643,23 @@ def test_native_ui_source_has_familiar_label_and_unconfirmed_paths_are_not_adver
 
 def _global_fishing_sources() -> SourceInfo:
     item_key = "item:map"
-    facts = [
+    global_source = replace(
+        _source("source:global", item_key, "fishing", chance=1.25),
+        mechanic="fishing_global_replacement",
+        probability_basis="per_successful_catch",
+    )
+    local_sources = tuple(
         replace(
-            _source(f"acq:water:{water}:{period}", item_key, "fishing", f"water:{water}", 1.25),
+            _source(f"source:brake:{period}", item_key, "fishing", "water:brake_topright", chance),
             probability_basis="per_successful_catch",
-            conditions=(ProvenanceCondition("time", 0, 0, "time_of_day", value=period),),
-            location_source_key=f"water:{water}",
-            locations=(
-                ProvenanceLocation(
-                    f"location:{water}",
-                    "fixed",
-                    zone_stable_key=f"zone:{water}",
-                ),
-            ),
-        )
-        for water in range(31)
-        for period in ("day", "night")
-    ]
-    facts.extend(
-        replace(
-            _source(f"acq:brake:{period}", item_key, "fishing", "water:brake_topright", chance),
-            probability_basis="per_successful_catch",
-            conditions=(ProvenanceCondition("time", 0, 0, "time_of_day", value=period),),
-            location_source_key="water:brake_topright",
-            locations=(
-                ProvenanceLocation(
-                    "location:brake",
-                    "fixed",
-                    zone_stable_key="zone:brake",
-                ),
-            ),
+            conditions=(PublicCondition(0, 0, 0, "time", "time_of_day", value=period),),
+            place_set_key="places:fixture",
         )
         for period, chance in (("day", 7.1875), ("night", 7.583333))
     )
-    facts.append(
-        replace(
-            _source("acq:global", item_key, "fishing_bonus", chance=1.25),
-            probability_stage="native_pool",
-            probability_basis="per_successful_catch",
-        )
-    )
     return SourceInfo(
-        acquisitions=tuple(facts),
+        acquisitions=(global_source, *local_sources),
+        places={"places:fixture": (_place("location:brake", "fixed", zone_stable_key="zone:brake"),)},
         links={"zone:brake": ZoneLink("Brake", "Brake", stable_key="zone:brake")},
     )
 
@@ -616,63 +677,35 @@ def test_global_fishing_roll_has_one_summary_while_native_overlap_keeps_local_ti
     assert text.count("{{ZoneLink|stablekey=zone:brake}}") == 2
 
 
-def test_global_fishing_summary_preserves_reversible_member_and_native_evidence_identities() -> None:
+def test_public_fishing_sources_and_places_keep_their_identities_in_the_manifest() -> None:
     sources = _global_fishing_sources()
     generator = ItemSectionGenerator()
     manifest = generator.provenance_manifest(sources)
-    groups = manifest["fishing_groups"]
-    assert len(groups) == 1
-    assert groups[0]["chance"] == 1.25
-    assert set(groups[0]["member_acquisition_keys"]) == {
-        f"acq:water:{water}:{period}" for water in range(31) for period in ("day", "night")
-    }
-    assert groups[0]["native_pool_acquisition_keys"] == ["acq:global"]
-    assert manifest["acquisitions"] == [fact_to_dict(fact) for fact in sources.acquisitions]
-    assert not any(key.startswith("acq:brake:") for key in groups[0]["member_acquisition_keys"])
-
-
-def test_global_fishing_summary_does_not_hide_additional_source_gates() -> None:
-    sources = _global_fishing_sources()
-    original = sources.acquisitions[0]
-    gated = replace(
-        original,
-        conditions=(*original.conditions, ProvenanceCondition("quest", 0, 0, "quest_done", "quest:unlock")),
-    )
-    sources.acquisitions = (gated, *sources.acquisitions[1:])
-    groups = ItemSectionGenerator()._fishing_summary_groups(sources)
-    members = {fact.acquisition_key for facts, _native in groups.values() for fact in facts}
-    assert gated.acquisition_key not in members
-    assert len(members) == 61
-
-
-def test_global_fishing_coverage_rejects_a_lost_group_member_identity() -> None:
-    sources = _global_fishing_sources()
-    generator = ItemSectionGenerator()
-    manifest = generator.provenance_manifest(sources)
-    manifest["fishing_groups"][0]["member_acquisition_keys"].pop()
-    with pytest.raises(ValueError, match="coverage differs for fishing_groups"):
+    assert manifest["acquisitions"] == [asdict(fact) for fact in sources.acquisitions]
+    assert manifest["places"] == {key: [asdict(place) for place in places] for key, places in sources.places.items()}
+    manifest["places"]["places:fixture"] = []
+    with pytest.raises(ValueError, match="coverage differs for places"):
         generator.validate_provenance_manifest(sources, manifest)
 
 
 def test_article_assembler_rejects_an_entity_without_canonical_lifecycle() -> None:
     generator = EntityPageGenerator.__new__(EntityPageGenerator)
     generator.context = SimpleNamespace(
-        item_provenance_repo=SimpleNamespace(get_disposition=lambda _key: None),
+        item_public_view=SimpleNamespace(status=lambda _key: None),
     )
-    with pytest.raises(ValueError, match="Canonical item disposition is missing: item:missing"):
+    with pytest.raises(ValueError, match="Public item status is missing: item:missing"):
         generator._assemble_source_info(Item(stable_key="item:missing", item_name="Missing"))
 
 
 @pytest.mark.parametrize(
     "dimension",
-    ["item_stable_key", "disposition", "reason", "evidence", "current_pages", "former_pages"],
+    ["item_stable_key", "disposition", "reason", "current_pages", "former_pages"],
 )
 def test_article_provenance_coverage_rejects_a_lost_lifecycle_dimension(dimension: str) -> None:
-    disposition = ItemDisposition(
+    disposition = ItemStatus(
         "item:map",
         "current",
         reason="Reviewed item identity",
-        evidence="lifecycle input",
         current_pages=("Map",),
         former_pages=("Old Map",),
     )
@@ -680,14 +713,14 @@ def test_article_provenance_coverage_rejects_a_lost_lifecycle_dimension(dimensio
     sources.disposition = disposition
     generator = ItemSectionGenerator()
     manifest = generator.provenance_manifest(sources)
-    assert manifest["disposition"] == fact_to_dict(disposition)
+    assert manifest["disposition"] == asdict(disposition)
     del manifest["disposition"][dimension]
     with pytest.raises(ValueError, match="coverage differs for disposition"):
         generator.validate_provenance_manifest(sources, manifest)
 
 
 def test_article_provenance_coverage_rejects_a_lost_lifecycle_record() -> None:
-    sources = SourceInfo(disposition=ItemDisposition("item:map", "current"))
+    sources = SourceInfo(disposition=ItemStatus("item:map", "current", reason=None))
     generator = ItemSectionGenerator()
     manifest = generator.provenance_manifest(sources)
     manifest["disposition"] = None
@@ -696,10 +729,8 @@ def test_article_provenance_coverage_rejects_a_lost_lifecycle_record() -> None:
 
 
 @pytest.mark.parametrize("state", ["removed", "unobtainable", "unused"])
-def test_reviewed_noncurrent_lifecycle_retains_facts_without_advertising_sources(state: str) -> None:
-    sources = _global_fishing_sources()
-    sources.disposition = ItemDisposition("item:map", state, evidence="reviewed lifecycle input")
-    sources.acquisitions += (_source("acq:vendor", "item:map", "vendor", "character:vendor"),)
+def test_noncurrent_public_status_without_sources_keeps_empty_source_fields(state: str) -> None:
+    sources = SourceInfo(disposition=ItemStatus("item:map", state, reason=None))
     generator = ItemSectionGenerator()
     enriched = EnrichedItemData(
         item=Item(stable_key="item:map", item_name="Map"),
@@ -709,13 +740,7 @@ def test_reviewed_noncurrent_lifecycle_retains_facts_without_advertising_sources
     )
     assert generator._format_vendor_sources(enriched) == ""
     assert generator._format_fishing(enriched) == ""
-    manifest = generator.provenance_manifest(sources)
-    assert manifest["disposition"] == fact_to_dict(sources.disposition)
-    assert manifest["acquisitions"] == [fact_to_dict(fact) for fact in sources.acquisitions]
-    assert manifest["fishing_groups"] == []
-    assert all(
-        row["field"] is None and "non-current lifecycle" in row["reason"] for row in manifest["presentation"].values()
-    )
+    assert generator.provenance_manifest(sources)["disposition"] == asdict(sources.disposition)
 
 
 @pytest.mark.parametrize(
@@ -728,31 +753,27 @@ def test_account_availability_uses_familiar_state_label_without_exposing_metadat
 ) -> None:
     item = Item(stable_key="item:arbitrary", item_name="Arbitrary")
     location_key = "location:account-gated-vendor"
-    condition = ProvenanceCondition(
+    condition = PublicCondition(
+        0,
+        0,
+        0,
         "account",
-        0,
-        0,
         "account_state",
         "account_state:reliquary_claimed",
         actor="account",
         value=value,
-        scope=location_key,
-        phase="availability",
     )
     fact = replace(
         _source("acq:account", item.stable_key, "vendor", "character:vendor"),
-        location_source_key="character:vendor",
-        locations=(
-            ProvenanceLocation(
-                location_key,
-                "interaction",
-                zone_stable_key="zone:hall",
-                conditions=(condition,),
-            ),
-        ),
+        place_set_key="places:fixture",
     )
     sources = SourceInfo(
         acquisitions=(fact,),
+        places={
+            "places:fixture": (
+                _place(location_key, "interaction", zone_stable_key="zone:hall", conditions=(condition,)),
+            )
+        },
         links={
             "character:vendor": CharacterLink("Vendor", "Vendor", stable_key="character:vendor"),
             "zone:hall": ZoneLink("Hall", "Hall", stable_key="zone:hall"),
@@ -766,49 +787,7 @@ def test_account_availability_uses_familiar_state_label_without_exposing_metadat
     assert "account_state" not in text
     assert location_key not in text
     assert "availability" not in text
-    assert generator.provenance_manifest(sources)["acquisitions"] == [fact_to_dict(fact)]
-
-
-def test_account_outcome_does_not_become_a_contradictory_availability_requirement() -> None:
-    item = Item(stable_key="item:arbitrary", item_name="Arbitrary")
-    location_key = "location:account-gated-source"
-    availability = ProvenanceCondition(
-        "account",
-        0,
-        0,
-        "account_state",
-        "account_state:reliquary_claimed",
-        actor="account",
-        value="false",
-        scope=location_key,
-        phase="availability",
-    )
-    outcome = replace(availability, atom_index=1, value="true", phase="operation_outcome")
-    fact = replace(
-        _source("acq:account", item.stable_key, "character_drop", "character:source", 100),
-        location_source_key="character:source",
-        locations=(
-            ProvenanceLocation(
-                location_key,
-                "spawn",
-                zone_stable_key="zone:hall",
-                conditions=(availability, outcome),
-            ),
-        ),
-    )
-    sources = SourceInfo(acquisitions=(fact,))
-    generator = ItemSectionGenerator()
-    text = generator._format_drop_sources(
-        EnrichedItemData(item=item, stats=[], classes=[], sources=sources),
-    )
-    assert text.count("before claiming your Reliquary") == 1
-    assert "after claiming your Reliquary" not in text
-    assert "operation_outcome" not in text
-    manifest = generator.provenance_manifest(sources)
-    assert manifest["acquisitions"] == [fact_to_dict(fact)]
-    conditions = manifest["acquisitions"][0]["locations"][0]["conditions"]
-    assert [condition["phase"] for condition in conditions] == ["availability", "operation_outcome"]
-    assert [condition["scope"] for condition in conditions] == [location_key, location_key]
+    assert generator.provenance_manifest(sources)["acquisitions"] == [asdict(fact)]
 
 
 def test_blessing_removal_byproduct_is_not_an_ordinary_recipe_and_resolves_its_actual_outcome() -> None:
@@ -826,10 +805,11 @@ def test_blessing_removal_byproduct_is_not_an_ordinary_recipe_and_resolves_its_a
         probability_kind="not_applicable",
         probability_basis="not_applicable",
         conditions=(
-            ProvenanceCondition(
+            PublicCondition(
+                0,
+                0,
+                0,
                 "equipment_input",
-                0,
-                0,
                 "quality",
                 minimum=2,
                 maximum=3,
@@ -837,19 +817,19 @@ def test_blessing_removal_byproduct_is_not_an_ordinary_recipe_and_resolves_its_a
             ),
         ),
     )
-    use = ItemUse(
+    use = _use(
         "use:remove_blessing",
         equipment.stable_key,
         diamond_key,
         "smithing",
         mechanic="remove_blessing",
-        outcome_key=byproduct.acquisition_key,
+        outcome_key=byproduct.source_key,
         quantity_min=1,
         quantity_max=1,
         quantity_kind="exact",
     )
 
-    def acquisitions(key: str) -> list[ItemAcquisition]:
+    def acquisitions(key: str) -> list[PublicSource]:
         assert key != diamond_key, "The operation target is not the byproduct's item identity."
         return [byproduct] if key == shard.stable_key else []
 
@@ -862,11 +842,11 @@ def test_blessing_removal_byproduct_is_not_an_ordinary_recipe_and_resolves_its_a
     generator.item_provenance_manifest = {}
     generator._item_source_links = {diamond_key: diamond}
     generator.context = SimpleNamespace(
-        item_provenance_repo=SimpleNamespace(
-            get_disposition=lambda key: ItemDisposition(key, "current"),
-            get_acquisitions=acquisitions,
-            get_uses=lambda key: [use] if key == equipment.stable_key else [],
-            iter_acquisitions=lambda: iter((byproduct,)),
+        item_public_view=SimpleNamespace(
+            status=lambda key: ItemStatus(key, "current", reason=None),
+            sources_for_item=acquisitions,
+            uses_for_item=lambda key: [use] if key == equipment.stable_key else [],
+            source=lambda key: byproduct if key == byproduct.source_key else None,
         ),
         item_repo=SimpleNamespace(get_crafting_recipe=recipe),
     )
@@ -875,11 +855,97 @@ def test_blessing_removal_byproduct_is_not_an_ordinary_recipe_and_resolves_its_a
     text = generator.item_generator._format_crafting_sources(
         EnrichedItemData(item=shard, stats=[], classes=[], sources=shard_sources),
     )[0]
-    assert text == f"From removing a blessing with {diamond}"
-    assert generator.item_provenance_manifest[shard.stable_key]["acquisitions"] == [fact_to_dict(byproduct)]
+    assert text == f"From removing a blessing with {diamond} (Quality Blessed or Ascended)"
+    assert generator.item_provenance_manifest[shard.stable_key]["acquisitions"] == [asdict(byproduct)]
 
     equipment_sources = generator._assemble_source_info(equipment)
     assert equipment_sources.outcomes[use.outcome_key] is byproduct
     manifest = generator.item_provenance_manifest[equipment.stable_key]
-    assert manifest["uses"] == [fact_to_dict(use)]
-    assert manifest["outcomes"] == [fact_to_dict(byproduct)]
+    assert manifest["uses"] == [asdict(use)]
+    assert manifest["outcomes"] == [asdict(byproduct)]
+
+
+def test_each_crafting_source_keeps_its_own_quality_conditions() -> None:
+    mold = ItemLink("Mold", "Mold", stable_key="item:mold")
+    material = ItemLink("Ore", "Ore", stable_key="item:ore")
+    sources = SourceInfo(
+        acquisitions=tuple(
+            replace(
+                _source(f"source:{quality}", "item:reward", "crafting", mold.stable_key),
+                conditions=(PublicCondition(0, 0, 0, "equipment_input", "quality", value=quality),),
+            )
+            for quality in ("standard", "11")
+        ),
+        recipes=[(mold, CraftingRecipe(materials=[(material, 2)]))],
+    )
+    text, _components = ItemSectionGenerator()._format_crafting_sources(
+        EnrichedItemData(item=Item(stable_key="item:reward"), stats=[], classes=[], sources=sources)
+    )
+    assert text.count(str(mold)) == 2
+    assert "(Quality: Standard)" in text
+    assert "(Quality: Improved +1)" in text
+
+
+@pytest.mark.parametrize(
+    "kind",
+    ["crafting_material", "smithing", "quality_offering", "spell_created", "item_conversion"],
+)
+def test_public_component_uses_render_source_and_place_conditions(kind: str) -> None:
+    use = _use(
+        "use:fixture",
+        "item:fixture",
+        "item:target",
+        kind,
+        place_set_key="places:fixture",
+        conditions=(PublicCondition(0, 0, 0, "equipment_input", "quality", minimum=2, maximum=3),),
+    )
+    sources = SourceInfo(
+        uses=(use,),
+        places={
+            "places:fixture": (
+                _place(
+                    "place:fixture",
+                    "interaction",
+                    zone_stable_key="zone:hall",
+                    conditions=(PublicCondition(0, 0, 0, "time", "time_of_day", value="night"),),
+                ),
+            ),
+        },
+        links={"zone:hall": ZoneLink("Hall", "Hall", stable_key="zone:hall")},
+    )
+    _recipes, text = ItemSectionGenerator()._format_crafting_sources(
+        EnrichedItemData(item=Item(stable_key="item:fixture"), stats=[], classes=[], sources=sources)
+    )
+    assert "Quality Blessed or Ascended" in text
+    assert "in {{ZoneLink|stablekey=zone:hall}} (night)" in text
+
+
+def test_legacy_zone_restriction_omission_remains_explicit_in_manifest() -> None:
+    use = _use("use:zone", "item:fixture", "zone:hall", "zone_restriction")
+    manifest = ItemSectionGenerator().provenance_manifest(SourceInfo(uses=(use,)))
+    assert manifest["uses"] == [asdict(use)]
+    assert manifest["presentation"][use.use_key] == {
+        "field": None,
+        "reason": "The legacy item template has no zone-restriction parameter.",
+    }
+
+
+def test_mold_reward_preserves_its_public_use_condition() -> None:
+    reward = ItemLink("Reward", "Reward", stable_key="item:reward")
+    sources = SourceInfo(
+        uses=(
+            _use(
+                "use:reward",
+                "item:mold",
+                "item:reward",
+                "crafting_recipe",
+                variant_key="1",
+                conditions=(PublicCondition(0, 0, 0, "result_quality", "quality", minimum=11, maximum=15),),
+            ),
+        ),
+        crafting_results=[(reward, 2)],
+    )
+    text = ItemSectionGenerator()._generate_mold_page(
+        EnrichedItemData(item=Item(stable_key="item:mold"), stats=[], classes=[], sources=sources)
+    )
+    assert f"2x {reward} (Result quality Improved)" in text

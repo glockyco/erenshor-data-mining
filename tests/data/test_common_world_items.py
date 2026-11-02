@@ -7,7 +7,7 @@ import pytest
 
 from erenshor.infrastructure.database.connection import DatabaseConnection
 from erenshor.infrastructure.database.repositories.characters import CharacterRepository
-from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
+from erenshor.infrastructure.database.repositories.item_public_view import ItemPublicViewRepository
 from erenshor.infrastructure.database.repositories.items import ItemRepository
 
 _OWN_DROP = """(
@@ -98,7 +98,7 @@ def test_bread_is_one_combined_own_and_world_drop_row(main_raw_db, main_clean_db
 
 def test_common_world_item_sources_preserve_reachable_swap_bounds(main_clean_db: Path) -> None:
     with sqlite3.connect(main_clean_db) as clean, DatabaseConnection(main_clean_db, read_only=True) as db:
-        provenance = ItemProvenanceRepository(db)
+        provenance = ItemPublicViewRepository(db)
         pool = clean.execute("SELECT item_stable_key FROM common_world_items").fetchall()
         assert pool
         for (item_key,) in pool:
@@ -111,7 +111,7 @@ def test_common_world_item_sources_preserve_reachable_swap_bounds(main_clean_db:
                 (item_key,),
             ).fetchone()
             assert count > 0, item_key
-            sources = [fact for fact in provenance.get_acquisitions(item_key) if fact.kind == "common_world_item"]
+            sources = [fact for fact in provenance.sources_for_item(item_key) if fact.kind == "common_world_item"]
             assert len(sources) == 1, item_key
             source = sources[0]
             assert source.source_stable_key is None
@@ -121,30 +121,10 @@ def test_common_world_item_sources_preserve_reachable_swap_bounds(main_clean_db:
             assert source.probability_max == pytest.approx(maximum)
 
 
-def test_bread_page_has_one_common_world_item_drop_range(main_clean_db: Path, main_wiki_generated: Path) -> None:
-    with sqlite3.connect(main_clean_db) as clean:
-        rows = clean.execute(
-            f"""SELECT MIN(ld.drop_probability), MAX(ld.drop_probability), COUNT(*)
-                FROM loot_drops ld
-                JOIN character_fact_sources s ON s.member_stable_key = ld.character_stable_key
-                JOIN items i ON i.stable_key = ld.item_stable_key
-                WHERE i.display_name = 'Bread' AND ld.is_common_world_item = 1
-                  AND NOT {_OWN_DROP} AND ld.drop_probability > 0"""
-        ).fetchone()
-    minimum, maximum, count = rows
-    assert count > 0
-    low, high = f"{minimum:.1f}", f"{maximum:.1f}"
-    chance = low if low == high else f"{low}\u2013{high}"
-    page = (main_wiki_generated / "Bread.txt").read_text()
-    source = next(line for line in page.splitlines() if line.startswith("|source="))
-    assert source.count("Any enemy with common drops") == 1
-    assert f"Any enemy with common drops ({chance}% per kill)" in source
-
-
 def test_character_page_loot_excludes_swap_only_rows_and_retains_combined_rows(main_clean_db: Path) -> None:
     with sqlite3.connect(main_clean_db) as clean, DatabaseConnection(main_clean_db, read_only=True) as db:
         characters = CharacterRepository(db)
-        provenance = ItemProvenanceRepository(db)
+        provenance = ItemPublicViewRepository(db)
         rows = clean.execute(
             f"""SELECT ld.character_stable_key, ld.item_stable_key, {_OWN_DROP} AS own_drop
                 FROM loot_drops ld
@@ -159,7 +139,7 @@ def test_character_page_loot_excludes_swap_only_rows_and_retains_combined_rows(m
             for key in {key for key, _, _ in rows}
         }
         edges_by_character: dict[str, set[str]] = {key: set() for key in actual_by_character}
-        for fact in provenance.iter_acquisitions():
+        for fact in provenance.sources():
             if fact.kind == "character_drop" and fact.source_copy_stable_key in edges_by_character:
                 edges_by_character[fact.source_copy_stable_key].add(fact.item_stable_key)
         for character, item, own_drop in rows:
@@ -174,24 +154,22 @@ def test_common_pool_named_drops_preserve_native_copy_dimensions(main_raw_db: Pa
         DatabaseConnection(main_clean_db, read_only=True) as db,
     ):
         items_repo = ItemRepository(db)
-        provenance = ItemProvenanceRepository(db)
+        provenance = ItemPublicViewRepository(db)
         pool = {row[0] for row in clean.execute("SELECT item_stable_key FROM common_world_items")}
         items = [item for item in items_repo.get_items_for_wiki_generation() if item.stable_key in pool]
         assert {item.stable_key for item in items} == pool
         compared = 0
-        excluded_compared = 0
         for item in items:
             rows = clean.execute(
-                f"""SELECT ld.character_stable_key, s.group_key, ld.drop_probability,
-                           ld.expected_per_kill, ld.drop_count_distribution, ld.is_guaranteed,
-                           c.guaranteed_drop_rolls
-                    FROM loot_drops ld
+                """SELECT ld.character_stable_key, s.group_key, ld.drop_probability, ld.expected_per_kill
+                    FROM item_sources public
+                    JOIN loot_drops ld ON ld.item_stable_key = public.item_stable_key
+                      AND ld.character_stable_key = public.source_copy_stable_key
                     JOIN character_fact_sources s ON s.member_stable_key = ld.character_stable_key
-                    JOIN characters c ON c.stable_key = ld.character_stable_key
-                    WHERE ld.item_stable_key = ? AND {_OWN_DROP}""",
+                    WHERE public.item_stable_key = ? AND public.kind = 'character_drop'""",
                 (item.stable_key,),
             ).fetchall()
-            facts = [fact for fact in provenance.get_acquisitions(item.stable_key) if fact.kind == "character_drop"]
+            facts = [fact for fact in provenance.sources_for_item(item.stable_key) if fact.kind == "character_drop"]
             by_copy = {fact.source_copy_stable_key: fact for fact in facts}
             assert len(by_copy) == len(facts)
             clean_copies = {
@@ -200,27 +178,16 @@ def test_common_pool_named_drops_preserve_native_copy_dimensions(main_raw_db: Pa
                     "SELECT character_stable_key FROM loot_drops WHERE item_stable_key = ?", (item.stable_key,)
                 )
             }
-            # Excluded serialized copies remain facts, not player acquisition paths.
             excluded = {
-                copy: (chance, expected, distribution)
-                for copy, chance, expected, distribution in raw.execute(
-                    """SELECT CharacterStableKey, DropProbability, ExpectedPerKill, DropCountDistribution
-                       FROM LootDrops WHERE ItemStableKey = ?""",
-                    (item.stable_key,),
+                copy
+                for (copy,) in raw.execute(
+                    "SELECT CharacterStableKey FROM LootDrops WHERE ItemStableKey = ?", (item.stable_key,)
                 )
                 if copy not in clean_copies
             }
-            assert set(by_copy) == {row[0] for row in rows} | set(excluded), item.stable_key
-            for copy, (chance, expected, distribution) in excluded.items():
-                fact = by_copy[copy]
-                assert fact.player_access_state == "non_acquirable"
-                assert any(atom.predicate == "never" for atom in fact.conditions)
-                assert fact.probability_min == chance
-                assert fact.probability_max == chance
-                assert fact.expected_quantity == expected
-                assert fact.count_distribution == distribution
-                excluded_compared += 1
-            for copy, group, chance, expected, distribution, guaranteed, rolls in rows:
+            assert set(by_copy) == {row[0] for row in rows}, item.stable_key
+            assert set(by_copy).isdisjoint(excluded)
+            for copy, group, chance, expected in rows:
                 fact = by_copy[copy]
                 assert fact.source_stable_key == group
                 assert fact.source_group_key == group
@@ -228,11 +195,6 @@ def test_common_pool_named_drops_preserve_native_copy_dimensions(main_raw_db: Pa
                 assert fact.probability_max == chance
                 assert fact.probability_kind == ("unknown" if chance is None else "exact")
                 assert fact.probability_basis == "per_kill"
-                assert fact.probability_stage == "final_acquisition"
                 assert fact.expected_quantity == expected
-                assert fact.count_distribution == distribution
-                assert fact.guarantee_scope == ("pool" if guaranteed else None)
-                assert fact.guaranteed_roll_count == (rolls if guaranteed else None)
                 compared += 1
         assert compared > 0
-        assert excluded_compared > 0

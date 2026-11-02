@@ -162,8 +162,8 @@ def test_article_coverage_manifest_matches_only_the_selected_run(
     context = SimpleNamespace(storage=storage)
     generator = EntityPageGenerator.__new__(EntityPageGenerator)
     generator.item_provenance_manifest = {
-        "key:A": {"acquisitions": [{"acquisition_key": "reward:A"}], "uses": []},
-        "key:B": {"acquisitions": [{"acquisition_key": "reward:B"}], "uses": []},
+        "key:A": {"acquisitions": [{"source_key": "reward:A"}], "uses": []},
+        "key:B": {"acquisitions": [{"source_key": "reward:B"}], "uses": []},
     }
     monkeypatch.setattr(
         generator, "generate_pages", lambda: [_page("A", "{{Item|title=A}}"), _page("B", "{{Item|title=B}}")]

@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, cast
 from tests.unit.application.wiki_lua.fakes import (
     FakeItemRepository,
     make_item,
+    public_use,
 )
 
 from erenshor.application.wiki_lua.items import (
@@ -16,15 +17,15 @@ from erenshor.application.wiki_lua.items import (
 )
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
-from erenshor.domain.value_objects.item_provenance import ItemUse
 from erenshor.domain.value_objects.wiki_link import ItemLink
 
 if TYPE_CHECKING:
-    from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
+    from erenshor.domain.value_objects.item_public_view import PublicUse
+    from erenshor.infrastructure.database.repositories.item_public_view import ItemPublicViewRepository
 
 
-def _provenance_repo(uses: tuple[ItemUse, ...] = ()) -> ItemProvenanceRepository:
-    return cast("ItemProvenanceRepository", SimpleNamespace(get_uses=lambda _key: list(uses)))
+def _provenance_repo(uses: tuple[PublicUse, ...] = ()) -> ItemPublicViewRepository:
+    return cast("ItemPublicViewRepository", SimpleNamespace(uses_for_item=lambda _key: uses))
 
 
 def test_builds_item_index_and_sharded_records_with_tooltip_source_fields() -> None:
@@ -340,7 +341,7 @@ def test_lists_the_zones_where_using_an_item_has_another_outcome() -> None:
 def test_legacy_item_modules_use_canonical_zone_restrictions_without_source_schema_changes() -> None:
     item = make_item()
     repo = FakeItemRepository(items=[item], stats={}, classes={})
-    use = ItemUse(
+    use = public_use(
         "use:zone",
         item.stable_key,
         "zone:reliquary",

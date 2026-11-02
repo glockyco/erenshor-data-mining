@@ -5,17 +5,18 @@ from __future__ import annotations
 import json
 import math
 from collections import defaultdict
+from dataclasses import asdict
 from typing import TYPE_CHECKING, cast
 
 from erenshor.application.wiki_lua.views import DataView, ViewField, view_module_text
-from erenshor.domain.value_objects.item_provenance import PROVENANCE_SCHEMA_VERSION, fact_to_dict
+from erenshor.domain.value_objects.item_provenance import PROVENANCE_SCHEMA_VERSION
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable
     from pathlib import Path
 
-    from erenshor.domain.value_objects.item_provenance import ItemAcquisition
-    from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
+    from erenshor.domain.value_objects.item_public_view import PublicSource
+    from erenshor.infrastructure.database.repositories.item_public_view import ItemPublicViewRepository
 
 WORLD_DROPS = DataView(
     module="WorldDrops",
@@ -35,17 +36,11 @@ WORLD_DROPS = DataView(
 )
 
 
-def _world_drop_row(fact: ItemAcquisition) -> dict[str, object] | None:
+def _world_drop_row(fact: PublicSource) -> dict[str, object] | None:
     if fact.kind != "special_world_drop":
         return None
-    if fact.player_access_state != "verified_player" or fact.probability_stage != "final_acquisition":
-        return None
-    if any(condition.predicate == "never" for condition in fact.conditions):
-        return None
-    if fact.probability_max is not None and fact.probability_max <= 0:
-        return None
     if fact.probability_kind != "exact" or fact.probability_min is None:
-        raise ValueError(f"World-drop view needs an exact final chance: {fact.acquisition_key}")
+        raise ValueError(f"World-drop view needs an exact final chance: {fact.source_key}")
     minimum = 1
     for condition in fact.conditions:
         if condition.predicate == "actor_level" and condition.actor == "enemy" and condition.minimum is not None:
@@ -54,12 +49,12 @@ def _world_drop_row(fact: ItemAcquisition) -> dict[str, object] | None:
     return {"chance": fact.probability_min, "minLevel": minimum}
 
 
-def build_world_drop_rows(drops: Iterable[ItemAcquisition]) -> dict[str, list[dict[str, object]]]:
+def build_world_drop_rows(drops: Iterable[PublicSource]) -> dict[str, list[dict[str, object]]]:
     """Project each canonical final roll without merging distinct pool identities."""
     rolls: defaultdict[str, list[tuple[str, dict[str, object]]]] = defaultdict(list)
     for fact in drops:
         if (row := _world_drop_row(fact)) is not None:
-            rolls[fact.item_stable_key].append((fact.acquisition_key, row))
+            rolls[fact.item_stable_key].append((fact.source_key, row))
     return {
         item_key: [
             row
@@ -72,21 +67,19 @@ def build_world_drop_rows(drops: Iterable[ItemAcquisition]) -> dict[str, list[di
     }
 
 
-def world_drop_manifest(drops: Iterable[ItemAcquisition], known_keys: Collection[str]) -> dict[str, object]:
+def world_drop_manifest(drops: Iterable[PublicSource], known_keys: Collection[str]) -> dict[str, object]:
     """Retain exact pool facts offline, including facts the concise view cannot show."""
     records = []
-    for fact in sorted(drops, key=lambda candidate: candidate.acquisition_key):
+    for fact in sorted(drops, key=lambda candidate: candidate.source_key):
         if fact.kind != "special_world_drop":
             continue
         row = _world_drop_row(fact)
         reason = None
         if fact.item_stable_key not in known_keys:
             reason = "Item has no wiki link target."
-        elif row is None:
-            reason = "Only positive verified final-acquisition rolls appear in the public table."
         records.append(
             {
-                "fact": fact_to_dict(fact),
+                "fact": asdict(fact),
                 "row": row if reason is None else None,
                 "not_presented_reason": reason,
                 "concise_dimensions": (
@@ -98,7 +91,7 @@ def world_drop_manifest(drops: Iterable[ItemAcquisition], known_keys: Collection
 
 
 def validate_world_drop_manifest(
-    drops: Iterable[ItemAcquisition],
+    drops: Iterable[PublicSource],
     known_keys: Collection[str],
     manifest: dict[str, object],
 ) -> None:
@@ -109,12 +102,12 @@ def validate_world_drop_manifest(
 
 
 def write_world_drops_module(
-    repo: ItemProvenanceRepository,
+    repo: ItemPublicViewRepository,
     known_keys: Collection[str],
     output_root: Path,
 ) -> Path:
     """Write the public view and its offline, lossless provenance manifest."""
-    drops = tuple(repo.iter_acquisitions())
+    drops = tuple(repo.sources())
     rows = {key: rows for key, rows in build_world_drop_rows(drops).items() if key in known_keys}
     output_path = output_root / "Erenshor" / "Data" / "WorldDrops.lua"
     output_path.parent.mkdir(parents=True, exist_ok=True)

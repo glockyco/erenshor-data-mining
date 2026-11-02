@@ -7,10 +7,10 @@ from loguru import logger
 from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
-from erenshor.domain.value_objects.item_provenance import ItemAcquisition, ItemUse, is_actionable_acquisition
+from erenshor.domain.value_objects.item_public_view import PublicSource, PublicUse
 from erenshor.domain.value_objects.wiki_link import ItemLink
 from erenshor.infrastructure.database.connection import DatabaseConnection
-from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
+from erenshor.infrastructure.database.repositories.item_public_view import ItemPublicViewRepository
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
 
@@ -35,34 +35,34 @@ class ItemRepository(BaseRepository[Item]):
     All queries target the clean snake_case database written by ``extract build``.
     """
 
-    def __init__(self, db: DatabaseConnection, *, provenance_repo: ItemProvenanceRepository | None = None) -> None:
+    def __init__(self, db: DatabaseConnection, *, public_view: ItemPublicViewRepository | None = None) -> None:
         super().__init__(db)
-        self._provenance_repository = provenance_repo
+        self._public_view = public_view
         self._crafting_links: dict[str, ItemLink] | None = None
 
-    def _provenance(self) -> ItemProvenanceRepository:
+    def _public(self) -> ItemPublicViewRepository:
         try:
-            if self._provenance_repository is None:
-                self._provenance_repository = ItemProvenanceRepository(self.db)
-            return self._provenance_repository
+            if self._public_view is None:
+                self._public_view = ItemPublicViewRepository(self.db)
+            return self._public_view
         except Exception as e:
             raise RepositoryError(f"Failed to read canonical item provenance: {e}") from e
 
-    def _acquisitions(self, item_key: str, kinds: set[str]) -> list[ItemAcquisition]:
+    def _acquisitions(self, item_key: str, kinds: set[str]) -> list[PublicSource]:
         try:
-            return [fact for fact in self._provenance().get_acquisitions(item_key) if fact.kind in kinds]
+            return [fact for fact in self._public().sources_for_item(item_key) if fact.kind in kinds]
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve canonical acquisitions for '{item_key}': {e}") from e
 
-    def _uses(self, item_key: str, kinds: set[str]) -> list[ItemUse]:
+    def _uses(self, item_key: str, kinds: set[str]) -> list[PublicUse]:
         try:
-            return [fact for fact in self._provenance().get_uses(item_key) if fact.kind in kinds]
+            return [fact for fact in self._public().uses_for_item(item_key) if fact.kind in kinds]
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve canonical uses for '{item_key}': {e}") from e
 
-    def _uses_targeting(self, target_key: str, kinds: set[str]) -> list[ItemUse]:
+    def _uses_targeting(self, target_key: str, kinds: set[str]) -> list[PublicUse]:
         try:
-            return [fact for fact in self._provenance().get_uses_targeting(target_key) if fact.kind in kinds]
+            return [fact for fact in self._public().uses_targeting(target_key) if fact.kind in kinds]
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve canonical uses targeting '{target_key}': {e}") from e
 
@@ -79,7 +79,7 @@ class ItemRepository(BaseRepository[Item]):
         return {str(row["stable_key"]): _item_link_from_row(row) for row in rows}
 
     @staticmethod
-    def _quantity(fact: ItemAcquisition | ItemUse) -> int | None:
+    def _quantity(fact: PublicSource | PublicUse) -> int | None:
         value = fact.quantity_min
         if fact.quantity_kind != "exact" or value is None or value != fact.quantity_max:
             return None
@@ -335,13 +335,13 @@ class ItemRepository(BaseRepository[Item]):
         if self._crafting_links is None:
             self._crafting_links = self._item_links(
                 key
-                for fact in self._provenance().iter_uses()
+                for fact in self._public().uses()
                 if fact.kind in {"crafting_material", "crafting_recipe"}
                 for key in (fact.item_stable_key, fact.target_stable_key)
             )
         links = self._crafting_links
         outcomes = {
-            outcome.acquisition_key: outcome
+            outcome.source_key: outcome
             for target in sorted({fact.target_stable_key for fact in rewards if fact.target_stable_key is not None})
             for outcome in self._acquisitions(target, {"crafting"})
         }
@@ -357,8 +357,6 @@ class ItemRepository(BaseRepository[Item]):
                 outcome = outcomes.get(fact.outcome_key or "")
                 if outcome is None:
                     raise RepositoryError(f"Missing canonical crafting outcome: {fact.use_key}")
-                if not is_actionable_acquisition(outcome):
-                    continue
                 quantity = self._quantity(outcome)
                 if quantity is None:
                     raise RepositoryError(f"Missing exact crafting reward quantity: {fact.use_key}")
@@ -507,8 +505,14 @@ class ItemRepository(BaseRepository[Item]):
             raise RepositoryError(f"Failed to get items with skill effect '{skill_stable_key}': {e}") from e
 
     def is_item_obtainable(self, item_stable_key: str) -> bool:
-        """Require a reviewed current item and a satisfiable verified final acquisition."""
+        """Read obtainability from the public status and available sources."""
         try:
-            return self._provenance().get_player_access(item_stable_key) == "verified_player"
+            public = self._public()
+            status = public.status(item_stable_key)
+            return (
+                status is not None
+                and status.disposition == "current"
+                and bool(public.sources_for_item(item_stable_key))
+            )
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve player access for '{item_stable_key}': {e}") from e

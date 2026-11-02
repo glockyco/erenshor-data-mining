@@ -13,7 +13,7 @@ from erenshor.application.wiki_lua.views import DataView, ViewField, view_module
 if TYPE_CHECKING:
     from erenshor.domain.entities.item import Item
     from erenshor.domain.value_objects.vendor_stock import VendorStockEntry
-    from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
+    from erenshor.infrastructure.database.repositories.item_public_view import ItemPublicViewRepository
 
 VENDOR_STOCK = DataView(
     module="VendorStock",
@@ -145,12 +145,12 @@ def build_vendor_stock_rows(
 def write_vendor_stock_module(
     repo: VendorStockRepository,
     items: Iterable[Item],
-    provenance_repo: ItemProvenanceRepository,
+    public_view: ItemPublicViewRepository,
     known_keys: Collection[str],
     output_root: Path,
 ) -> Path:
     """Write ``Data/VendorStock.lua`` below an output root."""
-    uses = tuple(provenance_repo.iter_uses())
+    uses = tuple(public_view.uses())
     uses_by_item: defaultdict[str, set[str]] = defaultdict(set)
     for use in uses:
         uses_by_item[use.item_stable_key].add(use.kind)

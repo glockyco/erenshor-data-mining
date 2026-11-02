@@ -7,6 +7,7 @@ Handles multi-entity pages where multiple entities share the same wiki_page_name
 from __future__ import annotations
 
 from collections.abc import Iterator
+from itertools import chain
 from typing import TYPE_CHECKING
 
 from loguru import logger
@@ -39,6 +40,7 @@ from erenshor.domain.value_objects.wiki_link import (
 
 if TYPE_CHECKING:
     from erenshor.application.wiki.generators.context import GeneratorContext
+    from erenshor.domain.value_objects.item_public_view import PublicSource, PublicUse
 
 AnyEnriched = EnrichedItemData | EnrichedCharacterData | EnrichedSpellData | EnrichedSkillData | EnrichedStanceData
 
@@ -298,12 +300,12 @@ class EntityPageGenerator(PageGenerator):
 
     def _assemble_source_info(self, item: Item) -> SourceInfo:
         """Resolve presentation links without selecting acquisition facts again."""
-        repo = self.context.item_provenance_repo
-        disposition = repo.get_disposition(item.stable_key)
+        repo = self.context.item_public_view
+        disposition = repo.status(item.stable_key)
         if disposition is None:
-            raise ValueError(f"Canonical item disposition is missing: {item.stable_key}")
-        acquisitions = tuple(repo.get_acquisitions(item.stable_key))
-        uses = tuple(repo.get_uses(item.stable_key))
+            raise ValueError(f"Public item status is missing: {item.stable_key}")
+        acquisitions = repo.sources_for_item(item.stable_key)
+        uses = repo.uses_for_item(item.stable_key)
         if not hasattr(self, "_item_source_links"):
             link_types = {
                 "item": ItemLink,
@@ -341,7 +343,18 @@ class EntityPageGenerator(PageGenerator):
                 and (character_link := self.context.character_repo.get_character_link(key))
             ):
                 links[key] = character_link
-        sources = SourceInfo(acquisitions=acquisitions, uses=uses, links=links, disposition=disposition)
+        item_facts: Iterator[PublicSource | PublicUse] = chain(acquisitions, uses)
+        sources = SourceInfo(
+            acquisitions=acquisitions,
+            uses=uses,
+            links=links,
+            disposition=disposition,
+            places={
+                fact.place_set_key: repo.places(fact.place_set_key)
+                for fact in item_facts
+                if fact.place_set_key is not None
+            },
+        )
         for use in uses:
             link = links.get(use.target_stable_key or "")
             if use.kind == "quest_requirement" and isinstance(link, QuestLink):
@@ -350,12 +363,12 @@ class EntityPageGenerator(PageGenerator):
                 sources.component_for.append(link)
             if use.outcome_key:
                 # A use can target a fuel or tool rather than its resulting item.
-                if not hasattr(self, "_item_outcomes"):
-                    self._item_outcomes = {fact.acquisition_key: fact for fact in repo.iter_acquisitions()}
-                outcome = self._item_outcomes.get(use.outcome_key)
+                outcome = repo.source(use.outcome_key)
                 if outcome is None:
                     raise ValueError(f"Canonical item use outcome is missing: {use.use_key}")
                 sources.outcomes[use.outcome_key] = outcome
+                if outcome.place_set_key is not None:
+                    sources.places[outcome.place_set_key] = repo.places(outcome.place_set_key)
         recipe_keys = sorted(
             {
                 fact.source_stable_key

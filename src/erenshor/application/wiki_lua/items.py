@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from erenshor.domain.entities.item_stats import ItemStats
     from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
     from erenshor.domain.value_objects.wiki_link import ItemLink
-    from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
+    from erenshor.infrastructure.database.repositories.item_public_view import ItemPublicViewRepository
 
 
 class ItemDataRepository(Protocol):
@@ -133,7 +133,7 @@ _STAT_FIELD_MAP = (
 
 def generate_items_modules(
     item_repo: ItemDataRepository,
-    provenance_repo: ItemProvenanceRepository,
+    public_view: ItemPublicViewRepository,
     class_display_names: Mapping[str, str] | None = None,
 ) -> dict[str, str]:
     """Generate `Module:Erenshor/Data/Items` index and shard module content."""
@@ -145,7 +145,7 @@ def generate_items_modules(
     zone_restrictions_by_item = {
         item.stable_key: [
             (use.target_stable_key, use.mechanic or "")
-            for use in provenance_repo.get_uses(item.stable_key)
+            for use in public_view.uses_for_item(item.stable_key)
             if use.kind == "zone_restriction" and use.target_stable_key is not None
         ]
         for item in items
@@ -169,7 +169,7 @@ def generate_items_modules(
 def write_items_modules(
     item_repo: ItemDataRepository,
     output_root: Path,
-    provenance_repo: ItemProvenanceRepository,
+    public_view: ItemPublicViewRepository,
     class_display_names: Mapping[str, str] | None = None,
 ) -> list[Path]:
     """Write the generated item data index and shard modules below an output root."""
@@ -177,7 +177,7 @@ def write_items_modules(
     written_paths: list[Path] = []
     for relative_path, module in generate_items_modules(
         item_repo,
-        provenance_repo,
+        public_view,
         class_display_names=class_display_names,
     ).items():
         output_path = output_dir / relative_path

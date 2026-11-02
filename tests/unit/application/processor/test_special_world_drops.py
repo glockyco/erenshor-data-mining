@@ -12,8 +12,6 @@ from erenshor.application.processor.special_world_drops import (
     process_common_world_items,
 )
 from erenshor.application.processor.writer import Writer
-from erenshor.application.wiki_lua.world_drops import build_world_drop_rows
-from erenshor.domain.value_objects.item_provenance import ItemAcquisition, ProvenanceCondition
 
 _SINGLE_POOLS = (
     "Sivak",
@@ -111,37 +109,11 @@ def test_default_roll_outcomes_at_strict_level_boundaries(pool: str, fact_id: st
     item_key = pools[pool][0]
     assert item_key is not None
     drop = _by_item(rows)[item_key]
-    view = build_world_drop_rows(
-        [
-            ItemAcquisition(
-                f"acquisition:world:{pool}",
-                item_key,
-                "special_world_drop",
-                f"world:{pool}",
-                probability_kind="exact",
-                probability_min=float(drop["drop_probability"]),
-                probability_max=float(drop["drop_probability"]),
-                probability_basis="per_kill",
-                probability_stage="final_acquisition",
-                conditions=(
-                    ProvenanceCondition(
-                        f"world-level:{pool}",
-                        0,
-                        0,
-                        "actor_level",
-                        actor="enemy",
-                        minimum=float(drop["min_level_exclusive"]),
-                        minimum_inclusive=False,
-                    ),
-                ),
-            )
-        ]
-    )[item_key][0]
 
     for level in (0, 1, 10, 11, 12, 13, 15, 16, 20, 21, 30, 31, 42):
         # Enumerate equal-mass representative draws independently of the derivation.
         awarded = sum(level > gate and draw < successes for draw in range(10000))
-        displayed = view["chance"] if level >= view["minLevel"] else 0
+        displayed = drop["drop_probability"] if level > drop["min_level_exclusive"] else 0
         assert displayed == pytest.approx(100 * awarded / 10000)
 
 

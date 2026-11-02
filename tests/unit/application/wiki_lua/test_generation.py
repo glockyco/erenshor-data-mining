@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Sequence
+from dataclasses import asdict
 from pathlib import Path
 
 import pytest
@@ -9,7 +10,7 @@ from tests.unit.application.wiki_lua.fakes import (
     FakeCharacterRepository,
     FakeClassDisplayService,
     FakeFactionRepository,
-    FakeItemProvenanceRepository,
+    FakeItemPublicViewRepository,
     FakeItemRepository,
     FakeProgressionRepository,
     FakeQuestRepository,
@@ -24,6 +25,8 @@ from tests.unit.application.wiki_lua.fakes import (
     make_spell,
     make_stance,
     make_zone,
+    public_source,
+    public_use,
 )
 
 from erenshor.application.wiki_lua.generation import (
@@ -33,7 +36,7 @@ from erenshor.application.wiki_lua.generation import (
     generate_lua_data_modules,
     planned_top_level_module_paths,
 )
-from erenshor.domain.value_objects.item_provenance import ItemAcquisition, ItemDisposition, ItemUse, fact_to_dict
+from erenshor.domain.value_objects.item_public_view import ItemStatus
 from erenshor.domain.value_objects.progression import ProgressionNode, ProgressionWay
 from erenshor.domain.value_objects.treasure import ChestWave, GuardianScaling, TreasureGuardian
 from erenshor.infrastructure.content_lifecycle import ContentLifecycle, LifecyclePage, load_content_lifecycle
@@ -71,7 +74,7 @@ def test_generation_validates_nonnull_blank_item_catalog_pages(tmp_path: Path) -
             progression_repo=FakeProgressionRepository((), {}),
             treasure_repo=FakeTreasureRepository(),
             item_repo=item_repo,
-            provenance_repo=FakeItemProvenanceRepository([item.stable_key]),
+            public_view=FakeItemPublicViewRepository([item.stable_key]),
             character_repo=FakeCharacterRepository([make_character()]),
             spell_repo=FakeSpellRepository([make_spell()]),
             skill_repo=FakeSkillRepository([make_skill()]),
@@ -89,7 +92,7 @@ def test_generation_validates_nonnull_blank_item_catalog_pages(tmp_path: Path) -
 
 def test_generation_wires_canonical_provenance_and_persists_offline_coverage(tmp_path: Path) -> None:
     item = make_item()
-    acquisition = ItemAcquisition(
+    acquisition = public_source(
         "world:slot:3",
         item.stable_key,
         "special_world_drop",
@@ -98,17 +101,16 @@ def test_generation_wires_canonical_provenance_and_persists_offline_coverage(tmp
         probability_kind="exact",
         probability_min=0.05,
         probability_max=0.05,
-        probability_stage="final_acquisition",
     )
-    use = ItemUse("use:quest:2", item.stable_key, "quest:magical_sword", "quest_requirement", material_slot=2)
-    provenance = FakeItemProvenanceRepository([item.stable_key], acquisitions=[acquisition], uses=[use])
+    use = public_use("use:quest:2", item.stable_key, "quest:magical_sword", "quest_requirement", material_slot=2)
+    provenance = FakeItemPublicViewRepository([item.stable_key], sources=[acquisition], uses=[use])
 
     result = generate_lua_data_modules(
         build_repo=FakeBuildRepository(),
         progression_repo=FakeProgressionRepository((), {}),
         treasure_repo=FakeTreasureRepository(),
         item_repo=FakeItemRepository(items=[item], stats={}, classes={}),
-        provenance_repo=provenance,
+        public_view=provenance,
         character_repo=FakeCharacterRepository([make_character()]),
         spell_repo=FakeSpellRepository([make_spell()]),
         skill_repo=FakeSkillRepository([make_skill()]),
@@ -129,12 +131,12 @@ def test_generation_wires_canonical_provenance_and_persists_offline_coverage(tmp
     item_shard_text = (data_dir / "Items" / "Weapons.lua").read_text(encoding="utf-8")
     assert '["obtainedFrom"]' not in item_shard_text
     assert '["usedIn"]' not in item_shard_text
-    canonical = (data_dir / "ItemProvenanceV1" / f"{item_bucket(item.stable_key)}.lua").read_text(encoding="utf-8")
-    assert acquisition.acquisition_key in canonical
+    canonical = (data_dir / "ItemProvenanceV2" / f"{item_bucket(item.stable_key)}.lua").read_text(encoding="utf-8")
+    assert acquisition.source_key in canonical
     assert use.use_key in canonical
     assert '["material_slot"] = 2' in canonical
     manifest = json.loads(result.manifest_paths[0].read_text(encoding="utf-8"))
-    assert manifest["acquisitions"][0]["fact"] == json.loads(json.dumps(fact_to_dict(acquisition)))
+    assert manifest["acquisitions"][0]["fact"] == json.loads(json.dumps(asdict(acquisition)))
 
 
 def _run_generation(
@@ -142,7 +144,7 @@ def _run_generation(
     *,
     max_page_bytes: int = 4194304,
     item_key: str = "item:sword_of_flames",
-    provenance_repo: FakeItemProvenanceRepository | None = None,
+    public_view: FakeItemPublicViewRepository | None = None,
     lifecycle: ContentLifecycle | None = None,
     stance_repo: FakeStanceRepository | None = None,
     character_repo: FakeCharacterRepository | None = None,
@@ -155,7 +157,7 @@ def _run_generation(
         progression_repo=progression_repo or FakeProgressionRepository((), {}),
         treasure_repo=FakeTreasureRepository(),
         item_repo=item_repo,
-        provenance_repo=provenance_repo or FakeItemProvenanceRepository([item_key]),
+        public_view=public_view or FakeItemPublicViewRepository([item_key]),
         character_repo=character_repo or FakeCharacterRepository([make_character()]),
         spell_repo=FakeSpellRepository([make_spell()]),
         skill_repo=FakeSkillRepository([make_skill()]),
@@ -266,7 +268,7 @@ def test_generation_requires_faction_and_class_dependencies(tmp_path: Path) -> N
             progression_repo=FakeProgressionRepository((), {}),
             treasure_repo=FakeTreasureRepository(),
             item_repo=FakeItemRepository(items=[make_item()], stats={}, classes={}),
-            provenance_repo=FakeItemProvenanceRepository([make_item().stable_key]),
+            public_view=FakeItemPublicViewRepository([make_item().stable_key]),
             character_repo=FakeCharacterRepository([make_character()]),
             spell_repo=FakeSpellRepository([make_spell()]),
             skill_repo=FakeSkillRepository([make_skill()]),
@@ -318,7 +320,7 @@ def test_orchestration_passes_reviewed_lifecycle_and_build_to_versioned_item_rec
     from erenshor.application.wiki_lua.items_v2 import item_bucket
 
     key = "item:sword_of_flames"
-    disposition = ItemDisposition(key, "removed", reason="Removed content")
+    disposition = ItemStatus(key, "removed", reason="Removed content")
     notice = LifecyclePage(
         title="Sword of Flames",
         stable_key=key,
@@ -331,7 +333,7 @@ def test_orchestration_passes_reviewed_lifecycle_and_build_to_versioned_item_rec
     )
     _run_generation(
         tmp_path,
-        provenance_repo=FakeItemProvenanceRepository([key], dispositions=[disposition]),
+        public_view=FakeItemPublicViewRepository([key], statuses=[disposition]),
         lifecycle=ContentLifecycle({notice.title: notice}, {}, {}),
     )
     record = (tmp_path / "Erenshor" / "Data" / "ItemsV2" / f"{item_bucket(key)}.lua").read_text(encoding="utf-8")
@@ -348,16 +350,16 @@ def test_generation_retains_historical_only_canonical_dispositions(tmp_path: Pat
     historical_key = "item:historical-only"
     result = _run_generation(
         tmp_path,
-        provenance_repo=FakeItemProvenanceRepository(
+        public_view=FakeItemPublicViewRepository(
             [visible_key],
-            dispositions=[
-                ItemDisposition(visible_key, "current"),
-                ItemDisposition(historical_key, "removed", former_pages=("Historical Item",)),
+            statuses=[
+                ItemStatus(visible_key, "current", None),
+                ItemStatus(historical_key, "removed", None, former_pages=("Historical Item",)),
             ],
         ),
     )
     data_dir = tmp_path / "Erenshor" / "Data"
-    historical_path = data_dir / "ItemProvenanceV1" / f"{item_bucket(historical_key)}.lua"
+    historical_path = data_dir / "ItemProvenanceV2" / f"{item_bucket(historical_key)}.lua"
     assert historical_path in result.written_paths
     assert historical_key in historical_path.read_text(encoding="utf-8")
     assert historical_key in (data_dir / "ItemsV2.lua").read_text(encoding="utf-8")
@@ -433,8 +435,8 @@ def test_character_seam_preserves_exact_copy_facts_and_canonical_item_lifecycle(
     representative = make_character(stable_key="character:representative", has_stats=0, class_resource_name="NativeNPC")
     copy = representative.model_copy(update={"stable_key": "character:copy"})
     hidden_item = "item:hidden-loot"
-    item_disposition = ItemDisposition(hidden_item, "removed", former_pages=("Hidden Loot",))
-    drop = ItemAcquisition(
+    item_disposition = ItemStatus(hidden_item, "current", None)
+    drop = public_source(
         "drop:copy:slot:2",
         hidden_item,
         "character_drop",
@@ -447,14 +449,14 @@ def test_character_seam_preserves_exact_copy_facts_and_canonical_item_lifecycle(
         quantity_max=2,
         quantity_kind="exact",
     )
-    provenance = FakeItemProvenanceRepository(
+    provenance = FakeItemPublicViewRepository(
         [hidden_item],
-        acquisitions=[
+        sources=[
             drop,
-            ItemAcquisition("vendor:copy", hidden_item, "vendor", copy.stable_key),
-            ItemAcquisition("dialog:copy", hidden_item, "dialog_reward", copy.stable_key),
-            ItemAcquisition("global:copy", hidden_item, "special_world_drop", None),
-            ItemAcquisition(
+            public_source("vendor:copy", hidden_item, "vendor", copy.stable_key),
+            public_source("dialog:copy", hidden_item, "dialog_reward", copy.stable_key),
+            public_source("global:copy", hidden_item, "special_world_drop", None),
+            public_source(
                 "drop:unrelated",
                 hidden_item,
                 "character_drop",
@@ -462,7 +464,7 @@ def test_character_seam_preserves_exact_copy_facts_and_canonical_item_lifecycle(
                 source_copy_stable_key="character:unrelated",
             ),
         ],
-        dispositions=[item_disposition],
+        statuses=[item_disposition],
     )
     characters = FakeCharacterRepository(
         [representative],
@@ -486,7 +488,7 @@ def test_character_seam_preserves_exact_copy_facts_and_canonical_item_lifecycle(
 
     records = build_character_generation_records(
         character_repo=characters,
-        provenance_repo=provenance,
+        public_view=provenance,
         treasure_repo=FakeTreasureRepository(),
         catalog=characters.get_character_data_catalog(),
         class_labels={"NativeNPC": {"name": "Native NPC"}},
@@ -501,10 +503,10 @@ def test_character_seam_preserves_exact_copy_facts_and_canonical_item_lifecycle(
     record = records[representative.stable_key]
     assert record["memberKeys"] == [copy.stable_key, representative.stable_key]
     assert len(record["loot"]) == 1
-    assert record["loot"][0]["actionable"] is False
-    assert record["loot"][0]["acquisition_key"] == drop.acquisition_key
+    assert "actionable" not in record["loot"][0]
+    assert record["loot"][0]["source_key"] == drop.source_key
     assert record["loot"][0]["source_copy_stable_key"] == copy.stable_key
-    assert record["loot"][0]["item"]["disposition"] == fact_to_dict(item_disposition)
+    assert record["loot"][0]["item"]["disposition"] == asdict(item_disposition)
     assert "page" not in record["loot"][0]["item"]
     assert record["commonWorldDrops"] is True
     assert record["isSummon"] is True
@@ -519,7 +521,7 @@ def test_full_generation_uses_resource_class_labels_and_exact_character_drops(tm
     character = make_character(has_stats=0, class_resource_name="PlayableResource")
     npc_copy = character.model_copy(update={"stable_key": "character:npc-copy", "class_resource_name": "DefaultNPC"})
     item_key = make_item().stable_key
-    drop = ItemAcquisition(
+    drop = public_source(
         "drop:character:2",
         item_key,
         "character_drop",
@@ -550,13 +552,13 @@ def test_full_generation_uses_resource_class_labels_and_exact_character_drops(tm
     result = _run_generation(
         tmp_path,
         character_repo=characters,
-        provenance_repo=FakeItemProvenanceRepository([item_key], acquisitions=[drop]),
+        public_view=FakeItemPublicViewRepository([item_key], sources=[drop]),
     )
     data_dir = tmp_path / "Erenshor" / "Data"
-    index = data_dir / "Characters.lua"
+    index = data_dir / "CharactersV2.lua"
     assert index in result.written_paths
     assert character.stable_key in index.read_text(encoding="utf-8")
-    [shard] = list((data_dir / "Characters").glob("*.lua"))
+    [shard] = list((data_dir / "CharactersV2").glob("*.lua"))
     content = shard.read_text(encoding="utf-8")
     assert '["name"] = "Windblade"' in content
     assert '["page"] = "Windblade"' in content
@@ -564,8 +566,8 @@ def test_full_generation_uses_resource_class_labels_and_exact_character_drops(tm
     assert '["resourceName"] = "PlayableResource"' in content
     assert '["resourceName"] = "DefaultNPC"' in content
     assert '["page"] = "Default"' not in content
-    assert '["actionable"] = true' in content
-    assert drop.acquisition_key in content
+    assert '["actionable"]' not in content
+    assert drop.source_key in content
     assert '["source_copy_stable_key"] = "character:a_grizzly_bear"' in content
 
 
@@ -596,7 +598,7 @@ def test_full_generation_replays_native_startup_profiles_and_initialized_rewards
     )
     _run_generation(tmp_path, character_repo=characters)
 
-    [shard] = list((tmp_path / "Erenshor" / "Data" / "Characters").glob("*.lua"))
+    [shard] = list((tmp_path / "Erenshor" / "Data" / "CharactersV2").glob("*.lua"))
     content = shard.read_text(encoding="utf-8")
     assert '["profiles"] = {' in content
     assert '["baseExperience"] = 72' in content

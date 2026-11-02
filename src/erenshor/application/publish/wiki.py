@@ -157,7 +157,7 @@ def _generate_lua(ctx: CLIContext, storage: WikiStorage, output: Path) -> dict[s
             build_repo=BuildMetadataRepository(composition.database),
             treasure_repo=TreasureRepository(composition.database),
             progression_repo=ProgressionRepository(composition.database),
-            provenance_repo=context.item_provenance_repo,
+            public_view=context.item_public_view,
             lifecycle=load_content_lifecycle(ctx.repo_root / "content-lifecycle.json"),
             output_root=output,
             max_page_bytes=ctx.config.global_.mediawiki.max_page_bytes,

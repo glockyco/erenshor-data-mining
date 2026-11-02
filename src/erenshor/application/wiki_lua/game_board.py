@@ -8,11 +8,11 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
 
 from erenshor.application.wiki_lua.views import DataView, ViewField, native_reference, view_module_text
-from erenshor.domain.value_objects.item_provenance import is_actionable_acquisition
 from erenshor.domain.value_objects.npc_level import npc_level_bounds
 
 if TYPE_CHECKING:
-    from erenshor.domain.value_objects.item_provenance import ItemAcquisition, ItemDisposition
+    from erenshor.domain.value_objects.item_public_view import ItemStatus, PublicSource
+    from erenshor.infrastructure.database.repositories.item_public_view import ItemPublicViewRepository
 
 GAME_BOARD = DataView(
     module="GameBoard",
@@ -38,16 +38,10 @@ class GameBoardRepository(Protocol):
     def get_game_board_spawns(self) -> list[dict[str, object]]: ...
 
 
-class GameBoardProvenanceRepository(Protocol):
-    def get_character_drop_acquisitions(self, character_copy_keys: Iterable[str]) -> list[ItemAcquisition]: ...
-
-    def get_disposition(self, item_key: str) -> ItemDisposition | None: ...
-
-
 def build_game_board_rows(
     spawns: Iterable[Mapping[str, object]],
-    acquisitions: Iterable[ItemAcquisition],
-    dispositions: Mapping[str, ItemDisposition | None],
+    acquisitions: Iterable[PublicSource],
+    dispositions: Mapping[str, ItemStatus | None],
     reference_catalog: Mapping[str, Mapping[str, object]],
 ) -> dict[str, list[dict[str, object]]]:
     """Keep alternative copy/piece/level bindings separate, never borrowing a group's loot."""
@@ -77,8 +71,6 @@ def build_game_board_rows(
         source_copy = fact.source_copy_stable_key
         if fact.kind != "character_drop" or source_copy is None or source_copy not in copies:
             continue
-        if not is_actionable_acquisition(fact):
-            continue
         disposition = dispositions.get(fact.item_stable_key)
         if disposition is None or disposition.item_stable_key != fact.item_stable_key:
             raise ValueError(f"GameBoard: missing canonical disposition for {fact.item_stable_key}")
@@ -91,7 +83,7 @@ def build_game_board_rows(
             or fact.probability_min != fact.probability_max
             or not 0 < fact.probability_min <= 100
         ):
-            raise ValueError(f"GameBoard: {fact.acquisition_key} has no exact per-kill chance")
+            raise ValueError(f"GameBoard: {fact.source_key} has no exact per-kill chance")
         drop = native_reference(fact.item_stable_key, reference_catalog, kind="item")
         value = (drop, fact.probability_min)
         previous = drops[source_copy].get(fact.item_stable_key)
@@ -113,7 +105,7 @@ def build_game_board_rows(
 
 def write_game_board_module(
     repo: GameBoardRepository,
-    provenance_repo: GameBoardProvenanceRepository,
+    public_view: ItemPublicViewRepository,
     known_keys: Collection[str],
     output_root: Path,
     *,
@@ -122,10 +114,8 @@ def write_game_board_module(
     """Write the checked board view using only acquisitions owned by summoned copies."""
     spawns = repo.get_game_board_spawns()
     copies = {str(spawn["copy"]) for spawn in spawns}
-    acquisitions = provenance_repo.get_character_drop_acquisitions(copies)
-    dispositions = {
-        key: provenance_repo.get_disposition(key) for key in {fact.item_stable_key for fact in acquisitions}
-    }
+    acquisitions = public_view.sources_from_copies(copies)
+    dispositions = {key: public_view.status(key) for key in {fact.item_stable_key for fact in acquisitions}}
     rows = build_game_board_rows(spawns, acquisitions, dispositions, reference_catalog)
     text = view_module_text(GAME_BOARD, rows, known_keys, reference_catalog=reference_catalog)
     path = output_root / "Erenshor" / "Data" / "GameBoard.lua"

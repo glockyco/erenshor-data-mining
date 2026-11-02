@@ -72,7 +72,7 @@ function p.resolve(key)
 	if index == nil then
 		index = mw.loadData("Module:Erenshor/Data/ItemsV2")
 	end
-	if index.schemaVersion ~= 2 or index.provenanceSchemaVersion ~= 1 then
+	if index.schemaVersion ~= 2 or index.provenanceSchemaVersion ~= 2 then
 		error("Unsupported ItemData schema", 2)
 	end
 	local bucket = index.byKey[key]
@@ -99,13 +99,21 @@ local function provenanceByKey(key, bucket)
 		error("Missing ItemData provenance shard", 2)
 	end
 	if provenanceShards[bucket] == nil then
-		provenanceShards[bucket] = mw.loadData("Module:Erenshor/Data/ItemProvenanceV1/" .. bucket)
+		provenanceShards[bucket] = mw.loadData("Module:Erenshor/Data/ItemProvenanceV2/" .. bucket)
 	end
-	local data = provenanceShards[bucket][key]
+	local shared = provenanceShards[bucket]
+	local data = shared.byKey[key]
 	if data == nil then
 		error("Missing ItemData provenance: " .. key, 2)
 	end
-	return data
+	return {
+		sources = data.sources,
+		usages = data.usages,
+		status = data.status,
+		references = data.references,
+		places = shared.places,
+		mechanism_parameters = shared.mechanism_parameters,
+	}
 end
 
 function p.provenance(row)
@@ -122,9 +130,9 @@ function p.outcome(use)
 		error("Missing canonical ItemData outcome owner: " .. tostring(use.outcome_key), 2)
 	end
 	local data = provenanceByKey(owner, index.provenanceByKey[owner])
-	for _, outcome in ipairs(data.acquisitions or {}) do
-		if outcome.acquisition_key == use.outcome_key and outcome.item_stable_key == owner then
-			return outcome, data.references
+	for _, outcome in ipairs(data.sources or {}) do
+		if outcome.source_key == use.outcome_key and outcome.item_stable_key == owner then
+			return outcome, data.references, data
 		end
 	end
 	error("Missing canonical ItemData outcome: " .. tostring(use.outcome_key), 2)
@@ -136,7 +144,7 @@ local function classifications(row, provenance)
 		labels[#labels + 1] = "[[Quest Items|Quest Item]]"
 	end
 	local quest, crafting = false, false
-	for _, use in ipairs(provenance.uses or {}) do
+	for _, use in ipairs(provenance.usages or {}) do
 		if use.kind == "quest_requirement" then
 			quest = true
 		end
@@ -202,7 +210,7 @@ local function infobox(frame, row, provenance)
 			args[field] = render.title
 		end
 	end
-	local lifecycle = row.lifecycle or provenance.disposition or {}
+	local lifecycle = row.lifecycle or provenance.status or {}
 	if
 		lifecycle.disposition == "removed"
 		or lifecycle.disposition == "unobtainable"

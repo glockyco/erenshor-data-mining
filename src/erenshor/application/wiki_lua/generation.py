@@ -6,7 +6,7 @@ import shutil
 import tempfile
 from collections import defaultdict
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
 
@@ -63,13 +63,12 @@ from erenshor.application.wiki_lua.vendor_stock import VendorStockRepository, wr
 from erenshor.application.wiki_lua.world_drops import write_world_drops_module
 from erenshor.application.wiki_lua.zone_rosters import ZoneRosterRepository, write_zone_rosters_module
 from erenshor.application.wiki_lua.zones import ZoneOverviewRepository, write_zones_module
-from erenshor.domain.value_objects.item_provenance import fact_to_dict
 
 if TYPE_CHECKING:
     from erenshor.application.processor.npc_spawn import SpawnConstants
-    from erenshor.domain.value_objects.item_provenance import ItemAcquisition
+    from erenshor.domain.value_objects.item_public_view import PublicSource
     from erenshor.infrastructure.content_lifecycle import ContentLifecycle
-    from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
+    from erenshor.infrastructure.database.repositories.item_public_view import ItemPublicViewRepository
 
 
 class WikiItemRepository(
@@ -152,7 +151,7 @@ _DATA_SUBDIR = ("Erenshor", "Data")
 TOP_LEVEL_DATA_MODULES: tuple[str, ...] = (
     "Items.lua",
     "ItemsV2.lua",
-    "Characters.lua",
+    "CharactersV2.lua",
     "Links.lua",
     "PageKeys.lua",
     "Spells.lua",
@@ -213,7 +212,7 @@ def _remove_stale_data_modules(output_root: Path, written_paths: list[Path]) -> 
 def build_character_generation_records(
     *,
     character_repo: WikiCharacterRepository,
-    provenance_repo: ItemProvenanceRepository,
+    public_view: ItemPublicViewRepository,
     treasure_repo: TreasureDataRepository,
     catalog: Mapping[str, Mapping[str, object]],
     class_labels: Mapping[str, Mapping[str, object]],
@@ -226,10 +225,10 @@ def build_character_generation_records(
 ) -> dict[str, dict[str, object]]:
     """Compose character records from exact shared placements and canonical item facts."""
     resolved_catalog: dict[str, Mapping[str, object]] = dict(catalog)
-    for disposition in provenance_repo.iter_dispositions():
+    for disposition in public_view.statuses():
         key = disposition.item_stable_key
         if key in resolved_catalog:
-            resolved_catalog[key] = dict(resolved_catalog[key]) | {"disposition": fact_to_dict(disposition)}
+            resolved_catalog[key] = dict(resolved_catalog[key]) | {"disposition": asdict(disposition)}
     placements = character_repo.get_character_placements()
     copy_to_representative: dict[str, str] = {}
     for placement in placements:
@@ -238,10 +237,12 @@ def build_character_generation_records(
         previous = copy_to_representative.setdefault(copy, placement_representative)
         if previous != placement_representative:
             raise ValueError(f"{copy}: character copy belongs to multiple representatives")
-    acquisitions: defaultdict[str, list[ItemAcquisition]] = defaultdict(list)
-    for fact in provenance_repo.get_character_drop_acquisitions(copy_to_representative):
+    acquisitions: defaultdict[str, list[PublicSource]] = defaultdict(list)
+    for fact in public_view.sources_from_copies(copy_to_representative):
+        if fact.kind != "character_drop":
+            continue
         if fact.source_copy_stable_key is None:
-            raise ValueError(f"{fact.acquisition_key}: character drop lacks its exact source copy")
+            raise ValueError(f"{fact.source_key}: character drop lacks its exact source copy")
         representative = copy_to_representative.get(fact.source_copy_stable_key)
         if representative is not None:
             acquisitions[representative].append(fact)
@@ -272,6 +273,12 @@ def build_character_generation_records(
         character_repo,
         locations_by_character=build_character_locations(placements, resolved_catalog),
         acquisitions_by_character=acquisitions,
+        places_by_set={
+            source.place_set_key: public_view.places(source.place_set_key)
+            for sources in acquisitions.values()
+            for source in sources
+            if source.place_set_key is not None
+        },
         catalog=resolved_catalog,
         class_labels=class_labels,
         constants=constants,
@@ -294,7 +301,7 @@ def generate_lua_data_modules(
     stance_repo: StanceDataRepository,
     quest_repo: WikiQuestRepository,
     zone_repo: WikiZoneRepository,
-    provenance_repo: ItemProvenanceRepository,
+    public_view: ItemPublicViewRepository,
     treasure_repo: TreasureDataRepository,
     progression_repo: ProgressionDataRepository,
     output_root: Path,
@@ -349,7 +356,7 @@ def generate_lua_data_modules(
         summoners[str(relation["character_stable_key"])].append(reference)
     character_records = build_character_generation_records(
         character_repo=character_repo,
-        provenance_repo=provenance_repo,
+        public_view=public_view,
         treasure_repo=treasure_repo,
         catalog=character_catalog,
         class_labels=class_labels,
@@ -358,7 +365,7 @@ def generate_lua_data_modules(
         build=build,
         lifecycle=lifecycle,
         summoned_by_character=summoners,
-        common_world_characters=provenance_repo.get_common_world_character_keys(),
+        common_world_characters=public_view.common_world_contributors(),
     )
     with tempfile.TemporaryDirectory(prefix="erenshor-wiki-lua-") as temporary:
         staging_root = Path(temporary)
@@ -366,12 +373,12 @@ def generate_lua_data_modules(
             *write_items_modules(
                 item_repo,
                 staging_root,
-                provenance_repo=provenance_repo,
+                public_view=public_view,
                 class_display_names=class_display_names,
             ),
             *write_items_v2_modules(
                 item_repo,
-                provenance_repo,
+                public_view,
                 staging_root,
                 build=build,
                 native_catalog=character_catalog,
@@ -395,10 +402,10 @@ def generate_lua_data_modules(
             write_entity_lifecycle_module(lifecycle, staging_root),
             write_build_module(build_repo, staging_root),
             write_treasure_guardians_module(treasure_repo, staging_root),
-            write_vendor_stock_module(character_repo, items, provenance_repo, known_keys, staging_root),
-            write_world_drops_module(provenance_repo, known_keys, staging_root),
+            write_vendor_stock_module(character_repo, items, public_view, known_keys, staging_root),
+            write_world_drops_module(public_view, known_keys, staging_root),
             write_zone_rosters_module(character_repo, known_keys, staging_root, quest_catalog=character_catalog),
-            write_class_abilities_module(spell_repo, provenance_repo, known_keys, staging_root),
+            write_class_abilities_module(spell_repo, public_view, known_keys, staging_root),
             write_quests_module(quest_repo, known_keys, staging_root, native_catalog=character_catalog),
             write_progression_module(
                 progression_repo,
@@ -409,7 +416,7 @@ def generate_lua_data_modules(
             ),
             write_game_board_module(
                 character_repo,
-                provenance_repo,
+                public_view,
                 known_keys,
                 staging_root,
                 reference_catalog=character_catalog,
@@ -420,7 +427,7 @@ def generate_lua_data_modules(
         for path in staged_paths:
             size = path.stat().st_size
             # Item data leaves one quarter of the host's page limit unused.
-            item_page = path.parent.name in {"ItemsV2", "ItemProvenanceV1"} or path.name == "ItemsV2.lua"
+            item_page = path.parent.name in {"ItemsV2", "ItemProvenanceV2"} or path.name == "ItemsV2.lua"
             page_budget = max_page_bytes * 3 // 4 if item_page else max_page_bytes
             if size > page_budget:
                 title = "Module:" + path.relative_to(staging_root).with_suffix("").as_posix()

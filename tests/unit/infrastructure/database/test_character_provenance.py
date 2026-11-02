@@ -1,4 +1,4 @@
-"""Character loot and vendor stock project persisted canonical item facts."""
+"""Character loot and vendor stock project the persisted public item view."""
 
 from __future__ import annotations
 
@@ -7,11 +7,12 @@ from pathlib import Path
 
 import pytest
 
-from erenshor.application.processor.item_provenance import ProvenanceBuilder
+from erenshor.application.processor.item_public_view import derive_public_view, write_public_view
 from erenshor.application.processor.writer import Writer
 from erenshor.domain.value_objects.item_provenance import (
     PROVENANCE_SCHEMA_VERSION,
     ItemAcquisition,
+    ItemDisposition,
     ProvenanceCondition,
     ProvenanceLocation,
 )
@@ -48,9 +49,8 @@ def database(tmp_path: Path) -> Iterator[tuple[Writer, DatabaseConnection]]:
 
 
 def _persist(writer: Writer, *facts: ItemAcquisition) -> None:
-    builder = ProvenanceBuilder(writer.conn)
-    builder.acquisitions.extend(facts)
-    builder.persist()
+    statuses = [ItemDisposition(str(row[0]), "current") for row in writer.conn.execute("SELECT stable_key FROM items")]
+    write_public_view(writer.conn, derive_public_view(facts, (), statuses, {}, {}))
     writer.conn.commit()
 
 
@@ -65,7 +65,7 @@ def _drop(key: str, copy: str, chance: float, *, guaranteed: bool = False) -> It
         probability_kind="exact",
         probability_min=chance,
         probability_max=chance,
-        guarantee_scope="pool" if guaranteed else None,
+        guarantee_scope="item" if guaranteed else None,
     )
 
 

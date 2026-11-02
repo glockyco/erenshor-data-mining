@@ -270,7 +270,7 @@ class TestWikiGenerateCommand:
         assert kwargs["class_display"] is repositories[8]
         assert kwargs["build_repo"] is repositories[9]
         assert kwargs["treasure_repo"] is repositories[10]
-        assert kwargs["provenance_repo"] is repositories[11]
+        assert kwargs["public_view"] is repositories[11]
         assert kwargs["lifecycle"] == "reviewed lifecycle"
 
     def test_article_composition_injects_canonical_provenance_repository(
@@ -278,10 +278,10 @@ class TestWikiGenerateCommand:
     ) -> None:
         provenance = MagicMock()
         create_provenance = MagicMock(return_value=provenance)
-        monkeypatch.setattr(wiki, "ItemProvenanceRepository", create_provenance)
+        monkeypatch.setattr(wiki, "ItemPublicViewRepository", create_provenance)
 
         with wiki._create_wiki_composition(cli_context, with_client=False) as composition:
-            assert composition.context.item_provenance_repo is provenance
+            assert composition.context.item_public_view is provenance
             create_provenance.assert_called_once_with(composition.database)
 
     def test_lua_repository_factory_shares_one_read_only_database(
@@ -321,7 +321,7 @@ class TestWikiGenerateCommand:
             "ClassDisplayNameService",
             "BuildMetadataRepository",
             "TreasureRepository",
-            "ItemProvenanceRepository",
+            "ItemPublicViewRepository",
             "ProgressionRepository",
         )
         constructor_connections: list[object] = []
@@ -351,7 +351,7 @@ class TestWikiGenerateCommand:
         assert "Dry run" in result.output
         for module in (
             "Items.lua",
-            "Characters.lua",
+            "CharactersV2.lua",
             "Links.lua",
             "Spells.lua",
             "Skills.lua",

@@ -15,7 +15,6 @@ from loguru import logger
 from erenshor.application.wiki.generators.formatting import safe_str
 from erenshor.application.wiki.generators.link_lists import (
     format_chance,
-    format_links,
     format_visible_links,
     group_by_page_and_label,
 )
@@ -29,9 +28,6 @@ from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
 from erenshor.domain.value_objects.wiki_filename import picture_file_title
 from erenshor.domain.value_objects.wiki_link import FactionLink, ZoneLink
 from erenshor.shared.game_constants import WIKITEXT_LINE_SEPARATOR
-
-# The label of a guaranteed pool that rolls more than once: "Guaranteed Two Of".
-_ROLL_WORDS = {2: "Two", 3: "Three", 4: "Four", 5: "Five"}
 
 _TREASURE_HUNT_SPAWN_TYPE = "[[Treasure Hunting|Treasure hunt]]"
 _SCALES_WITH_PLAYER_LEVEL = "Scales with the player's level"
@@ -73,8 +69,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         spawn_chance = self._format_spawn_chance(enriched.spawn_infos, character.encounter_tier)
         spawn_type = self._format_spawn_type(enriched.spawn_infos)
         respawn = self._format_respawn(enriched.spawn_infos)
-        guaranteed_drops, drop_rates = self._format_loot_drops(enriched.loot_drops, display_name)
-        guaranteed_rolls = self._format_guaranteed_rolls(character.guaranteed_drop_rolls, guaranteed_drops)
+        drop_rates = self._format_loot_drops(enriched.loot_drops)
         spells = format_visible_links(enriched.spells)
         level_mod_min, level_mod_max = self._calculate_level_mod_range(enriched.spawn_infos)
 
@@ -104,8 +99,6 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             spawn_chance=spawn_chance,
             spawn_type=spawn_type,
             respawn=respawn,
-            guaranteed_drops=guaranteed_drops,
-            guaranteed_rolls=guaranteed_rolls,
             drop_rates=drop_rates,
             spells=spells,
             level_mod_min=level_mod_min,
@@ -353,26 +346,20 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             return "1 minute"
         return f"{minutes} minutes"
 
-    def _format_loot_drops(
-        self,
-        loot_drops: list[LootDropDisplayInfo],
-        character_display_name: str,
-    ) -> tuple[str, str]:
-        """Format the guaranteed pool and the drop rates of a character.
+    def _format_loot_drops(self, loot_drops: list[LootDropDisplayInfo]) -> str:
+        """Format a character's public item drop rates.
 
         Items that share a page and a label, such as variants of one item, form
         one entry with their chance, or with the lowest and highest chance when
         the chances differ. Entries are sorted by highest chance, then by name.
         """
-        drops = [drop for drop in loot_drops if drop.item_link.page_title is not None and drop.drop_probability > 0]
+        drops = [drop for drop in loot_drops if drop.item_link.page_title is not None]
         drops.sort(key=lambda drop: (-drop.drop_probability, drop.item_link.display_name.lower(), str(drop.item_link)))
 
         rates: list[str] = []
         for group in group_by_page_and_label(drops, lambda drop: drop.item_link):
             item_link = group[0].item_link
             entry = f"{item_link} ({format_chance([drop.drop_probability for drop in group], decimals=1)})"
-            if any(drop.is_visible for drop in group):
-                entry += f"<ref>If {character_display_name} has {item_link} equipped, it is guaranteed to drop.</ref>"
             if any(drop.item_unique for drop in group):
                 entry += (
                     f"<ref>If the player is already holding {item_link} in their "
@@ -380,27 +367,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
                 )
             rates.append(entry)
 
-        # The template labels the pool "Guaranteed One Of", so it needs two or more items.
-        pool = sorted(
-            (drop.item_link for drop in drops if drop.is_guaranteed),
-            key=lambda link: (link.display_name.lower(), str(link)),
-        )
-        pool_groups = group_by_page_and_label(pool, lambda link: link)
-        guaranteed = format_links(pool) if len(pool_groups) >= 2 else ""
-
-        return (guaranteed, WIKITEXT_LINE_SEPARATOR.join(rates))
-
-    def _format_guaranteed_rolls(self, rolls: int | None, guaranteed_drops: str) -> str:
-        """Name how many items the game picks from the guaranteed pool when that is more than one.
-
-        ``LootTable.InitLootTable`` rolls the pool ``NumberOfGuaranteedDrops``
-        times and retries a roll that picks an item already dropped. The
-        template reads an empty value as one.
-        """
-        # code-fact: loot.guarantee_one_drop
-        if not guaranteed_drops or rolls is None or rolls <= 1:
-            return ""
-        return _ROLL_WORDS.get(rolls, str(rolls))
+        return WIKITEXT_LINE_SEPARATOR.join(rates)
 
     def _calculate_level_mod_range(
         self,
@@ -425,8 +392,6 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         spawn_chance: str,
         spawn_type: str,
         respawn: str,
-        guaranteed_drops: str,
-        guaranteed_rolls: str,
         drop_rates: str,
         spells: str,
         level_mod_min: int,
@@ -469,8 +434,8 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             "spawn_chance": spawn_chance,
             "spawn_type": spawn_type,
             "respawn": respawn,
-            "guaranteed_drops": guaranteed_drops,
-            "guaranteed_rolls": guaranteed_rolls,
+            "guaranteed_drops": "",
+            "guaranteed_rolls": "",
             "drop_rates": drop_rates,
             "level": level,
             "level_mod_min": str(level_mod_min),

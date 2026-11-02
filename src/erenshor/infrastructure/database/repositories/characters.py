@@ -10,7 +10,8 @@ from erenshor.domain.value_objects.faction import FactionModifier
 from erenshor.domain.value_objects.loot import LootDropDisplayInfo
 from erenshor.domain.value_objects.vendor_stock import VendorStockEntry
 from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink
-from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
+from erenshor.infrastructure.database.connection import DatabaseConnection
+from erenshor.infrastructure.database.repositories.item_public_view import ItemPublicViewRepository
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
 
@@ -19,6 +20,15 @@ class CharacterRepository(BaseRepository[Character]):
 
     All queries target the clean snake_case database written by ``extract build``.
     """
+
+    def __init__(self, db: DatabaseConnection, *, public_view: ItemPublicViewRepository | None = None) -> None:
+        super().__init__(db)
+        self._public_view = public_view
+
+    def _public(self) -> ItemPublicViewRepository:
+        if self._public_view is None:
+            self._public_view = ItemPublicViewRepository(self.db)
+        return self._public_view
 
     def get_character_data_catalog(self) -> dict[str, dict[str, object]]:
         """Read canonical labels, including identities without a public article."""
@@ -632,39 +642,49 @@ class CharacterRepository(BaseRepository[Character]):
             raise RepositoryError(f"Failed to retrieve character link for '{stable_key}': {e}") from e
 
     def get_character_loot_drops(self, character_stable_key: str) -> list[LootDropDisplayInfo]:
-        """Project one copy's canonical drops with equipped-item display metadata."""
-        query = """
-            SELECT i.stable_key, i.display_name, i.wiki_page_name, i.image_name,
-                a.probability_min AS drop_probability,
-                a.guarantee_scope = 'pool' AS is_guaranteed,
-                COALESCE(ld.is_visible, 0) AS is_visible,
-                COALESCE(i.is_unique, 0) AS item_unique
-            FROM item_acquisitions a
-            JOIN items i ON i.stable_key = a.item_stable_key
-            LEFT JOIN loot_drops ld
-              ON ld.character_stable_key = a.source_copy_stable_key
-             AND ld.item_stable_key = a.item_stable_key
-            WHERE a.kind = 'character_drop' AND a.source_copy_stable_key = ?
-              AND i.display_name IS NOT NULL AND a.probability_min IS NOT NULL
-            ORDER BY a.probability_min DESC, i.display_name COLLATE NOCASE, a.acquisition_key
-        """
+        """Project one copy's public drops with equipped-item display metadata."""
         try:
-            ItemProvenanceRepository(self.db)
-            return [
-                LootDropDisplayInfo(
-                    item_link=ItemLink(
-                        page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
-                        display_name=str(row["display_name"]),
-                        image_name=str(row["image_name"]) if row["image_name"] else None,
-                        stable_key=str(row["stable_key"]),
-                    ),
-                    drop_probability=float(row["drop_probability"]),
-                    is_guaranteed=bool(row["is_guaranteed"]),
-                    is_visible=bool(row["is_visible"]),
-                    item_unique=bool(row["item_unique"]),
-                )
-                for row in self._execute_raw(query, (character_stable_key,))
+            sources = [
+                source
+                for source in self._public().sources_from_copies((character_stable_key,))
+                if source.kind == "character_drop"
             ]
+            if not sources:
+                return []
+            keys = tuple(sorted({source.item_stable_key for source in sources}))
+            placeholders = ",".join("?" for _ in keys)
+            metadata = {
+                str(row["stable_key"]): row
+                for row in self._execute_raw(
+                    "SELECT i.stable_key, i.display_name, i.wiki_page_name, i.image_name, "
+                    "COALESCE(ld.is_visible, 0) AS is_visible, COALESCE(i.is_unique, 0) AS item_unique "
+                    "FROM items i LEFT JOIN loot_drops ld ON ld.item_stable_key = i.stable_key "
+                    f"AND ld.character_stable_key = ? WHERE i.stable_key IN ({placeholders})",
+                    (character_stable_key, *keys),
+                )
+            }
+            drops = []
+            for source in sources:
+                row = metadata[source.item_stable_key]
+                if row["display_name"] is None or source.probability_min is None:
+                    raise RepositoryError(
+                        f"Public character drop has no display metadata or chance: {source.source_key}"
+                    )
+                drops.append(
+                    LootDropDisplayInfo(
+                        item_link=ItemLink(
+                            page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
+                            display_name=str(row["display_name"]),
+                            image_name=str(row["image_name"]) if row["image_name"] else None,
+                            stable_key=source.item_stable_key,
+                        ),
+                        drop_probability=source.probability_min,
+                        is_guaranteed=source.guaranteed,
+                        is_visible=bool(row["is_visible"]),
+                        item_unique=bool(row["item_unique"]),
+                    )
+                )
+            return sorted(drops, key=lambda drop: (-drop.drop_probability, drop.item_link.display_name.casefold()))
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve loot for character {character_stable_key}: {e}") from e
 
@@ -729,49 +749,47 @@ class CharacterRepository(BaseRepository[Character]):
             raise RepositoryError(f"Failed to retrieve characters using spell '{spell_stable_key}': {e}") from e
 
     def get_vendor_stock(self) -> list[VendorStockEntry]:
-        """Project canonical offers with copy-local furniture and stock-unlock gates."""
-        query = """
-            WITH location_furniture AS (
-                SELECT l.source_key, l.location_key,
-                    CASE WHEN COUNT(DISTINCT json_extract(atom.value, '$.reference_stable_key')) = 1
-                    THEN MIN(json_extract(atom.value, '$.reference_stable_key')) END AS furniture_key
-                FROM item_source_locations l
-                LEFT JOIN json_each(l.conditions) atom
-                  ON json_extract(atom.value, '$.predicate') = 'room_furnished'
-                WHERE l.source_key IN (SELECT location_source_key FROM item_acquisitions WHERE kind = 'vendor')
-                GROUP BY l.source_key, l.location_key
-            ),
-            furniture AS (
-                SELECT source_key,
-                    CASE WHEN COUNT(*) = COUNT(furniture_key) AND COUNT(DISTINCT furniture_key) = 1
-                    THEN MIN(furniture_key) END AS furniture_key
-                FROM location_furniture
-                GROUP BY source_key
-            )
-            SELECT a.acquisition_key, a.source_group_key, a.source_copy_stable_key,
-                a.item_stable_key, f.furniture_key, q.reference_stable_key AS quest_key
-            FROM item_acquisitions a
-            LEFT JOIN furniture f ON f.source_key = a.location_source_key
-            LEFT JOIN item_acquisition_conditions q ON q.owner_key = a.acquisition_key
-              AND q.gate_key = 'stock_unlock' AND q.predicate = 'quest_done'
-            WHERE a.kind = 'vendor'
-            ORDER BY a.source_group_key, a.source_copy_stable_key, a.item_stable_key, quest_key
-        """
+        """Project public offers with copy-local furniture and stock-unlock gates."""
         try:
-            ItemProvenanceRepository(self.db)
+            public = self._public()
             stock = []
-            for row in self._execute_raw(query):
-                if not row["source_group_key"] or not row["source_copy_stable_key"]:
-                    raise RepositoryError(f"Canonical vendor offer has no copy identity: {row['acquisition_key']}")
-                stock.append(
-                    VendorStockEntry(
-                        vendor_key=str(row["source_group_key"]),
-                        copy_key=str(row["source_copy_stable_key"]),
-                        furniture_key=str(row["furniture_key"]) if row["furniture_key"] else None,
-                        item_key=str(row["item_stable_key"]),
-                        quest_key=str(row["quest_key"]) if row["quest_key"] else None,
-                    )
+            for source in public.sources():
+                if source.kind != "vendor":
+                    continue
+                if not source.source_group_key or not source.source_copy_stable_key:
+                    raise RepositoryError(f"Public vendor offer has no copy identity: {source.source_key}")
+                condition_sets = [
+                    (*source.conditions, *place.conditions) for place in public.places(source.place_set_key)
+                ] or [source.conditions]
+                furniture_by_place = [
+                    {
+                        atom.reference_stable_key
+                        for atom in conditions
+                        if atom.predicate == "room_furnished" and atom.reference_stable_key is not None
+                    }
+                    for conditions in condition_sets
+                ]
+                furniture = set.union(*furniture_by_place) if furniture_by_place else set()
+                furniture_key = (
+                    next(iter(furniture))
+                    if len(furniture) == 1 and all(len(keys) == 1 for keys in furniture_by_place)
+                    else None
                 )
-            return stock
+                quests = {
+                    atom.reference_stable_key
+                    for atom in source.conditions
+                    if atom.gate_key == "stock_unlock" and atom.predicate == "quest_done"
+                }
+                for quest in sorted(quests, key=lambda key: key or "") if quests else (None,):
+                    stock.append(
+                        VendorStockEntry(
+                            vendor_key=source.source_group_key,
+                            copy_key=source.source_copy_stable_key,
+                            furniture_key=furniture_key,
+                            item_key=source.item_stable_key,
+                            quest_key=quest,
+                        )
+                    )
+            return sorted(stock, key=lambda row: (row.vendor_key, row.copy_key, row.item_key, row.quest_key or ""))
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve vendor stock: {e}") from e

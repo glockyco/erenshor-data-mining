@@ -1,4 +1,4 @@
-"""Quest panels obtain item grants and native required slots from persisted facts."""
+"""Quest panels obtain item grants and native required slots from the public view."""
 
 from __future__ import annotations
 
@@ -8,11 +8,12 @@ from pathlib import Path
 
 import pytest
 
-from erenshor.application.processor.item_provenance import ProvenanceBuilder
+from erenshor.application.processor.item_public_view import derive_public_view, write_public_view
 from erenshor.application.processor.writer import Writer
 from erenshor.domain.value_objects.item_provenance import (
     PROVENANCE_SCHEMA_VERSION,
     ItemAcquisition,
+    ItemDisposition,
     ItemUse,
     ProvenanceCondition,
     ProvenanceLocation,
@@ -62,13 +63,17 @@ def database(tmp_path: Path) -> Iterator[tuple[Writer, DatabaseConnection]]:
 
 
 def _persist(writer: Writer, *facts: ItemAcquisition | ItemUse) -> None:
-    builder = ProvenanceBuilder(writer.conn)
-    for fact in facts:
-        if isinstance(fact, ItemAcquisition):
-            builder.acquisitions.append(fact)
-        else:
-            builder.uses.append(fact)
-    builder.persist()
+    statuses = [ItemDisposition(str(row[0]), "current") for row in writer.conn.execute("SELECT stable_key FROM items")]
+    write_public_view(
+        writer.conn,
+        derive_public_view(
+            [fact for fact in facts if isinstance(fact, ItemAcquisition)],
+            [fact for fact in facts if isinstance(fact, ItemUse)],
+            statuses,
+            {},
+            {},
+        ),
+    )
     for fact in facts:
         if isinstance(fact, ItemAcquisition) and fact.kind == "quest_reward":
             _route(writer, f"turnin:{fact.variant_key}", "item_turnin", fact.variant_key)

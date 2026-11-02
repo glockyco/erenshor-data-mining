@@ -5,13 +5,10 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
+from tests.unit.application.wiki_lua.fakes import public_source
 
 from erenshor.application.wiki_lua.game_board import build_game_board_rows, write_game_board_module
-from erenshor.domain.value_objects.item_provenance import (
-    ItemAcquisition,
-    ItemDisposition,
-    ProvenanceCondition,
-)
+from erenshor.domain.value_objects.item_public_view import ItemStatus, PublicSource
 
 
 def _spawn(**values: object) -> dict[str, object]:
@@ -27,9 +24,9 @@ def _spawn(**values: object) -> dict[str, object]:
     }
 
 
-def _drop(**values: object) -> ItemAcquisition:
+def _drop(**values: object) -> PublicSource:
     return replace(
-        ItemAcquisition(
+        public_source(
             "drop:board",
             "item:reward",
             "character_drop",
@@ -50,7 +47,7 @@ CATALOG: dict[str, dict[str, object]] = {
     "item:other-piece": {"name": "Other piece", "page": "Other piece"},
     "item:reward": {"name": "Reward", "page": "Reward"},
 }
-DISPOSITIONS = {"item:reward": ItemDisposition("item:reward", "current")}
+STATUSES = {"item:reward": ItemStatus("item:reward", "current", None)}
 
 
 def test_only_exact_spawned_copy_supplies_drops_not_its_group_or_page() -> None:
@@ -62,7 +59,7 @@ def test_only_exact_spawned_copy_supplies_drops_not_its_group_or_page() -> None:
             _drop(kind="common_world_item", probability_min=50, probability_max=50),
             _drop(kind="special_world_drop", probability_min=75, probability_max=75),
         ],
-        DISPOSITIONS,
+        STATUSES,
         CATALOG,
     )["character:boss"]
     assert len(rows) == 1
@@ -70,29 +67,10 @@ def test_only_exact_spawned_copy_supplies_drops_not_its_group_or_page() -> None:
     assert rows[0]["chance"] == 12.5
 
 
-@pytest.mark.parametrize(
-    "fact",
-    [
-        _drop(player_access_state="non_acquirable"),
-        _drop(player_access_state="internal_only"),
-        _drop(player_access_state="unconfirmed_player"),
-        _drop(probability_stage="native_pool"),
-        _drop(probability_min=0, probability_max=0),
-        _drop(conditions=(ProvenanceCondition("impossible", 0, 0, "never"),)),
-    ],
-)
-def test_unavailable_canonical_facts_do_not_become_obtainable_board_drops(fact: ItemAcquisition) -> None:
-    rows = build_game_board_rows([_spawn()], [fact], DISPOSITIONS, CATALOG)["character:boss"]
+def test_spawn_without_a_public_source_has_no_drop() -> None:
+    rows = build_game_board_rows([_spawn()], [], STATUSES, CATALOG)["character:boss"]
     assert len(rows) == 1
     assert "drop" not in rows[0] and "chance" not in rows[0]
-
-
-@pytest.mark.parametrize("state", ["removed", "unobtainable", "unused"])
-def test_noncurrent_item_dispositions_are_not_presented_as_drops(state: str) -> None:
-    rows = build_game_board_rows(
-        [_spawn()], [_drop()], {"item:reward": ItemDisposition("item:reward", state)}, CATALOG
-    )["character:boss"]
-    assert "drop" not in rows[0]
 
 
 def test_copy_piece_and_effective_level_boundaries_remain_alternative_rows() -> None:
@@ -106,13 +84,13 @@ def test_copy_piece_and_effective_level_boundaries_remain_alternative_rows() -> 
         [
             _drop(),
             _drop(
-                acquisition_key="drop:second",
+                source_key="drop:second",
                 source_copy_stable_key="character:second-board-copy",
                 probability_min=75,
                 probability_max=75,
             ),
         ],
-        DISPOSITIONS,
+        STATUSES,
         CATALOG,
     )["character:boss"]
     assert len(rows) == 3
@@ -133,21 +111,21 @@ def test_conflicting_same_copy_chances_are_not_summed_or_selected() -> None:
     with pytest.raises(ValueError, match="conflicting drop chances"):
         build_game_board_rows(
             [_spawn()],
-            [_drop(), _drop(acquisition_key="drop:other", probability_min=50, probability_max=50)],
-            DISPOSITIONS,
+            [_drop(), _drop(source_key="drop:other", probability_min=50, probability_max=50)],
+            STATUSES,
             CATALOG,
         )
 
 
 def test_new_boss_enters_from_bindings_without_a_class_or_name_override() -> None:
-    rows = build_game_board_rows([_spawn(character="character:new-class-boss")], [_drop()], DISPOSITIONS, CATALOG)
+    rows = build_game_board_rows([_spawn(character="character:new-class-boss")], [_drop()], STATUSES, CATALOG)
     assert list(rows) == ["character:new-class-boss"]
     assert rows["character:new-class-boss"][0]["chance"] == 12.5
 
 
 def test_pageless_native_items_keep_labels_without_invented_links() -> None:
     catalog = dict(CATALOG, **{"item:reward": {"name": "Native reward"}})
-    rows = build_game_board_rows([_spawn()], [_drop()], DISPOSITIONS, catalog)
+    rows = build_game_board_rows([_spawn()], [_drop()], STATUSES, catalog)
     assert rows["character:boss"][0]["drop"] == {"key": "item:reward", "name": "Native reward"}
 
 
@@ -157,11 +135,11 @@ def test_writer_rejects_a_page_backed_item_missing_from_links_before_writing(tmp
             return [_spawn()]
 
     class Provenance:
-        def get_character_drop_acquisitions(self, character_copy_keys: Iterable[str]) -> list[ItemAcquisition]:
+        def sources_from_copies(self, character_copy_keys: Iterable[str]) -> list[PublicSource]:
             return [_drop()]
 
-        def get_disposition(self, item_key: str) -> ItemDisposition | None:
-            return DISPOSITIONS.get(item_key)
+        def status(self, item_key: str) -> ItemStatus | None:
+            return STATUSES.get(item_key)
 
     with pytest.raises(ValueError, match="link catalog"):
         write_game_board_module(

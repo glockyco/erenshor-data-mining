@@ -3,10 +3,14 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from tests.unit.application.wiki_lua.fakes import FakeCharacterRepository, FakeItemProvenanceRepository, make_item
+from tests.unit.application.wiki_lua.fakes import (
+    FakeCharacterRepository,
+    FakeItemPublicViewRepository,
+    make_item,
+    public_use,
+)
 
 from erenshor.application.wiki_lua.vendor_stock import build_vendor_stock_rows, item_type, write_vendor_stock_module
-from erenshor.domain.value_objects.item_provenance import ItemUse
 from erenshor.domain.value_objects.vendor_stock import VendorStockEntry
 
 _SWORD = make_item(stable_key="item:sword", display_name="Sword", item_value=120, required_slot="Primary")
@@ -97,11 +101,11 @@ def test_an_item_without_a_wiki_page_fails_naming_vendor_and_item() -> None:
 def test_vendor_writer_uses_canonical_material_and_smithing_mechanic_facts(tmp_path: Path) -> None:
     material = make_item(stable_key="item:material", required_slot="General")
     mold = make_item(stable_key="item:mold", required_slot="General")
-    provenance = FakeItemProvenanceRepository(
+    provenance = FakeItemPublicViewRepository(
         [material.stable_key, mold.stable_key],
         uses=[
-            ItemUse("craft:slot:3", material.stable_key, mold.stable_key, "crafting_material", material_slot=3),
-            ItemUse("smith:fuel", material.stable_key, mold.stable_key, "smithing", mechanic="upgrade_material"),
+            public_use("craft:slot:3", material.stable_key, mold.stable_key, "crafting_material", material_slot=3),
+            public_use("smith:fuel", material.stable_key, mold.stable_key, "smithing", mechanic="upgrade_material"),
         ],
     )
     vendors = FakeCharacterRepository([], vendor_stock=[_entry(material.stable_key), _entry(mold.stable_key)])

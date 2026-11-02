@@ -4,73 +4,19 @@ from __future__ import annotations
 
 import math
 import re
-from collections import Counter
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
 from typing import Any
 
 _NEEDS_ESCAPE = re.compile(r'["\\\n\r\t]')
-_IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
 
 
 class LuaSerializationError(TypeError):
     """Raised when a value cannot be represented in mw.loadData output."""
 
 
-@dataclass(frozen=True)
-class LuaReference:
-    """An entry of a table that the module defines once, written where the data refers to it."""
-
-    table: str
-    key: str
-
-
-def module_text(value: object, tables: Mapping[str, object] | None = None) -> str:
-    """Serialize a value as a Lua module returning that value, after the local tables it refers to."""
-    lines = []
-    for name, table in (tables or {}).items():
-        if _IDENTIFIER.match(name) is None:
-            raise LuaSerializationError(f"invalid Lua table name: {name!r}")
-        lines.append(f"local {name} = {dumps(table)}\n")
-    return "".join(lines) + f"return {dumps(value)}\n"
-
-
-def shared_module_text(value: object, *, table: str, field: str, key_field: str) -> str:
-    """Serialize a module that writes the `field` of the records with one `key_field` value once.
-
-    A value that several records share goes into a local table, and mw.loadData keeps a table that
-    the data refers to several times, so each record still reads its `field` directly.
-    """
-    values: dict[str, object] = {}
-    uses: Counter[str] = Counter()
-
-    def collect(node: object) -> None:
-        if isinstance(node, Mapping):
-            key = node.get(key_field)
-            if isinstance(key, str) and node.get(field):
-                if values.setdefault(key, node[field]) != node[field]:
-                    raise LuaSerializationError(f"{key_field} {key!r} names two different values of {field}")
-                uses[key] += 1
-            for item in node.values():
-                collect(item)
-        elif isinstance(node, Sequence) and not isinstance(node, (str, bytes, bytearray)):
-            for item in node:
-                collect(item)
-
-    def share(node: object) -> object:
-        if isinstance(node, Mapping):
-            result = {name: share(item) for name, item in node.items()}
-            key = node.get(key_field)
-            if isinstance(key, str) and uses[key] > 1:
-                result[field] = LuaReference(table, key)
-            return result
-        if isinstance(node, Sequence) and not isinstance(node, (str, bytes, bytearray)):
-            return [share(item) for item in node]
-        return node
-
-    collect(value)
-    shared = {key: values[key] for key in sorted(values) if uses[key] > 1}
-    return module_text(share(value) if shared else value, {table: shared} if shared else None)
+def module_text(value: object) -> str:
+    """Serialize a value as a Lua module returning that value."""
+    return f"return {dumps(value)}\n"
 
 
 def dumps(value: object) -> str:
@@ -79,10 +25,6 @@ def dumps(value: object) -> str:
 
 
 def _serialize(value: object, depth: int, quoted_keys: dict[str, str]) -> str:
-    if isinstance(value, LuaReference):
-        if _IDENTIFIER.match(value.table) is None:
-            raise LuaSerializationError(f"invalid Lua table name: {value.table!r}")
-        return f"{value.table}[{_quote(value.key)}]"
     if isinstance(value, str):
         return _quote(value)
     if value is None:

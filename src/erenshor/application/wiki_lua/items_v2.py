@@ -1,29 +1,24 @@
-"""Versioned item facts and bounded canonical provenance for data-backed articles."""
+"""Versioned item data and bounded public sources for data-backed articles."""
 
 from __future__ import annotations
 
 import hashlib
 from collections import defaultdict
-from collections.abc import Iterable, Mapping
-from dataclasses import dataclass
+from collections.abc import Mapping
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Protocol, cast
 
 from erenshor.application.wiki_lua.items import ItemDataRepository, _item_kind, _item_record
-from erenshor.application.wiki_lua.lua_writer import module_text, shared_module_text
+from erenshor.application.wiki_lua.lua_writer import module_text
 from erenshor.application.wiki_lua.views import native_reference
-from erenshor.domain.value_objects.item_provenance import (
-    PROVENANCE_SCHEMA_VERSION,
-    ItemAcquisition,
-    ItemDisposition,
-    ItemUse,
-    fact_to_dict,
-)
 from erenshor.domain.value_objects.wiki_filename import picture_file_title
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.item import Item
+    from erenshor.domain.value_objects.item_public_view import ItemStatus, PublicSource, PublicUse
     from erenshor.infrastructure.content_lifecycle import ContentLifecycle, LifecyclePage
+    from erenshor.infrastructure.database.repositories.item_public_view import ItemPublicViewRepository
 
 ITEMS_SCHEMA_VERSION = 2
 REFERENCE_KINDS = frozenset({"item", "character", "quest", "zone", "class", "faction", "spell", "skill", "stance"})
@@ -74,14 +69,6 @@ class CompleteItemDataRepository(ItemDataRepository, Protocol):
     def get_item_renders(self, stable_key: str) -> dict[str | None, str]: ...
 
 
-class CanonicalItemProvenanceRepository(Protocol):
-    def iter_acquisitions(self) -> Iterable[ItemAcquisition]: ...
-
-    def iter_uses(self) -> Iterable[ItemUse]: ...
-
-    def iter_dispositions(self) -> Iterable[ItemDisposition]: ...
-
-
 def item_bucket(stable_key: str) -> str:
     """Keep unrelated additions from moving an item's data dependencies."""
     return hashlib.sha256(stable_key.encode("utf-8")).hexdigest()[:2]
@@ -129,18 +116,14 @@ def _effects(item: Item) -> list[dict[str, object]]:
 
 def build_items_v2_data(
     item_repo: CompleteItemDataRepository,
-    provenance_repo: CanonicalItemProvenanceRepository,
+    public_view: ItemPublicViewRepository,
     *,
     build: Mapping[str, str],
     native_catalog: Mapping[str, Mapping[str, object]],
     class_display_names: Mapping[str, str] | None = None,
     lifecycle: ContentLifecycle | None = None,
 ) -> ItemsV2Data:
-    """Serialize canonical facts without selecting, grouping or wording sources.
-
-    Each identity loads one entity bucket and one provenance bucket. Legacy
-    Items pages retain their own schema and readers during the rollback window.
-    """
+    """Serialize the public view without selecting or wording its facts."""
     if not build.get("gameBuildId") or not build.get("publishedAt"):
         raise ValueError("ItemsV2 requires the source game build and publication identity")
     by_key: dict[str, str] = {}
@@ -155,11 +138,11 @@ def build_items_v2_data(
         ]
         for item in article_items
     }
-    acquisitions_by_item: defaultdict[str, list[ItemAcquisition]] = defaultdict(list)
-    uses_by_item: defaultdict[str, list[ItemUse]] = defaultdict(list)
+    acquisitions_by_item: defaultdict[str, list[PublicSource]] = defaultdict(list)
+    uses_by_item: defaultdict[str, list[PublicUse]] = defaultdict(list)
     fact_keys: set[str] = set()
     referenced_outcomes: set[str] = set()
-    for use in provenance_repo.iter_uses():
+    for use in public_view.uses():
         if use.use_key in fact_keys:
             raise ValueError(f"{use.item_stable_key}: duplicate canonical fact identity")
         fact_keys.add(use.use_key)
@@ -167,18 +150,18 @@ def build_items_v2_data(
         if use.outcome_key is not None:
             referenced_outcomes.add(use.outcome_key)
     outcome_item_by_key: dict[str, str] = {}
-    for acquisition in provenance_repo.iter_acquisitions():
-        if acquisition.acquisition_key in fact_keys:
+    for acquisition in public_view.sources():
+        if acquisition.source_key in fact_keys:
             raise ValueError(f"{acquisition.item_stable_key}: duplicate canonical fact identity")
-        fact_keys.add(acquisition.acquisition_key)
+        fact_keys.add(acquisition.source_key)
         acquisitions_by_item[acquisition.item_stable_key].append(acquisition)
-        if acquisition.acquisition_key in referenced_outcomes:
-            outcome_item_by_key[acquisition.acquisition_key] = acquisition.item_stable_key
+        if acquisition.source_key in referenced_outcomes:
+            outcome_item_by_key[acquisition.source_key] = acquisition.item_stable_key
     missing_outcomes = referenced_outcomes - outcome_item_by_key.keys()
     if missing_outcomes:
         raise ValueError(f"Missing canonical acquisition outcomes: {', '.join(sorted(missing_outcomes))}")
-    dispositions: dict[str, ItemDisposition] = {}
-    for disposition in provenance_repo.iter_dispositions():
+    dispositions: dict[str, ItemStatus] = {}
+    for disposition in public_view.statuses():
         key = disposition.item_stable_key
         if key in dispositions:
             raise ValueError(f"{key}: duplicate canonical disposition identity")
@@ -191,23 +174,27 @@ def build_items_v2_data(
         if item_disposition is None:
             raise ValueError(f"{key}: missing canonical disposition")
         bucket = item_bucket(key)
+        facts: list[PublicSource | PublicUse] = [*acquisitions_by_item[key], *uses_by_item[key]]
         provenance[bucket][key] = {
-            "acquisitions": [
-                fact_to_dict(value)
-                for value in sorted(acquisitions_by_item[key], key=lambda value: value.acquisition_key)
+            "sources": [
+                asdict(value) for value in sorted(acquisitions_by_item[key], key=lambda value: value.source_key)
             ],
-            "uses": [fact_to_dict(value) for value in sorted(uses_by_item[key], key=lambda value: value.use_key)],
-            "disposition": fact_to_dict(item_disposition),
+            "usages": [asdict(value) for value in sorted(uses_by_item[key], key=lambda value: value.use_key)],
+            "status": asdict(item_disposition),
+            "places": {
+                place_set: [asdict(place) for place in public_view.places(place_set)]
+                for place_set in sorted({value.place_set_key for value in facts if value.place_set_key is not None})
+            },
+            "mechanism_parameters": {
+                mechanic: [asdict(parameter) for parameter in public_view.parameters(mechanic)]
+                for mechanic in sorted({value.mechanic for value in facts if value.mechanic is not None})
+            },
         }
         record = provenance[bucket][key]
         outcome_references = [
-            {"target_stable_key": key}
-            for value in acquisitions_by_item[key]
-            if value.acquisition_key in referenced_outcomes
+            {"target_stable_key": key} for value in acquisitions_by_item[key] if value.source_key in referenced_outcomes
         ]
-        record["references"] = _references(
-            [record["acquisitions"], record["uses"], outcome_references, read_quests.get(key, [])], native_catalog
-        )
+        record["references"] = _references([record, outcome_references, read_quests.get(key, [])], native_catalog)
         provenance_by_key[key] = bucket
     lifecycle_pages: dict[str, LifecyclePage] = {}
     if lifecycle is not None:
@@ -225,7 +212,7 @@ def build_items_v2_data(
         if item.item_db_index is None:
             raise ValueError(f"{key}: missing item_db_index")
         disposition = dispositions[key]
-        lifecycle_record = fact_to_dict(disposition)
+        lifecycle_record = asdict(disposition)
         notice = lifecycle_pages.get(key)
         if notice is not None:
             if notice.state != disposition.disposition:
@@ -283,7 +270,7 @@ def build_items_v2_data(
     return ItemsV2Data(
         index={
             "schemaVersion": ITEMS_SCHEMA_VERSION,
-            "provenanceSchemaVersion": PROVENANCE_SCHEMA_VERSION,
+            "provenanceSchemaVersion": 2,
             "build": dict(build),
             "byKey": by_key,
             "provenanceByKey": provenance_by_key,
@@ -296,7 +283,7 @@ def build_items_v2_data(
 
 def generate_items_v2_modules(
     item_repo: CompleteItemDataRepository,
-    provenance_repo: CanonicalItemProvenanceRepository,
+    public_view: ItemPublicViewRepository,
     *,
     build: Mapping[str, str],
     native_catalog: Mapping[str, Mapping[str, object]],
@@ -307,7 +294,7 @@ def generate_items_v2_modules(
     """Serialize items and split provenance by the size of the published text."""
     data = build_items_v2_data(
         item_repo,
-        provenance_repo,
+        public_view,
         build=build,
         native_catalog=native_catalog,
         class_display_names=class_display_names,
@@ -320,8 +307,16 @@ def generate_items_v2_modules(
     pending = sorted(data.provenance.items(), reverse=True)
     while pending:
         bucket, records = pending.pop()
-        # Every fact of a source shares the source's locations, which the module writes once.
-        content = shared_module_text(records, table="locations", field="locations", key_field="location_source_key")
+        places: dict[str, object] = {}
+        parameters: dict[str, object] = {}
+        owners = {}
+        for key, record in records.items():
+            places.update(cast("Mapping[str, object]", record["places"]))
+            parameters.update(cast("Mapping[str, object]", record["mechanism_parameters"]))
+            owners[key] = {
+                field: value for field, value in record.items() if field not in {"places", "mechanism_parameters"}
+            }
+        content = module_text({"byKey": owners, "places": places, "mechanism_parameters": parameters})
         size = len(content.encode("utf-8"))
         if max_page_bytes is not None and size > max_page_bytes:
             if len(records) == 1 or len(bucket) == 64:
@@ -335,7 +330,7 @@ def generate_items_v2_modules(
                 children[child][key] = record
             pending.extend(sorted(children.items(), reverse=True))
             continue
-        modules[f"ItemProvenanceV1/{bucket}.lua"] = content
+        modules[f"ItemProvenanceV2/{bucket}.lua"] = content
         routes.update(dict.fromkeys(records, bucket))
     data.index["provenanceByKey"] = dict(sorted(routes.items()))
     for bucket in sorted(data.items):
@@ -343,12 +338,12 @@ def generate_items_v2_modules(
             record["provenanceShard"] = routes[key]
         modules[f"ItemsV2/{bucket}.lua"] = module_text(data.items[bucket])
     modules["ItemsV2.lua"] = module_text(data.index)
-    return dict(sorted(modules.items(), key=lambda pair: (pair[0].startswith("ItemProvenanceV1/"), pair[0])))
+    return dict(sorted(modules.items(), key=lambda pair: (pair[0].startswith("ItemProvenanceV2/"), pair[0])))
 
 
 def write_items_v2_modules(
     item_repo: CompleteItemDataRepository,
-    provenance_repo: CanonicalItemProvenanceRepository,
+    public_view: ItemPublicViewRepository,
     output_root: Path,
     *,
     build: Mapping[str, str],
@@ -360,7 +355,7 @@ def write_items_v2_modules(
     """Write versioned entity and relation pages to the generation staging tree."""
     modules = generate_items_v2_modules(
         item_repo,
-        provenance_repo,
+        public_view,
         build=build,
         native_catalog=native_catalog,
         class_display_names=class_display_names,

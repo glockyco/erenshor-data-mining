@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
     from erenshor.infrastructure.database.repositories.characters import CharacterRepository
     from erenshor.infrastructure.database.repositories.factions import FactionRepository
-    from erenshor.infrastructure.database.repositories.item_provenance import ItemProvenanceRepository
+    from erenshor.infrastructure.database.repositories.item_public_view import ItemPublicViewRepository
     from erenshor.infrastructure.database.repositories.items import ItemRepository
     from erenshor.infrastructure.database.repositories.quests import QuestRepository
     from erenshor.infrastructure.database.repositories.skills import SkillRepository
@@ -37,7 +37,7 @@ class GeneratorContext:
 
     Attributes:
         item_repo: Repository for item entities
-        item_provenance_repo: Canonical item acquisitions, uses, and lifecycle
+        item_public_view: Public item sources, uses, places and lifecycle
         character_repo: Repository for character entities
         spell_repo: Repository for spell entities
         skill_repo: Repository for skill entities
@@ -53,7 +53,7 @@ class GeneratorContext:
     """
 
     item_repo: ItemRepository
-    item_provenance_repo: ItemProvenanceRepository
+    item_public_view: ItemPublicViewRepository
     character_repo: CharacterRepository
     spell_repo: SpellRepository
     skill_repo: SkillRepository

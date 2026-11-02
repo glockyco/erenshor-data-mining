@@ -1,6 +1,6 @@
 return {
 	schemaVersion = 2,
-	provenanceSchemaVersion = 1,
+	provenanceSchemaVersion = 2,
 	outcomeItemByKey = { ["acq:fixture-yield"] = "item:ember_longsword" },
 	provenanceByKey = {
 		["item:arm - 19  - ancient guardian sleeve"] = "08",
