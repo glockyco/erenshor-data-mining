@@ -2,10 +2,9 @@
     import type { EntityData } from '$lib/map/live/types';
     import { resolveLiveEncounterTier, type EnemyTier } from '$lib/map-markers';
     import { liveState } from '$lib/map/live/stores.svelte';
-    import { aggregateDropVariants } from '$lib/map/live/drop-variants';
+    import { aggregateDropVariants, type AggregatedDrop } from '$lib/map/live/drop-variants';
     import { resolveLiveCandidates, type CharacterDetails } from '$lib/map/character-details';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
-    import AcquisitionDetails from './AcquisitionDetails.svelte';
 
     interface Props {
         entity: EntityData;
@@ -24,6 +23,14 @@
         )
     );
 
+    // A range wherever the candidates disagree, so the popup never states a
+    // chance that none of them actually has.
+    function formatDropChance(drop: AggregatedDrop): string {
+        if (drop.minProbability === drop.maxProbability) {
+            return `${drop.maxProbability.toFixed(1)}%`;
+        }
+        return `${drop.minProbability.toFixed(1)}\u2013${drop.maxProbability.toFixed(1)}%`;
+    }
 
     const tier = $derived(resolveLiveEncounterTier(entity, encounterTierByName));
 
@@ -63,13 +70,10 @@
                     <div class="flex items-center justify-between text-sm">
                         <span class="min-w-0 truncate text-zinc-300">{drop.itemName}</span>
                         <div class="flex shrink-0 items-center gap-2">
+                            <span class="text-zinc-500">{formatDropChance(drop)}</span>
                             <WikiLink pageName={drop.itemName} />
                         </div>
                     </div>
-                    {#each drop.acquisitions as fact (fact.source_key)}
-                        <AcquisitionDetails {fact} scene={liveState.zone}
-                            names={characterDetails.referenceNamesByAcquisition.get(fact.source_key)} />
-                    {/each}
                 {/each}
             </div>
         </div>

@@ -27,6 +27,7 @@
     import SearchItemPopup from './popups/SearchItemPopup.svelte';
     import SearchNotFoundContent from './popups/SearchNotFoundContent.svelte';
     import { resolveLiveEncounterTier, type EnemyTier } from '$lib/map-markers';
+    import { presentItemSources } from '$lib/map/search/item-source-presentation';
     import type { CharacterDetails } from '$lib/map/character-details';
 
     interface Props {
@@ -272,7 +273,8 @@
     const searchItemSources = $derived.by(() => {
         if (selection?.type !== 'search' || selection.result.type !== 'item' || !searchIndex)
             return [];
-        return searchIndex.itemProvider.getSourcesForItem(selection.result.itemStableKey);
+        const provider = searchIndex.itemProvider;
+        return presentItemSources(provider.getSourcesForItem(selection.result.itemStableKey), provider.startingClassCount);
     });
 </script>
 

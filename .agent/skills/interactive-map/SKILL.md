@@ -115,6 +115,10 @@ Regenerate the clean database when its schema version is missing or unsupported.
 Inspect `item_sources`, its stored condition gates, and the referenced place set together.
 The map matches places to markers by `marker_stable_key`. It words the stored
 conditions without deciding which facts or conditions are public.
+The item panel keeps the established rows of each kind of source and adds a
+source's conditions as short lines under its row. The `/map` prerender fails with
+`Item panels omit public sources` when a panel would leave a public source out,
+such as a gathering source whose marker the page lacks.
 Common world drops use the public chance range. They do not create named
 droppers or enemy markers.
 Map builds write offline identity coverage outside the published site.

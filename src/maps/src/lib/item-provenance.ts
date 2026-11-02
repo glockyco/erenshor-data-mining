@@ -139,53 +139,128 @@ export function readItemDispositions(db: Database): ItemDisposition[] {
     return query(db, 'SELECT item_stable_key, disposition, reason, current_pages, former_pages FROM item_statuses ORDER BY item_stable_key')
         .map((row) => ({ ...row, current_pages: JSON.parse(row.current_pages as string), former_pages: JSON.parse(row.former_pages as string) } as unknown as ItemDisposition));
 }
-export function conditionText(condition: ProvenanceCondition, names: Record<string, string> = {}): string {
-    const reference = condition.reference_stable_key;
-    const subject = reference ? (names[reference] ?? reference.replace(/^[^:]+:/, '')) : '';
-    const bounds = [condition.minimum === null ? '' : `${condition.minimum_inclusive ? 'at least' : 'above'} ${condition.minimum}`,
-        condition.maximum === null ? '' : `${condition.maximum_inclusive ? 'at most' : 'below'} ${condition.maximum}`].filter(Boolean).join(' and ');
-    switch (condition.predicate) {
-        case 'quest_done': return `Complete ${subject}`;
-        case 'quest_not_done': return `Do not complete ${subject}`;
-        case 'item_held':
-        case 'key_held': return `Carry ${condition.minimum ?? 1} ${subject}`;
-        case 'item_not_owned': return `Do not already own ${subject}`;
-        case 'room_furnished': return `Place ${subject}${condition.reference_slot ? ` in ${condition.reference_slot}` : ' in the room'}`;
-        case 'encounter_won': return `Defeat ${subject}`;
-        case 'actor_class': return `${condition.actor === 'sim' || condition.actor === 'sim_player' ? 'Simulated player class' : 'Play as'} ${subject}`;
-        case 'account_state': {
-            const name = reference === 'account_state:reliquary_claimed' ? (names[reference] ?? 'your Reliquary') : subject;
-            return `${condition.value === 'false' ? 'Before' : 'After'} claiming ${name}`;
+export interface ConditionContext {
+    /** The item the source gives, so a condition that the player does not own it reads "one". */
+    itemStableKey?: string;
+    /** The quest whose turn-in gives the item, so a condition that it is not done yet reads "Once per character". */
+    rewardQuestStableKey?: string | null;
+}
+
+const PHRASE_ORDER = ['quest_done', 'encounter_won', 'quest_not_done', 'account_state', 'room_furnished', 'held', 'item_not_owned',
+    'actor_level', 'zone_use', 'time_of_day', 'quality', 'route', 'never'];
+
+function list(parts: string[], conjunction = 'and'): string {
+    const unique = [...new Set(parts)];
+    return unique.length < 2 ? unique.join('') : `${unique.slice(0, -1).join(', ')} ${conjunction} ${unique[unique.length - 1]}`;
+}
+
+function range(atom: ProvenanceCondition): string {
+    const { minimum: min, maximum: max } = atom;
+    if (min !== null && max !== null && atom.minimum_inclusive && atom.maximum_inclusive) return min === max ? `${min}` : `${min}–${max}`;
+    return [min === null ? '' : atom.minimum_inclusive ? `${min} or higher` : `above ${min}`,
+        max === null ? '' : atom.maximum_inclusive ? `${max} or lower` : `below ${max}`].filter(Boolean).join(' and ');
+}
+
+/** One phrase per kind of requirement, so several quests or keys read as one list. */
+function phrases(atoms: ProvenanceCondition[], names: Record<string, string>, context: ConditionContext): string[] {
+    const name = (atom: ProvenanceCondition) => {
+        const reference = atom.reference_stable_key;
+        return reference ? names[reference] ?? reference.replace(/^[^:]+:/, '') : '';
+    };
+    const groups = new Map<string, ProvenanceCondition[]>();
+    for (const atom of atoms) {
+        const kind = atom.predicate === 'key_held' || atom.predicate === 'item_held' ? 'held' : atom.predicate;
+        groups.set(kind, [...(groups.get(kind) ?? []), atom]);
+    }
+    const ordered = [...groups].sort(([a], [b]) => (PHRASE_ORDER.indexOf(a) + 1 || Infinity) - (PHRASE_ORDER.indexOf(b) + 1 || Infinity));
+    return ordered.flatMap(([kind, group]): string[] => {
+        switch (kind) {
+            case 'quest_done': return [`Requires ${list(group.map(name))}`];
+            case 'encounter_won': return [`Requires defeating ${list(group.map(name))}`];
+            case 'quest_not_done': {
+                const own = group.filter((atom) => atom.reference_stable_key === context.rewardQuestStableKey);
+                const others = group.filter((atom) => !own.includes(atom));
+                return [...(own.length ? ['Once per character'] : []), ...(others.length ? [`Only before ${list(others.map(name))}`] : [])];
+            }
+            case 'account_state': return group.map((atom) => atom.reference_stable_key === 'account_state:reliquary_claimed'
+                ? atom.value === 'false' ? 'Only before claiming your Reliquary' : 'Requires a claimed Reliquary'
+                : `${atom.value === 'false' ? 'Only before' : 'Requires'} ${name(atom)}`);
+            case 'room_furnished': return [`Requires the ${list(group.map(name), 'or')} in its room`];
+            case 'held': return [`Requires ${list(group.map((atom) => (atom.minimum ?? 1) > 1 ? `${name(atom)} ×${atom.minimum}` : name(atom)))}`];
+            case 'item_not_owned': return [group.every((atom) => atom.reference_stable_key === context.itemStableKey)
+                ? "Only if you don't have one" : `Only if you don't have ${list(group.map(name))}`];
+            case 'actor_level': return group.map((atom) => atom.actor === 'enemy' ? `Requires enemy level ${range(atom)}` :
+                atom.actor === 'sim' || atom.actor === 'sim_player' ? `Requires simulated player level ${range(atom)}` : `Requires level ${range(atom)}`);
+            case 'actor_class': return group.map((atom) => atom.actor === 'sim' || atom.actor === 'sim_player'
+                ? `Requires a simulated player of class ${name(atom)}` : `Requires the ${name(atom)} class`);
+            case 'zone_use': return [`Only in ${list(group.map(name))}`];
+            case 'time_of_day': return group.map((atom) => atom.value === 'day' ? 'Only during the day' : atom.value === 'night' ? 'Only at night' : `Only during ${atom.value}`);
+            case 'quality': return group.map((atom) => `Requires quality ${range(atom)}`);
+            case 'route': return group.map((atom) => atom.value === 'normal_pointer_inventory_transfer'
+                ? 'Drag it into your inventory' : capitalize((atom.value ?? '').replaceAll('_', ' ')));
+            case 'never': return ['Never'];
+            default: return group.map((atom) => capitalize([atom.predicate.replaceAll('_', ' '), name(atom), atom.value, range(atom)].filter(Boolean).join(' ')));
         }
-        case 'never': return 'Not obtainable through this route';
-        case 'time_of_day': return `Fish ${condition.value === 'day' ? 'during the day' : condition.value === 'night' ? 'at night' : `during ${condition.value}`}`;
-        case 'actor_level': return `${condition.actor === 'enemy' ? 'Enemy' : condition.actor === 'sim' || condition.actor === 'sim_player' ? 'Simulated player' : 'Player'} level ${bounds}`;
-        case 'zone_use': return `Use in ${subject}`;
-        case 'quality': return `Quality ${condition.value ?? subject}`;
-        default: return [condition.actor?.replaceAll('_', ' '), condition.predicate.replaceAll('_', ' '), subject, condition.value, bounds].filter(Boolean).join(' ');
+    });
+}
+
+function capitalize(text: string): string {
+    return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+/** Branches of one gate as one line: "Requires A or B" when each branch only requires one thing. */
+function alternativeLine(branches: string[][]): string {
+    const texts = branches.map((branch) => branch.join(', '));
+    if (texts.every((text) => text.startsWith('Requires ') && !text.includes(', '))) {
+        return `Requires ${texts.map((text) => text.slice('Requires '.length)).join(' or ')}`;
     }
+    return texts.map((text, index) => index === 0 ? text : text.charAt(0).toLowerCase() + text.slice(1)).join(' or ');
 }
-/** Stored gates all hold, with alternatives inside each gate. No consumer filtering. */
-export function conditionLines(conditions: ProvenanceCondition[], names: Record<string, string> = {}): string[] {
-    const gates = new Map<number, Map<number, ProvenanceCondition[]>>();
-    for (const atom of conditions) {
-        const alternatives = gates.get(atom.gate_index) ?? new Map<number, ProvenanceCondition[]>();
-        const atoms = alternatives.get(atom.alternative_index) ?? [];
-        atoms.push(atom);
-        alternatives.set(atom.alternative_index, atoms);
-        gates.set(atom.gate_index, alternatives);
+
+/** A place's eligible player levels, worded like a player level condition. */
+export function playerLevelPhrase(minimum: number | null, maximum: number | null): string {
+    return phrases([{ gate_index: 0, alternative_index: 0, atom_index: 0, gate_key: '', predicate: 'actor_level', reference_stable_key: null,
+        reference_slot: null, actor: 'player', value: null, minimum, maximum, minimum_inclusive: true, maximum_inclusive: true,
+        phase: 'availability' }], {}, {})[0];
+}
+
+/**
+ * Brief player-facing phrases for stored gates, such as "Requires Claiming the Reliquary".
+ * Each group keeps its own gate numbers. Every gate holds, so single-branch gates merge
+ * into one list per kind, and the branches of any other gate read as "or".
+ */
+export function conditionPhrases(groups: readonly (readonly ProvenanceCondition[])[], names: Record<string, string> = {},
+    context: ConditionContext = {}): string[] {
+    const conjunction: ProvenanceCondition[] = [];
+    const alternatives: string[] = [];
+    for (const atoms of groups) {
+        const gates = new Map<number, Map<number, ProvenanceCondition[]>>();
+        for (const atom of atoms) {
+            const branches = gates.get(atom.gate_index) ?? new Map<number, ProvenanceCondition[]>();
+            branches.set(atom.alternative_index, [...(branches.get(atom.alternative_index) ?? []), atom]);
+            gates.set(atom.gate_index, branches);
+        }
+        for (const [, branches] of [...gates].sort(([a], [b]) => a - b)) {
+            const ordered = [...branches].sort(([a], [b]) => a - b).map(([, branch]) => [...branch].sort((a, b) => a.atom_index - b.atom_index));
+            if (ordered.length === 1) conjunction.push(...ordered[0]);
+            else alternatives.push(alternativeLine(ordered.map((branch) => phrases(branch, names, context))));
+        }
     }
-    return [...gates].sort(([a], [b]) => a - b).map(([, alternatives]) => [...alternatives].sort(([a], [b]) => a - b)
-        .map(([, atoms]) => [...atoms].sort((a, b) => a.atom_index - b.atom_index).map((atom) => conditionText(atom, names)).join(' and ')).join(' or '));
+    return [...phrases(conjunction, names, context), ...alternatives];
 }
-export function probabilityText(fact: ItemAcquisition): string {
-    if (fact.probability_kind === 'not_applicable') return '';
-    const value = fact.probability_kind === 'unknown' ? 'Chance unknown' : fact.probability_min === fact.probability_max ? `${fact.probability_min}%` : `${fact.probability_min ?? '?'}% to ${fact.probability_max ?? '?'}%`;
-    const basis: Record<string, string> = { per_kill: 'per kill', per_successful_catch: 'per successful catch', per_node: 'per node', per_use: 'per use', per_listing_opportunity: 'per listing opportunity' };
-    return `${value}${fact.probability_basis && basis[fact.probability_basis] ? ` ${basis[fact.probability_basis]}` : ''}`;
-}
-export function quantityText(fact: ItemAcquisition): string {
-    const count = fact.quantity_min === fact.quantity_max ? `${fact.quantity_min ?? '?'}` : `${fact.quantity_min ?? '?'} to ${fact.quantity_max ?? '?'}`;
-    const parts = [fact.quantity_kind === 'unknown' ? '' : `Quantity ${count}`, fact.expected_quantity === null ? '' : `Average ${fact.expected_quantity}${fact.probability_basis === 'per_kill' ? ' per kill' : ''}`, fact.guaranteed ? 'Guaranteed' : ''].filter(Boolean);
-    return parts.length ? parts.join(', ') : 'Quantity unknown';
+
+/**
+ * Conditions of several facts at one marker: the phrases every fact needs, shown once,
+ * and each fact's remaining phrases by source key. `omit` leaves out atoms the popup
+ * already states in its established form.
+ */
+export function markerConditions(facts: readonly ItemAcquisition[], markerKey: string, names: (fact: ItemAcquisition) => Record<string, string>,
+    omit: (atom: ProvenanceCondition) => boolean = () => false): { shared: string[]; own: Map<string, string[]> } {
+    const lines = facts.map((fact) => {
+        const place = fact.locations.find((location) => location.marker_stable_key === markerKey);
+        return conditionPhrases([fact.conditions.filter((atom) => !omit(atom)), (place?.conditions ?? []).filter((atom) => !omit(atom))], names(fact),
+            { itemStableKey: fact.item_stable_key });
+    });
+    const shared = lines.length ? lines[0].filter((line) => lines.every((other) => other.includes(line))) : [];
+    return { shared, own: new Map(facts.map((fact, index) => [fact.source_key, lines[index].filter((line) => !shared.includes(line))])) };
 }

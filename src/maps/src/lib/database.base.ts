@@ -1,5 +1,5 @@
 import type { Database, SqlJsStatic } from 'sql.js/dist/sql-wasm.js';
-import { readItemSources, readItemDispositions, readProvenanceMetadata, probabilityText, conditionLines, quantityText } from './item-provenance';
+import { readItemSources, readItemDispositions, readProvenanceMetadata, conditionPhrases } from './item-provenance';
 import type { ItemAcquisition, ItemDisposition, ItemProvenanceSnapshot } from './item-provenance';
 import { readZoneLineDestinationContexts, readZoneLineDestinationSnapshot, STORED_RETURN_LABEL } from './zone-line-destinations';
 import type { ZoneLineDestinationContext } from './zone-line-destinations';
@@ -85,10 +85,12 @@ function buildMovementData(
     };
 }
 
-function acquisitionPopupHtml(fact: ItemAcquisition, coordinateKey: string): string {
-    return [probabilityText(fact), quantityText(fact), ...conditionLines(fact.conditions),
-        ...fact.locations.filter((location) => location.marker_stable_key === coordinateKey).flatMap((location) => conditionLines(location.conditions))]
-        .filter(Boolean).join('<br>');
+/** A fact's conditions at one marker, worded as the world map words them, for zone page popups. */
+function markerConditionsHtml(fact: ItemAcquisition, markerKey: string, names: Record<string, string>): string {
+    const place = fact.locations.find((location) => location.marker_stable_key === markerKey);
+    // Fishing popups list day and night catches separately.
+    return conditionPhrases([fact.conditions.filter((atom) => atom.predicate !== 'time_of_day'), place?.conditions ?? []], names,
+        { itemStableKey: fact.item_stable_key }).map((phrase) => `<br>${phrase}`).join('');
 }
 
 interface MapItemProvenance {
@@ -99,10 +101,20 @@ interface MapItemProvenance {
     dispositionByKey: Map<string, ItemDisposition>;
 }
 
+interface ReferenceLabels {
+    database: Database;
+    names: Record<string, string>;
+    pages: Record<string, string | null>;
+    items: Map<string, ItemSourceItemMeta & { visible: boolean; price: number }>;
+    /** Character group key to its first map-visible member. */
+    representatives: Map<string, string>;
+}
+
 export class RepositoryBase {
     protected SQL: SqlJsStatic | null = null;
     protected db: Database | null = null;
     private provenanceCache: MapItemProvenance | null = null;
+    private referenceLabelsCache: ReferenceLabels | null = null;
     private zoneLineContextCache: { database: Database; records: Map<string, ZoneLineDestinationContext> } | null = null;
 
     private getProvenance(): MapItemProvenance {
@@ -357,7 +369,7 @@ export class RepositoryBase {
                     ? `<br><br>Respawns after ca. ${this.convertToMinutesAndSeconds(respawnTimer)} or when re-entering the zone.`
                     : '<br><br>Respawns when re-entering the zone.';
 
-            const popupText = `${positionText}${itemText}<br>${acquisitionPopupHtml(fact, row.StableKey as string)}${respawnText}`;
+            const popupText = `${positionText}${itemText}${markerConditionsHtml(fact, row.StableKey as string, this.getReferenceLabels().names)}${respawnText}`;
 
             markers.push({
                 stableKey: row.StableKey as string,
@@ -453,7 +465,7 @@ export class RepositoryBase {
             const itemLines = sortedItems
                 .map(
                     (item) =>
-                        `${formatWikiLink(item.name, item.wikiPageName)}<br>${acquisitionPopupHtml(item.provenance, stableKey)}`
+                        `${formatWikiLink(item.name, item.wikiPageName)} (${Number(item.dropChance).toFixed(1)}%)${markerConditionsHtml(item.provenance, stableKey, this.getReferenceLabels().names)}`
                 )
                 .join('<br>');
 
@@ -1100,14 +1112,14 @@ export class RepositoryBase {
             const daytimeItemLines = sortedDaytimeItems
                 .map(
                     (item) =>
-                        `${formatWikiLink(item.name, item.wikiPageName)}<br>${acquisitionPopupHtml(item.provenance, stableKey)}`
+                        `${formatWikiLink(item.name, item.wikiPageName)} (${Number(item.dropChance).toFixed(1)}%)${markerConditionsHtml(item.provenance, stableKey, this.getReferenceLabels().names)}`
                 )
                 .join('<br>');
 
             const nighttimeItemLines = sortedNighttimeItems
                 .map(
                     (item) =>
-                        `${formatWikiLink(item.name, item.wikiPageName)}<br>${acquisitionPopupHtml(item.provenance, stableKey)}`
+                        `${formatWikiLink(item.name, item.wikiPageName)} (${Number(item.dropChance).toFixed(1)}%)${markerConditionsHtml(item.provenance, stableKey, this.getReferenceLabels().names)}`
                 )
                 .join('<br>');
 
@@ -1309,11 +1321,10 @@ export class RepositoryBase {
         return items;
     }
 
-    /** Canonical facts keep their original identities when a hidden item aliases one visible item. */
-    async getItemSources(): Promise<ItemSourceRow[]> {
+    /** Display names and wiki pages of every key that sources and their conditions reference. */
+    private getReferenceLabels(): ReferenceLabels {
         if (!this.db) throw new Error('DB not initialized');
-        const provenance = this.getProvenance();
-        const facts = provenance.acquisitions;
+        if (this.referenceLabelsCache?.database === this.db) return this.referenceLabelsCache;
         const metadata = new Map<string, ItemSourceItemMeta & { visible: boolean; price: number }>();
         const names: Record<string, string> = {};
         const pages: Record<string, string | null> = {};
@@ -1361,6 +1372,16 @@ export class RepositoryBase {
             names[`class:${(row.class_name as string).toLowerCase()}`] = row.name as string;
         }
         classes.free();
+        this.referenceLabelsCache = { database: this.db, names, pages, items: metadata, representatives };
+        return this.referenceLabelsCache;
+    }
+
+    /** Canonical facts keep their original identities when a hidden item aliases one visible item. */
+    async getItemSources(): Promise<ItemSourceRow[]> {
+        if (!this.db) throw new Error('DB not initialized');
+        const provenance = this.getProvenance();
+        const facts = provenance.acquisitions;
+        const { names, pages, items: metadata, representatives } = this.getReferenceLabels();
         const visibleByPage = new Map<string, ItemSourceItemMeta[]>();
         for (const item of metadata.values()) {
             if (!item.visible || !item.wikiPageName?.trim()) continue;

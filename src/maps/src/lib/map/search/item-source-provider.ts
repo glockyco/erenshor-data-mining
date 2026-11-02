@@ -33,6 +33,8 @@ export class ItemSearchProvider implements SearchProvider {
     readonly categoryLabel = 'Items';
     readonly categoryOrder = 0;
     private readonly itemByStableKey = new Map<string, ItemEntry>();
+    /** Classes with starting items, so an item that all of them start with can read "All classes". */
+    readonly startingClassCount: number;
 
     constructor(rows: ItemSourceRow[], spawnMarkers: AnySpawnMarker[], miningNodes: WorldMiningNode[],
         water: WorldWater[], itemBags: WorldItemBag[], allItems: ItemSourceItemMeta[] = rows,
@@ -42,6 +44,8 @@ export class ItemSearchProvider implements SearchProvider {
         for (const marker of [...spawnMarkers, ...miningNodes, ...water, ...itemBags, ...treasureLocs]) {
             byMarker.set(marker.stableKey, marker);
         }
+        this.startingClassCount = new Set(rows.filter((row) => row.provenance.kind === 'starting_class')
+            .map((row) => row.provenance.source_stable_key)).size;
         const byItem = new Map<string, ItemSourceRow[]>();
         for (const row of rows) {
             const group = byItem.get(row.itemStableKey) ?? [];

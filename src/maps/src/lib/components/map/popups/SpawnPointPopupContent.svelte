@@ -4,7 +4,7 @@
     import type { CharacterDetails } from '$lib/map/character-details';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
     import CharacterPortrait from '$lib/components/map/CharacterPortrait.svelte';
-    import AcquisitionDetails from './AcquisitionDetails.svelte';
+    import { markerConditions, type ItemAcquisition, type ProvenanceCondition } from '$lib/item-provenance';
 
     interface Props {
         marker: WorldEnemy | WorldNpc;
@@ -22,6 +22,16 @@
         return `after ~${minutes} minutes`;
     }
 
+    // Format drop chance (0-100 range from database)
+    function formatDropChance(probability: number): string {
+        return `${probability.toFixed(1)}%`;
+    }
+
+    /** Conditions of this character's items here. Its furnishing line above already names the set its room needs. */
+    function itemConditions(char: SpawnCharacter, facts: ItemAcquisition[]) {
+        return markerConditions(facts, marker.stableKey, (fact) => characterDetails.referenceNamesByAcquisition.get(fact.source_key) ?? {},
+            (atom: ProvenanceCondition) => char.furniture !== null && atom.predicate === 'room_furnished');
+    }
 
     // Format spawn chance (0-100 range from database)
     function formatSpawnChance(chance: number | null): string {
@@ -135,12 +145,16 @@
                     {@const items = (characterDetails.vendorItems.get(char.stableKey) ?? []).filter((item) =>
                         item.provenance.locations.some((location) => location.marker_stable_key === marker.stableKey))}
                     {#if items.length > 0}
+                        {@const terms = itemConditions(char, items.map((item) => item.provenance))}
                         <div class="mt-2 border-t border-zinc-700 pt-2">
                             <div class="text-xs text-zinc-500 uppercase tracking-wide mb-1">
                                 Sells
                             </div>
+                            {#each terms.shared as line (line)}
+                                <div class="text-xs text-zinc-400">{line}</div>
+                            {/each}
                             <div class="space-y-0.5">
-                                {#each items as item, i (i)}
+                                {#each items as item (item.provenance.source_key)}
                                     <div class="flex justify-between text-xs">
                                         <span class="text-zinc-300 truncate min-w-0"
                                             >{item.name}</span
@@ -149,8 +163,9 @@
                                             {formatPrice(item.price)} gold
                                         </span>
                                     </div>
-                                    <AcquisitionDetails fact={item.provenance} coordinateKey={marker.stableKey}
-                                        names={characterDetails.referenceNamesByAcquisition.get(item.provenance.source_key)} />
+                                    {#each terms.own.get(item.provenance.source_key) ?? [] as line (line)}
+                                        <div class="text-xs text-zinc-500">{line}</div>
+                                    {/each}
                                 {/each}
                             </div>
                         </div>
@@ -159,17 +174,25 @@
 
                 <!-- Drops -->
                 {#if drops.length > 0}
+                    {@const terms = itemConditions(char, drops.map((drop) => drop.provenance))}
                     <div class="mt-2 border-t border-zinc-700 pt-2">
                         <div class="text-xs text-zinc-500 uppercase tracking-wide mb-1">
                             Drops
                         </div>
+                        {#each terms.shared as line (line)}
+                            <div class="text-xs text-zinc-400">{line}</div>
+                        {/each}
                         <div class="space-y-0.5">
-                            {#each drops as drop, i (i)}
+                            {#each drops as drop (drop.provenance.source_key)}
                                 <div class="flex justify-between text-xs">
                                     <span class="text-zinc-300">{drop.itemName}</span>
+                                    <span class="text-zinc-500"
+                                        >{formatDropChance(drop.dropProbability)}</span
+                                    >
                                 </div>
-                                <AcquisitionDetails fact={drop.provenance} coordinateKey={marker.stableKey}
-                                    names={characterDetails.referenceNamesByAcquisition.get(drop.provenance.source_key)} />
+                                {#each terms.own.get(drop.provenance.source_key) ?? [] as line (line)}
+                                    <div class="text-xs text-zinc-500">{line}</div>
+                                {/each}
                             {/each}
                         </div>
                     </div>

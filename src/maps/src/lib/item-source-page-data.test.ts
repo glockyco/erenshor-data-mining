@@ -1,9 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import { buildMapWorldData } from './map-world-data.server';
 import { hydrateItemSourcePageData, serializeItemSourcePageData } from './item-source-page-data';
-import { conditionLines, probabilityText, quantityText } from './item-provenance';
+import { conditionPhrases } from './item-provenance';
 import { ItemSearchProvider } from './map/search/item-source-provider';
+import { presentItemSources, type PresentedItemSource } from './map/search/item-source-presentation';
 import { indexCharacterDetails } from './map/character-details';
+
+const SHOWN_FACT_FIELDS = ['probability_kind', 'probability_min', 'probability_basis', 'quantity_kind', 'quantity_min', 'quantity_max',
+    'expected_quantity', 'guaranteed'] as const;
+
+/** What the item panel shows of a presented row, with markers by key. */
+function shown(row: PresentedItemSource) {
+    return { ...row, markers: 'markers' in row ? row.markers.map((marker) => marker.stableKey) : undefined,
+        marker: 'marker' in row ? row.marker.stableKey : undefined,
+        brokers: 'brokers' in row ? row.brokers.map((broker) => [broker.row, broker.markers.map((marker) => marker.stableKey)]) : undefined,
+        entries: 'entries' in row ? row.entries.map((entry) => entry.stableKey) : undefined };
+}
 
 
 describe('public item page data', () => {
@@ -20,9 +32,8 @@ describe('public item page data', () => {
             expect(restored).toMatchObject(presentation);
             expect(restored.referenceNames).toMatchObject(referenceNames);
             expect(restored.locationSources).toMatchObject(locationSources);
-            expect(probabilityText(restored.provenance)).toBe(probabilityText(provenance));
-            expect(quantityText(restored.provenance)).toBe(quantityText(provenance));
-            expect(conditionLines(restored.provenance.conditions, restored.referenceNames)).toEqual(conditionLines(provenance.conditions, referenceNames));
+            for (const field of SHOWN_FACT_FIELDS) expect(restored.provenance[field]).toBe(provenance[field]);
+            expect(conditionPhrases([restored.provenance.conditions], restored.referenceNames)).toEqual(conditionPhrases([provenance.conditions], referenceNames));
             expect(restored.provenance.source_key).toBe(provenance.source_key);
             expect(restored.provenance.item_stable_key).toBe(provenance.item_stable_key);
             expect(restored.provenance.source_group_key).toBe(provenance.source_group_key);
@@ -36,7 +47,7 @@ describe('public item page data', () => {
                     player_level_min: place.player_level_min, player_level_max: place.player_level_max,
                     entry_zone_line_keys: place.entry_zone_line_keys });
                 if (!place.marker_stable_key) expect(actual).toMatchObject({ x: place.x, z: place.z, zone_stable_key: place.zone_stable_key });
-                expect(conditionLines(actual.conditions, restored.referenceNames)).toEqual(conditionLines(place.conditions, referenceNames));
+                expect(conditionPhrases([actual.conditions], restored.referenceNames)).toEqual(conditionPhrases([place.conditions], referenceNames));
             }
         }
         const [originalProvider, restoredProvider] = [data, hydrated].map((page) => new ItemSearchProvider(page.itemSources,
@@ -46,6 +57,10 @@ describe('public item page data', () => {
         for (const item of data.allItems) {
             expect(restoredProvider.getMarkersForItem(item.itemStableKey)).toEqual(expect.arrayContaining(
                 originalProvider.getMarkersForItem(item.itemStableKey).map((marker) => expect.objectContaining({ stableKey: marker.stableKey }))));
+        }
+        for (const item of data.allItems) {
+            expect(presentItemSources(restoredProvider.getSourcesForItem(item.itemStableKey), restoredProvider.startingClassCount).map(shown))
+                .toEqual(presentItemSources(originalProvider.getSourcesForItem(item.itemStableKey), originalProvider.startingClassCount).map(shown));
         }
         const originalDetails = indexCharacterDetails(data.itemSources, data.charactersByName);
         const restoredDetails = indexCharacterDetails(hydrated.itemSources, data.charactersByName);

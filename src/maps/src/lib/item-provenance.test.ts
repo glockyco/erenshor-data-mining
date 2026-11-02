@@ -8,7 +8,7 @@ import initSqlJs from 'sql.js/dist/sql-wasm.js';
 import type { Database, SqlJsStatic } from 'sql.js/dist/sql-wasm.js';
 import { getMapsDatabasePath } from './database-path.server';
 import { Repository } from './database.node';
-import { assertProvenanceSchema, readItemSources, readItemDispositions, readProvenanceMetadata, conditionLines, probabilityText, quantityText, PROVENANCE_SCHEMA_VERSION } from './item-provenance';
+import { assertProvenanceSchema, readItemSources, readItemDispositions, readProvenanceMetadata, conditionPhrases, PROVENANCE_SCHEMA_VERSION } from './item-provenance';
 import type { ItemProvenanceSnapshot } from './item-provenance';
 import { ItemSearchProvider } from './map/search/item-source-provider';
 import { buildMapProvenanceCoverage, writeMapProvenanceManifest } from './item-provenance-coverage.server';
@@ -109,7 +109,7 @@ describe('public schema reader', () => {
         } finally { mutated.close(); }
     });
 
-    it('formats stored gate and alternative indices without deriving policy', () => {
+    it('reads stored gates as all required, with the branches of one gate as alternatives', () => {
         const atoms = [
             condition({ gate_index: 1, alternative_index: 0, atom_index: 0, gate_key: 'same', predicate: 'quest_done', reference_stable_key: 'quest:gate' }),
             condition({ gate_index: 0, alternative_index: 1, atom_index: 0, gate_key: 'same', predicate: 'time_of_day', value: 'night' }),
@@ -130,12 +130,19 @@ describe('public schema reader', () => {
                     Number(atom.minimum_inclusive), Number(atom.maximum_inclusive), atom.phase]);
             }
             const stored = readItemSources(mutated).find((fact) => fact.source_key === owner)!.conditions;
-            const lines = conditionLines(stored, { 'quest:gate': 'Gate Quest', 'quest:route': 'Route Quest', 'item:key': 'Key' });
-            expect(lines).toHaveLength(2);
-            expect(lines[0]).toContain('Carry 1 Key and Complete Route Quest or ');
-            expect(lines[1]).toBe('Complete Gate Quest');
+            const names = { 'quest:gate': 'Gate Quest', 'quest:route': 'Route Quest', 'item:key': 'Key' };
+            const phrases = conditionPhrases([stored], names);
+            // The single-branch gate stands alone, the two-branch gate is one alternative.
+            expect(phrases).toHaveLength(2);
+            expect(phrases[0]).toContain('Gate Quest');
+            expect(phrases[0]).not.toContain(' or ');
+            expect(phrases[1]).toMatch(/Route Quest.*Key.* or /);
+            // A place's gate 0 is a separate requirement, not another branch of the source's gate 0.
+            const gate = condition({ predicate: 'quest_done', reference_stable_key: 'quest:gate' });
+            const place = conditionPhrases([[gate], [{ ...gate, alternative_index: 1, reference_stable_key: 'quest:route' }]], names);
+            expect(place).toHaveLength(1);
+            expect(place[0]).toMatch(/Gate Quest and Route Quest/);
         } finally { mutated.close(); }
-        expect(conditionLines([condition({ predicate: 'account_state', actor: 'account', reference_stable_key: 'account_state:reliquary_claimed', value: 'false' })])).toEqual(['Before claiming your Reliquary']);
     });
 });
 
@@ -222,13 +229,12 @@ describe('public source presentation', () => {
         expect(buildMapProvenanceCoverage(snapshot, [row], provider).groups[0].source_keys).toEqual([row.acquisitionKey]);
     });
 
-    it('presents stored public probabilities, quantities and item guarantees', () => {
-        const fact = acquisition({ probability_kind: 'exact', probability_min: 12, probability_max: 12, probability_basis: 'per_kill', guaranteed: false });
-        expect(probabilityText(fact)).toBe('12% per kill');
-        expect(probabilityText({ ...fact, probability_kind: 'unknown' })).toContain('unknown');
-        expect(probabilityText({ ...fact, probability_kind: 'not_applicable' })).toBe('');
-        expect(quantityText(fact)).toContain('1 to 3');
-        expect(quantityText(fact)).not.toContain('Guaranteed');
-        expect(quantityText({ ...fact, guaranteed: true })).toContain('Guaranteed');
+    it('reads a reward quest that must not be done yet as a one-time reward and names other quests', () => {
+        const own = condition({ predicate: 'quest_not_done', reference_stable_key: 'quest:reward' });
+        const other = condition({ predicate: 'quest_not_done', reference_stable_key: 'quest:other', gate_index: 1 });
+        const phrases = conditionPhrases([[own, other]], { 'quest:other': 'Other Quest' }, { rewardQuestStableKey: 'quest:reward' });
+        expect(phrases).toHaveLength(2);
+        expect(phrases.join()).not.toContain('reward');
+        expect(phrases.join()).toContain('Other Quest');
     });
 });
