@@ -14,6 +14,7 @@ from erenshor.application.processor.item_provenance import ProvenanceBuilder
 from erenshor.application.processor.item_provenance_coverage import validate_item_provenance
 from erenshor.application.processor.writer import Writer
 from erenshor.domain.value_objects.item_provenance import (
+    ItemDisposition,
     ProvenanceEvidence,
     conditions_satisfiable,
 )
@@ -25,6 +26,13 @@ def _insert(connection: sqlite3.Connection, table: str, **values: object) -> Non
         f'INSERT INTO "{table}" ({columns}) VALUES ({",".join("?" for _ in values)})',
         tuple(values.values()),
     )
+
+
+def _dispositions(connection: sqlite3.Connection) -> list[ItemDisposition]:
+    return [
+        ItemDisposition(key, "current", current_pages=(page,))
+        for key, page in connection.execute("SELECT stable_key, wiki_page_name FROM items")
+    ]
 
 
 def _evidence(builder: ProvenanceBuilder, relation: str, owner: str | None = None) -> list[ProvenanceEvidence]:
@@ -560,11 +568,7 @@ def persisted(native_inputs: sqlite3.Connection) -> tuple[sqlite3.Connection, Pr
     builder = ProvenanceBuilder(native_inputs)
     builder.select()
     builder.account_support_inputs()
-    builder.persist()
-    native_inputs.execute(
-        "INSERT INTO item_dispositions (item_stable_key, disposition, current_pages, former_pages) "
-        "SELECT stable_key, 'current', json_array(wiki_page_name), '[]' FROM items"
-    )
+    builder.validate()
     return native_inputs, builder
 
 
@@ -572,7 +576,7 @@ def test_all_input_families_are_accounted_without_rederiving_facts(
     persisted: tuple[sqlite3.Connection, ProvenanceBuilder],
 ) -> None:
     connection, builder = persisted
-    audit = validate_item_provenance(connection, builder, require_all_native_tables=False)
+    audit = validate_item_provenance(connection, builder, _dispositions(connection), require_all_native_tables=False)
     for relation in (
         "loot_drops",
         "special_world_drops",
@@ -615,7 +619,7 @@ def test_replacing_an_origin_with_another_origin_keeps_count_but_fails(
     persisted: tuple[sqlite3.Connection, ProvenanceBuilder],
 ) -> None:
     connection, builder = persisted
-    validate_item_provenance(connection, builder, require_all_native_tables=False)
+    validate_item_provenance(connection, builder, _dispositions(connection), require_all_native_tables=False)
     before = sum(len(entries) for entries in builder.fact_evidence.values())
     for key, entries in builder.fact_evidence.items():
         builder.fact_evidence[key] = tuple(
@@ -626,17 +630,17 @@ def test_replacing_an_origin_with_another_origin_keeps_count_but_fails(
         )
     assert sum(len(entries) for entries in builder.fact_evidence.values()) == before
     with pytest.raises(ValueError, match="mining_node_items"):
-        validate_item_provenance(connection, builder, require_all_native_tables=False)
+        validate_item_provenance(connection, builder, _dispositions(connection), require_all_native_tables=False)
 
 
 def test_native_input_added_after_selection_is_not_hidden_by_builder_expectations(
     persisted: tuple[sqlite3.Connection, ProvenanceBuilder],
 ) -> None:
     connection, builder = persisted
-    validate_item_provenance(connection, builder, require_all_native_tables=False)
+    validate_item_provenance(connection, builder, _dispositions(connection), require_all_native_tables=False)
     _insert(connection, "class_starting_items", class_name="Arcanist", sort_order=0, item_stable_key="item:reward")
     with pytest.raises(ValueError, match=r"class_starting_items.*Arcanist"):
-        validate_item_provenance(connection, builder, require_all_native_tables=False)
+        validate_item_provenance(connection, builder, _dispositions(connection), require_all_native_tables=False)
 
 
 def test_missing_excluded_identity_fails_naming_the_input(
@@ -646,7 +650,7 @@ def test_missing_excluded_identity_fails_naming_the_input(
     identity = ("loot_drops", '["character:unused","item:other"]')
     assert builder.input_exclusions.pop(identity) == "unencountered_copy"
     with pytest.raises(ValueError, match=r"loot_drops.*character:unused.*item:other"):
-        validate_item_provenance(connection, builder, require_all_native_tables=False)
+        validate_item_provenance(connection, builder, _dispositions(connection), require_all_native_tables=False)
 
 
 def test_excluded_identity_accepts_a_nonempty_builder_reason(
@@ -655,7 +659,7 @@ def test_excluded_identity_accepts_a_nonempty_builder_reason(
     connection, builder = persisted
     identity = ("loot_drops", '["character:unused","item:other"]')
     builder.input_exclusions[identity] = "Reviewed fixture exclusion, selected by the builder"
-    audit = validate_item_provenance(connection, builder, require_all_native_tables=False)
+    audit = validate_item_provenance(connection, builder, _dispositions(connection), require_all_native_tables=False)
     assert {
         "relation": identity[0],
         "primary_key": identity[1],
@@ -671,7 +675,7 @@ def test_excluded_identity_requires_a_nonempty_reason(
     connection, builder = persisted
     builder.input_exclusions["loot_drops", '["character:unused","item:other"]'] = reason
     with pytest.raises(ValueError, match="reason"):
-        validate_item_provenance(connection, builder, require_all_native_tables=False)
+        validate_item_provenance(connection, builder, _dispositions(connection), require_all_native_tables=False)
 
 
 def test_missing_used_identity_fails_naming_the_input(
@@ -680,38 +684,42 @@ def test_missing_used_identity_fails_naming_the_input(
     connection, builder = persisted
     _drop_evidence(builder, "mining_node_items")
     with pytest.raises(ValueError, match=r"mining_node_items.*node:one.*item:reward"):
-        validate_item_provenance(connection, builder, require_all_native_tables=False)
+        validate_item_provenance(connection, builder, _dispositions(connection), require_all_native_tables=False)
 
 
 def test_reviewed_historical_item_disposition_does_not_invent_a_current_item(
     persisted: tuple[sqlite3.Connection, ProvenanceBuilder],
 ) -> None:
     connection, builder = persisted
-    _insert(
-        connection,
-        "item_dispositions",
-        item_stable_key="item:historical",
-        disposition="removed",
-        reason="Reviewed removed lifecycle",
-        evidence="reviewed-source",
-        current_pages="[]",
-        former_pages='["Old Item"]',
+    dispositions = _dispositions(connection)
+    dispositions.append(
+        ItemDisposition(
+            item_stable_key="item:historical",
+            disposition="removed",
+            reason="Reviewed removed lifecycle",
+            evidence="reviewed-source",
+            current_pages=(),
+            former_pages=("Old Item",),
+        )
     )
-    audit = validate_item_provenance(connection, builder, require_all_native_tables=False)
+    audit = validate_item_provenance(connection, builder, dispositions, require_all_native_tables=False)
     assert audit["contract_counts"]["dispositions"] == 9
-    connection.execute("UPDATE item_dispositions SET evidence=NULL WHERE item_stable_key='item:historical'")
+    dispositions[-1] = replace(dispositions[-1], evidence=None)
     with pytest.raises(ValueError, match="Unreviewed"):
-        validate_item_provenance(connection, builder, require_all_native_tables=False)
+        validate_item_provenance(connection, builder, dispositions, require_all_native_tables=False)
 
 
 def test_disposition_page_identity_is_not_just_a_row_count(
     persisted: tuple[sqlite3.Connection, ProvenanceBuilder],
 ) -> None:
     connection, builder = persisted
-    validate_item_provenance(connection, builder, require_all_native_tables=False)
-    connection.execute("UPDATE item_dispositions SET current_pages='[]' WHERE item_stable_key='item:reward'")
+    dispositions = _dispositions(connection)
+    validate_item_provenance(connection, builder, dispositions, require_all_native_tables=False)
+    dispositions = [
+        replace(row, current_pages=()) if row.item_stable_key == "item:reward" else row for row in dispositions
+    ]
     with pytest.raises(ValueError, match="current item disposition page"):
-        validate_item_provenance(connection, builder, require_all_native_tables=False)
+        validate_item_provenance(connection, builder, dispositions, require_all_native_tables=False)
 
 
 def test_day_night_variants_keep_their_own_local_probabilities(
@@ -1017,12 +1025,10 @@ def test_unused_native_ui_locations_have_explicit_exclusion_outcomes(native_inpu
     builder = ProvenanceBuilder(native_inputs)
     builder.select()
     builder.account_support_inputs()
-    builder.persist()
-    native_inputs.execute(
-        "INSERT INTO item_dispositions (item_stable_key, disposition, current_pages, former_pages) "
-        "SELECT stable_key, 'current', json_array(wiki_page_name), '[]' FROM items"
+    builder.validate()
+    audit = validate_item_provenance(
+        native_inputs, builder, _dispositions(native_inputs), require_all_native_tables=False
     )
-    audit = validate_item_provenance(native_inputs, builder, require_all_native_tables=False)
     assert audit["input_counts"]["ui_item_access_targets"] == 2
     assert builder.input_exclusions["ui_item_access_targets", '["desk:unused"]'] == "unused_native_ui_target"
     assert ProvenanceEvidence("ui_item_access_targets", '["desk:unused"]') not in _evidence(
@@ -1030,7 +1036,7 @@ def test_unused_native_ui_locations_have_explicit_exclusion_outcomes(native_inpu
     )
     builder.input_exclusions.pop(("ui_item_access_targets", '["desk:unused"]'))
     with pytest.raises(ValueError, match="Unaccounted item provenance inputs"):
-        validate_item_provenance(native_inputs, builder, require_all_native_tables=False)
+        validate_item_provenance(native_inputs, builder, _dispositions(native_inputs), require_all_native_tables=False)
 
 
 def test_validator_does_not_require_a_connection_row_factory(
@@ -1038,7 +1044,7 @@ def test_validator_does_not_require_a_connection_row_factory(
 ) -> None:
     connection, builder = persisted
     connection.row_factory = None
-    audit = validate_item_provenance(connection, builder, require_all_native_tables=False)
+    audit = validate_item_provenance(connection, builder, _dispositions(connection), require_all_native_tables=False)
     assert audit["input_counts"]["water_fishables"] == 2
 
 
@@ -1078,10 +1084,10 @@ def test_each_populated_origin_relation_is_required(
 ) -> None:
     connection, builder = persisted
     assert _evidence(builder, relation)
-    validate_item_provenance(connection, builder, require_all_native_tables=False)
+    validate_item_provenance(connection, builder, _dispositions(connection), require_all_native_tables=False)
     _drop_evidence(builder, relation)
     with pytest.raises(ValueError, match="Unaccounted item provenance inputs"):
-        validate_item_provenance(connection, builder, require_all_native_tables=False)
+        validate_item_provenance(connection, builder, _dispositions(connection), require_all_native_tables=False)
 
 
 @pytest.fixture
@@ -1256,11 +1262,7 @@ def raw_persisted(
     builder.attach_native_inputs(raw)
     builder.account_support_inputs()
     builder.attach_direct_native_inputs(raw)
-    builder.persist()
-    native_inputs.execute(
-        "INSERT INTO item_dispositions (item_stable_key, disposition, current_pages, former_pages) "
-        "SELECT stable_key, 'current', json_array(wiki_page_name), '[]' FROM items"
-    )
+    builder.validate()
     yield native_inputs, raw, builder
     raw.close()
 
@@ -1272,6 +1274,7 @@ def test_raw_native_anti_join_preserves_every_host_exclusion_and_origin(
     audit = validate_item_provenance(
         connection,
         builder,
+        _dispositions(connection),
         raw=raw,
         require_all_native_tables=False,
     )
@@ -1308,21 +1311,26 @@ def test_lifecycle_input_requires_historical_keys_without_guessing_page_only_key
         ),
         encoding="utf-8",
     )
-    _insert(
-        connection,
-        "item_dispositions",
-        item_stable_key="item:historical",
-        disposition="removed",
-        reason="Reviewed removed lifecycle",
-        evidence="Reviewed removal",
-        current_pages="[]",
-        former_pages='["Old Item"]',
+    dispositions = _dispositions(connection)
+    dispositions.append(
+        ItemDisposition(
+            item_stable_key="item:historical",
+            disposition="removed",
+            reason="Reviewed removed lifecycle",
+            evidence="Reviewed removal",
+            current_pages=(),
+            former_pages=("Old Item",),
+        )
     )
-    audit = validate_item_provenance(connection, builder, lifecycle_path=path, require_all_native_tables=False)
+    audit = validate_item_provenance(
+        connection, builder, dispositions, lifecycle_path=path, require_all_native_tables=False
+    )
     assert audit["contract_counts"]["dispositions"] == 9
-    connection.execute("DELETE FROM item_dispositions WHERE item_stable_key='item:historical'")
+    dispositions.pop()
     with pytest.raises(ValueError, match="disposition identities"):
-        validate_item_provenance(connection, builder, lifecycle_path=path, require_all_native_tables=False)
+        validate_item_provenance(
+            connection, builder, dispositions, lifecycle_path=path, require_all_native_tables=False
+        )
 
 
 @pytest.mark.parametrize("kind", ["character_drop", "special_world_drop"])
@@ -1487,12 +1495,10 @@ def test_duplicate_vendor_slots_are_one_offer_with_all_native_identities(native_
     builder = ProvenanceBuilder(native_inputs)
     builder.select()
     builder.account_support_inputs()
-    builder.persist()
-    native_inputs.execute(
-        "INSERT INTO item_dispositions (item_stable_key, disposition, current_pages, former_pages) "
-        "SELECT stable_key, 'current', json_array(wiki_page_name), '[]' FROM items"
+    builder.validate()
+    audit = validate_item_provenance(
+        native_inputs, builder, _dispositions(native_inputs), require_all_native_tables=False
     )
-    audit = validate_item_provenance(native_inputs, builder, require_all_native_tables=False)
     assert audit["input_counts"]["vendor_offers"] == 3
     facts = [
         fact
@@ -1513,7 +1519,7 @@ def test_duplicate_vendor_slots_are_one_offer_with_all_native_identities(native_
         if entry != ProvenanceEvidence("vendor_offers", '["character:a","base",9]')
     )
     with pytest.raises(ValueError, match="Unaccounted item provenance inputs"):
-        validate_item_provenance(native_inputs, builder, require_all_native_tables=False)
+        validate_item_provenance(native_inputs, builder, _dispositions(native_inputs), require_all_native_tables=False)
 
 
 def test_item_draw_pool_is_part_of_each_outcome_and_use_identity(native_inputs: sqlite3.Connection) -> None:
@@ -1568,6 +1574,7 @@ def test_native_configuration_and_all_slot_origins_are_required(
     validate_item_provenance(
         connection,
         builder,
+        _dispositions(connection),
         raw=raw,
         require_all_native_tables=False,
     )
@@ -1577,6 +1584,7 @@ def test_native_configuration_and_all_slot_origins_are_required(
         validate_item_provenance(
             connection,
             builder,
+            _dispositions(connection),
             raw=raw,
             require_all_native_tables=False,
         )
@@ -1588,13 +1596,13 @@ def test_authored_native_defaults_remain_internal_with_complete_evidence(
     relation: str,
 ) -> None:
     connection, builder = persisted
-    validate_item_provenance(connection, builder, require_all_native_tables=False)
+    validate_item_provenance(connection, builder, _dispositions(connection), require_all_native_tables=False)
     seeds = [fact for fact in builder.acquisitions if fact.mechanic == "authored_sim_seed"]
     assert len(seeds) == 1 and seeds[0].player_access_state == "internal_only"
     assert len(_evidence(builder, relation)) == 1
     _drop_evidence(builder, relation)
     with pytest.raises(ValueError, match="Unaccounted item provenance inputs"):
-        validate_item_provenance(connection, builder, require_all_native_tables=False)
+        validate_item_provenance(connection, builder, _dispositions(connection), require_all_native_tables=False)
 
 
 def test_empty_authored_seed_configuration_is_explicit(native_inputs: sqlite3.Connection) -> None:
@@ -1602,12 +1610,10 @@ def test_empty_authored_seed_configuration_is_explicit(native_inputs: sqlite3.Co
     builder = ProvenanceBuilder(native_inputs)
     builder.select()
     builder.account_support_inputs()
-    builder.persist()
-    native_inputs.execute(
-        "INSERT INTO item_dispositions (item_stable_key, disposition, current_pages, former_pages) "
-        "SELECT stable_key, 'current', json_array(wiki_page_name), '[]' FROM items"
+    builder.validate()
+    audit = validate_item_provenance(
+        native_inputs, builder, _dispositions(native_inputs), require_all_native_tables=False
     )
-    audit = validate_item_provenance(native_inputs, builder, require_all_native_tables=False)
     assert audit["input_counts"]["authored_sim_equipment"] == 2
     assert builder.input_exclusions["authored_sims", '["authored-sim:fixture"]'] == "empty_authored_seed_configuration"
     assert (
@@ -1661,6 +1667,7 @@ def test_partial_native_fixture_reports_missing_families_and_full_mode_rejects_t
     audit = validate_item_provenance(
         connection,
         builder,
+        _dispositions(connection),
         raw=raw,
         require_all_native_tables=False,
     )
@@ -1671,6 +1678,7 @@ def test_partial_native_fixture_reports_missing_families_and_full_mode_rejects_t
         validate_item_provenance(
             connection,
             builder,
+            _dispositions(connection),
             raw=raw,
             require_all_native_tables=True,
         )
@@ -1681,7 +1689,7 @@ def test_full_native_mode_requires_an_actual_native_database(
 ) -> None:
     connection, builder = persisted
     with pytest.raises(ValueError, match="requires a raw database"):
-        validate_item_provenance(connection, builder, require_all_native_tables=True)
+        validate_item_provenance(connection, builder, _dispositions(connection), require_all_native_tables=True)
 
 
 @pytest.mark.parametrize(
@@ -1816,7 +1824,9 @@ def test_direct_native_relation_primary_keys_are_required(
     if table == "AuthoredSims":
         _insert(raw, "Characters", StableKey="character:seed", DestroyOnDeath=0, DoNotLeaveCorpse=0, IsSimPlayer=1)
     builder.attach_direct_native_inputs(raw)
-    audit = validate_item_provenance(connection, builder, raw=raw, require_all_native_tables=False)
+    audit = validate_item_provenance(
+        connection, builder, _dispositions(connection), raw=raw, require_all_native_tables=False
+    )
     relation = "raw." + table
     assert audit["direct_native_counts"][relation] == len(rows)
     assert table not in audit["unsupported_native_tables"]
@@ -1825,7 +1835,9 @@ def test_direct_native_relation_primary_keys_are_required(
         if identity[0] == relation:
             del builder.input_exclusions[identity]
     with pytest.raises(ValueError, match=relation):
-        validate_item_provenance(connection, builder, raw=raw, require_all_native_tables=False)
+        validate_item_provenance(
+            connection, builder, _dispositions(connection), raw=raw, require_all_native_tables=False
+        )
 
 
 def _seed_claim_context(native_inputs: sqlite3.Connection, spawn: str) -> None:
@@ -1902,11 +1914,7 @@ def claiming_encounter(
     builder = ProvenanceBuilder(native_inputs)
     builder.select()
     builder.account_support_inputs()
-    builder.persist()
-    native_inputs.execute(
-        "INSERT INTO item_dispositions (item_stable_key, disposition, current_pages, former_pages) "
-        "SELECT stable_key, 'current', json_array(wiki_page_name), '[]' FROM items"
-    )
+    builder.validate()
     return native_inputs, builder
 
 
@@ -1914,7 +1922,7 @@ def test_encounter_state_is_local_to_the_actual_member_placement(
     claiming_encounter: tuple[sqlite3.Connection, ProvenanceBuilder],
 ) -> None:
     connection, builder = claiming_encounter
-    audit = validate_item_provenance(connection, builder, require_all_native_tables=False)
+    audit = validate_item_provenance(connection, builder, _dispositions(connection), require_all_native_tables=False)
     assert {
         relation: audit["input_counts"][relation]
         for relation in (
@@ -1976,11 +1984,11 @@ def test_all_shared_encounter_configuration_origins_remain_required(
     relation: str,
 ) -> None:
     connection, builder = claiming_encounter
-    validate_item_provenance(connection, builder, require_all_native_tables=False)
+    validate_item_provenance(connection, builder, _dispositions(connection), require_all_native_tables=False)
     assert _evidence(builder, relation)
     _drop_evidence(builder, relation)
     with pytest.raises(ValueError, match="Unaccounted item provenance inputs"):
-        validate_item_provenance(connection, builder, require_all_native_tables=False)
+        validate_item_provenance(connection, builder, _dispositions(connection), require_all_native_tables=False)
 
 
 def test_special_template_material_slots_preserve_unexecuted_and_normal_quality_conditions(
@@ -2069,12 +2077,10 @@ def test_encounter_without_located_item_action_is_explicitly_accounted(native_in
     builder = ProvenanceBuilder(native_inputs)
     builder.select()
     builder.account_support_inputs()
-    builder.persist()
-    native_inputs.execute(
-        "INSERT INTO item_dispositions (item_stable_key, disposition, current_pages, former_pages) "
-        "SELECT stable_key, 'current', json_array(wiki_page_name), '[]' FROM items"
+    builder.validate()
+    audit = validate_item_provenance(
+        native_inputs, builder, _dispositions(native_inputs), require_all_native_tables=False
     )
-    audit = validate_item_provenance(native_inputs, builder, require_all_native_tables=False)
     excluded = [row for row in audit["exclusions"] if row["relation"].startswith("encounter_")]
     assert len(excluded) == 9
     assert {row["reason"] for row in excluded} == {"no_located_item_action"}
@@ -2333,31 +2339,17 @@ def test_common_world_bounds_and_native_coverage_use_only_loot_capable_contribut
         "UPDATE LootDrops SET DropProbability=100,ExpectedPerKill=3,DropCountDistribution='[0,0,0,1]' "
         "WHERE CharacterStableKey='character:b' AND ItemStableKey='item:common'"
     )
-    for table in (
-        "item_acquisition_conditions",
-        "item_use_conditions",
-        "item_source_locations",
-        "item_mechanic_conditions",
-        "item_acquisition_contributors",
-        "item_uses",
-        "item_acquisitions",
-        "item_dispositions",
-    ):
-        connection.execute(f"DELETE FROM {table}")
     builder = ProvenanceBuilder(connection)
     builder.select()
     builder.raw_loot_evidence(raw, frozenset({"character:reviewed"}))
     builder.attach_native_inputs(raw)
     builder.account_support_inputs()
     builder.attach_direct_native_inputs(raw)
-    builder.persist()
-    connection.execute(
-        "INSERT INTO item_dispositions (item_stable_key, disposition, current_pages, former_pages) "
-        "SELECT stable_key, 'current', json_array(wiki_page_name), '[]' FROM items"
-    )
+    builder.validate()
     audit = validate_item_provenance(
         connection,
         builder,
+        _dispositions(connection),
         raw=raw,
         require_all_native_tables=False,
     )
@@ -2397,6 +2389,7 @@ def test_common_world_bounds_and_native_coverage_use_only_loot_capable_contribut
             validate_item_provenance(
                 connection,
                 builder,
+                _dispositions(connection),
                 raw=raw,
                 require_all_native_tables=False,
             )
@@ -2652,7 +2645,9 @@ def test_populated_unknown_native_item_input_table_is_rejected(
 ) -> None:
     connection, raw, builder = raw_persisted
     raw.execute("CREATE TABLE FutureItemGrants (StableKey TEXT PRIMARY KEY, ItemStableKey TEXT)")
-    validate_item_provenance(connection, builder, raw=raw, require_all_native_tables=False)
+    validate_item_provenance(connection, builder, _dispositions(connection), raw=raw, require_all_native_tables=False)
     _insert(raw, "FutureItemGrants", StableKey="grant:future", ItemStableKey="item:reward")
     with pytest.raises(ValueError, match="FutureItemGrants"):
-        validate_item_provenance(connection, builder, raw=raw, require_all_native_tables=False)
+        validate_item_provenance(
+            connection, builder, _dispositions(connection), raw=raw, require_all_native_tables=False
+        )

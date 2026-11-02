@@ -22,10 +22,10 @@ from erenshor.application.processor.item_public_view import report_path
 from erenshor.application.processor.pictures import CATALOG_DIRECTORY, prune_catalog
 from erenshor.infrastructure.config.paths import require_owned_write_path
 
-# 20% above the clean database's size while it stores both the complete item facts and their
-# public view. A database that outgrows it has usually started to repeat facts, so the build
-# stops before it publishes one.
-CLEAN_DATABASE_BUDGET_BYTES = 54_600_000
+# 20% above the clean database's size when it stores the public item view and not the complete
+# facts. A database that outgrows it has usually started to repeat facts, so the build stops
+# before it publishes one.
+CLEAN_DATABASE_BUDGET_BYTES = 36_540_000
 
 
 class CleanDatabaseBuilder(Protocol):

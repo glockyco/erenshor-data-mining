@@ -18,8 +18,6 @@ from erenshor.domain.value_objects.item_provenance import (
     ProvenanceLocation,
     conditions_satisfiable,
     fact_from_dict,
-    fact_to_dict,
-    is_actionable_acquisition,
     validate_provenance_metadata,
     validate_provenance_schema_version,
 )
@@ -84,7 +82,7 @@ def _acquisition() -> ItemAcquisition:
     )
 
 
-def test_json_roundtrip_retains_every_fact_dimension() -> None:
+def test_validation_retains_every_fact_dimension() -> None:
     acquisition = _acquisition()
     use = ItemUse(
         "use:one",
@@ -104,15 +102,15 @@ def test_json_roundtrip_retains_every_fact_dimension() -> None:
     )
     disposition = ItemDisposition("item:one", "current", "Reviewed", "review:one", ("Current",), ("Former",))
     for fact in (acquisition, use, disposition):
-        encoded = fact_to_dict(fact)
-        assert set(encoded) == {field.name for field in fields(fact)}
-        assert fact_from_dict(json.loads(json.dumps(encoded))) == fact
+        data = asdict(fact)
+        assert set(data) == {field.name for field in fields(fact)}
+        assert fact_from_dict(data) == fact
 
 
 @pytest.mark.parametrize("count", [None, 0, 4])
 def test_pool_guarantee_count_is_independent_of_item_chance(count: int | None) -> None:
     fact = replace(_acquisition(), guaranteed_roll_count=count)
-    decoded = fact_from_dict(json.loads(json.dumps(fact_to_dict(fact))))
+    decoded = fact_from_dict(asdict(fact))
     assert decoded == fact
     assert isinstance(decoded, ItemAcquisition)
     assert decoded.guaranteed_roll_count == count
@@ -238,9 +236,9 @@ def test_decoder_rejects_duplicate_child_identities(family: str) -> None:
         fact_from_dict(data)
 
 
-def test_encoder_rejects_invalid_in_memory_facts() -> None:
+def test_validation_rejects_invalid_in_memory_facts() -> None:
     with pytest.raises(ValueError):
-        fact_to_dict(replace(_acquisition(), probability_min=float("nan")))
+        fact_from_dict(asdict(replace(_acquisition(), probability_min=float("nan"))))
 
 
 @pytest.mark.parametrize("version", [None, True, "1", 1.0, 0, PROVENANCE_SCHEMA_VERSION + 1])
@@ -282,7 +280,6 @@ def test_impossible_or_group_does_not_poison_a_possible_alternative() -> None:
         ProvenanceCondition("unlock", 1, 0, "quest_done", "quest:one"),
     )
     assert conditions_satisfiable(conditions)
-    assert is_actionable_acquisition(replace(_acquisition(), conditions=conditions))
 
 
 def test_every_or_group_must_be_impossible_before_gate_fails() -> None:
@@ -310,21 +307,6 @@ def test_numeric_bounds_respect_open_endpoints_and_actor_scope() -> None:
     assert not conditions_satisfiable((lower, upper))
     assert conditions_satisfiable((replace(lower, minimum_inclusive=True), upper))
     assert conditions_satisfiable((lower, replace(upper, actor="sim")))
-
-
-def test_source_and_location_conditions_must_be_compatible() -> None:
-    fact = replace(
-        _acquisition(),
-        conditions=(ProvenanceCondition("source", 0, 0, "quest_done", "quest:one"),),
-        locations=(
-            ProvenanceLocation(
-                "placement", "unlocated", conditions=(ProvenanceCondition("stop", 0, 0, "quest_not_done", "quest:one"),)
-            ),
-        ),
-    )
-    assert not is_actionable_acquisition(fact)
-    possible = ProvenanceLocation("other", "unlocated")
-    assert is_actionable_acquisition(replace(fact, locations=(*fact.locations, possible)))
 
 
 @pytest.mark.parametrize(
@@ -411,7 +393,7 @@ def test_inventory_membership_scope_survives_codec_roundtrip() -> None:
         value="stored_slots_and_equipment_slots",
     )
     fact = replace(_acquisition(), conditions=(condition,))
-    assert fact_from_dict(json.loads(json.dumps(fact_to_dict(fact)))) == fact
+    assert fact_from_dict(asdict(fact)) == fact
 
 
 def test_quantity_fixed_alias_is_rejected_even_with_equal_bounds() -> None:
@@ -426,7 +408,7 @@ def test_condition_phase_is_lossless_and_mandatory(phase: ConditionPhase) -> Non
     original = _acquisition()
     condition = replace(original.conditions[0], phase=phase)
     fact = replace(original, conditions=(condition,))
-    data = json.loads(json.dumps(fact_to_dict(fact)))
+    data = asdict(fact)
     assert fact_from_dict(data) == fact
     del data["conditions"][0]["phase"]
     with pytest.raises(ValueError, match="missing fields"):
@@ -490,7 +472,7 @@ def test_condition_identity_includes_execution_phase() -> None:
     )
     current = replace(initial, predicate="item_held", phase="operation_input")
     fact = replace(_acquisition(), conditions=(initial, current))
-    assert fact_from_dict(json.loads(json.dumps(fact_to_dict(fact)))) == fact
+    assert fact_from_dict(asdict(fact)) == fact
 
 
 @pytest.mark.parametrize("minimum,maximum", [(1, None), (None, 5)])
@@ -511,7 +493,7 @@ def test_one_sided_bounded_quantities_are_lossless(minimum: float | None, maximu
         quantity_max=maximum,
     )
     for fact in (acquisition, use):
-        assert fact_from_dict(json.loads(json.dumps(fact_to_dict(fact)))) == fact
+        assert fact_from_dict(asdict(fact)) == fact
 
 
 def test_bounded_quantities_require_at_least_one_known_endpoint() -> None:
@@ -519,7 +501,7 @@ def test_bounded_quantities_require_at_least_one_known_endpoint() -> None:
     use = ItemUse("use:quantity", "item:one", "item:target", "quality_offering", quantity_kind="bounded")
     for fact in (acquisition, use):
         with pytest.raises(ValueError, match="at least one numeric bound"):
-            fact_to_dict(fact)
+            fact_from_dict(asdict(fact))
 
 
 @pytest.mark.parametrize("minimum,maximum", [(1, None), (None, 5), (None, None)])
@@ -534,7 +516,7 @@ def test_bounded_probabilities_still_require_both_endpoints(
         probability_max=maximum,
     )
     with pytest.raises(ValueError, match="both numeric bounds"):
-        fact_to_dict(fact)
+        fact_from_dict(asdict(fact))
 
 
 @pytest.mark.parametrize("phase", ["availability", "operation_outcome"])
@@ -552,7 +534,7 @@ def test_account_claim_state_roundtrips_losslessly(phase: ConditionPhase, value:
         phase=phase,
     )
     fact = replace(_acquisition(), conditions=(condition,))
-    assert fact_from_dict(json.loads(json.dumps(fact_to_dict(fact)))) == fact
+    assert fact_from_dict(asdict(fact)) == fact
 
 
 @pytest.mark.parametrize(
@@ -606,12 +588,6 @@ def test_account_claim_state_rejects_opposite_current_values_across_location_sco
     claimed = replace(unclaimed, gate_key="other_gate", value="true", scope="source")
     assert not conditions_satisfiable((unclaimed, claimed))
     assert conditions_satisfiable((unclaimed, replace(claimed, phase="operation_outcome")))
-    assert is_actionable_acquisition(
-        replace(
-            _acquisition(),
-            conditions=(unclaimed, replace(claimed, phase="operation_outcome")),
-        )
-    )
 
 
 def test_account_claim_state_keeps_viable_or_groups() -> None:

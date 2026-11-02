@@ -5,18 +5,29 @@ from __future__ import annotations
 import json
 import sqlite3
 from collections import defaultdict
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol
 
 if TYPE_CHECKING:
-    from erenshor.domain.value_objects.item_provenance import ProvenanceEvidence
+    from erenshor.domain.value_objects.item_provenance import (
+        ItemAcquisition,
+        ItemDisposition,
+        ItemUse,
+        ProvenanceEvidence,
+    )
 
 InputIdentity = tuple[str, str]
 
 
 class ProvenanceSelection(Protocol):
-    """The input rows used by selected facts and the reasons for unused inputs."""
+    """The selected facts, the input rows they use and the reasons for unused inputs."""
+
+    @property
+    def acquisitions(self) -> Sequence[ItemAcquisition]: ...
+
+    @property
+    def uses(self) -> Sequence[ItemUse]: ...
 
     @property
     def input_exclusions(self) -> Mapping[InputIdentity, str]: ...
@@ -147,27 +158,27 @@ class _Coverage:
             identities.add(identity)
         return identities
 
-    def validate_dispositions(self, lifecycle_path: Path | None) -> int:
+    def validate_dispositions(self, records: Sequence[ItemDisposition], lifecycle_path: Path | None) -> int:
         items = {r["stable_key"]: r for r in self.rows("items")}
-        dispositions = {r["item_stable_key"]: r for r in self.rows("item_dispositions")}
+        dispositions = {record.item_stable_key: record for record in records}
+        if len(dispositions) != len(records):
+            raise ValueError("Duplicate item provenance dispositions")
         missing = items.keys() - dispositions.keys()
         if missing:
             raise ValueError(f"Missing item provenance dispositions: {sorted(missing)!r}")
-        for key, row in dispositions.items():
-            if row["disposition"] not in ("current", "removed", "unobtainable", "unused"):
+        for key, record in dispositions.items():
+            if record.disposition not in ("current", "removed", "unobtainable", "unused"):
                 raise ValueError(f"Invalid item provenance disposition: {key}")
-            current_pages, former_pages = json.loads(row["current_pages"]), json.loads(row["former_pages"])
+            current_pages, former_pages = list(record.current_pages), list(record.former_pages)
             if not all(
-                isinstance(pages, list)
-                and all(isinstance(page, str) and page for page in pages)
-                and pages == sorted(set(pages))
+                all(isinstance(page, str) and page for page in pages) and pages == sorted(set(pages))
                 for pages in (current_pages, former_pages)
             ) or set(current_pages) & set(former_pages):
                 raise ValueError(f"Invalid item provenance disposition pages: {key}")
             page = items.get(key, {}).get("wiki_page_name")
             if page and page not in current_pages:
                 raise ValueError(f"Missing current item disposition page: {key}")
-            if (row["disposition"] != "current" or key not in items) and not (row["reason"] and row["evidence"]):
+            if (record.disposition != "current" or key not in items) and not (record.reason and record.evidence):
                 raise ValueError(f"Unreviewed item provenance disposition: {key}")
         if lifecycle_path is not None:
             from erenshor.infrastructure.content_lifecycle import load_content_lifecycle
@@ -202,17 +213,21 @@ class _Coverage:
                 for fact in reviewed[key]:
                     evidence[key].add(fact.source)
                     former[key].add(fact.title)
-                expected = {
-                    "item_stable_key": key,
-                    "disposition": state,
-                    "reason": f"Reviewed {state} lifecycle" if reviewed[key] else None,
-                    "evidence": "\n".join(sorted(evidence[key])) or None,
-                    "current_pages": sorted(current.get(key, set())),
-                    "former_pages": sorted(former[key] - current.get(key, set())),
-                }
-                actual = dict(dispositions[key])
-                for column in ("current_pages", "former_pages"):
-                    actual[column] = json.loads(actual[column])
+                record = dispositions[key]
+                expected = (
+                    state,
+                    f"Reviewed {state} lifecycle" if reviewed[key] else None,
+                    "\n".join(sorted(evidence[key])) or None,
+                    sorted(current.get(key, set())),
+                    sorted(former[key] - current.get(key, set())),
+                )
+                actual = (
+                    record.disposition,
+                    record.reason,
+                    record.evidence,
+                    list(record.current_pages),
+                    list(record.former_pages),
+                )
                 if actual != expected:
                     raise ValueError(f"Item provenance disposition differs from lifecycle input: {key}")
         return len(dispositions)
@@ -221,6 +236,7 @@ class _Coverage:
 def validate_item_provenance(
     connection: sqlite3.Connection,
     selection: ProvenanceSelection,
+    dispositions: Sequence[ItemDisposition],
     *,
     require_all_native_tables: bool,
     raw: sqlite3.Connection | None = None,
@@ -267,12 +283,7 @@ def validate_item_provenance(
                 raise ValueError(f"Unsupported populated native item input table: {table}")
         if require_all_native_tables and unsupported:
             raise ValueError(f"Unsupported native input tables: {sorted(unsupported)!r}")
-    fact_keys = {
-        row[0]
-        for row in connection.execute(
-            "SELECT acquisition_key FROM item_acquisitions UNION ALL SELECT use_key FROM item_uses"
-        )
-    }
+    fact_keys = {fact.acquisition_key for fact in selection.acquisitions} | {use.use_key for use in selection.uses}
     if orphaned := selection.fact_evidence.keys() - fact_keys:
         raise ValueError(f"Item provenance evidence has no fact: {sorted(orphaned)!r}")
     used = {
@@ -316,9 +327,9 @@ def validate_item_provenance(
             raise ValueError(f"Missing item provenance evidence inputs: {relation}{sorted(missing_evidence)!r}")
         counts.setdefault(relation, len(primary_keys))
     contract_counts = {
-        "acquisitions": connection.execute("SELECT COUNT(*) FROM item_acquisitions").fetchone()[0],
-        "uses": connection.execute("SELECT COUNT(*) FROM item_uses").fetchone()[0],
-        "dispositions": coverage.validate_dispositions(lifecycle_path),
+        "acquisitions": len(selection.acquisitions),
+        "uses": len(selection.uses),
+        "dispositions": coverage.validate_dispositions(dispositions, lifecycle_path),
     }
     return {
         "input_counts": dict(sorted(counts.items())),

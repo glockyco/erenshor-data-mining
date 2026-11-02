@@ -110,7 +110,7 @@ def load_canonical_sources(
     builder = ProvenanceBuilder(conn)
     builder.acquisitions.extend(acquisitions)
     builder.uses.extend(uses or [])
-    builder.persist()
+    builder.validate()
     conn.executescript(raw_outcomes_sql)
     write_public_view(
         conn,

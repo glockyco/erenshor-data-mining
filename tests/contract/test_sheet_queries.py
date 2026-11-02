@@ -34,16 +34,6 @@ SOURCE_KINDS = (
     "ui_grant",
     "item_conversion",
 )
-COMPLETE_TABLES = (
-    "item_acquisition_conditions",
-    "item_use_conditions",
-    "item_mechanic_conditions",
-    "item_source_locations",
-    "item_acquisition_contributors",
-    "item_acquisitions",
-    "item_uses",
-    "item_dispositions",
-)
 
 
 @pytest.fixture
@@ -54,8 +44,6 @@ def writer(tmp_path: Path) -> Iterator[Writer]:
         "INSERT INTO item_provenance_meta VALUES (?, 'fixture-build', '{}')", (PROVENANCE_SCHEMA_VERSION,)
     )
     writer.conn.create_function("map_marker_url", 1, lambda key: f"https://maps.example.invalid/map?sel=marker:{key}")
-    for table in COMPLETE_TABLES:
-        writer.conn.execute(f"DROP TABLE IF EXISTS {table}")
     try:
         yield writer
     finally:

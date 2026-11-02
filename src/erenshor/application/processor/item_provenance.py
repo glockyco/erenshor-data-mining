@@ -6,7 +6,7 @@ import hashlib
 import json
 import sqlite3
 from collections import defaultdict
-from dataclasses import asdict, dataclass, fields, replace
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -1895,49 +1895,15 @@ class ProvenanceBuilder:
                 shared[mechanic] = tuple(condition for condition in first.conditions if condition in common)
         return shared
 
-    def persist(self) -> None:
-        shared = self.mechanic_conditions()
-        for family, facts, cls in (("acquisition", self.acquisitions, ItemAcquisition), ("use", self.uses, ItemUse)):
-            table = "item_acquisitions" if family == "acquisition" else "item_uses"
-            columns = [field.name for field in fields(cls) if field.name not in ("conditions", "locations")]
-            for fact in facts:
-                owner = _fact_key(fact)
-                data = asdict(fact)
-                fact_from_dict(data)
-                self._insert(table, {column: data[column] for column in columns})
-                common = shared.get(fact.mechanic, ()) if fact.mechanic is not None else ()
-                for condition, values in zip(fact.conditions, data["conditions"], strict=True):
-                    if condition not in common:
-                        self._insert(f"item_{family}_conditions", {"owner_key": owner, **values})
-        for mechanic, conditions in sorted(shared.items()):
-            for condition in conditions:
-                self._insert("item_mechanic_conditions", {"mechanic_key": mechanic, **asdict(condition)})
+    def validate(self) -> None:
+        """Reject facts outside the contract, and a source that names two different sets of locations."""
         sources: dict[str, tuple[ProvenanceLocation, ...]] = {}
-        located: tuple[ItemAcquisition | ItemUse, ...] = (*self.acquisitions, *self.uses)
-        for fact in located:
+        facts: tuple[ItemAcquisition | ItemUse, ...] = (*self.acquisitions, *self.uses)
+        for fact in facts:
+            fact_from_dict(asdict(fact))
             source = fact.location_source_key
             if source is not None and sources.setdefault(source, fact.locations) != fact.locations:
                 raise ValueError(f"Location source {source} names two different sets of locations")
-        for source, locations in sorted(sources.items()):
-            for location in locations:
-                location_data = asdict(location)
-                location_data["conditions"] = _json(location_data["conditions"])
-                location_data["entry_zone_line_keys"] = _json(location_data["entry_zone_line_keys"])
-                self._insert("item_source_locations", {"source_key": source, **location_data})
-        # A common world item lists the characters whose loot rows it summarizes.
-        for fact in self.acquisitions:
-            if fact.kind != "common_world_item":
-                continue
-            for evidence in self.fact_evidence.get(fact.acquisition_key, ()):
-                if evidence.input_relation == "loot_drops":
-                    character = str(json.loads(evidence.input_primary_key)[0])
-                    self.connection.execute(
-                        "INSERT INTO item_acquisition_contributors VALUES (?,?) ON CONFLICT DO NOTHING",
-                        (fact.acquisition_key, character),
-                    )
-
-    def _insert(self, table: str, data: dict[str, object]) -> None:
-        _insert_row(self.connection, table, data)
 
 
 def _insert_row(connection: sqlite3.Connection, table: str, data: dict[str, object]) -> None:
@@ -1991,15 +1957,10 @@ def process_item_provenance(
             {"assembly_sha256": access_evidence["assembly_sha256"], **observation},
         )
     builder = select_item_provenance(connection, raw, reviewed_unreachable=reviewed_unreachable)
-    builder.persist()
+    builder.validate()
     lifecycle = load_content_lifecycle(lifecycle_path)
     current = {str(row["stable_key"]): row["wiki_page_name"] for row in builder.rows("items")}
     dispositions = tuple(derive_item_dispositions(lifecycle, current))
-    for disposition in dispositions:
-        data = asdict(disposition)
-        data["current_pages"] = _json(data["current_pages"])
-        data["former_pages"] = _json(data["former_pages"])
-        _insert_row(connection, "item_dispositions", data)
     view = derive_public_view(
         builder.acquisitions, builder.uses, dispositions, builder.fact_evidence, builder.mechanic_conditions()
     )
@@ -2021,6 +1982,7 @@ def process_item_provenance(
     audit = validate_item_provenance(
         connection,
         builder,
+        dispositions,
         raw=raw,
         lifecycle_path=lifecycle_path,
         require_all_native_tables=True,

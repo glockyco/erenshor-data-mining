@@ -1,4 +1,4 @@
-"""Versioned item facts shared by database readers and output adapters."""
+"""The complete item facts that the build selects, and the rules they must satisfy."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import json
 import math
 from collections import defaultdict
 from collections.abc import Mapping
-from dataclasses import asdict, dataclass, fields
+from dataclasses import dataclass, fields
 from typing import Literal, cast
 
 PROVENANCE_SCHEMA_VERSION = 3
@@ -528,7 +528,7 @@ def disposition_from_dict(value: object) -> ItemDisposition:
 
 
 def fact_from_dict(value: object) -> ItemAcquisition | ItemUse | ItemDisposition:
-    """Decode every schema1 field without coercing or discarding dimensions."""
+    """Check every field of a fact and rebuild it without coercing or discarding dimensions."""
     if not isinstance(value, Mapping):
         raise ValueError("Expected a provenance fact object")
     if "acquisition_key" in value:
@@ -536,13 +536,6 @@ def fact_from_dict(value: object) -> ItemAcquisition | ItemUse | ItemDisposition
     if "use_key" in value:
         return use_from_dict(value)
     return disposition_from_dict(value)
-
-
-def fact_to_dict(fact: ItemAcquisition | ItemUse | ItemDisposition) -> dict[str, object]:
-    """Encode validated, lossless schema1 fields for output adapters."""
-    data = asdict(fact)
-    fact_from_dict(data)
-    return data
 
 
 def validate_provenance_schema_version(value: object) -> None:
@@ -634,16 +627,3 @@ def conditions_satisfiable(conditions: tuple[ProvenanceCondition, ...]) -> bool:
         return False
 
     return compatible(0, ())
-
-
-def is_actionable_acquisition(fact: ItemAcquisition) -> bool:
-    return (
-        fact.player_access_state == "verified_player"
-        and fact.probability_stage == "final_acquisition"
-        and not (fact.probability_max is not None and fact.probability_max <= 0)
-        and conditions_satisfiable(fact.conditions)
-        and (
-            not fact.locations
-            or any(conditions_satisfiable(fact.conditions + location.conditions) for location in fact.locations)
-        )
-    )

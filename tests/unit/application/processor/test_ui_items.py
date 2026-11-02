@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from erenshor.application.processor.item_provenance import ProvenanceBuilder
 from erenshor.application.processor.ui_items import process_ui_items
 from erenshor.application.processor.writer import Writer
 
@@ -155,7 +156,9 @@ def test_ui_references_and_access_copy_losslessly(tmp_path: Path) -> None:
         sources, key=lambda row: row[0]
     )
     assert tuple(writer.conn.execute("SELECT * FROM ui_item_access_targets").fetchone()) == target
-    assert writer.conn.execute("SELECT COUNT(*) FROM item_acquisitions").fetchone()[0] == 0
+    builder = ProvenanceBuilder(writer.conn)
+    builder.ui_grants()
+    assert not any(fact.player_access_state == "verified_player" for fact in builder.acquisitions)
 
 
 @pytest.mark.parametrize("table", _RAW_COLUMNS)

@@ -33,9 +33,13 @@ def test_every_populated_native_family_has_canonical_coverage(main_clean_db: Pat
         closing(sqlite3.connect(f"file:{main_clean_db}?mode=ro", uri=True)) as clean,
         closing(sqlite3.connect(f"file:{main_raw_db}?mode=ro", uri=True)) as raw,
     ):
+        lifecycle = load_content_lifecycle(_ROOT / "content-lifecycle.json")
+        current = dict(clean.execute("SELECT stable_key, wiki_page_name FROM items"))
+        dispositions = tuple(derive_item_dispositions(lifecycle, current))
         audit = validate_item_provenance(
             clean,
             builder,
+            dispositions,
             raw=raw,
             require_all_native_tables=True,
             lifecycle_path=_ROOT / "content-lifecycle.json",
@@ -84,9 +88,6 @@ def test_every_populated_native_family_has_canonical_coverage(main_clean_db: Pat
         assert audit["contract_counts"]["acquisitions"] == len(builder.acquisitions) > 0
         assert audit["contract_counts"]["uses"] == len(builder.uses) > 0
 
-        lifecycle = load_content_lifecycle(_ROOT / "content-lifecycle.json")
-        current = dict(clean.execute("SELECT stable_key, wiki_page_name FROM items"))
-        dispositions = tuple(derive_item_dispositions(lifecycle, current))
         assert audit["contract_counts"]["dispositions"] == len(dispositions) > 0
         public = derive_public_view(
             builder.acquisitions,

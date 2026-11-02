@@ -12,6 +12,7 @@ import pytest
 from typer import Typer
 from typer.testing import CliRunner
 
+from erenshor.application.processor.item_provenance import select_item_provenance
 from erenshor.cli.commands.progression import app as progression_app
 from erenshor.cli.context import CLIContext
 from erenshor.infrastructure.config import load_config
@@ -669,17 +670,23 @@ def test_every_exported_subject_and_controller_names_its_complete_hierarchy(main
         ).fetchall() == [("PlanningDesk",)]
 
 
-def test_box_of_portals_keeps_the_claimed_desks_shared_gate(clean: sqlite3.Connection) -> None:
-    locations = clean.execute(
-        "SELECT locations.conditions FROM item_source_locations locations"
-        " JOIN item_acquisitions source ON source.location_source_key=locations.source_key"
-        " WHERE source.item_stable_key='item:gen - box of portals' AND source.kind='ui_grant'"
-    ).fetchall()
+def test_box_of_portals_keeps_the_claimed_desks_shared_gate(clean: sqlite3.Connection, main_raw_db: Path) -> None:
+    mapping = json.loads((Path(__file__).resolve().parents[2] / "mapping.json").read_text(encoding="utf-8"))
+    reviewed = frozenset(key for key, rule in mapping["rules"].items() if rule.get("loot_unreachable"))
+    with sqlite3.connect(f"{main_raw_db.as_uri()}?mode=ro", uri=True) as raw:
+        raw.row_factory = sqlite3.Row
+        builder = select_item_provenance(clean, raw, reviewed_unreachable=reviewed)
+    locations = [
+        location
+        for fact in builder.acquisitions
+        if fact.item_stable_key == "item:gen - box of portals" and fact.kind == "ui_grant"
+        for location in fact.locations
+    ]
     assert locations
     for location in locations:
         assert any(
-            atom["predicate"] == "quest_done" and atom["reference_stable_key"] == "quest:claimreliquary"
-            for atom in json.loads(location[0])
+            atom.predicate == "quest_done" and atom.reference_stable_key == "quest:claimreliquary"
+            for atom in location.conditions
         )
 
 
