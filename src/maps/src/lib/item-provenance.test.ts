@@ -8,7 +8,7 @@ import initSqlJs from 'sql.js/dist/sql-wasm.js';
 import type { Database, SqlJsStatic } from 'sql.js/dist/sql-wasm.js';
 import { getMapsDatabasePath } from './database-path.server';
 import { Repository } from './database.node';
-import { assertProvenanceSchema, readItemAcquisitions, readItemDispositions, conditionLines, probabilityText, quantityText, isActionableAcquisition, conditionsSatisfiable } from './item-provenance';
+import { assertProvenanceSchema, readItemAcquisitions, readItemDispositions, readItemUses, conditionLines, probabilityText, quantityText, isActionableAcquisition, conditionsSatisfiable } from './item-provenance';
 import { ItemSearchProvider } from './map/search/item-source-provider';
 import { indexCharacterDetails } from './map/character-details';
 import { buildMapProvenanceCoverage, writeMapProvenanceManifest } from './item-provenance-coverage.server';
@@ -257,6 +257,31 @@ describe('offline canonical map coverage', () => {
                 mutated.run("UPDATE item_acquisition_locations SET relation = 'inferred' WHERE owner_key = 'ui:fixture'");
             }
             expect(() => readItemAcquisitions(mutated)).toThrow('Invalid canonical');
+        } finally {
+            mutated.close();
+        }
+    });
+
+    it.each([[1, null], [null, 5]] as const)('keeps a bounded quantity from %s to %s with one end open', (minimum, maximum) => {
+        const mutated = new SQL.Database(database.export());
+        try {
+            mutated.run("UPDATE item_uses SET quantity_kind = 'bounded', quantity_min = ?, quantity_max = ? WHERE use_key = 'use:fixture'",
+                [minimum, maximum]);
+            expect(readItemUses(mutated).find((fact) => fact.use_key === 'use:fixture'))
+                .toMatchObject({ quantity_kind: 'bounded', quantity_min: minimum, quantity_max: maximum });
+        } finally {
+            mutated.close();
+        }
+    });
+
+    it.each([
+        { family: 'quantity', mutation: "UPDATE item_uses SET quantity_kind = 'bounded', quantity_min = NULL, quantity_max = NULL WHERE use_key = 'use:fixture'" },
+        { family: 'probability', mutation: "UPDATE item_acquisitions SET probability_kind = 'bounded', probability_min = 1, probability_max = NULL WHERE acquisition_key = 'ui:fixture'" }
+    ])('rejects a bounded $family interval without the ends it needs', ({ family, mutation }) => {
+        const mutated = new SQL.Database(database.export());
+        try {
+            mutated.run(mutation);
+            expect(() => { readItemUses(mutated); readItemAcquisitions(mutated); }).toThrow(`Invalid canonical ${family} interval`);
         } finally {
             mutated.close();
         }

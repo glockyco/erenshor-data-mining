@@ -139,6 +139,8 @@ export const ACQUISITION_KINDS: Record<string, true> = { character_drop: true, c
 export const USE_KINDS: Record<string, true> = { crafting_material: true, crafting_recipe: true, quest_requirement: true,
     item_drop: true, spell_created: true, item_conversion: true, smithing: true, quality_offering: true, zone_restriction: true };
 
+// Mirrors `_interval` in src/erenshor/domain/value_objects/item_provenance.py. A bounded quantity may leave
+// one end open, such as at least one stone of each kind for a quality offering. A bounded probability needs both ends.
 function validateInterval(row: SqlRow, prefix: 'quantity' | 'probability'): void {
     const kind = row[`${prefix}_kind`];
     const minimum = row[`${prefix}_min`];
@@ -148,8 +150,10 @@ function validateInterval(row: SqlRow, prefix: 'quantity' | 'probability'): void
             value < 0 || (prefix === 'probability' && value > 100))) ||
         (typeof minimum === 'number' && typeof maximum === 'number' && minimum > maximum) ||
         ((kind === 'unknown' || kind === 'not_applicable') && (minimum !== null || maximum !== null)) ||
-        ((kind === 'exact' || kind === 'bounded') && (minimum === null || maximum === null)) ||
-        (kind === 'exact' && minimum !== maximum)) throw new Error(`Invalid canonical ${prefix} interval`);
+        (kind === 'exact' && (minimum === null || minimum !== maximum)) ||
+        (kind === 'bounded' && (prefix === 'probability' ? minimum === null || maximum === null : minimum === null && maximum === null))) {
+        throw new Error(`Invalid canonical ${prefix} interval`);
+    }
 }
 
 function validateScalarFact(row: SqlRow, family: 'acquisition' | 'use', identity: string): void {
