@@ -38,11 +38,11 @@
         <CoordTag />
         <h2>About Erenshor</h2>
         <p>
-            <a href="https://store.steampowered.com/app/2382520/Erenshor/">Erenshor</a> is a single-player
-            <em>simulated</em> MMORPG,
-            a love letter to the late-90s and early-2000s online RPGs. Its signature SimPlayers level
-            up, trade, join guilds, and raid alongside you, driven by state machines rather than AI, so
-            the world feels alive while you play completely offline.
+            <a href="https://store.steampowered.com/app/2382520/Erenshor/">Erenshor</a> is a
+            single-player
+            <em>simulated</em> MMORPG, a love letter to the late-90s and early-2000s online RPGs. Its
+            signature SimPlayers level up, trade, join guilds, and raid alongside you, driven by state
+            machines rather than AI, so the world feels alive while you play completely offline.
         </p>
         <p>
             Developed by Burgee Media, it spans {zonesText} zones, {classesText} classes, {itemsText}
@@ -58,9 +58,10 @@
             in-game quest guide, and the reference spreadsheet exposes the underlying game data.
         </p>
         <p>
-            Everything is pulled straight from the game files and refreshed with each new build, so the
-            data you plan around matches the game you're playing.
+            Everything is pulled straight from the game files and refreshed with each new build, so
+            the data you plan around matches the game you're playing.
         </p>
+        <p><a href="https://github.com/glockyco/erenshor-data-mining">Code on GitHub</a></p>
     </div>
 </section>
 

@@ -2,16 +2,13 @@
     import { onMount } from 'svelte';
     import type { PageData } from './$types';
     import Seo from '$lib/components/Seo.svelte';
-    import {
-        websiteJsonLd,
-        webApplicationJsonLd,
-        videoGameJsonLd
-    } from '$lib/seo/jsonld';
+    import { websiteJsonLd, webApplicationJsonLd, videoGameJsonLd } from '$lib/seo/jsonld';
     import Hero from '$lib/components/landing/Hero.svelte';
     import ToolsSection from '$lib/components/landing/ToolsSection.svelte';
     import SectionDivider from '$lib/components/landing/SectionDivider.svelte';
     import AboutSection from '$lib/components/landing/AboutSection.svelte';
     import CommunitySection from '$lib/components/landing/CommunitySection.svelte';
+    import MoreCompendiums from '$lib/components/landing/MoreCompendiums.svelte';
     import FaqSection from '$lib/components/landing/FaqSection.svelte';
     import SectionLens from '$lib/components/landing/SectionLens.svelte';
     import { initCoordinates } from '$lib/components/landing/coordinates';
@@ -38,6 +35,7 @@
     <FaqSection />
     <SectionDivider />
     <CommunitySection />
+    <MoreCompendiums />
 </main>
 
 <SectionLens />
