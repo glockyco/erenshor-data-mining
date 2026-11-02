@@ -2074,6 +2074,28 @@ CREATE TABLE item_use_conditions (
     ),
     PRIMARY KEY (owner_key, gate_key, group_index, atom_index, scope, phase)
 );
+-- The conditions that every fact of a mechanism with several facts shares, such as a formula. Readers
+-- add them to the conditions of each fact whose mechanic is the mechanism, so they are stored once.
+CREATE TABLE item_mechanic_conditions (
+    mechanic_key TEXT NOT NULL,
+    gate_key TEXT NOT NULL,
+    group_index INTEGER NOT NULL,
+    atom_index INTEGER NOT NULL,
+    predicate TEXT NOT NULL,
+    reference_stable_key TEXT,
+    reference_slot TEXT,
+    actor TEXT,
+    value TEXT,
+    minimum REAL,
+    maximum REAL,
+    minimum_inclusive INTEGER NOT NULL,
+    maximum_inclusive INTEGER NOT NULL,
+    scope TEXT NOT NULL,
+    phase TEXT NOT NULL CHECK (
+        phase IN ('availability', 'source_initialization', 'operation_input', 'operation_outcome', 'mechanic_parameter')
+    ),
+    PRIMARY KEY (mechanic_key, gate_key, group_index, atom_index, scope, phase)
+) WITHOUT ROWID;
 -- The locations of each source, such as a character copy, mining node or mechanism. Every fact
 -- that names the source in location_source_key shares them, so they are stored once.
 CREATE TABLE item_source_locations (

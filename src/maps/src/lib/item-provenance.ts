@@ -127,6 +127,7 @@ const PROVENANCE_COLUMNS: Record<string, string> = {
     item_uses: 'use_key, item_stable_key, target_stable_key, kind, variant_key, material_slot, quantity_min, quantity_max, quantity_kind, mechanic, outcome_key, location_source_key',
     item_acquisition_conditions: CONDITION_COLUMNS,
     item_use_conditions: CONDITION_COLUMNS,
+    item_mechanic_conditions: CONDITION_COLUMNS.replace('owner_key', 'mechanic_key'),
     item_source_locations: LOCATION_COLUMNS,
     item_dispositions: 'item_stable_key, disposition, reason, evidence, current_pages, former_pages'
 };
@@ -229,11 +230,44 @@ function decodeConditions(value: unknown): ProvenanceCondition[] {
             (['route', 'source_replenishment', 'formula_operand'].includes(atom.predicate) && atom.value === null)) {
             throw new Error(`Invalid canonical condition: ${atom.gate_key}`);
         }
-        const identity = JSON.stringify([atom.scope, atom.gate_key, atom.phase, atom.group_index, atom.atom_index]);
+        const identity = conditionIdentity(atom);
         if (identities.has(identity)) throw new Error(`Duplicate condition identity: ${identity}`);
         identities.add(identity);
         return { ...atom } as unknown as ProvenanceCondition;
     });
+}
+
+function conditionIdentity(atom: ProvenanceCondition | Record<string, unknown>): string {
+    return JSON.stringify([atom.scope, atom.gate_key, atom.phase, atom.group_index, atom.atom_index]);
+}
+
+// The order of the conditions' primary key, whichever table each condition comes from.
+function compareConditions(a: ProvenanceCondition, b: ProvenanceCondition): number {
+    for (const key of ['gate_key', 'group_index', 'atom_index', 'scope', 'phase'] as const) {
+        if (a[key] < b[key]) return -1;
+        if (a[key] > b[key]) return 1;
+    }
+    return 0;
+}
+
+function conditionAtom(row: SqlRow, owner: unknown): Record<string, unknown> {
+    if (![0, 1].includes(row.minimum_inclusive as number) || ![0, 1].includes(row.maximum_inclusive as number)) {
+        throw new Error(`Invalid condition inclusivity: ${owner}`);
+    }
+    return { ...row, minimum_inclusive: row.minimum_inclusive === 1, maximum_inclusive: row.maximum_inclusive === 1 };
+}
+
+// Each mechanism's shared conditions are decoded once, and every fact of the mechanism refers to the same objects.
+function readMechanicConditions(db: Database): Map<string, ProvenanceCondition[]> {
+    const rows = new Map<string, Record<string, unknown>[]>();
+    for (const row of query(db, 'SELECT * FROM item_mechanic_conditions ORDER BY mechanic_key, gate_key, group_index, atom_index, scope, phase')) {
+        const { mechanic_key, ...atom } = row;
+        if (typeof mechanic_key !== 'string' || !mechanic_key) throw new Error('Invalid canonical mechanism');
+        let atoms = rows.get(mechanic_key);
+        if (!atoms) rows.set(mechanic_key, (atoms = []));
+        atoms.push(conditionAtom(atom, mechanic_key));
+    }
+    return new Map([...rows].map(([mechanic, atoms]) => [mechanic, decodeConditions(atoms)]));
 }
 
 function decodeLocation(location: Record<string, unknown>): ProvenanceLocation {
@@ -302,6 +336,7 @@ function readFacts<T extends ItemAcquisition | ItemUse>(
 ): T[] {
     assertProvenanceSchema(db);
     const sources = readSourceLocations(db);
+    const mechanics = readMechanicConditions(db);
     const byKey = new Map<string, T>();
     for (const row of query(db, `SELECT * FROM item_${family}s ORDER BY ${identity}`)) {
         validateScalarFact(row, family, identity);
@@ -311,15 +346,26 @@ function readFacts<T extends ItemAcquisition | ItemUse>(
         const fact = { ...row, conditions: [], locations } as unknown as T;
         byKey.set(row[identity] as string, fact);
     }
+    const owned = new Map<string, Record<string, unknown>[]>();
     for (const row of query(db, `SELECT * FROM item_${family}_conditions ORDER BY owner_key, gate_key, group_index, atom_index, scope, phase`)) {
         const { owner_key, ...atom } = row;
-        const fact = byKey.get(owner_key as string);
-        if (!fact) throw new Error(`Orphan ${family} condition: ${owner_key}`);
-        if (![0, 1].includes(atom.minimum_inclusive as number) || ![0, 1].includes(atom.maximum_inclusive as number)) {
-            throw new Error(`Invalid condition inclusivity: ${owner_key}`);
+        if (!byKey.has(owner_key as string)) throw new Error(`Orphan ${family} condition: ${owner_key}`);
+        let atoms = owned.get(owner_key as string);
+        if (!atoms) owned.set(owner_key as string, (atoms = []));
+        atoms.push(conditionAtom(atom, owner_key));
+    }
+    for (const [key, fact] of byKey) {
+        const own = decodeConditions(owned.get(key) ?? []);
+        const shared = fact.mechanic === null ? [] : mechanics.get(fact.mechanic) ?? [];
+        if (!shared.length) {
+            fact.conditions = own;
+            continue;
         }
-        fact.conditions.push(...decodeConditions([{ ...atom, minimum_inclusive: atom.minimum_inclusive === 1,
-            maximum_inclusive: atom.maximum_inclusive === 1 }]));
+        const identities = new Set(own.map(conditionIdentity));
+        for (const condition of shared) {
+            if (identities.has(conditionIdentity(condition))) throw new Error(`Duplicate condition identity: ${key}`);
+        }
+        fact.conditions = [...own, ...shared].sort(compareConditions);
     }
     return [...byKey.values()];
 }

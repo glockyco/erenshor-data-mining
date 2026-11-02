@@ -11,6 +11,7 @@ import pytest
 from sqlalchemy import create_engine
 
 import erenshor.application.sheets as sheets_package
+from erenshor.application.processor.item_provenance import ProvenanceBuilder
 from erenshor.application.processor.writer import Writer
 from erenshor.application.sheets.formatter import SheetsFormatter
 from erenshor.domain.value_objects.item_provenance import (
@@ -285,7 +286,7 @@ def canonical_facts(writer: Writer) -> tuple[list[ItemAcquisition], list[ItemUse
             quantity_min=2.5,
             quantity_max=4.5,
             quantity_kind="bounded",
-            mechanic="mechanic:fixture",
+            mechanic="mechanic:shared",
             outcome_key="acquisition:crafting",
             conditions=(_condition(),),
             location_source_key="source:treasure",
@@ -293,8 +294,11 @@ def canonical_facts(writer: Writer) -> tuple[list[ItemAcquisition], list[ItemUse
         )
         for kind in USE_KINDS
     ]
-    for fact in [*acquisitions, *uses]:
-        _insert_fact(writer, fact)
+    # The builder stores the condition that every use of their one mechanism shares with the mechanism.
+    builder = ProvenanceBuilder(writer.conn)
+    builder.acquisitions.extend(acquisitions)
+    builder.uses.extend(uses)
+    builder.persist()
     dispositions = [
         ItemDisposition("item:bread", "current", current_pages=("Bread",)),
         ItemDisposition("item:removed", "removed", "Reviewed removal", "review:fixture", (), ("Old Bread",)),
@@ -321,7 +325,9 @@ def _projected_contract(writer: Writer) -> dict[str, list[dict[str, Any]]]:
             key = fact[f"{family}_key"]
             fact["conditions"] = []
             for row in conditions:
-                if row["fact_type"] == family and row["owner_key"] == key:
+                if (row["fact_type"] == family and row["owner_key"] == key) or (
+                    row["fact_type"] == "mechanism" and row["owner_key"] == fact["mechanic"]
+                ):
                     condition = {k: v for k, v in row.items() if k not in {"fact_type", "owner_key"}}
                     for field in ("minimum_inclusive", "maximum_inclusive"):
                         condition[field] = bool(condition[field])
@@ -348,10 +354,19 @@ def _assert_coverage(
 ) -> None:
     for family, facts in zip(("acquisition", "use", "disposition"), expected, strict=True):
         identity = "item_stable_key" if family == "disposition" else f"{family}_key"
-        projected = {row[identity]: row for row in actual[family]}
-        required = {getattr(fact, identity): json.loads(json.dumps(fact_to_dict(fact))) for fact in facts}
+        projected = {row[identity]: _sorted_conditions(row) for row in actual[family]}
+        required = {
+            getattr(fact, identity): _sorted_conditions(json.loads(json.dumps(fact_to_dict(fact)))) for fact in facts
+        }
         assert len(actual[family]) == len(projected), f"Duplicate {family} identity"
         assert projected == required, f"Lost {family} identities or dimensions"
+
+
+def _sorted_conditions(row: dict[str, Any]) -> dict[str, Any]:
+    """Compare conditions as a set, because a fact's own conditions and its mechanism's come from separate rows."""
+    if "conditions" not in row:
+        return row
+    return {**row, "conditions": sorted(row["conditions"], key=lambda condition: json.dumps(condition, sort_keys=True))}
 
 
 def test_every_sheet_query_runs_against_the_clean_schema(writer: Writer, tmp_path: Path) -> None:
@@ -371,6 +386,7 @@ def test_normalized_item_sheets_conserve_every_dimension(
     canonical_facts: tuple[list[ItemAcquisition], list[ItemUse], list[ItemDisposition]],
 ) -> None:
     _assert_coverage(_projected_contract(writer), canonical_facts)
+    assert "mechanism" in {row["fact_type"] for row in _rows(writer, "item-conditions")}
     assert {row["kind"] for row in _rows(writer, "item-acquisitions")} == set(ACQUISITION_KINDS)
     assert {row["kind"] for row in _rows(writer, "item-uses")} == set(USE_KINDS)
 

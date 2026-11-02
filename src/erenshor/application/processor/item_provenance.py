@@ -435,7 +435,7 @@ class ProvenanceBuilder:
                     if initializes
                     else "unconfirmed_player"
                 ),
-                mechanic=None if initializes else "preseeded_before_start",
+                mechanic="loot_roll" if initializes else "preseeded_before_start",
                 guaranteed_roll_count=(
                     self._characters[copy]["guaranteed_drop_rolls"] if initializes and row["is_guaranteed"] else None
                 ),
@@ -460,6 +460,7 @@ class ProvenanceBuilder:
                 primary=(item,),
                 evidence=(*tuple(evidence for _, evidence in outcomes), *initialization_evidence, *death_evidence),
                 probability_basis="per_kill",
+                mechanic="loot_roll",
                 conditions=context,
             )
             bounds = self.conditional_quantity(tuple(row["drop_count_distribution"] for row, _ in outcomes))
@@ -1790,7 +1791,23 @@ class ProvenanceBuilder:
         self.internal_aura_equipment()
         self.authored_equipment()
 
+    def mechanic_conditions(self) -> dict[str, tuple[ProvenanceCondition, ...]]:
+        """The conditions that every fact of a mechanism with several facts repeats, such as a formula."""
+        members: dict[str, list[ItemAcquisition | ItemUse]] = defaultdict(list)
+        facts: tuple[ItemAcquisition | ItemUse, ...] = (*self.acquisitions, *self.uses)
+        for fact in facts:
+            if fact.mechanic is not None:
+                members[fact.mechanic].append(fact)
+        shared: dict[str, tuple[ProvenanceCondition, ...]] = {}
+        for mechanic, mechanism_facts in members.items():
+            first, *others = mechanism_facts
+            common = set(first.conditions).intersection(*(other.conditions for other in others))
+            if others and common:
+                shared[mechanic] = tuple(condition for condition in first.conditions if condition in common)
+        return shared
+
     def persist(self) -> None:
+        shared = self.mechanic_conditions()
         for family, facts, cls in (("acquisition", self.acquisitions, ItemAcquisition), ("use", self.uses, ItemUse)):
             table = "item_acquisitions" if family == "acquisition" else "item_uses"
             columns = [field.name for field in fields(cls) if field.name not in ("conditions", "locations")]
@@ -1799,8 +1816,13 @@ class ProvenanceBuilder:
                 data = asdict(fact)
                 fact_from_dict(data)
                 self._insert(table, {column: data[column] for column in columns})
-                for condition in data["conditions"]:
-                    self._insert(f"item_{family}_conditions", {"owner_key": owner, **condition})
+                common = shared.get(fact.mechanic, ()) if fact.mechanic is not None else ()
+                for condition, values in zip(fact.conditions, data["conditions"], strict=True):
+                    if condition not in common:
+                        self._insert(f"item_{family}_conditions", {"owner_key": owner, **values})
+        for mechanic, conditions in sorted(shared.items()):
+            for condition in conditions:
+                self._insert("item_mechanic_conditions", {"mechanic_key": mechanic, **asdict(condition)})
         sources: dict[str, tuple[ProvenanceLocation, ...]] = {}
         located: tuple[ItemAcquisition | ItemUse, ...] = (*self.acquisitions, *self.uses)
         for fact in located:

@@ -32,6 +32,13 @@ CREATE TABLE item_use_conditions (
         phase IN ('availability', 'source_initialization', 'operation_input', 'operation_outcome', 'mechanic_parameter')),
     PRIMARY KEY (owner_key, gate_key, group_index, atom_index, scope, phase)
 );
+CREATE TABLE item_mechanic_conditions (
+    mechanic_key TEXT NOT NULL, gate_key TEXT NOT NULL,
+    group_index INTEGER NOT NULL, atom_index INTEGER NOT NULL, predicate TEXT NOT NULL,
+    reference_stable_key TEXT, reference_slot TEXT, actor TEXT, value TEXT, minimum REAL, maximum REAL,
+    minimum_inclusive INTEGER NOT NULL, maximum_inclusive INTEGER NOT NULL, scope TEXT NOT NULL,
+    phase TEXT NOT NULL, PRIMARY KEY (mechanic_key, gate_key, group_index, atom_index, scope, phase)
+);
 -- The fixture stages each fact's locations, then publishes them once per source at the end.
 CREATE TABLE staged_acquisition_locations (
     owner_key TEXT NOT NULL, location_key TEXT NOT NULL,
@@ -285,8 +292,9 @@ INSERT INTO item_uses VALUES
     2, 3, 'bounded', 'crafting', 'outcome:fixture');
 INSERT INTO item_use_conditions VALUES
     ('use:fixture', 'quality', 0, 0, 'quality', NULL, 'slot:2', 'player', 'normal', 2, 5, 1, 0, 'source', 'operation_input'),
-    ('use:fixture', 'quality', 0, 0, 'quality', NULL, 'slot:2', 'player', 'normal', 8, 10, 1, 1, 'source', 'operation_outcome'),
-    ('use:fixture', 'chance', 0, 0, 'formula_operand', NULL, NULL, NULL, 'chance_per_pair', 0.25, 0.25, 1, 1, 'source', 'mechanic_parameter');
+    ('use:fixture', 'quality', 0, 0, 'quality', NULL, 'slot:2', 'player', 'normal', 8, 10, 1, 1, 'source', 'operation_outcome');
+INSERT INTO item_mechanic_conditions VALUES
+    ('crafting', 'chance', 0, 0, 'formula_operand', NULL, NULL, NULL, 'chance_per_pair', 0.25, 0.25, 1, 1, 'source', 'mechanic_parameter');
 INSERT INTO staged_use_locations VALUES
     ('use:fixture', 'zone:fixture', 'mechanic_zone', 'Stowaway', 'zone:stowaway', NULL,
     NULL, NULL, NULL, NULL, NULL, '[]', '[]', NULL);

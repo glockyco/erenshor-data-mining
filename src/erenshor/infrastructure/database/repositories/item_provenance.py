@@ -6,7 +6,7 @@ import json
 import sqlite3
 from collections.abc import Callable, Iterable, Iterator
 from dataclasses import replace
-from typing import Literal, TypeVar
+from typing import Literal, TypeVar, cast
 
 from erenshor.domain.value_objects.item_provenance import (
     ItemAcquisition,
@@ -26,15 +26,23 @@ from erenshor.infrastructure.database.repository import RepositoryError
 _Fact = TypeVar("_Fact", ItemAcquisition, ItemUse)
 
 
-def _database_condition(row: sqlite3.Row) -> dict[str, object]:
+def _database_condition(row: sqlite3.Row, owner: str = "owner_key") -> dict[str, object]:
     data: dict[str, object] = dict(row)
-    del data["owner_key"]
+    del data[owner]
     for field in ("minimum_inclusive", "maximum_inclusive"):
         value = data[field]
         if type(value) is not int or value not in (0, 1):
             raise ValueError(f"Invalid SQLite boolean in {field}")
         data[field] = value == 1
     return data
+
+
+def _condition_order(condition: dict[str, object]) -> tuple[str, int, int, str, str]:
+    """Order conditions by their primary key, whichever table each one comes from."""
+    return cast(
+        "tuple[str, int, int, str, str]",
+        tuple(condition[field] for field in ("gate_key", "group_index", "atom_index", "scope", "phase")),
+    )
 
 
 class ItemProvenanceRepository:
@@ -46,6 +54,7 @@ class ItemProvenanceRepository:
         self._uses_by_item: dict[str, list[ItemUse]] = {}
         self._uses_by_target: dict[str, list[ItemUse]] = {}
         self._locations: dict[str, tuple[ProvenanceLocation, ...]] | None = None
+        self._mechanics: dict[str, tuple[dict[str, object], ...]] | None = None
         try:
             with db.connect() as connection:
                 rows = connection.execute("SELECT * FROM item_provenance_meta").fetchall()
@@ -77,6 +86,22 @@ class ItemProvenanceRepository:
             self._locations = {source: tuple(locations) for source, locations in rows.items()}
         return self._locations
 
+    def _mechanic_conditions(self) -> dict[str, tuple[dict[str, object], ...]]:
+        """Load the conditions that every fact of a mechanism shares, which each of its facts includes."""
+        if self._mechanics is None:
+            rows: dict[str, list[dict[str, object]]] = {}
+            try:
+                with self._db.connect() as connection:
+                    for row in connection.execute(
+                        "SELECT * FROM item_mechanic_conditions "
+                        "ORDER BY mechanic_key, gate_key, group_index, atom_index, scope, phase"
+                    ):
+                        rows.setdefault(str(row["mechanic_key"]), []).append(_database_condition(row, "mechanic_key"))
+            except (KeyError, ValueError) as error:
+                raise RepositoryError(f"Invalid item provenance mechanic condition: {error}") from error
+            self._mechanics = {mechanic: tuple(conditions) for mechanic, conditions in rows.items()}
+        return self._mechanics
+
     def _load_facts(
         self,
         family: Literal["acquisition", "use"],
@@ -84,6 +109,7 @@ class ItemProvenanceRepository:
     ) -> tuple[_Fact, ...]:
         """Decode one immutable snapshot with each child relation loaded in bulk."""
         sources = self._source_locations()
+        mechanics = self._mechanic_conditions()
         conditions: dict[str, list[dict[str, object]]] = {}
         try:
             with self._db.connect() as connection:
@@ -98,7 +124,11 @@ class ItemProvenanceRepository:
                     identity = data[f"{family}_key"]
                     if not isinstance(identity, str):
                         raise ValueError("Fact identity must be text")
-                    data["conditions"] = conditions.get(identity, ())
+                    mechanic = data["mechanic"]
+                    merged: list[dict[str, object]] = list(conditions.get(identity, ()))
+                    if isinstance(mechanic, str):
+                        merged.extend(mechanics.get(mechanic, ()))
+                    data["conditions"] = sorted(merged, key=_condition_order)
                     data["locations"] = ()
                     fact = decoder(data)
                     if fact.location_source_key is not None:
@@ -107,7 +137,7 @@ class ItemProvenanceRepository:
                         fact = replace(fact, locations=sources[fact.location_source_key])
                     facts.append(fact)
             return tuple(facts)
-        except (KeyError, ValueError) as error:
+        except (KeyError, TypeError, ValueError) as error:
             raise RepositoryError(f"Invalid item provenance {family}: {error}") from error
 
     def _load_acquisitions(self) -> tuple[ItemAcquisition, ...]:

@@ -241,6 +241,7 @@ class ProgressionBuilder:
                 )
             self.releases[row["character_stable_key"]][row["mechanism"], row["source_stable_key"]].append(row)
         self.acquisition_conditions = self.index("item_acquisition_conditions", "owner_key")
+        self.mechanic_conditions = self.index("item_mechanic_conditions", "mechanic_key")
         self.locations = self.index("item_source_locations", "source_key")
         self.route_conditions = self.index("quest_route_conditions", "route_key")
         self.kill_cache: dict[str, list[Way]] = {}
@@ -776,7 +777,11 @@ class ProgressionBuilder:
                 raise _error(node, fact, "internal equipment cannot be a player acquisition")
             relation = ACQUISITION_RELATIONS[kind]
             source = acquisition["source_stable_key"]
-            conditions = self.conditions(node, self.acquisition_conditions.get(fact, []), fact, provenance=True)
+            atoms = [
+                *self.acquisition_conditions.get(fact, []),
+                *self.mechanic_conditions.get(acquisition["mechanic"], []),
+            ]
+            conditions = self.conditions(node, atoms, fact, provenance=True)
             bases: list[Way] = []
             source_key = acquisition["location_source_key"]
             locations = self.locations.get(source_key, []) if source_key is not None else []

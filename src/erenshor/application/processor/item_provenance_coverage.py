@@ -410,7 +410,7 @@ class _Coverage:
                         if initializes
                         else "unconfirmed_player"
                     ),
-                    mechanic=None if initializes else "preseeded_before_start",
+                    mechanic="loot_roll" if initializes else "preseeded_before_start",
                     conditions=(
                         *self.gates("character", copy),
                         *ownership_conditions,
@@ -446,6 +446,7 @@ class _Coverage:
                 (item,),
                 origins=(*tuple(origin for _, origin in rows), *initialization_origins, *death_origins),
                 probability_basis="per_kill",
+                mechanic="loot_roll",
                 conditions=context,
                 **bounds,
             )
@@ -2361,7 +2362,12 @@ class _Coverage:
             values["conditions"] = json.loads(values["conditions"])
             values["entry_zone_line_keys"] = json.loads(values["entry_zone_line_keys"])
             sources[values.pop("source_key")].append(values)
+        mechanics: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        for row in self.rows("item_mechanic_conditions"):
+            values = dict(row)
+            mechanics[values.pop("mechanic_key")].append(values)
         referenced: set[str] = set()
+        referenced_mechanics: set[str] = set()
         for family, table, key_column in (
             ("acquisition", "item_acquisitions", "acquisition_key"),
             ("use", "item_uses", "use_key"),
@@ -2388,11 +2394,16 @@ class _Coverage:
                         raise ValueError(
                             f"Item provenance {owner}: {dimension} expected {value!r}, got {actual[owner][dimension]!r}"
                         )
-                source = actual[owner]["location_source_key"]
+                source, mechanic = actual[owner]["location_source_key"], actual[owner]["mechanic"]
                 if source is not None:
                     referenced.add(source)
+                if mechanic is not None:
+                    referenced_mechanics.add(mechanic)
                 for dimension, found_rows in (
-                    ("conditions", conditions[owner]),
+                    (
+                        "conditions",
+                        [*conditions[owner], *(mechanics.get(mechanic, []) if mechanic is not None else [])],
+                    ),
                     ("locations", sources.get(source, []) if source is not None else []),
                 ):
                     # JSON normalizes tuple/list and SQLite integer booleans without losing values.
@@ -2403,6 +2414,10 @@ class _Coverage:
             counts[family + "s"] = len(actual)
         if sources.keys() - referenced:
             raise ValueError(f"Orphan item provenance locations: {sorted(sources.keys() - referenced)!r}")
+        if mechanics.keys() - referenced_mechanics:
+            raise ValueError(
+                f"Orphan item provenance mechanic conditions: {sorted(mechanics.keys() - referenced_mechanics)!r}"
+            )
         if evidence != self.evidence:
             raise ValueError(
                 f"Item provenance evidence differs: missing={sorted(self.evidence - evidence)!r}, "

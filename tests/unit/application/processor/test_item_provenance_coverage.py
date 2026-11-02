@@ -909,14 +909,12 @@ def test_use_condition_and_location_coverage_is_independent(
 ) -> None:
     connection, builder = persisted
     validate_item_provenance(connection, builder, require_all_native_tables=False)
-    counts = dict(
-        connection.execute(
-            "SELECT u.kind, count(*) FROM item_use_conditions c JOIN item_uses u ON u.use_key=c.owner_key "
-            "WHERE c.predicate='formula_operand' GROUP BY u.kind"
-        ).fetchall()
+    # Mechanism formulas are stored with their mechanism and the other operands with their use.
+    deleted = sum(
+        connection.execute(f"DELETE FROM {table} WHERE predicate='formula_operand'").rowcount
+        for table in ("item_use_conditions", "item_mechanic_conditions")
     )
-    assert counts == {"quality_offering": 21, "smithing": 5}
-    connection.execute("DELETE FROM item_use_conditions WHERE predicate='formula_operand'")
+    assert deleted > 0
     with pytest.raises(ValueError, match="conditions"):
         validate_item_provenance(connection, builder, require_all_native_tables=False)
 
@@ -1689,10 +1687,10 @@ def test_same_named_character_and_spawn_gates_preserve_independent_or_groups(
 @pytest.mark.parametrize(
     "mutation",
     [
-        "UPDATE item_acquisition_conditions SET phase='availability' WHERE gate_key='probability_context'",
-        "UPDATE item_acquisition_conditions SET minimum=1, maximum=1 WHERE "
+        "UPDATE item_mechanic_conditions SET phase='availability' WHERE gate_key='probability_context'",
+        "UPDATE item_mechanic_conditions SET minimum=1, maximum=1 WHERE "
         "gate_key='probability_context' AND value='loot_bless_bonus'",
-        "UPDATE item_acquisition_conditions SET actor=NULL WHERE "
+        "UPDATE item_mechanic_conditions SET actor=NULL WHERE "
         "gate_key='probability_context' AND value='top_guild_bonus'",
         "UPDATE item_acquisition_conditions SET phase='availability' WHERE gate_key='time'",
     ],
@@ -1703,20 +1701,7 @@ def test_initialization_parameters_and_operation_time_keep_their_phases(
 ) -> None:
     connection, builder = persisted
     validate_item_provenance(connection, builder, require_all_native_tables=False)
-    assert (
-        connection.execute(
-            "SELECT count(*) FROM item_acquisition_conditions WHERE "
-            "gate_key='probability_context' AND phase='source_initialization'"
-        ).fetchone()[0]
-        == 12
-    )
-    assert (
-        connection.execute(
-            "SELECT count(*) FROM item_acquisition_conditions WHERE gate_key='time' AND phase='operation_input'"
-        ).fetchone()[0]
-        == 2
-    )
-    connection.execute(mutation)
+    assert connection.execute(mutation).rowcount > 0
     with pytest.raises(ValueError, match="conditions"):
         validate_item_provenance(connection, builder, require_all_native_tables=False)
 
@@ -1983,7 +1968,10 @@ def test_missing_positive_native_mining_outcome_is_not_an_exclusion(
             "UPDATE item_uses SET quantity_max=1 WHERE kind='quality_offering' AND material_slot IN (0,1)",
             "quantity_max",
         ),
-        ("UPDATE item_use_conditions SET phase='operation_outcome' WHERE gate_key='chance_per_pair'", "conditions"),
+        (
+            "UPDATE item_mechanic_conditions SET phase='operation_outcome' WHERE gate_key='chance_per_pair'",
+            "conditions",
+        ),
         ("UPDATE item_use_conditions SET minimum=2 WHERE gate_key='fuel_level'", "conditions"),
         ("DELETE FROM item_use_conditions WHERE gate_key='input_quality' AND group_index=1", "conditions"),
     ],
@@ -1995,7 +1983,7 @@ def test_seed_and_quality_operation_dimensions_are_not_presentation_defaults(
 ) -> None:
     connection, builder = persisted
     validate_item_provenance(connection, builder, require_all_native_tables=False)
-    connection.execute(mutation)
+    assert connection.execute(mutation).rowcount > 0
     with pytest.raises(ValueError, match=dimension):
         validate_item_provenance(connection, builder, require_all_native_tables=False)
 
@@ -2639,25 +2627,27 @@ def test_offered_equipment_carries_the_same_native_result_and_coefficients_as_st
         "SELECT use_key FROM item_uses WHERE kind='quality_offering' AND material_slot=2"
     ).fetchall()
     assert len(gear) == 1
-    assert dict(
-        connection.execute(
-            "SELECT value,minimum FROM item_use_conditions WHERE owner_key=? AND phase='mechanic_parameter' "
-            "AND gate_key IN ('chance_per_pair','chance_per_improvement','enhance_chance')",
-            (gear[0][0],),
-        ).fetchall()
-    ) == {"chance_per_stone_pair": 3, "chance_per_improvement_level": 2, "enhance_chance_per_stone_pair": 1}
-    assert (
-        connection.execute(
-            "SELECT count(*) FROM item_use_conditions WHERE owner_key=? AND phase='operation_outcome' "
-            "AND gate_key IN ('result_quality','enhanced_quality')",
-            (gear[0][0],),
-        ).fetchone()[0]
-        == 2
+    # A use's conditions are its own rows and the rows of its mechanism.
+    conditions = connection.execute(
+        "SELECT gate_key, value, minimum, phase FROM item_use_conditions WHERE owner_key=:use UNION ALL "
+        "SELECT m.gate_key, m.value, m.minimum, m.phase FROM item_mechanic_conditions m "
+        "JOIN item_uses u ON u.mechanic=m.mechanic_key WHERE u.use_key=:use",
+        {"use": gear[0][0]},
+    ).fetchall()
+    assert {
+        value: minimum
+        for gate, value, minimum, phase in conditions
+        if phase == "mechanic_parameter" and gate in ("chance_per_pair", "chance_per_improvement", "enhance_chance")
+    } == {"chance_per_stone_pair": 3, "chance_per_improvement_level": 2, "enhance_chance_per_stone_pair": 1}
+    assert {gate for gate, _, _, phase in conditions if phase == "operation_outcome"} >= {
+        "result_quality",
+        "enhanced_quality",
+    }
+    deleted = sum(
+        connection.execute(f"DELETE FROM {table} WHERE gate_key='result_quality'").rowcount
+        for table in ("item_use_conditions", "item_mechanic_conditions")
     )
-    connection.execute(
-        "DELETE FROM item_use_conditions WHERE owner_key=? AND gate_key='result_quality'",
-        (gear[0][0],),
-    )
+    assert deleted > 0
     with pytest.raises(ValueError, match="conditions"):
         validate_item_provenance(connection, builder, require_all_native_tables=False)
 
@@ -2991,6 +2981,7 @@ def registry_click_sources(
         "item_acquisition_conditions",
         "item_use_conditions",
         "item_source_locations",
+        "item_mechanic_conditions",
         "item_acquisition_contributors",
         "item_uses",
         "item_acquisitions",
@@ -3172,6 +3163,7 @@ def disabled_preseed(
         "item_acquisition_conditions",
         "item_use_conditions",
         "item_source_locations",
+        "item_mechanic_conditions",
         "item_acquisition_contributors",
         "item_uses",
         "item_acquisitions",
@@ -3384,7 +3376,7 @@ def test_kill_loot_access_is_separate_from_native_inventory_and_initializer(
         for evidence in builder.fact_evidence[fact.acquisition_key]
         if evidence.input_relation == "code_facts" and json.loads(evidence.input_primary_key)[0].startswith("treasure.")
     } == ({"treasure.chest_break_roll", "treasure.strike_melee", "treasure.strike_bolt"} if chest else set())
-    assert fact.mechanic == (None if enabled else "preseeded_before_start")
+    assert fact.mechanic == ("loot_roll" if enabled else "preseeded_before_start")
     assert any(atom.phase == "source_initialization" for atom in fact.conditions) == bool(enabled)
     assert not any(atom.predicate == "never" for atom in fact.conditions)
     assert any(
@@ -3424,6 +3416,7 @@ def test_common_world_bounds_and_native_coverage_use_only_loot_capable_contribut
         "item_acquisition_conditions",
         "item_use_conditions",
         "item_source_locations",
+        "item_mechanic_conditions",
         "item_acquisition_contributors",
         "item_uses",
         "item_acquisitions",

@@ -68,7 +68,10 @@ def _persist(writer: Writer, acquisitions: tuple[ItemAcquisition, ...], uses: tu
 
 
 def _build(count: int | None = 3, phase: ConditionPhase = "availability") -> tuple[ItemAcquisition, ItemUse]:
+    # Both facts share the quest condition through their mechanism, and each has one condition of its own.
     condition = ProvenanceCondition("quest", 0, 0, "quest_done", "quest:one", phase=phase)
+    time = ProvenanceCondition("time", 0, 0, "time_of_day", value="day", phase=phase)
+    held = ProvenanceCondition("held", 0, 0, "item_held", "item:one", phase=phase)
     location_condition = ProvenanceCondition(
         "furnishing",
         0,
@@ -115,7 +118,7 @@ def _build(count: int | None = 3, phase: ConditionPhase = "availability") -> tup
         guarantee_scope="pool",
         guaranteed_roll_count=count,
         location_source_key="character:copy",
-        conditions=(condition,),
+        conditions=(condition, time),
         locations=(location,),
     )
     use = ItemUse(
@@ -131,7 +134,7 @@ def _build(count: int | None = 3, phase: ConditionPhase = "availability") -> tup
         "mechanic:one",
         acquisition.acquisition_key,
         acquisition.location_source_key,
-        acquisition.conditions,
+        (held, condition),
         acquisition.locations,
     )
     return acquisition, use
@@ -338,6 +341,46 @@ def test_repository_rejects_malformed_shared_locations_for_every_fact_family(
     with pytest.raises(RepositoryError, match="Invalid item provenance location"):
         ItemProvenanceRepository(db).get_acquisitions("item:one")
     with pytest.raises(RepositoryError, match="Invalid item provenance location"):
+        ItemProvenanceRepository(db).get_uses("item:one")
+
+
+def test_a_condition_every_fact_of_a_mechanism_shares_is_stored_once(
+    database: tuple[Writer, DatabaseConnection],
+) -> None:
+    writer, db = database
+    acquisition, use = _facts(writer)
+    stored = {
+        table: [row[0] for row in writer.conn.execute(f"SELECT gate_key FROM {table}")]
+        for table in ("item_acquisition_conditions", "item_use_conditions", "item_mechanic_conditions")
+    }
+    assert stored == {
+        "item_acquisition_conditions": ["time"],
+        "item_use_conditions": ["held"],
+        "item_mechanic_conditions": ["quest"],
+    }
+    repository = ItemProvenanceRepository(db)
+    assert repository.get_acquisitions("item:one") == [acquisition]
+    assert repository.get_uses("item:one") == [use]
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "UPDATE item_mechanic_conditions SET predicate='unknown'",
+        "UPDATE item_mechanic_conditions SET minimum_inclusive=2",
+        "ALTER TABLE item_mechanic_conditions ADD COLUMN unknown_mandatory TEXT",
+    ],
+)
+def test_repository_rejects_malformed_mechanism_conditions_for_every_fact_family(
+    database: tuple[Writer, DatabaseConnection],
+    sql: str,
+) -> None:
+    writer, db = database
+    _facts(writer)
+    _corrupt(writer, sql)
+    with pytest.raises(RepositoryError, match="Invalid item provenance"):
+        ItemProvenanceRepository(db).get_acquisitions("item:one")
+    with pytest.raises(RepositoryError, match="Invalid item provenance"):
         ItemProvenanceRepository(db).get_uses("item:one")
 
 

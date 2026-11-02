@@ -316,3 +316,31 @@ def test_every_populated_native_family_has_canonical_coverage(main_clean_db: Pat
             assert provenance.get_acquisitions(item_key) == acquisitions_by_item.get(item_key, [])
             assert provenance.get_uses(item_key) == uses_by_item.get(item_key, [])
             assert provenance.get_disposition(item_key) is not None
+
+
+def test_no_mechanism_repeats_a_condition_in_each_of_its_facts(main_clean_db: Path) -> None:
+    """Every fact of a mechanism reads a condition they all share from the mechanism instead of storing it."""
+    columns = (
+        "gate_key, group_index, atom_index, predicate, reference_stable_key, reference_slot, actor, value, "
+        "minimum, maximum, minimum_inclusive, maximum_inclusive, scope, phase"
+    )
+    with closing(sqlite3.connect(f"file:{main_clean_db}?mode=ro", uri=True)) as clean:
+        repeated = clean.execute(
+            f"""
+            WITH facts AS (
+                SELECT acquisition_key AS fact_key, mechanic FROM item_acquisitions WHERE mechanic IS NOT NULL
+                UNION ALL SELECT use_key, mechanic FROM item_uses WHERE mechanic IS NOT NULL
+            ),
+            owned AS (
+                SELECT owner_key, {columns} FROM item_acquisition_conditions
+                UNION ALL SELECT owner_key, {columns} FROM item_use_conditions
+            )
+            SELECT f.mechanic, {columns}, COUNT(*)
+            FROM owned o JOIN facts f ON f.fact_key = o.owner_key
+            GROUP BY f.mechanic, {columns}
+            HAVING COUNT(*) > 1 AND COUNT(*) = (SELECT COUNT(*) FROM facts m WHERE m.mechanic = f.mechanic)
+            """
+        ).fetchall()
+        shared = clean.execute("SELECT COUNT(*) FROM item_mechanic_conditions").fetchone()[0]
+    assert repeated == []
+    assert shared > 0
