@@ -7,14 +7,12 @@ SELECT
     m.respawn_time,
     i.display_name,
     CASE WHEN a.probability_kind = 'exact' THEN a.probability_min END AS 'DropChance (%)',
-    l.location_key,
+    l.place_key,
     a.*
-FROM item_acquisitions a
+FROM item_sources a
 LEFT JOIN mining_nodes m ON m.stable_key = a.source_stable_key
 LEFT JOIN items i ON i.stable_key = a.item_stable_key
-LEFT JOIN item_source_locations l ON l.source_key = a.location_source_key
+LEFT JOIN item_places l ON l.place_set_key = a.place_set_key
 LEFT JOIN zones z ON z.stable_key = l.zone_stable_key
 WHERE a.kind = 'mining'
-    AND a.player_access_state = 'verified_player'
-    AND a.probability_stage = 'final_acquisition'
-ORDER BY z.zone_name, a.source_stable_key, a.probability_min DESC, a.acquisition_key, l.location_key;
+ORDER BY z.zone_name, a.source_stable_key, a.probability_min DESC, a.source_key, l.place_key;

@@ -3,6 +3,7 @@ SELECT
     i.id,
     i.stable_key,
     i.display_name,
+    status.disposition AS status,
     i.lore,
     i.required_slot,
     i.this_weapon_type,
@@ -60,14 +61,12 @@ SELECT
     i.complete_on_read_stable_key,
     i.template,
     (SELECT GROUP_CONCAT(u.item_stable_key, ', ' ORDER BY u.material_slot, u.use_key)
-     FROM item_uses u
+     FROM item_usages u
      WHERE u.kind = 'crafting_material' AND u.target_stable_key = i.stable_key
     ) AS template_ingredient_stable_keys,
-    (SELECT GROUP_CONCAT(a.item_stable_key, ', ' ORDER BY a.variant_key, a.acquisition_key)
-     FROM item_acquisitions a
-     WHERE a.kind = 'crafting' AND a.source_stable_key = i.stable_key
-         AND a.player_access_state = 'verified_player'
-         AND a.probability_stage = 'final_acquisition') AS template_reward_stable_key,
+    (SELECT GROUP_CONCAT(a.item_stable_key, ', ' ORDER BY a.variant_key, a.source_key)
+     FROM item_sources a
+     WHERE a.kind = 'crafting' AND a.source_stable_key = i.stable_key) AS template_reward_stable_key,
     i.item_value,
     i.sell_value,
     i.stackable,
@@ -80,10 +79,8 @@ SELECT
     i.player_cannot_sell,
     i.rare_item,
     i.is_auctionable,
-    EXISTS (SELECT 1 FROM item_acquisitions a
-            WHERE a.item_stable_key = i.stable_key AND a.kind = 'auction_house'
-                AND a.player_access_state = 'verified_player'
-                AND a.probability_stage = 'final_acquisition') AS can_be_listed_by_sims,
+    EXISTS (SELECT 1 FROM item_sources a
+            WHERE a.item_stable_key = i.stable_key AND a.kind = 'auction_house') AS can_be_listed_by_sims,
     i.book_title,
     i.mining,
     i.fuel_source,
@@ -97,6 +94,7 @@ SELECT
     i.resource_name
 FROM items i
 LEFT JOIN item_stats s ON s.item_stable_key = i.stable_key
+LEFT JOIN item_statuses status ON status.item_stable_key = i.stable_key
 ORDER BY i.item_db_index,
     CASE s.quality
         WHEN 'Standard' THEN 1

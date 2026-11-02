@@ -18,6 +18,9 @@ description: Add, revise, preview, or deploy SQL-backed Google Sheets tabs. Use 
    Its filename without `.sql` is the tab name.
    Alias selected columns when the header needs a display name.
    Join entities by stable keys, not display names.
+   Source and obtainability queries read the public item view defined in
+   `src/erenshor/domain/value_objects/item_public_view.py`, not the complete facts.
+   Format every stored condition without selecting or omitting atoms, because the build owns that decision.
 3. For map-marker links, use `map_marker_url(stable_key)` as existing queries do.
    Plain `sqlite3` does not register this SQL function.
    Verify a query that uses it through the CLI dry run.
@@ -32,6 +35,8 @@ description: Add, revise, preview, or deploy SQL-backed Google Sheets tabs. Use 
 
 The formatter uses SQL column names as the header row.
 It preserves numbers, renders null as an empty cell, and writes values as `RAW`.
+`item-sources` lists one row per public source, with conditions and zones on that row.
+Item lifecycle status is in `items`. Discover the other tabs with `sheets list`.
 The CLI requires a valid clean database with items before deployment.
 The selected variant needs a configured spreadsheet ID and a service account with Editor access.
 An invalid tab name fails before publication.

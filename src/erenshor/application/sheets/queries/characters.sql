@@ -126,9 +126,7 @@ SELECT
     c.is_vendor,
     c.vendor_desc,
     (SELECT GROUP_CONCAT(DISTINCT a.item_stable_key)
-     FROM item_acquisitions a
-     WHERE a.source_copy_stable_key = c.stable_key AND a.kind = 'vendor'
-         AND a.player_access_state = 'verified_player'
-         AND a.probability_stage = 'final_acquisition') AS vendor_item_stable_keys
+     FROM item_sources a
+     WHERE a.source_copy_stable_key = c.stable_key AND a.kind = 'vendor') AS vendor_item_stable_keys
 FROM characters c
 LEFT JOIN factions f ON f.stable_key = c.my_world_faction_stable_key;

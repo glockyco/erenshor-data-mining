@@ -1,4 +1,4 @@
--- Day, night and bonus routes remain separate acquisitions with typed conditions.
+-- Day, night and global replacement routes remain separate public sources.
 SELECT
     a.source_stable_key AS water_stable_key,
     z.zone_name,
@@ -7,13 +7,11 @@ SELECT
     l.z AS position_z,
     i.display_name,
     CASE WHEN a.probability_kind = 'exact' THEN a.probability_min END AS 'Chance (%)',
-    l.location_key,
+    l.place_key,
     a.*
-FROM item_acquisitions a
+FROM item_sources a
 LEFT JOIN items i ON i.stable_key = a.item_stable_key
-LEFT JOIN item_source_locations l ON l.source_key = a.location_source_key
+LEFT JOIN item_places l ON l.place_set_key = a.place_set_key
 LEFT JOIN zones z ON z.stable_key = l.zone_stable_key
-WHERE a.kind IN ('fishing', 'fishing_bonus')
-    AND a.player_access_state = 'verified_player'
-    AND a.probability_stage = 'final_acquisition'
-ORDER BY a.source_stable_key, a.item_stable_key, a.acquisition_key, l.location_key;
+WHERE a.kind = 'fishing'
+ORDER BY a.source_stable_key, a.item_stable_key, a.source_key, l.place_key;

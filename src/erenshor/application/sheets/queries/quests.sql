@@ -16,20 +16,17 @@ SELECT
     -- Rewards
     qv.xp_on_complete,
     qv.gold_on_complete,
-    (SELECT GROUP_CONCAT(i.display_name, ', ' ORDER BY a.acquisition_key)
-     FROM item_acquisitions a
+    (SELECT GROUP_CONCAT(i.display_name, ', ' ORDER BY a.source_key)
+     FROM item_sources a
      LEFT JOIN items i ON i.stable_key = a.item_stable_key
      WHERE a.kind = 'quest_reward' AND a.source_stable_key = q.stable_key
-         AND a.variant_key = qv.resource_name
-         AND a.player_access_state = 'verified_player'
-         AND a.probability_stage = 'final_acquisition') AS reward_item,
+         AND a.variant_key = qv.resource_name) AS reward_item,
     next_quest_variant.quest_name AS next_quest,
     (SELECT GROUP_CONCAT(DISTINCT i.display_name)
-     FROM item_acquisitions a
-     JOIN item_acquisition_conditions c ON c.owner_key = a.acquisition_key
+     FROM item_sources a
+     JOIN item_conditions c ON c.owner_key = a.source_key
      LEFT JOIN items i ON i.stable_key = a.item_stable_key
-     WHERE a.kind = 'vendor' AND a.player_access_state = 'verified_player'
-         AND a.probability_stage = 'final_acquisition'
+     WHERE a.kind = 'vendor'
          AND c.gate_key = 'stock_unlock' AND c.predicate = 'quest_done'
          AND c.reference_stable_key = q.stable_key) AS unlock_item_for_vendor,
 
@@ -68,7 +65,7 @@ SELECT
 
     -- Required Items (aggregated)
     (SELECT GROUP_CONCAT(i.display_name, ', ' ORDER BY u.material_slot, u.use_key)
-     FROM item_uses u
+     FROM item_usages u
      LEFT JOIN items i ON i.stable_key = u.item_stable_key
      WHERE u.kind = 'quest_requirement' AND u.target_stable_key = q.stable_key
          AND u.variant_key = qv.resource_name

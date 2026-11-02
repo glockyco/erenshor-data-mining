@@ -1,8 +1,7 @@
-"""Exercise sheet SQL and conserve canonical item facts without game data or live writes."""
+"""Exercise Sheets against the public item view without game data or live writes."""
 
 from __future__ import annotations
 
-import json
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
@@ -11,22 +10,13 @@ import pytest
 from sqlalchemy import create_engine
 
 import erenshor.application.sheets as sheets_package
-from erenshor.application.processor.item_provenance import ProvenanceBuilder
 from erenshor.application.processor.writer import Writer
 from erenshor.application.sheets.formatter import SheetsFormatter
-from erenshor.domain.value_objects.item_provenance import (
-    PROVENANCE_SCHEMA_VERSION,
-    ItemAcquisition,
-    ItemDisposition,
-    ItemUse,
-    ProvenanceCondition,
-    ProvenanceLocation,
-    fact_to_dict,
-)
+from erenshor.domain.value_objects.item_provenance import PROVENANCE_SCHEMA_VERSION
 from erenshor.infrastructure.database.repository import RepositoryError
 
 QUERIES_DIR = Path(sheets_package.__file__).parent / "queries"
-ACQUISITION_KINDS = (
+SOURCE_KINDS = (
     "character_drop",
     "common_world_item",
     "special_world_drop",
@@ -38,24 +28,21 @@ ACQUISITION_KINDS = (
     "spell_created",
     "mining",
     "fishing",
-    "fishing_bonus",
     "auction_house",
     "item_bag",
     "starting_class",
     "ui_grant",
     "item_conversion",
-    "internal_equipment",
 )
-USE_KINDS = (
-    "crafting_material",
-    "crafting_recipe",
-    "quest_requirement",
-    "item_drop",
-    "spell_created",
-    "item_conversion",
-    "smithing",
-    "quality_offering",
-    "zone_restriction",
+COMPLETE_TABLES = (
+    "item_acquisition_conditions",
+    "item_use_conditions",
+    "item_mechanic_conditions",
+    "item_source_locations",
+    "item_acquisition_contributors",
+    "item_acquisitions",
+    "item_uses",
+    "item_dispositions",
 )
 
 
@@ -67,6 +54,8 @@ def writer(tmp_path: Path) -> Iterator[Writer]:
         "INSERT INTO item_provenance_meta VALUES (?, 'fixture-build', '{}')", (PROVENANCE_SCHEMA_VERSION,)
     )
     writer.conn.create_function("map_marker_url", 1, lambda key: f"https://maps.example.invalid/map?sel=marker:{key}")
+    for table in COMPLETE_TABLES:
+        writer.conn.execute(f"DROP TABLE IF EXISTS {table}")
     try:
         yield writer
     finally:
@@ -83,293 +72,119 @@ def _insert(writer: Writer, table: str, values: dict[str, Any]) -> None:
     writer.conn.execute(f"INSERT INTO {table} ({columns}) VALUES ({parameters})", tuple(values.values()))
 
 
-def _insert_fact(writer: Writer, fact: ItemAcquisition | ItemUse) -> None:
-    data: dict[str, Any] = fact_to_dict(fact)
-    conditions = data.pop("conditions")
-    locations = data.pop("locations")
-    family = "acquisition" if isinstance(fact, ItemAcquisition) else "use"
-    key = fact.acquisition_key if isinstance(fact, ItemAcquisition) else fact.use_key
-    _insert(writer, f"item_{family}s", data)
-    for condition in conditions:
-        _insert(writer, f"item_{family}_conditions", {"owner_key": key, **condition})
-    if not locations:
-        return
-    source = data["location_source_key"]
-    stored = writer.conn.execute("SELECT location_key FROM item_source_locations WHERE source_key=?", (source,))
-    stored_keys = sorted(row[0] for row in stored)
-    if stored_keys:
-        assert stored_keys == sorted(location["location_key"] for location in locations), f"{source} differs"
-        return
-    for location in locations:
-        _insert(
-            writer,
-            "item_source_locations",
-            {
-                "source_key": source,
-                **location,
-                "conditions": json.dumps(location["conditions"]),
-                "entry_zone_line_keys": json.dumps(location["entry_zone_line_keys"]),
-            },
-        )
-
-
-def _condition(group: int = 0, atom: int = 0, **values: Any) -> ProvenanceCondition:
-    return ProvenanceCondition(
-        group_index=group,
-        atom_index=atom,
-        **{
-            "gate_key": "gate:fixture",
-            "predicate": "actor_level",
-            "reference_stable_key": "quest:fixture",
-            "reference_slot": "room:2",
-            "actor": "player",
-            "value": "night",
-            "minimum": 10.5,
-            "maximum": 20.25,
-            "minimum_inclusive": False,
-            "maximum_inclusive": True,
-            "scope": "source",
-            **values,
+def _item(writer: Writer, key: str = "item:bread", name: str = "Bread", status: str = "current") -> None:
+    _insert(writer, "items", {"stable_key": key, "display_name": name, "image_name": name})
+    _insert(
+        writer,
+        "item_statuses",
+        {
+            "item_stable_key": key,
+            "disposition": status,
+            "current_pages": "[]",
+            "former_pages": "[]",
         },
     )
 
 
-def _acquisition(key: str, kind: str, **values: Any) -> ItemAcquisition:
-    return ItemAcquisition(
-        acquisition_key=key,
-        kind=kind,
-        **{
+def _source(writer: Writer, key: str, kind: str = "character_drop", **values: Any) -> dict[str, Any]:
+    row = {
+        "source_key": key,
+        "item_stable_key": "item:bread",
+        "kind": kind,
+        "source_stable_key": None,
+        "source_group_key": None,
+        "source_copy_stable_key": None,
+        "variant_key": None,
+        "mechanic": None,
+        "probability_kind": "exact",
+        "probability_min": 12.345678901,
+        "probability_max": 12.345678901,
+        "probability_basis": "per_kill",
+        "quantity_kind": "exact",
+        "quantity_min": 1.0,
+        "quantity_max": 1.0,
+        "expected_quantity": 0.123456789,
+        "guaranteed": 0,
+        "place_set_key": None,
+        **values,
+    }
+    _insert(writer, "item_sources", row)
+    return row
+
+
+def _use(writer: Writer, key: str, kind: str, **values: Any) -> None:
+    _insert(
+        writer,
+        "item_usages",
+        {
+            "use_key": key,
+            "kind": kind,
             "item_stable_key": "item:bread",
-            "source_stable_key": f"source:{kind}",
-            "source_group_key": "group:fixture",
-            "source_copy_stable_key": "character:copy",
-            "variant_key": "route:fixture",
-            "mechanic": "mechanic:fixture",
-            "player_access_state": "internal_only" if kind == "internal_equipment" else "verified_player",
-            "probability_kind": "unknown" if kind == "auction_house" else "exact",
-            "probability_min": None if kind == "auction_house" else 12.345678901,
-            "probability_max": None if kind == "auction_house" else 12.345678901,
-            "probability_basis": "per_use",
-            "probability_stage": "final_acquisition",
-            "quantity_min": 0.5,
-            "quantity_max": 3.25,
-            "quantity_kind": "bounded",
-            "expected_quantity": 0.123456789,
-            "count_distribution": '{"0":0.8,"1":0.2}',
-            "guarantee_scope": "pool_roll",
-            "guaranteed_roll_count": 2 if kind == "character_drop" else None,
-            "conditions": (_condition(), _condition(atom=1, predicate="room_furnished"), _condition(group=1)),
-            "location_source_key": "source:unlocated",
-            "locations": (ProvenanceLocation(location_key="location:unlocated", relation="unlocated"),),
+            "quantity_kind": "exact",
+            "quantity_min": 1,
+            "quantity_max": 1,
             **values,
         },
     )
 
 
-@pytest.fixture
-def canonical_facts(writer: Writer) -> tuple[list[ItemAcquisition], list[ItemUse], list[ItemDisposition]]:
-    for key, name in (("item:bread", "Bread"), ("item:bread-copy", "Bread"), ("item:recipe", "Recipe")):
-        _insert(writer, "items", {"stable_key": key, "display_name": name, "image_name": name})
-    for key, name in (("character:copy", "Actual copy"), ("character:backup", "Unused backup")):
-        _insert(
-            writer,
-            "characters",
-            {
-                "stable_key": key,
-                "display_name": name,
-                "image_name": name,
-                "encounter_tier": "enemy",
-                "level_scales_with_player": 0,
-            },
-        )
-    acquisitions = [_acquisition(f"acquisition:{kind}", kind) for kind in ACQUISITION_KINDS]
-    acquisitions.extend(
-        [
-            _acquisition(
-                "acquisition:copy-two",
-                "character_drop",
-                source_copy_stable_key="character:backup",
-                probability_min=27.891234567,
-                probability_max=27.891234567,
-            ),
-            _acquisition("acquisition:same-name", "crafting", item_stable_key="item:bread-copy", variant_key="2"),
-            _acquisition(
-                "acquisition:zero",
-                "item_drop",
-                probability_min=0.0,
-                probability_max=0.0,
-                player_access_state="non_acquirable",
-            ),
-            _acquisition(
-                "acquisition:unknown",
-                "ui_grant",
-                probability_kind="unknown",
-                probability_min=None,
-                probability_max=None,
-                quantity_min=None,
-                quantity_max=None,
-                quantity_kind="unknown",
-                expected_quantity=None,
-                count_distribution=None,
-                guarantee_scope=None,
-                player_access_state="unconfirmed_player",
-            ),
-            _acquisition(
-                "acquisition:internal",
-                "internal_equipment",
-                probability_kind="not_applicable",
-                probability_min=None,
-                probability_max=None,
-                player_access_state="internal_only",
-            ),
-            _acquisition("acquisition:fishing-native", "fishing", probability_stage="native_pool"),
-            _acquisition(
-                "acquisition:auction-replacement",
-                "auction_house",
-                variant_key="replacement",
-                conditions=(_condition(actor="sim_player", minimum=30, maximum=35),),
-            ),
-            _acquisition(
-                "acquisition:auction-surplus",
-                "auction_house",
-                variant_key="gear_surplus",
-                conditions=(_condition(actor="player", minimum=40, maximum=50),),
-            ),
-        ]
+def _condition(writer: Writer, owner: str, **values: Any) -> None:
+    _insert(
+        writer,
+        "item_conditions",
+        {
+            "owner_key": owner,
+            "gate_index": 0,
+            "alternative_index": 0,
+            "atom_index": 0,
+            "gate_key": "gate:fixture",
+            "predicate": "quest_done",
+            "reference_stable_key": "quest:fixture",
+            "minimum_inclusive": 1,
+            "maximum_inclusive": 1,
+            "phase": "availability",
+            **values,
+        },
     )
-    common_index = ACQUISITION_KINDS.index("common_world_item")
-    acquisitions[common_index] = _acquisition(
-        "acquisition:common_world_item",
-        "common_world_item",
-        source_stable_key=None,
-        source_group_key=None,
-        source_copy_stable_key=None,
-        probability_kind="bounded",
-        probability_min=0.123456789,
-        probability_max=0.987654321,
+
+
+def _place(writer: Writer, key: str = "place:fixture", **values: Any) -> None:
+    _insert(
+        writer,
+        "item_places",
+        {
+            "place_set_key": "places:fixture",
+            "place_key": key,
+            "relation": "fixed",
+            "zone_stable_key": "zone:fixture",
+            "marker_stable_key": "point:fixture",
+            "x": 1.123456789,
+            "y": 2.5,
+            "z": 3.75,
+            **values,
+        },
     )
-    treasure = (
-        ProvenanceLocation(
-            location_key="treasure:01-low",
-            relation="possible_treasure",
-            scene="SceneWithoutWikiPage",
-            zone_stable_key="zone:unpublished",
-            coordinate_stable_key="point:low",
-            x=1.123456789,
-            y=2.234567891,
-            z=3.345678912,
-            player_level_min=1,
-            player_level_max=10,
-            conditions=(_condition(scope="placement"),),
-            entry_zone_line_keys=("entry:allowed", "entry:alternate"),
-            source_copy_stable_key="character:copy",
-        ),
-        ProvenanceLocation(
-            location_key="treasure:02-high",
-            relation="possible_treasure",
-            player_level_min=30,
-            player_level_max=40,
-            source_copy_stable_key="character:backup",
-        ),
+
+
+def _character(writer: Writer, key: str, name: str) -> None:
+    _insert(
+        writer,
+        "characters",
+        {
+            "stable_key": key,
+            "display_name": name,
+            "image_name": name,
+            "encounter_tier": "npc",
+            "level_scales_with_player": 0,
+        },
     )
-    acquisitions[0] = _acquisition(
-        "acquisition:character_drop", "character_drop", location_source_key="source:treasure", locations=treasure
-    )
-    uses = [
-        ItemUse(
-            use_key=f"use:{kind}",
-            item_stable_key="item:bread",
-            target_stable_key="item:recipe",
-            kind=kind,
-            variant_key="variant:one",
-            material_slot=2,
-            quantity_min=2.5,
-            quantity_max=4.5,
-            quantity_kind="bounded",
-            mechanic="mechanic:shared",
-            outcome_key="acquisition:crafting",
-            conditions=(_condition(),),
-            location_source_key="source:treasure",
-            locations=treasure,
-        )
-        for kind in USE_KINDS
-    ]
-    # The builder stores the condition that every use of their one mechanism shares with the mechanism.
-    builder = ProvenanceBuilder(writer.conn)
-    builder.acquisitions.extend(acquisitions)
-    builder.uses.extend(uses)
-    builder.persist()
-    dispositions = [
-        ItemDisposition("item:bread", "current", current_pages=("Bread",)),
-        ItemDisposition("item:removed", "removed", "Reviewed removal", "review:fixture", (), ("Old Bread",)),
-        ItemDisposition("item:unobtainable", "unobtainable", "Reviewed player restriction"),
-        ItemDisposition("item:unused", "unused", current_pages=("Unused Bread",), former_pages=("Unused",)),
-    ]
-    for disposition in dispositions:
-        data = fact_to_dict(disposition)
-        for field in ("current_pages", "former_pages"):
-            data[field] = json.dumps(data[field])
-        _insert(writer, "item_dispositions", data)
-    return acquisitions, uses, dispositions
 
 
-def _projected_contract(writer: Writer) -> dict[str, list[dict[str, Any]]]:
-    """Reassemble normalized sheet rows for an offline lossless coverage assertion."""
-    conditions = _rows(writer, "item-conditions")
-    locations = _rows(writer, "item-locations")
-    result: dict[str, list[dict[str, Any]]] = {}
-    for family in ("acquisition", "use"):
-        facts = _rows(writer, f"item-{family}s")
-        for fact in facts:
-            fact.pop("item_name")
-            key = fact[f"{family}_key"]
-            fact["conditions"] = []
-            for row in conditions:
-                if (row["fact_type"] == family and row["owner_key"] == key) or (
-                    row["fact_type"] == "mechanism" and row["owner_key"] == fact["mechanic"]
-                ):
-                    condition = {k: v for k, v in row.items() if k not in {"fact_type", "owner_key"}}
-                    for field in ("minimum_inclusive", "maximum_inclusive"):
-                        condition[field] = bool(condition[field])
-                    fact["conditions"].append(condition)
-            fact["locations"] = []
-            for row in locations:
-                if row["source_key"] == fact["location_source_key"]:
-                    location = {k: v for k, v in row.items() if k != "source_key"}
-                    for field in ("conditions", "entry_zone_line_keys"):
-                        location[field] = json.loads(location[field])
-                    fact["locations"].append(location)
-        result[family] = facts
-    result["disposition"] = _rows(writer, "item-dispositions")
-    for disposition in result["disposition"]:
-        disposition.pop("item_name")
-        for field in ("current_pages", "former_pages"):
-            disposition[field] = json.loads(disposition[field])
-    return result
+def _quest(writer: Writer) -> None:
+    _insert(writer, "quests", {"stable_key": "quest:fixture", "display_name": "Quest", "image_name": "Quest"})
 
 
-def _assert_coverage(
-    actual: dict[str, list[dict[str, Any]]],
-    expected: tuple[list[ItemAcquisition], list[ItemUse], list[ItemDisposition]],
-) -> None:
-    for family, facts in zip(("acquisition", "use", "disposition"), expected, strict=True):
-        identity = "item_stable_key" if family == "disposition" else f"{family}_key"
-        projected = {row[identity]: _sorted_conditions(row) for row in actual[family]}
-        required = {
-            getattr(fact, identity): _sorted_conditions(json.loads(json.dumps(fact_to_dict(fact)))) for fact in facts
-        }
-        assert len(actual[family]) == len(projected), f"Duplicate {family} identity"
-        assert projected == required, f"Lost {family} identities or dimensions"
-
-
-def _sorted_conditions(row: dict[str, Any]) -> dict[str, Any]:
-    """Compare conditions as a set, because a fact's own conditions and its mechanism's come from separate rows."""
-    if "conditions" not in row:
-        return row
-    return {**row, "conditions": sorted(row["conditions"], key=lambda condition: json.dumps(condition, sort_keys=True))}
-
-
-def test_every_sheet_query_runs_against_the_clean_schema(writer: Writer, tmp_path: Path) -> None:
+def test_every_sheet_query_runs_without_complete_tables(writer: Writer, tmp_path: Path) -> None:
     writer.conn.commit()
     engine = create_engine(f"sqlite:///{tmp_path / 'clean.sqlite'}")
     try:
@@ -377,137 +192,154 @@ def test_every_sheet_query_runs_against_the_clean_schema(writer: Writer, tmp_pat
         sheets = formatter.format_all_sheets()
         assert set(sheets) == {path.stem for path in QUERIES_DIR.glob("*.sql")}
         assert all(rows and rows[0] for rows in sheets.values())
+        assert "item-sources" in sheets
+        assert (
+            not {"item-acquisitions", "item-conditions", "item-dispositions", "item-locations", "item-uses"}
+            & sheets.keys()
+        )
     finally:
         engine.dispose()
 
 
-def test_normalized_item_sheets_conserve_every_dimension(
-    writer: Writer,
-    canonical_facts: tuple[list[ItemAcquisition], list[ItemUse], list[ItemDisposition]],
-) -> None:
-    _assert_coverage(_projected_contract(writer), canonical_facts)
-    assert "mechanism" in {row["fact_type"] for row in _rows(writer, "item-conditions")}
-    assert {row["kind"] for row in _rows(writer, "item-acquisitions")} == set(ACQUISITION_KINDS)
-    assert {row["kind"] for row in _rows(writer, "item-uses")} == set(USE_KINDS)
+def test_sources_have_one_row_per_public_source_and_preserve_numeric_fields(writer: Writer) -> None:
+    _item(writer)
+    _item(writer, "item:bread-copy", "Bread")
+    expected = [_source(writer, f"source:{kind}", kind) for kind in SOURCE_KINDS]
+    expected.append(_source(writer, "source:copy", item_stable_key="item:bread-copy"))
+    _place(writer)
+    _place(writer, "place:second", x=5)
+    writer.conn.execute("UPDATE item_sources SET place_set_key = 'places:fixture'")
+    rows = _rows(writer, "item-sources")
+    assert len(rows) == len(expected)
+    assert {row["source_key"] for row in rows} == {row["source_key"] for row in expected}
+    labels = {row["source_key"]: row["Kind"] for row in rows}
+    assert labels["source:character_drop"] == "Dropped by"
+    assert labels["source:vendor"] == "Sold by"
+    assert labels["source:ui_grant"] == "Available from"
+    assert {row["item_stable_key"] for row in rows} == {"item:bread", "item:bread-copy"}
+    for row in rows:
+        assert row["probability_min"] == 12.345678901
+        assert row["expected_quantity"] == 0.123456789
+        assert list(row)[:7] == ["Item", "Kind", "Source", "Chance", "Quantity", "Conditions", "Zones"]
+        assert not {"player_access_state", "probability_stage", "count_distribution", "guarantee_scope"} & row.keys()
 
 
-@pytest.mark.parametrize(
-    "dimension",
-    [
-        "acquisition_key",
-        "item_stable_key",
-        "source_stable_key",
-        "source_copy_stable_key",
-        "source_group_key",
-        "variant_key",
-        "mechanic",
-        "player_access_state",
-        "probability_kind",
-        "probability_min",
-        "probability_max",
-        "probability_basis",
-        "probability_stage",
-        "quantity_min",
-        "quantity_max",
-        "quantity_kind",
-        "expected_quantity",
-        "count_distribution",
-        "guarantee_scope",
-        "guaranteed_roll_count",
-        "location_source_key",
-        "conditions",
-        "locations",
-    ],
-)
-def test_offline_coverage_rejects_a_lost_acquisition_dimension(
-    writer: Writer,
-    canonical_facts: tuple[list[ItemAcquisition], list[ItemUse], list[ItemDisposition]],
-    dimension: str,
-) -> None:
-    projected = _projected_contract(writer)
-    projected["acquisition"][0].pop(dimension)
-    with pytest.raises((AssertionError, KeyError)):
-        _assert_coverage(projected, canonical_facts)
-
-
-def test_offline_coverage_rejects_a_missing_kind(
-    writer: Writer,
-    canonical_facts: tuple[list[ItemAcquisition], list[ItemUse], list[ItemDisposition]],
-) -> None:
-    projected = _projected_contract(writer)
-    projected["acquisition"] = [row for row in projected["acquisition"] if row["kind"] != "ui_grant"]
-    with pytest.raises(AssertionError, match="Lost acquisition"):
-        _assert_coverage(projected, canonical_facts)
-
-
-def test_drop_sheet_keeps_common_world_items_without_named_swapped_sources(
-    writer: Writer,
-    canonical_facts: tuple[list[ItemAcquisition], list[ItemUse], list[ItemDisposition]],
-) -> None:
-    rows = _rows(writer, "drop-chances")
-    world = [row for row in rows if row["Source Type"] == "Common world item"]
-    assert len(world) == 1
-    assert world[0]["Source"] == "Common world item"
-    assert world[0]["Drop Chance (%)"] is None
-    assert (world[0]["probability_min"], world[0]["probability_max"]) == (0.123456789, 0.987654321)
-    assert world[0]["source_copy_stable_key"] is None
-    own = {row["source_copy_stable_key"]: row["Drop Chance (%)"] for row in rows if row["Source Type"] == "Character"}
-    assert own == {"character:copy": 12.345678901, "character:backup": 27.891234567}
-    assert "acquisition:zero" not in {row["acquisition_key"] for row in rows}
-
-
-def test_fishing_preserves_time_routes_and_does_not_add_native_probabilities(writer: Writer) -> None:
-    _insert(writer, "items", {"stable_key": "item:bread", "display_name": "Bread", "image_name": "Bread"})
-    for key, chance, stage, time in (
-        ("day", 11.123456789, "final_acquisition", "day"),
-        ("night", 4.987654321, "final_acquisition", "night"),
-        ("native", 13.123456789, "native_pool", "day"),
-    ):
-        _insert_fact(
-            writer,
-            _acquisition(
-                key,
-                "fishing",
-                source_stable_key="water:fixture",
-                probability_min=chance,
-                probability_max=chance,
-                probability_stage=stage,
-                conditions=(_condition(predicate="time_of_day", value=time),),
-            ),
-        )
-    rows = _rows(writer, "fishing")
-    assert {row["acquisition_key"]: row["Chance (%)"] for row in rows} == {"day": 11.123456789, "night": 4.987654321}
-    assert all(row["zone_name"] is None and row["position_x"] is None for row in rows)
-    assert {row["value"] for row in _rows(writer, "item-conditions")} == {"day", "night"}
-    assert len(_rows(writer, "item-acquisitions")) == 3
-
-
-@pytest.mark.parametrize(
-    "sheet,kind", [("fishing", "fishing_bonus"), ("mining-nodes", "mining"), ("item-bags", "item_bag")]
-)
-def test_located_sheets_keep_unpublished_and_unlocated_sources(writer: Writer, sheet: str, kind: str) -> None:
-    _insert(writer, "items", {"stable_key": "item:bread", "display_name": "Bread", "image_name": "Bread"})
-    _insert_fact(writer, _acquisition("unlocated", kind))
-    _insert_fact(
+def test_conditions_preserve_gates_alternatives_atoms_and_phases_without_filtering(writer: Writer) -> None:
+    _item(writer)
+    _quest(writer)
+    _source(writer, "conditional")
+    _condition(writer, "conditional")
+    _condition(writer, "conditional", atom_index=1, predicate="item_held", reference_stable_key="item:bread", minimum=1)
+    _condition(writer, "conditional", alternative_index=1, predicate="quest_not_done")
+    _condition(
         writer,
-        _acquisition(
-            "located",
-            kind,
-            location_source_key="source:place",
-            locations=(
-                ProvenanceLocation(
-                    location_key="place:fixture",
-                    relation="fixed",
-                    zone_stable_key="zone:missing",
-                    coordinate_stable_key="point:fixture",
-                    x=1.123456789,
-                    y=2.5,
-                    z=3.75,
-                ),
-            ),
-        ),
+        "conditional",
+        gate_index=1,
+        predicate="actor_level",
+        reference_stable_key=None,
+        actor="player",
+        minimum=10,
+        maximum=20,
+        minimum_inclusive=0,
+        phase="operation_input",
     )
-    rows = {row["acquisition_key"]: row for row in _rows(writer, sheet)}
+    # A consumer must word even a phase the build would ordinarily omit, not reapply that rule.
+    _condition(
+        writer,
+        "conditional",
+        gate_index=2,
+        predicate="item_not_owned",
+        reference_stable_key="item:bread",
+        phase="source_initialization",
+    )
+    row = _rows(writer, "item-sources")[0]
+    assert row["Conditions"] == (
+        "((Complete Quest and Carry 1 Bread) or Do not complete Quest) and "
+        "Player level above 10 and at most 20 and Do not already own Bread"
+    )
+
+
+def test_zones_keep_place_conditions_level_ranges_and_unlocated_sources(writer: Writer) -> None:
+    _item(writer)
+    _quest(writer)
+    _insert(
+        writer,
+        "zones",
+        {
+            "stable_key": "zone:fixture",
+            "zone_name": "Zone",
+            "display_name": "Zone",
+            "image_name": "Zone",
+            "zone_type": "Outdoor",
+        },
+    )
+    _source(writer, "located", place_set_key="places:fixture")
+    _source(writer, "unlocated")
+    _place(writer, player_level_min=10, player_level_max=20)
+    _place(writer, "place:other", zone_stable_key=None, scene="Other scene")
+    _insert(
+        writer,
+        "item_place_conditions",
+        {
+            "place_set_key": "places:fixture",
+            "place_key": "place:fixture",
+            "gate_index": 0,
+            "alternative_index": 0,
+            "atom_index": 0,
+            "gate_key": "entry",
+            "predicate": "quest_done",
+            "reference_stable_key": "quest:fixture",
+            "minimum_inclusive": 1,
+            "maximum_inclusive": 1,
+            "phase": "availability",
+        },
+    )
+    rows = {row["source_key"]: row for row in _rows(writer, "item-sources")}
+    assert rows["located"]["Zones"] == "Other scene; Zone (Complete Quest) (Player level at least 10 and at most 20)"
+    assert rows["unlocated"]["Zones"] is None
+    assert rows["located"]["Conditions"] is None
+
+
+def test_global_fishing_is_one_any_water_source_without_invented_places(writer: Writer) -> None:
+    _item(writer)
+    _source(
+        writer, "global", "fishing", mechanic="fishing_global_replacement", probability_basis="per_successful_catch"
+    )
+    row = _rows(writer, "item-sources")[0]
+    assert row["Source"] == row["Zones"] == "Any water"
+    assert row["Conditions"] is None
+    fishing = _rows(writer, "fishing")
+    assert len(fishing) == 1
+    assert fishing[0]["position_x"] is None
+
+
+def test_drop_sheet_lists_contributors_without_claiming_explicit_drops(writer: Writer) -> None:
+    _item(writer)
+    _character(writer, "character:copy", "Contributor")
+    _source(
+        writer,
+        "world",
+        "common_world_item",
+        probability_kind="bounded",
+        probability_min=0.123456789,
+        probability_max=0.987654321,
+    )
+    _insert(writer, "item_source_contributors", {"source_key": "world", "character_stable_key": "character:copy"})
+    row = _rows(writer, "drop-chances")[0]
+    assert row["Source"] == "Common world item"
+    assert row["Drop Chance (%)"] is None
+    assert row["contributors"] == "Contributor"
+    assert row["source_copy_stable_key"] is None
+    assert _rows(writer, "item-sources")[0]["contributors"] == "Contributor"
+
+
+@pytest.mark.parametrize("sheet,kind", [("fishing", "fishing"), ("mining-nodes", "mining"), ("item-bags", "item_bag")])
+def test_located_sheets_keep_public_sources_and_marker_links(writer: Writer, sheet: str, kind: str) -> None:
+    _item(writer)
+    _source(writer, "unlocated", kind)
+    _source(writer, "located", kind, place_set_key="places:fixture")
+    _place(writer)
+    rows = {row["source_key"]: row for row in _rows(writer, sheet)}
     assert set(rows) == {"unlocated", "located"}
     assert rows["located"]["position_x"] == 1.123456789
     assert rows["unlocated"]["position_x"] is None
@@ -516,284 +348,251 @@ def test_located_sheets_keep_unpublished_and_unlocated_sources(writer: Writer, s
         assert rows["located"]["MapLink"].endswith("marker:point:fixture")
 
 
-def test_sheet_formatter_preserves_numeric_and_unknown_values(
-    writer: Writer,
-    canonical_facts: tuple[list[ItemAcquisition], list[ItemUse], list[ItemDisposition]],
-    tmp_path: Path,
-) -> None:
-    writer.conn.commit()
-    engine = create_engine(f"sqlite:///{tmp_path / 'clean.sqlite'}")
-    try:
-        formatter = SheetsFormatter(engine, QUERIES_DIR, map_base_url="https://maps.example.invalid")
-        headers, *values = formatter.format_sheet("item-acquisitions")
-        rows = {row["acquisition_key"]: row for row in (dict(zip(headers, cells, strict=True)) for cells in values)}
-        assert rows["acquisition:character_drop"]["probability_min"] == 12.345678901
-        assert rows["acquisition:zero"]["probability_min"] == 0.0
-        assert rows["acquisition:unknown"]["probability_min"] == ""
-        assert rows["acquisition:unknown"]["quantity_min"] == ""
-        assert rows["acquisition:internal"]["probability_kind"] == "not_applicable"
-    finally:
-        engine.dispose()
-
-
-@pytest.mark.parametrize("versions", [[], [0], [PROVENANCE_SCHEMA_VERSION + 1], [PROVENANCE_SCHEMA_VERSION] * 2])
-def test_sheet_formatter_rejects_missing_or_incompatible_provenance(
-    writer: Writer,
-    tmp_path: Path,
-    versions: list[int],
-) -> None:
-    writer.conn.execute("DELETE FROM item_provenance_meta")
-    writer.conn.executemany(
-        "INSERT INTO item_provenance_meta VALUES (?, 'fixture-build', '{}')", [(v,) for v in versions]
-    )
-    writer.conn.commit()
-    engine = create_engine(f"sqlite:///{tmp_path / 'clean.sqlite'}")
-    try:
-        with pytest.raises(RepositoryError, match="Unsupported item provenance schema"):
-            formatter = SheetsFormatter(engine, QUERIES_DIR, map_base_url="https://maps.example.invalid")
-            formatter.format_sheet("item-acquisitions")
-    finally:
-        engine.dispose()
-
-
-@pytest.mark.parametrize(
-    "dimension",
-    [
-        "use_key",
-        "item_stable_key",
-        "target_stable_key",
-        "kind",
-        "variant_key",
-        "material_slot",
-        "quantity_min",
-        "quantity_max",
-        "quantity_kind",
-        "mechanic",
-        "outcome_key",
-        "conditions",
-        "locations",
-    ],
-)
-def test_offline_coverage_rejects_a_lost_use_dimension(
-    writer: Writer,
-    canonical_facts: tuple[list[ItemAcquisition], list[ItemUse], list[ItemDisposition]],
-    dimension: str,
-) -> None:
-    projected = _projected_contract(writer)
-    projected["use"][0].pop(dimension)
-    with pytest.raises((AssertionError, KeyError)):
-        _assert_coverage(projected, canonical_facts)
-
-
-@pytest.mark.parametrize(
-    "dimension",
-    [
-        "item_stable_key",
-        "disposition",
-        "reason",
-        "evidence",
-        "current_pages",
-        "former_pages",
-    ],
-)
-def test_offline_coverage_rejects_a_lost_lifecycle_dimension(
-    writer: Writer,
-    canonical_facts: tuple[list[ItemAcquisition], list[ItemUse], list[ItemDisposition]],
-    dimension: str,
-) -> None:
-    projected = _projected_contract(writer)
-    projected["disposition"][0].pop(dimension)
-    with pytest.raises((AssertionError, KeyError)):
-        _assert_coverage(projected, canonical_facts)
-
-
-def test_item_summaries_keep_every_recipe_reward_and_material_slot(writer: Writer) -> None:
-    for key, name in (("item:bread", "Bread"), ("item:recipe", "Recipe")):
-        _insert(writer, "items", {"stable_key": key, "display_name": name, "image_name": name, "is_auctionable": 1})
+def test_item_summaries_keep_status_recipe_slots_and_public_auction_routes(writer: Writer) -> None:
+    _item(writer)
+    _item(writer, "item:recipe", "Recipe", "unused")
     for slot in (1, 2):
-        _insert_fact(
+        _source(
             writer,
-            _acquisition(
-                f"reward:{slot}",
-                "crafting",
-                source_stable_key="item:recipe",
-                variant_key=str(slot),
-                quantity_min=slot,
-                quantity_max=slot,
-                quantity_kind="exact",
-            ),
+            f"reward:{slot}",
+            "crafting",
+            source_stable_key="item:recipe",
+            variant_key=str(slot),
+            quantity_min=slot,
+            quantity_max=slot,
         )
-        _insert_fact(
-            writer,
-            ItemUse(
-                use_key=f"material:{slot}",
-                item_stable_key="item:bread",
-                target_stable_key="item:recipe",
-                kind="crafting_material",
-                variant_key="operation:fixture",
-                material_slot=slot,
-                quantity_min=slot + 1,
-                quantity_max=slot + 1,
-                quantity_kind="exact",
-            ),
-        )
-    _insert_fact(writer, _acquisition("auction:direct", "auction_house", variant_key="direct"))
+        _use(writer, f"material:{slot}", "crafting_material", target_stable_key="item:recipe", material_slot=slot)
+    _source(writer, "auction", "auction_house")
     rows = {row["stable_key"]: row for row in _rows(writer, "items")}
     assert rows["item:recipe"]["template_ingredient_stable_keys"] == "item:bread, item:bread"
     assert rows["item:recipe"]["template_reward_stable_key"] == "item:bread, item:bread"
     assert rows["item:bread"]["can_be_listed_by_sims"] == 1
     assert rows["item:recipe"]["can_be_listed_by_sims"] == 0
-    assert {row["quantity_min"] for row in _rows(writer, "item-acquisitions") if row["kind"] == "crafting"} == {1, 2}
-    assert {row["material_slot"] for row in _rows(writer, "item-uses")} == {1, 2}
+    assert rows["item:bread"]["status"] == "current"
+    assert rows["item:recipe"]["status"] == "unused"
 
 
-def test_character_vendor_summary_uses_the_encountered_copy(writer: Writer) -> None:
-    _insert(writer, "items", {"stable_key": "item:bread", "display_name": "Bread", "image_name": "Bread"})
-    for key in ("character:copy", "character:representative"):
-        _insert(
-            writer,
-            "characters",
-            {
-                "stable_key": key,
-                "display_name": key,
-                "image_name": key,
-                "encounter_tier": "npc",
-                "level_scales_with_player": 0,
-            },
-        )
-    _insert_fact(
+def test_character_vendor_summary_uses_public_copy(writer: Writer) -> None:
+    _item(writer)
+    _character(writer, "character:copy", "Actual copy")
+    _character(writer, "character:representative", "Representative")
+    _source(
         writer,
-        _acquisition(
-            "vendor:copy",
-            "vendor",
-            source_stable_key="character:representative",
-            source_copy_stable_key="character:copy",
-        ),
+        "vendor",
+        "vendor",
+        source_stable_key="character:representative",
+        source_copy_stable_key="character:copy",
     )
     rows = {row["stable_key"]: row for row in _rows(writer, "characters")}
     assert rows["character:copy"]["vendor_item_stable_keys"] == "item:bread"
     assert rows["character:representative"]["vendor_item_stable_keys"] is None
 
 
-def test_quest_summaries_keep_variant_rewards_and_required_slots(writer: Writer) -> None:
-    for key, name in (("item:bread", "Bread"), ("item:bread-copy", "Other Bread")):
-        _insert(writer, "items", {"stable_key": key, "display_name": name, "image_name": name})
-    _insert(writer, "quests", {"stable_key": "quest:fixture", "display_name": "Quest", "image_name": "Quest"})
-    for slot, item_key in enumerate(("item:bread", "item:bread-copy"), start=1):
+def test_quest_summaries_keep_variant_rewards_requirements_and_unlocks(writer: Writer) -> None:
+    _quest(writer)
+    for slot, name in enumerate(("Bread", "Other Bread"), start=1):
+        key = f"item:bread:{slot}"
+        _item(writer, key, name)
         variant = f"quest-resource:{slot}"
         _insert(
             writer,
             "quest_variants",
-            {
-                "resource_name": variant,
-                "quest_stable_key": "quest:fixture",
-                "quest_db_index": slot,
-                "quest_name": variant,
-            },
+            {"resource_name": variant, "quest_stable_key": "quest:fixture", "quest_name": variant},
         )
-        _insert_fact(
+        _source(
             writer,
-            ItemAcquisition(
-                acquisition_key=f"quest-reward:{slot}",
-                item_stable_key=item_key,
-                kind="quest_reward",
-                source_stable_key="quest:fixture",
-                variant_key=variant,
-            ),
+            f"quest-reward:{slot}",
+            "quest_reward",
+            item_stable_key=key,
+            source_stable_key="quest:fixture",
+            variant_key=variant,
         )
         for material_slot in (1, 2):
-            _insert_fact(
+            _use(
                 writer,
-                ItemUse(
-                    use_key=f"quest-required:{slot}:{material_slot}",
-                    item_stable_key=item_key,
-                    target_stable_key="quest:fixture",
-                    kind="quest_requirement",
-                    variant_key=variant,
-                    material_slot=material_slot,
-                    quantity_min=material_slot,
-                    quantity_max=material_slot,
-                    quantity_kind="exact",
-                ),
+                f"quest-required:{slot}:{material_slot}",
+                "quest_requirement",
+                item_stable_key=key,
+                target_stable_key="quest:fixture",
+                variant_key=variant,
+                material_slot=material_slot,
             )
+    _source(writer, "vendor:locked", "vendor", item_stable_key="item:bread:1")
+    _condition(writer, "vendor:locked", gate_key="stock_unlock")
     rows = {row["quest_name"]: row for row in _rows(writer, "quests")}
     assert rows["quest-resource:1"]["reward_item"] == "Bread"
     assert rows["quest-resource:2"]["reward_item"] == "Other Bread"
     assert rows["quest-resource:1"]["required_items"] == "Bread, Bread"
     assert rows["quest-resource:2"]["required_items"] == "Other Bread, Other Bread"
+    assert all(row["unlock_item_for_vendor"] == "Bread" for row in rows.values())
 
 
-def test_vendor_unlock_summary_uses_typed_canonical_conditions(writer: Writer) -> None:
-    _insert(writer, "items", {"stable_key": "item:bread", "display_name": "Bread", "image_name": "Bread"})
-    _insert(writer, "quests", {"stable_key": "quest:fixture", "display_name": "Quest", "image_name": "Quest"})
-    _insert(
+def test_sheet_formatter_preserves_numeric_and_unknown_values(writer: Writer, tmp_path: Path) -> None:
+    _item(writer)
+    _source(writer, "exact")
+    _source(
         writer,
-        "quest_variants",
-        {
-            "resource_name": "quest-resource:fixture",
-            "quest_stable_key": "quest:fixture",
-            "quest_name": "Quest",
-        },
+        "unknown",
+        probability_kind="unknown",
+        probability_min=None,
+        probability_max=None,
+        quantity_kind="unknown",
+        quantity_min=None,
+        quantity_max=None,
+        expected_quantity=None,
     )
-    _insert_fact(
-        writer,
-        _acquisition(
-            "vendor:locked",
-            "vendor",
-            conditions=(
-                _condition(
-                    gate_key="stock_unlock",
-                    predicate="quest_done",
-                    reference_stable_key="quest:fixture",
-                ),
-            ),
-        ),
-    )
-    rows = _rows(writer, "quests")
-    assert len(rows) == 1
-    assert rows[0]["unlock_item_for_vendor"] == "Bread"
-
-
-def test_sheet_formatter_rejects_an_absent_provenance_table(writer: Writer, tmp_path: Path) -> None:
-    writer.conn.execute("DROP TABLE item_provenance_meta")
     writer.conn.commit()
     engine = create_engine(f"sqlite:///{tmp_path / 'clean.sqlite'}")
     try:
-        with pytest.raises(RepositoryError, match="Unsupported item provenance schema"):
-            formatter = SheetsFormatter(engine, QUERIES_DIR, map_base_url="https://maps.example.invalid")
-            formatter.format_sheet("item-acquisitions")
+        formatter = SheetsFormatter(engine, QUERIES_DIR, map_base_url="https://maps.example.invalid")
+        headers, *values = formatter.format_sheet("item-sources")
+        rows = {row["source_key"]: row for row in (dict(zip(headers, cells, strict=True)) for cells in values)}
+        assert rows["exact"]["probability_min"] == 12.345678901
+        assert rows["unknown"]["probability_min"] == ""
+        assert rows["unknown"]["quantity_min"] == ""
+        assert rows["unknown"]["Chance"] == "Chance unknown per kill"
+        assert rows["unknown"]["Quantity"] == "Quantity unknown"
     finally:
         engine.dispose()
 
 
-@pytest.mark.parametrize("family", ["acquisition", "use"])
-def test_offline_coverage_rejects_a_lost_location_source_copy(
+@pytest.mark.parametrize("versions", [[], [0], [PROVENANCE_SCHEMA_VERSION + 1], [PROVENANCE_SCHEMA_VERSION] * 2, None])
+def test_sheet_formatter_rejects_missing_or_incompatible_metadata(
     writer: Writer,
-    canonical_facts: tuple[list[ItemAcquisition], list[ItemUse], list[ItemDisposition]],
-    family: str,
+    tmp_path: Path,
+    versions: list[int] | None,
 ) -> None:
-    projected = _projected_contract(writer)
-    fact = next(row for row in projected[family] if row["locations"][0]["source_copy_stable_key"] is not None)
-    fact["locations"][0].pop("source_copy_stable_key")
-    with pytest.raises(AssertionError, match=f"Lost {family}"):
-        _assert_coverage(projected, canonical_facts)
+    if versions is None:
+        writer.conn.execute("DROP TABLE item_provenance_meta")
+    else:
+        writer.conn.execute("DELETE FROM item_provenance_meta")
+        writer.conn.executemany(
+            "INSERT INTO item_provenance_meta VALUES (?, 'fixture-build', '{}')", [(v,) for v in versions]
+        )
+    writer.conn.commit()
+    engine = create_engine(f"sqlite:///{tmp_path / 'clean.sqlite'}")
+    try:
+        with pytest.raises(RepositoryError, match="Unsupported item provenance schema"):
+            SheetsFormatter(engine, QUERIES_DIR, map_base_url="https://maps.example.invalid").format_sheet(
+                "item-sources"
+            )
+    finally:
+        engine.dispose()
 
 
-def test_drop_sheet_retains_pool_roll_count_without_guaranteeing_the_item(writer: Writer) -> None:
-    _insert(writer, "items", {"stable_key": "item:bread", "display_name": "Bread", "image_name": "Bread"})
-    _insert_fact(
-        writer,
-        _acquisition(
-            "drop:pool",
-            "character_drop",
-            probability_min=25.0,
-            probability_max=25.0,
-            guarantee_scope="pool_roll",
-            guaranteed_roll_count=2,
+@pytest.mark.parametrize(
+    "predicate,values,expected",
+    [
+        ("key_held", {"reference_stable_key": "item:bread"}, "Carry 1 Bread"),
+        ("room_furnished", {"reference_stable_key": "item:bread", "reference_slot": "L1"}, "Place Bread in L1"),
+        ("encounter_won", {"reference_stable_key": "character:copy"}, "Defeat Actual copy"),
+        ("actor_class", {"reference_stable_key": "class:arcanist", "actor": "player"}, "Play as Arcanist"),
+        (
+            "account_state",
+            {"reference_stable_key": "account_state:reliquary_claimed", "value": "false"},
+            "Before claiming your Reliquary",
         ),
+        ("time_of_day", {"value": "night"}, "Fish at night"),
+        ("zone_use", {"reference_stable_key": "zone:missing"}, "Use in missing"),
+        ("quality", {"minimum": 2, "maximum": 3, "maximum_inclusive": 0}, "Quality at least 2 and below 3"),
+        (
+            "route",
+            {"value": "normal_pointer_inventory_transfer", "reference_stable_key": None},
+            "route  normal_pointer_inventory_transfer",
+        ),
+        ("never", {}, "Not obtainable through this route"),
+    ],
+)
+def test_stored_condition_predicates_are_worded_without_being_omitted(
+    writer: Writer,
+    predicate: str,
+    values: dict[str, Any],
+    expected: str,
+) -> None:
+    _item(writer)
+    _character(writer, "character:copy", "Actual copy")
+    _insert(writer, "classes", {"class_name": "Arcanist", "display_name": "Arcanist"})
+    _source(writer, "conditional")
+    _condition(writer, "conditional", predicate=predicate, **values)
+    assert _rows(writer, "item-sources")[0]["Conditions"] == expected
+
+
+def test_source_chance_quantity_and_names_use_public_values(writer: Writer) -> None:
+    _item(writer)
+    _item(writer, "item:recipe", "Recipe")
+    _source(
+        writer,
+        "bounded",
+        "crafting",
+        source_stable_key="item:recipe",
+        probability_kind="bounded",
+        probability_min=10,
+        probability_max=20,
+        probability_basis="per_use",
+        quantity_kind="bounded",
+        quantity_min=1,
+        quantity_max=3,
+        expected_quantity=2,
+        guaranteed=1,
     )
-    rows = _rows(writer, "drop-chances")
-    assert len(rows) == 1
-    assert rows[0]["Drop Chance (%)"] == 25.0
-    assert rows[0]["guarantee_scope"] == "pool_roll"
-    assert rows[0]["guaranteed_roll_count"] == 2
+    row = _rows(writer, "item-sources")[0]
+    assert row["Source"] == "Recipe"
+    assert row["Chance"] == "10% to 20% per use"
+    assert row["Quantity"] == "Quantity 1 to 3, Average 2, Guaranteed"
+
+
+@pytest.mark.parametrize(
+    "kind,mechanic,expected",
+    [
+        ("common_world_item", None, "Any enemy with common drops"),
+        ("special_world_drop", None, "Any enemy"),
+        ("auction_house", None, "Auction House"),
+        ("ui_grant", "cosmetic_panel", "Cosmetic panel"),
+        ("ui_grant", "planning_table", "Planning table"),
+        ("mining", None, "Mining node"),
+        ("fishing", None, "Fishable water"),
+        ("item_bag", None, "Ground item"),
+        ("fishing", "fishing_global_replacement", "Any water"),
+    ],
+)
+def test_source_names_reuse_map_names_instead_of_stable_keys(
+    writer: Writer,
+    kind: str,
+    mechanic: str | None,
+    expected: str,
+) -> None:
+    _item(writer)
+    _source(writer, "named", kind, mechanic=mechanic, source_stable_key="source:raw-stable-key")
+    assert _rows(writer, "item-sources")[0]["Source"] == expected
+
+
+def test_source_name_uses_character_copy_and_kind_falls_back_to_words(writer: Writer) -> None:
+    _item(writer)
+    _character(writer, "character:copy", "Actual copy")
+    _source(writer, "copy", "new_kind", source_stable_key="character:missing", source_copy_stable_key="character:copy")
+    row = _rows(writer, "item-sources")[0]
+    assert row["Source"] == "Actual copy"
+    assert row["Kind"] == "new kind"
+
+
+@pytest.mark.parametrize(
+    "probability,expected",
+    [(5.5882352941176468, "5.59%"), (1.25, "1.25%"), (1.2, "1.2%"), (100.0, "100%"), (0.0, "0%")],
+)
+def test_readable_numbers_drop_float_noise_without_changing_numeric_columns(
+    writer: Writer,
+    probability: float,
+    expected: str,
+) -> None:
+    _item(writer)
+    _source(writer, "rounded", probability_min=probability, probability_max=probability, expected_quantity=None)
+    _condition(
+        writer, "rounded", predicate="actor_level", reference_stable_key=None, actor="player", minimum=1, maximum=5
+    )
+    row = _rows(writer, "item-sources")[0]
+    assert row["Chance"] == f"{expected} per kill"
+    assert row["Quantity"] == "Quantity 1"
+    assert row["Conditions"] == "Player level at least 1 and at most 5"
+    assert row["probability_min"] == probability
+    assert row["probability_max"] == probability
+    assert row["quantity_min"] == 1.0
