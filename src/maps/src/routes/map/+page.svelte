@@ -647,6 +647,8 @@
     const MAP_CHROME_GAP = 16;
     const SCALE_BAR_GAP = 24;
     const SCALE_BAR_BOTTOM = 22;
+    // The phone layout's floating buttons sit 16 px above the bottom edge and are 48 px tall.
+    const PHONE_BUTTONS_HEIGHT = 64;
     const SCALE_BAR_MAX_WIDTH = 120;
     const KOFI_URL = 'https://ko-fi.com/wowmuch';
 
@@ -659,6 +661,7 @@
             ? (sidebarCollapsed ? SIDEBAR_WIDTH.collapsed : SIDEBAR_WIDTH.expanded) + SCALE_BAR_GAP
             : SCALE_BAR_GAP
     );
+    const readoutLiftPx = $derived(isDesktop ? 0 : PHONE_BUTTONS_HEIGHT);
 
     function updateScaleBar(retries = 0) {
         if (!container || !deckInstance) {
@@ -675,7 +678,7 @@
             return;
         }
 
-        const sampleY = container.clientHeight - SCALE_BAR_BOTTOM - 8;
+        const sampleY = container.clientHeight - readoutLiftPx - SCALE_BAR_BOTTOM - 8;
         const left = scaleBarLeftPx;
         const right = left + SCALE_BAR_MAX_WIDTH;
 
@@ -1497,8 +1500,11 @@
     <!-- Map container -->
     <div bind:this={container} class="absolute inset-0" class:invisible={isLoading}></div>
 
-    <CoordinateReadout coordinates={cursorCoordinates} leftPx={scaleBarLeftPx} />
-    <ScaleBar state={scaleBarState} leftPx={scaleBarLeftPx} />
+    <!-- The readouts use z-index 900 to clear zone page panes. This layer keeps them beneath the world map's buttons, sidebar, popup drawer and dialogs. On phones it ends above the floating buttons. -->
+    <div class="pointer-events-none absolute inset-x-0 top-0 z-10" style:bottom={`${readoutLiftPx}px`}>
+        <CoordinateReadout coordinates={cursorCoordinates} leftPx={scaleBarLeftPx} />
+        <ScaleBar state={scaleBarState} leftPx={scaleBarLeftPx} />
+    </div>
 
     <!-- Loading overlay -->
     {#if isLoading}
