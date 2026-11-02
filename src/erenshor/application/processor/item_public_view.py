@@ -233,11 +233,17 @@ def derive_public_view(
     omissions = [o for o in omissions if o.owner_key not in public_keys]
 
     acquisition_keys = {fact.acquisition_key for fact in acquisitions}
+    # A material or fuel names the mold it is used with. When no craft with that mold is public,
+    # neither is the material.
+    molds = {fact.source_stable_key for fact in acquisitions if fact.kind == "crafting"}
+    public_molds = {source.source_stable_key for source in sources if source.kind == "crafting"}
     public_uses: list[PublicUse] = []
     for use in uses:
         reason = _unreachable_reason(use, current)
         if reason is None and use.outcome_key in acquisition_keys and use.outcome_key not in public_keys:
             reason = "outcome_not_public"
+        if reason is None and use.target_stable_key in molds and use.target_stable_key not in public_molds:
+            reason = "recipe_not_public"
         if reason is not None:
             omissions.append(Omission(use.use_key, reason))
             continue

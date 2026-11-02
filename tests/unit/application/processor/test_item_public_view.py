@@ -172,7 +172,8 @@ def test_an_operation_needs_a_current_item_for_each_of_its_inputs() -> None:
         acquisition("offered", kind="crafting", source_stable_key="item:well"),
         uses=(
             ItemUse("mold", "item:retired", "item:retired", "crafting_recipe", outcome_key="molded"),
-            ItemUse("material", ITEM, "item:retired", "crafting_material", material_slot=1, outcome_key="molded"),
+            # A material names its mold, not the craft it yields.
+            ItemUse("material", ITEM, "item:retired", "crafting_material", material_slot=1),
             ItemUse("retired offer", "item:retired", "item:well", "quality_offering", outcome_key="offered"),
             ItemUse("current offer", ITEM, "item:well", "quality_offering", outcome_key="offered"),
         ),
@@ -181,7 +182,7 @@ def test_an_operation_needs_a_current_item_for_each_of_its_inputs() -> None:
     assert reasons(result) == {
         "molded": "input_not_current",
         "mold": "item_not_current",
-        "material": "outcome_not_public",
+        "material": "recipe_not_public",
         "retired offer": "item_not_current",
     }
 
