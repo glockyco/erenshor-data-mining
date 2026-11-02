@@ -1,0 +1,2144 @@
+{
+  "query": "SELECT c.image_name,c.stable_key,c.object_name,c.npc_name,c.display_name,c.scene,r.ModelKey\nFROM characters c JOIN raw.Characters r ON r.StableKey=c.stable_key\nWHERE c.image_hash IS NOT NULL AND c.image_name IN (\n SELECT c.image_name FROM characters c JOIN raw.Characters r ON r.StableKey=c.stable_key\n WHERE c.image_hash IS NOT NULL GROUP BY c.image_name HAVING COUNT(DISTINCT r.ModelKey)>1)\nORDER BY c.image_name,c.stable_key",
+  "classification": {
+    "same-object-name": "All trimmed, case-folded object names are equal.",
+    "numbered-or-variant-copies": "Object names differ but reduce to one family under the design context normalization.",
+    "different-object-families": "Remaining groups, including mixed families. These are object names, not a claim about runtime character identity or appearance."
+  },
+  "model_labels": "Each distinct raw Characters.ModelKey is numbered in order of first appearance, so equal labels mean equal model keys across all groups. The query returns the keys themselves.",
+  "totals": {
+    "image_names": 73,
+    "character_rows": 193,
+    "model_keys_summed_per_image_name": 173
+  },
+  "groups": [
+    {
+      "image_name": "A Highwayman Raider",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 5,
+      "model_key_count": 4,
+      "members": [
+        {
+          "stable_key": "character:a highwayman raider",
+          "object_name": "A Highwayman Raider",
+          "npc_name": "A Highwayman Raider",
+          "display_name": "A Highwayman Raider",
+          "scene": null,
+          "model": "model 1"
+        },
+        {
+          "stable_key": "character:a highwayman raider (1)",
+          "object_name": "A Highwayman Raider (1)",
+          "npc_name": "A Highwayman Raider",
+          "display_name": "A Highwayman Raider",
+          "scene": null,
+          "model": "model 2"
+        },
+        {
+          "stable_key": "character:a highwayman raider (1):elderstone:-732.18:-51.70:194.52",
+          "object_name": "A Highwayman Raider (1)",
+          "npc_name": "A Highwayman Raider",
+          "display_name": "A Highwayman Raider",
+          "scene": "Elderstone",
+          "model": "model 2"
+        },
+        {
+          "stable_key": "character:a highwayman raider (2)",
+          "object_name": "A Highwayman Raider (2)",
+          "npc_name": "A Highwayman Raider",
+          "display_name": "A Highwayman Raider",
+          "scene": null,
+          "model": "model 3"
+        },
+        {
+          "stable_key": "character:a highwayman raider 1",
+          "object_name": "A Highwayman Raider 1",
+          "npc_name": "A Highwayman Raider",
+          "display_name": "A Highwayman Raider",
+          "scene": null,
+          "model": "model 4"
+        }
+      ]
+    },
+    {
+      "image_name": "A Lost Sea Giant",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:lost sea giant",
+          "object_name": "Lost Sea Giant",
+          "npc_name": "A Lost Sea Giant",
+          "display_name": "A Lost Sea Giant",
+          "scene": null,
+          "model": "model 5"
+        },
+        {
+          "stable_key": "character:lost sea giant female",
+          "object_name": "Lost Sea Giant Female",
+          "npc_name": "A Lost Sea Giant",
+          "display_name": "A Lost Sea Giant",
+          "scene": null,
+          "model": "model 6"
+        }
+      ]
+    },
+    {
+      "image_name": "A Nagalok",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:nagalok",
+          "object_name": "Nagalok",
+          "npc_name": "A Nagalok",
+          "display_name": "A Nagalok",
+          "scene": null,
+          "model": "model 7"
+        },
+        {
+          "stable_key": "character:nagalok 1",
+          "object_name": "Nagalok 1",
+          "npc_name": "A Nagalok",
+          "display_name": "A Nagalok",
+          "scene": null,
+          "model": "model 8"
+        }
+      ]
+    },
+    {
+      "image_name": "A Seafiend",
+      "classification": "different-object-families",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:a seafiend",
+          "object_name": "A Seafiend",
+          "npc_name": "A Seafiend",
+          "display_name": "A Seafiend",
+          "scene": null,
+          "model": "model 9"
+        },
+        {
+          "stable_key": "character:a seafiend spirtist",
+          "object_name": "A Seafiend Spirtist",
+          "npc_name": "A Seafiend",
+          "display_name": "A Seafiend",
+          "scene": null,
+          "model": "model 10"
+        }
+      ]
+    },
+    {
+      "image_name": "Abyssal Fungus Protector",
+      "classification": "different-object-families",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:fungal protecter",
+          "object_name": "Fungal Protecter",
+          "npc_name": "Abyssal Fungus Protector",
+          "display_name": "Abyssal Fungus Protector",
+          "scene": null,
+          "model": "model 11"
+        },
+        {
+          "stable_key": "character:fungal warden",
+          "object_name": "Fungal Warden",
+          "npc_name": "Abyssal Fungus Protector",
+          "display_name": "Abyssal Fungus Protector",
+          "scene": null,
+          "model": "model 12"
+        }
+      ]
+    },
+    {
+      "image_name": "Akaran Black",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:akaran black",
+          "object_name": "Akaran Black",
+          "npc_name": "Akaran Black",
+          "display_name": "Akaran Black",
+          "scene": null,
+          "model": "model 13"
+        },
+        {
+          "stable_key": "character:akaran black bkp",
+          "object_name": "Akaran Black Bkp",
+          "npc_name": "Akaran Black",
+          "display_name": "Akaran Black",
+          "scene": null,
+          "model": "model 14"
+        }
+      ]
+    },
+    {
+      "image_name": "An Immature Nagalok",
+      "classification": "different-object-families",
+      "character_count": 3,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:immature nagalok",
+          "object_name": "Immature Nagalok",
+          "npc_name": "An Immature Nagalok",
+          "display_name": "An Immature Nagalok",
+          "scene": null,
+          "model": "model 15"
+        },
+        {
+          "stable_key": "character:immature nagalok 1",
+          "object_name": "Immature Nagalok 1",
+          "npc_name": "An Immature Nagalok",
+          "display_name": "An Immature Nagalok",
+          "scene": null,
+          "model": "model 16"
+        },
+        {
+          "stable_key": "character:juvenile nagalok",
+          "object_name": "Juvenile Nagalok",
+          "npc_name": "An Immature Nagalok",
+          "display_name": "An Immature Nagalok",
+          "scene": null,
+          "model": "model 15"
+        }
+      ]
+    },
+    {
+      "image_name": "Ancient Educator",
+      "classification": "different-object-families",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:braxonian educator",
+          "object_name": "Braxonian Educator",
+          "npc_name": "Ancient Educator",
+          "display_name": "Ancient Educator",
+          "scene": null,
+          "model": "model 17"
+        },
+        {
+          "stable_key": "character:sivakayan educator",
+          "object_name": "Sivakayan Educator",
+          "npc_name": "Ancient Educator",
+          "display_name": "Ancient Educator",
+          "scene": null,
+          "model": "model 18"
+        }
+      ]
+    },
+    {
+      "image_name": "Aquilamar Blade",
+      "classification": "different-object-families",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:aqualimar blade",
+          "object_name": "Aqualimar Blade",
+          "npc_name": "Aquilamar Blade",
+          "display_name": "Aquilamar Blade",
+          "scene": null,
+          "model": "model 19"
+        },
+        {
+          "stable_key": "character:nightmarian rake 2",
+          "object_name": "Nightmarian Rake 2",
+          "npc_name": "Aquilamar Blade",
+          "display_name": "Aquilamar Blade",
+          "scene": null,
+          "model": "model 20"
+        }
+      ]
+    },
+    {
+      "image_name": "Aquilamar Duelist",
+      "classification": "different-object-families",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:aquilamar duelist",
+          "object_name": "Aquilamar Duelist",
+          "npc_name": "Aquilamar Duelist",
+          "display_name": "Aquilamar Duelist",
+          "scene": null,
+          "model": "model 21"
+        },
+        {
+          "stable_key": "character:nightmarian rake 1",
+          "object_name": "Nightmarian Rake 1",
+          "npc_name": "Aquilamar Duelist",
+          "display_name": "Aquilamar Duelist",
+          "scene": null,
+          "model": "model 22"
+        }
+      ]
+    },
+    {
+      "image_name": "Aquilamar Protector",
+      "classification": "different-object-families",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:aqualimar protector",
+          "object_name": "Aqualimar Protector",
+          "npc_name": "Aquilamar Protector",
+          "display_name": "Aquilamar Protector",
+          "scene": null,
+          "model": "model 23"
+        },
+        {
+          "stable_key": "character:nightmarian rake 3",
+          "object_name": "Nightmarian Rake 3",
+          "npc_name": "Aquilamar Protector",
+          "display_name": "Aquilamar Protector",
+          "scene": null,
+          "model": "model 24"
+        }
+      ]
+    },
+    {
+      "image_name": "Aquilamar Rake",
+      "classification": "different-object-families",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:aquilamar rake",
+          "object_name": "Aquilamar Rake",
+          "npc_name": "Aquilamar Rake",
+          "display_name": "Aquilamar Rake",
+          "scene": null,
+          "model": "model 25"
+        },
+        {
+          "stable_key": "character:nightmarian rake",
+          "object_name": "Nightmarian Rake",
+          "npc_name": "Aquilamar Rake",
+          "display_name": "Aquilamar Rake",
+          "scene": null,
+          "model": "model 26"
+        }
+      ]
+    },
+    {
+      "image_name": "Arcane Pupil",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 4,
+      "model_key_count": 4,
+      "members": [
+        {
+          "stable_key": "character:arcane pupil",
+          "object_name": "Arcane Pupil",
+          "npc_name": "Arcane Pupil",
+          "display_name": "Arcane Pupil",
+          "scene": null,
+          "model": "model 27"
+        },
+        {
+          "stable_key": "character:arcane pupil (1)",
+          "object_name": "Arcane Pupil (1)",
+          "npc_name": "Arcane Pupil",
+          "display_name": "Arcane Pupil",
+          "scene": null,
+          "model": "model 28"
+        },
+        {
+          "stable_key": "character:arcane pupil (2)",
+          "object_name": "Arcane Pupil (2)",
+          "npc_name": "Arcane Pupil",
+          "display_name": "Arcane Pupil",
+          "scene": null,
+          "model": "model 29"
+        },
+        {
+          "stable_key": "character:arcane pupil (3)",
+          "object_name": "Arcane Pupil (3)",
+          "npc_name": "Arcane Pupil",
+          "display_name": "Arcane Pupil",
+          "scene": null,
+          "model": "model 30"
+        }
+      ]
+    },
+    {
+      "image_name": "Azure Guard",
+      "classification": "different-object-families",
+      "character_count": 7,
+      "model_key_count": 3,
+      "members": [
+        {
+          "stable_key": "character:azure guard 4",
+          "object_name": "Azure Guard 4",
+          "npc_name": "Azure Guard",
+          "display_name": "Azure Guard",
+          "scene": null,
+          "model": "model 31"
+        },
+        {
+          "stable_key": "character:azure guard 5",
+          "object_name": "Azure Guard 5",
+          "npc_name": "Azure Guard",
+          "display_name": "Azure Guard",
+          "scene": null,
+          "model": "model 32"
+        },
+        {
+          "stable_key": "character:azure guard broken",
+          "object_name": "Azure Guard Broken",
+          "npc_name": "Azure Guard",
+          "display_name": "Azure Guard",
+          "scene": null,
+          "model": "model 33"
+        },
+        {
+          "stable_key": "character:azure guard fernalla",
+          "object_name": "Azure Guard Fernalla",
+          "npc_name": "Azure Guard",
+          "display_name": "Azure Guard",
+          "scene": null,
+          "model": "model 32"
+        },
+        {
+          "stable_key": "character:azure guard refugee",
+          "object_name": "Azure Guard Refugee",
+          "npc_name": "Azure Guard",
+          "display_name": "Azure Guard",
+          "scene": null,
+          "model": "model 32"
+        },
+        {
+          "stable_key": "character:azure outskirts guard",
+          "object_name": "Azure Outskirts Guard",
+          "npc_name": "Azure Guard",
+          "display_name": "Azure Guard",
+          "scene": null,
+          "model": "model 32"
+        },
+        {
+          "stable_key": "character:azure outskirts guard:fernallafield:328.22:25.93:185.66",
+          "object_name": "Azure Outskirts Guard",
+          "npc_name": "Azure Guard",
+          "display_name": "Azure Guard",
+          "scene": "FernallaField",
+          "model": "model 32"
+        }
+      ]
+    },
+    {
+      "image_name": "Baking Oven",
+      "classification": "different-object-families",
+      "character_count": 3,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:baking oven:azure:275.88:26.08:231.25",
+          "object_name": "Baking Oven",
+          "npc_name": "Baking Oven",
+          "display_name": "Baking Oven",
+          "scene": "Azure",
+          "model": "model 34"
+        },
+        {
+          "stable_key": "character:baking oven:summerevent:174.65:11.60:144.57",
+          "object_name": "Baking Oven",
+          "npc_name": "Baking Oven",
+          "display_name": "Baking Oven",
+          "scene": "SummerEvent",
+          "model": "model 34"
+        },
+        {
+          "stable_key": "character:sm_prop_furnace_01:prielplateau:205.24:15.59:215.02",
+          "object_name": "SM_Prop_Furnace_01",
+          "npc_name": "Baking Oven",
+          "display_name": "Baking Oven",
+          "scene": "PrielPlateau",
+          "model": "model 35"
+        }
+      ]
+    },
+    {
+      "image_name": "Brax, God of Elements",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:god brax",
+          "object_name": "God Brax",
+          "npc_name": "Brax, God of Elements",
+          "display_name": "Brax, God of Elements",
+          "scene": null,
+          "model": "model 36"
+        },
+        {
+          "stable_key": "character:god brax restored:planeofbrax:2543.61:75.50:404.12",
+          "object_name": "God Brax Restored",
+          "npc_name": "Brax, God of Elements",
+          "display_name": "Brax, God of Elements",
+          "scene": "PlaneOfBrax",
+          "model": "model 37"
+        }
+      ]
+    },
+    {
+      "image_name": "Braxonian Flame Well",
+      "classification": "same-object-name",
+      "character_count": 9,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:flamewell:braxonia:86.83:59.42:593.95",
+          "object_name": "FlameWell",
+          "npc_name": "Braxonian Flame Well",
+          "display_name": "Braxonian Flame Well",
+          "scene": "Braxonia",
+          "model": "model 38"
+        },
+        {
+          "stable_key": "character:flamewell:reliquary:268.49:-0.17:327.55",
+          "object_name": "FlameWell",
+          "npc_name": "Braxonian Flame Well",
+          "display_name": "Braxonian Flame Well",
+          "scene": "Reliquary",
+          "model": "model 39"
+        },
+        {
+          "stable_key": "character:flamewell:reliquary:268.49:-0.17:339.30",
+          "object_name": "FlameWell",
+          "npc_name": "Braxonian Flame Well",
+          "display_name": "Braxonian Flame Well",
+          "scene": "Reliquary",
+          "model": "model 39"
+        },
+        {
+          "stable_key": "character:flamewell:reliquary:268.49:-0.17:350.80",
+          "object_name": "FlameWell",
+          "npc_name": "Braxonian Flame Well",
+          "display_name": "Braxonian Flame Well",
+          "scene": "Reliquary",
+          "model": "model 39"
+        },
+        {
+          "stable_key": "character:flamewell:reliquary:268.49:-0.17:361.80",
+          "object_name": "FlameWell",
+          "npc_name": "Braxonian Flame Well",
+          "display_name": "Braxonian Flame Well",
+          "scene": "Reliquary",
+          "model": "model 39"
+        },
+        {
+          "stable_key": "character:flamewell:reliquary:281.45:-0.17:327.41",
+          "object_name": "FlameWell",
+          "npc_name": "Braxonian Flame Well",
+          "display_name": "Braxonian Flame Well",
+          "scene": "Reliquary",
+          "model": "model 39"
+        },
+        {
+          "stable_key": "character:flamewell:reliquary:281.45:-0.17:339.16",
+          "object_name": "FlameWell",
+          "npc_name": "Braxonian Flame Well",
+          "display_name": "Braxonian Flame Well",
+          "scene": "Reliquary",
+          "model": "model 39"
+        },
+        {
+          "stable_key": "character:flamewell:reliquary:281.45:-0.17:350.66",
+          "object_name": "FlameWell",
+          "npc_name": "Braxonian Flame Well",
+          "display_name": "Braxonian Flame Well",
+          "scene": "Reliquary",
+          "model": "model 39"
+        },
+        {
+          "stable_key": "character:flamewell:reliquary:281.45:-0.17:361.80",
+          "object_name": "FlameWell",
+          "npc_name": "Braxonian Flame Well",
+          "display_name": "Braxonian Flame Well",
+          "scene": "Reliquary",
+          "model": "model 39"
+        }
+      ]
+    },
+    {
+      "image_name": "Braxonian Honor Guard",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 3,
+      "model_key_count": 3,
+      "members": [
+        {
+          "stable_key": "character:braxonian honor guard",
+          "object_name": "Braxonian Honor Guard",
+          "npc_name": "Braxonian Honor Guard",
+          "display_name": "Braxonian Honor Guard",
+          "scene": null,
+          "model": "model 40"
+        },
+        {
+          "stable_key": "character:braxonian honor guard 2",
+          "object_name": "Braxonian Honor Guard 2",
+          "npc_name": "Braxonian Honor Guard",
+          "display_name": "Braxonian Honor Guard",
+          "scene": null,
+          "model": "model 41"
+        },
+        {
+          "stable_key": "character:braxonian honor guard 3",
+          "object_name": "Braxonian Honor Guard 3",
+          "npc_name": "Braxonian Honor Guard",
+          "display_name": "Braxonian Honor Guard",
+          "scene": null,
+          "model": "model 42"
+        }
+      ]
+    },
+    {
+      "image_name": "Cerbantias Flameward",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:cerbantias flameward",
+          "object_name": "Cerbantias Flameward",
+          "npc_name": "Cerbantias Flameward",
+          "display_name": "Cerbantias Flameward",
+          "scene": null,
+          "model": "model 43"
+        },
+        {
+          "stable_key": "character:cerbantias flameward combined",
+          "object_name": "Cerbantias Flameward Combined",
+          "npc_name": "Cerbantias Flameward",
+          "display_name": "Cerbantias Flameward",
+          "scene": null,
+          "model": "model 44"
+        }
+      ]
+    },
+    {
+      "image_name": "Cully Edwarse",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:cully edwarse",
+          "object_name": "Cully Edwarse",
+          "npc_name": "Cully Edwarse",
+          "display_name": "Cully Edwarse",
+          "scene": null,
+          "model": "model 45"
+        },
+        {
+          "stable_key": "character:cully edwarse combined",
+          "object_name": "Cully Edwarse Combined",
+          "npc_name": "Cully Edwarse",
+          "display_name": "Cully Edwarse",
+          "scene": null,
+          "model": "model 46"
+        }
+      ]
+    },
+    {
+      "image_name": "Edwin Ansegg",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:edwin ansegg",
+          "object_name": "Edwin Ansegg",
+          "npc_name": "Edwin Ansegg",
+          "display_name": "Edwin Ansegg",
+          "scene": null,
+          "model": "model 47"
+        },
+        {
+          "stable_key": "character:edwin ansegg combined",
+          "object_name": "Edwin Ansegg Combined",
+          "npc_name": "Edwin Ansegg",
+          "display_name": "Edwin Ansegg",
+          "scene": null,
+          "model": "model 48"
+        }
+      ]
+    },
+    {
+      "image_name": "Fernalla, Goddess of Nature",
+      "classification": "different-object-families",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:goddess fernalla",
+          "object_name": "Goddess Fernalla",
+          "npc_name": "Fernalla, Goddess of Nature",
+          "display_name": "Fernalla, Goddess of Nature",
+          "scene": null,
+          "model": "model 49"
+        },
+        {
+          "stable_key": "character:restored fernalla:planeoffernalla:1631.02:177.00:1537.14",
+          "object_name": "Restored Fernalla",
+          "npc_name": "Fernalla, Goddess of Nature",
+          "display_name": "Fernalla, Goddess of Nature",
+          "scene": "PlaneOfFernalla",
+          "model": "model 50"
+        }
+      ]
+    },
+    {
+      "image_name": "Grayleigh Hawke",
+      "classification": "different-object-families",
+      "character_count": 3,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:amethi plazzo",
+          "object_name": "Amethi Plazzo",
+          "npc_name": "Grayleigh Hawke",
+          "display_name": "Grayleigh Hawke",
+          "scene": null,
+          "model": "model 51"
+        },
+        {
+          "stable_key": "character:grayleigh hawke",
+          "object_name": "Grayleigh Hawke",
+          "npc_name": "Grayleigh Hawke",
+          "display_name": "Grayleigh Hawke",
+          "scene": null,
+          "model": "model 52"
+        },
+        {
+          "stable_key": "character:grayleigh hawke bkp",
+          "object_name": "Grayleigh Hawke BKP",
+          "npc_name": "Grayleigh Hawke",
+          "display_name": "Grayleigh Hawke",
+          "scene": null,
+          "model": "model 51"
+        }
+      ]
+    },
+    {
+      "image_name": "Guardian of Brax",
+      "classification": "different-object-families",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:braxonian planar guard fire",
+          "object_name": "Braxonian Planar Guard Fire",
+          "npc_name": "Guardian of Brax",
+          "display_name": "Guardian of Brax",
+          "scene": null,
+          "model": "model 53"
+        },
+        {
+          "stable_key": "character:braxonian planar guard ice",
+          "object_name": "Braxonian Planar Guard Ice",
+          "npc_name": "Guardian of Brax",
+          "display_name": "Guardian of Brax",
+          "scene": null,
+          "model": "model 54"
+        }
+      ]
+    },
+    {
+      "image_name": "Historian of Braxonia",
+      "classification": "different-object-families",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:braxonian educator:1",
+          "object_name": "Braxonian Educator",
+          "npc_name": "Historian of Braxonia",
+          "display_name": "Historian of Braxonia",
+          "scene": null,
+          "model": "model 55"
+        },
+        {
+          "stable_key": "character:braxonian historian",
+          "object_name": "Braxonian Historian",
+          "npc_name": "Historian of Braxonia",
+          "display_name": "Historian of Braxonia",
+          "scene": null,
+          "model": "model 56"
+        }
+      ]
+    },
+    {
+      "image_name": "Ice Golem",
+      "classification": "different-object-families",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:ice golem",
+          "object_name": "Ice Golem",
+          "npc_name": "Ice Golem",
+          "display_name": "Ice Golem",
+          "scene": null,
+          "model": "model 57"
+        },
+        {
+          "stable_key": "character:lava golem",
+          "object_name": "Lava Golem",
+          "npc_name": "Ice Golem",
+          "display_name": "Ice Golem",
+          "scene": null,
+          "model": "model 58"
+        }
+      ]
+    },
+    {
+      "image_name": "Island Guard",
+      "classification": "different-object-families",
+      "character_count": 3,
+      "model_key_count": 3,
+      "members": [
+        {
+          "stable_key": "character:island guard",
+          "object_name": "Island Guard",
+          "npc_name": "Island Guard",
+          "display_name": "Island Guard",
+          "scene": null,
+          "model": "model 33"
+        },
+        {
+          "stable_key": "character:island guard new",
+          "object_name": "Island Guard New",
+          "npc_name": "Island Guard",
+          "display_name": "Island Guard",
+          "scene": null,
+          "model": "model 59"
+        },
+        {
+          "stable_key": "character:sergeant d'vin",
+          "object_name": "Sergeant D'Vin",
+          "npc_name": "Island Guard",
+          "display_name": "Island Guard",
+          "scene": null,
+          "model": "model 60"
+        }
+      ]
+    },
+    {
+      "image_name": "Islander Bandit",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 3,
+      "model_key_count": 3,
+      "members": [
+        {
+          "stable_key": "character:islander bandit",
+          "object_name": "Islander Bandit",
+          "npc_name": "Islander Bandit",
+          "display_name": "Islander Bandit",
+          "scene": null,
+          "model": "model 61"
+        },
+        {
+          "stable_key": "character:islander bandit 1",
+          "object_name": "Islander Bandit 1",
+          "npc_name": "Islander Bandit",
+          "display_name": "Islander Bandit",
+          "scene": null,
+          "model": "model 62"
+        },
+        {
+          "stable_key": "character:islander bandit 2",
+          "object_name": "Islander Bandit 2",
+          "npc_name": "Islander Bandit",
+          "display_name": "Islander Bandit",
+          "scene": null,
+          "model": "model 63"
+        }
+      ]
+    },
+    {
+      "image_name": "Jinx",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:jinx",
+          "object_name": "Jinx",
+          "npc_name": "Jinx",
+          "display_name": "Jinx",
+          "scene": null,
+          "model": "model 64"
+        },
+        {
+          "stable_key": "character:jinx2",
+          "object_name": "Jinx2",
+          "npc_name": "Jinx",
+          "display_name": "Jinx",
+          "scene": null,
+          "model": "model 65"
+        }
+      ]
+    },
+    {
+      "image_name": "Leyor M'Chante",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:leyor m'chante",
+          "object_name": "Leyor M'Chante",
+          "npc_name": "Leyor M'Chante",
+          "display_name": "Leyor M'Chante",
+          "scene": null,
+          "model": "model 66"
+        },
+        {
+          "stable_key": "character:leyor m'chante bkp",
+          "object_name": "Leyor M'Chante Bkp",
+          "npc_name": "Leyor M'Chante",
+          "display_name": "Leyor M'Chante",
+          "scene": null,
+          "model": "model 67"
+        }
+      ]
+    },
+    {
+      "image_name": "Lost Treasure",
+      "classification": "different-object-families",
+      "character_count": 4,
+      "model_key_count": 3,
+      "members": [
+        {
+          "stable_key": "character:treasurechest 0-10 1",
+          "object_name": "TreasureChest 0-10 1",
+          "npc_name": "Lost Treasure",
+          "display_name": "Lost Treasure (1-10)",
+          "scene": null,
+          "model": "model 68"
+        },
+        {
+          "stable_key": "character:treasurechest 10-20 1",
+          "object_name": "TreasureChest 10-20 1",
+          "npc_name": "Lost Treasure",
+          "display_name": "Lost Treasure (10-20)",
+          "scene": null,
+          "model": "model 68"
+        },
+        {
+          "stable_key": "character:treasurechest 20-30 1",
+          "object_name": "TreasureChest 20-30 1",
+          "npc_name": "Lost Treasure",
+          "display_name": "Lost Treasure (20-30)",
+          "scene": null,
+          "model": "model 69"
+        },
+        {
+          "stable_key": "character:treasurechest 30-35",
+          "object_name": "TreasureChest 30-35",
+          "npc_name": "Lost Treasure",
+          "display_name": "Lost Treasure (30+)",
+          "scene": null,
+          "model": "model 70"
+        }
+      ]
+    },
+    {
+      "image_name": "Malaroth Cub",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 3,
+      "model_key_count": 3,
+      "members": [
+        {
+          "stable_key": "character:molorath cub",
+          "object_name": "Molorath Cub",
+          "npc_name": "Malaroth Cub",
+          "display_name": "Malaroth Cub",
+          "scene": null,
+          "model": "model 71"
+        },
+        {
+          "stable_key": "character:molorath cub 1",
+          "object_name": "Molorath Cub 1",
+          "npc_name": "Malaroth Cub",
+          "display_name": "Malaroth Cub",
+          "scene": null,
+          "model": "model 72"
+        },
+        {
+          "stable_key": "character:molorath cub 2",
+          "object_name": "Molorath Cub 2",
+          "npc_name": "Malaroth Cub",
+          "display_name": "Malaroth Cub",
+          "scene": null,
+          "model": "model 73"
+        }
+      ]
+    },
+    {
+      "image_name": "Mature Malaroth",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 3,
+      "model_key_count": 3,
+      "members": [
+        {
+          "stable_key": "character:mature molorath",
+          "object_name": "Mature Molorath",
+          "npc_name": "Mature Malaroth",
+          "display_name": "Mature Malaroth",
+          "scene": null,
+          "model": "model 72"
+        },
+        {
+          "stable_key": "character:mature molorath 1",
+          "object_name": "Mature Molorath 1",
+          "npc_name": "Mature Malaroth",
+          "display_name": "Mature Malaroth",
+          "scene": null,
+          "model": "model 74"
+        },
+        {
+          "stable_key": "character:mature molorath 2",
+          "object_name": "Mature Molorath 2",
+          "npc_name": "Mature Malaroth",
+          "display_name": "Mature Malaroth",
+          "scene": null,
+          "model": "model 71"
+        }
+      ]
+    },
+    {
+      "image_name": "Molorai Ancille",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:molorai ancille",
+          "object_name": "Molorai Ancille",
+          "npc_name": "Molorai Ancille",
+          "display_name": "Molorai Ancille",
+          "scene": null,
+          "model": "model 75"
+        },
+        {
+          "stable_key": "character:molorai ancille f",
+          "object_name": "Molorai Ancille F",
+          "npc_name": "Molorai Ancille",
+          "display_name": "Molorai Ancille",
+          "scene": null,
+          "model": "model 76"
+        }
+      ]
+    },
+    {
+      "image_name": "Molorai Anointed",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 4,
+      "model_key_count": 4,
+      "members": [
+        {
+          "stable_key": "character:molorai anointed",
+          "object_name": "Molorai Anointed",
+          "npc_name": "Molorai Anointed",
+          "display_name": "Molorai Anointed",
+          "scene": null,
+          "model": "model 77"
+        },
+        {
+          "stable_key": "character:molorai anointed (1)",
+          "object_name": "Molorai Anointed (1)",
+          "npc_name": "Molorai Anointed",
+          "display_name": "Molorai Anointed",
+          "scene": null,
+          "model": "model 78"
+        },
+        {
+          "stable_key": "character:molorai anointed (2)",
+          "object_name": "Molorai Anointed (2)",
+          "npc_name": "Molorai Anointed",
+          "display_name": "Molorai Anointed",
+          "scene": null,
+          "model": "model 79"
+        },
+        {
+          "stable_key": "character:molorai anointed (3)",
+          "object_name": "Molorai Anointed (3)",
+          "npc_name": "Molorai Anointed",
+          "display_name": "Molorai Anointed",
+          "scene": null,
+          "model": "model 80"
+        }
+      ]
+    },
+    {
+      "image_name": "Molorai Archaeologist",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:molorai archaelogist",
+          "object_name": "Molorai Archaelogist",
+          "npc_name": "Molorai Archaeologist",
+          "display_name": "Molorai Archaeologist",
+          "scene": null,
+          "model": "model 81"
+        },
+        {
+          "stable_key": "character:molorai archaelogist 1",
+          "object_name": "Molorai Archaelogist 1",
+          "npc_name": "Molorai Archaeologist",
+          "display_name": "Molorai Archaeologist",
+          "scene": null,
+          "model": "model 82"
+        }
+      ]
+    },
+    {
+      "image_name": "Molorai Archmage",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:molorai archmage",
+          "object_name": "Molorai Archmage",
+          "npc_name": "Molorai Archmage",
+          "display_name": "Molorai Archmage",
+          "scene": null,
+          "model": "model 83"
+        },
+        {
+          "stable_key": "character:molorai archmage 1",
+          "object_name": "Molorai Archmage 1",
+          "npc_name": "Molorai Archmage",
+          "display_name": "Molorai Archmage",
+          "scene": null,
+          "model": "model 84"
+        }
+      ]
+    },
+    {
+      "image_name": "Molorai Bloodwarden",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:molorai bloodwarden",
+          "object_name": "Molorai Bloodwarden",
+          "npc_name": "Molorai Bloodwarden",
+          "display_name": "Molorai Bloodwarden",
+          "scene": null,
+          "model": "model 85"
+        },
+        {
+          "stable_key": "character:molorai bloodwarden (1)",
+          "object_name": "Molorai Bloodwarden (1)",
+          "npc_name": "Molorai Bloodwarden",
+          "display_name": "Molorai Bloodwarden",
+          "scene": null,
+          "model": "model 86"
+        }
+      ]
+    },
+    {
+      "image_name": "Molorai Militia Arcanist",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:molorai arcanist",
+          "object_name": "Molorai Arcanist",
+          "npc_name": "Molorai Militia Arcanist",
+          "display_name": "Molorai Militia Arcanist",
+          "scene": null,
+          "model": "model 87"
+        },
+        {
+          "stable_key": "character:molorai arcanist 1",
+          "object_name": "Molorai Arcanist 1",
+          "npc_name": "Molorai Militia Arcanist",
+          "display_name": "Molorai Militia Arcanist",
+          "scene": null,
+          "model": "model 88"
+        }
+      ]
+    },
+    {
+      "image_name": "Molorai Militia Druid",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:molorai druid",
+          "object_name": "Molorai Druid",
+          "npc_name": "Molorai Militia Druid",
+          "display_name": "Molorai Militia Druid",
+          "scene": null,
+          "model": "model 89"
+        },
+        {
+          "stable_key": "character:molorai druid 2 1",
+          "object_name": "Molorai Druid 2 1",
+          "npc_name": "Molorai Militia Druid",
+          "display_name": "Molorai Militia Druid",
+          "scene": null,
+          "model": "model 90"
+        }
+      ]
+    },
+    {
+      "image_name": "Molorai Militia Warrior",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:molorai warrior",
+          "object_name": "Molorai Warrior",
+          "npc_name": "Molorai Militia Warrior",
+          "display_name": "Molorai Militia Warrior",
+          "scene": null,
+          "model": "model 91"
+        },
+        {
+          "stable_key": "character:molorai warrior 1",
+          "object_name": "Molorai Warrior 1",
+          "npc_name": "Molorai Militia Warrior",
+          "display_name": "Molorai Militia Warrior",
+          "scene": null,
+          "model": "model 92"
+        }
+      ]
+    },
+    {
+      "image_name": "Molorai Nightmistress",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:molorai nightmistress",
+          "object_name": "Molorai Nightmistress",
+          "npc_name": "Molorai Nightmistress",
+          "display_name": "Molorai Nightmistress",
+          "scene": null,
+          "model": "model 93"
+        },
+        {
+          "stable_key": "character:molorai nightmistress (1)",
+          "object_name": "Molorai Nightmistress (1)",
+          "npc_name": "Molorai Nightmistress",
+          "display_name": "Molorai Nightmistress",
+          "scene": null,
+          "model": "model 94"
+        }
+      ]
+    },
+    {
+      "image_name": "Molorai Outrider",
+      "classification": "different-object-families",
+      "character_count": 6,
+      "model_key_count": 6,
+      "members": [
+        {
+          "stable_key": "character:molorai enlightened",
+          "object_name": "Molorai Enlightened",
+          "npc_name": "Molorai Outrider",
+          "display_name": "Molorai Outrider",
+          "scene": null,
+          "model": "model 95"
+        },
+        {
+          "stable_key": "character:molorai enlightened (1)",
+          "object_name": "Molorai Enlightened (1)",
+          "npc_name": "Molorai Outrider",
+          "display_name": "Molorai Outrider",
+          "scene": null,
+          "model": "model 96"
+        },
+        {
+          "stable_key": "character:molorai outrider",
+          "object_name": "Molorai Outrider",
+          "npc_name": "Molorai Outrider",
+          "display_name": "Molorai Outrider",
+          "scene": null,
+          "model": "model 97"
+        },
+        {
+          "stable_key": "character:molorai outrider 1",
+          "object_name": "Molorai Outrider 1",
+          "npc_name": "Molorai Outrider",
+          "display_name": "Molorai Outrider",
+          "scene": null,
+          "model": "model 98"
+        },
+        {
+          "stable_key": "character:molorai outrider 2",
+          "object_name": "Molorai Outrider 2",
+          "npc_name": "Molorai Outrider",
+          "display_name": "Molorai Outrider",
+          "scene": null,
+          "model": "model 99"
+        },
+        {
+          "stable_key": "character:molorai outrider 3",
+          "object_name": "Molorai Outrider 3",
+          "npc_name": "Molorai Outrider",
+          "display_name": "Molorai Outrider",
+          "scene": null,
+          "model": "model 100"
+        }
+      ]
+    },
+    {
+      "image_name": "Molorai Specialist",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:molorai specialist",
+          "object_name": "Molorai Specialist",
+          "npc_name": "Molorai Specialist",
+          "display_name": "Molorai Specialist",
+          "scene": null,
+          "model": "model 101"
+        },
+        {
+          "stable_key": "character:molorai specialist 1",
+          "object_name": "Molorai Specialist 1",
+          "npc_name": "Molorai Specialist",
+          "display_name": "Molorai Specialist",
+          "scene": null,
+          "model": "model 77"
+        }
+      ]
+    },
+    {
+      "image_name": "Molorai Truthseeker",
+      "classification": "different-object-families",
+      "character_count": 6,
+      "model_key_count": 6,
+      "members": [
+        {
+          "stable_key": "character:molorai enllightened m",
+          "object_name": "Molorai Enllightened M",
+          "npc_name": "Molorai Truthseeker",
+          "display_name": "Molorai Truthseeker",
+          "scene": null,
+          "model": "model 102"
+        },
+        {
+          "stable_key": "character:molorai enllightened m (1)",
+          "object_name": "Molorai Enllightened M (1)",
+          "npc_name": "Molorai Truthseeker",
+          "display_name": "Molorai Truthseeker",
+          "scene": null,
+          "model": "model 103"
+        },
+        {
+          "stable_key": "character:molorai truthseeker",
+          "object_name": "Molorai Truthseeker",
+          "npc_name": "Molorai Truthseeker",
+          "display_name": "Molorai Truthseeker",
+          "scene": null,
+          "model": "model 104"
+        },
+        {
+          "stable_key": "character:molorai truthseeker (1)",
+          "object_name": "Molorai Truthseeker (1)",
+          "npc_name": "Molorai Truthseeker",
+          "display_name": "Molorai Truthseeker",
+          "scene": null,
+          "model": "model 105"
+        },
+        {
+          "stable_key": "character:molorai truthseeker f",
+          "object_name": "Molorai Truthseeker F",
+          "npc_name": "Molorai Truthseeker",
+          "display_name": "Molorai Truthseeker",
+          "scene": null,
+          "model": "model 106"
+        },
+        {
+          "stable_key": "character:molorai truthseeker f (1)",
+          "object_name": "Molorai Truthseeker F (1)",
+          "npc_name": "Molorai Truthseeker",
+          "display_name": "Molorai Truthseeker",
+          "scene": null,
+          "model": "model 107"
+        }
+      ]
+    },
+    {
+      "image_name": "Orion Mycon",
+      "classification": "different-object-families",
+      "character_count": 3,
+      "model_key_count": 3,
+      "members": [
+        {
+          "stable_key": "character:aspen dechaffe:1",
+          "object_name": "Aspen Dechaffe",
+          "npc_name": "Orion Mycon",
+          "display_name": "Orion Mycon",
+          "scene": null,
+          "model": "model 108"
+        },
+        {
+          "stable_key": "character:orion mycon",
+          "object_name": "Orion Mycon",
+          "npc_name": "Orion Mycon",
+          "display_name": "Orion Mycon",
+          "scene": null,
+          "model": "model 109"
+        },
+        {
+          "stable_key": "character:orion mycon bkp",
+          "object_name": "Orion Mycon bkp",
+          "npc_name": "Orion Mycon",
+          "display_name": "Orion Mycon",
+          "scene": null,
+          "model": "model 110"
+        }
+      ]
+    },
+    {
+      "image_name": "Poacher",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:poacher (1):rottenfoot:497.72:31.00:355.23",
+          "object_name": "Poacher (1)",
+          "npc_name": "Poacher",
+          "display_name": "Poacher",
+          "scene": "Rottenfoot",
+          "model": "model 111"
+        },
+        {
+          "stable_key": "character:poacher:rottenfoot:487.62:30.81:349.23",
+          "object_name": "Poacher",
+          "npc_name": "Poacher",
+          "display_name": "Poacher",
+          "scene": "Rottenfoot",
+          "model": "model 112"
+        }
+      ]
+    },
+    {
+      "image_name": "Prestigio Valusha",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:prestigio valusha",
+          "object_name": "Prestigio Valusha",
+          "npc_name": "Prestigio Valusha",
+          "display_name": "Prestigio Valusha",
+          "scene": null,
+          "model": "model 113"
+        },
+        {
+          "stable_key": "character:prestigio valusha 1",
+          "object_name": "Prestigio Valusha 1",
+          "npc_name": "Prestigio Valusha",
+          "display_name": "Prestigio Valusha",
+          "scene": null,
+          "model": "model 114"
+        }
+      ]
+    },
+    {
+      "image_name": "Priel Enforcer",
+      "classification": "different-object-families",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:priel enforcer",
+          "object_name": "Priel Enforcer",
+          "npc_name": "Priel Enforcer",
+          "display_name": "Priel Enforcer",
+          "scene": null,
+          "model": "model 115"
+        },
+        {
+          "stable_key": "character:priel naturalist",
+          "object_name": "Priel Naturalist",
+          "npc_name": "Priel Enforcer",
+          "display_name": "Priel Enforcer",
+          "scene": null,
+          "model": "model 116"
+        }
+      ]
+    },
+    {
+      "image_name": "Priel Soldier",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:priel soldier",
+          "object_name": "Priel Soldier",
+          "npc_name": "Priel Soldier",
+          "display_name": "Priel Soldier",
+          "scene": null,
+          "model": "model 117"
+        },
+        {
+          "stable_key": "character:priel soldier2",
+          "object_name": "Priel Soldier2",
+          "npc_name": "Priel Soldier",
+          "display_name": "Priel Soldier",
+          "scene": null,
+          "model": "model 118"
+        }
+      ]
+    },
+    {
+      "image_name": "Pteriaped Matron",
+      "classification": "different-object-families",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:pteriaped elder",
+          "object_name": "Pteriaped Elder",
+          "npc_name": "Pteriaped Matron",
+          "display_name": "Pteriaped Matron",
+          "scene": null,
+          "model": "model 119"
+        },
+        {
+          "stable_key": "character:pteriaped matron",
+          "object_name": "Pteriaped Matron",
+          "npc_name": "Pteriaped Matron",
+          "display_name": "Pteriaped Matron",
+          "scene": null,
+          "model": "model 120"
+        }
+      ]
+    },
+    {
+      "image_name": "Ravager, The First Infected",
+      "classification": "different-object-families",
+      "character_count": 3,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:corrupted golem",
+          "object_name": "Corrupted Golem",
+          "npc_name": "Ravager, The First Infected",
+          "display_name": "Ravager, The First Infected",
+          "scene": null,
+          "model": "model 121"
+        },
+        {
+          "stable_key": "character:ravager",
+          "object_name": "Ravager",
+          "npc_name": "Ravager, The First Infected",
+          "display_name": "Ravager, The First Infected",
+          "scene": null,
+          "model": "model 121"
+        },
+        {
+          "stable_key": "character:worn ancient guardian",
+          "object_name": "Worn Ancient Guardian",
+          "npc_name": "Ravager, The First Infected",
+          "display_name": "Ravager, The First Infected",
+          "scene": null,
+          "model": "model 122"
+        }
+      ]
+    },
+    {
+      "image_name": "Reaver of Sivakaya",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:reaver of sivakaya",
+          "object_name": "Reaver of Sivakaya",
+          "npc_name": "Assassin of Sivakaya",
+          "display_name": "Reaver of Sivakaya",
+          "scene": null,
+          "model": "model 123"
+        },
+        {
+          "stable_key": "character:reaver of sivakaya bkp",
+          "object_name": "Reaver of Sivakaya BKP",
+          "npc_name": "Reaver of Sivakaya",
+          "display_name": "Reaver of Sivakaya",
+          "scene": null,
+          "model": "model 124"
+        }
+      ]
+    },
+    {
+      "image_name": "Rottenfoot Swampwalker",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:a rottenfoot goblin female",
+          "object_name": "A Rottenfoot Goblin Female",
+          "npc_name": "Rottenfoot Swampwalker",
+          "display_name": "Rottenfoot Swampwalker",
+          "scene": null,
+          "model": "model 125"
+        },
+        {
+          "stable_key": "character:a rottenfoot goblin male",
+          "object_name": "A Rottenfoot Goblin Male",
+          "npc_name": "Rottenfoot Swampwalker",
+          "display_name": "Rottenfoot Swampwalker",
+          "scene": null,
+          "model": "model 126"
+        }
+      ]
+    },
+    {
+      "image_name": "Saya Seawatcher",
+      "classification": "different-object-families",
+      "character_count": 3,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:captain genevieve voldance",
+          "object_name": "Captain Genevieve Voldance",
+          "npc_name": "Saya Seawatcher",
+          "display_name": "Saya Seawatcher",
+          "scene": null,
+          "model": "model 127"
+        },
+        {
+          "stable_key": "character:haileigh serenie",
+          "object_name": "Haileigh Serenie",
+          "npc_name": "Saya Seawatcher",
+          "display_name": "Saya Seawatcher",
+          "scene": null,
+          "model": "model 128"
+        },
+        {
+          "stable_key": "character:saya seawatcher",
+          "object_name": "Saya Seawatcher",
+          "npc_name": "Saya Seawatcher",
+          "display_name": "Saya Seawatcher",
+          "scene": null,
+          "model": "model 127"
+        }
+      ]
+    },
+    {
+      "image_name": "Scorched Skeleton",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:scorched skeleton",
+          "object_name": "Scorched Skeleton",
+          "npc_name": "Scorched Skeleton",
+          "display_name": "Scorched Skeleton",
+          "scene": null,
+          "model": "model 129"
+        },
+        {
+          "stable_key": "character:scorched skeleton 1",
+          "object_name": "Scorched Skeleton 1",
+          "npc_name": "Scorched Skeleton",
+          "display_name": "Scorched Skeleton",
+          "scene": null,
+          "model": "model 130"
+        }
+      ]
+    },
+    {
+      "image_name": "Sean Figarello",
+      "classification": "same-object-name",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:sean figarello",
+          "object_name": "Sean Figarello",
+          "npc_name": "Sean Figarello",
+          "display_name": "Sean Figarello",
+          "scene": null,
+          "model": "model 67"
+        },
+        {
+          "stable_key": "character:sean figarello:stowaway:605.45:72.16:464.40",
+          "object_name": "Sean Figarello",
+          "npc_name": "Sean Figarello",
+          "display_name": "Sean Figarello",
+          "scene": "Stowaway",
+          "model": "model 131"
+        }
+      ]
+    },
+    {
+      "image_name": "Sivakayan Cleric",
+      "classification": "same-object-name",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:sivakayan cleric",
+          "object_name": "Sivakayan Cleric",
+          "npc_name": "Sivakayan Cleric",
+          "display_name": "Sivakayan Cleric",
+          "scene": null,
+          "model": "model 132"
+        },
+        {
+          "stable_key": "character:sivakayan cleric:1",
+          "object_name": "Sivakayan Cleric",
+          "npc_name": "Sivakayan Cleric",
+          "display_name": "Sivakayan Cleric",
+          "scene": null,
+          "model": "model 133"
+        }
+      ]
+    },
+    {
+      "image_name": "Sivakayan Reaver",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 4,
+      "model_key_count": 4,
+      "members": [
+        {
+          "stable_key": "character:sivakayan reaver",
+          "object_name": "Sivakayan Reaver",
+          "npc_name": "Sivakayan Reaver",
+          "display_name": "Sivakayan Reaver",
+          "scene": null,
+          "model": "model 134"
+        },
+        {
+          "stable_key": "character:sivakayan reaver 1",
+          "object_name": "Sivakayan Reaver 1",
+          "npc_name": "Sivakayan Reaver",
+          "display_name": "Sivakayan Reaver",
+          "scene": null,
+          "model": "model 135"
+        },
+        {
+          "stable_key": "character:sivakayan reaver 3",
+          "object_name": "Sivakayan Reaver 3",
+          "npc_name": "Sivakayan Reaver",
+          "display_name": "Sivakayan Reaver",
+          "scene": null,
+          "model": "model 136"
+        },
+        {
+          "stable_key": "character:sivakayan reaver:1",
+          "object_name": "Sivakayan Reaver",
+          "npc_name": "Sivakayan Reaver",
+          "display_name": "Sivakayan Reaver",
+          "scene": null,
+          "model": "model 137"
+        }
+      ]
+    },
+    {
+      "image_name": "Soluna",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:soluna",
+          "object_name": "Soluna",
+          "npc_name": "Soluna",
+          "display_name": "Soluna",
+          "scene": null,
+          "model": "model 138"
+        },
+        {
+          "stable_key": "character:soluna restored:planeofsoluna:239.49:415.91:995.65",
+          "object_name": "Soluna Restored",
+          "npc_name": "Soluna",
+          "display_name": "Soluna",
+          "scene": "PlaneOfSoluna",
+          "model": "model 139"
+        }
+      ]
+    },
+    {
+      "image_name": "Solunarian Paladin",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:solunarian paladin 1",
+          "object_name": "Solunarian Paladin 1",
+          "npc_name": "Solunarian Paladin",
+          "display_name": "Solunarian Paladin",
+          "scene": null,
+          "model": "model 140"
+        },
+        {
+          "stable_key": "character:solunarian paladin combined",
+          "object_name": "Solunarian Paladin Combined",
+          "npc_name": "Solunarian Paladin",
+          "display_name": "Solunarian Paladin",
+          "scene": null,
+          "model": "model 141"
+        }
+      ]
+    },
+    {
+      "image_name": "Stoneman",
+      "classification": "different-object-families",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:stoneman arcanist",
+          "object_name": "Stoneman Arcanist",
+          "npc_name": "Stoneman",
+          "display_name": "Stoneman",
+          "scene": null,
+          "model": "model 142"
+        },
+        {
+          "stable_key": "character:stoneman warrior",
+          "object_name": "Stoneman Warrior",
+          "npc_name": "Stoneman",
+          "display_name": "Stoneman",
+          "scene": null,
+          "model": "model 143"
+        }
+      ]
+    },
+    {
+      "image_name": "Summoned: Protector",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:summoned protector",
+          "object_name": "Summoned Protector",
+          "npc_name": "Summoned: Protector",
+          "display_name": "Summoned: Protector",
+          "scene": null,
+          "model": "model 144"
+        },
+        {
+          "stable_key": "character:summoned protector 1",
+          "object_name": "Summoned Protector 1",
+          "npc_name": "Summoned: Protector",
+          "display_name": "Summoned: Protector",
+          "scene": null,
+          "model": "model 145"
+        }
+      ]
+    },
+    {
+      "image_name": "TOWNSPERSON",
+      "classification": "different-object-families",
+      "character_count": 3,
+      "model_key_count": 3,
+      "members": [
+        {
+          "stable_key": "character:character_peasant_white",
+          "object_name": "Character_Peasant_White",
+          "npc_name": "TOWNSPERSON",
+          "display_name": "TOWNSPERSON",
+          "scene": null,
+          "model": "model 146"
+        },
+        {
+          "stable_key": "character:sm_chr_bartender_01",
+          "object_name": "SM_Chr_Bartender_01",
+          "npc_name": "TOWNSPERSON",
+          "display_name": "TOWNSPERSON",
+          "scene": null,
+          "model": "model 147"
+        },
+        {
+          "stable_key": "character:sm_chr_peasant_female_01",
+          "object_name": "SM_Chr_Peasant_Female_01",
+          "npc_name": "TOWNSPERSON",
+          "display_name": "TOWNSPERSON",
+          "scene": null,
+          "model": "model 148"
+        }
+      ]
+    },
+    {
+      "image_name": "Tamed Malaroth",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:tamed malaroth",
+          "object_name": "Tamed Malaroth",
+          "npc_name": "Tamed Malaroth",
+          "display_name": "Tamed Malaroth",
+          "scene": null,
+          "model": "model 71"
+        },
+        {
+          "stable_key": "character:tamed malaroth 1",
+          "object_name": "Tamed Malaroth 1",
+          "npc_name": "Tamed Malaroth",
+          "display_name": "Tamed Malaroth",
+          "scene": null,
+          "model": "model 149"
+        }
+      ]
+    },
+    {
+      "image_name": "Thella Steepleton",
+      "classification": "same-object-name",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:thella steepleton",
+          "object_name": "Thella Steepleton",
+          "npc_name": "Thella Steepleton",
+          "display_name": "Thella Steepleton",
+          "scene": null,
+          "model": "model 150"
+        },
+        {
+          "stable_key": "character:thella steepleton:azure:242.54:27.97:315.61",
+          "object_name": "Thella Steepleton",
+          "npc_name": "Thella Steepleton",
+          "display_name": "Thella Steepleton",
+          "scene": "Azure",
+          "model": "model 151"
+        }
+      ]
+    },
+    {
+      "image_name": "Tiver Banes",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 3,
+      "model_key_count": 3,
+      "members": [
+        {
+          "stable_key": "character:tiver banes",
+          "object_name": "Tiver Banes",
+          "npc_name": "Tiver Banes",
+          "display_name": "Tiver Banes",
+          "scene": null,
+          "model": "model 152"
+        },
+        {
+          "stable_key": "character:tiver banes bkp 1",
+          "object_name": "Tiver Banes bkp 1",
+          "npc_name": "Tiver Banes",
+          "display_name": "Tiver Banes",
+          "scene": null,
+          "model": "model 153"
+        },
+        {
+          "stable_key": "character:tiver banes broken",
+          "object_name": "Tiver Banes broken",
+          "npc_name": "Tiver Banes",
+          "display_name": "Tiver Banes",
+          "scene": null,
+          "model": "model 154"
+        }
+      ]
+    },
+    {
+      "image_name": "Valrae Cleary",
+      "classification": "different-object-families",
+      "character_count": 3,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:annabelle swisher",
+          "object_name": "Annabelle Swisher",
+          "npc_name": "Valrae Cleary",
+          "display_name": "Valrae Cleary",
+          "scene": null,
+          "model": "model 155"
+        },
+        {
+          "stable_key": "character:beth constantine",
+          "object_name": "Beth Constantine",
+          "npc_name": "Valrae Cleary",
+          "display_name": "Valrae Cleary",
+          "scene": null,
+          "model": "model 156"
+        },
+        {
+          "stable_key": "character:valrae cleary",
+          "object_name": "Valrae Cleary",
+          "npc_name": "Valrae Cleary",
+          "display_name": "Valrae Cleary",
+          "scene": null,
+          "model": "model 155"
+        }
+      ]
+    },
+    {
+      "image_name": "Violet Smithfield",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:violetta smithfield",
+          "object_name": "Violetta Smithfield",
+          "npc_name": "Violet Smithfield",
+          "display_name": "Violet Smithfield",
+          "scene": null,
+          "model": "model 157"
+        },
+        {
+          "stable_key": "character:violetta smithfield 1",
+          "object_name": "Violetta Smithfield 1",
+          "npc_name": "Violet Smithfield",
+          "display_name": "Violet Smithfield",
+          "scene": null,
+          "model": "model 158"
+        }
+      ]
+    },
+    {
+      "image_name": "Vithean Immortal",
+      "classification": "same-object-name",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:vithean immortal",
+          "object_name": "Vithean Immortal",
+          "npc_name": "Vithean Immortal",
+          "display_name": "Vithean Immortal",
+          "scene": null,
+          "model": "model 159"
+        },
+        {
+          "stable_key": "character:vithean immortal:1",
+          "object_name": "Vithean Immortal",
+          "npc_name": "Vithean Immortal",
+          "display_name": "Vithean Immortal",
+          "scene": null,
+          "model": "model 160"
+        }
+      ]
+    },
+    {
+      "image_name": "Vitheo the Tactician",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 3,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:restoredvitheo:planeofvitheo:479.15:25.20:441.61",
+          "object_name": "RestoredVitheo",
+          "npc_name": "Vitheo the Tactician",
+          "display_name": "Vitheo the Tactician",
+          "scene": "PlaneOfVitheo",
+          "model": "model 161"
+        },
+        {
+          "stable_key": "character:vitheo",
+          "object_name": "Vitheo",
+          "npc_name": "Vitheo the Tactician",
+          "display_name": "Vitheo the Tactician",
+          "scene": null,
+          "model": "model 162"
+        },
+        {
+          "stable_key": "character:vitheo observer",
+          "object_name": "Vitheo Observer",
+          "npc_name": "Vitheo the Tactician ",
+          "display_name": "Vitheo the Tactician",
+          "scene": null,
+          "model": "model 162"
+        }
+      ]
+    },
+    {
+      "image_name": "Wandering Gladiator",
+      "classification": "numbered-or-variant-copies",
+      "character_count": 3,
+      "model_key_count": 3,
+      "members": [
+        {
+          "stable_key": "character:fallen gladiator",
+          "object_name": "Fallen Gladiator",
+          "npc_name": "Wandering Gladiator",
+          "display_name": "Wandering Gladiator",
+          "scene": null,
+          "model": "model 163"
+        },
+        {
+          "stable_key": "character:fallen gladiator 1",
+          "object_name": "Fallen Gladiator 1",
+          "npc_name": "Wandering Gladiator",
+          "display_name": "Wandering Gladiator",
+          "scene": null,
+          "model": "model 164"
+        },
+        {
+          "stable_key": "character:fallen gladiator 2",
+          "object_name": "Fallen Gladiator 2",
+          "npc_name": "Wandering Gladiator",
+          "display_name": "Wandering Gladiator",
+          "scene": null,
+          "model": "model 165"
+        }
+      ]
+    },
+    {
+      "image_name": "Wintham McShanth",
+      "classification": "different-object-families",
+      "character_count": 2,
+      "model_key_count": 2,
+      "members": [
+        {
+          "stable_key": "character:carl spencer",
+          "object_name": "Carl Spencer",
+          "npc_name": "Wintham McShanth",
+          "display_name": "Wintham McShanth",
+          "scene": null,
+          "model": "model 166"
+        },
+        {
+          "stable_key": "character:wintham mcshanth",
+          "object_name": "Wintham McShanth",
+          "npc_name": "Wintham McShanth",
+          "display_name": "Wintham McShanth",
+          "scene": null,
+          "model": "model 167"
+        }
+      ]
+    }
+  ]
+}
