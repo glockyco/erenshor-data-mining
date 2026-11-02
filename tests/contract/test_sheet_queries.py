@@ -209,6 +209,7 @@ def test_sources_have_one_row_per_public_source_and_preserve_numeric_fields(writ
     for row in rows:
         assert row["probability_min"] == 12.345678901
         assert row["expected_quantity"] == 0.123456789
+        assert [float(value) for value in re.findall(r"\d+(?:\.\d+)?", row["Quantity"])] == [1.0, 0.123]
         assert list(row)[:7] == ["Item", "Kind", "Source", "Chance", "Quantity", "Conditions", "Zones"]
         assert not {"player_access_state", "probability_stage", "count_distribution", "guarantee_scope"} & row.keys()
 
@@ -243,7 +244,9 @@ def test_conditions_preserve_gates_alternatives_atoms_and_phases_without_filteri
     )
     row = _rows(writer, "item-sources")[0]
     # Atoms join within a branch, branches of one gate read as "or", and every gate holds.
-    assert re.fullmatch(r"\(\(.*Quest and .*Bread\) or .*Quest\) and .*10.*20.* and .+", row["Conditions"])
+    assert re.search(r"\(\(.*Quest and .*Bread\) or .*Quest\)", row["Conditions"])
+    assert re.search(r"\b10\b.*\b20\b", row["Conditions"])
+    assert row["Conditions"].count("Bread") == 1
 
 
 def test_zones_keep_place_conditions_level_ranges_and_unlocated_sources(writer: Writer) -> None:
@@ -283,7 +286,7 @@ def test_zones_keep_place_conditions_level_ranges_and_unlocated_sources(writer: 
     )
     rows = {row["source_key"]: row for row in _rows(writer, "item-sources")}
     zones = rows["located"]["Zones"]
-    assert re.fullmatch(r"Other scene; Zone \(.*Quest\) \(.*10.*20\)", zones)
+    assert re.fullmatch(r"Other scene; Zone \([^()]*Quest[^()]*10.*20\)", zones)
     assert rows["unlocated"]["Zones"] is None
     assert rows["located"]["Conditions"] is None
 
@@ -478,7 +481,7 @@ def test_sheet_formatter_rejects_missing_or_incompatible_metadata(
         ("account_state", {"reference_stable_key": "account_state:reliquary_claimed", "value": "false"}, "Reliquary"),
         ("time_of_day", {"value": "night"}, "night"),
         ("zone_use", {"reference_stable_key": "zone:missing"}, "missing"),
-        ("quality", {"minimum": 2, "maximum": 3, "maximum_inclusive": 0}, "below 3"),
+        ("quality", {"minimum": 2, "maximum": 3, "maximum_inclusive": 0}, "Blessed"),
         ("route", {"value": "normal_pointer_inventory_transfer", "reference_stable_key": None}, "inventory"),
         ("never", {}, "Never"),
     ],

@@ -1,4 +1,5 @@
 -- Conditions are already public. Preserve every gate, alternative and atom as stored.
+-- Combine conjunctive requirements without hiding the grouping of alternative routes.
 WITH names AS (
     SELECT stable_key, display_name AS name FROM items
     UNION ALL SELECT stable_key, display_name FROM characters
@@ -17,6 +18,12 @@ WITH names AS (
         predicate, reference_stable_key, reference_slot, actor, value,
         minimum, maximum, minimum_inclusive, maximum_inclusive
     FROM item_place_conditions
+    UNION ALL
+    SELECT place_set_key, place_key, 2147483647, 0, 0,
+        'actor_level', NULL, NULL, 'player', NULL,
+        player_level_min, player_level_max, 1, 1
+    FROM item_places
+    WHERE player_level_min IS NOT NULL OR player_level_max IS NOT NULL
 ), subjects AS (
     -- Words requirements as the map does. A source's own atoms can name the source's item or reward quest.
     SELECT a.*, COALESCE(n.name, substr(a.reference_stable_key, instr(a.reference_stable_key, ':') + 1), '') AS subject,
@@ -34,8 +41,32 @@ WITH names AS (
     FROM atoms a
     LEFT JOIN names n ON n.stable_key = a.reference_stable_key
     LEFT JOIN item_sources src ON src.source_key = a.owner_key AND a.place_key = ''
+), quality_tiers(quantity, name, tier_group) AS (
+    VALUES (1, 'Standard', 0), (11, 'Improved +1', 1), (12, 'Improved +2', 1),
+        (13, 'Improved +3', 1), (14, 'Improved +4', 1), (15, 'Improved +5', 1),
+        (2, 'Blessed', 2), (3, 'Ascended', 3)
+), quality_groups AS (
+    SELECT s.owner_key, s.place_key, s.gate_index, s.alternative_index, s.atom_index, q.tier_group,
+        CASE WHEN q.tier_group = 1 AND count(*) = 5 THEN 'Improved'
+            WHEN q.tier_group = 1 AND count(*) > 1 THEN
+                'Improved +' || (min(q.quantity) - 10) || ' to +' || (max(q.quantity) - 10)
+            ELSE min(q.name) END AS name
+    FROM subjects s
+    JOIN quality_tiers q ON
+        (s.value IS NOT NULL AND lower(q.name) = CASE lower(s.value)
+            WHEN 'normal' THEN 'standard' WHEN 'divine' THEN 'ascended' ELSE lower(s.value) END)
+        OR (s.value IS NULL
+            AND (s.minimum IS NULL OR q.quantity > s.minimum OR (q.quantity = s.minimum AND s.minimum_inclusive))
+            AND (s.maximum IS NULL OR q.quantity < s.maximum OR (q.quantity = s.maximum AND s.maximum_inclusive)))
+    WHERE s.predicate = 'quality'
+    GROUP BY s.owner_key, s.place_key, s.gate_index, s.alternative_index, s.atom_index, q.tier_group
+), quality_names AS (
+    SELECT owner_key, place_key, gate_index, alternative_index, atom_index,
+        group_concat(name, ' or ' ORDER BY tier_group) AS quality_name
+    FROM quality_groups
+    GROUP BY owner_key, place_key, gate_index, alternative_index, atom_index
 ), worded AS (
-    SELECT *, CASE predicate
+    SELECT s.*, CASE predicate
         WHEN 'quest_done' THEN 'Requires ' || subject
         WHEN 'quest_not_done' THEN CASE WHEN reference_stable_key = reward_quest THEN 'Once per character' ELSE 'Only before ' || subject END
         WHEN 'item_held' THEN 'Requires ' || subject || CASE WHEN COALESCE(minimum, 1) > 1 THEN ' ×' || printf('%.15g', minimum) ELSE '' END
@@ -50,44 +81,77 @@ WITH names AS (
                 CASE value WHEN 'false' THEN 'Only before claiming your Reliquary' ELSE 'Requires a claimed Reliquary' END
             ELSE CASE value WHEN 'false' THEN 'Only before ' ELSE 'Requires ' END || subject END
         WHEN 'never' THEN 'Never'
-        WHEN 'time_of_day' THEN CASE value WHEN 'day' THEN 'Only during the day' WHEN 'night' THEN 'Only at night' ELSE 'Only during ' || value END
+        WHEN 'time_of_day' THEN CASE value WHEN 'day' THEN 'Only during the day (6 AM to 10 PM)'
+            WHEN 'night' THEN 'Only at night (10 PM to 6 AM)' ELSE 'Only during ' || value END
         WHEN 'actor_level' THEN 'Requires ' ||
             CASE WHEN actor = 'enemy' THEN 'enemy level ' WHEN actor IN ('sim', 'sim_player') THEN 'simulated player level ' ELSE 'level ' END || bounds
         WHEN 'zone_use' THEN 'Only in ' || subject
-        WHEN 'quality' THEN 'Requires quality ' || COALESCE(value, NULLIF(bounds, ''), subject)
+        WHEN 'quality' THEN 'Requires ' ||
+            CASE WHEN substr(COALESCE(q.quality_name, value, subject), 1, 1) IN ('A', 'I') THEN 'an ' ELSE 'a ' END ||
+            COALESCE(q.quality_name, value, NULLIF(bounds, ''), subject) || ' item'
         WHEN 'route' THEN CASE value WHEN 'normal_pointer_inventory_transfer' THEN 'Drag it into your inventory'
             ELSE replace(COALESCE(value, ''), '_', ' ') END
         ELSE trim(COALESCE(replace(actor, '_', ' ') || ' ', '') || replace(predicate, '_', ' ') || ' ' || subject || ' ' || COALESCE(value, '') || ' ' || bounds)
     END AS wording
-    FROM subjects
-), alternatives AS (
-    SELECT owner_key, place_key, gate_index, alternative_index,
-        CASE WHEN count(*) > 1 THEN '(' ELSE '' END ||
-        group_concat(wording, ' and ' ORDER BY atom_index) ||
-        CASE WHEN count(*) > 1 THEN ')' ELSE '' END AS wording
+    FROM subjects s
+    LEFT JOIN quality_names q USING (owner_key, place_key, gate_index, alternative_index, atom_index)
+), ranked_atoms AS (
+    SELECT *, row_number() OVER branch AS position, count(*) OVER (
+            PARTITION BY owner_key, place_key, gate_index, alternative_index) AS atom_count
     FROM worded
+    WINDOW branch AS (PARTITION BY owner_key, place_key, gate_index, alternative_index
+        ORDER BY (wording LIKE 'Requires %') DESC, atom_index)
+), alternatives AS (
+    SELECT owner_key, place_key, gate_index, alternative_index, max(atom_count) AS atom_count,
+        min(wording LIKE 'Requires %') AS requirements_only,
+        group_concat(
+            CASE WHEN position = 1 THEN ''
+                WHEN position = atom_count THEN ' and ' ELSE ', ' END ||
+            CASE WHEN position > 1 AND wording LIKE 'Requires %' THEN substr(wording, 10)
+                ELSE wording END, '' ORDER BY position) AS wording
+    FROM ranked_atoms
     GROUP BY owner_key, place_key, gate_index, alternative_index
-), gates AS (
-    SELECT owner_key, place_key, gate_index,
-        CASE WHEN count(*) > 1 THEN '(' ELSE '' END ||
-        group_concat(wording, ' or ' ORDER BY alternative_index) ||
-        CASE WHEN count(*) > 1 THEN ')' ELSE '' END AS wording
+), grouped_gates AS (
+    SELECT owner_key, place_key, gate_index, count(*) AS alternative_count,
+        CASE WHEN count(*) = 1 THEN min(wording)
+            WHEN min(requirements_only) THEN 'Requires (' ||
+                group_concat(CASE WHEN atom_count > 1 THEN '(' ELSE '' END ||
+                    substr(wording, 10) || CASE WHEN atom_count > 1 THEN ')' ELSE '' END,
+                    ' or ' ORDER BY alternative_index) || ')'
+            ELSE '(' || group_concat(
+                CASE WHEN atom_count > 1 THEN '(' ELSE '' END || wording ||
+                CASE WHEN atom_count > 1 THEN ')' ELSE '' END,
+                ' or ' ORDER BY alternative_index) || ')' END AS wording
     FROM alternatives
     GROUP BY owner_key, place_key, gate_index
-), conditions AS (
-    SELECT owner_key, place_key, group_concat(wording, ' and ' ORDER BY gate_index) AS wording
+), gates AS (
+    SELECT owner_key, place_key, gate_index, 0 AS atom_index, wording
+    FROM grouped_gates
+    WHERE alternative_count > 1
+    UNION ALL
+    SELECT w.owner_key, w.place_key, w.gate_index, w.atom_index, w.wording
+    FROM worded w
+    JOIN grouped_gates g USING (owner_key, place_key, gate_index)
+    WHERE g.alternative_count = 1
+), ranked_gates AS (
+    SELECT *, row_number() OVER conjunction AS position,
+        count(*) OVER (PARTITION BY owner_key, place_key) AS gate_count
     FROM gates
+    WINDOW conjunction AS (PARTITION BY owner_key, place_key
+        ORDER BY (wording LIKE 'Requires %') DESC, gate_index, atom_index)
+), conditions AS (
+    SELECT owner_key, place_key,
+        group_concat(
+            CASE WHEN position = 1 THEN ''
+                WHEN position = gate_count THEN ' and ' ELSE ', ' END ||
+            CASE WHEN position > 1 AND wording LIKE 'Requires %' THEN substr(wording, 10)
+                ELSE wording END, '' ORDER BY position) AS wording
+    FROM ranked_gates
     GROUP BY owner_key, place_key
 ), places AS (
     SELECT p.place_set_key, p.place_key,
         COALESCE(z.display_name, p.scene, p.zone_stable_key, p.relation) ||
-        CASE WHEN c.wording IS NOT NULL THEN ' (' || c.wording || ')' ELSE '' END ||
-        CASE WHEN p.player_level_min IS NOT NULL OR p.player_level_max IS NOT NULL THEN
-            ' (Requires level ' ||
-            CASE WHEN p.player_level_min IS NOT NULL AND p.player_level_max IS NOT NULL THEN
-                p.player_level_min || CASE WHEN p.player_level_min = p.player_level_max THEN '' ELSE '–' || p.player_level_max END
-            WHEN p.player_level_min IS NOT NULL THEN p.player_level_min || ' or higher'
-            ELSE p.player_level_max || ' or lower' END || ')' ELSE '' END AS wording
+        CASE WHEN c.wording IS NOT NULL THEN ' (' || c.wording || ')' ELSE '' END AS wording
     FROM item_places p
     LEFT JOIN zones z ON z.stable_key = p.zone_stable_key
     LEFT JOIN conditions c ON c.owner_key = p.place_set_key AND c.place_key = p.place_key
@@ -137,7 +201,7 @@ SELECT
                 ' to ' || rtrim(rtrim(printf('%.2f', s.probability_max), '0'), '.') || '%' ELSE '' END
     END || CASE WHEN s.probability_kind = 'not_applicable' THEN '' ELSE CASE s.probability_basis
         WHEN 'per_kill' THEN ' per kill'
-        WHEN 'per_successful_catch' THEN ' per successful catch'
+        WHEN 'per_successful_catch' THEN ' per catch'
         WHEN 'per_node' THEN ' per node'
         WHEN 'per_use' THEN ' per use'
         WHEN 'per_listing_opportunity' THEN ' per listing opportunity'
@@ -148,7 +212,7 @@ SELECT
             ' to ' || CASE WHEN s.quantity_max IS NULL THEN '?' ELSE printf('%.15g', s.quantity_max) END ELSE '' END END ||
     CASE WHEN s.expected_quantity IS NOT NULL THEN
         CASE WHEN s.quantity_kind IN ('unknown', 'not_applicable') THEN '' ELSE ', ' END ||
-        'Average ' || printf('%.15g', s.expected_quantity) || CASE WHEN s.probability_basis = 'per_kill' THEN ' per kill' ELSE '' END ELSE '' END ||
+        'Average ' || printf('%.3g', s.expected_quantity) || CASE WHEN s.probability_basis = 'per_kill' THEN ' per kill' ELSE '' END ELSE '' END ||
     CASE WHEN s.guaranteed THEN CASE WHEN s.quantity_kind NOT IN ('unknown', 'not_applicable') OR s.expected_quantity IS NOT NULL THEN ', ' ELSE '' END || 'Guaranteed' ELSE '' END ||
     CASE WHEN s.quantity_kind IN ('unknown', 'not_applicable') AND s.expected_quantity IS NULL AND NOT s.guaranteed THEN 'Quantity unknown' ELSE '' END AS Quantity,
     c.wording AS Conditions,
