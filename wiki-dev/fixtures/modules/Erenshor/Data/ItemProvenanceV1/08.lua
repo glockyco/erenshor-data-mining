@@ -51,7 +51,6 @@ return {
 						["scope"] = "source",
 					},
 				},
-				["evidence"] = {},
 				["item_stable_key"] = "item:arm - 19  - ancient guardian sleeve",
 				["kind"] = "vendor",
 				["locations"] = {
