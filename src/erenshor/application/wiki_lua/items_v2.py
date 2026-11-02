@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
 
 from erenshor.application.wiki_lua.items import ItemDataRepository, _item_kind, _item_record
-from erenshor.application.wiki_lua.lua_writer import module_text
+from erenshor.application.wiki_lua.lua_writer import module_text, shared_module_text
 from erenshor.application.wiki_lua.views import native_reference
 from erenshor.domain.value_objects.item_provenance import (
     PROVENANCE_SCHEMA_VERSION,
@@ -320,7 +320,8 @@ def generate_items_v2_modules(
     pending = sorted(data.provenance.items(), reverse=True)
     while pending:
         bucket, records = pending.pop()
-        content = module_text(records)
+        # Every fact of a source shares the source's locations, which the module writes once.
+        content = shared_module_text(records, table="locations", field="locations", key_field="location_source_key")
         size = len(content.encode("utf-8"))
         if max_page_bytes is not None and size > max_page_bytes:
             if len(records) == 1 or len(bucket) == 64:

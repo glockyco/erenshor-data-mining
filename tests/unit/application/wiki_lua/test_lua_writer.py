@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from erenshor.application.wiki_lua.lua_writer import LuaSerializationError, dumps, module_text
+from erenshor.application.wiki_lua.lua_writer import LuaSerializationError, dumps, module_text, shared_module_text
 
 
 def test_serializes_supported_load_data_values_deterministically() -> None:
@@ -76,3 +76,43 @@ def test_rejects_non_finite_numbers(value: float) -> None:
 def test_rejects_nil_inside_lists() -> None:
     with pytest.raises(LuaSerializationError, match="nil list item"):
         dumps(["ok", None])
+
+
+def test_records_with_one_key_refer_to_one_shared_value() -> None:
+    records = {
+        "a": [{"source": "s", "places": ["x", "y"]}, {"source": None, "places": ["z"]}],
+        "b": [{"source": "s", "places": ["x", "y"]}],
+    }
+    assert shared_module_text(records, table="shared", field="places", key_field="source") == (
+        "local shared = {\n"
+        '\t["s"] = {\n'
+        '\t\t"x",\n'
+        '\t\t"y",\n'
+        "\t},\n"
+        "}\n"
+        "return {\n"
+        '\t["a"] = {\n'
+        "\t\t{\n"
+        '\t\t\t["places"] = shared["s"],\n'
+        '\t\t\t["source"] = "s",\n'
+        "\t\t},\n"
+        "\t\t{\n"
+        '\t\t\t["places"] = {\n'
+        '\t\t\t\t"z",\n'
+        "\t\t\t},\n"
+        "\t\t},\n"
+        "\t},\n"
+        '\t["b"] = {\n'
+        "\t\t{\n"
+        '\t\t\t["places"] = shared["s"],\n'
+        '\t\t\t["source"] = "s",\n'
+        "\t\t},\n"
+        "\t},\n"
+        "}\n"
+    )
+
+
+def test_one_key_cannot_name_two_shared_values() -> None:
+    records = [{"source": "s", "places": ["x"]}, {"source": "s", "places": ["y"]}]
+    with pytest.raises(LuaSerializationError, match="two different values"):
+        shared_module_text(records, table="shared", field="places", key_field="source")

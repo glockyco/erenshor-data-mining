@@ -122,6 +122,7 @@ A fact stores only what belongs to it. What it shares with the other facts of it
 - The build keeps the evidence of which input rows each fact uses in memory. Its completeness check and its comparison with the independent derivation read it there, and the clean database doesn't store it. `item_acquisition_contributors` holds the characters that contribute to each common world item, which the wiki's character data reads.
 - Tables with a composite primary key are `WITHOUT ROWID`, so SQLite doesn't store the key a second time in an index.
 - The guide data refers to each source's locations once. Today it writes one source entry per acquisition and location in `quests` and `_gate_items`, and every location again in `_source_facts`.
+- The wiki's item provenance and character data modules write each source's locations once per module, in a local table that every fact of the source refers to. Lua reads a fact's `locations` as before, because `mw.loadData` keeps a table that the data refers to several times.
 - The clean build fails when the database exceeds its budget, set 20% above its size after this section lands. The map build fails when one of its files exceeds 25 MiB, so the build finds an oversized file before a deploy does.
 
 Measured on scratch copies of the clean database of game build 24405256, each step after the steps above it:
@@ -134,7 +135,7 @@ Measured on scratch copies of the clean database of game build 24405256, each st
 | Rate conditions repeated for each drop | 6.7 MB |
 | Composite keys stored twice | 4.9 MB |
 
-The database then measures about 34 MB, which is still above 25 MiB. Task 4.9 decides how `/db/erenshor.sqlite` is served at its URL, and task 4.8 how the map page carries item sources within the limit. The same commit grew the guide's `quest_guides/quest-guide.json` from 2.0 MB to 51 MB, and it measures 42 MB now. Its source entries take 14.1 MB of `quests`, and the locations take 12.4 MB of the 16.1 MB of `_source_facts`.
+The database then measures about 34 MB, which is still above 25 MiB. Task 4.10 decides how `/db/erenshor.sqlite` is served at its URL, and task 4.9 how the map page carries item sources within the limit. The same commit grew the guide's `quest_guides/quest-guide.json` from 2.0 MB to 51 MB, and it measures 42 MB now. Its source entries take 14.1 MB of `quests`, and the locations take 12.4 MB of the 16.1 MB of `_source_facts`.
 
 ## Verification and Precise Test Homes
 

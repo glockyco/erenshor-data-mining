@@ -22,7 +22,7 @@ from erenshor.application.processor.npc_spawn import (
     starts_before,
     training_dummy_level,
 )
-from erenshor.application.wiki_lua.lua_writer import module_text
+from erenshor.application.wiki_lua.lua_writer import module_text, shared_module_text
 from erenshor.domain.value_objects.item_provenance import is_actionable_acquisition
 from erenshor.domain.value_objects.npc_level import npc_level_bounds
 from erenshor.domain.value_objects.wiki_filename import picture_file_title
@@ -342,7 +342,8 @@ def character_module_texts(records: Mapping[str, Mapping[str, object]], max_page
     pending = sorted(grouped.items())
     while pending:
         bucket, rows = pending.pop()
-        text = module_text(dict(rows))
+        # Every loot fact of a character copy shares the copy's locations, which the module writes once.
+        text = shared_module_text(dict(rows), table="locations", field="locations", key_field="location_source_key")
         if len(text.encode()) > max_page_bytes:
             if len(rows) == 1 or len(bucket) == 64:
                 raise ValueError(f"Character record cannot fit page byte limit: {next(iter(rows))}")
