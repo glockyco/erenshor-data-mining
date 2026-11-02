@@ -55,7 +55,7 @@
         {#if marker.daytimeItems.length > 0}
             <div class="rounded bg-zinc-800 p-3">
                 <div class="text-xs text-zinc-500 uppercase tracking-wide mb-2">
-                    Daytime (7:00-23:00)
+                    Day (6 AM to 10 PM)
                 </div>
                 <div class="space-y-1.5">
                     {#each marker.daytimeItems as item, i (i)}
@@ -76,7 +76,7 @@
         {#if marker.nighttimeItems.length > 0}
             <div class="rounded bg-zinc-800 p-3">
                 <div class="text-xs text-zinc-500 uppercase tracking-wide mb-2">
-                    Nighttime (23:00-7:00)
+                    Night (10 PM to 6 AM)
                 </div>
                 <div class="space-y-1.5">
                     {#each marker.nighttimeItems as item, i (i)}

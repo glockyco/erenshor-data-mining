@@ -129,11 +129,11 @@ export function formatSpawnLevels(
     characters: Pick<SpawnCharacter, 'level' | 'levelMax' | 'levelScalesWithPlayer'>[]
 ): string {
     const fixed = characters.filter((c) => !c.levelScalesWithPlayer);
-    if (fixed.length === 0) return "Scales with the player's level";
+    if (fixed.length === 0) return "Scales with your level";
     const min = Math.min(...fixed.map((c) => c.level));
     const max = Math.max(...fixed.map((c) => c.levelMax));
     const range = min === max ? `Level ${min}` : `Level ${min}–${max}`;
-    return fixed.length < characters.length ? `${range}, or scales with the player's level` : range;
+    return fixed.length < characters.length ? `${range}, or scales with your level` : range;
 }
 
 // Movement data for patrol paths and wander ranges
@@ -255,7 +255,8 @@ export type TreasureCharacter = {
 export type TreasureLocMarker = BaseMarker & {
     category: 'treasure-loc';
     minReadingLevel: number;
-    chests: (TreasureCharacter & { digLevelMin: number; digLevelMax: number })[];
+    /** The player levels at which digging here brings up each chest. The top chest has no maximum. */
+    chests: (TreasureCharacter & { digLevelMin: number; digLevelMax: number | null })[];
     guardians: (TreasureCharacter & { levelMin: number; levelMax: number })[];
     levelMin: number;
     levelMax: number;

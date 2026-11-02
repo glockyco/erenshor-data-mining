@@ -131,7 +131,14 @@
                 }
             }
         }
-        return [...groups.values()];
+        const chests = new SvelteMap<string, { key: string; row: Presented<'treasure'>['row']; zones: typeof groups extends SvelteMap<string, infer G> ? G[] : never }>();
+        for (const group of groups.values()) {
+            const key = group.row.characterStableKey;
+            const chest = chests.get(key);
+            if (chest) chest.zones.push(group);
+            else chests.set(key, { key, row: group.row, zones: [group] });
+        }
+        return [...chests.values()];
     });
 
     const droppersByZone = $derived.by(() => {
@@ -399,7 +406,8 @@
     function auctionAvailability(levels: Presented<'auction_house'>['row']): string {
         const list = (parts: string[]) => parts.length < 2 ? parts.join('') : `${parts.slice(0, -1).join(', ')} or ${parts[parts.length - 1]}`;
         const simulated = levels.simulatedPlayerLevels.length ? ` of level ${list(levels.simulatedPlayerLevels)}` : '';
-        const player = levels.playerLevels.length ? `${simulated ? ', or' : ''} while you are level ${list(levels.playerLevels)}` : '';
+        const player = levels.playerLevels.length ? `${simulated ? ', or' : ''} ${list(levels.playerLevels.map((window) =>
+            window.endsWith(' or higher') ? `once you reach level ${window.replace(' or higher', '')}` : `while you are level ${window}`))}` : '';
         return `May be listed by simulated players${simulated}${player}`;
     }
 </script>
@@ -775,26 +783,29 @@
         <div class="space-y-2 border-t border-zinc-700 pt-2 text-xs">
             <div class="uppercase tracking-wide text-zinc-500">Treasure hunting</div>
             <p class="text-zinc-400">Possible hunt locations, not chests present at every site.</p>
-            {#each treasureGroups as group (group.key)}
-                <div class="space-y-1" data-source-keys={sourceKeys(group.sourceKeys)}>
+            {#each treasureGroups as chest (chest.key)}
+                <div class="space-y-1">
                     <div class="flex items-center gap-1 text-zinc-300">
-                        {group.row.chestName}<WikiLink pageName={group.row.chestWikiPageName} />
+                        {chest.row.chestName}<WikiLink pageName={chest.row.chestWikiPageName} />
                     </div>
+                    {#each chest.zones as group (group.key)}
                     <button
                         type="button"
                         class="flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-zinc-400 hover:bg-zinc-700/50 hover:text-white"
+                        data-source-keys={sourceKeys(group.sourceKeys)}
                         onmouseenter={() => onHoverSpawn(markerKeys(group.markers))}
                         onmouseleave={() => onHoverSpawn(null)}
                         onclick={() => focusMarkers(group.markers)}
                     >
                         <span>
-                            {group.zoneName} · player levels {group.row.playerLevelMin}–{group.row.playerLevelMax}
+                            {group.zoneName} · level {group.row.playerLevelMin}{group.row.playerLevelMax === null ? ' or higher' : group.row.playerLevelMin === group.row.playerLevelMax ? '' : `–${group.row.playerLevelMax}`}
                             <br />{group.markers.length} possible location{group.markers.length !== 1 ? 's' : ''}
                             · {dropText(group.row.dropProbability)}
                             {@render conditionLines(group.conditions)}
                         </span>
                         <Crosshair class="h-3.5 w-3.5 shrink-0" />
                     </button>
+                    {/each}
                 </div>
             {/each}
         </div>

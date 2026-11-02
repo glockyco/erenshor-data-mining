@@ -216,9 +216,10 @@ export function presentItemSources(sources: ResolvedItemSource[], startingClassC
                 if (row.kind !== 'auction_house') break;
                 row.sourceKeys.push(fact.source_key);
                 // The established sentence about simulated players carries each route's level window.
-                const levels = fact.conditions.filter((atom) => atom.predicate === 'actor_level' && atom.minimum !== null && atom.maximum !== null &&
-                    atom.minimum_inclusive && atom.maximum_inclusive && (atom.actor === 'sim' || atom.actor === 'sim_player' || atom.actor === 'player'));
-                for (const atom of levels) (atom.actor === 'player' ? auctionLevels.player : auctionLevels.sim).push([atom.minimum!, atom.maximum!]);
+                const levels = fact.conditions.filter((atom) => atom.predicate === 'actor_level' && atom.minimum !== null &&
+                    (atom.maximum !== null || atom.actor === 'player') && atom.minimum_inclusive &&
+                    (atom.maximum === null || atom.maximum_inclusive) && (atom.actor === 'sim' || atom.actor === 'sim_player' || atom.actor === 'player'));
+                for (const atom of levels) (atom.actor === 'player' ? auctionLevels.player : auctionLevels.sim).push([atom.minimum!, atom.maximum ?? Infinity]);
                 for (const group of placeGroups(source, (atom) => levels.includes(atom))) {
                     for (const condition of group.conditions) if (!row.conditions.includes(condition)) row.conditions.push(condition);
                     for (const place of group.places) {
@@ -308,7 +309,7 @@ function dropChance(row: PresentedItemSource): number {
     return row.kind === 'drop' ? row.row.dropProbability ?? -1 : -1;
 }
 
-/** Merges overlapping or adjacent level windows and words each as a range joined by an en dash. */
+/** Merges overlapping or adjacent level windows, retaining an open upper bound. */
 function windows(ranges: [number, number][]): string[] {
     const merged: [number, number][] = [];
     for (const [min, max] of [...ranges].sort((a, b) => a[0] - b[0] || a[1] - b[1])) {
@@ -316,7 +317,7 @@ function windows(ranges: [number, number][]): string[] {
         if (last && min <= last[1] + 1) last[1] = Math.max(last[1], max);
         else merged.push([min, max]);
     }
-    return merged.map(([min, max]) => min === max ? `${min}` : `${min}–${max}`);
+    return merged.map(([min, max]) => max === Infinity ? `${min} or higher` : min === max ? `${min}` : `${min}–${max}`);
 }
 
 /**

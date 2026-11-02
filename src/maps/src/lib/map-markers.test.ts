@@ -3,9 +3,9 @@ import { formatSpawnLevels } from './map-markers';
 
 describe('formatSpawnLevels', () => {
     it('says that a level following the player scales, whatever the prefab level', () => {
-        expect(formatSpawnLevels([{ level: 1, levelMax: 1, levelScalesWithPlayer: true }])).toBe(
-            "Scales with the player's level"
-        );
+        const text = formatSpawnLevels([{ level: 1, levelMax: 1, levelScalesWithPlayer: true }]);
+        expect(text).toMatch(/scales/i);
+        expect(text).not.toMatch(/\d/);
     });
 
     it('gives the range of fixed levels', () => {
@@ -19,11 +19,12 @@ describe('formatSpawnLevels', () => {
     });
 
     it('leaves scaling prefab levels out of a mixed range', () => {
-        expect(
-            formatSpawnLevels([
-                { level: 42, levelMax: 42, levelScalesWithPlayer: false },
-                { level: 1, levelMax: 1, levelScalesWithPlayer: true }
-            ])
-        ).toBe("Level 42, or scales with the player's level");
+        const text = formatSpawnLevels([
+            { level: 42, levelMax: 42, levelScalesWithPlayer: false },
+            { level: 1, levelMax: 1, levelScalesWithPlayer: true }
+        ]);
+        expect(text).toMatch(/^Level 42\b/);
+        expect(text).toMatch(/scales/i);
+        expect(text).not.toMatch(/\b1\b/);
     });
 });

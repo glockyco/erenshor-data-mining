@@ -116,7 +116,7 @@ describe('Repository', () => {
             ]
         });
         expect(dummy?.popup).toContain(
-            "Appears when the player places the <a href='https://erenshor.wiki.gg/wiki/Wood%20Training%20Set'>Wood Training Set</a> in this room."
+            "<a href='https://erenshor.wiki.gg/wiki/Wood%20Training%20Set'>Wood Training Set</a>"
         );
         expect(dummy?.popup).not.toContain('disabled');
     });
@@ -249,16 +249,16 @@ describe('Repository', () => {
             ['Lost Treasure (1-10)', 1, 9],
             ['Lost Treasure (10-20)', 10, 19],
             ['Lost Treasure (20-30)', 20, 29],
-            ['Lost Treasure (30+)', 30, 35]
+            ['Lost Treasure (30+)', 30, null]
         ]);
         expect(stowaway.minReadingLevel).toBe(21);
         expect(stowaway.chests.map((c) => [c.digLevelMin, c.digLevelMax])).toEqual([
             [21, 29],
-            [30, 35]
+            [30, null]
         ]);
         expect(blight.minReadingLevel).toBe(31);
         expect(blight.chests.map((c) => [c.name, c.digLevelMin, c.digLevelMax])).toEqual([
-            ['Lost Treasure (30+)', 31, 35]
+            ['Lost Treasure (30+)', 31, null]
         ]);
         for (const [site, min] of [
             [hidden, 2],

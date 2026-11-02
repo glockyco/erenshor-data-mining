@@ -47,7 +47,7 @@ function formatWikiLink(label: string, pageName: string | null): string {
 function furnitureText(character: SpawnCharacter): string {
     if (!character.furniture) return '';
     const set = formatWikiLink(character.furniture.name, character.furniture.wikiPageName);
-    return `<br>Appears when the player places the ${set} in this room.`;
+    return `<br>Requires the ${set} in this room.`;
 }
 
 function portraitHtml(hash: string | null): string {
@@ -850,7 +850,7 @@ export class RepositoryBase {
             : 'Respawns when re-entering the zone.';
 
         if (isNightSpawn) {
-            return `<br><br>Only spawns at night.<br>${spawnDelayInfo}`;
+            return `<br><br>Night only: spawns 11 PM to 4 AM, leaves at 7 AM.<br>${spawnDelayInfo}`;
         } else {
             return `<br><br>${spawnDelayInfo}`;
         }
@@ -948,7 +948,9 @@ export class RepositoryBase {
                    th.min_reading_level AS MinReadingLevel,
                    c.stable_key AS ChestKey, c.display_name AS ChestName, c.wiki_page_name AS WikiPageName,
                    ts.player_level_min AS DigLevelMin,
-                   ts.player_level_max AS DigLevelMax
+                   -- The game gives the top chest to every higher level, so its window has no upper bound.
+                   CASE WHEN ts.player_level_max = (SELECT MAX(player_level_max) FROM treasure_chest_possible_spawns)
+                        THEN NULL ELSE ts.player_level_max END AS DigLevelMax
             FROM treasure_locations tl
             JOIN treasure_hunting th ON th.zone_name = tl.scene
             JOIN treasure_chest_possible_spawns ts ON ts.treasure_location_stable_key = tl.stable_key
@@ -985,21 +987,21 @@ export class RepositoryBase {
                 name: row.ChestName as string,
                 wikiPageName: row.WikiPageName as string | null,
                 digLevelMin: row.DigLevelMin as number,
-                digLevelMax: row.DigLevelMax as number
+                digLevelMax: row.DigLevelMax as number | null
             });
         }
         stmt.free();
         for (const marker of markers.values()) {
             const readingLevel =
-                marker.minReadingLevel === 1 ? 'any level' : `${marker.minReadingLevel} or higher`;
-            marker.popup += `<br><br>Reading level: ${readingLevel}<br><br>Chest by player digging level:<br>`;
+                marker.minReadingLevel === 1 ? 'any level' : `level ${marker.minReadingLevel} or higher`;
+            marker.popup += `<br><br>Read the map at ${readingLevel}<br><br>Chest by your level when you dig:<br>`;
             marker.popup += marker.chests
                 .map(
                     (c) =>
-                        `${c.digLevelMin}–${c.digLevelMax}: ${formatWikiLink(c.name, c.wikiPageName)}`
+                        `${c.digLevelMin}${c.digLevelMax === null ? ' or higher' : `–${c.digLevelMax}`}: ${formatWikiLink(c.name, c.wikiPageName)}`
                 )
                 .join('<br>');
-            marker.popup += '<br><br>Guardians (scale with the player):<br>';
+            marker.popup += '<br><br>Guardians (scale with your level):<br>';
             marker.popup += marker.guardians
                 .map(
                     (g) =>
@@ -1125,7 +1127,7 @@ export class RepositoryBase {
 
             const positionText = `Fishable Water @ ${formatCoordinates(coordinates.x, coordinates.y, coordinates.z)}`;
 
-            const popupText = `${positionText}<br><br>Fishable at daytime: <br>${daytimeItemLines}<br><br>Fishable at nighttime: <br>${nighttimeItemLines}`;
+            const popupText = `${positionText}<br><br>Day (6 AM to 10 PM): <br>${daytimeItemLines}<br><br>Night (10 PM to 6 AM): <br>${nighttimeItemLines}`;
 
             markers.push({
                 stableKey: stableKey,

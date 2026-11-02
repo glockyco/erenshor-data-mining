@@ -204,10 +204,11 @@ test('dialog givers show their required quest and focus their location', async (
 test('item search shows possible treasure hunts and focuses their sites', async ({ page }) => {
     await page.goto(`/map?sel=${encodeURIComponent('item:item:fixture treasure')}`);
     await expect(page.getByText('Possible hunt locations, not chests present at every site.')).toBeVisible();
+    // One heading per chest, with a row per zone below it.
     const tierLinks = page.locator('a[href="https://erenshor.wiki.gg/wiki/Lost%20Treasure%20(20-30)"]');
-    await expect(tierLinks).toHaveCount(2);
+    await expect(tierLinks).toHaveCount(1);
     await expect(tierLinks.first().locator('..')).toContainText('Lost Treasure (20-30)');
-    const site = page.getByRole('button', { name: /Stowaway's Step · player levels 21–29/ });
+    const site = page.getByRole('button', { name: /Stowaway's Step · level 21–29/ });
     await expect(site).toBeVisible();
     await site.click();
     const all = page.getByRole('button', { name: 'Show all 3 locations', exact: true });
@@ -272,7 +273,7 @@ test('a wiki chest link highlights only eligible treasure sites and opens their 
     await expect(page.getByRole('button', { name: 'Show all 1 dig site', exact: true })).toBeVisible();
     await expect(page.getByText('Hidden Hills', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Dig site 1 · Guardians 2–36', exact: true }).click();
-    await expect(page.getByText('Reading level: any level', { exact: true })).toBeVisible();
+    await expect(page.getByText(/\bany level\b/)).toBeVisible();
     for (const name of ['Lost Treasure (1-10)', 'Lost Treasure (10-20)', 'Lost Treasure (20-30)', 'Lost Treasure (30+)']) {
         await expect(page.getByRole('link', { name, exact: true })).toBeVisible();
     }
@@ -285,7 +286,7 @@ test('a wiki chest link highlights only eligible treasure sites and opens their 
 
 test('a high-reading-level dig site only offers reachable chests', async ({ page }) => {
     await page.goto('/map?sel=marker:treasure:blight-fixture');
-    await expect(page.getByText('Reading level: 31 or higher', { exact: true })).toBeVisible();
+    await expect(page.getByText(/at level 31 or higher/)).toBeVisible();
     await expect(page.getByRole('link', { name: 'Lost Treasure (30+)', exact: true })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Lost Treasure (1-10)', exact: true })).toHaveCount(0);
     await expect(page.getByText('Level 27–36', { exact: false })).toHaveCount(3);
@@ -302,7 +303,7 @@ test('guardian links resolve every treasure site', async ({ page }) => {
 
 test('the legacy zone popup includes the treasure encounter', async ({ page }) => {
     await page.goto('/maps/Stowaway?marker=treasure:stowaway-fixture');
-    await expect(page.locator('.leaflet-popup-content')).toContainText('Reading level: 21 or higher');
+    await expect(page.locator('.leaflet-popup-content')).toContainText('level 21 or higher');
     await expect(page.locator('.leaflet-popup-content')).toContainText('21–29: Lost Treasure (20-30)');
     await expect(page.locator('.leaflet-popup-content')).toContainText('Ancient Demon: Level 17–36');
 });

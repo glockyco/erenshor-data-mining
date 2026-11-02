@@ -161,6 +161,22 @@ function range(atom: ProvenanceCondition): string {
         max === null ? '' : atom.maximum_inclusive ? `${max} or lower` : `below ${max}`].filter(Boolean).join(' and ');
 }
 
+/** The quality tiers an atom allows, such as "Blessed or Ascended" or "Improved +1 to +4". */
+function qualityNames(atom: ProvenanceCondition): string {
+    const tiers: [number, string][] = [[1, 'Standard'], [11, 'Improved +1'], [12, 'Improved +2'],
+        [13, 'Improved +3'], [14, 'Improved +4'], [15, 'Improved +5'], [2, 'Blessed'], [3, 'Ascended']];
+    const selected = atom.value
+        ? [atom.value === 'normal' ? 'Standard' : atom.value === 'divine' ? 'Ascended' : capitalize(atom.value)]
+        : tiers.filter(([value]) => (atom.minimum === null || (atom.minimum_inclusive ? value >= atom.minimum : value > atom.minimum)) &&
+            (atom.maximum === null || (atom.maximum_inclusive ? value <= atom.maximum : value < atom.maximum))).map(([, label]) => label);
+    const improved = selected.filter((label) => label.startsWith('Improved +'));
+    if (improved.length > 1) {
+        const first = selected.indexOf(improved[0]);
+        selected.splice(first, improved.length, improved.length === 5 ? 'Improved' : `${improved[0]} to +${improved.at(-1)!.slice(-1)}`);
+    }
+    return list(selected, 'or');
+}
+
 /** One phrase per kind of requirement, so several quests or keys read as one list. */
 function phrases(atoms: ProvenanceCondition[], names: Record<string, string>, context: ConditionContext): string[] {
     const name = (atom: ProvenanceCondition) => {
@@ -194,8 +210,11 @@ function phrases(atoms: ProvenanceCondition[], names: Record<string, string>, co
             case 'actor_class': return group.map((atom) => atom.actor === 'sim' || atom.actor === 'sim_player'
                 ? `Requires a simulated player of class ${name(atom)}` : `Requires the ${name(atom)} class`);
             case 'zone_use': return [`Only in ${list(group.map(name))}`];
-            case 'time_of_day': return group.map((atom) => atom.value === 'day' ? 'Only during the day' : atom.value === 'night' ? 'Only at night' : `Only during ${atom.value}`);
-            case 'quality': return group.map((atom) => `Requires quality ${range(atom)}`);
+            case 'time_of_day': return group.map((atom) => atom.value === 'day' ? 'Only during the day (6 AM to 10 PM)' : atom.value === 'night' ? 'Only at night (10 PM to 6 AM)' : `Only during ${atom.value}`);
+            case 'quality': return group.map((atom) => {
+                const tiers = qualityNames(atom);
+                return `Requires ${/^[aeiou]/i.test(tiers) ? 'an' : 'a'} ${tiers} item`;
+            });
             case 'route': return group.map((atom) => atom.value === 'normal_pointer_inventory_transfer'
                 ? 'Drag it into your inventory' : capitalize((atom.value ?? '').replaceAll('_', ' ')));
             case 'never': return ['Never'];

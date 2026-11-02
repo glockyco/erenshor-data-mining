@@ -108,7 +108,7 @@
             : mostNotable.encounterTier === 'elite' ? 'Elite'
                 : mostNotable.encounterTier === 'chest' ? 'Chest' : '';
         const respawn = formatRespawnTime(m.spawnDelay);
-        const night = m.isNightSpawn ? '🌙 23:00-7:00' : '';
+        const night = m.isNightSpawn ? '🌙 Night only' : '';
         const warning = !m.isEnabled ? '(Initially) Disabled' : undefined;
 
         if (chars.length === 1) {
@@ -138,7 +138,7 @@
         }
 
         const first = chars[0];
-        const night = m.isNightSpawn ? '🌙 23:00-7:00' : '';
+        const night = m.isNightSpawn ? '🌙 Night only' : '';
         const respawn = formatRespawnTime(m.spawnDelay);
         const warning = !m.isEnabled ? '(Initially) Disabled' : undefined;
 

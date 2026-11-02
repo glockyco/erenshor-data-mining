@@ -66,7 +66,7 @@
     <div class="space-y-1">
         {#if marker.isNightSpawn}
             <div class="flex items-center gap-1.5 text-sm text-zinc-300">
-                <span>Night spawn (23:00-7:00)</span>
+                <span>Night only: spawns 11 PM to 4 AM, leaves at 7 AM</span>
             </div>
         {/if}
         <div class="text-xs text-zinc-400">
@@ -120,7 +120,7 @@
                         </div>
                         {#if char.furniture}
                             <div class="text-xs text-zinc-400">
-                                Appears when the player places the
+                                Requires the
                                 {#if char.furniture.wikiPageName}
                                     <a
                                         class="text-blue-400 hover:underline"
@@ -128,7 +128,7 @@
                                             char.furniture.wikiPageName
                                         )}">{char.furniture.name}</a
                                     >
-                                {:else}{char.furniture.name}{/if} in this room.
+                                {:else}{char.furniture.name}{/if} in this room
                             </div>
                         {/if}
                     </div>
