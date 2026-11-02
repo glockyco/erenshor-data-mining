@@ -63,6 +63,8 @@ Nix owns the pnpm version. Keep its toolchain on the patched 10.x line rather th
 - Ask before publishing to the wiki, the map, or the sheets. Do a dry run first.
 - Keep the map's public URLs working: `/map` with the `layers` and `sel` parameters, WebSocket ports 18584 and 18585, and `/db/erenshor.sqlite`.
 - Fix every failing check you come across, including ones that failed before your change.
+- Keep the unfinished work of an OpenSpec change on a `wip/<change>` branch until it is ready to publish, so `main` stays deployable. The change's proposal, design and tasks stay on `main`. Work on the branch in its own worktree, because other work continues in the main checkout.
+- Bring a finished `wip/` branch into `main` by rebasing it onto `main` and fast-forwarding `main`, so history stays linear.
 
 ## Troubleshooting
 
