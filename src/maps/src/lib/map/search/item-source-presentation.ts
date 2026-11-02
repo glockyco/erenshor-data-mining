@@ -37,7 +37,7 @@ export type PresentedItemSource = Shown & (
     }
     | {
         kind: 'auction_house';
-        /** Level windows of the routes that list the item, as "11–19", merged where they overlap. */
+        /** Level windows of the routes that list the item, merged where they overlap. */
         row: { simulatedPlayerLevels: string[]; playerLevels: string[] };
         markers: AnySpawnMarker[];
         brokers: { row: PresentedCharacter; markers: AnySpawnMarker[] }[];
@@ -308,7 +308,7 @@ function dropChance(row: PresentedItemSource): number {
     return row.kind === 'drop' ? row.row.dropProbability ?? -1 : -1;
 }
 
-/** Merges overlapping or adjacent level windows and words each as "11–19". */
+/** Merges overlapping or adjacent level windows and words each as a range joined by an en dash. */
 function windows(ranges: [number, number][]): string[] {
     const merged: [number, number][] = [];
     for (const [min, max] of [...ranges].sort((a, b) => a[0] - b[0] || a[1] - b[1])) {
