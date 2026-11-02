@@ -4,7 +4,7 @@
     import AcquisitionDetails from './AcquisitionDetails.svelte';
     let { marker }: { marker: WorldWater } = $props();
     const items = $derived([...new Map([...marker.daytimeItems, ...marker.nighttimeItems]
-        .map((item) => [item.provenance.acquisition_key, item])).values()]);
+        .map((item) => [item.provenance.source_key, item])).values()]);
 </script>
 
 <div class="space-y-3">

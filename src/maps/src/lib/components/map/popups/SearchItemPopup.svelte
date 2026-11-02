@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { ResolvedItemSource } from '$lib/map/search/item-source-provider';
     import type { ItemSearchResult } from '$lib/map/search';
-    import { conditionLines, probabilityText, quantityText, conditionsSatisfiable } from '$lib/item-provenance';
+    import { conditionLines, probabilityText, quantityText } from '$lib/item-provenance';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
     import Crosshair from '@lucide/svelte/icons/crosshair';
 
@@ -38,7 +38,7 @@
     {/if}
     {#each sources as source (source.row.acquisitionKey)}
         {@const fact = source.row.provenance}
-        <div class="space-y-1 border-t border-zinc-700 pt-2" data-acquisition-key={fact.acquisition_key} data-origin-item={fact.item_stable_key}
+        <div class="space-y-1 border-t border-zinc-700 pt-2" data-acquisition-key={fact.source_key} data-origin-item={fact.item_stable_key}
             data-presentation={source.presentation} data-acquisition-keys={JSON.stringify(source.members.map((member) => member.acquisitionKey))}
             data-origin-items={JSON.stringify(source.members.map((member) => member.originatingItemStableKey))}>
             <div class="text-zinc-500">{labels[fact.kind] ?? fact.kind.replaceAll('_', ' ')}</div>
@@ -49,8 +49,8 @@
             <p class="text-zinc-400">{quantityText(fact)}</p>
             {#if source.presentation !== 'any_water'}
             {#each conditionLines(fact.conditions, source.row.referenceNames) as condition, index (index)}<p class="text-zinc-300">{condition}</p>{/each}
-            {#each fact.locations.filter((location) => conditionsSatisfiable([...fact.conditions, ...location.conditions])) as location (location.location_key)}
-                {@const marker = source.markers.find((candidate) => candidate.stableKey === location.coordinate_stable_key)}
+            {#each fact.locations as location (location.place_key)}
+                {@const marker = source.markers.find((candidate) => candidate.stableKey === location.marker_stable_key)}
                 {@const locationSource = location.source_copy_stable_key ? source.row.locationSources[location.source_copy_stable_key] : undefined}
                 <div class="space-y-1 text-zinc-400">
                     {#if locationSource && locationSource.name !== source.row.sourceName}

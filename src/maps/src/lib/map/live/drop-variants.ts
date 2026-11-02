@@ -51,7 +51,7 @@ export function aggregateDropVariants(lists: CharacterDrop[][]): AggregatedDrop[
                 existing.minProbability = Math.min(existing.minProbability, drop.dropProbability);
                 existing.maxProbability = Math.max(existing.maxProbability, drop.dropProbability);
                 if (!seen.has(key)) existing.droppedBy += 1;
-                if (!existing.acquisitions.some((fact) => fact.acquisition_key === drop.provenance.acquisition_key)) {
+                if (!existing.acquisitions.some((fact) => fact.source_key === drop.provenance.source_key)) {
                     existing.acquisitions.push(drop.provenance);
                 }
             }

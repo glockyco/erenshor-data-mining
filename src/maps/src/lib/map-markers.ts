@@ -1,5 +1,5 @@
 import type { EntityData } from './map/live/types';
-import type { ItemAcquisition, ItemDisposition } from './item-provenance';
+import type { ItemAcquisition } from './item-provenance';
 import type { ZoneLineDestinationContext } from './zone-line-destinations';
 
 /** Character tiers in display order, most notable first. */
@@ -177,9 +177,6 @@ export type ItemSourceRow = ItemSourceItemMeta & {
     price: number | null;
     referenceNames: Record<string, string>;
     locationSources: Record<string, { name: string; wikiPageName: string | null }>;
-    fishingBonus: ItemAcquisition | null;
-    originatingDisposition: ItemDisposition;
-    displayDisposition: ItemDisposition;
 };
 
 // Vendor item info (for popups)

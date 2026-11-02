@@ -18,7 +18,7 @@ beforeAll(async () => {
 });
 
 function drop(displayName: string, dropProbability: number) {
-    return source(acquisition({ acquisition_key: displayName, item_stable_key: `item:${displayName}`,
+    return source(acquisition({ source_key: displayName, item_stable_key: `item:${displayName}`,
         probability_min: dropProbability, probability_max: dropProbability }), {
         displayName, characterStableKey: 'character:hoarder'
     });

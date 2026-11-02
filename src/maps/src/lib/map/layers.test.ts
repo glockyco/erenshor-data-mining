@@ -279,7 +279,7 @@ describe('createLayers visibility filtering', () => {
 
     it('keeps a stored-return source icon without drawing a fixed connection or landing marker', () => {
         const fixed: WorldZoneLine = {
-            stableKey: 'line:fixed', category: 'zone-line', position: { x: 5, y: 6 }, popup: '',
+            stableKey: 'line:fixed', category: 'zone-line', position: { x: 5, y: 6 },
             destinationZone: 'Test', destinationZoneName: 'Test Zone', landingPosition: { x: 30, y: 0, z: 40 },
             destinationContext: null, levelRangeLow: 1, levelRangeHigh: 20, isEnabled: true,
             zone: 'Test', zoneName: 'Test Zone', worldPosition: [50, 60], destinationWorldPosition: [30, 40],

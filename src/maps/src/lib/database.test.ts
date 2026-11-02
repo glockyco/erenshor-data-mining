@@ -172,9 +172,9 @@ describe('Repository', () => {
             'special_world_drop', 'spell_created', 'starting_class', 'ui_grant', 'vendor'
         ]);
         const auctions = rows.filter((row) => row.kind === 'auction_house');
-        expect(auctions.map((row) => row.provenance.variant_key).sort()).toEqual(['consumable', 'equipment']);
+        expect(auctions.map((row) => row.acquisitionKey)).toEqual(['auction:1', 'auction:2']);
         expect(new Set(rows.map((row) => row.acquisitionKey)).size).toBe(rows.length);
-        expect(rows.every((row) => row.acquisitionKey === row.provenance.acquisition_key &&
+        expect(rows.every((row) => row.acquisitionKey === row.provenance.source_key &&
             row.originatingItemStableKey === row.provenance.item_stable_key)).toBe(true);
     });
 
@@ -184,12 +184,11 @@ describe('Repository', () => {
         const ui = provider.getSourcesForItem('item:fixture relic').find((source) => source.kind === 'ui_grant')!;
         expect(ui.markers).toEqual([]);
         expect(ui.row.provenance).toMatchObject({
-            player_access_state: 'verified_player', quantity_min: 1, quantity_max: 2,
+            quantity_min: 1, quantity_max: 2,
             locations: [expect.objectContaining({ relation: 'unlocated', conditions: expect.arrayContaining([
                 expect.objectContaining({ predicate: 'room_furnished', reference_slot: 'room:1' }),
                 expect.objectContaining({ predicate: 'account_state', actor: 'account',
-                    reference_stable_key: 'account_state:reliquary_claimed', value: 'false', phase: 'availability', scope: 'room:unlocated' }),
-                expect.objectContaining({ predicate: 'account_state', value: 'true', phase: 'operation_outcome' })
+                    reference_stable_key: 'account_state:reliquary_claimed', value: 'false', phase: 'availability' })
             ]), entry_zone_line_keys: ['zone-line:stowaway-fixture'] })]
         });
         expect(provider.getResult('item:fixture relic')?.hasKnownSource).toBe(true);
@@ -210,7 +209,7 @@ describe('Repository', () => {
         expect(provider.getResult('item:fixture meditate')?.sourceCounts.vendors).toBe(2);
     });
 
-    it('groups pure global fishing finals as Any water while retaining local enhanced rates and every member identity', async () => {
+    it('reads one public Any water source beside enhanced local catches', async () => {
         const rows = (await db.getItemSources()).filter((row) => row.itemStableKey === 'item:fixture fish' && row.kind === 'fishing');
         const waters = (await Promise.all(['Stowaway', 'StowawayPortal', 'Brake'].map(async (zone) =>
             (await db.getWaterMarkers(zone)).map((marker) => ({ ...marker, zone, zoneName: zone,
@@ -223,11 +222,10 @@ describe('Repository', () => {
         const sources = provider.getSourcesForItem('item:fixture fish');
         const grouped = sources.filter((source) => source.presentation === 'any_water');
         expect(grouped).toHaveLength(1);
-        expect(grouped[0].members).toHaveLength(4);
+        expect(grouped[0].row.acquisitionKey).toBe('fishing:bonus');
         expect(grouped[0].markers).toEqual([]);
         expect(grouped[0].unlocated).toEqual([]);
-        expect(grouped[0].members.every((row) => row.provenance.probability_min === 1.25 &&
-            row.fishingBonus?.probability_stage === 'native_pool')).toBe(true);
+        expect(grouped[0].row.provenance.probability_min).toBe(1.25);
         const local = sources.filter((source) => source.presentation === 'source');
         expect(local.map((source) => source.row.provenance.probability_min).sort()).toEqual([7.1875, 7.583333333333333]);
         expect(local.map((source) => source.row.provenance.conditions[0].value).sort()).toEqual(['day', 'night']);
@@ -344,7 +342,7 @@ describe('Repository', () => {
         expect(items.getSourcesForItem(reward.itemStableKey).flatMap((source) => source.row.provenance.locations)).toEqual(
             expect.arrayContaining([expect.objectContaining({
                 relation: 'possible_treasure', player_level_min: 21, player_level_max: 29,
-                coordinate_stable_key: 'treasure:stowaway-fixture'
+                marker_stable_key: 'treasure:stowaway-fixture'
             })])
         );
         expect(items.resolveHighlight(reward)).toMatchObject({

@@ -66,9 +66,9 @@
                             <WikiLink pageName={drop.itemName} />
                         </div>
                     </div>
-                    {#each drop.acquisitions as fact (fact.acquisition_key)}
+                    {#each drop.acquisitions as fact (fact.source_key)}
                         <AcquisitionDetails {fact} scene={liveState.zone}
-                            names={characterDetails.referenceNamesByAcquisition.get(fact.acquisition_key)} />
+                            names={characterDetails.referenceNamesByAcquisition.get(fact.source_key)} />
                     {/each}
                 {/each}
             </div>

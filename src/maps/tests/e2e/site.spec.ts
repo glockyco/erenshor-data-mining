@@ -238,9 +238,7 @@ test('pure global catches appear once as Any water without masking enhanced loca
     await expect(global).not.toContainText('Location unknown');
     await expect(global).not.toContainText('Fish during the day');
     await expect(global).not.toContainText('Fish at night');
-    const members: string[] = JSON.parse((await global.getAttribute('data-acquisition-keys'))!);
-    expect(members).toHaveLength(4);
-    expect(new Set(members).size).toBe(4);
+    expect(JSON.parse((await global.getAttribute('data-acquisition-keys'))!)).toEqual(['fishing:bonus']);
     const day = page.locator('[data-acquisition-key="fishing:1"]');
     await expect(day).toContainText('7.1875% per successful catch');
     await expect(day).toContainText('Fish during the day');

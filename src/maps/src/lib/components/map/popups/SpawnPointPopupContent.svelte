@@ -5,7 +5,6 @@
     import WikiLink from '$lib/components/map/WikiLink.svelte';
     import CharacterPortrait from '$lib/components/map/CharacterPortrait.svelte';
     import AcquisitionDetails from './AcquisitionDetails.svelte';
-    import { conditionsSatisfiable } from '$lib/item-provenance';
 
     interface Props {
         marker: WorldEnemy | WorldNpc;
@@ -95,7 +94,7 @@
     <div class="space-y-3">
         {#each sortedCharacters as char (char.stableKey)}
             {@const drops = (characterDetails.drops.get(char.stableKey) ?? []).filter((drop) =>
-                drop.provenance.locations.some((location) => location.coordinate_stable_key === marker.stableKey && conditionsSatisfiable([...drop.provenance.conditions, ...location.conditions])))}
+                drop.provenance.locations.some((location) => location.marker_stable_key === marker.stableKey))}
             <div class="rounded bg-zinc-800 p-3">
                 {#if char.portraitHash}
                     <div class="mb-2">
@@ -134,7 +133,7 @@
                 <!-- Vendor Items -->
                 {#if char.isVendor}
                     {@const items = (characterDetails.vendorItems.get(char.stableKey) ?? []).filter((item) =>
-                        item.provenance.locations.some((location) => location.coordinate_stable_key === marker.stableKey && conditionsSatisfiable([...item.provenance.conditions, ...location.conditions])))}
+                        item.provenance.locations.some((location) => location.marker_stable_key === marker.stableKey))}
                     {#if items.length > 0}
                         <div class="mt-2 border-t border-zinc-700 pt-2">
                             <div class="text-xs text-zinc-500 uppercase tracking-wide mb-1">
@@ -151,7 +150,7 @@
                                         </span>
                                     </div>
                                     <AcquisitionDetails fact={item.provenance} coordinateKey={marker.stableKey}
-                                        names={characterDetails.referenceNamesByAcquisition.get(item.provenance.acquisition_key)} />
+                                        names={characterDetails.referenceNamesByAcquisition.get(item.provenance.source_key)} />
                                 {/each}
                             </div>
                         </div>
@@ -170,7 +169,7 @@
                                     <span class="text-zinc-300">{drop.itemName}</span>
                                 </div>
                                 <AcquisitionDetails fact={drop.provenance} coordinateKey={marker.stableKey}
-                                    names={characterDetails.referenceNamesByAcquisition.get(drop.provenance.acquisition_key)} />
+                                    names={characterDetails.referenceNamesByAcquisition.get(drop.provenance.source_key)} />
                             {/each}
                         </div>
                     </div>

@@ -1,5 +1,5 @@
 import type { Database, SqlJsStatic } from 'sql.js/dist/sql-wasm.js';
-import { readItemAcquisitions, readItemDispositions, readItemUses, readProvenanceMetadata, probabilityText, conditionLines, quantityText, isActionableAcquisition, conditionsSatisfiable } from './item-provenance';
+import { readItemSources, readItemDispositions, readProvenanceMetadata, probabilityText, conditionLines, quantityText } from './item-provenance';
 import type { ItemAcquisition, ItemDisposition, ItemProvenanceSnapshot } from './item-provenance';
 import { readZoneLineDestinationContexts, readZoneLineDestinationSnapshot, STORED_RETURN_LABEL } from './zone-line-destinations';
 import type { ZoneLineDestinationContext } from './zone-line-destinations';
@@ -87,8 +87,7 @@ function buildMovementData(
 
 function acquisitionPopupHtml(fact: ItemAcquisition, coordinateKey: string): string {
     return [probabilityText(fact), quantityText(fact), ...conditionLines(fact.conditions),
-        ...fact.locations.filter((location) => location.coordinate_stable_key === coordinateKey &&
-            conditionsSatisfiable([...fact.conditions, ...location.conditions])).flatMap((location) => conditionLines(location.conditions))]
+        ...fact.locations.filter((location) => location.marker_stable_key === coordinateKey).flatMap((location) => conditionLines(location.conditions))]
         .filter(Boolean).join('<br>');
 }
 
@@ -109,12 +108,11 @@ export class RepositoryBase {
     private getProvenance(): MapItemProvenance {
         if (!this.db) throw new Error('DB not initialized');
         if (this.provenanceCache?.database !== this.db) {
-            const acquisitions = readItemAcquisitions(this.db);
+            const acquisitions = readItemSources(this.db);
             const dispositions = readItemDispositions(this.db);
             const dispositionByKey = new Map(dispositions.map((record) => [record.item_stable_key, record]));
             this.provenanceCache = { database: this.db, acquisitions, dispositions, dispositionByKey,
-                actionableByKey: new Map(acquisitions.filter((fact) => dispositionByKey.get(fact.item_stable_key)?.disposition === 'current' &&
-                    isActionableAcquisition(fact)).map((fact) => [fact.acquisition_key, fact])) };
+                actionableByKey: new Map(acquisitions.map((fact) => [fact.source_key, fact])) };
         }
         return this.provenanceCache;
     }
@@ -127,7 +125,7 @@ export class RepositoryBase {
         return this.zoneLineContextCache.records;
     }
 
-    /** Read complete offline coverage inputs without adding audit records to page props. */
+    /** Read public identities and offline context without adding audit records to page props. */
     async getItemProvenanceSnapshot(): Promise<ItemProvenanceSnapshot> {
         if (!this.db) throw new Error('DB not initialized');
         const provenance = this.getProvenance();
@@ -143,7 +141,7 @@ export class RepositoryBase {
             statement.free();
         }
         return { metadata: readProvenanceMetadata(this.db), acquisitions: provenance.acquisitions,
-            dispositions: provenance.dispositions, uses: readItemUses(this.db), items,
+            dispositions: provenance.dispositions, items,
             zone_line_destinations: readZoneLineDestinationSnapshot(this.db, this.getZoneLineContexts()) };
     }
 
@@ -327,13 +325,13 @@ export class RepositoryBase {
                 ib.y AS PositionY,
                 ib.z AS PositionZ,
                 i.display_name AS ItemName,
-                a.acquisition_key AS AcquisitionKey,
+                a.source_key AS AcquisitionKey,
                 i.wiki_page_name AS ItemWikiPageName,
                 ib.respawns AS Respawns,
                 ib.respawn_timer AS RespawnTimer
             FROM item_bags ib
-            JOIN item_acquisitions a ON a.source_stable_key = ib.stable_key AND a.kind = 'item_bag'
-                AND a.player_access_state IN ('verified_player', 'unconfirmed_player')
+            JOIN item_places p ON p.marker_stable_key = ib.stable_key
+            JOIN item_sources a ON a.place_set_key = p.place_set_key AND a.kind = 'item_bag'
             JOIN items i ON i.stable_key = a.item_stable_key
             WHERE ib.scene = ?
         `,
@@ -345,8 +343,7 @@ export class RepositoryBase {
         while (stmt.step()) {
             const row = stmt.getAsObject();
             const fact = facts.get(row.AcquisitionKey as string);
-            if (!fact || !fact.locations.some((location) => location.coordinate_stable_key === row.StableKey &&
-                conditionsSatisfiable([...fact.conditions, ...location.conditions]))) continue;
+            if (!fact) continue;
             const itemName = row.ItemName as string;
             const respawnTimer = row.RespawnTimer as number;
             const itemWikiPageName = row.ItemWikiPageName as string | null;
@@ -396,10 +393,10 @@ export class RepositoryBase {
                 i.display_name AS ItemName,
                 i.wiki_page_name AS ItemWikiPageName,
                 a.probability_max AS DropChance,
-                a.acquisition_key AS AcquisitionKey
+                a.source_key AS AcquisitionKey
             FROM mining_nodes m
-            JOIN item_acquisitions a ON a.source_stable_key = m.stable_key AND a.kind = 'mining'
-                AND a.player_access_state IN ('verified_player', 'unconfirmed_player')
+            JOIN item_places p ON p.marker_stable_key = m.stable_key
+            JOIN item_sources a ON a.place_set_key = p.place_set_key AND a.kind = 'mining'
             JOIN items i ON i.stable_key = a.item_stable_key
             WHERE m.scene = ?
         `,
@@ -421,8 +418,7 @@ export class RepositoryBase {
         while (stmt.step()) {
             const row = stmt.getAsObject();
             const fact = facts.get(row.AcquisitionKey as string);
-            if (!fact || !fact.locations.some((location) => location.coordinate_stable_key === row.StableKey &&
-                conditionsSatisfiable([...fact.conditions, ...location.conditions]))) continue;
+            if (!fact) continue;
             const stableKey = row.StableKey as string;
             if (!nodeMap.has(stableKey)) {
                 nodeMap.set(stableKey, {
@@ -1016,14 +1012,13 @@ export class RepositoryBase {
                 w.z AS PositionZ,
                 w.width AS Width,
                 w.depth AS Depth,
-                a.variant_key AS Type,
                 i.display_name AS ItemName,
                 i.wiki_page_name AS ItemWikiPageName,
                 a.probability_max AS DropChance,
-                a.acquisition_key AS AcquisitionKey
+                a.source_key AS AcquisitionKey
             FROM waters w
-            JOIN item_acquisitions a ON a.source_stable_key = w.stable_key AND a.kind IN ('fishing', 'fishing_bonus')
-                AND a.player_access_state IN ('verified_player', 'unconfirmed_player')
+            JOIN item_places p ON p.marker_stable_key = w.stable_key
+            JOIN item_sources a ON a.place_set_key = p.place_set_key AND a.kind IN ('fishing', 'fishing_bonus')
             JOIN items i ON i.stable_key = a.item_stable_key
             WHERE w.scene = ?
         `,
@@ -1047,8 +1042,7 @@ export class RepositoryBase {
         while (stmt.step()) {
             const row = stmt.getAsObject();
             const sourceFact = facts.get(row.AcquisitionKey as string);
-            if (!sourceFact || !sourceFact.locations.some((location) => location.coordinate_stable_key === row.StableKey &&
-                conditionsSatisfiable([...sourceFact.conditions, ...location.conditions]))) continue;
+            if (!sourceFact) continue;
             const stableKey = row.StableKey as string;
             if (!waterMap.has(stableKey)) {
                 waterMap.set(stableKey, {
@@ -1320,14 +1314,6 @@ export class RepositoryBase {
         if (!this.db) throw new Error('DB not initialized');
         const provenance = this.getProvenance();
         const facts = provenance.acquisitions;
-        const fishingBonuses = new Map<string, ItemAcquisition[]>();
-        for (const fact of facts) {
-            if (fact.kind !== 'fishing_bonus' || fact.probability_stage !== 'native_pool' ||
-                fact.mechanic !== 'fishing_global_replacement' || fact.probability_kind !== 'exact') continue;
-            const bonuses = fishingBonuses.get(fact.item_stable_key) ?? [];
-            bonuses.push(fact);
-            fishingBonuses.set(fact.item_stable_key, bonuses);
-        }
         const metadata = new Map<string, ItemSourceItemMeta & { visible: boolean; price: number }>();
         const names: Record<string, string> = {};
         const pages: Record<string, string | null> = {};
@@ -1384,13 +1370,11 @@ export class RepositoryBase {
         }
         const rows: ItemSourceRow[] = [];
         for (const fact of facts) {
-            if (!provenance.actionableByKey.has(fact.acquisition_key)) continue;
             const original = metadata.get(fact.item_stable_key);
             if (!original) throw new Error(`Missing canonical acquisition item: ${fact.item_stable_key}`);
             const aliases = original.wikiPageName ? visibleByPage.get(original.wikiPageName) : undefined;
             const item = original.visible ? original : aliases?.length === 1 ? aliases[0] : null;
             if (!item) continue;
-            const originatingDisposition = provenance.dispositionByKey.get(fact.item_stable_key)!;
             const displayDisposition = provenance.dispositionByKey.get(item.itemStableKey)!;
             if (displayDisposition.disposition !== 'current') continue;
             const characterKey = representatives.get(fact.source_group_key ?? fact.source_stable_key ?? '') ??
@@ -1398,12 +1382,8 @@ export class RepositoryBase {
             const sourceKey = fact.source_stable_key;
             rows.push({
                 itemStableKey: item.itemStableKey, displayName: item.displayName, wikiPageName: item.wikiPageName,
-                iconHash: item.iconHash, kind: fact.kind, acquisitionKey: fact.acquisition_key,
+                iconHash: item.iconHash, kind: fact.kind, acquisitionKey: fact.source_key,
                 originatingItemStableKey: fact.item_stable_key, provenance: fact,
-                originatingDisposition, displayDisposition,
-                fishingBonus: fact.kind === 'fishing' && fact.probability_kind === 'exact'
-                    ? fishingBonuses.get(fact.item_stable_key)?.find((bonus) => bonus.probability_min === fact.probability_min &&
-                        bonus.probability_max === fact.probability_max) ?? null : null,
                 sourceName: fact.kind === 'common_world_item' ? 'Any enemy with common drops' :
                     fact.kind === 'special_world_drop' ? 'Any enemy' :
                     fact.kind === 'auction_house' ? 'Auction House' :

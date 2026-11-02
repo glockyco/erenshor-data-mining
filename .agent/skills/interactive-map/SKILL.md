@@ -111,22 +111,16 @@ The overlay has crashed with deck.gl 9.4.0 and luma.gl 9.4.2 on Direct3D 11.
 
 ## Debug missing markers
 
-Item acquisition and popup loot come only from the persisted provenance contract.
+Item search and popup loot read the public item view stored by the clean database.
 Regenerate the clean database when its schema version is missing or unsupported.
-Inspect the acquisition, typed condition and location records together.
-The clean database does not store which input rows a fact comes from. To see them, rerun
-`select_item_provenance` in `src/erenshor/application/processor/item_provenance.py` against
-the clean and raw databases and read the builder's `fact_evidence`.
-The map keeps native-pool chances separate from final acquisition probabilities.
-Common world drops use the chance range stored in canonical acquisition facts.
-They do not create named droppers or enemy markers.
-Map builds write offline provenance coverage outside the published site.
-Use its origin IDs and reviewed lifecycle records when diagnosing omitted sources.
-Historical ownership selection and static operands stay out of current prerequisite
-copy because they are not current player-state tests. Their full conditions and
-presentation reasons remain in the offline coverage artifact.
-One-time claim conditions use account state rather than a quest proxy because the
-claim is shared across characters.
+Inspect `item_sources`, its stored condition gates, and the referenced place set together.
+The map matches places to markers by `marker_stable_key`. It words the stored
+conditions without deciding which facts or conditions are public.
+Common world drops use the public chance range. They do not create named
+droppers or enemy markers.
+Map builds write offline identity coverage outside the published site.
+Use its public source keys, display omission reasons and lifecycle records
+when diagnosing missing item results.
 Saved-return portals are conditional destinations, not fixed zone links, because
 their saved origin belongs to the character. Keep serialized defaults in offline
 coverage rather than using them to guess a return marker or connection.
@@ -134,18 +128,16 @@ Portal markers show `zone_line_connections`: lines that players can use
 (`zone_lines.is_usable`, which adds the reviewed exclusions of `mapping.json` to
 the raw zoning capability) and that no gate shuts for good. Initial inactivity
 does not make a line unusable.
-Pure global fishing replacements share one Any water source without markers.
+The public view supplies one Any water source for a global fishing replacement.
 Higher local catch rates retain their water and time restrictions.
-The grouped source keeps every originating acquisition for offline coverage.
 
 Treasure-hunt drops use possible treasure sites and their eligible player levels.
 Every source remains listed when no marker locates it. Coordinates are never
 inferred from the source character. Conditional room rewards require the stated
-furnishing. Only reviewed current items with verified final acquisitions and
-satisfiable conditions appear as public sources.
+furnishing.
 For functionally identical variants sharing a wiki page, keep one map-visible
 representative in `mapping.json`. Hidden variants then share that result while
-retaining their originating item, copy, variant and acquisition identities.
+retaining their originating item and public source identities.
 Pages with multiple visible variants keep separate results.
 
 1. Inspect `map_character_spawns` and `characters` in the clean database.

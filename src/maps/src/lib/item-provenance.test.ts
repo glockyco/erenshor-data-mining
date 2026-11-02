@@ -8,16 +8,13 @@ import initSqlJs from 'sql.js/dist/sql-wasm.js';
 import type { Database, SqlJsStatic } from 'sql.js/dist/sql-wasm.js';
 import { getMapsDatabasePath } from './database-path.server';
 import { Repository } from './database.node';
-import { assertProvenanceSchema, readItemAcquisitions, readItemDispositions, readItemUses, conditionLines, probabilityText, quantityText, isActionableAcquisition, conditionsSatisfiable, PROVENANCE_SCHEMA_VERSION } from './item-provenance';
+import { assertProvenanceSchema, readItemSources, readItemDispositions, readProvenanceMetadata, conditionLines, probabilityText, quantityText, PROVENANCE_SCHEMA_VERSION } from './item-provenance';
+import type { ItemProvenanceSnapshot } from './item-provenance';
 import { ItemSearchProvider } from './map/search/item-source-provider';
-import { indexCharacterDetails } from './map/character-details';
 import { buildMapProvenanceCoverage, writeMapProvenanceManifest } from './item-provenance-coverage.server';
 import type { MapProvenanceCoverage } from './item-provenance-coverage.server';
 import type { ItemSourceRow } from './map-markers';
-import { acquisition, condition, location } from './testing/item-provenance';
-
-const updateUiLocations = (assignment: string) => `UPDATE item_source_locations SET ${assignment} WHERE source_key = `
-    + "(SELECT location_source_key FROM item_acquisitions WHERE acquisition_key = 'ui:fixture')";
+import { acquisition, condition, source, disposition } from './testing/item-provenance';
 
 let SQL: SqlJsStatic;
 let database: Database;
@@ -30,374 +27,208 @@ beforeAll(async () => {
 });
 afterAll(() => { database.close(); repository.close(); });
 
-describe('offline canonical map coverage', () => {
-    it('accounts for every persisted acquisition, dimension and identity, including excluded player states', async () => {
-        const facts = readItemAcquisitions(database);
-        const lifecycle = new Map(readItemDispositions(database).map((record) => [record.item_stable_key, record]));
-        const rows = await repository.getItemSources();
-        const entrances = await Promise.all((await repository.getZoneLineMarkers('Stowaway')).map(async (marker) => ({
-            ...marker, zone: 'Stowaway', zoneName: 'Stowaway Step',
-            worldPosition: [marker.position.x, marker.position.y] as [number, number],
-            destinationWorldPosition: null, destinationEnemyInfo: marker.destinationZone && !marker.destinationContext
-                ? await repository.getZoneEnemyInfo(marker.destinationZone) : { levelRange: null, bosses: [], elites: [], chests: [] }
-        })));
-        const provider = new ItemSearchProvider(JSON.parse(JSON.stringify(rows)), [], [], [], [], await repository.getAllItems(), [], entrances);
-        const expectedColumns = database.exec('PRAGMA table_info(item_acquisitions)')[0].values.map((row) => row[1] as string).sort();
-        expect(facts.length).toBeGreaterThan(rows.length);
-        expect(rows.length).toBeGreaterThan(20);
-        const omitted: Record<string, number> = {};
-        let hidden = 0;
+function identityFixture() {
+    const fact = acquisition({ source_key: 'source:shown', item_stable_key: 'item:shown' });
+    const row = source(fact);
+    const snapshot: ItemProvenanceSnapshot = {
+        metadata: readProvenanceMetadata(database), acquisitions: [fact],
+        dispositions: [disposition(fact.item_stable_key)],
+        items: [{ stable_key: fact.item_stable_key, is_map_visible: true, wiki_page_name: row.wikiPageName }],
+        zone_line_destinations: []
+    };
+    return { snapshot, row };
+}
+
+function providerFor(rows: ItemSourceRow[]) {
+    return new ItemSearchProvider(rows, [], [], [], []);
+}
+
+describe('public schema reader', () => {
+    it('reads every persisted public source identity and public lifecycle record', async () => {
+        assertProvenanceSchema(database);
+        const facts = readItemSources(database);
+        const persistedKeys = database.exec('SELECT source_key FROM item_sources ORDER BY source_key')[0].values.flat();
+        expect(facts.length).toBeGreaterThan(0);
+        expect(facts.map((fact) => fact.source_key)).toEqual(persistedKeys);
+        const snapshot = await repository.getItemProvenanceSnapshot();
+        expect(snapshot.acquisitions).toEqual(facts);
+        expect(snapshot.dispositions).toEqual(readItemDispositions(database));
+        expect(snapshot.metadata.schema_version).toBe(PROVENANCE_SCHEMA_VERSION);
+        expect(snapshot).not.toHaveProperty('uses');
         for (const fact of facts) {
-            expect(Object.keys(fact).filter((key) => !['conditions', 'locations'].includes(key)).sort()).toEqual(expectedColumns);
-            const projected = rows.filter((row) => row.acquisitionKey === fact.acquisition_key);
-            const disposition = lifecycle.get(fact.item_stable_key)!;
-            if (disposition.disposition !== 'current') {
-                omitted[`lifecycle_${disposition.disposition}`] = (omitted[`lifecycle_${disposition.disposition}`] ?? 0) + 1;
-                expect(projected).toEqual([]);
-                continue;
+            expect(typeof fact.guaranteed).toBe('boolean');
+            expect(fact).not.toHaveProperty('variant_key');
+            expect(fact).not.toHaveProperty('probability_stage');
+            for (const atom of [...fact.conditions, ...fact.locations.flatMap((place) => place.conditions)]) {
+                expect(atom).toHaveProperty('gate_index');
+                expect(atom).toHaveProperty('alternative_index');
+                expect(atom).not.toHaveProperty('scope');
+                expect(atom).not.toHaveProperty('group_index');
             }
-            if (!isActionableAcquisition(fact)) {
-                const reason = fact.player_access_state !== 'verified_player' ? fact.player_access_state :
-                    fact.probability_stage === 'native_pool' ? 'native_pool' :
-                        fact.probability_max !== null && fact.probability_max <= 0 ? 'zero_probability' : 'impossible_conditions';
-                omitted[reason] = (omitted[reason] ?? 0) + 1;
-                expect(projected).toEqual([]);
-                continue;
-            }
-            const statement = database.prepare(`SELECT target.stable_key FROM items original JOIN items target
-                ON target.stable_key = original.stable_key OR (original.is_map_visible = 0
-                    AND original.wiki_page_name = target.wiki_page_name AND 1 = (
-                        SELECT COUNT(*) FROM items visible WHERE visible.wiki_page_name = original.wiki_page_name AND visible.is_map_visible = 1))
-                WHERE original.stable_key = ? AND target.is_map_visible = 1`, [fact.item_stable_key]);
-            const hasVisibleAlias = statement.step();
-            statement.free();
-            if (!hasVisibleAlias) { hidden++; expect(projected).toEqual([]); continue; }
-            expect(projected).toHaveLength(1);
-            const row = projected[0];
-            expect(row.originatingItemStableKey).toBe(fact.item_stable_key);
-            expect(row.provenance).toEqual(fact);
-            if (row.wikiPageName?.trim()) {
-                const resolved = provider.getSourcesForItem(row.itemStableKey).filter((entry) =>
-                    entry.members.some((member) => member.acquisitionKey === fact.acquisition_key));
-                expect(resolved).toHaveLength(1);
-                const member = resolved[0].members.find((member) => member.acquisitionKey === fact.acquisition_key)!;
-                expect(JSON.parse(JSON.stringify(member.provenance))).toEqual(fact);
-                if (resolved[0].presentation === 'source') expect(resolved[0].unlocated).toEqual(fact.locations);
-                else {
-                    expect(resolved[0].markers).toEqual([]);
-                    expect(member.fishingBonus).toEqual(facts.find((bonus) => bonus.acquisition_key === member.fishingBonus?.acquisition_key));
-                }
+            for (const place of fact.locations) {
+                expect(place).toHaveProperty('place_key');
+                expect(place).toHaveProperty('marker_stable_key');
+                expect(place).not.toHaveProperty('location_key');
             }
         }
-        expect(omitted).toMatchObject({ internal_only: 1, unconfirmed_player: 1, native_pool: 1, impossible_conditions: 1 });
-        expect(hidden).toBeGreaterThan(0);
-        const ui = rows.find((row) => row.kind === 'ui_grant')!.provenance;
-        expect(ui.conditions).toHaveLength(2);
-        expect(ui.locations[0].conditions).toHaveLength(3);
-        expect(ui.locations[0].entry_zone_line_keys).toHaveLength(1);
-        expect(provider.getSourcesForItem('item:fixture relic').find((source) => source.kind === 'ui_grant')?.entries).toEqual(entrances);
-        expect(Object.keys(ui.conditions[0]).sort()).toEqual(database.exec('PRAGMA table_info(item_acquisition_conditions)')[0].values
-            .map((row) => row[1] as string).filter((key) => key !== 'owner_key').sort());
-        expect(Object.keys(ui.locations[0]).sort()).toEqual(database.exec('PRAGMA table_info(item_source_locations)')[0].values
-            .map((row) => row[1] as string).filter((key) => key !== 'source_key').sort());
     });
 
-    it('retains complete canonical facts through character, mining and fishing popup projections', async () => {
-        const rows = await repository.getItemSources();
-        const details = indexCharacterDetails(rows, await repository.getCharactersByName());
-        const popupFacts = [...details.drops.values(), ...details.vendorItems.values()].flat().map((entry) => entry.provenance);
-        expect(popupFacts.length).toBeGreaterThan(5);
-        for (const fact of popupFacts) expect(fact).toEqual(rows.find((row) => row.acquisitionKey === fact.acquisition_key)!.provenance);
-        const mining = await repository.getMiningNodeMarkers('Stowaway');
-        const water = await repository.getWaterMarkers('Stowaway');
-        const naturalFacts = [...mining.flatMap((marker) => marker.items), ...water.flatMap((marker) => [...marker.daytimeItems, ...marker.nighttimeItems])]
-            .map((entry) => entry.provenance);
-        expect(naturalFacts.some((fact) => fact.kind === 'mining')).toBe(true);
-        expect(naturalFacts.some((fact) => fact.kind === 'fishing')).toBe(true);
-        expect(naturalFacts.some((fact) => fact.kind === 'fishing_bonus')).toBe(false);
-        expect(readItemAcquisitions(database).filter((fact) => fact.kind === 'fishing_bonus')).toHaveLength(1);
-        for (const fact of naturalFacts) expect(fact).toEqual(readItemAcquisitions(database).find((original) => original.acquisition_key === fact.acquisition_key));
-    });
-
-    it.each([null, 0, 1, 7])('preserves a mutated pool roll count %s independently of item probability and quantity', (count) => {
+    it.each(['missing', 'duplicate', 'unsupported'] as const)('rejects %s provenance metadata', (mutation) => {
         const mutated = new SQL.Database(database.export());
         try {
-            const before = readItemAcquisitions(mutated).find((fact) =>
-                fact.item_stable_key === 'item:fixture drop' && fact.source_copy_stable_key === 'character:fixture enemy')!;
-            expect(before.guaranteed_roll_count).toBe(2);
-            expect(before.guarantee_scope).toBe('pool');
-            expect(before.probability_max).toBe(25);
-            mutated.run('UPDATE item_acquisitions SET guaranteed_roll_count = ? WHERE acquisition_key = ?', [count, before.acquisition_key]);
-            const after = readItemAcquisitions(mutated).find((fact) => fact.acquisition_key === before.acquisition_key)!;
-            expect(JSON.parse(JSON.stringify(after))).toEqual({ ...before, guaranteed_roll_count: count });
-            expect(probabilityText(after)).toBe(probabilityText(before));
-            expect(quantityText(after)).toBe(quantityText(before));
-            expect(quantityText(after)).not.toContain('Guaranteed');
-        } finally {
-            mutated.close();
-        }
+            if (mutation === 'missing') mutated.run('DELETE FROM item_provenance_meta');
+            if (mutation === 'duplicate') mutated.run('INSERT INTO item_provenance_meta SELECT * FROM item_provenance_meta');
+            if (mutation === 'unsupported') mutated.run('UPDATE item_provenance_meta SET schema_version = -1');
+            expect(() => assertProvenanceSchema(mutated)).toThrow('schema version');
+        } finally { mutated.close(); }
     });
 
-    it('fails closed on missing, duplicated and unsupported schema versions', () => {
-        const missing = new SQL.Database();
-        const required = `schema version ${PROVENANCE_SCHEMA_VERSION}`;
-        expect(() => assertProvenanceSchema(missing)).toThrow();
-        missing.run('CREATE TABLE item_provenance_meta (schema_version INTEGER)');
-        expect(() => assertProvenanceSchema(missing)).toThrow(required);
-        missing.run('INSERT INTO item_provenance_meta VALUES (?)', [PROVENANCE_SCHEMA_VERSION - 1]);
-        expect(() => assertProvenanceSchema(missing)).toThrow(required);
-        missing.run('UPDATE item_provenance_meta SET schema_version = ?', [PROVENANCE_SCHEMA_VERSION]);
-        expect(() => assertProvenanceSchema(missing)).toThrow();
-        expect(() => assertProvenanceSchema(database)).not.toThrow();
-        expect(() => readItemAcquisitions(missing)).toThrow();
-        missing.run('INSERT INTO item_provenance_meta VALUES (?)', [PROVENANCE_SCHEMA_VERSION]);
-        expect(() => assertProvenanceSchema(missing)).toThrow(required);
-        missing.close();
+    it('requires the public source table', () => {
+        const mutated = new SQL.Database(database.export());
+        try {
+            mutated.run('DROP TABLE item_sources');
+            expect(() => readItemSources(mutated)).toThrow();
+        } finally { mutated.close(); }
     });
 
-    it('guards maintained source selectors against raw producer fallback', () => {
-        const source = readFileSync(new URL('./database.base.ts', import.meta.url), 'utf8');
-        expect((source.match(/JOIN item_acquisitions/g) ?? []).length).toBe(3);
-        expect((source.match(/(?:FROM|JOIN)\s+(?:loot_drops|vendor_offers|mining_node_items|water_fishables|special_world_drops|character_dialogs|quest_variants|crafting_rewards|item_drops|spell_created_items|item_conversions|class_starting_items|auction_house_items)\b/g) ?? []).length).toBe(0);
+    it('decodes a shared place set once across distinct source identities', () => {
+        const mutated = new SQL.Database(database.export());
+        try {
+            const facts = readItemSources(mutated);
+            const located = facts.find((fact) => fact.place_set_key !== null && fact.locations.length > 0);
+            expect(located).toBeDefined();
+            const other = facts.find((fact) => fact.source_key !== located!.source_key);
+            expect(other).toBeDefined();
+            mutated.run('UPDATE item_sources SET place_set_key = ? WHERE source_key = ?', [located!.place_set_key!, other!.source_key]);
+            const shared = readItemSources(mutated);
+            const first = shared.find((fact) => fact.source_key === located!.source_key)!;
+            const second = shared.find((fact) => fact.source_key === other!.source_key)!;
+            expect(first.locations.length).toBeGreaterThan(0);
+            expect(second.locations).toBe(first.locations);
+            expect(second.locations[0].conditions).toBe(first.locations[0].conditions);
+        } finally { mutated.close(); }
     });
 
-    it('preserves complete reviewed lifecycle records and emits a real offline manifest', async () => {
+    it('formats stored gate and alternative indices without deriving policy', () => {
+        const atoms = [
+            condition({ gate_index: 1, alternative_index: 0, atom_index: 0, gate_key: 'same', predicate: 'quest_done', reference_stable_key: 'quest:gate' }),
+            condition({ gate_index: 0, alternative_index: 1, atom_index: 0, gate_key: 'same', predicate: 'time_of_day', value: 'night' }),
+            condition({ gate_index: 0, alternative_index: 0, atom_index: 1, gate_key: 'same', predicate: 'quest_done', reference_stable_key: 'quest:route' }),
+            condition({ gate_index: 0, alternative_index: 0, atom_index: 0, gate_key: 'same', predicate: 'item_held', reference_stable_key: 'item:key', minimum: 1 })
+        ];
+        const mutated = new SQL.Database(database.export());
+        try {
+            const owner = readItemSources(mutated)[0].source_key;
+            mutated.run('DELETE FROM item_conditions WHERE owner_key = ?', [owner]);
+            for (const atom of atoms) {
+                mutated.run(`INSERT INTO item_conditions
+                    (owner_key, gate_index, alternative_index, atom_index, gate_key, predicate, reference_stable_key,
+                    reference_slot, actor, value, minimum, maximum, minimum_inclusive, maximum_inclusive, phase)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [owner, atom.gate_index, atom.alternative_index, atom.atom_index, atom.gate_key, atom.predicate,
+                    atom.reference_stable_key, atom.reference_slot, atom.actor, atom.value, atom.minimum, atom.maximum,
+                    Number(atom.minimum_inclusive), Number(atom.maximum_inclusive), atom.phase]);
+            }
+            const stored = readItemSources(mutated).find((fact) => fact.source_key === owner)!.conditions;
+            const lines = conditionLines(stored, { 'quest:gate': 'Gate Quest', 'quest:route': 'Route Quest', 'item:key': 'Key' });
+            expect(lines).toHaveLength(2);
+            expect(lines[0]).toContain('Carry 1 Key and Complete Route Quest or ');
+            expect(lines[1]).toBe('Complete Gate Quest');
+        } finally { mutated.close(); }
+        expect(conditionLines([condition({ predicate: 'account_state', actor: 'account', reference_stable_key: 'account_state:reliquary_claimed', value: 'false' })])).toEqual(['Before claiming your Reliquary']);
+    });
+});
+
+describe('offline identity coverage', () => {
+    it('accounts for the exact public source keys through rows and search', async () => {
         const snapshot = await repository.getItemProvenanceSnapshot();
         const rows = await repository.getItemSources();
-        const allItems = await repository.getAllItems();
-        const provider = new ItemSearchProvider(rows, [], [], [], [], allItems);
+        const provider = new ItemSearchProvider(rows, [], [], [], [], await repository.getAllItems());
         const manifest = buildMapProvenanceCoverage(snapshot, rows, provider);
+        expect(manifest.acquisitions.map((entry) => entry.source_key).sort()).toEqual(snapshot.acquisitions.map((fact) => fact.source_key).sort());
+        const shown = manifest.acquisitions.filter((entry) => entry.status === 'shown').map((entry) => entry.source_key).sort();
+        expect(shown).toEqual(rows.map((row) => row.acquisitionKey).sort());
+        expect(manifest.groups.flatMap((group) => group.source_keys).sort()).toEqual(shown);
+        expect(manifest.acquisitions.filter((entry) => entry.status === 'omitted').every((entry) => entry.reason !== null)).toBe(true);
+    });
+
+    it('records only map display omissions and preserves hidden source origins through a unique visible alias', () => {
+        const { snapshot, row } = identityFixture();
+        const hidden = acquisition({ source_key: 'source:hidden', item_stable_key: 'item:hidden' });
+        const retiredAlias = acquisition({ source_key: 'source:retired-alias', item_stable_key: 'item:retired-origin' });
+        const unaliased = acquisition({ source_key: 'source:no-alias', item_stable_key: 'item:no-alias' });
+        snapshot.acquisitions.push(hidden, retiredAlias, unaliased);
+        snapshot.items.push(
+            { stable_key: hidden.item_stable_key, is_map_visible: false, wiki_page_name: row.wikiPageName },
+            { stable_key: retiredAlias.item_stable_key, is_map_visible: false, wiki_page_name: 'Retired' },
+            { stable_key: 'item:retired-display', is_map_visible: true, wiki_page_name: 'Retired' },
+            { stable_key: unaliased.item_stable_key, is_map_visible: false, wiki_page_name: 'No alias' }
+        );
+        snapshot.dispositions.push(disposition(hidden.item_stable_key), disposition(retiredAlias.item_stable_key),
+            disposition('item:retired-display', { disposition: 'removed' }), disposition(unaliased.item_stable_key));
+        const aliasRow = source(hidden, { itemStableKey: row.itemStableKey, wikiPageName: row.wikiPageName });
+        const rows = [row, aliasRow];
+        const manifest = buildMapProvenanceCoverage(snapshot, rows, providerFor(rows));
+        expect(manifest.acquisitions).toContainEqual(expect.objectContaining({ source_key: hidden.source_key, originating_item_key: hidden.item_stable_key, display_item_key: row.itemStableKey, status: 'shown', reason: null }));
+        expect(manifest.acquisitions).toContainEqual(expect.objectContaining({ source_key: retiredAlias.source_key, status: 'omitted', reason: 'display_lifecycle_not_current' }));
+        expect(manifest.acquisitions).toContainEqual(expect.objectContaining({ source_key: unaliased.source_key, status: 'omitted', reason: 'map_visibility_no_unique_alias' }));
+    });
+
+    it('rejects missing, duplicate and extra shown identities', () => {
+        const { snapshot, row } = identityFixture();
+        expect(() => buildMapProvenanceCoverage(snapshot, [], providerFor([]))).toThrow('Missing map source identity');
+        expect(() => buildMapProvenanceCoverage(snapshot, [row, row], providerFor([row]))).toThrow('Duplicate map source identity');
+        const extra = { ...row, acquisitionKey: 'source:extra' };
+        expect(() => buildMapProvenanceCoverage(snapshot, [row, extra], providerFor([row]))).toThrow('Extra map source identity');
+        expect(() => buildMapProvenanceCoverage({ ...snapshot, acquisitions: [...snapshot.acquisitions, snapshot.acquisitions[0]] }, [row], providerFor([row]))).toThrow('Duplicate public source identity');
+    });
+
+    it('rejects missing, duplicate and extra search identities', () => {
+        const { snapshot, row } = identityFixture();
+        expect(() => buildMapProvenanceCoverage(snapshot, [row], providerFor([]))).toThrow('Missing map search source identity');
+        expect(() => buildMapProvenanceCoverage(snapshot, [row], providerFor([row, row]))).toThrow('Duplicate map search source identity');
+        const extra = { ...row, acquisitionKey: 'source:extra' };
+        expect(() => buildMapProvenanceCoverage(snapshot, [row], providerFor([row, extra]))).toThrow('Invalid map search source identity');
+    });
+
+    it('preserves offline lifecycle and conditional zone-line destination records in the emitted manifest', async () => {
+        const snapshot = await repository.getItemProvenanceSnapshot();
+        const rows = await repository.getItemSources();
+        const manifest = buildMapProvenanceCoverage(snapshot, rows, new ItemSearchProvider(rows, [], [], [], [], await repository.getAllItems()));
         expect(manifest.item_dispositions).toEqual(readItemDispositions(database));
-        expect(manifest.item_dispositions).toContainEqual({
-            item_stable_key: 'item:reviewed absent', disposition: 'removed',
-            reason: 'Reviewed identity absent from native items', evidence: 'fixture:absent-lifecycle',
-            current_pages: [], former_pages: ['Former Fixture Page']
-        });
-        expect(snapshot.items.some((item) => item.stable_key === 'item:reviewed absent')).toBe(false);
-        expect(manifest.item_dispositions.find((record) => record.item_stable_key === 'item:fixture unknown')?.disposition).toBe('current');
-        expect(manifest.acquisitions.filter((entry) => entry.acquisition_key.startsWith('lifecycle:'))
-            .map((entry) => entry.source_row_status)).toEqual(['lifecycle_removed', 'lifecycle_removed']);
-        expect(rows.some((row) => row.originatingItemStableKey === 'item:fixture meditate retired')).toBe(false);
-        expect(manifest.groups.find((group) => group.presentation === 'any_water')?.members).toHaveLength(4);
-        expect(manifest.item_uses).toMatchObject([{ use_key: 'use:fixture', reason: 'map_has_no_item_use_listing',
-            fact: { material_slot: 2, quantity_min: 2, quantity_max: 3, conditions: expect.arrayContaining([
-                expect.objectContaining({ reference_slot: 'slot:2', phase: 'operation_input' }),
-                expect.objectContaining({ reference_slot: 'slot:2', phase: 'operation_outcome' }),
-                expect.objectContaining({ phase: 'mechanic_parameter' })
-            ]) } }]);
-        const phases = new Set([...snapshot.acquisitions, ...snapshot.uses].flatMap((fact) => [
-            ...fact.conditions, ...fact.locations.flatMap((location) => location.conditions)
-        ]).map((condition) => condition.phase));
-        expect([...phases].sort()).toEqual(['availability', 'mechanic_parameter', 'operation_input', 'operation_outcome', 'source_initialization']);
-        const historical = manifest.acquisitions.find((entry) => entry.acquisition_key === 'drop:character:fixture enemy:item:fixture drop')!;
-        expect(historical.public_condition_omissions).toContainEqual({
-            location_key: null, reason: 'historical_ownership_selection',
-            condition: expect.objectContaining({ phase: 'source_initialization', predicate: 'item_not_owned', scope: 'source' })
-        });
-        expect(conditionLines(historical.fact.conditions, { 'item:fixture key': 'Fixture Key' })).toEqual(['Carry 1 Fixture Key']);
-        const accountOutcome = manifest.acquisitions.find((entry) => entry.acquisition_key === 'ui:fixture')!;
-        expect(accountOutcome.public_condition_omissions).toContainEqual({
-            location_key: 'room:unlocated', reason: 'account_state_outcome',
-            condition: expect.objectContaining({ predicate: 'account_state', actor: 'account',
-                reference_stable_key: 'account_state:reliquary_claimed', value: 'true',
-                scope: 'room:unlocated', phase: 'operation_outcome' })
-        });
+        expect(manifest.item_dispositions).toContainEqual(expect.objectContaining({ item_stable_key: 'item:reviewed absent', disposition: 'removed', current_pages: [], former_pages: ['Former Fixture Page'] }));
         expect(manifest.zone_line_destinations).toEqual(snapshot.zone_line_destinations);
-        expect(manifest.zone_line_destinations.find((line) => line.zone_line_stable_key === 'zone-line:reliquary-return')).toMatchObject({
-            serialized_default: { destination_zone_stable_key: 'zone:hidden', destination_scene: 'Hidden',
-                landing_position: { x: 123, y: 45, z: 678 } },
-            context: { kind: 'stored_return', destination_state_key: 'character_state:reliquary_return_zone',
-                landing_state_key: 'character_state:reliquary_return_landing', source_key: 'activator:reliquary_return_controller' }
-        });
-        const missingLifecycle = { ...snapshot, dispositions: snapshot.dispositions.filter((record) => record.item_stable_key !== 'item:fixture fish') };
-        expect(() => buildMapProvenanceCoverage(missingLifecycle, rows, provider)).toThrow('Missing canonical item disposition');
-        const dropped = rows.slice(1);
-        expect(() => buildMapProvenanceCoverage(snapshot, dropped, new ItemSearchProvider(dropped, [], [], [], [], allItems))).toThrow();
-        const lossy = JSON.parse(JSON.stringify(rows)) as ItemSourceRow[];
-        delete (lossy[0].provenance as unknown as Record<string, unknown>).guaranteed_roll_count;
-        expect(() => buildMapProvenanceCoverage(snapshot, lossy, new ItemSearchProvider(lossy, [], [], [], [], allItems))).toThrow('dimension mismatch');
+        expect(manifest.zone_line_destinations).toContainEqual(expect.objectContaining({ zone_line_stable_key: 'zone-line:reliquary-return', context: expect.objectContaining({ kind: 'stored_return' }), serialized_default: expect.objectContaining({ destination_scene: 'Hidden' }) }));
         const directory = await mkdtemp(path.join(tmpdir(), 'map-provenance-manifest-'));
         try {
             const outputPath = path.join(directory, 'item-provenance-map.json');
             await writeMapProvenanceManifest(outputPath, getMapsDatabasePath());
             const emitted = JSON.parse(await readFile(outputPath, 'utf8')) as MapProvenanceCoverage & { input_database: string };
-            expect(emitted.input).toEqual(snapshot.metadata);
-            expect(emitted.input_database).toBe(path.resolve(getMapsDatabasePath()));
-            expect(emitted.item_dispositions).toEqual(manifest.item_dispositions);
-            expect(emitted.zone_line_destinations).toEqual(manifest.zone_line_destinations);
-            expect(emitted.groups.flatMap((group) => group.members.map((member) => member.acquisitionKey)).sort()).toEqual(
-                manifest.groups.flatMap((group) => group.members.map((member) => member.acquisitionKey)).sort());
-        } finally {
-            await rm(directory, { recursive: true, force: true });
-        }
-    });
-
-    it('fails closed when a native item loses its required disposition', () => {
-        const mutated = new SQL.Database(database.export());
-        try {
-            mutated.run("DELETE FROM item_dispositions WHERE item_stable_key = 'item:fixture fish'");
-            expect(() => readItemDispositions(mutated)).toThrow('Missing canonical item disposition: item:fixture fish');
-        } finally {
-            mutated.close();
-        }
-    });
-
-    it.each(['condition_field', 'condition_phase', 'invalid_phase', 'entry_identity', 'coordinates', 'relation'] as const)('rejects a lost or malformed nested %s dimension', (mutation) => {
-        const mutated = new SQL.Database(database.export());
-        try {
-            const location = readItemAcquisitions(mutated).find((fact) => fact.acquisition_key === 'ui:fixture')!.locations[0];
-            if (mutation === 'condition_field' || mutation === 'condition_phase' || mutation === 'invalid_phase') {
-                const atom = { ...location.conditions[0] } as unknown as Record<string, unknown>;
-                if (mutation === 'invalid_phase') atom.phase = 'at_spawn';
-                else delete atom[mutation === 'condition_phase' ? 'phase' : 'reference_slot'];
-                mutated.run(updateUiLocations('conditions = ?'), [JSON.stringify([atom])]);
-            } else if (mutation === 'entry_identity') {
-                mutated.run(updateUiLocations('entry_zone_line_keys = ?'),
-                    [JSON.stringify([location.entry_zone_line_keys[0], location.entry_zone_line_keys[0]])]);
-            } else if (mutation === 'coordinates') {
-                mutated.run(updateUiLocations('x = 1'));
-            } else {
-                mutated.run(updateUiLocations("relation = 'inferred'"));
-            }
-            expect(() => readItemAcquisitions(mutated)).toThrow('Invalid canonical');
-        } finally {
-            mutated.close();
-        }
-    });
-
-    it.each([[1, null], [null, 5]] as const)('keeps a bounded quantity from %s to %s with one end open', (minimum, maximum) => {
-        const mutated = new SQL.Database(database.export());
-        try {
-            mutated.run("UPDATE item_uses SET quantity_kind = 'bounded', quantity_min = ?, quantity_max = ? WHERE use_key = 'use:fixture'",
-                [minimum, maximum]);
-            expect(readItemUses(mutated).find((fact) => fact.use_key === 'use:fixture'))
-                .toMatchObject({ quantity_kind: 'bounded', quantity_min: minimum, quantity_max: maximum });
-        } finally {
-            mutated.close();
-        }
-    });
-
-    it.each([
-        { family: 'quantity', mutation: "UPDATE item_uses SET quantity_kind = 'bounded', quantity_min = NULL, quantity_max = NULL WHERE use_key = 'use:fixture'" },
-        { family: 'probability', mutation: "UPDATE item_acquisitions SET probability_kind = 'bounded', probability_min = 1, probability_max = NULL WHERE acquisition_key = 'ui:fixture'" }
-    ])('rejects a bounded $family interval without the ends it needs', ({ family, mutation }) => {
-        const mutated = new SQL.Database(database.export());
-        try {
-            mutated.run(mutation);
-            expect(() => { readItemUses(mutated); readItemAcquisitions(mutated); }).toThrow(`Invalid canonical ${family} interval`);
-        } finally {
-            mutated.close();
-        }
-    });
-
-    it.each(['actor', 'reference', 'value', 'phase'] as const)('rejects invalid account-state %s without quest aliases or coercion', (field) => {
-        const mutated = new SQL.Database(database.export());
-        try {
-            const account = readItemAcquisitions(mutated).find((fact) => fact.acquisition_key === 'ui:fixture')!
-                .locations[0].conditions.find((condition) => condition.predicate === 'account_state' && condition.phase === 'availability')!;
-            const invalid = { ...account } as unknown as Record<string, unknown>;
-            if (field === 'actor') invalid.actor = 'player';
-            else if (field === 'reference') invalid.reference_stable_key = 'quest:reliquary_claimed';
-            else if (field === 'value') invalid.value = false;
-            else invalid.phase = 'operation_input';
-            mutated.run(updateUiLocations('conditions = ?'), [JSON.stringify([invalid])]);
-            expect(() => readItemAcquisitions(mutated)).toThrow('Invalid canonical condition');
-        } finally {
-            mutated.close();
-        }
+            expect(emitted).toEqual({ input_database: path.resolve(getMapsDatabasePath()), ...manifest });
+            expect(emitted).not.toHaveProperty('item_uses');
+        } finally { await rm(directory, { recursive: true, force: true }); }
     });
 });
 
-describe('actionable canonical summaries', () => {
-    it('keeps AND/OR gate semantics, actors and strict level boundaries', () => {
-        const conditions = [condition({ gate_key: 'level', actor: 'enemy', minimum: 30, minimum_inclusive: false, maximum: null }),
-            condition({ gate_key: 'route', predicate: 'time_of_day', minimum: null, maximum: null, value: 'day' }),
-            condition({ gate_key: 'route', group_index: 1, predicate: 'quest_done', minimum: null, maximum: null,
-                reference_stable_key: 'quest:fixture' })];
-        const lines = conditionLines(conditions, { 'quest:fixture': 'Fixture Quest' });
-        expect(lines).toHaveLength(2);
-        expect(lines[0]).toContain('30');
-        expect(lines[1]).toContain(' or ');
-        expect(lines[1]).toContain('Fixture Quest');
-    });
-    it('does not promote native-pool percentages to final acquisition chances', () => {
-        expect(probabilityText(acquisition({ probability_stage: 'native_pool' }))).toContain('within pool');
-        expect(probabilityText(acquisition({ probability_kind: 'unknown' }))).toContain('unknown');
-        expect(probabilityText(acquisition({ probability_kind: 'not_applicable' }))).toBe('');
-        expect(quantityText(acquisition())).toContain('1 to 3');
-        expect(isActionableAcquisition(acquisition({ probability_stage: 'native_pool' }))).toBe(false);
-        expect(isActionableAcquisition(acquisition({ player_access_state: 'unconfirmed_player' }))).toBe(false);
-        expect(conditionsSatisfiable([condition({ predicate: 'never' }), condition({ group_index: 1 })])).toBe(true);
-        expect(conditionsSatisfiable([condition({ predicate: 'never' }), condition({ atom_index: 1 })])).toBe(false);
-        expect(conditionsSatisfiable([condition({ minimum: 10, maximum: 10, maximum_inclusive: false })])).toBe(false);
+describe('public source presentation', () => {
+    it('keeps global fishing singleton identities without inventing locations', () => {
+        const { snapshot, row } = identityFixture();
+        row.provenance.mechanic = 'fishing_global_replacement';
+        row.provenance.kind = 'fishing';
+        row.kind = 'fishing';
+        const provider = providerFor([row]);
+        const resolved = provider.getSourcesForItem(row.itemStableKey);
+        expect(resolved).toMatchObject([{ presentation: 'any_water', members: [row], markers: [], entries: [], unlocated: [] }]);
+        expect(buildMapProvenanceCoverage(snapshot, [row], provider).groups[0].source_keys).toEqual([row.acquisitionKey]);
     });
 
-    it('requires compatible source and placement gates rather than validating them independently', () => {
-        const complete = condition({ predicate: 'quest_done', gate_key: 'source', reference_stable_key: 'quest:fixture',
-            minimum: null, maximum: null });
-        const incomplete = condition({ predicate: 'quest_not_done', gate_key: 'placement', reference_stable_key: 'quest:fixture',
-            minimum: null, maximum: null, scope: 'placement' });
-        expect(conditionsSatisfiable([complete])).toBe(true);
-        expect(conditionsSatisfiable([incomplete])).toBe(true);
-        expect(isActionableAcquisition(acquisition({ conditions: [complete], locations: [location({ conditions: [incomplete] })] }))).toBe(false);
-        expect(isActionableAcquisition(acquisition({ conditions: [complete], locations: [
-            location({ conditions: [incomplete] }), location({ location_key: 'compatible', conditions: [] })
-        ] }))).toBe(true);
-        expect(conditionsSatisfiable([complete, incomplete, { ...incomplete, group_index: 1, predicate: 'room_furnished' }])).toBe(true);
-        const low = condition({ predicate: 'actor_level', gate_key: 'source', minimum: 30, maximum: null });
-        const high = condition({ predicate: 'actor_level', gate_key: 'placement', minimum: null, maximum: 20, scope: 'placement' });
-        expect(isActionableAcquisition(acquisition({ conditions: [low], locations: [location({ conditions: [high] })] }))).toBe(false);
-        expect(conditionsSatisfiable([
-            condition({ predicate: 'time_of_day', value: 'day', minimum: null, maximum: null }),
-            condition({ predicate: 'time_of_day', gate_key: 'placement', value: 'night', minimum: null, maximum: null, scope: 'placement' })
-        ])).toBe(false);
-    });
-
-    it('separates historical initialization ownership from current operation requirements without public denials', () => {
-        const absentAtInitialization = condition({ predicate: 'item_not_owned', gate_key: 'ownership', phase: 'source_initialization',
-            reference_stable_key: 'item:fixture key', value: 'inventory', minimum: null, maximum: null });
-        const heldNow = condition({ ...absentAtInitialization, predicate: 'item_held', phase: 'operation_input', minimum: 1 });
-        expect(conditionsSatisfiable([absentAtInitialization, heldNow])).toBe(true);
-        expect(isActionableAcquisition(acquisition({ conditions: [absentAtInitialization, heldNow] }))).toBe(true);
-        expect(conditionsSatisfiable([{ ...absentAtInitialization, phase: 'availability' }, heldNow])).toBe(false);
-        expect(conditionsSatisfiable([absentAtInitialization, { ...heldNow, phase: 'source_initialization' }])).toBe(false);
-        expect(conditionLines([absentAtInitialization, heldNow], { 'item:fixture key': 'Fixture Key' })).toEqual(['Carry 1 Fixture Key']);
-        expect(conditionsSatisfiable([
-            condition({ predicate: 'never', gate_key: 'same', phase: 'source_initialization' }),
-            condition({ gate_key: 'same', group_index: 1, phase: 'operation_input' })
-        ])).toBe(false);
-        expect(conditionLines([absentAtInitialization, condition({ ...absentAtInitialization, group_index: 1,
-            predicate: 'quest_done', reference_stable_key: 'quest:fixture', value: null })])).toEqual([]);
-    });
-
-    it('shares availability and operation-input state but separates outcomes and static parameters', () => {
-        const input = condition({ predicate: 'quality', gate_key: 'input', phase: 'operation_input', value: 'normal', minimum: 2, maximum: 5 });
-        const outcome = condition({ ...input, gate_key: 'outcome', phase: 'operation_outcome', minimum: 8, maximum: 10 });
-        expect(conditionsSatisfiable([input, outcome])).toBe(true);
-        expect(conditionsSatisfiable([input, { ...outcome, phase: 'availability' }])).toBe(false);
-        const historicalLevel = condition({ phase: 'source_initialization', minimum: 30, maximum: null });
-        const currentLevel = condition({ gate_key: 'current', phase: 'operation_input', minimum: null, maximum: 20 });
-        expect(conditionsSatisfiable([historicalLevel, currentLevel])).toBe(true);
-        expect(conditionsSatisfiable([{ ...historicalLevel, phase: 'availability' }, currentLevel])).toBe(false);
-        const parameter = condition({ gate_key: 'parameter', phase: 'mechanic_parameter', minimum: 1, maximum: 5 });
-        expect(conditionsSatisfiable([parameter, { ...currentLevel, minimum: 15 }])).toBe(true);
-        expect(conditionLines([parameter])).toEqual([]);
-        const day = condition({ predicate: 'time_of_day', phase: 'source_initialization', minimum: null, maximum: null, value: 'day' });
-        const night = condition({ ...day, gate_key: 'current', phase: 'operation_input', value: 'night' });
-        expect(conditionsSatisfiable([day, night])).toBe(true);
-        expect(conditionsSatisfiable([{ ...day, phase: 'availability' }, night])).toBe(false);
-    });
-
-    it('keeps account claim availability separate from its outcome and displays only the ordinary prerequisite', () => {
-        const unclaimed = condition({ predicate: 'account_state', actor: 'account',
-            reference_stable_key: 'account_state:reliquary_claimed', value: 'false',
-            gate_key: 'claim', scope: 'room:unlocated', phase: 'availability', minimum: null, maximum: null });
-        const claimedAfter = condition({ ...unclaimed, phase: 'operation_outcome', value: 'true' });
-        expect(conditionsSatisfiable([unclaimed, claimedAfter])).toBe(true);
-        expect(conditionsSatisfiable([unclaimed, { ...claimedAfter, phase: 'availability', scope: 'other:location' }])).toBe(false);
-        expect(isActionableAcquisition(acquisition({ locations: [location({ conditions: [unclaimed, claimedAfter] })] }))).toBe(true);
-        expect(conditionLines([unclaimed, claimedAfter])).toEqual(['Before claiming your Reliquary']);
-        expect(conditionLines([{ ...unclaimed, value: 'true' }])).toEqual(['After claiming your Reliquary']);
-        expect(conditionLines([unclaimed], { 'account_state:reliquary_claimed': 'your home' })).toEqual(['Before claiming your home']);
+    it('presents stored public probabilities, quantities and item guarantees', () => {
+        const fact = acquisition({ probability_kind: 'exact', probability_min: 12, probability_max: 12, probability_basis: 'per_kill', guaranteed: false });
+        expect(probabilityText(fact)).toBe('12% per kill');
+        expect(probabilityText({ ...fact, probability_kind: 'unknown' })).toContain('unknown');
+        expect(probabilityText({ ...fact, probability_kind: 'not_applicable' })).toBe('');
+        expect(quantityText(fact)).toContain('1 to 3');
+        expect(quantityText(fact)).not.toContain('Guaranteed');
+        expect(quantityText({ ...fact, guaranteed: true })).toContain('Guaranteed');
     });
 });

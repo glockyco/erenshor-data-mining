@@ -43,7 +43,7 @@ export interface WorldPositioning {
 /**
  * Generic type: any marker with world positioning added
  */
-export type WorldMarker<T extends Marker = Marker> = T & WorldPositioning;
+export type WorldMarker<T extends Marker = Marker> = T extends Marker ? Omit<T, 'popup'> & WorldPositioning : never;
 
 // =============================================================================
 // Shorthand Types

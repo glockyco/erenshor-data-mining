@@ -76,8 +76,10 @@
     import MapSearch from '$lib/components/map/MapSearch.svelte';
     import Eye from '@lucide/svelte/icons/eye';
     import type { PageData } from './$types';
+    import { hydrateItemSourcePageData } from '$lib/item-source-page-data';
 
-    let { data }: { data: PageData } = $props();
+    let { data: pageData }: { data: PageData } = $props();
+    const data = $derived(hydrateItemSourcePageData(pageData));
 
     // Layer visibility state
     let layerVisibility = $state<LayerVisibility>({ ...DEFAULT_LAYER_VISIBILITY });
