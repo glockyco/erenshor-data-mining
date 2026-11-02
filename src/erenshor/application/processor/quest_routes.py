@@ -5,7 +5,11 @@ from __future__ import annotations
 import hashlib
 import json
 import sqlite3
-from typing import Any
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from erenshor.domain.value_objects.item_provenance import ItemAcquisition
 
 # Source kinds are part of each native operation, not interchangeable labels.
 _METHODS = {
@@ -41,8 +45,11 @@ def _rows(connection: sqlite3.Connection, query: str) -> list[dict[str, Any]]:
     return [dict(zip(columns, row, strict=True)) for row in cursor]
 
 
-def process_quest_routes(connection: sqlite3.Connection) -> int:
-    """Persist route identity separately from source placement availability."""
+def process_quest_routes(connection: sqlite3.Connection, acquisitions: Sequence[ItemAcquisition]) -> int:
+    """Persist route identity separately from source placement availability.
+
+    The quest rewards and dialog gifts come from the provenance builder's complete facts.
+    """
     variants = _rows(
         connection,
         """
@@ -56,20 +63,14 @@ def process_quest_routes(connection: sqlite3.Connection) -> int:
         row["member_stable_key"]: row["group_key"]
         for row in _rows(connection, "SELECT * FROM character_deduplications ORDER BY member_stable_key")
     }
-    acquisitions = _rows(
-        connection,
-        """
-        SELECT * FROM item_acquisitions WHERE kind IN ('quest_reward', 'dialog') ORDER BY acquisition_key
-    """,
+    ordered = sorted(
+        (fact for fact in acquisitions if fact.kind in ("quest_reward", "dialog")),
+        key=lambda fact: fact.acquisition_key,
     )
-    trade_rewards = [fact for fact in acquisitions if fact["kind"] == "quest_reward"]
+    trade_rewards = [fact for fact in ordered if fact.kind == "quest_reward"]
     dialog_rewards = {
-        (fact["source_copy_stable_key"], fact["variant_key"]): fact for fact in acquisitions if fact["kind"] == "dialog"
+        (fact.source_copy_stable_key, fact.variant_key): fact for fact in ordered if fact.kind == "dialog"
     }
-    dialog_conditions: dict[str, list[dict[str, Any]]] = {}
-    for atom in _rows(connection, "SELECT * FROM item_acquisition_conditions ORDER BY owner_key, gate_key"):
-        if atom["gate_key"] in _DIALOG_GATES:
-            dialog_conditions.setdefault(atom["owner_key"], []).append(atom)
     event_conditions: dict[str, list[dict[str, Any]]] = {}
     for atom in _rows(
         connection, "SELECT * FROM scripted_event_conditions ORDER BY event_key, group_index, atom_index"
@@ -160,11 +161,11 @@ def process_quest_routes(connection: sqlite3.Connection) -> int:
                     condition("dialog_assignment", "quest_not_done", assigned)
             gift = dialog_rewards.get((source, str(index)))
             if gift:
-                if gift["quantity_min"] is None or gift["quantity_min"] != gift["quantity_max"]:
-                    raise ValueError(f"Quest {quest}: dialog grant {gift['acquisition_key']} has no exact quantity")
-                for atom in dialog_conditions.get(gift["acquisition_key"], []):
-                    if atom["predicate"] not in _CONDITIONS:
-                        raise ValueError(f"Quest {quest}: unmapped condition {atom['gate_key']}:{atom['predicate']}")
+                if gift.quantity_min is None or gift.quantity_min != gift.quantity_max:
+                    raise ValueError(f"Quest {quest}: dialog grant {gift.acquisition_key} has no exact quantity")
+                for gate in gift.conditions:
+                    if gate.gate_key in _DIALOG_GATES and gate.predicate not in _CONDITIONS:
+                        raise ValueError(f"Quest {quest}: unmapped condition {gate.gate_key}:{gate.predicate}")
         for atom in event_conditions.get(event, []) if event else []:
             if atom["atom_kind"] not in _EVENT_CONDITIONS:
                 raise ValueError(f"Quest {quest}: unmapped event condition {atom['atom_kind']}")
@@ -211,13 +212,11 @@ def process_quest_routes(connection: sqlite3.Connection) -> int:
             if method == "item_turnin":
                 # QuestAvailable ignores DisableQuest. Canonical rewards identify executed item grants.
                 rewards = [
-                    f
-                    for f in trade_rewards
-                    if f["source_stable_key"] == quest and f["source_copy_stable_key"] == source
+                    f for f in trade_rewards if f.source_stable_key == quest and f.source_copy_stable_key == source
                 ]
                 for reward in rewards:
-                    if reward["quantity_min"] is None or reward["quantity_min"] != reward["quantity_max"]:
-                        raise ValueError(f"Quest {quest}: item grant {reward['acquisition_key']} has no exact quantity")
+                    if reward.quantity_min is None or reward.quantity_min != reward.quantity_max:
+                        raise ValueError(f"Quest {quest}: item grant {reward.acquisition_key} has no exact quantity")
                 matching_resources = turnin_variants.get((quest, source), set())
                 if not matching_resources:
                     raise ValueError(f"Quest {quest}: item_turnin source {source} has no resource variant")

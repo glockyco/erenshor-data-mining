@@ -1,13 +1,18 @@
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
+from dataclasses import replace
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
 from erenshor.application.processor.item_provenance import ProvenanceBuilder
 from erenshor.application.processor.quest_routes import process_quest_routes
 from erenshor.application.processor.writer import Writer
+
+if TYPE_CHECKING:
+    from erenshor.domain.value_objects.item_provenance import ItemAcquisition
 
 
 @pytest.fixture
@@ -85,8 +90,8 @@ def manager(writer: Writer, quest: str = "quest:q", resource: str = "Resource", 
     )
 
 
-def routes(writer: Writer) -> list[dict[str, object]]:
-    process_quest_routes(writer.conn)
+def routes(writer: Writer, acquisitions: Sequence[ItemAcquisition] = ()) -> list[dict[str, object]]:
+    process_quest_routes(writer.conn, acquisitions)
     cursor = writer.conn.execute("SELECT * FROM quest_routes ORDER BY route_key")
     return [dict(zip([column[0] for column in cursor.description], row, strict=True)) for row in cursor]
 
@@ -244,10 +249,17 @@ def test_unknown_canonical_dialog_condition_fails(writer: Writer) -> None:
     writer.conn.execute("INSERT INTO character_spawns (character_stable_key) VALUES ('character:copy')")
     builder = ProvenanceBuilder(writer.conn)
     builder.vendors_and_dialog()
-    builder.persist()
-    writer.conn.execute("UPDATE item_acquisition_conditions SET predicate='future' WHERE gate_key='not_owned'")
+    future = [
+        replace(
+            fact,
+            conditions=tuple(
+                replace(atom, predicate="future") if atom.gate_key == "not_owned" else atom for atom in fact.conditions
+            ),
+        )
+        for fact in builder.acquisitions
+    ]
     with pytest.raises(ValueError, match="Quest quest:q: unmapped condition not_owned:future"):
-        routes(writer)
+        routes(writer, future)
 
 
 def test_route_identity_and_output_do_not_depend_on_input_order(writer: Writer) -> None:
@@ -278,14 +290,13 @@ def test_canonical_item_grants_keep_route_without_resource_reward_leakage(
         writer.conn.execute("UPDATE quest_variants SET item_on_complete_stable_key='item:gift'")
         builder = ProvenanceBuilder(writer.conn)
         builder.quests()
-    builder.persist()
-    assert writer.conn.execute("SELECT COUNT(*) FROM item_acquisitions").fetchone()[0] == 1
+    assert len(builder.acquisitions) == 1
     if not exact:
-        writer.conn.execute("UPDATE item_acquisitions SET quantity_max=2")
+        wider = [replace(fact, quantity_max=2) for fact in builder.acquisitions]
         with pytest.raises(ValueError, match=r"Quest quest:q:.*has no exact quantity"):
-            routes(writer)
+            routes(writer, wider)
     else:
-        result = routes(writer)
+        result = routes(writer, builder.acquisitions)
         assert all(row["grants_resource_rewards"] == int(kind == "quest_reward") for row in result)
         assert len(result) == (2 if kind == "dialog" else 1)
 

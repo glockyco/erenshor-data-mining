@@ -6,15 +6,17 @@ import hashlib
 import json
 import sqlite3
 from collections import Counter, defaultdict
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import asdict, dataclass, replace
 from time import perf_counter
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from loguru import logger
 
-from erenshor.domain.value_objects.item_provenance import condition_from_dict
 from erenshor.domain.value_objects.progression import PROGRESSION_SCHEMA_VERSION, UNMET_RELATIONS
+
+if TYPE_CHECKING:
+    from erenshor.domain.value_objects.item_provenance import ItemAcquisition, ItemUse, ProvenanceLocation
 
 EXPANSION_LIMIT = 32
 START_SCENE_FACTS = {
@@ -183,8 +185,16 @@ def _error(node: str, fact: str, message: str, way: str = "deriving") -> ValueEr
 
 
 class ProgressionBuilder:
-    def __init__(self, connection: sqlite3.Connection) -> None:
+    def __init__(
+        self,
+        connection: sqlite3.Connection,
+        acquisitions: Sequence[ItemAcquisition] = (),
+        uses: Sequence[ItemUse] = (),
+    ) -> None:
+        """Read the clean tables, and the complete item facts that the provenance builder selected."""
         self.connection = connection
+        self.acquisitions = acquisitions
+        self.uses = uses
         self.tables: dict[str, list[dict[str, Any]]] = {}
         self.kinds: dict[str, str] = {}
         self.ways: dict[str, dict[str, Way]] = defaultdict(dict)
@@ -240,9 +250,6 @@ class ProgressionBuilder:
                     f"unmapped release mechanism {row['mechanism']!r}",
                 )
             self.releases[row["character_stable_key"]][row["mechanism"], row["source_stable_key"]].append(row)
-        self.acquisition_conditions = self.index("item_acquisition_conditions", "owner_key")
-        self.mechanic_conditions = self.index("item_mechanic_conditions", "mechanic_key")
-        self.locations = self.index("item_source_locations", "source_key")
         self.route_conditions = self.index("quest_route_conditions", "route_key")
         self.kill_cache: dict[str, list[Way]] = {}
         self._standings: _Standings | None = None
@@ -748,27 +755,28 @@ class ProgressionBuilder:
                     for way in equipped:
                         self.add(candidate["character_stable_key"], [*way, Need("in zone", zone)], fact)
 
-    def location_conditions(self, node: str, location: dict[str, Any], fact: str) -> list[Way]:
-        atoms = [asdict(condition_from_dict(atom)) for atom in json.loads(location["conditions"])]
-        return self.conditions(node, atoms, fact, provenance=True)
+    def location_conditions(self, node: str, location: ProvenanceLocation, fact: str) -> list[Way]:
+        return self.conditions(node, [asdict(atom) for atom in location.conditions], fact, provenance=True)
 
-    def mechanism(self, key: str, locations: list[dict[str, Any]], fact: str) -> None:
+    def mechanism(self, key: str, locations: Sequence[ProvenanceLocation], fact: str) -> None:
         self.node(key, "mechanism")
         if not locations:
             self.add(key, (), fact)
             return
         for location in locations:
-            base = [Need("in zone", location["zone_stable_key"])] if location["zone_stable_key"] else []
+            base = [Need("in zone", location.zone_stable_key)] if location.zone_stable_key else []
             for way in self.location_conditions(key, location, fact):
                 self.add(key, [*base, *way], fact)
 
     def build_items(self) -> None:
-        materials = self.index("item_uses", "target_stable_key")
-        for acquisition in self.rows("item_acquisitions"):
-            node, fact, kind = acquisition["item_stable_key"], acquisition["acquisition_key"], acquisition["kind"]
+        materials: dict[str | None, list[ItemUse]] = defaultdict(list)
+        for use in self.uses:
+            materials[use.target_stable_key].append(use)
+        for acquisition in self.acquisitions:
+            node, fact, kind = acquisition.item_stable_key, acquisition.acquisition_key, acquisition.kind
             if kind not in {*ACQUISITION_RELATIONS, "internal_equipment", "auction_house"}:
                 raise _error(node, fact, f"unmapped acquisition kind {kind!r}")
-            if acquisition["player_access_state"] not in {"verified_player", "unconfirmed_player"}:
+            if acquisition.player_access_state not in {"verified_player", "unconfirmed_player"}:
                 continue
             # Simulated players list random stock, so no player can plan a step on it.
             if kind == "auction_house":
@@ -776,43 +784,39 @@ class ProgressionBuilder:
             if kind == "internal_equipment":
                 raise _error(node, fact, "internal equipment cannot be a player acquisition")
             relation = ACQUISITION_RELATIONS[kind]
-            source = acquisition["source_stable_key"]
-            atoms = [
-                *self.acquisition_conditions.get(fact, []),
-                *self.mechanic_conditions.get(acquisition["mechanic"], []),
-            ]
-            conditions = self.conditions(node, atoms, fact, provenance=True)
+            source = acquisition.source_stable_key
+            conditions = self.conditions(node, [asdict(atom) for atom in acquisition.conditions], fact, provenance=True)
             bases: list[Way] = []
-            source_key = acquisition["location_source_key"]
-            locations = self.locations.get(source_key, []) if source_key is not None else []
+            locations = acquisition.locations
             if kind in {"character_drop", "vendor", "dialog"}:
-                source = acquisition["source_copy_stable_key"]
-                if source not in self.characters:
+                source = acquisition.source_copy_stable_key
+                if source is None or source not in self.characters:
                     raise _error(node, fact, f"need resolves to no source copy: {source}")
                 releases = self.kill_needs(source) if kind == "character_drop" else [()]
                 bases = [canonical_way((Need(relation, source), *release)) for release in releases]
                 if kind == "dialog":
                     # The producer keys a gift by the index of its dialog, whose keywords the player says.
-                    dialog = (source, int(acquisition["variant_key"]))
+                    dialog = (source, int(str(acquisition.variant_key)))
                     if dialog not in self.dialog_keywords:
                         raise _error(node, fact, f"dialog gift without its dialog: {dialog}")
                     bases = [(*base, *self.dialog_standing(source, self.dialog_keywords[dialog])) for base in bases]
             elif kind in {"mining", "fishing", "fishing_bonus", "item_bag"}:
                 for location in locations:
-                    zone = location["zone_stable_key"]
+                    zone = location.zone_stable_key
                     if zone:
                         for way in self.location_conditions(node, location, fact):
                             bases.append(canonical_way((Need(relation, zone), *way)))
             elif kind == "crafting":
                 needs = [Need(relation, source)]
                 for use in materials.get(source, ()):
-                    if use["kind"] == "crafting_material":
+                    if use.kind == "crafting_material":
                         needs.append(
                             Need(
                                 "material",
-                                use["item_stable_key"],
-                                quantity=use["quantity_min"],
-                                slot=str(use["material_slot"]),
+                                use.item_stable_key,
+                                # A way's key hashes the quantity, so an integral count keeps one form.
+                                quantity=None if use.quantity_min is None else float(use.quantity_min),
+                                slot=str(use.material_slot),
                             )
                         )
                 bases = [tuple(needs)]
@@ -826,7 +830,7 @@ class ProgressionBuilder:
             for base in bases:
                 for condition in conditions:
                     way = canonical_way((*base, *condition))
-                    if acquisition["player_access_state"] == "unconfirmed_player":
+                    if acquisition.player_access_state == "unconfirmed_player":
                         way = tuple(replace(need, unconfirmed=True) for need in way)
                     self.add(node, way, fact)
 
@@ -1393,10 +1397,12 @@ class ProgressionBuilder:
         )
 
 
-def process_progression(connection: sqlite3.Connection) -> None:
+def process_progression(
+    connection: sqlite3.Connection, acquisitions: Sequence[ItemAcquisition], uses: Sequence[ItemUse]
+) -> None:
     """Persist canonical alternatives, milestones, and earliest playthrough tiers."""
     started = perf_counter()
-    builder = ProgressionBuilder(connection)
+    builder = ProgressionBuilder(connection, acquisitions, uses)
     builder.build()
     builder.write()
     connection.commit()

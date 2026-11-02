@@ -222,21 +222,21 @@ def build(
         logger.info(f"AE event mutations: {len(AE_EVENT_MUTATIONS)} rows")
 
         logger.info("Selecting canonical item provenance...")
-        provenance_report = process_item_provenance(
+        provenance = process_item_provenance(
             writer.conn,
             mapping_json_path.parent / "content-lifecycle.json",
             raw,
             reviewed_unreachable=frozenset(key for key, rule in mapping.items() if rule["loot_unreachable"]),
             report_path=report_path(clean_db_path),
         )
-        logger.info(f"Item provenance input coverage: {provenance_report}")
+        logger.info(f"Item provenance input coverage: {provenance.input_coverage}")
 
         logger.info("Selecting canonical quest routes...")
-        route_count = process_quest_routes(writer.conn)
+        route_count = process_quest_routes(writer.conn, provenance.acquisitions)
         logger.info(f"Quest routes: {route_count} rows")
 
         logger.info("Deriving progression requirements and playthrough tiers...")
-        process_progression(writer.conn)
+        process_progression(writer.conn, provenance.acquisitions, provenance.uses)
 
         logger.info("Finalising clean DB (VACUUM + ANALYZE)...")
         writer.finalize()

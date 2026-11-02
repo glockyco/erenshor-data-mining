@@ -119,7 +119,7 @@ def _panel_rows(writer: Writer, repo: QuestRepository) -> dict[str, list[dict[st
         "SELECT 1 FROM character_quest_manager_quests m WHERE m.character_stable_key=s.source_stable_key "
         "AND m.quest_variant_resource_name=v.resource_name)"
     )
-    process_quest_routes(writer.conn)
+    process_quest_routes(writer.conn, builder.acquisitions)
     writer.conn.commit()
     return repo.get_quest_panel_rows()
 

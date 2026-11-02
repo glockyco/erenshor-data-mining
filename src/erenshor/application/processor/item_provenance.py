@@ -6,7 +6,7 @@ import hashlib
 import json
 import sqlite3
 from collections import defaultdict
-from dataclasses import asdict, fields, replace
+from dataclasses import asdict, dataclass, fields, replace
 from pathlib import Path
 from typing import Any
 
@@ -1871,6 +1871,15 @@ def select_item_provenance(
     return builder
 
 
+@dataclass(frozen=True, slots=True)
+class SelectedProvenance:
+    """The complete item facts, for the builders that run after provenance in the same build."""
+
+    acquisitions: tuple[ItemAcquisition, ...]
+    uses: tuple[ItemUse, ...]
+    input_coverage: dict[str, object]
+
+
 def process_item_provenance(
     connection: sqlite3.Connection,
     lifecycle_path: Path,
@@ -1878,7 +1887,7 @@ def process_item_provenance(
     *,
     reviewed_unreachable: frozenset[str],
     report_path: Path,
-) -> dict[str, object]:
+) -> SelectedProvenance:
     from erenshor.infrastructure.content_lifecycle import derive_item_dispositions, load_content_lifecycle
 
     from .item_provenance_coverage import validate_item_provenance
@@ -1932,4 +1941,4 @@ def process_item_provenance(
     write_report(report_path, view)
     # The writer vacuums after this post-insert expansion.
     connection.commit()
-    return audit
+    return SelectedProvenance(tuple(builder.acquisitions), tuple(builder.uses), audit)

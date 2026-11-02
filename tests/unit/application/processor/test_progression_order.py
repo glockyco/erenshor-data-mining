@@ -11,7 +11,7 @@ from erenshor.application.processor.writer import _DDL
 def test_equal_tier_navigation_cycle_keeps_a_start_rooted_first_way():
     connection = sqlite3.connect(":memory:")
     connection.executescript(_DDL)
-    graph = ProgressionBuilder(connection)
+    graph = ProgressionBuilder(connection, (), ())
     for key in ("zone:start", "zone:a", "zone:b"):
         graph.node(key, "zone")
     graph.add("zone:start", (), "start")
@@ -33,7 +33,7 @@ def test_equal_tier_navigation_cycle_keeps_a_start_rooted_first_way():
 def test_joint_needs_use_highest_tier_before_explanation_depth():
     connection = sqlite3.connect(":memory:")
     connection.executescript(_DDL)
-    graph = ProgressionBuilder(connection)
+    graph = ProgressionBuilder(connection, (), ())
     for key in ("start", "a", "b", "joint"):
         graph.node(key, "quest" if key != "start" else "class")
     graph.add("start", (), "start")
@@ -52,7 +52,7 @@ def test_joint_needs_use_highest_tier_before_explanation_depth():
 def test_falling_dependency_tier_cannot_leave_a_stale_parent_depth():
     connection = sqlite3.connect(":memory:")
     connection.executescript(_DDL)
-    graph = ProgressionBuilder(connection)
+    graph = ProgressionBuilder(connection, (), ())
     for key in ("start", "a", "joint", "z0", "z1", "z2", "z3"):
         graph.node(key, "zone")
     for key in ("gate1", "gate2"):

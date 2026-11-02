@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import json
 import sqlite3
 from collections.abc import Iterator
-from dataclasses import asdict
+from dataclasses import replace
 
 import pytest
 
@@ -16,7 +15,19 @@ from erenshor.application.processor.progression import (
     way_key,
 )
 from erenshor.application.processor.writer import _DDL
-from erenshor.domain.value_objects.item_provenance import ProvenanceCondition
+from erenshor.domain.value_objects.item_provenance import (
+    ItemAcquisition,
+    ItemUse,
+    ProvenanceCondition,
+    ProvenanceLocation,
+)
+
+
+class FactConnection(sqlite3.Connection):
+    """A clean database with the complete item facts that the provenance builder hands on."""
+
+    acquisitions: list[ItemAcquisition]
+    uses: list[ItemUse]
 
 
 def insert(conn: sqlite3.Connection, table: str, **values: object) -> None:
@@ -26,8 +37,10 @@ def insert(conn: sqlite3.Connection, table: str, **values: object) -> None:
 
 
 @pytest.fixture
-def conn() -> Iterator[sqlite3.Connection]:
-    connection = sqlite3.connect(":memory:")
+def conn() -> Iterator[FactConnection]:
+    connection = sqlite3.connect(":memory:", factory=FactConnection)
+    connection.acquisitions = []
+    connection.uses = []
     connection.executescript(_DDL)
     for scene in ("Start", "End", "Other"):
         insert(
@@ -138,7 +151,7 @@ def conn() -> Iterator[sqlite3.Connection]:
     connection.close()
 
 
-def acquisition(conn: sqlite3.Connection, kind: str, source: str | None = None, **changes: object) -> None:
+def acquisition(conn: FactConnection, kind: str, source: str | None = None, **changes: object) -> None:
     values: dict[str, object] = {
         "acquisition_key": "a",
         "item_stable_key": "item:result",
@@ -163,36 +176,32 @@ def acquisition(conn: sqlite3.Connection, kind: str, source: str | None = None, 
             dialog_index=int(str(row["variant_key"])),
             give_item_stable_key=row["item_stable_key"],
         )
-    insert(conn, "item_acquisitions", **row)
+    conn.acquisitions.append(ItemAcquisition(**row))  # type: ignore[arg-type]
 
 
-def condition(conn: sqlite3.Connection, predicate: str, reference: str | None = None, **changes: object) -> None:
-    atom = asdict(ProvenanceCondition("test", 0, 0, predicate, reference)) | changes
-    insert(conn, "item_acquisition_conditions", owner_key="a", **atom)
+def _change_fact(conn: FactConnection, **changes: object) -> None:
+    """Change the fact keyed "a", which the condition and location helpers describe."""
+    index = next(i for i, fact in enumerate(conn.acquisitions) if fact.acquisition_key == "a")
+    conn.acquisitions[index] = replace(conn.acquisitions[index], **changes)  # type: ignore[arg-type]
+
+
+def condition(conn: FactConnection, predicate: str, reference: str | None = None, **changes: object) -> None:
+    atom = replace(ProvenanceCondition("test", 0, 0, predicate, reference), **changes)  # type: ignore[arg-type]
+    fact = next(fact for fact in conn.acquisitions if fact.acquisition_key == "a")
+    _change_fact(conn, conditions=(*fact.conditions, atom))
 
 
 def location(
-    conn: sqlite3.Connection,
+    conn: FactConnection,
     zone: str | None = "zone:start",
     atoms: tuple[ProvenanceCondition, ...] = (),
     **changes: object,
 ) -> None:
-    conn.execute("UPDATE item_acquisitions SET location_source_key='source:a' WHERE acquisition_key='a'")
-    insert(
-        conn,
-        "item_source_locations",
-        **(
-            {
-                "source_key": "source:a",
-                "location_key": "location",
-                "relation": "source",
-                "zone_stable_key": zone,
-                "conditions": json.dumps([asdict(atom) for atom in atoms]),
-                "entry_zone_line_keys": "[]",
-            }
-            | changes
-        ),
+    place = ProvenanceLocation(  # type: ignore[arg-type]
+        **({"location_key": "location", "relation": "source", "zone_stable_key": zone, "conditions": atoms} | changes)
     )
+    fact = next(fact for fact in conn.acquisitions if fact.acquisition_key == "a")
+    _change_fact(conn, location_source_key="source:a", locations=(*fact.locations, place))
 
 
 def gate(conn: sqlite3.Connection, kind: str = "quest_done", key: str = "quest:gate", **changes: object) -> None:
@@ -233,8 +242,8 @@ def route(conn: sqlite3.Connection, method: str, kind: str, source: str | None, 
     )
 
 
-def builder(conn: sqlite3.Connection) -> ProgressionBuilder:
-    graph = ProgressionBuilder(conn)
+def builder(conn: FactConnection) -> ProgressionBuilder:
+    graph = ProgressionBuilder(conn, conn.acquisitions, conn.uses)
     graph.build()
     return graph
 
@@ -283,17 +292,17 @@ def test_the_auction_house_is_no_way_to_an_item(conn):
 
 def test_crafting_preserves_material_quantities(conn):
     acquisition(conn, "crafting", "item:input")
-    insert(
-        conn,
-        "item_uses",
-        use_key="material",
-        item_stable_key="item:material",
-        target_stable_key="item:input",
-        kind="crafting_material",
-        material_slot=1,
-        quantity_min=7,
-        quantity_max=7,
-        quantity_kind="exact",
+    conn.uses.append(
+        ItemUse(
+            "material",
+            "item:material",
+            "item:input",
+            "crafting_material",
+            material_slot=1,
+            quantity_min=7,
+            quantity_max=7,
+            quantity_kind="exact",
+        )
     )
     assert Need("material", "item:material", quantity=7, slot="1") in needs(builder(conn), "item:result")
 
@@ -812,7 +821,7 @@ def test_milestones_distinguish_common_and_gated_sources(conn):
 
 
 def test_tiers_alternatives_joint_needs_cycles_negatives_and_ties(conn):
-    graph = ProgressionBuilder(conn)
+    graph = ProgressionBuilder(conn, conn.acquisitions, conn.uses)
     for key in ("start", "a", "b", "c", "negative", "cycle1", "cycle2", "gap"):
         graph.node(key, "quest" if key in {"a", "b", "c"} else "class")
     graph.add("start", (), "fixture")
@@ -843,7 +852,7 @@ def test_tiers_alternatives_joint_needs_cycles_negatives_and_ties(conn):
 
 
 def test_ways_rank_as_first_ways_are_chosen_and_keep_every_fact(conn):
-    graph = ProgressionBuilder(conn)
+    graph = ProgressionBuilder(conn, conn.acquisitions, conn.uses)
     for key in ("start", "a", "gap", "target"):
         graph.node(key, "class")
     graph.add("start", (), "fixture")
@@ -864,14 +873,14 @@ def test_ways_rank_as_first_ways_are_chosen_and_keep_every_fact(conn):
 
 def test_build_rows_are_identical_and_keep_unchanged_way_identity(conn):
     zone_line(conn)
-    process_progression(conn)
+    process_progression(conn, conn.acquisitions, conn.uses)
     tables = ("progression_nodes", "progression_ways", "progression_way_facts", "progression_needs", "progression_meta")
     before = {table: conn.execute(f"SELECT * FROM {table} ORDER BY 1,2").fetchall() for table in tables}
-    process_progression(conn)
+    process_progression(conn, conn.acquisitions, conn.uses)
     assert before == {table: conn.execute(f"SELECT * FROM {table} ORDER BY 1,2").fetchall() for table in tables}
     old = conn.execute("SELECT way_key FROM progression_ways WHERE node_stable_key='zone:end'").fetchone()[0]
     spell_route(conn)
-    process_progression(conn)
+    process_progression(conn, conn.acquisitions, conn.uses)
     assert old in {
         row[0] for row in conn.execute("SELECT way_key FROM progression_ways WHERE node_stable_key='zone:end'")
     }
@@ -1016,7 +1025,7 @@ def test_item_action_class_rules(conn, relation, slot, classes, expected):
     conn.execute("UPDATE items SET required_slot=? WHERE stable_key='item:key'", (slot,))
     for name in classes:
         insert(conn, "item_classes", item_stable_key="item:key", class_name=name)
-    graph = ProgressionBuilder(conn)
+    graph = ProgressionBuilder(conn, conn.acquisitions, conn.uses)
     graph.build_nodes()
     item = next(row for row in graph.rows("items") if row["stable_key"] == "item:key")
     ways = graph.item_action(item, relation)
@@ -1026,7 +1035,7 @@ def test_item_action_class_rules(conn, relation, slot, classes, expected):
 def test_click_that_requires_equipping_keeps_that_need(conn):
     conn.execute("UPDATE items SET required_slot='Ring',must_be_equipped_to_click=1 WHERE stable_key='item:key'")
     insert(conn, "item_classes", item_stable_key="item:key", class_name="Fighter")
-    graph = ProgressionBuilder(conn)
+    graph = ProgressionBuilder(conn, conn.acquisitions, conn.uses)
     graph.build_nodes()
     item = next(row for row in graph.rows("items") if row["stable_key"] == "item:key")
     assert graph.item_action(item, "casts") == [
