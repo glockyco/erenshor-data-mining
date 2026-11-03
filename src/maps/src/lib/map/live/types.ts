@@ -1,8 +1,8 @@
 /**
- * Protocol types for InteractiveMapCompanion WebSocket communication.
+ * Protocol types for InteractiveMapCompanion communication.
  *
- * These types match the C# protocol defined in the mod. The mod uses
- * System.Text.Json with camelCase naming, so all properties are camelCase.
+ * These types match the C# protocol in the mod's `Protocol/Messages.cs`. The mod
+ * serializes camelCase JSON and omits null fields.
  */
 
 /**
@@ -48,7 +48,25 @@ export interface EntityData {
 }
 
 /**
- * Handshake message sent immediately upon WebSocket connection.
+ * Sharing with other devices on the game PC's network. Only the map on the game PC
+ * receives it, and only from mods with protocol 0.3.0 or later.
+ */
+export interface SharingStatus {
+    enabled: boolean;
+    /** Devices showing the live map now */
+    viewers: number;
+    /** UDP and TCP port other devices connect to */
+    port: number;
+    /** Address and port to type on another device, absent when the PC has none */
+    address?: string;
+    /** Pairing link for the QR code, absent with address */
+    link?: string;
+    /** Why sharing could not start */
+    error?: 'portUnavailable';
+}
+
+/**
+ * Handshake message sent immediately upon connection.
  */
 export interface HandshakeMessage {
     type: 'handshake';
@@ -60,6 +78,25 @@ export interface HandshakeMessage {
     zone: string;
     /** Enabled capabilities for feature detection */
     capabilities: string[];
+    /** Sharing state, for the map on the game PC only */
+    sharing?: SharingStatus;
+}
+
+/**
+ * Sent to the map on the game PC when sharing starts, stops or fails, and when a
+ * device connects or leaves.
+ */
+export interface SharingChangedMessage {
+    type: 'sharingChanged';
+    sharing: SharingStatus;
+}
+
+/**
+ * Sent by the map on the game PC to turn sharing on or off.
+ */
+export interface SetSharingMessage {
+    type: 'setSharing';
+    enabled: boolean;
 }
 
 /**
@@ -90,9 +127,13 @@ export interface ZoneChangeMessage {
 }
 
 /**
- * Union of all protocol message types.
+ * Union of all messages the mod sends.
  */
-export type ProtocolMessage = HandshakeMessage | StateUpdateMessage | ZoneChangeMessage;
+export type ProtocolMessage =
+    | HandshakeMessage
+    | StateUpdateMessage
+    | ZoneChangeMessage
+    | SharingChangedMessage;
 
 /**
  * Live state exposed to UI components.
@@ -112,4 +153,6 @@ export interface LiveState {
     modVersion: string | null;
     /** Timestamp of last state update */
     lastUpdate: number | null;
+    /** Sharing state from the mod, null on other devices and with mods before 0.3.0 */
+    sharing: SharingStatus | null;
 }

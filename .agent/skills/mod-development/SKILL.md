@@ -39,13 +39,14 @@ Lunaris references come from `mod setup`. Merge only dependencies the active loa
 
 The WebSocket server binds `127.0.0.1:18585` by default and never listens on other interfaces. The configured port can change. Multiple clients can connect. Other devices receive the same messages over WebRTC data channels on the next port while sharing is on (`src/mods/InteractiveMapCompanion/src/Server/LiveSharing.cs`).
 
-- On connection, send `handshake` with `protocolVersion`, `modVersion`, `zone`, and `capabilities: ["entities"]`.
+- On connection, send `handshake` with `protocolVersion`, `modVersion`, `zone`, and `capabilities: ["entities"]`. Add `sharing` only for a trusted map, whose WebSocket `Origin` passes `MapOrigins.IsTrusted`, because the status carries the pairing link. Remote viewers and other pages never receive it.
+- Send `sharingChanged` with the same `sharing` object to trusted maps when sharing starts, stops or fails, and when the viewer count changes.
 - Send complete `stateUpdate` snapshots at the configured interval (default 100 ms). Each has `zone`, Unix-millisecond `timestamp`, and `entities`.
 - On a zone transition, send `zoneChange` with `previousZone`, `zone`, and `timestamp`. Clients must clear the old zone's entities.
 - Encode compact camelCase JSON and omit null fields. Entity positions use scene-local Unity `[x, y, z]` coordinates.
 - Keep `id`, `entityType`, `name`, `position`, and `rotation` in each entity. `level`, `rarity`, `characterClass`, and `owner` are conditional.
-- `ProtocolVersion.Current` is `0.2.0`. Check client handling before changing it. Entity IDs are Unity instance IDs, not stable spawn IDs.
+- Check the map's `EXPECTED_PROTOCOL_VERSION` (`src/maps/src/lib/map/live/connection.ts`) before changing `ProtocolVersion.Current`. Entity IDs are Unity instance IDs, not stable spawn IDs.
 - Classify the player first, then pets (`Master != null`), then SimPlayers, then hostile or friendly NPCs. Exclude mining nodes and chests.
-- Ignore inbound client messages. Do not advertise spawn, marker, or waypoint capabilities without implementing the server and client handlers.
+- Read one inbound message, `setSharing { enabled }`, and only from a trusted map. Ignore every other inbound message. Run sharing changes and messages to local clients on the main thread through the runtime's work queue. Do not advertise spawn, marker, or waypoint capabilities without implementing the server and client handlers.
 
 When adding a message, update `src/mods/InteractiveMapCompanion/src/Protocol/Messages.cs`, its producer, the map consumer, and protocol behavior tests together. The Thunderstore package ships the DLL, not internal protocol documents.

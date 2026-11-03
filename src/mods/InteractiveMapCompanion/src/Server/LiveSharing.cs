@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 using InteractiveMapCompanion.Config;
+using InteractiveMapCompanion.Protocol;
 using InteractiveMapCompanion.Server.WebRtc;
 
 namespace InteractiveMapCompanion.Server;
@@ -15,7 +16,7 @@ namespace InteractiveMapCompanion.Server;
 internal sealed class LiveSharing : IBroadcastTarget, IDisposable
 {
     /// <summary>
-    /// <see cref="Error"/> when the sharing port could not be bound.
+    /// <see cref="SharingStatus.Error"/> when the sharing port could not be bound.
     /// </summary>
     public const string PortUnavailableError = "portUnavailable";
 
@@ -49,20 +50,23 @@ internal sealed class LiveSharing : IBroadcastTarget, IDisposable
     public bool Enabled => _snapshot.Enabled;
 
     /// <summary>
-    /// Why sharing turned off when it was asked to start, or null.
+    /// What a trusted map on this PC shows about sharing.
     /// </summary>
-    public string? Error => _snapshot.Error;
-
-    /// <summary>
-    /// The address and port a device on the network types to pair, or null when sharing
-    /// is off or no network address was found.
-    /// </summary>
-    public string? Address => _snapshot.Address;
-
-    /// <summary>
-    /// The pairing link for <see cref="Address"/>, or null.
-    /// </summary>
-    public string? Link => _snapshot.Link;
+    public SharingStatus Status
+    {
+        get
+        {
+            var snapshot = _snapshot;
+            return new SharingStatus(
+                snapshot.Enabled,
+                ClientCount,
+                Port,
+                snapshot.Address,
+                snapshot.Link,
+                snapshot.Error
+            );
+        }
+    }
 
     public int ClientCount => _webRtc?.ClientCount ?? 0;
 
@@ -137,7 +141,10 @@ internal sealed class LiveSharing : IBroadcastTarget, IDisposable
             redirect.Dispose();
             _config.SharingEnabled = false;
             _snapshot = new Snapshot(false, PortUnavailableError, null, null);
-            _log.LogWarning($"Cannot share the live map on port {port}: {ex.Message}");
+            // Mono under Wine reports "Error looking up error string" as the message.
+            _log.LogWarning(
+                $"Cannot share the live map on port {port} (UDP and TCP): {ex.SocketErrorCode}"
+            );
             return;
         }
 

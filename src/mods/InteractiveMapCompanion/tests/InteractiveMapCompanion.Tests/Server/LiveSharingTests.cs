@@ -62,8 +62,8 @@ public class LiveSharingTests
 
         sharing.SetEnabled(true);
 
-        Assert.False(sharing.Enabled);
-        Assert.Equal(LiveSharing.PortUnavailableError, sharing.Error);
+        Assert.False(sharing.Status.Enabled);
+        Assert.Equal(LiveSharing.PortUnavailableError, sharing.Status.Error);
         Assert.False(config.SharingEnabled);
         Assert.Equal(1, changes);
     }
@@ -76,13 +76,15 @@ public class LiveSharingTests
 
         sharing.SetEnabled(true);
 
+        var status = sharing.Status;
+        Assert.Equal(config.Port + 1, status.Port);
         // Hosts without a private IPv4 address have nothing to link to.
-        if (sharing.Address == null)
+        if (status.Address == null)
             return;
-        Assert.EndsWith($":{config.Port + 1}", sharing.Address);
+        Assert.EndsWith($":{config.Port + 1}", status.Address);
         Assert.StartsWith(
-            $"https://erenshor.compendiums.org/map#live={sharing.Address}.",
-            sharing.Link
+            $"https://erenshor.compendiums.org/map#live={status.Address}.",
+            status.Link
         );
     }
 

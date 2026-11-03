@@ -25,16 +25,12 @@ public class BroadcastLoopTests
         }
     }
 
-    private sealed class FakeWebSocketServer : IWebSocketServer
+    private sealed class FakeWebSocketServer : IBroadcastTarget
     {
         public List<string> BroadcastedMessages { get; } = [];
         public List<string> BroadcastAttempts { get; } = [];
         public Queue<Exception> BroadcastExceptions { get; } = new();
         public int ClientCount { get; set; } = 1;
-
-        public void Start() { }
-
-        public void Stop() { }
 
         public void Broadcast(string message)
         {
@@ -44,8 +40,6 @@ public class BroadcastLoopTests
 
             BroadcastedMessages.Add(message);
         }
-
-        public void Dispose() { }
     }
 
     private sealed class FakeBroadcastConfig : IBroadcastConfig

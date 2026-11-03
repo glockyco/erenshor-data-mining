@@ -6,5 +6,5 @@ namespace InteractiveMapCompanion.Protocol;
 /// </summary>
 public static class ProtocolVersion
 {
-    public const string Current = "0.2.0";
+    public const string Current = "0.3.0";
 }

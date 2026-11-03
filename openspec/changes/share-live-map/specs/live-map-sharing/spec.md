@@ -13,7 +13,7 @@ The mod SHALL accept map connections from the same PC only, and SHALL NOT listen
 - **THEN** the connection is refused
 
 ### Requirement: Sharing is opt-in and remembered
-The mod SHALL accept connections from other devices only while the player has turned on sharing, SHALL remember that choice and its pairing values across game restarts, and SHALL stop accepting them and change the pairing values when the player stops sharing.
+The mod SHALL accept connections from other devices only while the player has turned on sharing, SHALL remember that choice and its pairing values across game restarts, and SHALL stop accepting them and change the pairing values when the player stops sharing. Only the map itself SHALL see the pairing values or turn sharing on or off.
 
 #### Scenario: Fresh install
 - **WHEN** the mod starts for the first time
@@ -26,6 +26,10 @@ The mod SHALL accept connections from other devices only while the player has tu
 #### Scenario: Stop sharing
 - **WHEN** the player chooses Stop sharing
 - **THEN** every other device disconnects and the old pairing link no longer connects
+
+#### Scenario: Another web page on the game PC
+- **WHEN** a web page other than the map connects to the mod's local WebSocket
+- **THEN** it receives no pairing link and cannot turn sharing on
 
 ### Requirement: One-way pairing from erenshor.compendiums.org
 A device SHALL connect from the HTTPS map using only the pairing link's address, port, ICE credentials and certificate fingerprint, without sending anything to the game before connecting, and SHALL receive the same messages as a local connection: a handshake first, then state updates and zone changes.

@@ -41,5 +41,8 @@ export type {
     HandshakeMessage,
     StateUpdateMessage,
     ZoneChangeMessage,
+    SharingStatus,
+    SharingChangedMessage,
+    SetSharingMessage,
     ProtocolMessage
 } from './types';

@@ -2,19 +2,20 @@ using System.Collections.Concurrent;
 using Fleck;
 using InteractiveMapCompanion.Config;
 using InteractiveMapCompanion.Protocol;
-using UnityEngine.SceneManagement;
 
 namespace InteractiveMapCompanion.Server;
 
 /// <summary>
-/// Fleck-based WebSocket server for the map on the same PC. It listens on loopback only;
-/// other devices connect through <see cref="WebRtc.WebRtcServer"/> while sharing is on.
+/// Fleck-based WebSocket server for the map on the same PC. It listens on loopback only.
+/// Other devices connect through <see cref="WebRtc.WebRtcServer"/> while sharing is on.
 /// </summary>
 public sealed class WebSocketServer : IWebSocketServer
 {
     private readonly IModConfig _config;
     private readonly IModLogger _logger;
-    private readonly ConcurrentDictionary<Guid, IWebSocketConnection> _clients = new();
+    private readonly Func<bool, string> _handshake;
+    private readonly Action<bool> _setSharing;
+    private readonly ConcurrentDictionary<Guid, LocalClient> _clients = new();
     private readonly object _lifecycleGate = new();
 
     private Fleck.WebSocketServer? _server;
@@ -25,10 +26,23 @@ public sealed class WebSocketServer : IWebSocketServer
 
     public int ClientCount => _clients.Count;
 
-    public WebSocketServer(IModConfig config, IModLogger logger)
+    /// <summary>
+    /// <paramref name="handshake"/> builds the handshake for a new client and receives
+    /// whether that client is a trusted map (<see cref="MapOrigins"/>).
+    /// <paramref name="setSharing"/> receives a trusted map's <c>setSharing</c> request on
+    /// a Fleck thread.
+    /// </summary>
+    public WebSocketServer(
+        IModConfig config,
+        IModLogger logger,
+        Func<bool, string> handshake,
+        Action<bool> setSharing
+    )
     {
         _config = config;
         _logger = logger;
+        _handshake = handshake;
+        _setSharing = setSharing;
         ConfigureFleckLogging();
     }
 
@@ -73,7 +87,7 @@ public sealed class WebSocketServer : IWebSocketServer
             _stopped = true;
             server = _server;
             _server = null;
-            clients = _clients.Values.ToArray();
+            clients = _clients.Values.Select(client => client.Socket).ToArray();
             _clients.Clear();
         }
 
@@ -102,18 +116,25 @@ public sealed class WebSocketServer : IWebSocketServer
             _logger.LogInfo("WebSocket server stopped");
     }
 
-    public void Broadcast(string message)
+    public void Broadcast(string message) => Send(message, trustedOnly: false);
+
+    public void BroadcastToTrusted(string message) => Send(message, trustedOnly: true);
+
+    private void Send(string message, bool trustedOnly)
     {
         if (_disposed || _stopped)
             return;
 
         foreach (var (id, client) in _clients)
         {
+            if (trustedOnly && !client.Trusted)
+                continue;
+
             try
             {
-                if (client.IsAvailable && !_stopped && !_disposed)
+                if (client.Socket.IsAvailable && !_stopped && !_disposed)
                 {
-                    client.Send(message);
+                    client.Socket.Send(message);
                 }
                 else
                 {
@@ -152,12 +173,13 @@ public sealed class WebSocketServer : IWebSocketServer
 
     private void OnClientConnected(IWebSocketConnection socket)
     {
+        var client = new LocalClient(socket, MapOrigins.IsTrusted(socket.ConnectionInfo.Origin));
         bool reject;
         lock (_lifecycleGate)
         {
             reject = _disposed || _stopped;
             if (!reject)
-                _clients[socket.ConnectionInfo.Id] = socket;
+                _clients[socket.ConnectionInfo.Id] = client;
         }
 
         if (reject)
@@ -178,7 +200,7 @@ public sealed class WebSocketServer : IWebSocketServer
             $"Client connected: {socket.ConnectionInfo.ClientIpAddress} (total: {ClientCount})"
         );
 
-        SendHandshake(socket);
+        SendHandshake(client);
     }
 
     private void OnClientDisconnected(IWebSocketConnection socket)
@@ -206,22 +228,28 @@ public sealed class WebSocketServer : IWebSocketServer
         if (_disposed || _stopped)
             return;
 
+        if (
+            _clients.TryGetValue(socket.ConnectionInfo.Id, out var client)
+            && client.Trusted
+            && ClientMessages.TryReadSetSharing(message, out bool enabled)
+        )
+        {
+            _setSharing(enabled);
+            return;
+        }
+
         _logger.LogDebug(
-            $"Received message from {socket.ConnectionInfo.ClientIpAddress}: {message}"
+            $"Ignored message from {socket.ConnectionInfo.ClientIpAddress} ({socket.ConnectionInfo.Origin}): {message}"
         );
     }
 
-    private void SendHandshake(IWebSocketConnection socket)
+    private void SendHandshake(LocalClient client)
     {
-        var zone = GetCurrentZone();
-        var capabilities = _config.GetCapabilities();
-        var handshake = HandshakeMessage.Create(zone, capabilities);
-        var json = MessageSerializer.Serialize(handshake);
-
         try
         {
+            string json = _handshake(client.Trusted);
             if (!_disposed && !_stopped)
-                socket.Send(json);
+                client.Socket.Send(json);
         }
         catch (Exception ex)
         {
@@ -229,16 +257,15 @@ public sealed class WebSocketServer : IWebSocketServer
         }
     }
 
-    private static string GetCurrentZone()
+    private sealed class LocalClient(IWebSocketConnection socket, bool trusted)
     {
-        try
-        {
-            return SceneManager.GetActiveScene().name;
-        }
-        catch
-        {
-            return "";
-        }
+        public IWebSocketConnection Socket { get; } = socket;
+
+        /// <summary>
+        /// Whether the page is the map (<see cref="MapOrigins"/>), which may see and
+        /// change sharing.
+        /// </summary>
+        public bool Trusted { get; } = trusted;
     }
 
     private void ConfigureFleckLogging()

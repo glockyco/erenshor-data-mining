@@ -14,4 +14,9 @@ public interface IWebSocketServer : IBroadcastTarget, IDisposable
     /// Stops the server and disconnects all clients.
     /// </summary>
     void Stop();
+
+    /// <summary>
+    /// Sends a message only to clients whose page is the map (<see cref="MapOrigins"/>).
+    /// </summary>
+    void BroadcastToTrusted(string message);
 }

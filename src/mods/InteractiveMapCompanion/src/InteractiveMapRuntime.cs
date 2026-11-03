@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using HarmonyLib;
 using InteractiveMapCompanion.Config;
 using InteractiveMapCompanion.Entities;
@@ -19,6 +20,10 @@ public sealed class InteractiveMapRuntime
     private readonly GameObject _owner;
     private readonly IModConfig _config;
     private readonly IModLogger _log;
+
+    // Sharing changes and messages to local clients run on the main thread. Fleck and
+    // WebRTC session threads queue them here for Tick.
+    private readonly ConcurrentQueue<Action> _mainThreadWork = new();
 
     private Harmony? _harmony;
     private IWebSocketServer? _server;
@@ -54,19 +59,18 @@ public sealed class InteractiveMapRuntime
             var extractor = new EntityExtractor();
             var tracker = new EntityTrackerAdapter(finder, classifier, extractor, _ => true);
 
-            _server = new WebSocketServer(_config, _log);
-            _server.Start();
-
             _zone = SceneManager.GetActiveScene().name;
-            _sharing = new LiveSharing(
+            _sharing = new LiveSharing(_config, _log, () => BuildHandshake(trusted: false));
+            _sharing.Changed += () => _mainThreadWork.Enqueue(SendSharingStatus);
+            _sharing.Restore();
+
+            _server = new WebSocketServer(
                 _config,
                 _log,
-                () =>
-                    MessageSerializer.Serialize(
-                        HandshakeMessage.Create(_zone, _config.GetCapabilities())
-                    )
+                trusted => BuildHandshake(trusted),
+                enabled => _mainThreadWork.Enqueue(() => _sharing?.SetEnabled(enabled))
             );
-            _sharing.Restore();
+            _server.Start();
 
             _broadcastLoop = new BroadcastLoop(
                 tracker,
@@ -105,6 +109,9 @@ public sealed class InteractiveMapRuntime
     {
         if (!_started || _stopped)
             return;
+
+        while (_mainThreadWork.TryDequeue(out var work))
+            work();
 
         _overlay?.HandleShortcut(togglePressed);
         _broadcastLoop?.Tick(deltaTime);
@@ -162,5 +169,28 @@ public sealed class InteractiveMapRuntime
 
         if (scene.name != "LoadScene")
             CharSelectManagerPatch.ResetPlayerTyping();
+    }
+
+    /// <summary>
+    /// Runs on Fleck and WebRTC threads. Only a trusted map on this PC learns about
+    /// sharing, because the status carries the pairing link.
+    /// </summary>
+    private string BuildHandshake(bool trusted) =>
+        MessageSerializer.Serialize(
+            HandshakeMessage.Create(
+                _zone,
+                _config.GetCapabilities(),
+                trusted ? _sharing?.Status : null
+            )
+        );
+
+    private void SendSharingStatus()
+    {
+        if (_sharing == null || _server == null)
+            return;
+
+        _server.BroadcastToTrusted(
+            MessageSerializer.Serialize(SharingChangedMessage.Create(_sharing.Status))
+        );
     }
 }

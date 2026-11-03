@@ -7,7 +7,7 @@
  */
 
 import { browser } from '$app/environment';
-import type { ProtocolMessage, ConnectionState } from './types';
+import type { ProtocolMessage, ConnectionState, SetSharingMessage } from './types';
 
 /** Default WebSocket server URL (mod default port) */
 const DEFAULT_SERVER_URL = 'ws://localhost:18585';
@@ -16,7 +16,7 @@ const DEFAULT_SERVER_URL = 'ws://localhost:18585';
 const RECONNECT_INTERVAL_MS = 2000;
 
 /** Expected protocol version for compatibility check */
-const EXPECTED_PROTOCOL_VERSION = '0.2.0';
+const EXPECTED_PROTOCOL_VERSION = '0.3.0';
 
 /**
  * WebSocket connection manager for live entity data.
@@ -82,6 +82,15 @@ export class LiveConnection {
      */
     get isEnabled(): boolean {
         return this.enabled;
+    }
+
+    /**
+     * Sends a message to the mod. Returns false when not connected.
+     */
+    send(message: SetSharingMessage): boolean {
+        if (this.ws?.readyState !== WebSocket.OPEN) return false;
+        this.ws.send(JSON.stringify(message));
+        return true;
     }
 
     private attemptConnection(): void {

@@ -16,7 +16,8 @@ const INITIAL_STATE: LiveState = {
     capabilities: [],
     protocolVersion: null,
     modVersion: null,
-    lastUpdate: null
+    lastUpdate: null,
+    sharing: null
 };
 
 // Module-level reactive state using $state rune
@@ -34,6 +35,7 @@ function getConnection(): LiveConnection {
                 // Clear entities when disconnected or reconnecting
                 if (connectionState === 'disconnected' || connectionState === 'reconnecting') {
                     state.entities = [];
+                    state.sharing = null;
                 }
             },
             (message) => {
@@ -51,6 +53,11 @@ function handleMessage(message: ProtocolMessage): void {
             state.capabilities = message.capabilities;
             state.protocolVersion = message.protocolVersion;
             state.modVersion = message.modVersion;
+            state.sharing = message.sharing ?? null;
+            break;
+
+        case 'sharingChanged':
+            state.sharing = message.sharing;
             break;
 
         case 'stateUpdate':
@@ -92,6 +99,10 @@ export const liveState = {
     get lastUpdate() {
         return state.lastUpdate;
     },
+    /** Sharing with other devices; null on other devices and with mods before 0.3.0 */
+    get sharing() {
+        return state.sharing;
+    },
 
     /** Player entity (null if not in entity list) */
     get player(): EntityData | null {
@@ -132,6 +143,16 @@ export const liveConnection = {
         state.protocolVersion = INITIAL_STATE.protocolVersion;
         state.modVersion = INITIAL_STATE.modVersion;
         state.lastUpdate = INITIAL_STATE.lastUpdate;
+        state.sharing = INITIAL_STATE.sharing;
+    },
+
+    /**
+     * Asks the mod to start or stop sharing with other devices. The mod answers with
+     * sharingChanged. Returns false when not connected.
+     */
+    setSharing(enabled: boolean): boolean {
+        if (!browser) return false;
+        return getConnection().send({ type: 'setSharing', enabled });
     },
 
     /** Check if currently connected */

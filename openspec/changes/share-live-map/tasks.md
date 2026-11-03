@@ -9,9 +9,9 @@
 
 ## 2. Protocol 0.3.0
 
-- [ ] 2.1 Add `sharing` to the local handshake, `sharingChanged`, and the loopback-only `setSharing` in `Messages.cs` and `types.ts`, with protocol behavior tests
-- [ ] 2.2 Update `skill://mod-development` protocol section (binding, inbound message)
-- [ ] 2.3 Commit: feat(map-companion): let the local map control sharing
+- [x] 2.1 Add `sharing` to the local handshake, `sharingChanged`, and the loopback-only `setSharing` in `Messages.cs` and `types.ts`, with protocol behavior tests
+- [x] 2.2 Update `skill://mod-development` protocol section (binding, inbound message)
+- [x] 2.3 Commit: feat(map-companion): let the local map control sharing
 
 ## 3. Map
 
