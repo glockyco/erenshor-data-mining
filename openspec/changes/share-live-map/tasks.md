@@ -29,7 +29,7 @@
 
 ## 5. Verification
 
-- [ ] 5.1 Running game: Chromium, Firefox and WebKit at phone size connect from a pairing link and a typed address; restart reconnects; Stop sharing disconnects; main-thread cost under 1 ms with three viewers
-- [ ] 5.2 Lunaris build runs in the game
-- [ ] 5.3 Ask for a test on a real Windows PC and phone
+- [x] 5.1 Running game: Chromium, Firefox and WebKit at phone size connect from a pairing link, and WebKit from a typed address; restart reconnects; Stop sharing disconnects; main-thread cost under 1 ms with three viewers
+- [x] 5.2 Lunaris build runs in the game
+- [ ] 5.3 Ask for a test on a real Windows PC and phone, including a typed address in Chrome or Edge and in Firefox
 - [ ] 5.4 Ask before the map deploy and the mod release; then reply to Coda314
