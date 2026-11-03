@@ -85,13 +85,17 @@ internal sealed class WebRtcPeer
         if (Interlocked.Exchange(ref _disposed, 1) != 0)
             return;
 
-        try
+        // The close alert is a DTLS record like any other, so it waits for a send in progress.
+        lock (_sendGate)
         {
-            _dtls?.Close();
-        }
-        catch
-        {
-            // The browser may already be gone.
+            try
+            {
+                _dtls?.Close();
+            }
+            catch
+            {
+                // The browser may already be gone.
+            }
         }
 
         _transport.Close();

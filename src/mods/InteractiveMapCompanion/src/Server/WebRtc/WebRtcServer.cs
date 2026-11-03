@@ -73,16 +73,18 @@ internal sealed class WebRtcServer : IBroadcastTarget, IDisposable
 
     public void Stop()
     {
+        // Sessions send their DTLS close alert over the socket, so browsers close their
+        // data channel at once instead of after their consent checks time out.
+        foreach (var peer in _peers.Values)
+            peer.Dispose();
+        _peers.Clear();
+
         _running = false;
         var receiveThread = _receiveThread;
         _receiveThread = null;
         if (receiveThread != null && receiveThread != Thread.CurrentThread)
             receiveThread.Join(ReceivePollMs * 10);
         _udp?.Close();
-
-        foreach (var peer in _peers.Values)
-            peer.Dispose();
-        _peers.Clear();
         _udp = null;
         ReportViewers();
     }
