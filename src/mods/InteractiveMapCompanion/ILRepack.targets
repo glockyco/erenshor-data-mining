@@ -128,7 +128,7 @@
         />
     </Target>
 
-    <!-- Lunaris packages keep loader-provided assemblies external and merge Fleck only. -->
+    <!-- Lunaris packages keep loader-provided assemblies external and merge Fleck and BouncyCastle. -->
     <Target
         Name="LunarisDiscoverDependencies"
         BeforeTargets="LunarisILRepack"
@@ -156,7 +156,10 @@
             TargetKind="Dll"
             OutputFile="$(OutputPath)$(TargetName)$(TargetExt)"
         />
-        <Message Text="✓ ILRepack: Merged Fleck into the Lunaris plugin DLL" Importance="high" />
+        <Message
+            Text="✓ ILRepack: Merged Fleck and BouncyCastle into the Lunaris plugin DLL"
+            Importance="high"
+        />
     </Target>
 
     <Target
