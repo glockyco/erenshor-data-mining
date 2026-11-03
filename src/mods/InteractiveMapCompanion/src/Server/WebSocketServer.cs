@@ -7,8 +7,8 @@ using UnityEngine.SceneManagement;
 namespace InteractiveMapCompanion.Server;
 
 /// <summary>
-/// Fleck-based WebSocket server implementation.
-/// Handles client connections and broadcasts messages to all connected clients.
+/// Fleck-based WebSocket server for the map on the same PC. It listens on loopback only;
+/// other devices connect through <see cref="WebRtc.WebRtcServer"/> while sharing is on.
 /// </summary>
 public sealed class WebSocketServer : IWebSocketServer
 {
@@ -35,7 +35,7 @@ public sealed class WebSocketServer : IWebSocketServer
     public void Start()
     {
         var port = _config.Port;
-        var location = ServerAddress.GetLocation(port, _config.AllowLanConnections);
+        var location = $"ws://127.0.0.1:{port}";
 
         lock (_lifecycleGate)
         {

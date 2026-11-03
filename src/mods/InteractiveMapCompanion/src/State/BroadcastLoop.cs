@@ -6,13 +6,13 @@ using InteractiveMapCompanion.Server;
 namespace InteractiveMapCompanion.State;
 
 /// <summary>
-/// Manages periodic state broadcasts to connected WebSocket clients.
+/// Manages periodic state broadcasts to connected clients.
 /// Handles timing, state gathering, and zone change notifications.
 /// </summary>
 public sealed class BroadcastLoop : IBroadcastLoop
 {
     private readonly IEntityTracker _entityTracker;
-    private readonly IWebSocketServer _server;
+    private readonly IBroadcastTarget _server;
     private readonly IBroadcastConfig _config;
     private readonly Action<string>? _log;
 
@@ -22,7 +22,7 @@ public sealed class BroadcastLoop : IBroadcastLoop
 
     public BroadcastLoop(
         IEntityTracker entityTracker,
-        IWebSocketServer server,
+        IBroadcastTarget server,
         IBroadcastConfig config,
         Action<string>? log = null
     )

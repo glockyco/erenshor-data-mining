@@ -17,14 +17,20 @@
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="Newtonsoft.Json" />
+        <PackageReference Include="BouncyCastle.Cryptography" />
     </ItemGroup>
 
     <ItemGroup>
         <Compile Include="../../src/Config/IBroadcastConfig.cs" Link="Config/IBroadcastConfig.cs" />
+        <Compile Include="../../src/Config/ModConfig.cs" Link="Config/ModConfig.cs" />
+        <Compile Include="../../src/IModLogger.cs" Link="IModLogger.cs" />
+        <Compile Include="../../src/MapSite.cs" Link="MapSite.cs" />
         <Compile Include="../../src/State/IBroadcastLoop.cs" Link="State/IBroadcastLoop.cs" />
         <Compile Include="../../src/State/BroadcastLoop.cs" Link="State/BroadcastLoop.cs" />
+        <Compile Include="../../src/Server/IBroadcastTarget.cs" Link="Server/IBroadcastTarget.cs" />
         <Compile Include="../../src/Server/IWebSocketServer.cs" Link="Server/IWebSocketServer.cs" />
-        <Compile Include="../../src/Server/ServerAddress.cs" Link="Server/ServerAddress.cs" />
+        <Compile Include="../../src/Server/WebRtc/*.cs" LinkBase="Server/WebRtc" />
+        <Compile Include="../../src/Server/LiveSharing.cs" Link="Server/LiveSharing.cs" />
         <Compile Include="../../src/Entities/IEntityTracker.cs" Link="Entities/IEntityTracker.cs" />
         <Compile Include="../../src/Entities/EntityData.cs" Link="Entities/EntityData.cs" />
         <Compile Include="../../src/Entities/EntityType.cs" Link="Entities/EntityType.cs" />

@@ -65,7 +65,6 @@ public sealed class Plugin : BaseUnityPlugin
     private sealed class BepModConfig : ModConfigBase
     {
         private readonly ConfigEntry<int> _port;
-        private readonly ConfigEntry<bool> _allowLanConnections;
         private readonly ConfigEntry<int> _updateInterval;
         private readonly ConfigEntry<ConfigLogLevel> _webSocketLogLevel;
         private readonly ConfigEntry<ConfigLogLevel> _modLogLevel;
@@ -76,6 +75,8 @@ public sealed class Plugin : BaseUnityPlugin
         private readonly ConfigEntry<int> _overlayWidth;
         private readonly ConfigEntry<int> _overlayHeight;
         private readonly ConfigEntry<bool> _resetToDefaults;
+        private readonly ConfigEntry<bool> _sharingEnabled;
+        private readonly ConfigEntry<string> _sharingIdentity;
 
         internal BepModConfig(ConfigFile config)
         {
@@ -84,12 +85,6 @@ public sealed class Plugin : BaseUnityPlugin
                 "Port",
                 18585,
                 "WebSocket server port. Clients connect to ws://localhost:{port}"
-            );
-            _allowLanConnections = config.Bind(
-                "Server",
-                "AllowLanConnections",
-                false,
-                "Allow other devices on the LAN to connect. Disabled by default so the WebSocket server only listens on loopback."
             );
             _updateInterval = config.Bind(
                 "Server",
@@ -151,10 +146,25 @@ public sealed class Plugin : BaseUnityPlugin
                 false,
                 "Set to true to reset size and position to auto-computed defaults on next game launch. Resets itself to false automatically."
             );
+            _sharingEnabled = config.Bind(
+                "Sharing",
+                "Enabled",
+                false,
+                "Let phones and other PCs on the same network show the live map, through the port after Server.Port. The map's Live panel turns this on and off."
+            );
+            _sharingIdentity = config.Bind(
+                "Sharing",
+                "Identity",
+                "",
+                new ConfigDescription(
+                    "Pairing credentials the mod generates for other devices. Clear it to unpair every device.",
+                    null,
+                    new ConfigurationManagerAttributes { Browsable = false }
+                )
+            );
         }
 
         public override int Port => _port.Value;
-        public override bool AllowLanConnections => _allowLanConnections.Value;
         public override int UpdateInterval => _updateInterval.Value;
         public override ConfigLogLevel WebSocketLogLevel => _webSocketLogLevel.Value;
         public override ConfigLogLevel ModLogLevel => _modLogLevel.Value;
@@ -185,5 +195,24 @@ public sealed class Plugin : BaseUnityPlugin
             get => _resetToDefaults.Value;
             set => _resetToDefaults.Value = value;
         }
+        public override bool SharingEnabled
+        {
+            get => _sharingEnabled.Value;
+            set => _sharingEnabled.Value = value;
+        }
+        public override string SharingIdentity
+        {
+            get => _sharingIdentity.Value;
+            set => _sharingIdentity.Value = value;
+        }
+    }
+
+    /// <summary>
+    /// BepInEx Configuration Manager reads this class by name and hides entries whose
+    /// Browsable field is false.
+    /// </summary>
+    private sealed class ConfigurationManagerAttributes
+    {
+        public bool? Browsable;
     }
 }

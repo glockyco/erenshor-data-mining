@@ -1,8 +1,6 @@
 using System.Collections.Concurrent;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Security.Cryptography;
 
 namespace InteractiveMapCompanion.Server.WebRtc;
 
@@ -11,74 +9,82 @@ namespace InteractiveMapCompanion.Server.WebRtc;
 /// Pairing is one-way: the link carries this server's address, ICE credentials and
 /// certificate fingerprint, and the browser connects without sending anything back.
 /// </summary>
-public sealed class WebRtcServer : IWebSocketServer
+internal sealed class WebRtcServer : IBroadcastTarget, IDisposable
 {
-    private const string TokenAlphabet =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    /// <summary>
+    /// Each viewer costs a send thread and a copy of every snapshot.
+    /// </summary>
+    public const int MaxViewers = 8;
 
     private readonly int _port;
+    private readonly SharingIdentity _identity;
+    private readonly IceLiteResponder _ice;
     private readonly Action<string> _log;
     private readonly Func<string?> _handshake;
     private readonly ConcurrentDictionary<string, WebRtcPeer> _peers = new();
 
-    private DtlsIdentity? _identity;
-    private IceLiteResponder? _ice;
-    private UdpClient? _udp;
-    private volatile bool _running;
+    // Closing a UDP socket does not wake a thread blocked in Receive on every platform
+    // (.NET on macOS waits for it forever), so the loop wakes up to check for Stop.
+    private const int ReceivePollMs = 100;
 
-    public WebRtcServer(int port, Action<string> log, Func<string?> handshake)
+    private UdpClient? _udp;
+    private Thread? _receiveThread;
+    private volatile bool _running;
+    private int _reportedViewers;
+    private bool _warnedFull;
+
+    public WebRtcServer(
+        int port,
+        SharingIdentity identity,
+        Action<string> log,
+        Func<string?> handshake
+    )
     {
         _port = port;
+        _identity = identity;
+        _ice = new IceLiteResponder(identity.IceUfrag, identity.IcePassword);
         _log = log;
         _handshake = handshake;
-        IceUfrag = RandomToken(8);
-        IcePassword = RandomToken(24);
     }
 
-    public int Port => _port;
-
-    public string IceUfrag { get; }
-
-    public string IcePassword { get; }
-
-    public string? Fingerprint => _identity?.Fingerprint;
+    /// <summary>
+    /// Raised on a background thread when the number of open data channels changes.
+    /// </summary>
+    public event Action? ViewersChanged;
 
     public int ClientCount => _peers.Values.Count(peer => peer.IsOpen);
 
+    /// <summary>
+    /// Binds the UDP port. Throws <see cref="SocketException"/> when it is taken.
+    /// </summary>
     public void Start()
     {
         if (_running)
             return;
 
-        _identity = DtlsIdentity.Create();
-        _ice = new IceLiteResponder(IceUfrag, IcePassword);
         _udp = new UdpClient(new IPEndPoint(IPAddress.Any, _port));
+        _udp.Client.ReceiveTimeout = ReceivePollMs;
         DisableConnectionResetErrors(_udp);
         _running = true;
-        new Thread(ReceiveLoop) { IsBackground = true, Name = "WebRTC receive" }.Start();
-
-        _log(
-            $"WebRTC listening on UDP {_port} at {string.Join(", ", GetLanAddresses())}, "
-                + $"ufrag {IceUfrag}, fingerprint {Fingerprint}"
-        );
+        _receiveThread = new Thread(ReceiveLoop) { IsBackground = true, Name = "WebRTC receive" };
+        _receiveThread.Start();
+        _log($"Listening on UDP {_port}");
     }
 
     public void Stop()
     {
         _running = false;
-        try
-        {
-            _udp?.Close();
-        }
-        catch
-        {
-            // Closing an already closed socket.
-        }
+        var receiveThread = _receiveThread;
+        _receiveThread = null;
+        if (receiveThread != null && receiveThread != Thread.CurrentThread)
+            receiveThread.Join(ReceivePollMs * 10);
+        _udp?.Close();
 
         foreach (var peer in _peers.Values)
             peer.Dispose();
         _peers.Clear();
         _udp = null;
+        ReportViewers();
     }
 
     public void Dispose() => Stop();
@@ -90,39 +96,6 @@ public sealed class WebRtcServer : IWebSocketServer
             if (peer.IsOpen)
                 peer.Send(message);
         }
-    }
-
-    /// <summary>
-    /// Private IPv4 addresses of interfaces that are up, which a device on the same
-    /// network can reach.
-    /// </summary>
-    public static IReadOnlyList<IPAddress> GetLanAddresses()
-    {
-        var addresses = new List<IPAddress>();
-        try
-        {
-            foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
-            {
-                if (
-                    networkInterface.OperationalStatus != OperationalStatus.Up
-                    || networkInterface.NetworkInterfaceType == NetworkInterfaceType.Loopback
-                )
-                    continue;
-
-                foreach (var unicast in networkInterface.GetIPProperties().UnicastAddresses)
-                {
-                    var address = unicast.Address;
-                    if (address.AddressFamily == AddressFamily.InterNetwork && IsPrivate(address))
-                        addresses.Add(address);
-                }
-            }
-        }
-        catch
-        {
-            // Some runtimes cannot enumerate interfaces; the caller shows no address.
-        }
-
-        return addresses;
     }
 
     private void ReceiveLoop()
@@ -152,28 +125,7 @@ public sealed class WebRtcServer : IWebSocketServer
 
             string key = remote.ToString();
             if (IceLiteResponder.IsStun(datagram, datagram.Length))
-            {
-                byte[]? response = _ice!.Respond(datagram, datagram.Length, remote);
-                if (response == null)
-                    continue;
-
-                SendDatagram(response, 0, response.Length, remote);
-                if (_peers.TryGetValue(key, out var existing) && !existing.IsFinished)
-                {
-                    existing.Touch();
-                    continue;
-                }
-
-                _log($"ICE check from {remote}, starting a session");
-                _peers[key] = new WebRtcPeer(
-                    remote,
-                    SendDatagram,
-                    _identity!,
-                    _log,
-                    OnPeerOpened,
-                    OnPeerClosed
-                );
-            }
+                HandleConnectivityCheck(datagram, remote, key);
             else if (datagram.Length > 0 && datagram[0] >= 20 && datagram[0] <= 63)
             {
                 // DTLS records (RFC 7983) count only from an endpoint that passed an ICE check.
@@ -181,6 +133,41 @@ public sealed class WebRtcServer : IWebSocketServer
                     peer.Deliver(datagram);
             }
         }
+    }
+
+    private void HandleConnectivityCheck(byte[] datagram, IPEndPoint remote, string key)
+    {
+        byte[]? response = _ice.Respond(datagram, datagram.Length, remote);
+        if (response == null)
+            return;
+
+        if (_peers.TryGetValue(key, out var existing) && !existing.IsFinished)
+        {
+            SendDatagram(response, 0, response.Length, remote);
+            existing.Touch();
+            return;
+        }
+
+        // A browser whose checks go unanswered reports a failed connection.
+        if (_peers.Values.Count(peer => !peer.IsFinished) >= MaxViewers)
+        {
+            if (!_warnedFull)
+                _log($"Refusing {remote}: {MaxViewers} devices are already connected");
+            _warnedFull = true;
+            return;
+        }
+
+        _warnedFull = false;
+        SendDatagram(response, 0, response.Length, remote);
+        _log($"Connectivity check from {remote}, starting a session");
+        _peers[key] = new WebRtcPeer(
+            remote,
+            SendDatagram,
+            _identity.Dtls,
+            _log,
+            OnPeerOpened,
+            OnPeerClosed
+        );
     }
 
     private void SendDatagram(byte[] buffer, int offset, int length, IPEndPoint remote)
@@ -208,10 +195,11 @@ public sealed class WebRtcServer : IWebSocketServer
 
     private void OnPeerOpened(WebRtcPeer peer)
     {
-        _log($"Data channel open with {peer.Remote} (open: {ClientCount})");
+        _log($"Data channel open with {peer.Remote}");
         string? handshake = _handshake();
         if (handshake != null)
             peer.Send(handshake);
+        ReportViewers();
     }
 
     private void OnPeerClosed(WebRtcPeer peer)
@@ -219,7 +207,15 @@ public sealed class WebRtcServer : IWebSocketServer
         string key = peer.Remote.ToString();
         if (_peers.TryGetValue(key, out var current) && ReferenceEquals(current, peer))
             _peers.TryRemove(key, out _);
-        _log($"Session with {peer.Remote} closed (open: {ClientCount})");
+        _log($"Session with {peer.Remote} closed");
+        ReportViewers();
+    }
+
+    private void ReportViewers()
+    {
+        int viewers = ClientCount;
+        if (Interlocked.Exchange(ref _reportedViewers, viewers) != viewers)
+            ViewersChanged?.Invoke();
     }
 
     private static void DisableConnectionResetErrors(UdpClient udp)
@@ -231,28 +227,9 @@ public sealed class WebRtcServer : IWebSocketServer
         {
             udp.Client.IOControl(SioUdpConnReset, [0], null);
         }
-        catch
+        catch (Exception)
         {
-            // Not supported on this runtime.
+            // Unity's Mono and Wine differ in which exception reports a missing option.
         }
-    }
-
-    private static bool IsPrivate(IPAddress address)
-    {
-        byte[] b = address.GetAddressBytes();
-        return b[0] == 10
-            || (b[0] == 172 && b[1] >= 16 && b[1] <= 31)
-            || (b[0] == 192 && b[1] == 168);
-    }
-
-    private static string RandomToken(int length)
-    {
-        var bytes = new byte[length];
-        using (var rng = RandomNumberGenerator.Create())
-            rng.GetBytes(bytes);
-        var chars = new char[length];
-        for (int i = 0; i < length; i++)
-            chars[i] = TokenAlphabet[bytes[i] % TokenAlphabet.Length];
-        return new string(chars);
     }
 }

@@ -1,9 +1,9 @@
 namespace InteractiveMapCompanion.Server;
 
 /// <summary>
-/// WebSocket server for broadcasting game state to connected clients.
+/// WebSocket server for broadcasting game state to the map on the same PC.
 /// </summary>
-public interface IWebSocketServer : IDisposable
+public interface IWebSocketServer : IBroadcastTarget, IDisposable
 {
     /// <summary>
     /// Starts the WebSocket server and begins accepting connections.
@@ -14,14 +14,4 @@ public interface IWebSocketServer : IDisposable
     /// Stops the server and disconnects all clients.
     /// </summary>
     void Stop();
-
-    /// <summary>
-    /// Broadcasts a message to all connected clients.
-    /// </summary>
-    void Broadcast(string message);
-
-    /// <summary>
-    /// Number of currently connected clients.
-    /// </summary>
-    int ClientCount { get; }
 }

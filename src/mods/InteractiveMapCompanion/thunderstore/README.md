@@ -39,16 +39,12 @@ To show live entities without the static enemy and NPC markers, disable those la
 
 Launch the game through Steam to use the map inside the game window. `Overlay.EnableOverlay` is on by default. Press M to show or hide the overlay, or change `Overlay.ToggleKey` to use another key. You can adjust its size and position through the overlay settings.
 
-## Use a second screen
-
-For another device on your local network, enable `Server.AllowLanConnections` in the mod settings and restart the game. Enter your game computer's local IP address and configured WebSocket port in that device's map connection settings. Keep firewall access restricted to a trusted network because enabling LAN connections makes the server listen on all network interfaces.
-
 ## Default keys
 
 - M shows or hides the in-game map overlay.
 
 ## Connection and settings
 
-The mod streams game state directly to connected map clients through a WebSocket server. It listens only on loopback unless you enable LAN connections. Do not expose its port to the internet. The mod does not upload the stream to the map's hosting server.
+The mod streams game state directly to connected map clients through a WebSocket server that listens only on this PC. The mod does not upload the stream to the map's hosting server.
 
 After the first launch, edit `BepInEx/config/wow-much.interactive-map-companion.cfg`, or use [BepInEx Configuration Manager](https://github.com/BepInEx/BepInEx.ConfigurationManager) in-game. Use the generated file's descriptions for the full settings list. Match the map's connection address to `Server.Port` if you change it.

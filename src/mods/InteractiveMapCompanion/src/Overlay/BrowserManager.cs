@@ -15,8 +15,6 @@ namespace InteractiveMapCompanion.Overlay;
 /// </summary>
 internal sealed class BrowserManager : IDisposable
 {
-    internal const string MapUrl = "https://erenshor.compendiums.org/map";
-
     // Steam HTML Surface never creates windows for target=_blank links or
     // window.open — those clicks are silently dropped by the embedded browser.
     // Rewrite them inside the page into same-surface navigations, which flow
@@ -190,7 +188,7 @@ internal sealed class BrowserManager : IDisposable
         SteamHTMLSurface.GoForward(_browser);
     }
 
-    internal void LoadMap() => LoadUrl(MapUrl);
+    internal void LoadMap() => LoadUrl(MapSite.MapUrl);
 
     private void RegisterCallbacks()
     {

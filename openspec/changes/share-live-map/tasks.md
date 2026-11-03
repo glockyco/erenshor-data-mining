@@ -2,10 +2,10 @@
 
 ## 1. Mod: sharing endpoint
 
-- [ ] 1.1 Persist sharing setting, ICE credentials and certificate in both loader configs; remove `Server.AllowLanConnections` and bind the WebSocket to loopback only
-- [ ] 1.2 Start and stop the WebRTC server and HTTP redirect from the setting; rotate credentials on stop; cap viewers at 8; drop the prototype's always-on wiring and password log
-- [ ] 1.3 Unit tests for the ICE-lite responder, SCTP fragmentation, SACK and retransmission, and the redirect page
-- [ ] 1.4 Commit: feat(map-companion): share the live map with devices on the same network
+- [x] 1.1 Persist sharing setting, ICE credentials and certificate in both loader configs; remove `Server.AllowLanConnections` and bind the WebSocket to loopback only
+- [x] 1.2 Start and stop the WebRTC server and HTTP redirect from the setting; rotate credentials on stop; cap viewers at 8; drop the prototype's always-on wiring and password log
+- [x] 1.3 Unit tests for the ICE-lite responder, SCTP fragmentation, SACK and retransmission, and the redirect page
+- [x] 1.4 Commit: feat(map-companion): share the live map with devices on the same network
 
 ## 2. Protocol 0.3.0
 

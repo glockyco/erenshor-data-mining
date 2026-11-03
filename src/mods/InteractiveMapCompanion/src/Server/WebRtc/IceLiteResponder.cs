@@ -18,7 +18,6 @@ internal sealed class IceLiteResponder
     private const ushort AttrUsername = 0x0006;
     private const ushort AttrMessageIntegrity = 0x0008;
     private const ushort AttrXorMappedAddress = 0x0020;
-    private const ushort AttrUseCandidate = 0x0025;
     private const ushort AttrFingerprint = 0x8028;
     private const uint FingerprintXor = 0x5354554E;
 
@@ -130,24 +129,6 @@ internal sealed class IceLiteResponder
         WriteUInt16(message, position + 2, 4);
         WriteUInt32(message, position + 4, crc);
         return message;
-    }
-
-    /// <summary>
-    /// True when the request carries USE-CANDIDATE, which the controlling browser sends
-    /// on the pair it nominates.
-    /// </summary>
-    public static bool HasUseCandidate(byte[] buffer, int length)
-    {
-        int end = Math.Min(length, 20 + ReadUInt16(buffer, 2));
-        int position = 20;
-        while (position + 4 <= end)
-        {
-            ushort type = ReadUInt16(buffer, position);
-            if (type == AttrUseCandidate)
-                return true;
-            position += 4 + ((ReadUInt16(buffer, position + 2) + 3) & ~3);
-        }
-        return false;
     }
 
     private static ushort ReadUInt16(byte[] b, int o) => (ushort)((b[o] << 8) | b[o + 1]);

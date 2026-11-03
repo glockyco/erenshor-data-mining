@@ -36,6 +36,7 @@ internal sealed class SctpAssociation
 
     private readonly Action<byte[]> _sendPacket;
     private readonly Action<string> _log;
+    private readonly Func<DateTime> _clock;
     private readonly object _gate = new();
     private readonly LinkedList<OutstandingChunk> _outstanding = new();
     private readonly SortedSet<uint> _receivedAhead = new(new SerialComparer());
@@ -55,10 +56,15 @@ internal sealed class SctpAssociation
     private bool _established;
     private bool _closed;
 
-    public SctpAssociation(Action<byte[]> sendPacket, Action<string> log)
+    public SctpAssociation(
+        Action<byte[]> sendPacket,
+        Action<string> log,
+        Func<DateTime>? clock = null
+    )
     {
         _sendPacket = sendPacket;
         _log = log;
+        _clock = clock ?? (() => DateTime.UtcNow);
         _localTag = RandomNonZero();
         _nextTsn = RandomNonZero();
         _cookie = RandomBytes(16);
@@ -203,7 +209,7 @@ internal sealed class SctpAssociation
                 Buffer.BlockCopy(payload, offset, value, 12, count);
 
                 byte[] packet = BuildPacket(new Chunk(ChunkData, flags, value));
-                _outstanding.AddLast(new OutstandingChunk(tsn, count, packet, DateTime.UtcNow));
+                _outstanding.AddLast(new OutstandingChunk(tsn, count, packet, _clock()));
                 _outstandingBytes += count;
                 _sendPacket(packet);
             }
@@ -223,13 +229,13 @@ internal sealed class SctpAssociation
                 return;
 
             var oldest = _outstanding.First!.Value;
-            if ((DateTime.UtcNow - oldest.SentAt).TotalMilliseconds < _rtoMs)
+            if ((_clock() - oldest.SentAt).TotalMilliseconds < _rtoMs)
                 return;
 
             int resent = 0;
             for (var node = _outstanding.First; node != null && resent < 16; node = node.Next)
             {
-                node.Value.SentAt = DateTime.UtcNow;
+                node.Value.SentAt = _clock();
                 _sendPacket(node.Value.Packet);
                 resent++;
             }
@@ -308,9 +314,7 @@ internal sealed class SctpAssociation
             WriteUInt32(ack, 8, PpidControl);
             ack[12] = DataChannelAck;
             byte[] ackPacket = BuildPacket(new Chunk(ChunkData, 0x07, ack));
-            _outstanding.AddLast(
-                new OutstandingChunk(ReadUInt32(ack, 0), 1, ackPacket, DateTime.UtcNow)
-            );
+            _outstanding.AddLast(new OutstandingChunk(ReadUInt32(ack, 0), 1, ackPacket, _clock()));
             _outstandingBytes += 1;
             _sendPacket(ackPacket);
             _log($"Data channel open on stream {stream} acknowledged");

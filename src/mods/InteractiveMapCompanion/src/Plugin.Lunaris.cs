@@ -1,3 +1,4 @@
+using System.Reflection;
 using ErenshorMods.Input;
 using InteractiveMapCompanion.Config;
 using Lunaris;
@@ -28,7 +29,7 @@ public sealed class Plugin : LunarisPlugin
         gameObject.hideFlags = HideFlags.HideAndDontSave;
 
         _settings = Config.Register<MapSettings>().Get();
-        var config = new LunarisModConfig(_settings);
+        var config = new LunarisModConfig(_settings, Config);
         var log = new LunarisModLogger(Logging);
         _runtime = new InteractiveMapRuntime(gameObject, config, log);
         _runtime.Start();
@@ -72,17 +73,45 @@ public sealed class Plugin : LunarisPlugin
         public void LogError(string message) => _logger.LogError(message);
     }
 
+    /// <summary>
+    /// The overlay settings come from the registered <see cref="MapSettings"/>. The sharing
+    /// values change at runtime, so they are read and written through the config directly,
+    /// as AdventureGuide's Lunaris backend does, and the generated identity stays out of
+    /// the options screen.
+    /// </summary>
     private sealed class LunarisModConfig : ModConfigBase
     {
-        private readonly MapSettings _settings;
+        private const string SharingEnabledKey = "Sharing.Enabled";
+        private const string SharingIdentityKey = "Sharing.Identity";
 
-        internal LunarisModConfig(MapSettings settings)
+        private readonly MapSettings _settings;
+        private readonly IConfig _config;
+        private bool _sharingEnabled;
+        private string _sharingIdentity;
+
+        internal LunarisModConfig(MapSettings settings, IConfig config)
         {
             _settings = settings;
+            _config = config;
+            _sharingEnabled = config.Read(SharingEnabledKey, false);
+            _sharingIdentity = config.Read(SharingIdentityKey, "");
+            config.SetSection(SharingEnabledKey, "Sharing");
+            config.SetDesc(
+                SharingEnabledKey,
+                "Let phones and other PCs on the same network show the live map, through the port after Server.Port. The map's Live panel turns this on and off."
+            );
+            config.SetSection(SharingIdentityKey, "Sharing");
+            config.SetDesc(
+                SharingIdentityKey,
+                "Pairing credentials the mod generates for other devices. Clear it to unpair every device."
+            );
+            config
+                .GetType()
+                .GetMethod("HideKey", BindingFlags.Instance | BindingFlags.NonPublic)
+                ?.Invoke(config, new object[] { SharingIdentityKey });
         }
 
         public override int Port => _settings.Port;
-        public override bool AllowLanConnections => _settings.AllowLanConnections;
         public override int UpdateInterval => _settings.UpdateInterval;
         public override LogLevel WebSocketLogLevel => _settings.WebSocketLogLevel;
         public override LogLevel ModLogLevel => _settings.ModLogLevel;
@@ -113,6 +142,28 @@ public sealed class Plugin : LunarisPlugin
             get => _settings.ResetToDefaults;
             set => _settings.ResetToDefaults = value;
         }
+        public override bool SharingEnabled
+        {
+            get => _sharingEnabled;
+            set
+            {
+                if (_sharingEnabled == value)
+                    return;
+                _sharingEnabled = value;
+                _config.Write(SharingEnabledKey, value);
+            }
+        }
+        public override string SharingIdentity
+        {
+            get => _sharingIdentity;
+            set
+            {
+                if (_sharingIdentity == value)
+                    return;
+                _sharingIdentity = value;
+                _config.Write(SharingIdentityKey, value);
+            }
+        }
     }
 
     public sealed class MapSettings
@@ -123,13 +174,6 @@ public sealed class Plugin : LunarisPlugin
             "WebSocket server port. Clients connect to ws://localhost:{port}"
         )]
         public int Port { get; set; } = 18585;
-
-        [Config(
-            "AllowLanConnections",
-            "Server",
-            "Allow other devices on the LAN to connect. Disabled by default so the WebSocket server only listens on loopback."
-        )]
-        public bool AllowLanConnections { get; set; } = false;
 
         [Config(
             "UpdateInterval",

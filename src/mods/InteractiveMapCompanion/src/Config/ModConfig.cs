@@ -20,7 +20,6 @@ public enum LogLevel
 public interface IModConfig : IBroadcastConfig
 {
     int Port { get; }
-    bool AllowLanConnections { get; }
     LogLevel WebSocketLogLevel { get; }
     LogLevel ModLogLevel { get; }
     bool EnableOverlay { get; }
@@ -31,6 +30,18 @@ public interface IModConfig : IBroadcastConfig
     int OverlayHeight { get; set; }
     bool ResetToDefaults { get; set; }
 
+    /// <summary>
+    /// Whether devices on the same network may show the live map. The map's Live panel
+    /// sets it; it starts off.
+    /// </summary>
+    bool SharingEnabled { get; set; }
+
+    /// <summary>
+    /// Serialized pairing credentials for other devices, empty until sharing first starts.
+    /// Clearing it unpairs every device.
+    /// </summary>
+    string SharingIdentity { get; set; }
+
     string[] GetCapabilities();
 }
 
@@ -40,7 +51,6 @@ public interface IModConfig : IBroadcastConfig
 public abstract class ModConfigBase : IModConfig
 {
     public abstract int Port { get; }
-    public abstract bool AllowLanConnections { get; }
     public abstract int UpdateInterval { get; }
     public abstract LogLevel WebSocketLogLevel { get; }
     public abstract LogLevel ModLogLevel { get; }
@@ -51,6 +61,8 @@ public abstract class ModConfigBase : IModConfig
     public abstract int OverlayWidth { get; set; }
     public abstract int OverlayHeight { get; set; }
     public abstract bool ResetToDefaults { get; set; }
+    public abstract bool SharingEnabled { get; set; }
+    public abstract string SharingIdentity { get; set; }
 
     public string[] GetCapabilities() => ["entities"];
 }

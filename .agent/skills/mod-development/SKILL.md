@@ -37,7 +37,7 @@ Lunaris references come from `mod setup`. Merge only dependencies the active loa
 
 ## InteractiveMapCompanion protocol
 
-The WebSocket server binds `0.0.0.0:18585` by default. The configured port can change. Multiple clients can connect.
+The WebSocket server binds `127.0.0.1:18585` by default and never listens on other interfaces. The configured port can change. Multiple clients can connect. Other devices receive the same messages over WebRTC data channels on the next port while sharing is on (`src/mods/InteractiveMapCompanion/src/Server/LiveSharing.cs`).
 
 - On connection, send `handshake` with `protocolVersion`, `modVersion`, `zone`, and `capabilities: ["entities"]`.
 - Send complete `stateUpdate` snapshots at the configured interval (default 100 ms). Each has `zone`, Unix-millisecond `timestamp`, and `entities`.
