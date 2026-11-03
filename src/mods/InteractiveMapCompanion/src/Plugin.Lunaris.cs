@@ -13,10 +13,16 @@ namespace InteractiveMapCompanion;
     "WoW_Much",
     "Live companion for the Erenshor interactive world map."
 )]
+// Lunaris compares this with the APIs the DLL calls and flags a plugin whose declaration
+// leaves one out. It counts any System.IO call, such as an IOException in the WebRTC
+// transport, as file access, and any System.Reflection.Emit call, such as the minimap
+// transpiler's opcode comparisons, as unsafe code.
 [LunarisPermission(
     LunarisPermission.Network
         | LunarisPermission.Harmony
         | LunarisPermission.Reflection
+        | LunarisPermission.FileAccess
+        | LunarisPermission.Unsafe
         | LunarisPermission.LunarisPlugin
 )]
 public sealed class Plugin : LunarisPlugin
