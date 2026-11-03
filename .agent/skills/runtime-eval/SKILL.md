@@ -45,6 +45,10 @@ uv run erenshor eval reset
 
 `--timeout` is milliseconds (default 10000). Variables persist between calls until reset. The Mono evaluator supports C# 7.x. Do not use records, switch expressions, nullable annotations, or anonymous types. Prefix static Unity object queries with `UnityEngine.Object`, such as `UnityEngine.Object.FindObjectsOfType<Camera>()`.
 
+A submission whose top-level statements declare a variable and loop over a collection can fail with `CS0584: Internal compiler error: The invoked member is not supported in a dynamic module`, and the same code can succeed after `eval reset`. Put such code in a delegate body, such as `new Func<string>(() => { var n = 0; foreach (var c in UnityEngine.Object.FindObjectsOfType<Camera>()) n++; return n + " cameras"; })()`, because the evaluator then compiles real locals instead of session fields. Declare state that must outlive the call, such as `var tally = new Dictionary<string, int>();`, in a statement of its own. The host also lists `Roslyn.Script`, but in this game's Mono runtime every Roslyn evaluation fails with `Method not found: ... Unsafe.AsRef`.
+
+An instantiated NPC prefab stays alive and snaps to the nearest NavMesh, wherever it was placed. Destroy every NPC an experiment creates in the call that reads it, and count the remaining NPCs afterwards.
+
 The client requires HotRepl protocol v2. `eval ping` measures connection plus handshake
 latency (there is no v2 ping request) and reports the host and evaluator. `run --json`
 prints the native JSON value and its `hasValue`, `valueType`, `truncated` and
