@@ -645,7 +645,7 @@
     {#if bagsByZone.length > 0}
         <!-- Item bags -->
         <div class="space-y-1 border-t border-zinc-700 pt-2">
-            <div class="text-xs uppercase tracking-wide text-zinc-500 mb-2">Item bags</div>
+            <div class="text-xs uppercase tracking-wide text-zinc-500 mb-2">Picked up in</div>
             {#each bagsByZone as group (group.key)}
                 {@const markers = [...group.markers.values()]}
                 <button
@@ -814,7 +814,7 @@
     {#if miningByZone.length > 0}
         <!-- Mining nodes -->
         <div class="space-y-1 border-t border-zinc-700 pt-2">
-            <div class="text-xs uppercase tracking-wide text-zinc-500 mb-2">Mining nodes</div>
+            <div class="text-xs uppercase tracking-wide text-zinc-500 mb-2">Mined in</div>
             {#each miningByZone as group (group.key)}
                 {@const entries = [...group.entries.values()]}
                 {@const markers = entries.map((entry) => entry.marker)}
@@ -848,7 +848,7 @@
     {#if fishingByZone.length > 0 || anyWater.length > 0}
         <!-- Fishing spots -->
         <div class="space-y-1 border-t border-zinc-700 pt-2">
-            <div class="text-xs uppercase tracking-wide text-zinc-500 mb-2">Fishing spots</div>
+            <div class="text-xs uppercase tracking-wide text-zinc-500 mb-2">Fished in</div>
             {#each fishingByZone as group (group.key)}
                 {@const entries = [...group.entries.values()]}
                 {@const markers = entries.map((entry) => entry.marker)}
