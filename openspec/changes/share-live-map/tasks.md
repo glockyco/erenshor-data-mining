@@ -24,8 +24,8 @@
 
 ## 4. Documentation
 
-- [ ] 4.1 Mod READMEs (root, Thunderstore, Vault) and /mod page: second devices, firewall, privacy statement
-- [ ] 4.2 Commit: docs(map-companion): describe second devices
+- [x] 4.1 Mod READMEs (root, Thunderstore, Vault) and /mod page: second devices, firewall, privacy statement
+- [x] 4.2 Commit: docs(map-companion): describe second devices
 
 ## 5. Verification
 
