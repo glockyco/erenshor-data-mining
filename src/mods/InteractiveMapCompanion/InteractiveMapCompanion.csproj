@@ -59,11 +59,13 @@
         <PackageReference Include="BepInEx.Core" PrivateAssets="all" />
         <PackageReference Include="Newtonsoft.Json" />
         <PackageReference Include="Fleck" />
+        <PackageReference Include="BouncyCastle.Cryptography" />
         <PackageReference Include="ILRepack.Lib.MSBuild.Task" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">
         <PackageReference Include="Fleck" />
+        <PackageReference Include="BouncyCastle.Cryptography" />
         <PackageReference Include="ILRepack.Lib.MSBuild.Task" PrivateAssets="all" />
     </ItemGroup>
 

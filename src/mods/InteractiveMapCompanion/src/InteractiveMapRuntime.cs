@@ -3,7 +3,9 @@ using InteractiveMapCompanion.Config;
 using InteractiveMapCompanion.Entities;
 using InteractiveMapCompanion.Overlay;
 using InteractiveMapCompanion.Patches;
+using InteractiveMapCompanion.Protocol;
 using InteractiveMapCompanion.Server;
+using InteractiveMapCompanion.Server.WebRtc;
 using InteractiveMapCompanion.State;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -21,6 +23,8 @@ public sealed class InteractiveMapRuntime
 
     private Harmony? _harmony;
     private IWebSocketServer? _server;
+    private WebRtcServer? _webRtc;
+    private volatile string _zone = "";
     private IBroadcastLoop? _broadcastLoop;
     private MapOverlay? _overlay;
     private bool _started;
@@ -54,9 +58,25 @@ public sealed class InteractiveMapRuntime
             _server = new WebSocketServer(_config, _log);
             _server.Start();
 
+            // Prototype: WebRTC for other devices always listens on the next port.
+            _zone = SceneManager.GetActiveScene().name;
+            _webRtc = new WebRtcServer(
+                _config.Port + 1,
+                message => _log.LogInfo($"[WebRTC] {message}"),
+                () =>
+                    MessageSerializer.Serialize(
+                        HandshakeMessage.Create(_zone, _config.GetCapabilities())
+                    )
+            );
+            _webRtc.Start();
+            var lanAddress = WebRtcServer.GetLanAddresses().FirstOrDefault()?.ToString() ?? "";
+            _log.LogInfo(
+                $"[WebRTC] pairing {{\"ip\":\"{lanAddress}\",\"port\":{_webRtc.Port},\"ufrag\":\"{_webRtc.IceUfrag}\",\"pwd\":\"{_webRtc.IcePassword}\",\"fp\":\"{_webRtc.Fingerprint}\"}}"
+            );
+
             _broadcastLoop = new BroadcastLoop(
                 tracker,
-                _server,
+                new BroadcastFanOut(_server, _webRtc),
                 _config,
                 message =>
                 {
@@ -120,6 +140,7 @@ public sealed class InteractiveMapRuntime
 
         _broadcastLoop?.Stop();
         _server?.Stop();
+        _webRtc?.Stop();
 
         _overlay?.Stop();
         if (_overlay != null)
@@ -133,6 +154,7 @@ public sealed class InteractiveMapRuntime
         _overlay = null;
         _broadcastLoop = null;
         _server = null;
+        _webRtc = null;
         _harmony = null;
     }
 
@@ -141,6 +163,7 @@ public sealed class InteractiveMapRuntime
         if (_stopped)
             return;
 
+        _zone = scene.name;
         _broadcastLoop?.OnSceneLoaded(scene.name);
 
         if (scene.name != "LoadScene")

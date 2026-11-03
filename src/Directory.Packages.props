@@ -4,6 +4,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageVersion Include="BouncyCastle.Cryptography" Version="2.7.0" />
         <PackageVersion Include="BepInEx.Core" Version="5.4.21" />
         <PackageVersion Include="Fleck" Version="1.2.0" />
         <PackageVersion Include="ILRepack.Lib.MSBuild.Task" Version="2.0.48" />

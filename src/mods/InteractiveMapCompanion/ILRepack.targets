@@ -51,6 +51,7 @@
            assemblies (e.g. custom mod loaders). BepInEx-provided assemblies
            (BepInEx.dll, 0Harmony.dll) are excluded — they are reference-only. -->
             <MergeAssemblies Include="$(OutputPath)Fleck.dll" />
+            <MergeAssemblies Include="$(OutputPath)BouncyCastle.Cryptography.dll" />
             <MergeAssemblies Include="$(OutputPath)Newtonsoft.Json.dll" />
         </ItemGroup>
 
@@ -136,6 +137,7 @@
         <ItemGroup>
             <LunarisMergeAssemblies Include="$(OutputPath)$(TargetName)$(TargetExt)" />
             <LunarisMergeAssemblies Include="$(OutputPath)Fleck.dll" />
+            <LunarisMergeAssemblies Include="$(OutputPath)BouncyCastle.Cryptography.dll" />
         </ItemGroup>
     </Target>
 
