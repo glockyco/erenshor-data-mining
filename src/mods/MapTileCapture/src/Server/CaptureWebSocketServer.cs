@@ -9,7 +9,9 @@ namespace MapTileCapture.Server;
 /// </summary>
 internal sealed class CaptureWebSocketServer : IDisposable
 {
-    private const string Location = "ws://0.0.0.0:18586";
+    // The Python capture pipeline connects to this port (constants.WS_PORT). Interactive
+    // Map Companion uses 18585 and shares the live map on 18586.
+    private const string Location = "ws://0.0.0.0:18587";
 
     private readonly IModLogger _logger;
     private readonly ConcurrentQueue<string> _inbound = new();

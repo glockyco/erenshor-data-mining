@@ -229,8 +229,8 @@ def _capture(cli_ctx: CLIContext, capture_dir: Path, subjects: Sequence[str], re
 
     import websockets
 
+    from erenshor.application.capture.constants import WS_PORT
     from erenshor.application.capture.portraits import (
-        WS_PORT,
         PortraitRun,
         capture_portraits,
         portrait_requests,

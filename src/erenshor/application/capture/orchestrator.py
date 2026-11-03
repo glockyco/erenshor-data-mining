@@ -8,14 +8,13 @@ from typing import Any
 import websockets
 from loguru import logger
 
-from .constants import TILE_SIZE
+from .constants import TILE_SIZE, WS_PORT
 from .state import CaptureState, _sha256
 from .stitcher import stitch_chunks
 from .tile_generator import generate_tile_pyramid
 from .wine import from_wine_path, wine_path
 from .zone_config import capture_variants
 
-WS_PORT = 18586
 MAX_CHUNK_PX = 4096
 
 

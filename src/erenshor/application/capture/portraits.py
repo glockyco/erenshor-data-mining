@@ -27,7 +27,6 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Collection, Mapping, Sequence
     from pathlib import Path
 
-WS_PORT = 18586
 RESPONSE_TIMEOUT_SECS = 180.0
 
 # Mean luminance of the opaque pixels below which the reviewer checks a capture.
