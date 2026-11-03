@@ -44,10 +44,7 @@
             Link="Protocol/MessageSerializer.cs"
         />
         <Compile Include="../../src/Protocol/Messages.cs" Link="Protocol/Messages.cs" />
-        <Compile
-            Include="../../src/Protocol/ClientMessages.cs"
-            Link="Protocol/ClientMessages.cs"
-        />
+        <Compile Include="../../src/Protocol/ClientMessages.cs" Link="Protocol/ClientMessages.cs" />
         <Compile Include="../../src/PluginInfo.cs" Link="PluginInfo.cs" />
         <Compile
             Include="../../../Shared/Input/KeyboardInput.cs"
