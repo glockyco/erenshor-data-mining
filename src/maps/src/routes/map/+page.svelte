@@ -75,6 +75,9 @@
     import MapPopup from '$lib/components/map/MapPopup.svelte';
     import MapSearch from '$lib/components/map/MapSearch.svelte';
     import Eye from '@lucide/svelte/icons/eye';
+    import LiveButton from '$lib/components/map/live/LiveButton.svelte';
+    import LivePanel from '$lib/components/map/live/LivePanel.svelte';
+    import { ScreenWakeLock } from '$lib/map/live/wake-lock';
     import type { PageData } from './$types';
     import { hydrateItemSourcePageData } from '$lib/item-source-page-data';
 
@@ -94,9 +97,11 @@
     let sidebarCollapsed = $state(false);
     const SIDEBAR_COLLAPSED_KEY = 'erenshor-map-sidebar-collapsed';
 
-    // Live mode state (persisted to localStorage)
-    let liveEnabled = $state(false);
-    const LIVE_MODE_KEY = 'erenshor-map-live-mode';
+    // Live panel and the paired device's screen (choice persisted to localStorage)
+    let livePanelOpen = $state(false);
+    let keepScreenOn = $state(true);
+    const KEEP_SCREEN_ON_KEY = 'erenshor-map-keep-screen-on';
+    const screenWakeLock = new ScreenWakeLock();
 
     // Auto-follow state (persisted to localStorage)
     let autoFollowEnabled = $state(false);
@@ -557,14 +562,34 @@
         }
     });
 
-    // Load live mode state from localStorage
+    // Live: pick up a pairing link or this device's earlier choice, then take the pairing
+    // values and the overlay's live=1 out of the address bar and its history entry.
     $effect(() => {
-        if (browser) {
-            const stored = localStorage.getItem(LIVE_MODE_KEY);
-            if (stored !== null) {
-                liveEnabled = stored === 'true';
+        if (!browser) return;
+        untrack(() => {
+            const { hash, pathname, search } = window.location;
+            const liveRequested = new URLSearchParams(search).has('live');
+            const paired = liveConnection.restore(hash, liveRequested);
+            if (paired) {
+                handleAutoFollowChange(true);
+                zoomToPlayer = true;
             }
-        }
+
+            if (hash.startsWith('#live=') || liveRequested) {
+                const kept = search
+                    .slice(1)
+                    .split('&')
+                    .filter((pair) => pair && pair !== 'live' && !pair.startsWith('live='))
+                    .join('&');
+                window.history.replaceState(
+                    window.history.state,
+                    '',
+                    pathname + (kept ? `?${kept}` : '')
+                );
+            }
+
+            keepScreenOn = localStorage.getItem(KEEP_SCREEN_ON_KEY) !== 'false';
+        });
     });
 
     // Load auto-follow state from localStorage
@@ -577,14 +602,15 @@
         }
     });
 
-    // Connect/disconnect live mode based on toggle
+    // A paired device keeps its screen on while live data arrives.
     $effect(() => {
-        if (liveEnabled) {
-            liveConnection.connect();
-        } else {
-            liveConnection.disconnect();
-        }
+        screenWakeLock.set(
+            keepScreenOn &&
+                liveState.mode === 'paired' &&
+                liveState.connectionState === 'connected'
+        );
     });
+    $effect(() => () => screenWakeLock.set(false));
 
     /**
      * Update camera to center on target coordinates with instant transition.
@@ -606,6 +632,10 @@
         });
     }
 
+    // A device that just opened a pairing link starts at the zoom a marker focus uses.
+    const PAIRED_FOLLOW_ZOOM = 0;
+    let zoomToPlayer = false;
+
     /**
      * Update camera position to instantly follow player (lock-on mode).
      * Called from layer update effect at 10 Hz (every 100ms).
@@ -623,6 +653,13 @@
 
         // Skip if in unmapped zone, but keep auto-follow enabled
         if (!playerPos) return;
+
+        if (zoomToPlayer) {
+            zoomToPlayer = false;
+            if (currentViewState.zoom < PAIRED_FOLLOW_ZOOM) {
+                currentViewState = { ...currentViewState, zoom: PAIRED_FOLLOW_ZOOM };
+            }
+        }
 
         updateCameraTarget(playerPos[0], playerPos[1]);
     }
@@ -652,9 +689,12 @@
     const SCALE_BAR_MAX_WIDTH = 120;
     const KOFI_URL = 'https://ko-fi.com/wowmuch';
 
-    const kofiButtonRight = $derived(
-        isDesktop && selection ? `${POPUP_WIDTH + MAP_CHROME_GAP}px` : `${MAP_CHROME_GAP}px`
+    const kofiRightPx = $derived(
+        isDesktop && selection ? POPUP_WIDTH + MAP_CHROME_GAP : MAP_CHROME_GAP
     );
+    const kofiButtonRight = $derived(`${kofiRightPx}px`);
+    // The Live pill sits left of the 48 px Ko-fi button with an 8 px gap.
+    const livePillRight = $derived(`${kofiRightPx + 56}px`);
 
     const scaleBarLeftPx = $derived(
         isDesktop
@@ -828,10 +868,10 @@
         updateLayers();
     }
 
-    function handleLiveModeChange(enabled: boolean) {
-        liveEnabled = enabled;
+    function handleKeepScreenOnChange(enabled: boolean) {
+        keepScreenOn = enabled;
         if (browser) {
-            localStorage.setItem(LIVE_MODE_KEY, String(enabled));
+            localStorage.setItem(KEEP_SCREEN_ON_KEY, String(enabled));
         }
     }
 
@@ -851,10 +891,14 @@
             return;
         }
 
-        // ESC closes search first, then popup
+        // ESC closes search first, then the Live panel, then popup
         if (event.key === 'Escape') {
             if (searchOpen) {
                 searchOpen = false;
+                return;
+            }
+            if (livePanelOpen) {
+                livePanelOpen = false;
                 return;
             }
             if (selection) {
@@ -1489,13 +1533,16 @@
         levelRange={data.levelRange}
         {levelFilter}
         onLevelFilterChange={handleLevelFilterChange}
-        {liveEnabled}
-        connectionState={liveState.connectionState}
-        onLiveModeChange={handleLiveModeChange}
-        {autoFollowEnabled}
-        onAutoFollowChange={handleAutoFollowChange}
         onSearchOpen={() => (searchOpen = true)}
-    />
+    >
+        {#snippet mobileActions()}
+            <LiveButton
+                variant="round"
+                open={livePanelOpen}
+                onclick={() => (livePanelOpen = !livePanelOpen)}
+            />
+        {/snippet}
+    </MapSidebar>
 
     <!-- Map container -->
     <div bind:this={container} class="absolute inset-0" class:invisible={isLoading}></div>
@@ -1551,6 +1598,72 @@
                 />
             </svg>
         </a>
+
+        {#if isDesktop}
+            <div class="fixed top-4 z-30" style:right={livePillRight}>
+                <LiveButton
+                    variant="pill"
+                    open={livePanelOpen}
+                    onclick={() => (livePanelOpen = !livePanelOpen)}
+                />
+            </div>
+        {/if}
+    {/if}
+
+    {#snippet livePanel()}
+        <LivePanel
+            {isDesktop}
+            zoneName={liveState.zone ? getZoneName(liveState.zone) : null}
+            follow={autoFollowEnabled}
+            onFollowChange={handleAutoFollowChange}
+            {keepScreenOn}
+            onKeepScreenOnChange={handleKeepScreenOnChange}
+        />
+    {/snippet}
+
+    <!-- Live panel: a popover under the Live pill on desktop, a drawer on phones -->
+    {#if isDesktop}
+        {#if livePanelOpen}
+            <button
+                type="button"
+                aria-label="Close Live"
+                class="fixed inset-0 z-[60] cursor-default"
+                onclick={() => (livePanelOpen = false)}
+            ></button>
+            <div
+                role="dialog"
+                aria-label="Live"
+                style:right={kofiButtonRight}
+                class="fixed top-[72px] z-[70] max-h-[calc(100vh-88px)] w-80 overflow-y-auto rounded-xl border
+                       border-zinc-700 bg-zinc-800/[.97] px-4 py-3.5 shadow-2xl"
+            >
+                {@render livePanel()}
+            </div>
+        {/if}
+    {:else}
+        <Drawer.Root bind:open={livePanelOpen} shouldScaleBackground={false}>
+            <Drawer.Content>
+                <Drawer.Header class="sr-only">
+                    <Drawer.Title>Live</Drawer.Title>
+                </Drawer.Header>
+                <div class="overflow-y-auto px-4 pb-6">
+                    {@render livePanel()}
+                </div>
+            </Drawer.Content>
+        </Drawer.Root>
+
+        {#if liveState.mode !== 'off' && liveState.connectionState === 'connected' && liveState.player}
+            <div
+                data-testid="live-chip"
+                class="fixed left-4 top-5 z-20 flex h-10 max-w-[calc(100vw-96px)] items-center gap-2 rounded-full
+                       bg-zinc-800/95 px-3.5 text-sm font-semibold text-zinc-100 shadow-lg backdrop-blur"
+            >
+                <span class="h-2 w-2 flex-none rounded-full bg-lime-400"></span>
+                <span class="truncate">
+                    {liveState.player.name} in {liveState.zone ? getZoneName(liveState.zone) : ''}
+                </span>
+            </div>
+        {/if}
     {/if}
 
     <!-- Tooltip (desktop only) -->

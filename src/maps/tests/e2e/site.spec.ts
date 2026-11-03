@@ -321,3 +321,29 @@ test('stored return portals have no serialized Hidden destination in either map 
     await expect(popup).not.toContainText('Hidden');
     await expect(popup.locator('a[href*="Hidden"]')).toHaveCount(0);
 });
+
+test("the overlay's live=1 connects to the mod on this PC and leaves the address clean", async ({ page }) => {
+    const sockets: string[] = [];
+    page.on('websocket', (socket) => sockets.push(socket.url()));
+
+    await page.goto('/map?live=1');
+
+    await expect.poll(() => sockets.some((url) => url.startsWith('ws://localhost:18585'))).toBe(true);
+    await expect.poll(() => new URL(page.url()).search).toBe('');
+    expect(await page.evaluate(() => localStorage.getItem('erenshor-map-live-mode'))).toBe('true');
+});
+
+test('a pairing link pairs this device and takes the pairing values out of the address', async ({ page }) => {
+    const sockets: string[] = [];
+    page.on('websocket', (socket) => sockets.push(socket.url()));
+    // TEST-NET-1 address: the connection attempt never reaches a game.
+    const pairing = `192.0.2.10:18586.ufrag1234.password12345678901234.${'ab'.repeat(32)}`;
+
+    await page.goto(`/map#live=${pairing}`);
+
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('erenshor-map-live-pairing'))).toBe(pairing);
+    expect(new URL(page.url()).hash).toBe('');
+    await page.getByRole('button', { name: 'Live' }).click();
+    await expect(page.getByTestId('live-panel')).toBeVisible();
+    expect(sockets).toEqual([]);
+});

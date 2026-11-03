@@ -254,8 +254,19 @@
                     href="/map"
                     class="font-medium text-purple-400 underline underline-offset-4 transition-colors hover:text-purple-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
                     >interactive world map</a
-                > and enable Live Mode in the sidebar. Your character, SimPlayers, NPCs, enemies,
-                and pets will update in real time.
+                >, choose <b class="font-semibold text-white">Live</b>, then
+                <b class="font-semibold text-white">Connect to Erenshor on this PC</b>. Your character,
+                SimPlayers, NPCs, enemies, and pets update in real time.
+            </p>
+            <h3 id="other-devices" class="mt-6 text-lg font-semibold text-white">
+                On a phone or another PC
+            </h3>
+            <p class="mt-3 text-sm leading-relaxed text-slate-300 md:text-base">
+                Choose <b class="font-semibold text-white">Show on another device</b> under
+                <b class="font-semibold text-white">Live</b> on your game PC. Scan the code it shows
+                with a phone camera, or open the address it shows in a browser on another PC on the
+                same network. When Windows asks whether Erenshor may use the network, allow it on
+                private networks. The live data goes straight from your game PC to your devices.
             </p>
         </div>
     </section>

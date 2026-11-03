@@ -15,12 +15,12 @@
 
 ## 3. Map
 
-- [ ] 3.1 WebRTC transport from a pairing link, stored per device and retried on load
-- [ ] 3.2 Live button and panel replacing the sidebar section, first-visit video, Connect, Show on another device with QR code and address, viewers, Stop sharing
-- [ ] 3.3 Connected-phone view: follow, chip, screen wake lock with switch
-- [ ] 3.4 Overlay opens the map with Live on (mod `BrowserManager.MapUrl`)
-- [ ] 3.5 Player-visible wording through compare-options
-- [ ] 3.6 Commit: feat(map): show the live map on other devices
+- [x] 3.1 WebRTC transport from a pairing link, stored per device and retried on load
+- [x] 3.2 Live button and panel replacing the sidebar section, first-visit video, Connect, Show on another device with QR code and address, viewers, Stop sharing
+- [x] 3.3 Connected-phone view: follow, chip, screen wake lock with switch
+- [x] 3.4 Overlay opens the map with Live on (mod `MapSite.OverlayUrl`)
+- [x] 3.5 Player-visible wording through compare-options
+- [x] 3.6 Commit: feat(map): show the live map on other devices
 
 ## 4. Documentation
 

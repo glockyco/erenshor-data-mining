@@ -168,7 +168,7 @@ internal sealed class MapOverlay : MonoBehaviour
         _browser.NavigationStateChanged += UpdateNavigationState;
         UpdateNavigationState();
 
-        bool ok = _browser.Initialize(width, height, MapSite.MapUrl);
+        bool ok = _browser.Initialize(width, height, MapSite.OverlayUrl);
         if (ok)
             return;
 

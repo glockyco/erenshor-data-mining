@@ -188,7 +188,7 @@ internal sealed class BrowserManager : IDisposable
         SteamHTMLSurface.GoForward(_browser);
     }
 
-    internal void LoadMap() => LoadUrl(MapSite.MapUrl);
+    internal void LoadMap() => LoadUrl(MapSite.OverlayUrl);
 
     private void RegisterCallbacks()
     {

@@ -1,7 +1,7 @@
 <script lang="ts">
+    import type { Snippet } from 'svelte';
     import { LAYER_COLORS } from '$lib/map/config';
     import type { LayerVisibility, LevelRange } from '$lib/types/world-map';
-    import type { ConnectionState } from '$lib/map/live';
     import LayerToggle from './LayerToggle.svelte';
     import SidebarSection from './SidebarSection.svelte';
     import LevelFilter from './LevelFilter.svelte';
@@ -37,11 +37,8 @@
         levelRange: LevelRange;
         levelFilter: [number, number];
         onLevelFilterChange: (value: [number, number]) => void;
-        liveEnabled: boolean;
-        connectionState: ConnectionState;
-        onLiveModeChange: (enabled: boolean) => void;
-        autoFollowEnabled: boolean;
-        onAutoFollowChange: (enabled: boolean) => void;
+        /** Extra round buttons in the phone layout's floating row */
+        mobileActions?: Snippet;
         onSearchOpen: () => void;
     }
 
@@ -54,11 +51,7 @@
         levelRange,
         levelFilter,
         onLevelFilterChange,
-        liveEnabled,
-        connectionState,
-        onLiveModeChange,
-        autoFollowEnabled,
-        onAutoFollowChange,
+        mobileActions,
         onSearchOpen
     }: Props = $props();
 
@@ -357,145 +350,6 @@
             onchange={handleToggle('zoneLabels')}
         />
     </SidebarSection>
-
-    <!-- Live Mode -->
-    <SidebarSection title="Live Mode">
-        <label class="flex cursor-pointer items-center gap-2 py-1 text-sm hover:bg-zinc-700/50">
-            <input
-                type="checkbox"
-                checked={liveEnabled}
-                onchange={(e) => onLiveModeChange(e.currentTarget.checked)}
-                class="sr-only"
-            />
-            <span
-                class="flex h-4 w-4 items-center justify-center rounded border transition-colors"
-                class:bg-zinc-600={!liveEnabled}
-                class:border-zinc-500={!liveEnabled}
-                class:bg-lime-500={liveEnabled}
-                class:border-lime-500={liveEnabled}
-            >
-                {#if liveEnabled}
-                    <svg
-                        class="h-3 w-3 text-white"
-                        viewBox="0 0 12 12"
-                        fill="none"
-                        stroke="currentColor"
-                    >
-                        <path
-                            d="M2 6l3 3 5-6"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        />
-                    </svg>
-                {/if}
-            </span>
-            <span class="text-zinc-200">Enable Live Mode</span>
-        </label>
-
-        <!-- Get Started Guide (when Live Mode disabled) -->
-        {#if !liveEnabled}
-            <div class="mt-3 rounded-lg bg-zinc-700/40 p-2.5 text-xs text-zinc-300">
-                <p class="mb-1.5 font-semibold text-zinc-100">Get Started</p>
-                <p class="mb-2.5 leading-relaxed text-zinc-400">
-                    Install the World Map Companion mod to enable live entity tracking on the map.
-                </p>
-                <a
-                    href="/mod"
-                    class="inline-flex items-center gap-1.5 rounded-md bg-purple-600 px-2.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-purple-700"
-                >
-                    <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path
-                            d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        />
-                        <path
-                            d="M21 3v5h-5"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        />
-                        <path
-                            d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        />
-                        <path
-                            d="M3 21v-5h5"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        />
-                    </svg>
-                    <span>View Installation Guide</span>
-                </a>
-            </div>
-        {/if}
-
-        <!-- Connection status -->
-        {#if liveEnabled}
-            <div class="mt-2 text-xs">
-                {#if connectionState === 'connected'}
-                    <div class="flex items-center gap-1.5 text-lime-400">
-                        <div class="h-2 w-2 rounded-full bg-lime-400"></div>
-                        <span>Connected to mod</span>
-                    </div>
-                {:else if connectionState === 'connecting' || connectionState === 'reconnecting'}
-                    <div class="flex items-center gap-1.5 text-yellow-400">
-                        <div class="h-2 w-2 rounded-full bg-yellow-400 animate-pulse"></div>
-                        <span>Connecting...</span>
-                    </div>
-                {:else}
-                    <div class="flex items-center gap-1.5 text-red-400">
-                        <div class="h-2 w-2 rounded-full bg-red-400"></div>
-                        <span>Disconnected</span>
-                    </div>
-                {/if}
-            </div>
-
-            <!-- Auto-Follow toggle (only when connected) -->
-            <label
-                class="mt-2 flex cursor-pointer items-center gap-2 py-1 text-sm hover:bg-zinc-700/50"
-                class:opacity-50={connectionState !== 'connected'}
-                class:cursor-not-allowed={connectionState !== 'connected'}
-            >
-                <input
-                    type="checkbox"
-                    checked={autoFollowEnabled}
-                    disabled={connectionState !== 'connected'}
-                    onchange={(e) => onAutoFollowChange(e.currentTarget.checked)}
-                    class="sr-only"
-                />
-                <span
-                    class="flex h-4 w-4 items-center justify-center rounded border transition-colors"
-                    class:bg-zinc-600={!autoFollowEnabled}
-                    class:border-zinc-500={!autoFollowEnabled}
-                    class:bg-cyan-500={autoFollowEnabled}
-                    class:border-cyan-500={autoFollowEnabled}
-                >
-                    {#if autoFollowEnabled}
-                        <svg
-                            class="h-3 w-3 text-white"
-                            viewBox="0 0 12 12"
-                            fill="none"
-                            stroke="currentColor"
-                        >
-                            <path
-                                d="M2 6l3 3 5-6"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            />
-                        </svg>
-                    {/if}
-                </span>
-                <span class="text-zinc-200 text-xs">Auto-Follow Player</span>
-            </label>
-        {/if}
-    </SidebarSection>
 {/snippet}
 
 {#if isDesktop}
@@ -704,6 +558,7 @@
         >
             <Search class="h-5 w-5" />
         </button>
+        {@render mobileActions?.()}
     </div>
 
     <!-- Mobile: sidebar content in bottom drawer -->

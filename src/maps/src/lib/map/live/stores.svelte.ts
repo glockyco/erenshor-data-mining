@@ -6,8 +6,20 @@
  */
 
 import { browser } from '$app/environment';
-import { LiveConnection } from './connection';
-import type { LiveState, EntityData, ProtocolMessage } from './types';
+import { LiveConnection, LOCAL_SERVER_URL, WebRtcTransport, WebSocketTransport } from './connection';
+import { formatPairing, parsePairing, parsePairingHash, type PairingLink } from './pairing';
+import type { LiveState, EntityData, ProtocolMessage, SharingStatus } from './types';
+
+/**
+ * Where the map gets live data from: nowhere, the mod on this PC, or the mod on the
+ * PC a pairing link named.
+ */
+export type LiveMode = 'off' | 'local' | 'paired';
+
+/** 'true' while the map connects to the mod on this PC */
+const LOCAL_MODE_KEY = 'erenshor-map-live-mode';
+/** The pairing this device connects with */
+const PAIRING_KEY = 'erenshor-map-live-pairing';
 
 const INITIAL_STATE: LiveState = {
     connectionState: 'disconnected',
@@ -22,6 +34,16 @@ const INITIAL_STATE: LiveState = {
 
 // Module-level reactive state using $state rune
 const state = $state<LiveState>({ ...INITIAL_STATE });
+const session = $state<{ mode: LiveMode; pairing: PairingLink | null }>({
+    mode: 'off',
+    pairing: null
+});
+// When this device started waiting for the game, and when sharing last had no viewer,
+// so the panel can say what to check however long it has been closed.
+const timing = $state<{ waitingSince: number | null; sharingIdleSince: number | null }>({
+    waitingSince: null,
+    sharingIdleSince: null
+});
 
 // Singleton connection instance
 let connection: LiveConnection | null = null;
@@ -32,10 +54,16 @@ function getConnection(): LiveConnection {
             (connectionState) => {
                 state.connectionState = connectionState;
 
+                if (connectionState === 'connected') {
+                    timing.waitingSince = null;
+                } else if (session.mode !== 'off' && timing.waitingSince === null) {
+                    timing.waitingSince = Date.now();
+                }
+
                 // Clear entities when disconnected or reconnecting
                 if (connectionState === 'disconnected' || connectionState === 'reconnecting') {
                     state.entities = [];
-                    state.sharing = null;
+                    setSharing(null);
                 }
             },
             (message) => {
@@ -46,6 +74,13 @@ function getConnection(): LiveConnection {
     return connection;
 }
 
+function setSharing(sharing: SharingStatus | null): void {
+    state.sharing = sharing;
+    const idle = !!sharing?.enabled && sharing.viewers === 0;
+    if (!idle) timing.sharingIdleSince = null;
+    else if (timing.sharingIdleSince === null) timing.sharingIdleSince = Date.now();
+}
+
 function handleMessage(message: ProtocolMessage): void {
     switch (message.type) {
         case 'handshake':
@@ -53,11 +88,11 @@ function handleMessage(message: ProtocolMessage): void {
             state.capabilities = message.capabilities;
             state.protocolVersion = message.protocolVersion;
             state.modVersion = message.modVersion;
-            state.sharing = message.sharing ?? null;
+            setSharing(message.sharing ?? null);
             break;
 
         case 'sharingChanged':
-            state.sharing = message.sharing;
+            setSharing(message.sharing);
             break;
 
         case 'stateUpdate':
@@ -71,6 +106,50 @@ function handleMessage(message: ProtocolMessage): void {
             state.entities = [];
             break;
     }
+}
+
+function resetState(): void {
+    Object.assign(state, INITIAL_STATE);
+}
+
+function readStorage(key: string): string | null {
+    try {
+        return localStorage.getItem(key);
+    } catch {
+        return null;
+    }
+}
+
+function writeStorage(key: string, value: string | null): void {
+    try {
+        if (value === null) localStorage.removeItem(key);
+        else localStorage.setItem(key, value);
+    } catch {
+        // Storage can be unavailable in private windows; the choice lasts for this visit.
+    }
+}
+
+function startLocal(): void {
+    session.mode = 'local';
+    session.pairing = null;
+    timing.waitingSince = null;
+    getConnection().connect(() => new WebSocketTransport(LOCAL_SERVER_URL));
+}
+
+function startPaired(pairing: PairingLink): void {
+    session.mode = 'paired';
+    session.pairing = pairing;
+    timing.waitingSince = null;
+    getConnection().connect(() => new WebRtcTransport(pairing));
+}
+
+function stop(): void {
+    session.mode = 'off';
+    session.pairing = null;
+    getConnection().disconnect();
+    timing.waitingSince = null;
+    timing.sharingIdleSince = null;
+    resetState();
 }
 
 /**
@@ -103,6 +182,21 @@ export const liveState = {
     get sharing() {
         return state.sharing;
     },
+    get mode(): LiveMode {
+        return session.mode;
+    },
+    /** The game this device pairs with, in paired mode */
+    get pairing(): PairingLink | null {
+        return session.pairing;
+    },
+    /** When this device started waiting for the game; null while connected or off */
+    get waitingSince(): number | null {
+        return timing.waitingSince;
+    },
+    /** When sharing last had no viewer; null while a device is connected or sharing is off */
+    get sharingIdleSince(): number | null {
+        return timing.sharingIdleSince;
+    },
 
     /** Player entity (null if not in entity list) */
     get player(): EntityData | null {
@@ -116,34 +210,53 @@ export const liveState = {
 };
 
 /**
- * Connection control API.
+ * Connection control API. Choices persist on this device.
  */
 export const liveConnection = {
     /**
-     * Start connection to mod's WebSocket server.
-     * Will automatically reconnect on disconnect until disconnect() is called.
+     * Picks up where this device left off. A pairing link in `hash` wins, then a stored
+     * pairing, then `localRequested` (the in-game overlay asks for Live) or a stored
+     * choice to connect to this PC. Returns the pairing when `hash` carried one.
      */
-    connect(): void {
-        if (!browser) return;
-        getConnection().connect();
+    restore(hash: string, localRequested: boolean): PairingLink | null {
+        if (!browser) return null;
+
+        const linked = parsePairingHash(hash);
+        if (linked) {
+            writeStorage(PAIRING_KEY, formatPairing(linked));
+            startPaired(linked);
+            return linked;
+        }
+
+        const stored = readStorage(PAIRING_KEY);
+        const pairing = stored ? parsePairing(stored) : null;
+        if (pairing) {
+            startPaired(pairing);
+        } else if (localRequested || readStorage(LOCAL_MODE_KEY) === 'true') {
+            writeStorage(LOCAL_MODE_KEY, 'true');
+            startLocal();
+        }
+        return null;
     },
 
     /**
-     * Stop connection and disable auto-reconnect.
-     * Clears all entity data.
+     * Connects to the mod on this PC.
+     */
+    connectLocal(): void {
+        if (!browser) return;
+        writeStorage(PAIRING_KEY, null);
+        writeStorage(LOCAL_MODE_KEY, 'true');
+        startLocal();
+    },
+
+    /**
+     * Stops showing live data and forgets the game this device paired with.
      */
     disconnect(): void {
         if (!browser) return;
-        getConnection().disconnect();
-        // Reset to initial state
-        state.connectionState = INITIAL_STATE.connectionState;
-        state.zone = INITIAL_STATE.zone;
-        state.entities = INITIAL_STATE.entities;
-        state.capabilities = INITIAL_STATE.capabilities;
-        state.protocolVersion = INITIAL_STATE.protocolVersion;
-        state.modVersion = INITIAL_STATE.modVersion;
-        state.lastUpdate = INITIAL_STATE.lastUpdate;
-        state.sharing = INITIAL_STATE.sharing;
+        writeStorage(PAIRING_KEY, null);
+        writeStorage(LOCAL_MODE_KEY, 'false');
+        stop();
     },
 
     /**
