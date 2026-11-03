@@ -933,8 +933,8 @@ class ItemSectionGenerator(SectionGeneratorBase):
         for location in places:
             place = self._link(sources, location.zone_stable_key, location.scene or "")
             key = _without_rooms(location)
-            conditions = key[2] if len(rooms[key]) > 1 else location.conditions
-            if condition := self._conditions(conditions, sources, fact):
+            needs = key[2] if len(rooms[key]) > 1 else location.conditions
+            if condition := self._conditions(needs, sources, fact):
                 place = f"{place} ({condition})" if place else condition
             if place and place not in locations:
                 locations.append(place)
