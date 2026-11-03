@@ -163,22 +163,22 @@ WITH names AS (
 SELECT
     i.display_name AS Item,
     CASE s.kind
-        WHEN 'character_drop' THEN 'Dropped by'
-        WHEN 'common_world_item' THEN 'Common world drop'
+        WHEN 'character_drop' THEN 'Drop'
+        WHEN 'common_world_item' THEN 'World drop'
         WHEN 'special_world_drop' THEN 'World drop'
-        WHEN 'vendor' THEN 'Sold by'
-        WHEN 'dialog' THEN 'Talk to'
+        WHEN 'vendor' THEN 'Vendor'
+        WHEN 'dialog' THEN 'Dialog'
         WHEN 'quest_reward' THEN 'Quest reward'
         WHEN 'crafting' THEN 'Crafting recipe'
-        WHEN 'item_drop' THEN 'Use item'
-        WHEN 'spell_created' THEN 'Created by'
+        WHEN 'item_drop' THEN 'Item use'
+        WHEN 'spell_created' THEN 'Item use'
         WHEN 'mining' THEN 'Mining'
         WHEN 'fishing' THEN 'Fishing'
         WHEN 'auction_house' THEN 'Auction House'
         WHEN 'item_bag' THEN 'Ground item'
         WHEN 'starting_class' THEN 'Starting item'
-        WHEN 'ui_grant' THEN 'Available from'
-        WHEN 'item_conversion' THEN 'Convert item'
+        WHEN 'ui_grant' THEN 'Interface grant'
+        WHEN 'item_conversion' THEN 'Item use'
         ELSE replace(s.kind, '_', ' ')
     END AS Kind,
     CASE

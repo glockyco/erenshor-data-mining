@@ -202,9 +202,25 @@ def test_sources_have_one_row_per_public_source_and_preserve_numeric_fields(writ
     assert len(rows) == len(expected)
     assert {row["source_key"] for row in rows} == {row["source_key"] for row in expected}
     labels = {row["source_key"]: row["Kind"] for row in rows}
-    assert labels["source:character_drop"] == "Dropped by"
-    assert labels["source:vendor"] == "Sold by"
-    assert labels["source:ui_grant"] == "Available from"
+    assert labels == {
+        "source:character_drop": "Drop",
+        "source:common_world_item": "World drop",
+        "source:special_world_drop": "World drop",
+        "source:vendor": "Vendor",
+        "source:dialog": "Dialog",
+        "source:quest_reward": "Quest reward",
+        "source:crafting": "Crafting recipe",
+        "source:item_drop": "Item use",
+        "source:spell_created": "Item use",
+        "source:mining": "Mining",
+        "source:fishing": "Fishing",
+        "source:auction_house": "Auction House",
+        "source:item_bag": "Ground item",
+        "source:starting_class": "Starting item",
+        "source:ui_grant": "Interface grant",
+        "source:item_conversion": "Item use",
+        "source:copy": "Drop",
+    }
     assert {row["item_stable_key"] for row in rows} == {"item:bread", "item:bread-copy"}
     for row in rows:
         assert row["probability_min"] == 12.345678901
