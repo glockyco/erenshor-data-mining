@@ -53,8 +53,11 @@ internal sealed class SctpAssociation
     private ushort _nextSequence;
     private int _outstandingBytes;
     private int _rtoMs = 1000;
-    private bool _established;
-    private bool _closed;
+
+    // Written under _gate, read without it: the game's main thread checks them on every
+    // broadcast and must not wait while a send thread encrypts under _gate.
+    private volatile bool _established;
+    private volatile bool _closed;
 
     public SctpAssociation(
         Action<byte[]> sendPacket,
@@ -75,23 +78,9 @@ internal sealed class SctpAssociation
     /// </summary>
     public event Action? Established;
 
-    public bool IsEstablished
-    {
-        get
-        {
-            lock (_gate)
-                return _established && !_closed;
-        }
-    }
+    public bool IsEstablished => _established && !_closed;
 
-    public bool IsClosed
-    {
-        get
-        {
-            lock (_gate)
-                return _closed;
-        }
-    }
+    public bool IsClosed => _closed;
 
     /// <summary>
     /// Handles one SCTP packet that DTLS decrypted.
