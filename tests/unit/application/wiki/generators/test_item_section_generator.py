@@ -523,6 +523,112 @@ def test_fishing_keeps_public_day_night_rates() -> None:
     assert re.search(r"30% per catch, [^,)]*night", result)
 
 
+@pytest.mark.parametrize(
+    ("kind", "basis", "noun"),
+    (("mining", "per_node", "node"), ("fishing", "per_successful_catch", "spot"), ("item_bag", None, "bag")),
+)
+def test_gathering_groups_sites_by_zone_and_every_displayed_detail(kind: str, basis: str | None, noun: str) -> None:
+    item = Item(stable_key="item:gathered", item_name="Gathered")
+    night = PublicCondition(0, 0, 0, "time", "time_of_day", value="night")
+    facts = []
+    places = {}
+    for index, (zone, chance, maximum, conditions, place_conditions, quantity) in enumerate(
+        (
+            ("azure", 10.5, 14, (), (), 1),
+            ("azure", 10.5, 14, (), (), 1),
+            ("bellwain", 10.5, 14, (), (), 1),
+            ("azure", 10.5, 14, (night,), (), 1),
+            ("azure", 10.5, 14, (), (night,), 1),
+            ("azure", 18.3, 18.3, (), (), 1),
+            ("azure", 10.5, 14, (), (), 2),
+        )
+    ):
+        place_set = f"places:{index}"
+        facts.append(
+            replace(
+                _source(f"source:{index}", item.stable_key, kind, f"site:{index}", chance),
+                probability_kind="bounded",
+                probability_max=maximum,
+                probability_basis=basis,
+                quantity_min=quantity,
+                quantity_max=quantity,
+                conditions=conditions,
+                place_set_key=place_set,
+            )
+        )
+        places[place_set] = (
+            _place(
+                f"place:{index}",
+                "fixed",
+                place_set_key=place_set,
+                zone_stable_key=f"zone:{zone}",
+                marker_stable_key=f"marker:{index}",
+                conditions=place_conditions,
+            ),
+        )
+    sources = SourceInfo(
+        acquisitions=tuple(facts),
+        places=places,
+        links={
+            zone: ZoneLink(name, name, stable_key=zone)
+            for zone, name in (("zone:azure", "Port Azure"), ("zone:bellwain", "Bellwain Island"))
+        },
+    )
+    generator = ItemSectionGenerator()
+    manifest = generator.provenance_manifest(sources)
+    text = generator._format_sources(EnrichedItemData(item=item, stats=[], classes=[], sources=sources), (kind,))
+
+    chance_basis = {"per_node": " per node", "per_successful_catch": " per catch"}.get(basis or "", "")
+    # Sites of a zone with the same conditions and amount share one entry and a chance range.
+    assert f"{{{{ZoneLink|stablekey=zone:azure}}}} (3 {noun}s, 10.5% to 18.3%{chance_basis})" in text
+    assert f"{{{{ZoneLink|stablekey=zone:bellwain}}}} (1 {noun}, 10.5% to 14%" in text
+    # A condition on the source and the same condition on its place read the same.
+    assert text.count("only at night (10 PM to 6 AM)") == 1
+    assert f"(2 {noun}s, 10.5% to 14%{chance_basis}, only at night" in text
+    assert "2 items" in text
+    assert generator.provenance_manifest(sources) == manifest
+
+
+def test_ground_bags_show_zone_and_count_without_a_chance() -> None:
+    item = Item(stable_key="item:coal", item_name="Coal")
+    fact = replace(_source("source:bag", item.stable_key, "item_bag"), place_set_key="places:fixture")
+    sources = SourceInfo(
+        acquisitions=(fact,),
+        places={"places:fixture": (_place("place:bag", "fixed", zone_stable_key="zone:bellwain"),)},
+        links={"zone:bellwain": ZoneLink("Bellwain Island", "Bellwain Island", stable_key="zone:bellwain")},
+    )
+
+    assert (
+        ItemSectionGenerator()._format_item_bags(EnrichedItemData(item=item, stats=[], classes=[], sources=sources))
+        == "{{ZoneLink|stablekey=zone:bellwain}} (1 bag)"
+    )
+
+
+def test_gathering_counts_each_marker_once_and_separates_one_sources_zones() -> None:
+    item = Item(stable_key="item:ore", item_name="Ore")
+    fact = replace(
+        _source("source:node", item.stable_key, "mining", chance=18.3),
+        probability_basis="per_node",
+        place_set_key="places:fixture",
+    )
+    sources = SourceInfo(
+        acquisitions=(fact,),
+        places={
+            "places:fixture": (
+                _place("place:a", "fixed", zone_stable_key="zone:a", marker_stable_key="marker:a"),
+                _place("place:duplicate", "fixed", zone_stable_key="zone:a", marker_stable_key="marker:a"),
+                _place("place:b", "fixed", zone_stable_key="zone:b", marker_stable_key="marker:b"),
+            )
+        },
+        links={f"zone:{zone}": ZoneLink(zone, zone, stable_key=f"zone:{zone}") for zone in ("a", "b")},
+    )
+    text = ItemSectionGenerator()._format_mining(EnrichedItemData(item=item, stats=[], classes=[], sources=sources))
+
+    assert text.count("(1 node, 18.3% per node)") == 2
+    assert text.count("{{ZoneLink|stablekey=zone:a}}") == 1
+    assert text.count("{{ZoneLink|stablekey=zone:b}}") == 1
+
+
 def test_article_assembler_enumerates_every_canonical_recipe_without_raw_sql() -> None:
     item = Item(stable_key="item:reward", item_name="Reward")
     mold_a = ItemLink("Mold A", "Mold A", stable_key="item:mold_a")
@@ -881,7 +987,7 @@ def test_each_crafting_source_keeps_its_own_quality_conditions() -> None:
 
 @pytest.mark.parametrize(
     "kind",
-    ["crafting_material", "smithing", "quality_offering", "spell_created", "item_conversion"],
+    ["crafting_material", "spell_created", "item_conversion"],
 )
 def test_public_component_uses_render_source_and_place_conditions(kind: str) -> None:
     use = _use(
@@ -911,6 +1017,61 @@ def test_public_component_uses_render_source_and_place_conditions(kind: str) -> 
     )
     assert "Blessed" in text and "Ascended" in text
     assert re.search(r"in \{\{ZoneLink\|stablekey=zone:hall\}\} \([^)]*night", text)
+
+
+@pytest.mark.parametrize("kind", ["smithing", "quality_offering"])
+def test_quality_operations_on_material_pages_name_only_the_operation(kind: str) -> None:
+    use = _use(
+        "use:fixture",
+        "item:fixture",
+        "item:target",
+        kind,
+        conditions=(PublicCondition(0, 0, 0, "equipment_input", "quality", minimum=2, maximum=3),),
+    )
+    _recipes, text = ItemSectionGenerator()._format_crafting_sources(
+        EnrichedItemData(item=Item(stable_key="item:fixture"), stats=[], classes=[], sources=SourceInfo(uses=(use,)))
+    )
+    assert text.startswith(("Smithing with", "Offer to"))
+    assert "Blessed" not in text
+    assert "(" not in text
+
+
+@pytest.mark.parametrize("slot", ["Primary", "Head"])
+def test_equipment_quality_operations_share_one_link_and_retain_every_manifest_use(slot: str) -> None:
+    item = Item(stable_key="item:equipment", item_name="Equipment", required_slot=slot)
+    material = ItemLink("Crafted item", "Crafted item", stable_key="item:crafted")
+    uses = (
+        *(
+            _use(
+                f"use:{index}",
+                item.stable_key,
+                "item:quality_material",
+                kind,
+                conditions=(PublicCondition(0, 0, 0, "time", "time_of_day", value="night"),),
+                place_set_key="places:fixture",
+            )
+            for index, kind in enumerate(("smithing", "quality_offering", "smithing", "quality_offering"))
+        ),
+        _use("use:crafting", item.stable_key, material.stable_key, "crafting_material"),
+    )
+    sources = SourceInfo(
+        uses=uses,
+        places={"places:fixture": (_place("place:well", "interaction", zone_stable_key="zone:hall"),)},
+        links={
+            material.stable_key: material,
+            "zone:hall": ZoneLink("Hall", "Hall", stable_key="zone:hall"),
+        },
+    )
+    generator = ItemSectionGenerator()
+    _recipes, components = generator._format_crafting_sources(
+        EnrichedItemData(item=item, stats=[], classes=[], sources=sources)
+    )
+
+    assert components == f"[[Item Quality|Quality upgrades]]<br>{material}"
+    manifest = generator.provenance_manifest(sources)
+    assert manifest["uses"] == [asdict(use) for use in uses]
+    assert manifest["places"] == {key: [asdict(place) for place in places] for key, places in sources.places.items()}
+    assert all(manifest["presentation"][use.use_key] == {"field": "componentfor", "reason": None} for use in uses)
 
 
 def test_legacy_zone_restriction_omission_remains_explicit_in_manifest() -> None:

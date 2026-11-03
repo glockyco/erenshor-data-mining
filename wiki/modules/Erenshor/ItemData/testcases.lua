@@ -580,6 +580,45 @@ function p.run()
 	contains(operation, "Remove a blessing with")
 	contains(operation, "Produces:")
 	contains(operation, "Bear Pelt")
+	for _, itemKind in ipairs({ "weapon", "armor" }) do
+		local equipment = Provenance.render({
+			references = REFERENCES,
+			usages = {
+				{
+					use_key = "equipment-smithing",
+					kind = "smithing",
+					target_stable_key = "item:bear_meat",
+					outcome_key = "byproduct-fixture",
+				},
+				{
+					use_key = "equipment-offering",
+					kind = "quality_offering",
+					target_stable_key = "item:bear_meat",
+				},
+				{
+					use_key = "equipment-second-smithing",
+					kind = "smithing",
+					target_stable_key = "item:bear_meat",
+				},
+				{
+					use_key = "equipment-crafting",
+					kind = "crafting_material",
+					target_stable_key = "item:bear_meat",
+				},
+			},
+		}, function()
+			error("A quality summary must not resolve individual operation outcomes")
+		end, itemKind)
+		if count(equipment, "[[Item Quality|Quality upgrades]]") ~= 1 then
+			error("Equipment must show one quality upgrades link")
+		end
+		absent(equipment, "Quality offering")
+		absent(equipment, "Smithing")
+		absent(equipment, "Produces:")
+		contains(equipment, 'data-erenshor-use-key="equipment-crafting"')
+		contains(equipment, "Crafting material for")
+		contains(equipment, "Bear Meat")
+	end
 	local exactOutcome = ItemData.outcome({
 		target_stable_key = "item:magical_bag",
 		outcome_key = "acq:fixture-yield",

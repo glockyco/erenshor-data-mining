@@ -271,7 +271,7 @@ function p.renderArgs(frame, args)
 		'<div class="item-data-details" data-erenshor-key="' .. attribute(key) .. '">',
 		Details.render(frame, row),
 		"</div>",
-		Provenance.render(data, p.outcome),
+		Provenance.render(data, p.outcome, row.kind),
 		editorial(args),
 	}
 	if row.bookTitle then

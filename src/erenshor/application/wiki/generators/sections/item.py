@@ -855,8 +855,10 @@ class ItemSectionGenerator(SectionGeneratorBase):
         }.get(fact.probability_basis or "", "")
         return f"{chance} {basis}".strip()
 
-    def _source_entry(self, facts: list[PublicSource], sources: SourceInfo) -> str:
-        """One entry for copies of a source that differ only in their places."""
+    def _source_entry(
+        self, facts: list[PublicSource], sources: SourceInfo, places: tuple[PublicPlace, ...] | None = None
+    ) -> str:
+        """One source entry, or one zone's gathering sites with the same displayed details."""
         fact = facts[0]
         fallback = {
             "character_drop": "Enemy drop",
@@ -885,6 +887,17 @@ class ItemSectionGenerator(SectionGeneratorBase):
             fallback = "Any water"
         entry = self._link(sources, fact.source_stable_key, fallback)
         details = []
+        if places is not None:
+            location = places[0]
+            entry = self._link(sources, location.zone_stable_key, location.scene or "")
+            noun = {"mining": "node", "fishing": "spot", "item_bag": "bag"}[fact.kind]
+            count = len({place.marker_stable_key or place.place_key for place in places})
+            details.append(f"{count} {noun}{'' if count == 1 else 's'}")
+        if places is not None and fact.probability_min is not None:
+            # A zone's sites can differ in chance, so the entry gives their range.
+            low = min(copy.probability_min or 0 for copy in facts)
+            high = max(copy.probability_max or copy.probability_min or 0 for copy in facts)
+            fact = replace(fact, probability_min=low, probability_max=high)
         if chance := self._chance(fact):
             details.append(chance)
         if fact.quantity_min is not None:
@@ -893,8 +906,14 @@ class ItemSectionGenerator(SectionGeneratorBase):
                 quantity += f" to {fact.quantity_max:g}"
             if quantity != "1":
                 details.append(f"{quantity} items")
-        places = tuple(place for copy in facts for place in sources.places.get(copy.place_set_key or "", ()))
-        details.extend(self._condition_details(fact, sources, places))
+        if places is None:
+            locations = tuple(place for copy in facts for place in sources.places.get(copy.place_set_key or "", ()))
+            details.extend(self._condition_details(fact, sources, locations))
+        else:
+            if conditions := self._conditions(fact.conditions, sources, fact):
+                details.append(conditions)
+            if conditions := self._conditions(places[0].conditions, sources, fact):
+                details.append(conditions)
         return f"{entry} ({', '.join(details)})" if details else entry
 
     def _condition_details(
@@ -933,10 +952,39 @@ class ItemSectionGenerator(SectionGeneratorBase):
         if enriched.sources is None:
             return ""
         copies: dict[tuple[object, ...], list[PublicSource]] = {}
+        gathering: dict[tuple[object, ...], tuple[list[PublicSource], list[PublicPlace]]] = {}
         for fact in sorted(self._acquisitions(enriched), key=lambda fact: fact.source_key):
-            if fact.kind in kinds:
+            if fact.kind not in kinds:
+                continue
+            places = enriched.sources.places.get(fact.place_set_key or "", ())
+            if (
+                fact.kind in ("mining", "fishing", "item_bag")
+                and places
+                and all(place.zone_stable_key or place.scene for place in places)
+            ):
+                for place in places:
+                    # Sites of one zone share an entry when they need the same and give the same amount.
+                    needs = join_requirements(
+                        [
+                            text
+                            for text in (
+                                self._conditions(fact.conditions, enriched.sources, fact),
+                                self._conditions(place.conditions, enriched.sources, fact),
+                            )
+                            if text
+                        ]
+                    )
+                    key = (fact.kind, place.zone_stable_key, needs, fact.quantity_min, fact.quantity_max)
+                    facts, locations = gathering.setdefault(key, ([], []))
+                    facts.append(fact)
+                    locations.append(place)
+            else:
                 copies.setdefault(_copy_identity(fact), []).append(fact)
-        return WIKITEXT_LINE_SEPARATOR.join(self._source_entry(facts, enriched.sources) for facts in copies.values())
+        entries = [self._source_entry(facts, enriched.sources) for facts in copies.values()]
+        entries.extend(
+            self._source_entry(facts, enriched.sources, tuple(places)) for facts, places in gathering.values()
+        )
+        return WIKITEXT_LINE_SEPARATOR.join(entries)
 
     def _format_guaranteed_drops(self, enriched: EnrichedItemData) -> str:
         """A guaranteed pool roll does not guarantee an individual item."""
@@ -1028,10 +1076,22 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "smithing": "Smithing with ",
             "quality_offering": "Offer to ",
         }
+        equipment = self._classify(enriched.item) in (ItemKind.WEAPON, ItemKind.ARMOR)
+        quality_upgrades = False
         for use in enriched.sources.uses:
-            if use.kind in prefixes:
+            if equipment and use.kind in ("smithing", "quality_offering"):
+                if not quality_upgrades:
+                    components.append("[[Item Quality|Quality upgrades]]")
+                    quality_upgrades = True
+            elif use.kind in prefixes:
                 link = self._link(enriched.sources, use.target_stable_key, "item")
-                components.append(self._qualified_entry(prefixes[use.kind] + link, use, enriched.sources))
+                entry = prefixes[use.kind] + link
+                # The Item quality page explains quality operations, so their lines only name them.
+                if use.kind in ("smithing", "quality_offering"):
+                    if entry not in components:
+                        components.append(entry)
+                else:
+                    components.append(self._qualified_entry(entry, use, enriched.sources))
         return ("<br>".join(recipes), "<br>".join(components))
 
     def provenance_manifest(self, sources: SourceInfo) -> dict[str, object]:

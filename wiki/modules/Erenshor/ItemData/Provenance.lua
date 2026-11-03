@@ -22,9 +22,9 @@ local LABELS = {
 	vendor = "Sold by",
 	dialog = "Given by",
 	quest_reward = "Reward from",
-	crafting = "Crafted with",
+	crafting = "Crafting recipe",
 	item_drop = "Obtained by using",
-	spell_created = "Created by",
+	spell_created = "Obtained by using",
 	mining = "Mined in",
 	fishing = "Fished in",
 	fishing_bonus = "Fishing reward",
@@ -32,7 +32,7 @@ local LABELS = {
 	item_bag = "Picked up in",
 	starting_class = "Starting item of",
 	ui_grant = "Obtained from",
-	item_conversion = "Item exchange",
+	item_conversion = "Obtained by using",
 	crafting_material = "Crafting material for",
 	crafting_recipe = "Recipe for",
 	quest_requirement = "Required for",
@@ -619,8 +619,10 @@ function p.covered(data, item, kind, source)
 	return false
 end
 
-function p.render(data, resolveOutcome)
+function p.render(data, resolveOutcome, itemKind)
 	local rows = {}
+	local equipment = itemKind == "weapon" or itemKind == "armor"
+	local qualityUpgrades = false
 	local function put(row, isUse, outcome, outcomeReferences, outcomeData)
 		local key = isUse and row.use_key or row.source_key
 		local target = isUse and row.target_stable_key or row.source_stable_key
@@ -719,14 +721,21 @@ function p.render(data, resolveOutcome)
 		put(row, false)
 	end
 	for _, row in ipairs(data.usages or {}) do
-		local outcome, outcomeReferences, outcomeData
-		if row.outcome_key then
-			if resolveOutcome == nil then
-				error("ItemData use requires canonical outcome resolver", 2)
+		if equipment and (row.kind == "smithing" or row.kind == "quality_offering") then
+			if not qualityUpgrades then
+				rows[#rows + 1] = '<tr><td colspan="3">[[Item Quality|Quality upgrades]]</td></tr>'
+				qualityUpgrades = true
 			end
-			outcome, outcomeReferences, outcomeData = resolveOutcome(row)
+		else
+			local outcome, outcomeReferences, outcomeData
+			if row.outcome_key then
+				if resolveOutcome == nil then
+					error("ItemData use requires canonical outcome resolver", 2)
+				end
+				outcome, outcomeReferences, outcomeData = resolveOutcome(row)
+			end
+			put(row, true, outcome, outcomeReferences, outcomeData)
 		end
-		put(row, true, outcome, outcomeReferences, outcomeData)
 	end
 	local rendered = ""
 	if #rows > 0 then

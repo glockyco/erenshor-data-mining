@@ -123,7 +123,7 @@ The clean database stores the public view, the progression graph and the entity 
 The products read the view as follows:
 
 - The map's item search reads `item_sources` with display names, and a source's places by marker key. The browser words conditions and does not filter them.
-- The wiki's generated articles, its data modules and its vendor, world drop and character views read the view. `Provenance.lua` renders every row it receives, and pages carry no hidden audit spans.
+- The wiki's generated articles, its data modules and its vendor, world drop and character views read the view. Weapon and armor pages group smithing and quality-offering uses into one `[[Item Quality|Quality upgrades]]` link instead of repeating the operations and their conditions. The offline provenance manifest retains every use and its presentation field. `Provenance.lua` renders the remaining rows individually, and pages carry no hidden audit spans.
 - The guide compiler writes one entry per public source, which refers to its place set, and the mod evaluates the typed conditions. `_source_facts` goes, and the schema version rises.
 - Sheets lists the public sources in one readable `item-sources` tab in place of the five tabs that dumped the stored contract.
 
