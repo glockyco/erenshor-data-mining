@@ -1,5 +1,12 @@
 # Changelog
 
+## v2026.1104.0
+
+- Show the live map on your phone or another PC on the same network. Choose **Live** on the map, then **Show on another device**, and scan the code or open the address it shows.
+- Live is now a button at the top right of the map instead of a switch in the sidebar.
+- The in-game overlay opens the map with Live already on.
+- Other devices can only connect while you share the map. The `Server.AllowLanConnections` setting is gone.
+
 ## v2026.718.0
 
 - Fixed the overlay shortcut not responding.

@@ -18,7 +18,7 @@ changelog = "CHANGELOG.md"
 icon = "icon.png"
 
 [package]
-# Fleck is merged into the plugin. Lunaris provides loader and shared runtime
+# Fleck and BouncyCastle are merged into the plugin. Lunaris provides loader and shared runtime
 # dependencies, so the package ships only the plugin assembly.
 main_file = "InteractiveMapCompanion.dll"
 asset_files = []
