@@ -137,6 +137,16 @@ Measured on the first cutover's clean database of game build 24405256:
 | Guide `quest-guide.json` | 40.1 MB, with 23,706 source entries for 1,790 acquisitions | one entry per public source |
 | Wiki data modules | 71 MB of item provenance, 51 MB of characters | public sources only |
 
+### 8. Public presentation
+
+Keep item data inline in the map page rather than waiting for the first search to fetch it. Keep the guide's per-place source expansion at load time rather than making navigation expand it lazily, because the remaining memory saving does not justify changing navigation.
+
+The map shows conditions as short lines beneath the row they govern, such as "Requires Claiming the Reliquary", "Only before Changing the Lighthouse", "Once per character" and "Requires the Wood Vendor Set or Stone Vendor Set in its room". Give a dropper one row per distinct spawn condition. Drop rows show the chance without a count. Spawn popups put conditions beneath each Drops or Sells heading. Any-water catches, interface grants and turn-ins without a map location reuse the nearest existing row structure. Auction House windows join the existing sentence, as in "May be listed by simulated players of level 2 to 13, or once you reach level 8".
+
+Use the same "Requires" phrases on the map, wiki, Sheets and guide requirement lines. A spawn popup says "Requires the Loomingwood Market Set in this room". Use the game's 12-hour clock: fishing "Day (6 AM to 10 PM)" and "Night (10 PM to 6 AM)", and night spawns "Night only: spawns 11 PM to 4 AM, leaves at 7 AM". Name quality tiers, including Standard, rather than their numbers, as in "Requires a Blessed or Ascended item". A level window ending at the cap reads "level 31 or higher". The map addresses the reader with "Scales with your level", while wiki stat descriptions retain "the player's level".
+
+Fishing chances say "per catch". The map groups treasure rows under one heading per chest. Sheets rounds averages to three significant digits and says "Requires" once per list. The map and wiki name gathering sources "Mined in", "Fished in" and "Picked up in". The wiki groups gathering by zone with the node count, as in "Port Azure (11 nodes, 18.3% per node)". Sheets uses one noun for each Kind, such as Drop, Vendor and Item use.
+
 ## Verification and Precise Test Homes
 
 Replace the nonempty checks in `tests/data/test_item_source_rows.py` with input accounting and identity coverage of the public view. Extend `tests/data/repositories/test_items.py`, `tests/data/test_common_world_items.py`, `tests/unit/application/processor/test_item_mechanics.py`, and add isolated provenance-builder and public-view fixtures. Extend `tests/unit/application/wiki_lua/test_items_module.py`, guide `test_compiler.py` and `test_mod_writer.py`, map `map/search/item-source-provider.test.ts`, and `tests/contract/test_sheet_queries.py`. Run narrow tests once after implementation, then `uv run erenshor test ci`. Build/preview the map via its CLI and inspect `/map`, a zone page, conditional and unlocated results in a browser. No Adventure Guide release is in this scope.

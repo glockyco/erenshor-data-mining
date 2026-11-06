@@ -21,6 +21,18 @@ See proposal.md. The prototype on this branch (`src/mods/InteractiveMapCompanion
 - **Map transport.** `LiveConnection` gets a transport interface with the existing loopback WebSocket and a WebRTC transport that builds the ICE-lite offer from the link. Message handling stays shared.
 - **SCTP.** Keep the minimal association: ordered, reliable, fragmentation, timer retransmission, SACK gap handling. Unit tests play the browser's side with packets built per RFC 4960, and the ICE tests use the RFC 5769 sample request.
 
+### Live panel presentation
+
+Place the Live button beside Ko-fi on desktop and beside the map controls on a phone. A connected phone shows the character and zone in a chip at the top. On a first visit, the panel shows the /mod demo video above one sentence explaining Live, Connect, a note about the browser's permission question, instructions for reaching a game on another PC and the install link.
+
+Bold names of controls in the panel, /mod page and READMEs, as in "Open **Live** on that PC and choose **Show on another device**". Leave feature names plain, as in "Live needs the Interactive Map Companion mod". The action ending Live is quiet text beside the panel title: "Turn off Live" on the game PC and "Disconnect" on a phone. The phone's wake-lock switch says "Keep the screen on".
+
+After 20 seconds without a connection, show one troubleshooting sentence: "Check that the game is running with **Show on another device** turned on, that both devices are on the same network, and that Windows lets Erenshor use private networks." The /mod page adds "On a phone or another PC" beneath its Live paragraph. Thunderstore and Vault READMEs include a full "Show the map on a phone or another PC" section.
+
+### Shared site presentation
+
+The map site uses the compendiums' shared header switcher and footer. Below 480 px, tighten the header so the brand stays on one line. On the home page, put Code on GitHub below About Erenshor Maps and More Compendiums after the community links, so the FAQ stays ahead of links to other games. The home page does not emit FAQPage structured data. The sitemap omits `lastmod` rather than presenting a build time as a content modification time.
+
 ## Risks / Trade-offs
 
 - Real Windows and real phones are untested until verification; Windows Firewall may block UDP if the player declines its question, so the panel says what to check when no device connects within 20 s.

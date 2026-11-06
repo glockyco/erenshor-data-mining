@@ -57,7 +57,7 @@ Sending to other devices SHALL NOT encrypt or send on the game's main thread, an
 - **THEN** a broadcast costs the main thread under 1 ms
 
 ### Requirement: Live controls on the map
-The map SHALL offer Live from a button on the map on every screen size; the panel SHALL show what Live does with the demo video on a first visit, a Connect action, and once connected the character and zone, Follow, and Show on another device with a QR code, the typed address, the number of connected devices and Stop sharing.
+The map SHALL offer Live from a button on the map on every screen size. The panel SHALL show what Live does with the demo video on a first visit, a Connect action, and once connected the character and zone, Follow, and Show on another device with a QR code, the typed address and the number of connected devices. The quiet action beside the panel title SHALL read "Turn off Live" on the game PC and "Disconnect" on a phone.
 
 #### Scenario: Connected phone
 - **WHEN** a phone connects through a pairing link
