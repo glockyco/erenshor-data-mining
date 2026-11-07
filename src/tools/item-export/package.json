@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@hotrepl/sdk": "4.0.2"
+    "@hotrepl/sdk": "4.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
