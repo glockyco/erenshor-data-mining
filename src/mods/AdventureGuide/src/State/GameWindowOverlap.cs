@@ -19,6 +19,10 @@ namespace AdventureGuide.State;
 ///     when edit mode is exited.</item>
 ///   <item>Use <see cref="CameraController"/>'s UIWindows list — the game's
 ///     own curated set of non-permanent, toggleable windows.</item>
+///   <item>Game tooltips (item, comparison, spell details and spell hover)
+///     move with the mouse, so they are the exception: their rects are
+///     checked every frame while they show, and the tracker hides only
+///     while one overlaps it.</item>
 /// </list>
 ///
 /// Coordinate convention: all rects use screen pixels with Y-down (ImGui
@@ -55,6 +59,11 @@ internal static class GameWindowOverlap
     // overlapping). Tracked by index into _uiWindows. Cleared when
     // the window becomes inactive.
     private static readonly HashSet<int> _suppressors = new();
+
+    // Game tooltip windows, checked every frame while they show.
+    private static List<GameObject>? _tooltips;
+
+    private static readonly Vector3[] Corners = new Vector3[4];
 
     /// <summary>
     /// Returns true when the tracker should hide because a game UI window
@@ -101,7 +110,54 @@ internal static class GameWindowOverlap
             _wasActive![i] = active;
         }
 
-        return _suppressors.Count > 0;
+        return _suppressors.Count > 0
+            || TooltipOverlaps(trackerLeft, trackerTop, trackerRight, trackerBottom);
+    }
+
+    /// <summary>
+    /// Game tooltips follow the mouse and open without an open-transition
+    /// that the window lists record, so their rects are checked every frame
+    /// while they show. The spell tooltip hides by moving off screen, which
+    /// the overlap test rejects on its own.
+    /// </summary>
+    private static bool TooltipOverlaps(float left, float top, float right, float bottom)
+    {
+        var tooltips = GetTooltips();
+        if (tooltips == null)
+            return false;
+        foreach (var go in tooltips)
+        {
+            if (go == null || !go.activeInHierarchy)
+                continue;
+            var rt = go.GetComponent<RectTransform>();
+            if (rt != null && ScreenRect(rt).Overlaps(left, top, right, bottom))
+                return true;
+        }
+        return false;
+    }
+
+    private static List<GameObject>? GetTooltips()
+    {
+        if (_tooltips != null)
+            return _tooltips;
+        var info = GameData.ItemInfoWindow;
+        if (info == null || GameData.Misc == null)
+            return null;
+
+        _tooltips = new List<GameObject>
+        {
+            info.ParentWindow,
+            info.SpellDetailsWindow,
+            GameData.Misc.SpellTT,
+        };
+        // The equipment comparison windows arrived in Erenshor 0.8, so the
+        // fields are read by name to keep the 0.7 build compiling.
+        foreach (var name in new[] { "Compare1Script", "Compare2Script" })
+        {
+            if (typeof(ItemInfoWindow).GetField(name)?.GetValue(info) is Component compare)
+                _tooltips.Add(compare.gameObject);
+        }
+        return _tooltips;
     }
 
     /// <summary>
@@ -125,6 +181,7 @@ internal static class GameWindowOverlap
         _rects = null;
         _wasActive = null;
         _suppressors.Clear();
+        _tooltips = null;
     }
 
     private static List<GameObject>? GetUIWindows()
@@ -190,16 +247,17 @@ internal static class GameWindowOverlap
             return; // already cached
 
         var rt = go.GetComponent<RectTransform>();
-        if (rt == null)
-        {
-            // No RectTransform — can't compute rect. Use zero rect
-            // which will never overlap anything.
-            _rects[i] = default;
-            return;
-        }
+        // Without a RectTransform the zero rect never overlaps anything.
+        _rects[i] = rt == null ? default : ScreenRect(rt);
+    }
 
-        var corners = new Vector3[4];
-        rt.GetWorldCorners(corners);
+    /// <summary>
+    /// Screen rect of a UI element from GetWorldCorners and
+    /// WorldToScreenPoint, with Y flipped to Y-down.
+    /// </summary>
+    private static WindowRect ScreenRect(RectTransform rt)
+    {
+        rt.GetWorldCorners(Corners);
 
         float screenH = Screen.height;
         float minX = float.MaxValue,
@@ -209,7 +267,7 @@ internal static class GameWindowOverlap
 
         for (int c = 0; c < 4; c++)
         {
-            var sp = RectTransformUtility.WorldToScreenPoint(null, corners[c]);
+            var sp = RectTransformUtility.WorldToScreenPoint(null, Corners[c]);
             // Flip Y: Unity Y-up → ImGui Y-down
             float yDown = screenH - sp.y;
             if (sp.x < minX)
@@ -222,7 +280,7 @@ internal static class GameWindowOverlap
                 maxY = yDown;
         }
 
-        _rects[i] = new WindowRect
+        return new WindowRect
         {
             Left = minX,
             Top = minY,
