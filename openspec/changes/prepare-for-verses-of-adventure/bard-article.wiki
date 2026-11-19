@@ -1,0 +1,176 @@
+[[Category:Classes]]
+{{Classes
+|title1=Bard
+|type=Utility / DPS
+|primary_stats=[[Stats#Charisma|Charisma]], [[Stats#Dexterity|Dexterity]]
+}}
+'''{{PAGENAME}}''' is one of the playable classes in [[Erenshor]].
+
+== Description ==
+Bards use melee weapons and equip an instrument in their offhand. The class selection screen recommends Charisma and Dexterity. Charisma strengthens song damage and healing. Dexterity reduces a composed song's mana cost and the delay between different notes and chords.
+
+== Songs ==
+A Bard can play a note or chord on its own or add it to a song. {{AbilityLink|stablekey=skill:song - simple song}} holds two notes or chords, and {{AbilityLink|stablekey=skill:song - elrehonsong}} holds five. The order matters. {{AbilityLink|stablekey=skill:song - hum}} repeats one note or chord without spending mana. See {{ItemLink|stablekey=item:book - songwriting}} for the in-game instructions.
+
+== Starting gear ==
+{| class="wikitable"
+|-
+|{{ItemLink|stablekey=item:cons - bread}}
+|-
+|{{ItemLink|stablekey=item:cons - water}}
+|-
+|{{ItemLink|stablekey=item:leg - 1 - tattered leather leggings}}
+|-
+|{{ItemLink|stablekey=item:music - 1 - basic lute}}
+|-
+|{{ItemLink|stablekey=item:weap - 1 - rustydagger}}
+|-
+|{{ItemLink|stablekey=item:skillbook - simple song}}
+|-
+|{{ItemLink|stablekey=item:song scroll - chord sonic assault}}
+|-
+|{{ItemLink|stablekey=item:song scroll - note unsetting sustain}}
+|-
+|{{ItemLink|stablekey=item:book - songwriting}}
+|}
+
+== Abilities and Spells ==
+{| class="wikitable sortable"
+! Level !! class="unsortable" | Spell Scrolls !! class="unsortable" | Skill Books
+|-
+| 1
+| {{ItemLink|stablekey=item:song scroll - chord sonic assault}}<br>{{ItemLink|stablekey=item:song scroll - note unsetting sustain}}
+| {{ItemLink|stablekey=item:skillbook - simple song}}
+|-
+| 2
+| {{ItemLink|stablekey=item:song scroll - chord enthusiasm}}
+|
+|-
+| 3
+| {{ItemLink|stablekey=item:song scroll - chord rapid thoughts}}<br>{{ItemLink|stablekey=item:song scroll - note healing ionian}}
+| {{ItemLink|stablekey=item:skillbook - dodge 1}}<br>{{ItemLink|stablekey=item:skillbook - kick}}<br>{{ItemLink|stablekey=item:skillbook - comfortsong}}
+|-
+| 4
+| {{ItemLink|stablekey=item:song scroll - chord restful}}
+| {{ItemLink|stablekey=item:skillbook - caesura}}<br>{{ItemLink|stablekey=item:skillbook - cheap shot}}
+|-
+| 5
+| {{ItemLink|stablekey=item:song scroll - chord percussive eighth}}<br>{{ItemLink|stablekey=item:song scroll - note undesirable pitch}}
+|
+|-
+| 6
+| {{ItemLink|stablekey=item:song scroll - chord invigorate}}
+| {{ItemLink|stablekey=item:skillbook - tavern song}}
+|-
+| 7
+| {{ItemLink|stablekey=item:song scroll - note lullaby fourth}}
+|
+|-
+| 8
+| {{ItemLink|stablekey=item:song scroll - chord sonic overature}}<br>{{ItemLink|stablekey=item:song scroll - note ethereal sharp}}
+| {{ItemLink|stablekey=item:skillbook - double attack}}
+|-
+| 9
+|
+| {{ItemLink|stablekey=item:skillbook - hum}}
+|-
+| 10
+| {{ItemLink|stablekey=item:song scroll - chord trance}}<br>{{ItemLink|stablekey=item:song scroll - note healing dorian}}
+| {{ItemLink|stablekey=item:skillbook - dodge 2}}
+|-
+| 11
+| {{ItemLink|stablekey=item:song scroll - note assaulting pitch}}<br>{{ItemLink|stablekey=item:song scroll - note binding second}}
+|
+|-
+| 12
+| {{ItemLink|stablekey=item:song scroll - chord decrescendo}}<br>{{ItemLink|stablekey=item:song scroll - chord meditative}}<br>{{ItemLink|stablekey=item:song scroll - note dissonant minor}}
+| {{ItemLink|stablekey=item:skillbook - harmonic song}}
+|-
+| 13
+| {{ItemLink|stablekey=item:song scroll - note harmonic minor}}
+|
+|-
+| 14
+| {{ItemLink|stablekey=item:song scroll - note resonating minor}}
+| {{ItemLink|stablekey=item:skillbook - entrainment}}
+|-
+| 15
+| {{ItemLink|stablekey=item:song scroll - chord percussive half}}<br>{{ItemLink|stablekey=item:song scroll - note penetrating pull-off}}
+|
+|-
+| 16
+| {{ItemLink|stablekey=item:song scroll - chord power chord}}<br>{{ItemLink|stablekey=item:song scroll - chord sonic rhapsody}}
+| {{ItemLink|stablekey=item:skillbook - combat proficiency}}<br>{{ItemLink|stablekey=item:skillbook - dissonant song}}
+|-
+| 17
+| {{ItemLink|stablekey=item:song scroll - chord channeling minor}}<br>{{ItemLink|stablekey=item:song scroll - note healing phrygian}}
+|
+|-
+| 18
+| {{ItemLink|stablekey=item:song scroll - chord swinging legato}}
+|
+|-
+| 19
+| {{ItemLink|stablekey=item:song scroll - note unbearable pitch}}
+|
+|-
+| 20
+| {{ItemLink|stablekey=item:song scroll - note piercing sustain}}
+|
+|-
+| 21
+| {{ItemLink|stablekey=item:song scroll - chord harmony elemental}}<br>{{ItemLink|stablekey=item:song scroll - chord slumber}}
+|
+|-
+| 22
+| {{ItemLink|stablekey=item:song scroll - note healing lydian}}
+|
+|-
+| 23
+| {{ItemLink|stablekey=item:song scroll - chord flowing appregio}}
+|
+|-
+| 24
+| {{ItemLink|stablekey=item:song scroll - chord sonic dirge}}<br>{{ItemLink|stablekey=item:song scroll - note crippling second}}<br>{{ItemLink|stablekey=item:song scroll - note dissonant major}}<br>{{ItemLink|stablekey=item:song scroll - note harmonic major}}
+|
+|-
+| 25
+| {{ItemLink|stablekey=item:song scroll - chord percussive three-quarter 1}}
+| {{ItemLink|stablekey=item:skillbook - backstab}}<br>{{ItemLink|stablekey=item:skillbook - medely}}
+|-
+| 26
+| {{ItemLink|stablekey=item:song scroll - chord harmony poison}}<br>{{ItemLink|stablekey=item:song scroll - note ethereal bend}}
+| {{ItemLink|stablekey=item:skillbook - dodge 3}}
+|-
+| 28
+| {{ItemLink|stablekey=item:song scroll - note healing mixolydian}}
+|
+|-
+| 29
+| {{ItemLink|stablekey=item:song scroll - chord clarifying pizzicato}}
+|
+|-
+| 30
+| {{ItemLink|stablekey=item:song scroll - chord harmony magical}}<br>{{ItemLink|stablekey=item:song scroll - chord harmony void}}<br>{{ItemLink|stablekey=item:song scroll - note penetrating hammer-on}}
+|
+|-
+| 31
+| {{ItemLink|stablekey=item:song scroll - chord narcoleptic}}<br>{{ItemLink|stablekey=item:song scroll - note hypnotic beat}}
+|
+|-
+| 32
+| {{ItemLink|stablekey=item:song scroll - chord sonic coda}}<br>{{ItemLink|stablekey=item:song scroll - chord surging legato}}
+|
+|-
+| 33
+| {{ItemLink|stablekey=item:song scroll - note torturous sustain}}
+|
+|-
+| 34
+| {{ItemLink|stablekey=item:song scroll - chord channeling major}}<br>{{ItemLink|stablekey=item:song scroll - chord percussive whole}}<br>{{ItemLink|stablekey=item:song scroll - note healing aeolian}}
+|
+|-
+| 35
+| {{ItemLink|stablekey=item:song scroll - chord insisting legato}}<br>{{ItemLink|stablekey=item:song scroll - chord inspiring melody}}<br>{{ItemLink|stablekey=item:song scroll - chord refreshing finale}}<br>{{ItemLink|stablekey=item:song scroll - note fatal pitch}}
+| {{ItemLink|stablekey=item:skillbook - dodge 4}}<br>{{ItemLink|stablekey=item:skillbook - elrehon's cacophony}}
+|}
