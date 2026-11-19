@@ -71,6 +71,10 @@ When a song scroll and the chord or note it teaches would share a wiki page or p
 
 Item cards use a slate background and put the eligible classes below the name and slot. Equipment groups attributes, vitals and attack stats, and resists and song multipliers, with the last group wrapping below the first two on narrow cards. A shared scroll level appears once, as on Spell Scroll: Magic Bolt: Arcanist, Druid and Stormcaller, `Required Level: 1`. Ability cards show the game summary and keep spell mechanics under `Spell details` on the article. This keeps eligibility and effects easy to find without removing the wiki's quality cards, Base DPS or spell details.
 
+### D10. A spoken-word wall reads as a Say action
+
+A pickup behind a wall that opens on a spoken word shows `Say "respite" at the wall` on the wiki, map, Sheets and guide. It names the phrase and where to use it in one line, and it does not read like an NPC keyword or a dungeon entrance.
+
 ## Risks / Trade-offs
 
 - [The shipped build differs from the last playtest build] → Every consumer gets regenerated from `main` on release day. The variant comparison shows the differences, and they get a review before approval.
