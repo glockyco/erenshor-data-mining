@@ -906,11 +906,11 @@
     "Glowmere": {
         "sceneName": "Glowmere",
         "baseTilesX": 6,
-        "baseTilesY": 7,
+        "baseTilesY": 5,
         "tileSize": 256,
         "maxZoom": 1,
         "originX": -98,
-        "originY": -271,
+        "originY": 230,
         "northBearing": null,
         "captureVariants": [
             "clear"
