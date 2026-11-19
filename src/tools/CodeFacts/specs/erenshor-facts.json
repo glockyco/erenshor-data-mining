@@ -1531,8 +1531,8 @@
       "method": "ReturnBaseResitances",
       "matcher": "node_shape",
       "args": {
-        "kind": "ReturnStatement",
-        "shape": "return Mathf.RoundToInt ((float)Level * UnityEngine.Random.Range (0.5f, 1.2f));"
+        "kind": "BlockStatement",
+        "shape": "{ float num = Level; num *= UnityEngine.Random.Range (0.5f, 1.2f); return Mathf.RoundToInt (num); }"
       },
       "note": "An NPC without hand-set resistances rolls each resist as level x 0.5 to 1.2. Re-implemented by resist_range in src/erenshor/application/processor/npc_spawn.py."
     },
@@ -1825,7 +1825,7 @@
       "matcher": "node_shape",
       "args": {
         "kind": "IfElseStatement",
-        "shape": "if (MyStats.CurrentHP < MyStats.CurrentMaxHP && T == 0f && cooldown <= 0f) { T = 3600f; UpdateSocialLog.LogAdd (new ChatLogLine (\"DPS Recording Started - 60 seconds remaining!\", ChatLogLine.LogType.SystemMessages, \"yellow\")); if (HandSetAC != 0) { MyStats.BaseAC = HandSetAC; MyStats.CurrentAC = HandSetAC; } }"
+        "shape": "if (MyStats.CurrentHP < MyStats.CurrentMaxHP && T == 0f && cooldown <= 0f) { T = 60f; UpdateSocialLog.LogAdd (new ChatLogLine (\"DPS Recording Started - 60 seconds remaining!\", ChatLogLine.LogType.SystemMessages, \"yellow\")); if (HandSetAC != 0) { MyStats.BaseAC = HandSetAC; MyStats.CurrentAC = HandSetAC; } }"
       },
       "note": "A training dummy that takes damage while idle starts a DPS recording and gets its hand-set AC. Stated by the AC note of the character infobox."
     },
@@ -1837,7 +1837,7 @@
       "matcher": "node_shape",
       "args": {
         "kind": "IfElseStatement",
-        "shape": "if (cooldown <= 0f) { StatusEffect[] statusEffects = MyStats.StatusEffects; foreach (StatusEffect obj in statusEffects) { obj.Effect = null; obj.Duration = 0f; obj.fromPlayer = false; } UpdateSocialLog.LogAdd (new ChatLogLine (\"READY\", ChatLogLine.LogType.SystemMessages, \"yellow\")); MyStats.CalcStats (); MyStats.CurrentHP = MyStats.CurrentMaxHP; if (HandSetAC != 0) { MyStats.BaseAC = HandSetAC; MyStats.CurrentAC = HandSetAC; } }"
+        "shape": "if (cooldown > 0f) { cooldown -= Time.fixedDeltaTime; if (cooldown <= 0f) { StatusEffect[] statusEffects = MyStats.StatusEffects; foreach (StatusEffect statusEffect in statusEffects) { statusEffect.Effect = null; statusEffect.Duration = 0f; statusEffect.fromPlayer = false; } UpdateSocialLog.LogAdd (new ChatLogLine (\"READY\", ChatLogLine.LogType.SystemMessages, \"yellow\")); MyStats.CalcStats (); MyStats.CurrentHP = MyStats.CurrentMaxHP; if (HandSetAC != 0) { MyStats.BaseAC = HandSetAC; MyStats.CurrentAC = HandSetAC; } } }"
       },
       "note": "A training dummy resets after its cooldown, recalculates its stats, and gets its hand-set AC again. Stated by the AC note of the character infobox."
     },
@@ -1849,14 +1849,14 @@
       "parameters": [
         "Spell",
         "bool",
-        "int"
+        "float"
       ],
       "matcher": "statement_shape",
       "args": {
         "statement": "CalcStats ();",
         "count": "3"
       },
-      "note": "AddStatusEffect(Spell, bool, int) recalculates the stats on each of its three ways to land an effect. Stated by the training dummy AC note of the character infobox."
+      "note": "AddStatusEffect(Spell, bool, float) recalculates the stats on each of its three ways to land an effect. Stated by the training dummy AC note of the character infobox."
     },
     {
       "id": "npc.status_effect_recalc.add_caster",
@@ -1866,7 +1866,7 @@
       "parameters": [
         "Spell",
         "bool",
-        "int",
+        "float",
         "Character"
       ],
       "matcher": "statement_shape",
@@ -1874,7 +1874,7 @@
         "statement": "CalcStats ();",
         "count": "3"
       },
-      "note": "AddStatusEffect(Spell, bool, int, Character) recalculates the stats on each of its three ways to land an effect. Stated by the training dummy AC note of the character infobox."
+      "note": "AddStatusEffect(Spell, bool, float, Character) recalculates the stats on each of its three ways to land an effect. Stated by the training dummy AC note of the character infobox."
     },
     {
       "id": "npc.status_effect_recalc.add_duration",
@@ -1925,7 +1925,7 @@
       "matcher": "node_shape",
       "args": {
         "kind": "IfElseStatement",
-        "shape": "if (StatusEffects [i].Duration <= 0f && StatusEffects [i].Effect != null) { RemoveStatusEffect (i); }"
+        "shape": "if (StatusEffects [num].Duration <= 0f && StatusEffects [num].Effect != null) { RemoveStatusEffect (num); }"
       },
       "note": "TickEffects removes a status effect when its duration runs out, through RemoveStatusEffect. Stated by the training dummy AC note of the character infobox."
     },
@@ -2948,7 +2948,7 @@
       "matcher": "node_shape",
       "args": {
         "kind": "ForeachStatement",
-        "shape": "foreach (Quest item in list3) { List<Item> list4 = new List<Item> (item.GetRequiredItems ()); int count = list4.Count; int num = 0; List<TradeEntry> list5 = CopyTradeEntries (list2); foreach (Item item2 in list4) { for (int j = 0; j < list5.Count; j++) { TradeEntry tradeEntry = list5 [j]; if (tradeEntry.Item == item2 && tradeEntry.HasQuestCount ()) { tradeEntry.ConsumeOneForQuest (); num++; break; } } } if (num == count) { if (item.QuestAvailable ()) { if (!flag) { GameData.PlayerAud.PlayOneShot (GameData.Misc.QuestComplete, GameData.PlayerAud.volume * GameData.SFXVol * GameData.MasterVol); flag = true; } if (!GameData.Misc.LocalChatLog.activeSelf && GameData.UsePrivateWindow) { GameData.Misc.EnableLocalChatLog (); if (GameData.LocalLog.DialogHeader.text != parent.name) { GameData.LocalLog.StartLocalDialog (parent.name, parent.transform.position); } } if (item.GoldOnComplete != 0) { UpdateSocialLog.LogAdd (new ChatLogLine (\"Received a quest reward: \" + item.GoldOnComplete + \" gold!\", ChatLogLine.LogType.SystemMessages, \"green\")); UpdateSocialLog.LocalLogAdd (\"Received a quest reward: \" + item.GoldOnComplete + \" gold!\", \"green\"); GameData.PlayerInv.Gold += item.GoldOnComplete; } if (item.ItemOnComplete != null) { bool flag6 = GameData.PlayerInv.AddItemToInv (item.ItemOnComplete); UpdateSocialLog.LogAdd (new ChatLogLine (\"Received a quest reward: \" + item.ItemOnComplete.ItemName + \"!\", ChatLogLine.LogType.SystemMessages, \"green\")); UpdateSocialLog.LocalLogAdd (\"Received a quest reward: \" + item.ItemOnComplete.ItemName + \"!\", \"green\"); if (!flag6) { GameData.PlayerInv.ForceItemToInv (item.ItemOnComplete); } } GameData.AddExperience (item.XPonComplete, useMod: false); UpdateSocialLog.LogAdd (new ChatLogLine (parent.name + \" says: \" + item.DialogOnSuccess)); UpdateSocialLog.LocalLogAdd (parent.name + \" says: \" + item.DialogOnSuccess); if (!string.IsNullOrEmpty (item.DBName)) { GameData.FinishQuest (item.DBName); } if (item.CompleteOtherQuests.Count > 0) { foreach (Quest completeOtherQuest in item.CompleteOtherQuests) { if (GameData.HasQuest.Contains (completeOtherQuest.DBName)) { GameData.FinishQuest (completeOtherQuest.DBName); } } } if (item.KillTurnInHolder) { parent.GetComponent<Stats> ().CurrentHP = -1; } if (item.DropInvulnOnHolder) { parent.GetComponent<Character> ().Invulnerable = false; } list2 = list5; if (item.OncePerSpawnInstance) { OncePerInstance = true; ReturnRemainingTradeItems (list2); ClearTradeSlots (); CloseWindow (null); return; } if (!item.repeatable) { flag4 = true; } flag5 = true; flag3 = true; break; } UpdateSocialLog.LogAdd (new ChatLogLine (parent.name + \" says: \" + item.DisableText)); UpdateSocialLog.LocalLogAdd (parent.name + \" says: \" + item.DisableText); flag2 = true; } else if (num > 0 && !string.IsNullOrEmpty (item.DialogOnPartialSuccess)) { text = item.DialogOnPartialSuccess; if (item.AssignThisQuestOnPartialComplete) { GameData.AssignQuest (item.DBName); } } }"
+        "shape": "foreach (Quest item in list3) { List<Item> list4 = new List<Item> (item.GetRequiredItems ()); int count = list4.Count; int num = 0; List<TradeEntry> list5 = CopyTradeEntries (list2); foreach (Item item2 in list4) { for (int j = 0; j < list5.Count; j++) { TradeEntry tradeEntry = list5 [j]; if (tradeEntry.Item == item2 && tradeEntry.HasQuestCount ()) { tradeEntry.ConsumeOneForQuest (); num++; break; } } } if (num == count) { if (item.QuestAvailable ()) { if (!flag) { GameData.PlayerAud.PlayOneShot (GameData.Misc.QuestComplete, GameData.PlayerAud.volume * GameData.SFXVol * GameData.MasterVol); flag = true; } if (!GameData.Misc.LocalChatLog.activeSelf && GameData.UsePrivateWindow) { GameData.Misc.EnableLocalChatLog (); if (GameData.LocalLog.DialogHeader.text != parent.name) { GameData.LocalLog.StartLocalDialog (parent.name, parent.transform.position); } } if (item.GoldOnComplete != 0) { UpdateSocialLog.LogAdd (new ChatLogLine (\"Received a quest reward: \" + item.GoldOnComplete + \" gold!\", ChatLogLine.LogType.SystemMessages, \"green\")); UpdateSocialLog.LocalLogAdd (\"Received a quest reward: \" + item.GoldOnComplete + \" gold!\", \"green\"); GameData.PlayerInv.Gold += item.GoldOnComplete; } if (item.ItemOnComplete != null) { bool flag7 = GameData.PlayerInv.AddItemToInv (item.ItemOnComplete); UpdateSocialLog.LogAdd (new ChatLogLine (\"Received a quest reward: \" + item.ItemOnComplete.ItemName + \"!\", ChatLogLine.LogType.SystemMessages, \"green\")); UpdateSocialLog.LocalLogAdd (\"Received a quest reward: \" + item.ItemOnComplete.ItemName + \"!\", \"green\"); if (!flag7) { GameData.PlayerInv.ForceItemToInv (item.ItemOnComplete); } } GameData.AddExperience (item.XPonComplete, useMod: false); UpdateSocialLog.LogAdd (new ChatLogLine (parent.name + \" says: \" + item.DialogOnSuccess)); UpdateSocialLog.LocalLogAdd (parent.name + \" says: \" + item.DialogOnSuccess); if (!string.IsNullOrEmpty (item.DBName)) { GameData.FinishQuest (item.DBName); } if (item.CompleteOtherQuests.Count > 0) { foreach (Quest completeOtherQuest in item.CompleteOtherQuests) { if (GameData.HasQuest.Contains (completeOtherQuest.DBName)) { GameData.FinishQuest (completeOtherQuest.DBName); } } } if (item.DropInvulnOnHolder) { parent.GetComponent<Character> ().Invulnerable = false; } if (item.KillTurnInHolder) { parent.GetComponent<Stats> ().CurrentHP = -1; } list2 = list5; if (item.OncePerSpawnInstance) { OncePerInstance = true; ReturnRemainingTradeItems (list2); ClearTradeSlots (); CloseWindow (null); return; } if (!item.repeatable) { flag5 = true; } flag6 = true; flag4 = true; break; } UpdateSocialLog.LogAdd (new ChatLogLine (parent.name + \" says: \" + item.DisableText)); UpdateSocialLog.LocalLogAdd (parent.name + \" says: \" + item.DisableText); flag3 = true; } else if (num > 0 && !string.IsNullOrEmpty (item.DialogOnPartialSuccess)) { text = item.DialogOnPartialSuccess; if (item.AssignThisQuestOnPartialComplete) { GameData.AssignQuest (item.DBName); } } }"
       }
     },
     {
@@ -3850,9 +3850,9 @@
       "matcher": "node_shape",
       "args": {
         "kind": "IfElseStatement",
-        "shape": "if (_questName == null || !(_questName != \"\") || CompletedQuests.Contains (_questName)) { return; }"
+        "shape": "if (!CompletedQuests.Contains (_questName)) { CompletedQuests.Add (_questName); if (HasQuest.Contains (_questName)) { HasQuest.Remove (_questName); } HasQuest.RemoveAll (string.IsNullOrEmpty); UpdateSocialLog.LogAdd (new ChatLogLine (\"Quest Completed: \" + QuestDB.GetQuestByName (_questName).QuestName, ChatLogLine.LogType.SystemMessages, \"yellow\")); UpdateSocialLog.LocalLogAdd (\"Quest Completed: \" + QuestDB.GetQuestByName (_questName).QuestName, \"yellow\"); if (QuestDB.GetQuestByName (_questName) != null && !string.IsNullOrEmpty (QuestDB.GetQuestByName (_questName).SetAchievementOnFinish)) { SetAchievement.Unlock (QuestDB.GetQuestByName (_questName).SetAchievementOnFinish); } if (QuestDB.GetQuestByName (_questName).AssignNewQuestOnComplete != null) { AssignQuest (QuestDB.GetQuestByName (_questName).AssignNewQuestOnComplete.DBName); } if (QuestDB.GetQuestByName (_questName).AffectFactions.Count > 0 && QuestDB.GetQuestByName (_questName).AffectFactionAmts.Count == QuestDB.GetQuestByName (_questName).AffectFactions.Count) { for (int i = 0; i < QuestDB.GetQuestByName (_questName).AffectFactions.Count; i++) { GlobalFactionManager.ModifyFaction (QuestDB.GetQuestByName (_questName).AffectFactionAmts [i], QuestDB.GetQuestByName (_questName).AffectFactions [i].REFNAME); } } }"
       },
-      "note": "A quest changes standings only at its first completion, because finishing a completed quest returns before its faction changes."
+      "note": "FinishQuest applies faction changes only inside the branch for a quest name not already in CompletedQuests."
     },
     {
       "id": "faction.quest_hits_equal_lists",
@@ -3874,7 +3874,7 @@
       "matcher": "node_shape",
       "args": {
         "kind": "IfElseStatement",
-        "shape": "if (factionMods.Length != 0) { if (MyNPC.CurrentAggroTarget == GameData.PlayerControl || damagedByPlayerEver) { affectPlayer = true; } if (affectPlayer) { ModifyFaction[] array = factionMods; for (int i = 0; i < array.Length; i++) { array [i].SubmitForModification (); } } }"
+        "shape": "if (factionMods.Length != 0) { if (MyNPC.CurrentAggroTarget == GameData.PlayerControl || damagedByPlayerEver) { affectPlayer = true; } if (affectPlayer) { ModifyFaction[] array = factionMods; foreach (ModifyFaction modifyFaction in array) { modifyFaction.SubmitForModification (); } } }"
       },
       "note": "Every death of a character that the player fought or damaged applies its faction changes."
     }
