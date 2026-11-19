@@ -151,14 +151,6 @@ function p.bookLevels(frame)
 		.. "</div>"
 end
 
--- The wiki spells out the game's damage interval in seconds.
-function p.damageOverTimeText(value)
-	if type(value) == "table" then
-		value = value.args[1]
-	end
-	return (tostring(value or ""):gsub("/%s*tick%f[%A]", "/ 3 sec"))
-end
-
 -- Erenshor uses a single gold currency (Item.ItemValue is a flat integer the
 -- game prints verbatim); there is no silver/copper. Render the raw value.
 function p.currency(value)

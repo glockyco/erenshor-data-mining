@@ -144,22 +144,21 @@ function p.run()
 		'data-erenshor-key="spell:ancient_presence"',
 		"spell tooltip root has stable key"
 	)
-	local song = Tooltip.render({
+	local song = Tooltip.renderPage({
 		stableKey = "spell:bard - test chord",
 		name = "Test Chord",
 		type = "Inspiration",
 		bardSong = true,
 		damageType = "Magic",
 		manaCost = 15,
+		targetDamage = 15,
+		durationSeconds = 18,
 		description = "Deals 15 damage / tick.",
 	})
 	assertContains(song, "Bard Song", "song card identifies its kind")
 	assertContains(song, "Song Type: Magic", "song footer uses the game's label")
-	assertContains(
-		song,
-		"Deals 15 damage / 3 sec.",
-		"song card gives the damage interval in seconds"
-	)
+	assertContains(song, "Deals 15 damage / tick.", "song card quotes the game's description")
+	assertContains(song, "Damage: 15 / 3 sec", "spell details give the damage interval in seconds")
 
 	local dmgTip = minorTooltip
 	assertContains(dmgTip, "Instant Effect", "damage tooltip shows instant effect")

@@ -48,7 +48,7 @@ function Tooltip.render(spell)
 	if not Common.isBlank(spell.description) then
 		root:tag("div")
 			:addClass("item-ability-description")
-			:wikitext(Format.escape(Format.damageOverTimeText(spell.description)))
+			:wikitext(Format.escape(spell.description))
 	end
 	local footer = root:tag("div"):addClass("item-ability-footer")
 	footer:tag("div"):wikitext("Mana Cost: " .. Common.num(spell.manaCost))

@@ -82,11 +82,6 @@ function p.run()
 			.. '<div class="item-tooltip-book-class-req">Bard: 1</div></div>',
 		"skill books keep class-specific rows"
 	)
-	assertEqual(
-		Format.damageOverTimeText({ args = { "Damage / tick for 6 ticks." } }),
-		"Damage / 3 sec for 6 ticks.",
-		"only per-tick damage uses the seconds label"
-	)
 	for _, invalid in ipairs({ "Bard", "Bard: 0", "Bard: -1", "Bard: nope", ": 3" }) do
 		if pcall(Format.classLevelRows, invalid) then
 			error("Accepted an invalid class level pair: " .. invalid)

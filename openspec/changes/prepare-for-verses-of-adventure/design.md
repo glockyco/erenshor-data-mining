@@ -87,6 +87,10 @@ Song capacity, Hum and Caesura details and the aura's attribute bonus go in info
 
 The human-owned Bard article follows Paladin and Reaver: a class infobox and description, starting gear, and a table of scrolls and books by level. A short Songs section lets a new Bard jump to the class's main mechanic without repeating the full songwriting guide. Use the existing live table unless the generated `Class abilities` view is approved for deployment.
 
+### D14. Tooltips quote descriptions without rewriting damage units
+
+The compact card and teaching scroll quote the game's description, including "15 damage / tick for 6 ticks" on Note: Unsetting Sustain, so players can recognize the text from the game. The mechanical row under Spell details says "Damage: 15 / 3 sec".
+
 ## Risks / Trade-offs
 
 - [The shipped build differs from the last playtest build] → Every consumer gets regenerated from `main` on release day. The variant comparison shows the differences, and they get a review before approval.
