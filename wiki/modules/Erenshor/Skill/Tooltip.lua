@@ -41,7 +41,7 @@ function Tooltip.render(skill, identity)
 		detailRow(content, Format.escape(skill.description or ""))
 	end
 
-	return tostring(root)
+	return Format.preserveIdentityAttributes(root)
 end
 
 return Tooltip

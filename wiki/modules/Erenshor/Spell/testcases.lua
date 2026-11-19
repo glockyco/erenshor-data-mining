@@ -145,9 +145,9 @@ function p.run()
 		"spell tooltip root has stable key"
 	)
 	local song = Tooltip.renderPage({
-		stableKey = "spell:bard - test chord",
+		stableKey = "spell:bard  - test chord",
 		name = "Test Chord",
-		type = "Inspiration",
+		type = "SongDissonance",
 		bardSong = true,
 		damageType = "Magic",
 		manaCost = 15,
@@ -157,6 +157,12 @@ function p.run()
 	})
 	assertContains(song, "Bard Song", "song card identifies its kind")
 	assertContains(song, "Song Type: Magic", "song footer uses the game's label")
+	assertContains(
+		song,
+		'data-erenshor-key="spell:bard&#32;&#32;- test chord"',
+		"identity preserves spaces"
+	)
+	assertContains(song, "Spell Type: SongDissonance", "spell details use the game's spell type")
 	assertContains(song, "Deals 15 damage / tick.", "song card quotes the game's description")
 	assertContains(song, "Damage: 15 / 3 sec", "spell details give the damage interval in seconds")
 

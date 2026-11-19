@@ -56,7 +56,7 @@ function Tooltip.render(spell)
 		local label = song and "Song Type: " or "Spell Type: "
 		footer:tag("div"):wikitext(label .. Format.escape(spell.damageType))
 	end
-	return tostring(root)
+	return Format.preserveIdentityAttributes(root)
 end
 
 function Tooltip.renderPage(spell)
