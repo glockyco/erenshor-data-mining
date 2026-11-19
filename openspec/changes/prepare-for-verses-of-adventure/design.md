@@ -63,6 +63,10 @@ Each mod in scope (AdventureGuide, Interactive Map Companion, JusticeForF7, Spri
 
 Nothing goes to a shared target before 0.8 ships on `main`. On release day the runbook runs, in order: the `main` refresh, the variant comparison, consumer previews, approval, and publication through the existing gated commands with their rollback manifests (`wiki deploy-repo-pages`, `sheets deploy`, `images publish`, `maps deploy`, mod releases).
 
+### D8. A song scroll page takes "(Item)" when it shares a title with its spell
+
+When a song scroll and the chord or note it teaches would share a wiki page or picture title, the spell keeps the plain title and the scroll gets "(Item)", as in "Chord: Channeling Major (Item)". Each such scroll has a `mapping.json` entry with that page and picture name. Bards look up a chord for what it does, and the item page keeps where to get it.
+
 ## Risks / Trade-offs
 
 - [The shipped build differs from the last playtest build] → Every consumer gets regenerated from `main` on release day. The variant comparison shows the differences, and they get a review before approval.

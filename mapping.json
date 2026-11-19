@@ -3213,6 +3213,356 @@
       "is_map_visible": 0,
       "reason": "Unused scroll asset: no GUID references in scenes, prefabs, or content assets and no loot, vendor, dialog, quest, or scripted acquisition source. It retains the name Flight of Foot while teaching Predator's Grace; the live Flight of Foot scroll is a separate item."
     },
+    "item:song scroll - chord channeling major": {
+      "wiki_page_name": "Chord: Channeling Major (Item)",
+      "display_name": "Chord: Channeling Major",
+      "image_name": "Chord: Channeling Major (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord channeling minor": {
+      "wiki_page_name": "Chord: Channeling Minor (Item)",
+      "display_name": "Chord: Channeling Minor",
+      "image_name": "Chord: Channeling Minor (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord clarifying pizzicato": {
+      "wiki_page_name": "Chord: Clarifying Pizzicato (Item)",
+      "display_name": "Chord: Clarifying Pizzicato",
+      "image_name": "Chord: Clarifying Pizzicato (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord enthusiasm": {
+      "wiki_page_name": "Chord: Enthusiasm (Item)",
+      "display_name": "Chord: Enthusiasm",
+      "image_name": "Chord: Enthusiasm (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord harmony elemental": {
+      "wiki_page_name": "Chord: Elemental Harmony (Item)",
+      "display_name": "Chord: Elemental Harmony",
+      "image_name": "Chord: Elemental Harmony (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord harmony magical": {
+      "wiki_page_name": "Chord: Magical Harmony (Item)",
+      "display_name": "Chord: Magical Harmony",
+      "image_name": "Chord: Magical Harmony (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord harmony poison": {
+      "wiki_page_name": "Chord: Venomous Harmony (Item)",
+      "display_name": "Chord: Venomous Harmony",
+      "image_name": "Chord: Venomous Harmony (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord harmony void": {
+      "wiki_page_name": "Chord: Void Harmony (Item)",
+      "display_name": "Chord: Void Harmony",
+      "image_name": "Chord: Void Harmony (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord insisting legato": {
+      "wiki_page_name": "Chord: Insisting Legato (Item)",
+      "display_name": "Chord: Insisting Legato",
+      "image_name": "Chord: Insisting Legato (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord inspiring melody": {
+      "wiki_page_name": "Chord: Inspiring Melody (Item)",
+      "display_name": "Chord: Inspiring Melody",
+      "image_name": "Chord: Inspiring Melody (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord meditative": {
+      "wiki_page_name": "Chord: Meditative Minor (Item)",
+      "display_name": "Chord: Meditative Minor",
+      "image_name": "Chord: Meditative Minor (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord narcoleptic": {
+      "wiki_page_name": "Chord: Narcoleptic (Item)",
+      "display_name": "Chord: Narcoleptic",
+      "image_name": "Chord: Narcoleptic (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord percussive eighth": {
+      "wiki_page_name": "Chord: Percussive Eighth (Item)",
+      "display_name": "Chord: Percussive Eighth",
+      "image_name": "Chord: Percussive Eighth (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord percussive half": {
+      "wiki_page_name": "Chord: Percussive Half (Item)",
+      "display_name": "Chord: Percussive Half",
+      "image_name": "Chord: Percussive Half (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord percussive three-quarter 1": {
+      "wiki_page_name": "Chord: Percussive Three Quarter (Item)",
+      "display_name": "Chord: Percussive Three Quarter",
+      "image_name": "Chord: Percussive Three Quarter (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord percussive whole": {
+      "wiki_page_name": "Chord: Percussive Whole (Item)",
+      "display_name": "Chord: Percussive Whole",
+      "image_name": "Chord: Percussive Whole (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord power chord": {
+      "wiki_page_name": "Chord: Power Chord (Item)",
+      "display_name": "Chord: Power Chord",
+      "image_name": "Chord: Power Chord (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord rapid thoughts": {
+      "wiki_page_name": "Chord: Rapid Thoughts (Item)",
+      "display_name": "Chord: Rapid Thoughts",
+      "image_name": "Chord: Rapid Thoughts (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord refreshing finale": {
+      "wiki_page_name": "Chord: Refreshing Finale (Item)",
+      "display_name": "Chord: Refreshing Finale",
+      "image_name": "Chord: Refreshing Finale (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord restful": {
+      "wiki_page_name": "Chord: Restful (Item)",
+      "display_name": "Chord: Restful",
+      "image_name": "Chord: Restful (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord slumber": {
+      "wiki_page_name": "Chord: Slumber (Item)",
+      "display_name": "Chord: Slumber",
+      "image_name": "Chord: Slumber (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord sonic coda": {
+      "wiki_page_name": "Chord: Sonic Coda (Item)",
+      "display_name": "Chord: Sonic Coda",
+      "image_name": "Chord: Sonic Coda (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord sonic dirge": {
+      "wiki_page_name": "Chord: Sonic Dirge (Item)",
+      "display_name": "Chord: Sonic Dirge",
+      "image_name": "Chord: Sonic Dirge (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord sonic overature": {
+      "wiki_page_name": "Chord: Sonic Overature (Item)",
+      "display_name": "Chord: Sonic Overature",
+      "image_name": "Chord: Sonic Overature (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord sonic rhapsody": {
+      "wiki_page_name": "Chord: Sonic Rhapsody (Item)",
+      "display_name": "Chord: Sonic Rhapsody",
+      "image_name": "Chord: Sonic Rhapsody (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord surging legato": {
+      "wiki_page_name": "Chord: Surging Legato (Item)",
+      "display_name": "Chord: Surging Legato",
+      "image_name": "Chord: Surging Legato (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord swinging legato": {
+      "wiki_page_name": "Chord: Swinging Legato (Item)",
+      "display_name": "Chord: Swinging Legato",
+      "image_name": "Chord: Swinging Legato (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - chord trance": {
+      "wiki_page_name": "Chord: Trance (Item)",
+      "display_name": "Chord: Trance",
+      "image_name": "Chord: Trance (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note healing phrygian": {
+      "wiki_page_name": "Chord: Healing Phrygian (Item)",
+      "display_name": "Chord: Healing Phrygian",
+      "image_name": "Chord: Healing Phrygian (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which the game names Chord Healing Phrygian. Both would share one icon title."
+    },
+    "item:song scroll - note assaulting pitch": {
+      "wiki_page_name": "Note: Assaulting Pitch (Item)",
+      "display_name": "Note: Assaulting Pitch",
+      "image_name": "Note: Assaulting Pitch (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the note it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note binding second": {
+      "wiki_page_name": "Note: Binding Second (Item)",
+      "display_name": "Note: Binding Second",
+      "image_name": "Note: Binding Second (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the note it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note crippling second": {
+      "wiki_page_name": "Note: Crippling Second (Item)",
+      "display_name": "Note: Crippling Second",
+      "image_name": "Note: Crippling Second (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the note it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note dissonant major": {
+      "wiki_page_name": "Note: Dissonant Major (Item)",
+      "display_name": "Note: Dissonant Major",
+      "image_name": "Note: Dissonant Major (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the note it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note dissonant minor": {
+      "wiki_page_name": "Note: Dissonant Minor (Item)",
+      "display_name": "Note: Dissonant Minor",
+      "image_name": "Note: Dissonant Minor (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the note it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note ethereal bend": {
+      "wiki_page_name": "Note: Ethereal Bend (Item)",
+      "display_name": "Note: Ethereal Bend",
+      "image_name": "Note: Ethereal Bend (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the note it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note ethereal sharp": {
+      "wiki_page_name": "Note: Ethereal Sharp (Item)",
+      "display_name": "Note: Ethereal Sharp",
+      "image_name": "Note: Ethereal Sharp (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the note it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note fatal pitch": {
+      "wiki_page_name": "Note: Fatal Pitch (Item)",
+      "display_name": "Note: Fatal Pitch",
+      "image_name": "Note: Fatal Pitch (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the note it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note harmonic major": {
+      "wiki_page_name": "Note: Harmonic Major (Item)",
+      "display_name": "Note: Harmonic Major",
+      "image_name": "Note: Harmonic Major (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the note it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note harmonic minor": {
+      "wiki_page_name": "Note: Harmonic Minor (Item)",
+      "display_name": "Note: Harmonic Minor",
+      "image_name": "Note: Harmonic Minor (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the note it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note healing aeolian": {
+      "wiki_page_name": "Chord: Healing Aeolian (Item)",
+      "display_name": "Chord: Healing Aeolian",
+      "image_name": "Chord: Healing Aeolian (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note healing dorian": {
+      "wiki_page_name": "Chord: Healing Dorian (Item)",
+      "display_name": "Chord: Healing Dorian",
+      "image_name": "Chord: Healing Dorian (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note healing ionian": {
+      "wiki_page_name": "Chord: Healing Ionian (Item)",
+      "display_name": "Chord: Healing Ionian",
+      "image_name": "Chord: Healing Ionian (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note healing lydian": {
+      "wiki_page_name": "Chord: Healing Lydian (Item)",
+      "display_name": "Chord: Healing Lydian",
+      "image_name": "Chord: Healing Lydian (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the chord it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note hypnotic beat": {
+      "wiki_page_name": "Note: Hypnotic Beat (Item)",
+      "display_name": "Note: Hypnotic Beat",
+      "image_name": "Note: Hypnotic Beat (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the note it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note lullaby fourth": {
+      "wiki_page_name": "Note: Lullaby Fourth (Item)",
+      "display_name": "Note: Lullaby Fourth",
+      "image_name": "Note: Lullaby Fourth (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the note it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note piercing sustain": {
+      "wiki_page_name": "Note: Piercing Sustain (Item)",
+      "display_name": "Note: Piercing Sustain",
+      "image_name": "Note: Piercing Sustain (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the note it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note torturous sustain": {
+      "wiki_page_name": "Note: Torturous Sustain (Item)",
+      "display_name": "Note: Torturous Sustain",
+      "image_name": "Note: Torturous Sustain (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the note it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note unbearable pitch": {
+      "wiki_page_name": "Note: Unbearable Pitch (Item)",
+      "display_name": "Note: Unbearable Pitch",
+      "image_name": "Note: Unbearable Pitch (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the note it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note undesirable pitch": {
+      "wiki_page_name": "Note: Undesirable Pitch (Item)",
+      "display_name": "Note: Undesirable Pitch",
+      "image_name": "Note: Undesirable Pitch (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the note it teaches, which keeps the plain name."
+    },
+    "item:song scroll - note unsetting sustain": {
+      "wiki_page_name": "Note: Unsetting Sustain (Item)",
+      "display_name": "Note: Unsetting Sustain",
+      "image_name": "Note: Unsetting Sustain (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the note it teaches, which keeps the plain name."
+    },
     "item:weap - 10 - thorn": {
       "wiki_page_name": "Thorn",
       "display_name": "Thorn",
