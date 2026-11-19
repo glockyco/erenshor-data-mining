@@ -54,6 +54,7 @@ public class SkillListener : IAssetScanListener<Skill>
             DruidRequiredLevel = skill.DruidRequiredLevel,
             StormcallerRequiredLevel = skill.StormcallerRequiredLevel,
             ReaverRequiredLevel = skill.ReaverRequiredLevel,
+            BardRequiredLevel = skill.BardRequiredLevel,
             RequireBehind = skill.RequireBehind,
             Require2H = skill.Require2H,
             RequireDW = skill.RequireDW,
@@ -62,6 +63,8 @@ public class SkillListener : IAssetScanListener<Skill>
 
             // --- Simulation ---
             SimPlayersAutolearn = skill.SimPlayersAutolearn,
+            BardSong = skill.BardSong,
+            Hum = skill.Hum,
 
             // --- Timing & Cost ---
             Cooldown = skill.Cooldown,

@@ -14,6 +14,7 @@ public class ZoneRecord
     public bool IsDungeon { get; set; }
     public bool RaidCapable { get; set; }
     public string UseZoneAsTempBind { get; set; } = string.Empty;
+    public bool NeverRain { get; set; } // From ZoneAnnounce.NeverRain: the zone never starts rain
 
     public string Achievement { get; set; } = string.Empty;
 

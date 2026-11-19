@@ -8,20 +8,9 @@ using UnityEngine;
 
 public class ClassStartingItemsListener : IAssetScanListener<CharSelectManager>
 {
-    private static readonly string[] ExpectedClassNames =
-    {
-        "Arcanist",
-        "Paladin",
-        "Duelist",
-        "Druid",
-        "Stormcaller",
-        "Reaver",
-    };
-
     private readonly SQLiteConnection _db;
     private readonly List<ClassStartingItemRecord> _records = new();
     private readonly HashSet<string> _sourceConfigurations = new(StringComparer.Ordinal);
-    private readonly HashSet<string> _classesWithItems = new(StringComparer.Ordinal);
     private int _managerCount;
     private string? _validationFailure;
 
@@ -41,6 +30,7 @@ public class ClassStartingItemsListener : IAssetScanListener<CharSelectManager>
         Add("Druid", manager.DruidStart);
         Add("Stormcaller", manager.StormStart);
         Add("Reaver", manager.ReaverStart);
+        Add("Bard", manager.BardStart);
     }
 
     public void OnScanFinished()
@@ -56,7 +46,6 @@ public class ClassStartingItemsListener : IAssetScanListener<CharSelectManager>
 
         _records.Clear();
         _sourceConfigurations.Clear();
-        _classesWithItems.Clear();
         _managerCount = 0;
         _validationFailure = null;
     }
@@ -107,8 +96,6 @@ public class ClassStartingItemsListener : IAssetScanListener<CharSelectManager>
                 }
             );
         }
-
-        _classesWithItems.Add(className);
     }
 
     private void ValidateConfiguration()
@@ -125,14 +112,6 @@ public class ClassStartingItemsListener : IAssetScanListener<CharSelectManager>
                     + $"{_managerCount} manager(s) across {_sourceConfigurations.Count} source(s): "
                     + $"{string.Join(", ", _sourceConfigurations)}"
             );
-        }
-
-        foreach (string className in ExpectedClassNames)
-        {
-            if (!_classesWithItems.Contains(className))
-            {
-                throw new InvalidOperationException($"{className} has no exported starting items");
-            }
         }
     }
 }

@@ -88,6 +88,13 @@ public class AscensionListener : IAssetScanListener<Ascension>
             // Reaver
             TripleAttackChanceReav = asset.TripleAttackChanceReav,
 
+            // Bard
+            HumSongIncrease = asset.HumSongIncrease,
+            OffensiveVolume = asset.OffensiveVolume,
+            HarmonicVolume = asset.HarmonicVolume,
+            Shredding = asset.Shredding,
+            PowerfulResonance = asset.PowerfulResonance,
+
             ResourceName = asset.name,
         };
 

@@ -26,6 +26,7 @@ public class SkillRecord
     public int DruidRequiredLevel { get; set; } // From Skill.DruidRequiredLevel
     public int StormcallerRequiredLevel { get; set; } // From Skill.StormcallerRequiredLevel
     public int ReaverRequiredLevel { get; set; } // From Skill.ReaverRequiredLevel
+    public int BardRequiredLevel { get; set; } // From Skill.BardRequiredLevel
     public bool RequireBehind { get; set; } // From Skill.RequireBehind
     public bool Require2H { get; set; } // From Skill.Require2H
     public bool RequireDW { get; set; } // From Skill.RequireDW
@@ -34,6 +35,8 @@ public class SkillRecord
 
     // --- Simulation ---
     public bool SimPlayersAutolearn { get; set; } // From Skill.SimPlayersAutolearn
+    public bool BardSong { get; set; } // From Skill.BardSong
+    public bool Hum { get; set; } // From Skill.Hum
 
     // --- Effects & Mechanics ---
     public bool AESkill { get; set; } // From Skill.AESkill

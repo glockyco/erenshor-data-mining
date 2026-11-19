@@ -90,7 +90,7 @@ summoned_by = []
 
 [[allowed]]
 script = "Chessboard"
-fields = ["FacelessDuel", "FacelessArc", "FacelessPal", "FacelessDru", "FacelessStorm", "FacelessReaver"]
+fields = ["FacelessDuel", "FacelessArc", "FacelessPal", "FacelessDru", "FacelessStorm", "FacelessReaver", "FacelessBard"]
 position_field = "SpawnLoc"
 trigger_item_field = "Faceless"
 trigger_mode = "proximity_auto_consume"

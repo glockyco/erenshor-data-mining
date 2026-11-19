@@ -110,6 +110,21 @@ public class SpellRecord
     public float LevelScaledManaRestoration { get; set; } // From Spell.LevelScaledManaRestoration
     public string ShapeshiftForm { get; set; } = string.Empty; // From Spell.ShapeshiftForm
 
+    // --- Bard and status-effect modifiers ---
+    public bool BardSong { get; set; } // From Spell.BardSong
+    public float HarmonicMult { get; set; } // From Spell.HarmonicMult
+    public float DissonanceMult { get; set; } // From Spell.DissonanceMult
+    public bool BardAura { get; set; } // From Spell.BardAura
+    public int BardAuraConversion { get; set; } // From Spell.BardAuraConversion
+    public int BardAuraMinimum { get; set; } // From Spell.BardAuraMinimum
+    public int PhysicalWeaponDmgMod { get; set; } // From Spell.PhysicalWeaponDmgMod
+    public int StaffDmgMod { get; set; } // From Spell.StaffDmgMod
+    public int BowDmgMod { get; set; } // From Spell.BowDmgMod
+    public float CDR { get; set; } // From Spell.CDR
+    public int IncreaseHasteCap { get; set; } // From Spell.IncreaseHasteCap
+    public float ChannelingFocus { get; set; } // From Spell.ChannelingFocus
+    public float AmplifyDamage { get; set; } // From Spell.AmplifyDamage
+
     // --- Visual/Audio ---
     public int SpellChargeFXIndex { get; set; } // From Spell.SpellChargeFXIndex
     public int SpellResolveFXIndex { get; set; } // From Spell.SpellResolveFXIndex

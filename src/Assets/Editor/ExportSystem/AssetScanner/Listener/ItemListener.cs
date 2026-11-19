@@ -151,6 +151,11 @@ public class ItemListener : IAssetScanListener<Item>
             WandBoltSpeed = item.WandBoltSpeed,
             WandAttackSoundName = wandAttackSound,
 
+            // --- Bard Properties ---
+            Instrument = item.Instrument,
+            HarmonyMod = item.HarmonyMod,
+            DissonanceMod = item.DissonanceMod,
+
             // --- Bow Properties ---
             IsBow = item.IsBow,
             BowEffectStableKey =

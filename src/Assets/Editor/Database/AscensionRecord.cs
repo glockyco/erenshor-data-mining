@@ -66,6 +66,13 @@ public class AscensionRecord
     // Reaver Stats
     public float TripleAttackChanceReav { get; set; }
 
+    // Bard Stats
+    public float HumSongIncrease { get; set; }
+    public float OffensiveVolume { get; set; }
+    public float HarmonicVolume { get; set; }
+    public float Shredding { get; set; }
+    public float PowerfulResonance { get; set; }
+
     // Internals / Metadata
     public string ResourceName { get; set; } = string.Empty;
 }

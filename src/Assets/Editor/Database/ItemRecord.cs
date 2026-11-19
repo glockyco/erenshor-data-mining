@@ -42,6 +42,11 @@ public class ItemRecord
     public float WandBoltSpeed { get; set; }
     public string? WandAttackSoundName { get; set; } = string.Empty;
 
+    // --- Bard Properties ---
+    public bool Instrument { get; set; } // From Item.Instrument
+    public float HarmonyMod { get; set; } // From Item.HarmonyMod
+    public float DissonanceMod { get; set; } // From Item.DissonanceMod
+
     // --- Bow Properties ---
     public bool IsBow { get; set; }
 

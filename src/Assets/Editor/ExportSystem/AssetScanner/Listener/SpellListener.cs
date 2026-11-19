@@ -164,6 +164,21 @@ public class SpellListener : IAssetScanListener<Spell>
             LevelScaledManaRestoration = spell.LevelScaledManaRestoration,
             ShapeshiftForm = spell.ShapeshiftForm,
 
+            // --- Bard and status-effect modifiers ---
+            BardSong = spell.BardSong,
+            HarmonicMult = spell.HarmonicMult,
+            DissonanceMult = spell.DissonanceMult,
+            BardAura = spell.BardAura,
+            BardAuraConversion = spell.BardAuraConversion,
+            BardAuraMinimum = spell.BardAuraMinimum,
+            PhysicalWeaponDmgMod = spell.PhysicalWeaponDmgMod,
+            StaffDmgMod = spell.StaffDmgMod,
+            BowDmgMod = spell.BowDmgMod,
+            CDR = spell.CDR,
+            IncreaseHasteCap = spell.IncreaseHasteCap,
+            ChannelingFocus = spell.ChannelingFocus,
+            AmplifyDamage = spell.AmplifyDamage,
+
             // --- Visual/Audio ---
             SpellChargeFXIndex = spell.SpellChargeFXIndex,
             SpellResolveFXIndex = spell.SpellResolveFXIndex,
