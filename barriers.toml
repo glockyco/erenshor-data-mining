@@ -74,6 +74,22 @@ check = "navmesh"
 
 [[barriers]]
 kind = "door"
+name = "Ripper's Keep gate"
+objects = ["door:ripper:542.11:62.57:291.40"]
+targets = []
+reason = "The 0.8 gate of the rebuilt city, opened with Ripper's Gate Key from the guard's quest. Its targets need the in-game check of task 3.6 of the 0.8 change."
+check = "unconfirmed"
+
+[[barriers]]
+kind = "door"
+name = "Thistlewick door in Ripper's Keep"
+objects = ["door:ripper:451.95:60.27:329.75"]
+targets = []
+reason = "A 0.8 door of the rebuilt city, opened with the Thistlewick Key. Its targets need the in-game check of task 3.6 of the 0.8 change."
+check = "unconfirmed"
+
+[[barriers]]
+kind = "door"
 name = "Portcullis above the Reliquary entrance"
 objects = ["door:azure:283.31:30.45:150.97"]
 targets = ["zoneline:azure:reliquary:343.23:19.47:151.00"]
@@ -1168,7 +1184,7 @@ check = "navmesh"
 kind = "removed"
 name = "Ritual fire and vessel of Stowaway's Step"
 objects = [
-    "object:stowaway:fx_fire_huge_01[1086]",
+    "object:stowaway:fx_fire_huge_01[1090]",
     "object:stowaway:sm_env_stone_vessel_01[198]",
 ]
 targets = []

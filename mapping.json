@@ -4345,6 +4345,13 @@
       "reason": "Retain the reviewed public Dungeon grouping of the Zones overview. The native scene flag selects SimPlayer tasks rather than public area classification.",
       "zone_type": "Dungeon"
     },
+    "zone:glowmere": {
+      "wiki_page_name": "Glowmere Grotto",
+      "display_name": "Glowmere Grotto",
+      "image_name": "Glowmere Grotto",
+      "reason": "The 0.8 patch notes announce Glowmere Grotto as a dungeon for levels 22 to 29. The native scene flag selects SimPlayer tasks rather than public area classification.",
+      "zone_type": "Dungeon"
+    },
     "zone:jaws": {
       "wiki_page_name": "Jaws of Sivakaya",
       "display_name": "Jaws of Sivakaya",
