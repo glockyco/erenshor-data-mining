@@ -2,8 +2,11 @@
 |icon={{ icon }}
 |name={{ name }}
 |value={{ value }}
+|classes={{ classes }}
 |class_levels={{ class_levels }}
 |mana_cost={{ mana_cost }}
 |spell_type={{ spell_type }}
 |spell_desc={{ spell_desc }}
+{% if sims_need_help %}|sims_need_help={{ sims_need_help }}
+{% endif %}
 {{ "}}" }}

@@ -324,8 +324,9 @@ function p.render(frame, row)
 		for source, target in pairs(STAT_NAMES) do
 			args[target] = stats[source] or 0
 		end
-		if mw.ustring.len(row.name) > 24 then
-			args.name = '<span style="font-size:20px">' .. row.name .. "</span>"
+		if row.harmonyMod ~= nil then
+			args.harmony = string.format("%g", row.harmonyMod)
+			args.dissonance = string.format("%g", row.dissonanceMod)
 		end
 		args.kind = template
 		args.type = tostring(row.slot or ""):gsub("PrimaryOrSecondary", "Primary or Secondary")
@@ -362,9 +363,10 @@ function p.render(frame, row)
 				levels[#levels + 1] = classLevelRow(name, spell.requiredLevel)
 			end
 			args.class_levels = table.concat(levels, ", ")
-			args.mana_cost = value(spell.manaCost)
+			args.mana_cost = spell.manaCost
 			args.spell_type = spell.type or ""
 			args.spell_desc = p.description(spell.description)
+			args.sims_need_help = value(spell.simsNeedHelpToLearn)
 			extras[#extras + 1] = '<div class="item-spell-details">'
 				.. require("Module:Erenshor/Spell").renderTooltip({ stablekey = row.teachesSpell })
 				.. "</div>"

@@ -29,7 +29,7 @@ from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
 from erenshor.domain.value_objects.item_provenance import PROVENANCE_SCHEMA_VERSION
 from erenshor.domain.value_objects.wiki_filename import picture_file_title
 from erenshor.domain.value_objects.wiki_link import AbilityLink
-from erenshor.shared.game_constants import LONG_NAME_FONT_SIZE, LONG_NAME_THRESHOLD, WIKITEXT_LINE_SEPARATOR
+from erenshor.shared.game_constants import WIKITEXT_LINE_SEPARATOR
 
 if TYPE_CHECKING:
     from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
@@ -197,7 +197,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         context: dict[str, str] = {
             "kind": "Weapon" if kind == ItemKind.WEAPON else "Armor",
             "icon": item_image_file(item),
-            "name": self._format_long_item_name(display_name),
+            "name": display_name,
             "slot": safe_str(item.required_slot),
             "type": self._weapon_type_display(item.required_slot, item.this_weapon_type)
             if kind == ItemKind.WEAPON
@@ -226,8 +226,13 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "poison": safe_str(stats.pr),
             "elemental": safe_str(stats.er),
             "void": safe_str(stats.vr),
+            "harmony": "",
+            "dissonance": "",
             "description": format_description(safe_str(item.lore)) if item.lore else "",
         }
+        if item.has_song_modifiers:
+            context["harmony"] = f"{item.harmony_mod or 0:g}"
+            context["dissonance"] = f"{item.dissonance_mod or 0:g}"
         context["classes"] = self._class_restrictions(enriched.classes)
         context.update(self._build_proc_tooltip_context(enriched))
         return context
@@ -245,11 +250,6 @@ class ItemSectionGenerator(SectionGeneratorBase):
         # the first row keeps the fail-fast weapon/armor invariant for records
         # that arrive in an unexpected order.
         return enriched.stats[0]
-
-    def _format_long_item_name(self, display_name: str) -> str:
-        if len(display_name) > LONG_NAME_THRESHOLD:
-            return f'<span style="font-size:{LONG_NAME_FONT_SIZE}">{display_name}</span>'
-        return display_name
 
     def _weapon_type_display(self, required_slot: str | None, this_weapon_type: str | None) -> str:
         slot = (required_slot if required_slot is not None else "").strip()
@@ -330,6 +330,10 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "icon": item_image_file(item),
             "name": display_name,
             "value": self._item_window_value(item),
+            "classes": self._class_restrictions(enriched.classes),
+            "aura_spell_desc": format_description(enriched.aura_spell.spell_desc)
+            if enriched.aura_spell and enriched.aura_spell.spell_desc
+            else "",
             "description": format_description(safe_str(item.lore)) if item.lore else "",
             **spell_details,
         }
@@ -357,10 +361,12 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "icon": item_image_file(item),
             "name": display_name,
             "value": self._item_window_value(item),
+            "classes": self._class_restrictions(enriched.classes),
             "class_levels": self._class_level_rows(class_levels),
-            "mana_cost": str(spell.mana_cost) if spell and spell.mana_cost else "",
+            "mana_cost": safe_str(spell.mana_cost) if spell else "",
             "spell_type": spell.type if spell and spell.type else "",
             "spell_desc": format_description(spell.spell_desc) if spell and spell.spell_desc else "",
+            "sims_need_help": "True" if spell and spell.sims_need_help_to_learn else "",
         }
 
         spellscroll_template = self.render_template("spellscroll.jinja2", spellscroll_context)

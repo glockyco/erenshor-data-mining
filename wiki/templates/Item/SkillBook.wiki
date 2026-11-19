@@ -1,21 +1,21 @@
 <includeonly>{| class="item-tooltip item-tooltip-book"
 |
 {{Item/Header
- |icon={{#if:{{{icon|}}}|{{Icon|{{{icon}}}|kind=item|size=80}}}}
+ |icon={{#if:{{{icon|}}}|{{Icon|{{{icon}}}|kind=item|size=48}}}}
  |name={{{name}}}
  |value={{{value|}}}
  |tier=0
 }}
+{{Item/ClassRestrictions|class_levels={{{class_levels|}}}}}
 {| class="item-tooltip-body"
 |-
 | |
 <div class="item-tooltip-book-container"><!--
---><div class="item-tooltip-book-requirement">Required Level:</div><!--
---><div class="item-tooltip-book-class-requirements"><!--
--->{{#invoke:Erenshor/Format|classLevelRows|{{{class_levels|}}}}}<!--
+-->{{#invoke:Erenshor/Format|bookLevels|{{{class_levels|}}}}}<!--
 -->{{#if:{{{skill_type|}}}|<div class="item-tooltip-book-detail">Skill Type: {{{skill_type}}}</div>}}<!--
 -->{{#if:{{{skill_desc|}}}|<div class="item-tooltip-book-description">{{{skill_desc}}}</div>}}<!--
 -->{{#if:{{{simplayers_autolearn|}}}|{{#ifeq:{{{simplayers_autolearn}}}|false|<div class="item-tooltip-book-warning">SimPlayers DO NOT automatically learn this skill!<br/>Hand this book to them to allow them to use it.</div>}}}}<!--
+--><div class="item-tooltip-book-learn">Right-click to permanently learn this skill.</div><!--
 --></div>
 |}
 |}

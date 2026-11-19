@@ -1,4 +1,4 @@
-<includeonly><div style="position: relative; width: 80px;">{{{icon}}}<div style="position: absolute; left: 0px; top: 0px; padding: 0; pointer-events: none;">[[File:{{{sparkle}}}|{{{sparkle_size}}}|link=]]</div></div></includeonly><noinclude>
+<includeonly><div style="position: relative; display: inline-block;">{{{icon}}}<div style="position: absolute; left: 0px; top: 0px; padding: 0; pointer-events: none;">[[File:{{{sparkle}}}|{{{sparkle_size}}}|link=]]</div></div></includeonly><noinclude>
 == Template:SparkleIcon ==
 
 Displays a framed item icon with an optional sparkle overlay for quality tiers. The sparkle draws above the icon, has no file link, and lets clicks reach the icon below.

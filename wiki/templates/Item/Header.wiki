@@ -1,11 +1,11 @@
-<includeonly>{| class="item-tooltip-header"
-|-
-| class="item-tooltip-icon-cell" | {{{icon|}}}
-| class="item-tooltip-name-cell" | <div class="item-tooltip-name item-tooltip-tier-{{{tier|0}}}">{{{name|}}}</div><!--
+<includeonly><div class="item-tooltip-header"><!--
+--><div class="item-tooltip-icon-cell">{{{icon|}}}<!--
+-->{{#if:{{{value|}}}|<div class="item-tooltip-value">{{#ifeq:{{{value}}}|Unsellable||<span class="item-tooltip-coin" aria-label="gold"></span>}}{{{value}}}</div>}}<!--
+--></div><!--
+--><div class="item-tooltip-name-cell"><div class="item-tooltip-name item-tooltip-tier-{{{tier|0}}}">{{{name|}}}</div><!--
 -->{{#if:{{{type|}}}|<div class="item-tooltip-type">{{{type}}}</div>}}<!--
 -->{{#if:{{{relic|}}}|<div class="item-tooltip-relic">Relic Item</div>}}<!--
--->{{#if:{{{value|}}}|<div class="item-tooltip-value">{{{value}}}{{#ifeq:{{{value}}}|Unsellable||<span class="item-tooltip-coin" aria-label="gold"></span>}}</div>}}
-|}</includeonly><noinclude>
+--></div></div></includeonly><noinclude>
 == Template:Item/Header ==
 
 Displays the header section of an item tooltip, including:
@@ -20,7 +20,7 @@ Displays the header section of an item tooltip, including:
 {| class="wikitable"
 ! Parameter !! Required !! Default !! Description
 |-
-| '''icon''' || Yes || || The framed item icon from <nowiki>{{Icon|filename icon.png|kind=item|size=80}}</nowiki> (use {{tl|SparkleIcon}} for quality tiers)
+| '''icon''' || Yes || || The framed item icon from <nowiki>{{Icon|filename icon.png|kind=item|size=48}}</nowiki> (use {{tl|SparkleIcon}} for quality tiers)
 |-
 | '''name''' || Yes || || The display name of the item
 |-
@@ -38,7 +38,7 @@ Displays the header section of an item tooltip, including:
 '''Code:'''
 <pre>
 {{Item/Header
-|icon={{Icon|Copper Sword icon.png|kind=item|size=80}}
+|icon={{SparkleIcon|icon={{Icon|Copper Sword icon.png|kind=item|size=48}}|sparkle=Blue_Sparkle.gif|sparkle_size=48px}}
 |name=Blessed Copper Sword
 |tier=1
 |type=Primary - 1-Handed
@@ -48,7 +48,7 @@ Displays the header section of an item tooltip, including:
 '''Result:'''
 
 {{Item/Header
-|icon={{Icon|Copper Sword icon.png|kind=item|size=80}}
+|icon={{SparkleIcon|icon={{Icon|Copper Sword icon.png|kind=item|size=48}}|sparkle=Blue_Sparkle.gif|sparkle_size=48px}}
 |name=Blessed Copper Sword
 |tier=1
 |type=Primary - 1-Handed

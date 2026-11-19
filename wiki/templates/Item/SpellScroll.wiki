@@ -1,21 +1,22 @@
 <includeonly>{| class="item-tooltip item-tooltip-book"
 |
 {{Item/Header
- |icon={{#if:{{{icon|}}}|{{Icon|{{{icon}}}|kind=item|size=80}}}}
+ |icon={{#if:{{{icon|}}}|{{Icon|{{{icon}}}|kind=item|size=48}}}}
  |name={{{name}}}
  |value={{{value|}}}
  |tier=0
 }}
+{{Item/ClassRestrictions|classes={{{classes|}}}|class_levels={{{class_levels|}}}}}
 {| class="item-tooltip-body"
 |-
 | |
 <div class="item-tooltip-book-container"><!--
---><div class="item-tooltip-book-requirement">Required Level:</div><!--
---><div class="item-tooltip-book-class-requirements"><!--
--->{{#invoke:Erenshor/Format|classLevelRows|{{{class_levels|}}}}}<!--
+-->{{#invoke:Erenshor/Format|bookLevels|{{{class_levels|}}}|scroll}}<!--
 -->{{#if:{{{mana_cost|}}}|<div class="item-tooltip-book-detail">Mana Cost: {{{mana_cost}}}</div>}}<!--
 -->{{#if:{{{spell_type|}}}|<div class="item-tooltip-book-detail">Spell Type: {{{spell_type}}}</div>}}<!--
--->{{#if:{{{spell_desc|}}}|<div class="item-tooltip-book-description">{{{spell_desc}}}</div>}}<!--
+-->{{#if:{{{spell_desc|}}}|<div class="item-tooltip-book-description">{{#invoke:Erenshor/Format|damageOverTimeText|{{{spell_desc}}}}}</div>}}<!--
+-->{{#if:{{{sims_need_help|}}}|<div class="item-tooltip-book-warning">SimPlayers DO NOT automatically learn this spell!<br/>Hand this scroll to them to allow them to use it.</div>}}<!--
+--><div class="item-tooltip-book-learn">Right-click to permanently learn this spell.</div><!--
 --></div>
 |}
 |}
@@ -38,6 +39,10 @@ Template for displaying spell scroll tooltips. Spell scrolls teach spells to cha
 | '''value''' || No || Item value in gold, or "Unsellable"
 |-
 | '''class_levels''' || No || Comma-separated class display names and required levels, such as <code>Arcanist: 1, Stormcaller: 1</code>
+|-
+| '''classes''' || No || Comma-separated display names, used when the scroll lists classes without a level
+|-
+| '''sims_need_help''' || No || Show that a SimPlayer needs the scroll to learn the spell
 |-
 | '''mana_cost''' || No || Mana cost to cast the spell
 |-

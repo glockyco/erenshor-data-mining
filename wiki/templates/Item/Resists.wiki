@@ -1,8 +1,10 @@
 <includeonly><div class="item-tooltip-resists-column"><!--
---><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Magic</span> <span class="item-tooltip-stat-value">+{{{magic|0}}}%</span></div><!--
---><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Poison</span> <span class="item-tooltip-stat-value">+{{{poison|0}}}%</span></div><!--
---><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Elemental</span> <span class="item-tooltip-stat-value">+{{{elemental|0}}}%</span></div><!--
---><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Void</span> <span class="item-tooltip-stat-value">+{{{void|0}}}%</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Magic Resist:</span> <span class="item-tooltip-stat-value" data-value="{{{magic|0}}}">{{#ifexpr:{{{magic|0}}} >= 0|+}}{{{magic|0}}}%</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Poison Resist:</span> <span class="item-tooltip-stat-value" data-value="{{{poison|0}}}">{{#ifexpr:{{{poison|0}}} >= 0|+}}{{{poison|0}}}%</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Elem. Resist:</span> <span class="item-tooltip-stat-value" data-value="{{{elemental|0}}}">{{#ifexpr:{{{elemental|0}}} >= 0|+}}{{{elemental|0}}}%</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Void Resist:</span> <span class="item-tooltip-stat-value" data-value="{{{void|0}}}">{{#ifexpr:{{{void|0}}} >= 0|+}}{{{void|0}}}%</span></div><!--
+-->{{#if:{{{harmony|}}}|<div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Harmony:</span> <span class="item-tooltip-stat-value" data-value="{{{harmony}}}">{{{harmony}}}x</span></div>}}<!--
+-->{{#if:{{{dissonance|}}}|<div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Dissonance:</span> <span class="item-tooltip-stat-value" data-value="{{{dissonance}}}">{{{dissonance}}}x</span></div>}}<!--
 --></div></includeonly><noinclude>
 == Template:Item/Resists ==
 
@@ -20,6 +22,8 @@ Displays the resistance modifiers section of an item tooltip (Magic/Poison/Eleme
 | '''elemental''' || 0 || Elemental resistance modifier (percentage)
 |-
 | '''void''' || 0 || Void resistance modifier (percentage)
+|-
+| '''harmony''', '''dissonance''' || (none) || Instrument multipliers without the <code>x</code> suffix
 |}
 
 === Example ===

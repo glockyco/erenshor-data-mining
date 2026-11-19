@@ -78,6 +78,11 @@ function Common.standaloneTooltipRoot(kind, stableKey)
 		:attr("data-erenshor-key", stableKey)
 end
 
+function Common.bookHeader(root, name, kind)
+	root:tag("div"):addClass("item-spell-details-header"):wikitext(Format.escape(name))
+	root:tag("div"):addClass("item-ability-kind"):wikitext(kind)
+end
+
 -- "+N" green / "-N" red, matching SpellbookSlot.FormatMod and Item/SpellDetails.
 function Common.signedMod(value, suffix)
 	local n = Common.num(value)

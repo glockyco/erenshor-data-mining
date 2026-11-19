@@ -55,6 +55,38 @@ function p.run()
 		"class level invoke entry point escapes display names"
 	)
 	assertEqual(Format.classLevelRows(nil), "", "blank class levels render no rows")
+	assertEqual(
+		Format.classBand({ args = { "", "Bard: 1, Druid: 1" } }),
+		'<div class="item-tooltip-classes"><span class="item-tooltip-class">Bard</span>'
+			.. '<span class="item-tooltip-class">Druid</span></div>',
+		"the level input supplies class names when no list is given"
+	)
+	assertEqual(
+		Format.bookLevels({ args = { "Bard: 1, Druid: 1", "scroll" } }),
+		'<div class="item-tooltip-book-requirement">Required Level: 1</div>',
+		"a shared scroll level renders once"
+	)
+	local unequal = "Arcanist: 8, Stormcaller: 16"
+	assertEqual(
+		Format.bookLevels({ args = { unequal, "scroll" } }),
+		'<div class="item-tooltip-book-requirement">Required Level:</div>'
+			.. '<div class="item-tooltip-book-class-requirements">'
+			.. Format.classLevelRows(unequal)
+			.. "</div>",
+		"unequal scroll levels remain separate"
+	)
+	assertEqual(
+		Format.bookLevels({ args = { "Bard: 1" } }),
+		'<div class="item-tooltip-book-requirement">Required Level:</div>'
+			.. '<div class="item-tooltip-book-class-requirements">'
+			.. '<div class="item-tooltip-book-class-req">Bard: 1</div></div>',
+		"skill books keep class-specific rows"
+	)
+	assertEqual(
+		Format.damageOverTimeText({ args = { "Damage / tick for 6 ticks." } }),
+		"Damage / 3 sec for 6 ticks.",
+		"only per-tick damage uses the seconds label"
+	)
 	for _, invalid in ipairs({ "Bard", "Bard: 0", "Bard: -1", "Bard: nope", ": 3" }) do
 		if pcall(Format.classLevelRows, invalid) then
 			error("Accepted an invalid class level pair: " .. invalid)

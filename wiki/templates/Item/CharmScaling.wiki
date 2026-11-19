@@ -7,7 +7,7 @@
 -->{{#if:{{{agiscaling|}}}|<br/>Defense: +{{{agiscaling}}} / 40}}<!--
 -->{{#if:{{{intscaling|}}}|<br/>Arcanism: +{{{intscaling}}} / 40}}<!--
 -->{{#if:{{{wisscaling|}}}|<br/>Restoration: +{{{wisscaling}}} / 40}}<!--
--->{{#if:{{{chascaling|}}}|<br/>Mind: +{{{chascaling}}} / 40}}<!--
+-->{{#if:{{{chascaling|}}}|<br/>Persuasion: +{{{chascaling}}} / 40}}<!--
 -->{{#if:{{{resistscaling|}}}|<br/>Resist Scaling: {{{resistscaling}}} / 40}}<!--
 -->{{#if:{{{mitigationscaling|}}}|<br/>Mitigation Scaling: +{{{mitigationscaling}}}%}}<!--
 --></div><!--

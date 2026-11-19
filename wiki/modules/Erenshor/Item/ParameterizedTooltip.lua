@@ -310,12 +310,12 @@ function p.renderArgs(frame, args, extraDetails)
 	local itemKind = kind(args)
 	local variants = Quality.variants(baseStats(args))
 	local out = {
-		'<div class="item-tooltip-quality-set" style="display:flex;flex-wrap:wrap;gap:1em;align-items:flex-start;width:calc(100% - 360px);min-width:350px;max-width:100%;overflow:visible">',
+		'<div class="item-tooltip-quality-set">',
 	}
 	for _, stats in ipairs(variants) do
 		out[#out + 1] = '<div class="item-tooltip-quality" data-erenshor-quality="'
 			.. stats.quality
-			.. '" style="flex:0 1 350px">'
+			.. '">'
 		out[#out + 1] = '<div class="item-tooltip-quality-label item-tooltip-tier-'
 			.. stats.visualTier
 			.. '">'
@@ -323,7 +323,7 @@ function p.renderArgs(frame, args, extraDetails)
 			.. "</div>"
 		if stats.visualTier >= 3 then
 			out[#out + 1] =
-				'<div class="item-tooltip-quality-sparkle item-tooltip-quality-sparkle-improved">[[File:Blue_Sparkle.gif|80px]]</div>'
+				'<div class="item-tooltip-quality-sparkle item-tooltip-quality-sparkle-improved">[[File:Blue_Sparkle.gif|48px|link=]]</div>'
 		end
 		out[#out + 1] = invocation(itemKind, args, stats, frame)
 		if extraDetails ~= nil then

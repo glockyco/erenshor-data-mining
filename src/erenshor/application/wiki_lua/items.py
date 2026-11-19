@@ -268,6 +268,9 @@ def _item_record(
         _put(row, lua_name, getattr(item, attr_name))
     for lua_name, attr_name in _ITEM_EFFECT_CHANCE_FIELD_MAP:
         _put(row, lua_name, getattr(item, attr_name))
+    if item.has_song_modifiers:
+        row["harmonyMod"] = item.harmony_mod or 0
+        row["dissonanceMod"] = item.dissonance_mod or 0
 
     row["type"] = item_kind_label(item)
 

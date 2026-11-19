@@ -60,7 +60,7 @@ function p.run()
 	)
 	assertContains(
 		recklessTip,
-		"Reckless - Activatable",
+		'item-spell-details-header">Reckless</div><div class="item-ability-kind">Ability',
 		"fallback stance tooltip synthesizes skill"
 	)
 	assertContains(

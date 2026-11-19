@@ -1,19 +1,15 @@
 <includeonly><div class="item-tooltip-stats-column"><!--
---><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Str</span> <span class="item-tooltip-stat-value">{{{str|0}}}</span></div><!--
---><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">End</span> <span class="item-tooltip-stat-value">{{{end|0}}}</span></div><!--
---><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Dex</span> <span class="item-tooltip-stat-value">{{{dex|0}}}</span></div><!--
---><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Agi</span> <span class="item-tooltip-stat-value">{{{agi|0}}}</span></div><!--
---><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Int</span> <span class="item-tooltip-stat-value">{{{int|0}}}</span></div><!--
---><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Wis</span> <span class="item-tooltip-stat-value">{{{wis|0}}}</span></div><!--
---><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Cha</span> <span class="item-tooltip-stat-value">{{{cha|0}}}</span></div><!--
---><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Res</span> <span class="item-tooltip-stat-value">{{{res|0}}}</span></div><!--
--->{{#if:{{{damage|}}}|<div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Damage</span> <span class="item-tooltip-stat-value">{{{damage}}}</span></div>}}<!--
--->{{#if:{{{delay|}}}|<div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Delay</span> <span class="item-tooltip-stat-value">{{{delay}}} sec</span></div>}}<!--
--->{{#if:{{{range|}}}|<div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Range</span> <span class="item-tooltip-stat-value">{{{range}}}</span></div>}}<!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Strength:</span> <span class="item-tooltip-stat-value" data-value="{{{str|0}}}">{{{str|0}}}</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Endurance:</span> <span class="item-tooltip-stat-value" data-value="{{{end|0}}}">{{{end|0}}}</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Dexterity:</span> <span class="item-tooltip-stat-value" data-value="{{{dex|0}}}">{{{dex|0}}}</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Agility:</span> <span class="item-tooltip-stat-value" data-value="{{{agi|0}}}">{{{agi|0}}}</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Intelligence:</span> <span class="item-tooltip-stat-value" data-value="{{{int|0}}}">{{{int|0}}}</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Wisdom:</span> <span class="item-tooltip-stat-value" data-value="{{{wis|0}}}">{{{wis|0}}}</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Charisma:</span> <span class="item-tooltip-stat-value" data-value="{{{cha|0}}}">{{{cha|0}}}</span></div><!--
 --></div></includeonly><noinclude>
 == Template:Item/Stats ==
 
-Displays the character stat modifiers section of an item tooltip (Str/End/Dex/Agi/Int/Wis/Cha/Res), plus optional weapon stats (Damage/Delay/Range).
+Displays the attribute modifiers in an item tooltip.
 
 === Parameters ===
 
@@ -33,19 +29,10 @@ Displays the character stat modifiers section of an item tooltip (Str/End/Dex/Ag
 | '''wis''' || 0 || Wisdom modifier
 |-
 | '''cha''' || 0 || Charisma modifier
-|-
-| '''res''' || 0 || Resonance modifier
-|-
-| '''damage''' || (none) || Weapon damage (only shown if provided)
-|-
-| '''delay''' || (none) || Weapon delay in seconds (only shown if provided)
-|-
-| '''range''' || (none) || Weapon range (only shown if provided)
 |}
 
-=== Examples ===
+=== Example ===
 
-'''Armor (stats only):'''
 <pre>
 {{Item/Stats
 |str=10
@@ -55,7 +42,6 @@ Displays the character stat modifiers section of an item tooltip (Str/End/Dex/Ag
 |int=5
 |wis=4
 |cha=6
-|res=10
 }}
 </pre>
 
@@ -69,37 +55,8 @@ Displays the character stat modifiers section of an item tooltip (Str/End/Dex/Ag
 |int=5
 |wis=4
 |cha=6
-|res=10
 }}
 
-----
-
-'''Weapon (with damage/delay):'''
-<pre>
-{{Item/Stats
-|str=20
-|end=10
-|int=20
-|wis=20
-|res=6
-|damage=30
-|delay=3.0
-}}
-</pre>
-
-'''Result:'''
-
-{{Item/Stats
-|str=20
-|end=10
-|int=20
-|wis=20
-|res=6
-|damage=30
-|delay=3.0
-}}
-
-----
 
 === See Also ===
 

@@ -85,8 +85,8 @@ function p.classSpans(value)
 	return table.concat(spans)
 end
 
-function p.classLevelRows(value)
-	local rows = {}
+local function classLevels(value)
+	local levels = {}
 	for _, pair in ipairs(classValues(value)) do
 		local name, level = pair:match("^(.-)%s*:%s*(%d+)$")
 		name = name and mw.text.trim(name)
@@ -94,13 +94,69 @@ function p.classLevelRows(value)
 		if isBlank(name) or requiredLevel == nil or requiredLevel <= 0 then
 			error("Invalid class level pair: " .. pair, 2)
 		end
+		levels[#levels + 1] = { name = name, level = requiredLevel }
+	end
+	return levels
+end
+
+local function levelRows(levels)
+	local rows = {}
+	for _, entry in ipairs(levels) do
 		rows[#rows + 1] = '<div class="item-tooltip-book-class-req">'
-			.. p.escape(name)
+			.. p.escape(entry.name)
 			.. ": "
-			.. tostring(requiredLevel)
+			.. tostring(entry.level)
 			.. "</div>"
 	end
 	return table.concat(rows)
+end
+
+function p.classLevelRows(value)
+	return levelRows(classLevels(value))
+end
+
+function p.classBand(frame)
+	local names = frame.args[1]
+	if isBlank(names) then
+		local fromLevels = {}
+		for _, entry in ipairs(classLevels(frame.args[2])) do
+			fromLevels[#fromLevels + 1] = entry.name
+		end
+		names = table.concat(fromLevels, ", ")
+	end
+	local spans = p.classSpans(names)
+	if spans == "" then
+		return ""
+	end
+	return '<div class="item-tooltip-classes">' .. spans .. "</div>"
+end
+
+function p.bookLevels(frame)
+	local levels = classLevels(frame.args[1])
+	if #levels == 0 then
+		return ""
+	end
+	local shared = frame.args[2] == "scroll"
+	local first = levels[1].level
+	for _, entry in ipairs(levels) do
+		shared = shared and entry.level == first
+	end
+	local label = '<div class="item-tooltip-book-requirement">Required Level:'
+	if shared then
+		return label .. " " .. first .. "</div>"
+	end
+	return label
+		.. '</div><div class="item-tooltip-book-class-requirements">'
+		.. levelRows(levels)
+		.. "</div>"
+end
+
+-- The wiki spells out the game's damage interval in seconds.
+function p.damageOverTimeText(value)
+	if type(value) == "table" then
+		value = value.args[1]
+	end
+	return (tostring(value or ""):gsub("/%s*tick%f[%A]", "/ 3 sec"))
 end
 
 -- Erenshor uses a single gold currency (Item.ItemValue is a flat integer the

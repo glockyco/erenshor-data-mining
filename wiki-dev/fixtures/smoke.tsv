@@ -26,7 +26,7 @@ Ember Longsword	elem:.item-tooltip-tier-0=Ember Longsword
 Ember Longsword	elem:a.new[title*="Weapons"]
 Ember Longsword	elem:.item-tooltip-tier-2
 Ember Longsword	elem:.item-tooltip-weapon
-Ember Longsword	elem:.item-tooltip-section-header=Item Stats
+Ember Longsword	elem:.item-tooltip-equipment-stats .item-tooltip-stat-label=Strength:
 Ember Longsword	elem:.item-tooltip-dps=Base DPS
 Ember Longsword	elem:.item-tooltip-class=Windblade
 Ember Longsword	elem:.item-spell-details
@@ -158,7 +158,7 @@ Parameterized ItemTooltip Fixture	elem:.item-tooltip-tier-0=Standard
 Parameterized ItemTooltip Fixture	elem:.item-tooltip-tier-1=Blessed
 Parameterized ItemTooltip Fixture	elem:.item-tooltip-tier-2=Ascended
 Parameterized ItemTooltip Fixture	elem:.erenshor-icon-art=Parameterized Sword icon.png
-Parameterized ItemTooltip Fixture	elem:.item-tooltip-section-header=Item Stats
+Parameterized ItemTooltip Fixture	elem:.item-tooltip-equipment-stats .item-tooltip-stat-label=Strength:
 Parameterized ItemTooltip Fixture	elem:.item-tooltip-dps=Base DPS
 Legacy Character Fixture	elem:.pi-title=Legacy Beast Fixture
 Legacy Character Fixture	elem:.pi-data-value=Enemy
@@ -182,7 +182,8 @@ Lua Link Search Smoke	text:Flame Bolt
 Lua Link Search Smoke	text:ability
 Ability Tooltip Fixture	elem:.item-spell-details-header=Minor Lightning
 Ability Tooltip Fixture	elem:.item-spell-detail-row=Mana Cost: 30
-Ability Tooltip Fixture	elem:.item-spell-details-header=Backstab - Activatable
+Ability Tooltip Fixture	elem:.item-spell-details-header=Backstab
+Ability Tooltip Fixture	elem:.item-ability-kind=Ability
 Ability Tooltip Fixture	elem:.item-spell-detail-row=Change Stance
 Unique Ability Tooltip Fixture	elem:.item-spell-details-header=Minor Lightning
 Unique Ability Tooltip Fixture	elem:.item-spell-detail-row=Mana Cost: 30

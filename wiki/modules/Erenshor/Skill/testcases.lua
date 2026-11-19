@@ -35,8 +35,8 @@ function p.run()
 	local backstabTip = Skill.renderTooltip({ stablekey = "skill:backstab" }, "Backstab")
 	assertContains(
 		backstabTip,
-		"Backstab - Activatable",
-		"attack skill tooltip title shows activatable"
+		'item-spell-details-header">Backstab</div><div class="item-ability-kind">Ability',
+		"attack skill card shows its name and kind"
 	)
 	assertContains(
 		backstabTip,
@@ -58,13 +58,17 @@ function p.run()
 	local passiveTip = Skill.renderTooltip({ stablekey = "skill:sword_mastery" }, "Sword Mastery")
 	assertContains(
 		passiveTip,
-		"Sword Mastery - Passive",
-		"innate skill tooltip title shows passive"
+		'item-spell-details-header">Sword Mastery</div><div class="item-ability-kind">Ability',
+		"innate skill card uses the same ability subtitle"
 	)
 
 	local stanceTip =
 		Skill.renderTooltip({ stablekey = "skill:stance - aggressive" }, "Stance: Aggressive")
-	assertContains(stanceTip, "Stance: Aggressive - Activatable", "stance skill tooltip title")
+	assertContains(
+		stanceTip,
+		'item-spell-details-header">Stance: Aggressive',
+		"stance skill tooltip title"
+	)
 	assertContains(stanceTip, "Change Stance", "stance skill tooltip shows change stance")
 	assertContains(stanceTip, "Aggressive", "stance skill tooltip shows stance name")
 	assertContains(

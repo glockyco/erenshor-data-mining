@@ -1,16 +1,10 @@
 -- Module:Erenshor/Spell/Tooltip
 --
--- Presentation layer for the spell tooltip. Uses the spellbook tooltip as its
--- base (SpellbookSlot.cs:150-275), then includes player-visible modifier rows
--- exposed by the item's spell-details tooltip (ItemInfoWindow.cs:691-835). The
--- game surfaces disagree: SpellbookSlot omits resonance and added procs, while
--- ItemInfoWindow includes them. The wiki keeps the spellbook layout without
--- hiding those mechanics.
---
--- Content order, labels, and colors follow the corresponding game rows.
--- Permitted conveniences: applied status effects and added procs render as links.
+-- The compact card follows the hotkey or Bard song hover window. The article
+-- also keeps the mechanical rows from the spellbook and item detail windows.
 
 local Common = require("Module:Erenshor/Ability/Common")
+local Format = require("Module:Erenshor/Format")
 local Icon = require("Module:Erenshor/Icon")
 
 local Tooltip = {}
@@ -47,35 +41,43 @@ local function detailRow(content, text, class)
 	return row
 end
 
--- Build the tooltip DOM for a resolved spell record.
 function Tooltip.render(spell)
-	-- Standalone tooltips opt into a top border (the embedded item case inherits its
-	-- top edge from the item tooltip's divider). Styled by Gadget:erenshor.css.
+	local song = (spell.type or ""):match("^Song") ~= nil
 	local root = Common.standaloneTooltipRoot("spell", spell.stableKey)
+	Common.bookHeader(root, spell.name or "Spell", song and "Bard Song" or "Spell")
+	if not Common.isBlank(spell.description) then
+		root:tag("div")
+			:addClass("item-ability-description")
+			:wikitext(Format.escape(Format.damageOverTimeText(spell.description)))
+	end
+	local footer = root:tag("div"):addClass("item-ability-footer")
+	footer:tag("div"):wikitext("Mana Cost: " .. Common.num(spell.manaCost))
+	if not Common.isBlank(spell.damageType) then
+		local label = song and "Song Type: " or "Spell Type: "
+		footer:tag("div"):wikitext(label .. Format.escape(spell.damageType))
+	end
+	return tostring(root)
+end
 
-	local headerRow = root:tag("div"):addClass("item-spell-details-header-row")
-	local hasIcon = not Common.isBlank(spell.icon)
-	if hasIcon then
-		headerRow
+function Tooltip.renderPage(spell)
+	local panel = mw.html.create("div"):addClass("item-ability-panel")
+	panel:wikitext(Tooltip.render(spell))
+	local disclosure =
+		panel:tag("div"):addClass("item-ability-disclosure mw-collapsible mw-collapsed")
+	disclosure:tag("div"):addClass("item-ability-disclosure-label"):wikitext("Spell details")
+	local root = disclosure:tag("div"):addClass("item-spell-details mw-collapsible-content")
+	if not Common.isBlank(spell.icon) then
+		root:tag("div")
+			:addClass("item-spell-details-header-row")
 			:tag("div")
 			:addClass("item-spell-details-icon")
-			:wikitext(Icon.render(mw.getCurrentFrame(), {
-				file = spell.icon,
-				kind = "ability",
-				size = 48,
-			}))
+			:wikitext(
+				Icon.render(
+					mw.getCurrentFrame(),
+					{ file = spell.icon, kind = "ability", size = 48 }
+				)
+			)
 	end
-	headerRow
-		:tag("div")
-		:addClass("item-spell-details-name-cell")
-		:tag("div")
-		:addClass("item-spell-details-header")
-		:wikitext(spell.name or "Spell")
-	-- Balance the fixed-width icon so the title centers in the full width.
-	if hasIcon then
-		headerRow:tag("div"):addClass("item-spell-details-spacer")
-	end
-
 	local content = root:tag("div"):addClass("item-spell-details-content")
 
 	detailRow(content, "Spell Level: " .. Common.num(spell.requiredLevel), "item-spell-level")
@@ -148,7 +150,7 @@ function Tooltip.render(spell)
 		detailRow(content, spell.specialDescriptor, "item-spell-special")
 	end
 
-	return tostring(root)
+	return tostring(panel)
 end
 
 return Tooltip

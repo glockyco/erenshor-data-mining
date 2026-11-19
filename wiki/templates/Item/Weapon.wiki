@@ -1,18 +1,18 @@
 <includeonly>{| class="item-tooltip item-tooltip-weapon"
 |
 {{Item/Header
- |icon={{#if:{{{icon|}}}|{{#ifeq:{{{tier|}}}|1|{{SparkleIcon|icon={{Icon|{{{icon}}}|kind=item|size=80}}|sparkle=Blue_Sparkle.gif|sparkle_size=80px}}|{{#ifeq:{{{tier|}}}|2|{{SparkleIcon|icon={{Icon|{{{icon}}}|kind=item|size=80}}|sparkle=Purple_Sparkle.gif|sparkle_size=80px}}|{{SparkleIcon|icon={{Icon|{{{icon}}}|kind=item|size=80}}|sparkle=blank.png|sparkle_size=0px}}}}}}}}
+ |icon={{#if:{{{icon|}}}|{{#ifeq:{{{tier|}}}|1|{{SparkleIcon|icon={{Icon|{{{icon}}}|kind=item|size=48}}|sparkle=Blue_Sparkle.gif|sparkle_size=48px}}|{{#ifeq:{{{tier|}}}|2|{{SparkleIcon|icon={{Icon|{{{icon}}}|kind=item|size=48}}|sparkle=Purple_Sparkle.gif|sparkle_size=48px}}|{{Icon|{{{icon}}}|kind=item|size=48}}}}}}}}
  |name={{{name}}}
  |value={{{value|}}}
  |tier={{{tier|0}}}
- |type=[[Weapons#{{{type}}}|{{{type}}}]]{{#if:{{{relic|}}}|&#32;- Relic Item}}
+ |type=[[Weapons#{{{type}}}|{{{type}}}]]
+ |relic={{{relic|}}}
 }}
+{{Item/ClassRestrictions|classes={{{classes|}}}}}
 {| class="item-tooltip-body"
 |-
 | |
-<div class="item-tooltip-two-column"><!--
---><div class="item-tooltip-left-column"><!--
---><div class="item-tooltip-section-header">Item Stats</div><!--
+<div class="item-tooltip-equipment-stats"><!--
 -->{{Item/Stats
  |str={{{str|0}}}
  |end={{{end|0}}}
@@ -21,29 +21,24 @@
  |int={{{int|0}}}
  |wis={{{wis|0}}}
  |cha={{{cha|0}}}
+}}<!--
+-->{{Item/Vitals
+ |health={{{health|0}}}
+ |mana={{{mana|0}}}
+ |armor={{{armor|0}}}
  |res={{{res|0}}}
  |damage={{{damage|}}}
  |delay={{{delay|}}}
  |range={{{range|}}}
 }}<!--
---></div><!--
---><div class="item-tooltip-right-column"><!--
---><div class="item-tooltip-section-header">Vitals</div><!--
--->{{Item/Vitals
- |health={{{health|0}}}
- |mana={{{mana|0}}}
- |armor={{{armor|0}}}
-}}<!--
---><div class="item-tooltip-resists-section"><!--
---><div class="item-tooltip-section-header">Resists</div><!--
 -->{{Item/Resists
  |magic={{{magic|0}}}
  |poison={{{poison|0}}}
  |elemental={{{elemental|0}}}
  |void={{{void|0}}}
+ |harmony={{{harmony|}}}
+ |dissonance={{{dissonance|}}}
 }}<!--
---></div><!--
---></div><!--
 --></div>
 {{#if:{{{description|}}}|<div class="item-tooltip-description">{{{description|}}}</div>}}<!--
 -->{{#ifeq:{{{proc_style|}}}|Activatable|<div class="item-tooltip-activatable-name">Activatable: {{{proc_spell_name|}}}</div>{{#if:{{{must_equip|}}}|<div class="item-spell-flag">Must Equip to Cast</div>}}}}<!--
@@ -52,9 +47,6 @@
  |damage={{{damage|}}}
  |delay={{{delay|}}}
  |type={{{type|}}}
-}}
-{{Item/ClassRestrictions
- |classes={{{classes|}}}
 }}
 |}
 |}<!--

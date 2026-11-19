@@ -535,7 +535,7 @@ function p.run()
 	)
 	assertContains(
 		armorTooltip,
-		'item-tooltip-stat-value">3</span>',
+		'item-tooltip-stat-value" data-value="3">3</span>',
 		"Planar March Ascended armor uses released scaling"
 	)
 
@@ -560,7 +560,7 @@ function p.run()
 	)
 	assertAbsent(
 		nonAttackingRelic,
-		'item-tooltip-stat-label">Damage</',
+		'item-tooltip-stat-label">Dmg:</',
 		"non-attacking equipment hides synthetic zero damage"
 	)
 
@@ -678,6 +678,30 @@ function p.run()
 		genericClassTooltip,
 		'<span class="item-tooltip-class">Bard</span><span class="item-tooltip-class">Windblade</span>',
 		"plain restrictions render arbitrary class display names"
+	)
+
+	local instrument = renderParameterized({
+		kind = "Weapon",
+		name = "Lute",
+		type = "Secondary",
+		classes = "Bard",
+		harmony = "0.07",
+		dissonance = "0",
+		magic = "-2",
+	})
+	assertEqual(countOccurrences(instrument, ">0.07x</span>"), 8, "qualities keep the same Harmony")
+	assertEqual(
+		countOccurrences(instrument, ">0x</span>"),
+		8,
+		"the second multiplier renders even at zero"
+	)
+	assertContains(instrument, ">-2%</span>", "negative resist has one sign")
+	assertAbsent(instrument, "Dmg:", "instrument does not acquire attack stats")
+	assertEqual(
+		instrument:find("item-tooltip-classes", 1, true)
+			< instrument:find("item-tooltip-equipment-stats", 1, true),
+		true,
+		"class band precedes the stats"
 	)
 
 	return "PASS Erenshor Item/ParameterizedTooltip testcases"

@@ -68,6 +68,16 @@ class Item(BaseEntity):
     bow_arrow_speed: float | None = Field(default=None, description="Arrow projectile speed")
     bow_attack_sound_name: str | None = Field(default=None, description="Bow attack sound")
 
+    # Instrument properties
+    instrument: int | None = Field(default=None, description="Is a Bard instrument (boolean as integer)")
+    harmony_mod: float | None = Field(default=None, description="Harmony modifier")
+    dissonance_mod: float | None = Field(default=None, description="Dissonance modifier")
+
+    @property
+    def has_song_modifiers(self) -> bool:
+        """Whether the game shows both song multipliers on this item."""
+        return bool(self.instrument) or (self.harmony_mod or 0) > 0 or (self.dissonance_mod or 0) > 0
+
     # Item effects
     item_effect_on_click_stable_key: str | None = Field(
         default=None, description="Spell triggered when right-clicking item"

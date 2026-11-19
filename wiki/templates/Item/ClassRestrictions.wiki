@@ -1,6 +1,4 @@
-<includeonly><div class="item-tooltip-classes">
-{{#invoke:Erenshor/Format|classSpans|{{{classes|}}}}}
-</div></includeonly><noinclude>
+<includeonly>{{#invoke:Erenshor/Format|classBand|{{{classes|}}}|{{{class_levels|}}}}}</includeonly><noinclude>
 == Template:Item/ClassRestrictions ==
 
 Displays which classes can equip this item.
@@ -13,6 +11,8 @@ The optional classes parameter carries comma-separated display names.
 ! Parameter !! Description
 |-
 | '''classes''' || Comma-separated class display names
+|-
+| '''class_levels''' || Comma-separated display names and levels when no separate class list is supplied
 |}
 
 === Example ===

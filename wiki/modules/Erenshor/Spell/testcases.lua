@@ -51,7 +51,18 @@ function p.run()
 	assertEqual(original.damageType, "Magic", "article parameters do not blank spell data")
 
 	local minor = { stablekey = "spell:minor_lightning" }
-	local minorTooltip = Spell.renderTooltip(minor, "Minor Lightning")
+	local summary = Spell.renderTooltip(minor, "Minor Lightning")
+	assertContains(summary, 'item-ability-kind">Spell', "spell card identifies its kind")
+	assertContains(summary, "Spell Type: Magic", "spell card shows damage school")
+	assertContains(summary, "Mana Cost: 30", "spell card shows mana cost")
+	assertNotContains(summary, "Spell Line", "the compact card omits mechanical detail")
+	assertNotContains(summary, "erenshor-icon", "the hotkey card has no icon")
+	local minorTooltip = Spell.renderPageTooltip(minor, "Minor Lightning")
+	assertContains(
+		minorTooltip,
+		"item-ability-disclosure mw-collapsible mw-collapsed",
+		"details start closed"
+	)
 	assertContains(minorTooltip, "Spell Level: 6", "spell tooltip includes item-detail level")
 	assertContains(
 		minorTooltip,
@@ -89,7 +100,7 @@ function p.run()
 	)
 	assertContains(minorTooltip, "25% chance to proc", "spell tooltip includes added proc chance")
 	local hydrated =
-		Tooltip.render({ stableKey = "spell:all - hydrated", name = "Hydrated", haste = 3 })
+		Tooltip.renderPage({ stableKey = "spell:all - hydrated", name = "Hydrated", haste = 3 })
 	assertContains(
 		hydrated,
 		'Haste <span class="item-spell-positive">+3%</span>',
@@ -100,7 +111,7 @@ function p.run()
 	assertContains(minorTooltip, "[[Ancient Presence]]", "spell tooltip links the added proc")
 
 	local buffTip =
-		Spell.renderTooltip({ stablekey = "spell:ancient_presence" }, "Ancient Presence")
+		Spell.renderPageTooltip({ stablekey = "spell:ancient_presence" }, "Ancient Presence")
 	assertContains(buffTip, "Effect Duration: 12 sec", "buff tooltip shows effect duration")
 	assertContains(buffTip, "Spell Type: Beneficial", "buff tooltip shows spell type")
 	assertContains(buffTip, "Mana Cost: 0", "buff tooltip shows mana cost")
@@ -133,13 +144,23 @@ function p.run()
 		'data-erenshor-key="spell:ancient_presence"',
 		"spell tooltip root has stable key"
 	)
+	local song = Tooltip.render({
+		stableKey = "spell:bard - test chord",
+		name = "Test Chord",
+		type = "SongInspiration",
+		damageType = "Magic",
+		manaCost = 15,
+		description = "Deals 15 damage / tick.",
+	})
+	assertContains(song, "Bard Song", "song card identifies its kind")
+	assertContains(song, "Song Type: Magic", "song footer uses the game's label")
 	assertContains(
-		buffTip,
-		"item-spell-details-spacer",
-		"spell tooltip balances the icon so the title centers"
+		song,
+		"Deals 15 damage / 3 sec.",
+		"song card gives the damage interval in seconds"
 	)
 
-	local dmgTip = Spell.renderTooltip({ stablekey = "spell:minor_lightning" }, "Minor Lightning")
+	local dmgTip = minorTooltip
 	assertContains(dmgTip, "Instant Effect", "damage tooltip shows instant effect")
 	assertContains(dmgTip, "Mana Cost: 30", "damage tooltip shows mana cost")
 	assertContains(dmgTip, "Damage: 85", "damage tooltip shows damage")

@@ -67,6 +67,10 @@ Nothing goes to a shared target before 0.8 ships on `main`. On release day the r
 
 When a song scroll and the chord or note it teaches would share a wiki page or picture title, the spell keeps the plain title and the scroll gets "(Item)", as in "Chord: Channeling Major (Item)". Each such scroll has a `mapping.json` entry with that page and picture name. Bards look up a chord for what it does, and the item page keeps where to get it.
 
+### D9. Wiki tooltips follow the playtest card hierarchy
+
+Item cards use a slate background and put the eligible classes below the name and slot. Equipment groups attributes, vitals and attack stats, and resists and song multipliers, with the last group wrapping below the first two on narrow cards. A shared scroll level appears once, as on Spell Scroll: Magic Bolt: Arcanist, Druid and Stormcaller, `Required Level: 1`. Ability cards show the game summary and keep spell mechanics under `Spell details` on the article. This keeps eligibility and effects easy to find without removing the wiki's quality cards, Base DPS or spell details.
+
 ## Risks / Trade-offs
 
 - [The shipped build differs from the last playtest build] → Every consumer gets regenerated from `main` on release day. The variant comparison shows the differences, and they get a review before approval.

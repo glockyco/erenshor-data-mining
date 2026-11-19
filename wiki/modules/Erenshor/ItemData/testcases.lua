@@ -242,8 +242,23 @@ function p.run()
 		classes = { "Duelist", "Paladin" },
 		teachesSpell = "spell:ember",
 	})
-	contains(scrollFixture, '<div class="item-tooltip-book-class-req">Paladin: 8</div>')
-	contains(scrollFixture, '<div class="item-tooltip-book-class-req">Windblade: 8</div>')
+	contains(scrollFixture, '<span class="item-tooltip-class">Paladin</span>')
+	contains(scrollFixture, '<span class="item-tooltip-class">Windblade</span>')
+	contains(scrollFixture, '<div class="item-tooltip-book-requirement">Required Level: 8</div>')
+	absent(scrollFixture, "Paladin: 8")
+	absent(scrollFixture, "Windblade: 8")
+	local instrument = Details.render(frame, {
+		stableKey = "item:instrument-fixture",
+		name = "Instrument fixture",
+		kind = "weapon",
+		slot = "Secondary",
+		harmonyMod = 0.070000000298023224,
+		dissonanceMod = 0,
+		stats = { { quality = "Standard" } },
+	})
+	contains(instrument, ">0.07x</span>")
+	contains(instrument, ">0x</span>")
+	absent(instrument, "Base DPS:")
 	if
 		pcall(Details.render, frame, {
 			stableKey = "item:unknown-class-fixture",
@@ -273,7 +288,8 @@ function p.run()
 	contains(armor, "Item_Picture_Fixture_render_%28male%29.png")
 	contains(armor, "Item_Picture_Fixture_render_%28female%29.png")
 	local scroll = ItemData.renderArgs(frame, { stablekey = "item:scroll_of_ember" })
-	contains(scroll, "Windblade: 8")
+	contains(scroll, '<span class="item-tooltip-class">Windblade</span>')
+	contains(scroll, "Required Level: 8")
 	contains(scroll, 'data-erenshor-key="spell:ember"')
 	local book = ItemData.renderArgs(frame, { stablekey = "item:sword_mastery_manual" })
 	contains(book, "DO NOT automatically learn")

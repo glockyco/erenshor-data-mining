@@ -1,19 +1,21 @@
 <includeonly>{| class="item-tooltip item-tooltip-aura"
 |
 {{Item/Header
- |icon={{#if:{{{icon|}}}|{{Icon|{{{icon}}}|kind=item|size=80}}}}
+ |icon={{#if:{{{icon|}}}|{{Icon|{{{icon}}}|kind=item|size=48}}}}
  |name={{{name}}}
  |value={{{value|}}}
  |tier=0
+ |type=Aura
 }}
+{{Item/ClassRestrictions|classes={{{classes|}}}}}
 {| class="item-tooltip-body"
 |-
 | |
 <div class="item-tooltip-aura-container"><!--
 --><div class="item-tooltip-aura-type">Aura Item</div><!--
 --><div class="item-tooltip-aura-notes"><!--
---><div>Auras effect entire party</div><!--
---><div>Auras of same type do not stack</div><!--
+--><div>Auras affect the entire party.</div><!--
+--><div>Auras of the same type do not stack.</div><!--
 --></div><!--
 -->{{#if:{{{aura_spell_name|}}}|<div class="item-tooltip-aura-spell-name">{{{aura_spell_name}}}</div>}}<!--
 -->{{#if:{{{aura_spell_desc|}}}|<div class="item-tooltip-aura-spell-desc">{{{aura_spell_desc}}}</div>}}<!--

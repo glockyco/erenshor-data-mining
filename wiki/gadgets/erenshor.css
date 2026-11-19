@@ -35,7 +35,11 @@
    ============================================================================ */
 
 :root {
-  --erenshor-tooltip-width: 350px;
+  --erenshor-tooltip-width: 454px;
+  --erenshor-ability-tooltip-width: 340px;
+  --erenshor-tooltip-surface: #272a35;
+  --erenshor-tooltip-header: #1e212a;
+  --erenshor-tooltip-border: #68748e;
   --erenshor-z-tooltip: 1200;
 }
 
@@ -51,54 +55,53 @@
 }
 
 .item-tooltip {
+  display: inline-block;
+  vertical-align: top;
   width: var(--erenshor-tooltip-width);
   max-width: 100%;
-  table-layout: fixed;
-  background: linear-gradient(180deg, #191643 0%, #353C40 50%, #375356 100%);
-  color: #eeeeee;
-  font-family: 'PT Sans Narrow', Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.2;
   margin: 0;
-  display: inline-table;
-  vertical-align: top;
-  border: 2px solid #d0d0d0;
-  border-radius: 2px;
-  text-shadow:
-    -1px -1px 0 rgba(0,0,0,0.5),
-     1px -1px 0 rgba(0,0,0,0.5),
-    -1px  1px 0 rgba(0,0,0,0.5),
-     1px  1px 0 rgba(0,0,0,0.5);
+  border: 2px solid var(--erenshor-tooltip-border);
+  border-spacing: 0;
+  background: var(--erenshor-tooltip-surface);
+  color: #f4f4f6;
+  font: 14px/1.3 system-ui, sans-serif;
+  container-type: inline-size;
+}
+
+.item-tooltip > tbody,
+.item-tooltip > tbody > tr,
+.item-tooltip > tbody > tr > td {
+  display: block;
+  width: 100%;
+  padding: 0;
 }
 
 /* ============================================================================
    HEADER SECTION (Icon + Name + Type)
-   Uses existing .item-border-top class for border image
    ============================================================================ */
 
 .item-tooltip-header {
-  width: 100%;
-  background: linear-gradient(180deg, #191643 0%, #353C40 100%);
-  border: 2px solid #d0d0d0;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 48px;
+  align-items: center;
+  gap: 8px;
+  min-height: 70px;
+  padding: 6px 8px;
+  background: var(--erenshor-tooltip-header);
 }
 
 .item-tooltip-icon-cell {
-  width: 80px;
-  vertical-align: middle;
-  text-align: center;
+  align-self: start;
+  min-width: 0;
 }
 
 .item-tooltip-name-cell {
-  width: 100%;
-  padding: 10px;
-  position: relative;
-  padding-top: 24px;
   text-align: center;
-  vertical-align: middle;
+  overflow-wrap: anywhere;
 }
 
 .item-tooltip-name {
-  font-size: 1.375em;
+  font-size: 1.55em;
   font-weight: bold;
   margin: 0;
   line-height: 1.1;
@@ -132,7 +135,7 @@
 .item-tooltip-quality-label.item-tooltip-tier-7 { color: #00FF00; }
 
 .item-tooltip-type {
-  font-size: 1.2em;
+  font-size: 1em;
   font-weight: bold;
   margin: 5px 0 0 0;
   line-height: 1.1;
@@ -145,19 +148,19 @@
 }
 
 .item-tooltip-value {
-  position: absolute;
-  top: 4px;
-  right: 8px;
-  color: #ffd700;
-  font-size: 0.85em;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #f4cb6b;
+  font-size: 11px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .item-tooltip-coin {
   display: inline-block;
   width: 0.7em;
   height: 0.7em;
-  margin-left: 0.25em;
   border: 1px solid #b8860b;
   border-radius: 50%;
   background: #ffd700;
@@ -172,18 +175,10 @@
   width: 100%;
 }
 
-/* Two-column layout for stats/vitals/resists */
-.item-tooltip-two-column {
-  display: flex;
-  gap: 16px;
-}
-
-.item-tooltip-left-column {
-  flex: 1;
-}
-
-.item-tooltip-right-column {
-  flex: 1;
+.item-tooltip-equipment-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
 /* Stats/Vitals/Resists column containers */
@@ -191,53 +186,52 @@
 .item-tooltip-vitals-column,
 .item-tooltip-resists-column {
   display: grid;
-  grid-template-columns: auto auto;
-  gap: 2px 6px;
-  font-weight: bold;
+  grid-template-columns: max-content max-content;
+  align-content: start;
+  justify-content: center;
+  gap: 2px 0.3em;
 }
 
 .item-tooltip-stats-row {
   display: contents;
 }
 
-/* Section headers (Item Stats / Vitals / Resists) */
-.item-tooltip-section-header {
-  text-align: center;
-  font-size: 1.2em;
-  font-weight: bold;
-  margin-bottom: 4px;
+@container (max-width: 400px) {
+  .item-tooltip-equipment-stats { font-size: 12px; }
+  .item-tooltip-header { grid-template-columns: 48px minmax(0, 1fr) 16px; }
 }
 
-/* Resists section wrapper */
-.item-tooltip-resists-section {
-  margin-top: 12px;
+@container (max-width: 348px) {
+  .item-tooltip-equipment-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .item-tooltip-resists-column { grid-column: 1 / -1; }
 }
 
 /* Stat label styling */
 .item-tooltip-stat-label {
-  color: #a7abba;
+  font-weight: 700;
   text-align: right;
 }
 
 /* Stat value styling */
 .item-tooltip-stat-value {
-  color: #ffffff;
+  color: #f5e5a0;
   text-align: left;
+  white-space: nowrap;
+}
+
+.item-tooltip-stat-value[data-value="0"] {
+  color: #a9afbd;
 }
 
 /* ============================================================================
    WEAPON-SPECIFIC SECTIONS
    ============================================================================ */
 
-.item-tooltip-weapon-stat-row {
-  display: table-row;
-}
-
 .item-tooltip-dps {
   text-align: center;
   margin-top: 12px;
   font-weight: bold;
-  color: #16EC00;
+  color: #b8d7b5;
 }
 
 /* ============================================================================
@@ -297,10 +291,10 @@
   text-align: center;
 }
 
-.item-tooltip-book-requirement {
-  color: #a7abba;
-  margin-top: 8px;
-  line-height: 1.2;
+.item-tooltip-book-requirement,
+.item-tooltip-book-detail,
+.item-tooltip-book-description {
+  font-style: italic;
 }
 
 .item-tooltip-book-class-requirements {
@@ -313,13 +307,13 @@
 }
 
 .item-tooltip-book-detail {
-  color: #a7abba;
+  color: inherit;
   margin-top: 8px;
   line-height: 1.2;
 }
 
 .item-tooltip-book-description {
-  color: #bbbbbb;
+  color: inherit;
   margin-top: 12px;
   line-height: 1.3;
 }
@@ -329,6 +323,11 @@
   margin-top: 12px;
   font-weight: bold;
   line-height: 1.3;
+}
+
+.item-tooltip-book-learn {
+  margin-top: 28px;
+  font-weight: 600;
 }
 
 /* ============================================================================
@@ -342,7 +341,7 @@
 .item-tooltip-aura-type {
   font-size: 1.2em;
   font-weight: 600;
-  color: #ff88ff;
+  color: #9dee94;
   line-height: 1.1;
 }
 
@@ -353,14 +352,13 @@
 }
 
 .item-tooltip-aura-notes {
-  color: #a7abba;
   margin-top: 8px;
   line-height: 1.4;
 }
 
 .item-tooltip-aura-spell-name {
   font-weight: 600;
-  color: #16EC00;
+  color: #9dee94;
   margin-top: 12px;
   line-height: 1.2;
 }
@@ -461,19 +459,24 @@
   margin-top: 12px;
 }
 
+.item-tooltip-equipment-stats ~ .item-tooltip-description {
+  margin-top: 34px;
+}
+
 /* ============================================================================
    CLASS RESTRICTIONS
    ============================================================================ */
 
 .item-tooltip-classes {
-  text-align: center;
-  font-weight: 400;
-  margin-top: 12px;
-}
-
-.item-tooltip-class {
-  display: inline-block;
-  margin: 0 0.4em;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px 0.45em;
+  padding: 4px 6px;
+  background: #586782;
+  color: #fff;
+  font-size: 0.92em;
+  font-weight: 700;
 }
 
 /* ============================================================================
@@ -571,30 +574,25 @@
    SPELL DETAILS SECTION (for consumables, auras, procs)
    ============================================================================ */
 
-/* Remove bottom border-radius from tooltip when spell details follow */
+/* Share one divider when the item has an attached effect panel. */
 .item-tooltip:has(+ .item-spell-details) {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
+  border-bottom-width: 1px;
 }
 
 .item-spell-details {
   display: block;
   box-sizing: border-box;
-  background: linear-gradient(180deg, #191643 0%, #353C40 50%, #375356 100%);
+  background: var(--erenshor-tooltip-surface);
   padding: 15px;
   text-align: center;
   width: var(--erenshor-tooltip-width);
+  max-width: 100%;
   font-size: 16px;
-  border: 2px solid #d0d0d0;
+  border: 2px solid var(--erenshor-tooltip-border);
   border-top: none;
   margin: 0;
-  font-family: 'PT Sans Narrow', Arial, sans-serif;
-  color: #eeeeee;
-  text-shadow:
-    -1px -1px 0 rgba(0,0,0,0.5),
-     1px -1px 0 rgba(0,0,0,0.5),
-    -1px  1px 0 rgba(0,0,0,0.5),
-     1px  1px 0 rgba(0,0,0,0.5);
+  font-family: system-ui, sans-serif;
+  color: #f4f4f6;
 }
 
 .item-spell-details-header-row {
@@ -678,54 +676,39 @@
    SPARKLE ICON OVERLAY
    ============================================================================ */
 
-.sparkle-icon-wrapper {
-  position: relative;
-  display: inline-block;
-  width: 80px;
+.item-tooltip-quality-set {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1em;
 }
 
-.sparkle-overlay {
-  position: absolute;
-  left: 0;
-  top: 0;
-  padding: 0;
-}
-
-.sparkle-overlay.item-tooltip-sparkle-improved img {
-  /* The game tints its shared sparkle animation with Color.green for
-     Improved qualities; the wiki reuses the published blue animation and
-     applies the equivalent hue shift instead of inventing a second asset. */
-  filter: hue-rotate(-60deg);
-}
-
-/* ParameterizedTooltip adds this overlay around legacy Item/* cards because
-   those templates predate the Improved quality tier. */
 .item-tooltip-quality {
   position: relative;
+  flex: 0 1 var(--erenshor-tooltip-width);
+  width: min(100%, var(--erenshor-tooltip-width));
+  min-width: 0;
 }
 
 .item-tooltip-quality-sparkle {
   position: absolute;
-  left: 9px;
-  top: 38px;
-  width: 80px;
-  height: 80px;
+  left: 10px;
+  top: calc(1lh + 0.5em + 9px);
+  width: 48px;
+  height: 48px;
   z-index: 3;
   pointer-events: none;
 }
 
 .item-tooltip-quality-sparkle img {
-  width: 80px;
-  height: 80px;
+  width: 48px;
+  height: 48px;
 }
 
 .item-tooltip-quality-sparkle-improved img {
   filter: hue-rotate(-60deg);
 }
 
-.item-tooltip-icon-cell a[href*="wpDestFile=Blank.png"] {
-  display: none;
-}
 
 .item-tooltip-hidden {
   display: none;
@@ -757,20 +740,60 @@
    END OF ITEM TOOLTIP STYLES
    ============================================================================ */
 
-/* ============================================================================
-   STANDALONE TOOLTIP FRAME (spell/skill pages)
-   ============================================================================
-
-   The embedded item proc/worn detail inherits its top edge from the item
-   tooltip's divider (.item-spell-details sets border-top: none). Standalone
-   spell and skill tooltips have nothing above them, so they opt into a top
-   border via this modifier class. The selector is compound (both classes) so it
-   wins over the base `.item-spell-details { border-top: none }` regardless of
-   stylesheet load order — including the cutover window where Common.css still
-   carries the old block. */
-
+/* The ability hover only takes the short card. Details stay on the article. */
 .item-spell-details.item-spell-details-standalone {
-	border-top: 2px solid #d0d0d0;
+  display: inline-flex;
+  vertical-align: top;
+  flex-direction: column;
+  gap: 2px;
+  width: var(--erenshor-ability-tooltip-width);
+  min-height: 150px;
+  padding: 8px 12px;
+  border-top: 2px solid var(--erenshor-tooltip-border);
+  background: linear-gradient(180deg, var(--erenshor-tooltip-surface), var(--erenshor-tooltip-header));
+  color: #b6d6da;
+}
+
+.item-spell-details-standalone .item-spell-details-header { font-size: 1.34em; }
+.item-ability-kind { font-size: 0.85em; font-weight: 600; }
+.item-ability-description { margin: 9px 0 14px; }
+.item-ability-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  gap: 4px 12px;
+  margin-top: auto;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+.item-ability-panel {
+  display: inline-block;
+  vertical-align: top;
+  width: min(100%, var(--erenshor-ability-tooltip-width));
+}
+
+.item-ability-panel .item-spell-details { width: 100%; }
+.item-ability-disclosure .item-spell-details-header-row { justify-content: center; }
+.item-ability-disclosure { margin-top: 10px; }
+.item-ability-disclosure-label {
+  border-top: 1px solid var(--erenshor-tooltip-border);
+  padding: 7px 0;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  /* A floated infobox leaves too little room for the cards in classic Vector. */
+  body.skin-vector:has(#mw-content-text :is(.item-tooltip, .erenshor-ability-tooltip)) #content {
+    margin-inline-start: 0;
+    padding-inline: 12px;
+  }
+
+  #mw-content-text .portable-infobox:is(.pi-type-Item, .pi-type-Abilities) {
+    float: none;
+    margin-inline: 0;
+    max-width: 100%;
+  }
 }
 
 /* ============================================================================
@@ -795,6 +818,10 @@
   pointer-events: auto;
   user-select: none;
   contain: layout style paint;
+}
+
+.erenshor-tooltip-overlay:has(.erenshor-ability-tooltip):not(:has(.item-tooltip)) {
+  width: var(--erenshor-ability-tooltip-width);
 }
 
 .erenshor-tooltip-overlay,

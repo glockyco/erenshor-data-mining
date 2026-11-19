@@ -1,11 +1,12 @@
 <includeonly>{| class="item-tooltip item-tooltip-charm"
 |
 {{Item/Header
- |icon={{#if:{{{icon|}}}|{{#ifeq:{{{tier|}}}|1|{{SparkleIcon|icon={{Icon|{{{icon}}}|kind=item|size=80}}|sparkle=Blue_Sparkle.gif|sparkle_size=80px}}|{{#ifeq:{{{tier|}}}|2|{{SparkleIcon|icon={{Icon|{{{icon}}}|kind=item|size=80}}|sparkle=Purple_Sparkle.gif|sparkle_size=80px}}|{{SparkleIcon|icon={{Icon|{{{icon}}}|kind=item|size=80}}|sparkle=blank.png|sparkle_size=0px}}}}}}}}
+ |icon={{#if:{{{icon|}}}|{{#ifeq:{{{tier|}}}|1|{{SparkleIcon|icon={{Icon|{{{icon}}}|kind=item|size=48}}|sparkle=Blue_Sparkle.gif|sparkle_size=48px}}|{{#ifeq:{{{tier|}}}|2|{{SparkleIcon|icon={{Icon|{{{icon}}}|kind=item|size=48}}|sparkle=Purple_Sparkle.gif|sparkle_size=48px}}|{{Icon|{{{icon}}}|kind=item|size=48}}}}}}}}
  |name={{{name}}}
  |value={{{value|}}}
  |tier={{{tier|0}}}
 }}
+{{Item/ClassRestrictions|classes={{{classes|}}}}}
 {| class="item-tooltip-body"
 |-
 | |
@@ -19,11 +20,6 @@
  |chascaling={{{chascaling|}}}
  |resistscaling={{{resistscaling|}}}
  |mitigationscaling={{{mitigationscaling|}}}
-}}
-|-
-| |
-{{Item/ClassRestrictions
- |classes={{{classes|}}}
 }}
 |}
 |}

@@ -1,12 +1,7 @@
 -- Module:Erenshor/Skill/Tooltip
 --
--- Presentation layer for the skill tooltip. Reproduces the in-game skillbook
--- tooltip (SkillbookSlot.cs:146-156): the title is "<name> - Activatable" for any
--- non-Innate skill (else "- Passive"), the body is the skill description, or the
--- "Change Stance" block (stance name + description) for stance-switching skills.
--- Reuses the item tooltip's `item-spell-*` CSS so skill pages look like the game.
---
--- Permitted convenience: the stance renders as a link to its page.
+-- The compact card follows the hotkey's ability card. Stance abilities still
+-- link to the stance and describe what changes when it is activated.
 
 local Common = require("Module:Erenshor/Ability/Common")
 local Format = require("Module:Erenshor/Format")
@@ -29,22 +24,9 @@ end
 -- identity so the card links to the stance entity.
 function Tooltip.render(skill, identity)
 	identity = identity or { kind = "skill", stableKey = skill.stableKey }
-	-- SkillbookSlot.cs:146 — Activatable unless the skill is Innate.
-	local activation = (skill.type ~= "Innate") and "Activatable" or "Passive"
-
-	-- Standalone tooltips opt into a top border (the embedded item case inherits its
-	-- top edge from the item tooltip's divider). Styled by Gadget:erenshor.css.
-	-- Common validates both values and rejects unsupported identity kinds.
 	local root = Common.standaloneTooltipRoot(identity.kind, identity.stableKey)
-	root:tag("div")
-		:addClass("item-spell-details-header-row")
-		:tag("div")
-		:addClass("item-spell-details-name-cell")
-		:tag("div")
-		:addClass("item-spell-details-header")
-		:wikitext((skill.name or "Skill") .. " - " .. activation)
-
-	local content = root:tag("div"):addClass("item-spell-details-content")
+	Common.bookHeader(root, skill.name or "Skill", "Ability")
+	local content = root:tag("div"):addClass("item-ability-description")
 
 	local stance = nil
 	if not Common.isBlank(skill.stanceStableKey) then

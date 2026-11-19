@@ -98,7 +98,7 @@ function p.renderPageTooltip(args, pageTitle)
 	if spell.missing then
 		return ""
 	end
-	return Tooltip.render(spell)
+	return Tooltip.renderPage(spell)
 end
 
 function p.pageTooltip(frame)
