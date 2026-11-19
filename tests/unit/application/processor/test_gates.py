@@ -269,6 +269,19 @@ def test_a_door_without_guarded_targets_keeps_its_opening(
     assert ("zone_line", "zoneline:island:tomb:808.08:14.08:592.64", None, _DOOR) not in gates
 
 
+def test_a_standalone_door_bound_to_a_nameless_placeholder_has_no_opening(
+    tmp_path: Path, writer: Writer, raw: sqlite3.Connection
+) -> None:
+    placeholder = "item:key - skeleton key"
+    door = "door:keep:282.83:33.13:272.05"
+    writer.conn.execute("INSERT INTO items (stable_key, display_name, image_name) VALUES (?, '', '')", (placeholder,))
+    body = _COMPLETE.replace('targets = ["spawn:salted:1"]', "targets = []")
+
+    process_gates(raw, writer, _barriers(tmp_path, body))
+
+    assert _gates(writer)[("door", door, None, door)] == [[("never", placeholder, None)]]
+
+
 def test_an_unrecorded_keyed_door_fails_the_build(tmp_path: Path, writer: Writer, raw: sqlite3.Connection) -> None:
     body = _record(objects=f'["{_DOOR}"]')
 

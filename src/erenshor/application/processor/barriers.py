@@ -134,11 +134,11 @@ def _mechanisms(raw: sqlite3.Connection, conn: sqlite3.Connection, activity: Act
         found[identity][kind].extend(groups)
 
     # code-fact: guide.gates.door_key
-    items = {key for (key,) in conn.execute("SELECT stable_key FROM items")}
+    items = {key for (key,) in conn.execute("SELECT stable_key FROM items WHERE trim(display_name) <> ''")}
     for door, key in conn.execute(
         "SELECT stable_key, key_item_stable_key FROM doors WHERE key_item_stable_key IS NOT NULL"
     ):
-        # A key that the clean build excludes cannot be obtained, so the door stays shut.
+        # Excluded keys and nameless placeholder assets have no player-facing item.
         add(door, "door", ((Atom("key_held", key) if key in items else Atom("never", key),),))
 
     subject_objects = {

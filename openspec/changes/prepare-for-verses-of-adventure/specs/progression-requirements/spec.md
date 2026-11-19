@@ -23,6 +23,12 @@ Each door or other barrier that a gate names SHALL be one node whose ways are it
 - **THEN** the gate has its own way that needs Ripper's Gate Key
 - **AND** neither arrivals in the zone nor the separate ritual portal need the gate
 
+#### Scenario: A door bound to a placeholder key
+
+- **WHEN** reading the Erenshor Keep doors whose key has no item name or source
+- **THEN** the doors have nodes with no opening way
+- **AND** the placeholder does not become a key milestone
+
 ### Requirement: A reviewer can inspect any node
 
 `erenshor progression show <stable key>` SHALL print the node's tier and ways with their needs and names, and the milestones of its first way in tier order. For a zone it SHALL also list local door ways and gated exits separately from arrival ways. For a quest it SHALL also name the holders killed by its exact item-turn-in routes.
