@@ -178,6 +178,7 @@ node_modules
 /.svelte-kit
 /.svelte-kit-prerender-*
 /build
+/build-*
 
 # OS
 .DS_Store
