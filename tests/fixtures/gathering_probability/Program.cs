@@ -98,6 +98,21 @@ public class Transform
         localScale = new();
 }
 
+public class Bounds
+{
+    public Vector size = new();
+}
+
+public class Collider
+{
+    public Bounds bounds = new();
+}
+
+public class Renderer
+{
+    public Bounds bounds = new();
+}
+
 public class Scene
 {
     public string name = "fixture";
