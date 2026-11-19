@@ -596,7 +596,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
             "aura_add_proc_chance",
             "aura_special_descriptor",
         ],
-        "Item/Mold": ["icon", "name", "value", "description", "ingredients", "rewards", "station"],
+        "Item/Mold": ["icon", "name", "value", "description", "ingredient_names", "ingredients", "rewards", "station"],
         "Item/SkillBook": [
             "icon",
             "name",

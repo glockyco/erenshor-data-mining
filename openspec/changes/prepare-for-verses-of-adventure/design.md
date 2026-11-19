@@ -95,6 +95,10 @@ The compact card and teaching scroll quote the game's description, including "15
 
 The spell-details window and teaching scroll show `Spell Type: SongDissonance` when the game does. The compact note card still says `Song Type: Magic`, which is its damage school. Keep the readable category and infobox labels outside the game-window cards.
 
+### D16. Mold articles keep exact recipes outside the tooltip
+
+The mold tooltip lists the game's ingredient names and exact-quantity warning. The article shows quantities and results in its recipe section. For example, the Mold: A Ceremonial Ring card lists Chunk of Copper Ore, and the recipe shows that it needs one ore and creates one Ceremonial Ring.
+
 ## Risks / Trade-offs
 
 - [The shipped build differs from the last playtest build] → Every consumer gets regenerated from `main` on release day. The variant comparison shows the differences, and they get a review before approval.

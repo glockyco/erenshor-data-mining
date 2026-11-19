@@ -10,16 +10,19 @@
 |-
 | |
 <div class="item-tooltip-crafting-container"><!--
--->{{#if:{{{ingredients|}}}|<div class="item-tooltip-crafting-ingredients"><div class="item-tooltip-crafting-header">Ingredients:</div>{{{ingredients}}}</div>}}<!--
--->{{#if:{{{rewards|}}}|<div class="item-tooltip-crafting-rewards"><div class="item-tooltip-crafting-header">Creates:</div>{{{rewards}}}</div>}}<!--
--->{{#if:{{{station|}}}|<div class="item-tooltip-muted">Requires: {{{station}}}</div>}}<!--
+-->{{#if:{{{ingredient_names|}}}|<div class="item-tooltip-crafting-ingredients"><div class="item-tooltip-crafting-header">Ingredients:</div>{{{ingredient_names}}}</div>}}<!--
 --><div class="item-tooltip-crafting-notes"><!--
 --><div>Note: Ingredients MUST be exact quantities</div><!--
---><div>Use CTRL + CLICK to separate stacks.</div><!--
 --></div><!--
 --></div>
 |}
 |}
+{{#if:{{{ingredients|}}}{{{rewards|}}}|
+== Recipe ==
+{{#if:{{{ingredients|}}}|'''Ingredients:'''<br>{{{ingredients}}}}}
+{{#if:{{{rewards|}}}|'''Creates:'''<br>{{{rewards}}}}}
+{{#if:{{{station|}}}|'''Requires:''' {{{station}}}}}
+}}
 {{Item/Categories
  |item_type=mold
 }}</includeonly><noinclude>
@@ -39,6 +42,8 @@ Template for displaying crafting mold tooltips.
 | '''value''' || No || Item value in gold, or "Unsellable"
 |-
 | '''description''' || No || Flavor text
+|-
+| '''ingredient_names''' || No || Ingredient names shown in the game's mold card
 |-
 | '''ingredients''' || No || Required ingredients (formatted list)
 |-

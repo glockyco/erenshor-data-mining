@@ -429,11 +429,13 @@ class ItemSectionGenerator(SectionGeneratorBase):
         item_template = self.render_template("item.jinja2", item_context)
 
         display_name = item.display_name or item.item_name or ""
+        ingredient_names = ""
         ingredients = ""
         rewards = ""
         if enriched.sources:
             ingredient_links = [f"{quantity}x {link!s}" for link, quantity in enriched.sources.recipe_ingredients]
             ingredients = "<br>".join(ingredient_links)
+            ingredient_names = "<br>".join(link.display_name for link, _quantity in enriched.sources.recipe_ingredients)
 
             reward_uses = sorted(
                 (use for use in enriched.sources.uses if use.kind == "crafting_recipe"),
@@ -449,6 +451,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "name": display_name,
             "value": self._item_window_value(item),
             "description": format_description(safe_str(item.lore)) if item.lore else "",
+            "ingredient_names": ingredient_names,
             "ingredients": ingredients,
             "rewards": rewards,
             "station": "",
