@@ -15,6 +15,7 @@ public class WaterRecord
     public float Y { get; set; }
     public float Z { get; set; }
 
+    // World-space bounds sizes: Width along X, Height along Y, Depth along Z.
     public float Width { get; set; }
     public float Height { get; set; }
     public float Depth { get; set; }

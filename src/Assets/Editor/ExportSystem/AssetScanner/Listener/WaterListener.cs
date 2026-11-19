@@ -1,5 +1,6 @@
 #nullable enable
 
+using System;
 using System.Collections.Generic;
 using SQLite;
 using UnityEngine;
@@ -49,6 +50,26 @@ public class WaterListener : IAssetScanListener<Water>
         var baseStableKey = StableKeyGenerator.ForWater(scene, x, y, z);
         var stableKey = _keyTracker.GetUniqueKey(baseStableKey, asset.gameObject.name);
 
+        // A water's local scale ignores its parents' scale and rotation, so the
+        // footprint comes from the world-space bounds of what fishing hits.
+        var collider = asset.GetComponent<Collider>();
+        var renderer = asset.GetComponent<Renderer>();
+        Bounds bounds;
+        if (collider != null)
+        {
+            bounds = collider.bounds;
+        }
+        else if (renderer != null)
+        {
+            bounds = renderer.bounds;
+        }
+        else
+        {
+            throw new InvalidOperationException(
+                $"Water {asset.name} in {scene} has neither a collider nor a renderer to size it"
+            );
+        }
+
         var water = new WaterRecord
         {
             StableKey = stableKey,
@@ -56,9 +77,9 @@ public class WaterListener : IAssetScanListener<Water>
             X = x,
             Y = y,
             Z = z,
-            Width = asset.transform.localScale.x,
-            Height = asset.transform.localScale.y,
-            Depth = asset.transform.localScale.z,
+            Width = bounds.size.x,
+            Height = bounds.size.y,
+            Depth = bounds.size.z,
         };
 
         _waterRecords.Add(water);
