@@ -89,7 +89,7 @@ def test_a_spawn_can_require_a_living_boss():
     sentences = graph({"character:ward:1": [[need("in zone", "zone:desert"), need("alive", "character:boss")]]})
 
     assert sentences.sentences("character:ward:1") == (
-        "Find {character:ward:1} in {zone:desert}, while {character:boss} is alive.",
+        "Find {character:ward:1} in {zone:desert}. {character:ward:1} spawns only while {character:boss} is alive.",
     )
 
 

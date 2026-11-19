@@ -234,7 +234,6 @@ _CONDITION_ORDER = (
     "equipped",
     "room furnished",
     "summoned by",
-    "alive",
     "defeated",
     "release",
     "state",
@@ -438,9 +437,14 @@ class ProgressionSentences:
             if writer is None:
                 raise ProgressionWordingError(f"Cannot word a way of a {node.kind}")
             taken = _grouped(needs)
+            # A spawn rule is not a condition on finding a survivor, so it gets its own sentence.
+            alive = self._take(taken, "alive")
             text = writer(node, taken) + self._conditions(taken, rooms)
             if any(need.unconfirmed for need in needs):
                 text += " (not confirmed in play)"
+            if alive:
+                bosses = _join([_ref(need.need_stable_key) for need in alive])
+                return f"{text[:1].upper()}{text[1:]}. {_ref(node.stable_key)} spawns only while {bosses} is alive."
         return text[:1].upper() + text[1:] + "."
 
     @staticmethod
@@ -722,7 +726,6 @@ class ProgressionSentences:
         if relation == "defeated":
             return [f"after you defeat {self._defeats(needs)}"]
         writer = {
-            "alive": lambda need: f"while {_ref(need.need_stable_key)} is alive",
             "room furnished": lambda need: self._furnished(need, rooms),
             "release": self._release,
             "state": self._state,
