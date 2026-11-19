@@ -93,8 +93,8 @@ kind = "moved"
 name = "Glowmere hidden wall"
 objects = ["object:glowmere:sm_bld_fort_wall_01%20%284%29[68]"]
 targets = ["itembag:glowmere:109.09:70.03:562.64"]
-reason = "The moving fort wall sits at the approach to the enclosed room containing the Pirate's Ledger. The nearby spawns and both exterior zone lines lie outside. Confirm the route and pickup in game in task 3.6."
-check = "unconfirmed"
+reason = "The moving fort wall closes the room that holds the Pirate's Ledger. The nearby spawns and both exterior zone lines lie outside."
+check = "physics"
 
 [[barriers]]
 kind = "door"
