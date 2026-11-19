@@ -52,7 +52,8 @@ Each task below adds the data at its source (export, code fact or reviewed file)
 
 ## 5. Map, tiles and pictures (design D5)
 
-- [ ] 5.1 Compare the scene assets of the playtest rip with `main`'s rip. List the zones whose geometry changed. Verify: the list covers Glowmere Grotto and Ripper's Keep and records each other changed zone.
+- [ ] 5.1 Compare the scene assets of the playtest rip with `main`'s rip. List the zones whose geometry changed. Verify: the list covers Glowmere Grotto, Ripper's Keep and Faerie's Brake, and records each other changed zone.
+  - Faerie's Brake was rebuilt: all 140 spawn points of 0.7 are gone and 384 new ones exist. Ripper's Keep gained 42 and lost 12, and Port Azure gained 43. Recheck their barriers, tiles, map markers and zone pages.
 - [ ] 5.2 Check that MapTileCapture runs in 0.8, and fix it if it doesn't. Then capture one outdoor zone and compare it with its current tiles to decide whether the new lighting needs a full recapture. Record the decision here.
 - [ ] 5.3 Add the capture bounds and overview position for Glowmere Grotto, and capture it and every zone from 5.1 (`skill://tile-capture`, `skill://interactive-map`). Verify: `-V playtest maps preview` shows each zone with markers and no failure on `/map`.
 - [ ] 5.4 Run `images manifest` and `images items manifest`, capture the new and changed subjects in the playtest game, review the captures, then run `-V playtest --dry-run images publish`. Verify: the Bard armor and weapon, the new NPCs and the furniture item have reviewed pictures, and the dry run lists no unexplained conflict.
