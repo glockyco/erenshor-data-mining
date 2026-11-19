@@ -73,10 +73,12 @@ def native():
         item = f"item:feed{index}"
         node(item, NodeType.ITEM)
         spawn(f"character:feed{index}", "MalarothFeed", "FeedScene", item, ("Feeding site", *site[1:]))
+    board_site = ("Board", 11, 12, 13, 14, 15, 16, 1, 1, 1)
     for index in range(12):
         item = f"item:piece{min(index, 6)}"
         node(item, NodeType.ITEM)
-        spawn(f"character:piece{index}", "Chessboard", "BoardScene", item, ("Board", 11, 12, 13, 14, 15, 16, 1, 1, 1))
+        spawn(f"character:piece{index}", "Chessboard", "BoardScene", item, board_site)
+    spawn("character:faceless bard", "Chessboard", "BoardScene", "item:piece6", board_site)
     yield conn, graph, spawn
     conn.close()
 
@@ -120,7 +122,11 @@ def test_trigger_offerings_group_by_controller_site_and_random_choice(native):
     assert board["site"]["bounds"]["center"] == {"x": 14, "y": 15, "z": 16}
     assert len(board["offerings"]) == 7
     [random] = [offer for offer in board["offerings"] if offer["random"]]
-    assert len(random["spawns"]) == 6
+    assert len(random["spawns"]) == 7
+    assert {spawn["character"] for spawn in random["spawns"]} == {
+        "character:faceless bard",
+        *(f"character:piece{index}" for index in range(6, 12)),
+    }
     assert all(spawn["quantity"] == 1 for spawn in random["spawns"])
     assert all(offer.get("reward") is None for offer in board["offerings"])
 

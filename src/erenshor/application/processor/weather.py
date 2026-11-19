@@ -80,6 +80,7 @@ def process_weather(raw: sqlite3.Connection, conn: sqlite3.Connection) -> None:
         if len(flags) != 1:
             raise ValueError(f"Weather scene {zone}: conflicting incoming sun flags")
         uses_sun = next(iter(flags))
+        # NeverRain suppresses the rain effect, not the logical state used by spawns.
         natural = bool(uses_sun and all(cap >= threshold for cap in trends.get(scene, ())))
         state = f"world_state:weather:raining:{zone}"
         conn.execute("INSERT INTO world_states VALUES (?,?,?,?,?)", (state, "raining", zone, uses_sun, int(natural)))

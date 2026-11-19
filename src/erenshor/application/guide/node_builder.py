@@ -472,7 +472,7 @@ def _add_native_activations(conn: sqlite3.Connection, graph: EntityGraph) -> Non
         for index, item in enumerate(sorted(by_item)):
             characters = sorted({row["character_stable_key"] for row in by_item[item]})
             # code-fact: chessboard.faceless_choices
-            # Multiple exported Faceless targets are alternatives, not six simultaneous spawns.
+            # One Faceless outcome is selected uniformly from the exported alternatives.
             offers.append(
                 offering(item, tuple(ActivationSpawn(char, 1) for char in characters), random=len(characters) > 1)
             )

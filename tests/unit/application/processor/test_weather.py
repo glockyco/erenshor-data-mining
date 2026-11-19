@@ -86,6 +86,19 @@ def test_nonlimiting_scenes_keep_natural_weather(weather, cap, enabled):
     ).fetchall() == [("natural_weather",), ("spell",)]
 
 
+def test_never_rain_preserves_logical_rain_and_its_producers(weather):
+    raw, conn = weather
+    conn.execute("UPDATE zones SET never_rain = 1 WHERE stable_key = 'zone:forest'")
+    process_weather(raw, conn)
+    assert conn.execute(
+        "SELECT natural_rain_can_start FROM world_states WHERE zone_stable_key = 'zone:forest'"
+    ).fetchone() == (1,)
+    assert conn.execute(
+        "SELECT mechanism, spell_stable_key FROM world_state_producers"
+        " WHERE state_stable_key = 'world_state:weather:raining:zone:forest' ORDER BY mechanism"
+    ).fetchall() == [("natural_weather", None), ("spell", "spell:invoke")]
+
+
 def test_without_sun_neither_spells_nor_natural_weather_start_rain(weather):
     raw, conn = weather
     process_weather(raw, conn)

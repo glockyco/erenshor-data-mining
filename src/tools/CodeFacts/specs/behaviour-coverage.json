@@ -597,6 +597,15 @@
       "classification": "excluded",
       "reason": "DoBattleRezIcon and DoBattleRez offer and perform battle resurrection of dead raid members."
     },
+    "RaidSkaldEvent": {
+      "apis": [
+        "Character.Alive",
+        "SpawnPoint.MyNPCAlive"
+      ],
+      "classification": "pending",
+      "reason": "Start disables the Accompanist spawn points. Update enables them only while The Skald is alive and directs idle Accompanists to his aggro target. It does not despawn existing Accompanists.",
+      "tasks": ["prepare-for-verses-of-adventure 3.3"]
+    },
     "ReliqDisableFiendSpawn": {
       "apis": [
         "GameData.AccountClaimedReliquary",
@@ -804,6 +813,13 @@
       "classification": "excluded",
       "reason": "TrackTargets lists living engaged enemies for the group display."
     },
+    "TrackedTarget": {
+      "apis": [
+        "Character.Alive"
+      ],
+      "classification": "excluded",
+      "reason": "Update uses the tracked character's life state only to time refreshes of the mesmerize indicator. The display and its targeting commands do not gate access or spawns."
+    },
     "TradeWindow": {
       "apis": [
         "Character.Invulnerable",
@@ -817,6 +833,7 @@
     },
     "TypeText": {
       "apis": [
+        "AtmosphereColors.SinceRain",
         "AtmosphereColors.WeightGoal",
         "Character.Invulnerable",
         "GlobalFactionManager.ModifyFaction",
@@ -878,12 +895,13 @@
     },
     "ZoneAnnounce": {
       "apis": [
+        "AtmosphereColors.SinceRain",
         "GameData.AssignQuest",
         "GameData.FinishQuest",
         "Inventory.HasCosmetic"
       ],
       "classification": "core",
-      "component": "ZoneAnnounceListener quest entry fields and processor/zone_wide_spawns.py"
+      "component": "ZoneAnnounceListener quest entry and weather fields, processor/zone_wide_spawns.py and processor/weather.py"
     },
     "Zoneline": {
       "apis": [
