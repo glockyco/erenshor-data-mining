@@ -42,7 +42,7 @@ local function detailRow(content, text, class)
 end
 
 function Tooltip.render(spell)
-	local song = (spell.type or ""):match("^Song") ~= nil
+	local song = Common.truthy(spell.bardSong)
 	local root = Common.standaloneTooltipRoot("spell", spell.stableKey)
 	Common.bookHeader(root, spell.name or "Spell", song and "Bard Song" or "Spell")
 	if not Common.isBlank(spell.description) then
@@ -87,6 +87,15 @@ function Tooltip.renderPage(spell)
 		detailRow(content, "Spell Line: " .. spell.line)
 	end
 	detailRow(content, "Mana Cost: " .. Common.num(spell.manaCost))
+	if spell.harmonicMult then
+		detailRow(content, "Harmony Multiplier: " .. string.format("%g", spell.harmonicMult) .. "x")
+	end
+	if spell.dissonanceMult then
+		detailRow(
+			content,
+			"Dissonance Multiplier: " .. string.format("%g", spell.dissonanceMult) .. "x"
+		)
+	end
 
 	if Common.truthy(spell.targetDamage) then
 		local perTick = (Common.num(spell.durationSeconds) > 0) and " / 3 sec" or ""

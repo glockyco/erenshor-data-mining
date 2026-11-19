@@ -476,6 +476,13 @@ def process_class_starting_items(
 # Spells
 # ---------------------------------------------------------------------------
 
+_BARD_SPELL_TYPES = {
+    "SongDissonance": "Dissonance",
+    "SongInspiration": "Inspiration",
+    "SongCombo": "Song Combo",
+    "SongGeneric": "Song",
+}
+
 
 def process_spells(
     raw: sqlite3.Connection,
@@ -490,6 +497,10 @@ def process_spells(
     logger.info(f"Spells: {len(rows)} after mapping")
 
     rows = _rename_cols(rows)
+    for row in rows:
+        spell_type = row.get("type")
+        if isinstance(spell_type, str) and spell_type in _BARD_SPELL_TYPES:
+            row["type"] = _BARD_SPELL_TYPES[spell_type]
     _name_icons_by_texture(rows, "spell_icon_texture", "spell_icon_name")
     writer.insert_spells(rows)
     valid = {str(r["stable_key"]) for r in rows}

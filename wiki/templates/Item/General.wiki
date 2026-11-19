@@ -61,6 +61,13 @@
  |item_type=general
  |effect_style={{{effect_style|}}}
  |effect_spell_name={{{effect_spell_name|}}}
+}}<!--
+-->{{#if:{{{book_text|}}}|
+<h2>Book Text</h2>
+<blockquote>{{{book_text}}}</blockquote>
+}}{{#if:{{{song_reference|}}}|
+<h2>Song Mechanics</h2>
+{{{song_reference}}}
 }}</includeonly><noinclude>
 == Template:Item/General ==
 

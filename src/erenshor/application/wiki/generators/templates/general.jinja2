@@ -49,4 +49,6 @@
 |effect_add_proc_name={{ effect_add_proc_name }}
 |effect_add_proc_chance={{ effect_add_proc_chance }}
 |effect_special_descriptor={{ effect_special_descriptor }}
-{{ "}}" }}
+{% if book_text %}|book_text={{ book_text }}
+{% endif %}{% if song_reference %}|song_reference={{ song_reference }}
+{% endif %}{{ "}}" }}

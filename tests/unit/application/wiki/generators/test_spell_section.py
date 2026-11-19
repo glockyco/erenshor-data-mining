@@ -67,3 +67,15 @@ def test_spell_article_omits_absent_or_zero_modifiers() -> None:
         f"|{field}=" in wikitext
         for field in ("cooldown_reduction", "haste_cap_increase", "amplify_damage", "channeling_focus")
     )
+
+
+def test_bard_aura_uses_exported_charisma_values() -> None:
+    spell = make_spell(bard_aura=1, bard_aura_conversion=3, bard_aura_minimum=5)
+    wikitext = SpellSectionGenerator(Mock()).generate_template(
+        EnrichedSpellData(spell=spell, classes=[], items_with_effect=[], teaching_items=[], used_by_characters=[]),
+        "Inspiring Presence",
+    )
+    assert (
+        "|bard_aura_attributes=Other party members gain 3% of the aura holder's Charisma, "
+        "rounded, with a minimum of +5 to each of the seven attributes."
+    ) in wikitext

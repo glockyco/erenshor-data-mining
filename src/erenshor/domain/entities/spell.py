@@ -43,6 +43,13 @@ class Spell(BaseEntity):
     line: str | None = Field(default=None, description="Spell line/school (Generic, Global_Buff, Direct_Damage, etc.)")
     required_level: int | None = Field(default=None, description="Minimum level requirement")
 
+    bard_song: int | None = None
+    harmonic_mult: float | None = None
+    dissonance_mult: float | None = None
+    bard_aura: int | None = None
+    bard_aura_conversion: int | None = None
+    bard_aura_minimum: int | None = None
+
     # Casting properties
     mana_cost: int | None = Field(default=None, description="Mana cost to cast")
     sim_usable: int | None = Field(default=None, description="Usable by sim players (boolean)")

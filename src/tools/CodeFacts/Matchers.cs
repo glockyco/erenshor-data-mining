@@ -89,9 +89,15 @@ internal static class Runner
         SyntaxTree tree = decompiler.DecompileType(new FullTypeName(fact.Type));
         List<EntityDeclaration> matches = fact.Method is not null
             ? tree
-                .Descendants.OfType<MethodDeclaration>()
-                .Where(m => m.Name == fact.Method && HasParameters(m, fact.Parameters))
-                .Cast<EntityDeclaration>()
+                .Descendants.OfType<EntityDeclaration>()
+                .Where(member =>
+                    member is MethodDeclaration method
+                        && method.Name == fact.Method
+                        && HasParameters(method.Parameters, fact.Parameters)
+                    || member is ConstructorDeclaration constructor
+                        && fact.Method == ".ctor"
+                        && HasParameters(constructor.Parameters, fact.Parameters)
+                )
                 .ToList()
             : tree
                 .Descendants.OfType<FieldDeclaration>()
@@ -111,9 +117,10 @@ internal static class Runner
         return matches[0];
     }
 
-    private static bool HasParameters(MethodDeclaration method, List<string>? parameters) =>
-        parameters is null
-        || method.Parameters.Select(p => p.Type!.ToString()).SequenceEqual(parameters);
+    private static bool HasParameters(
+        IEnumerable<ParameterDeclaration> actual,
+        List<string>? parameters
+    ) => parameters is null || actual.Select(p => p.Type!.ToString()).SequenceEqual(parameters);
 
     private static bool AppliesToVariant(FactSpec fact, string? activeVariant)
     {

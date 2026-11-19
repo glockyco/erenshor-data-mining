@@ -13,7 +13,36 @@ from erenshor.domain.value_objects.wiki_link import AbilityLink
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from erenshor.domain.entities.skill import Skill
     from erenshor.domain.entities.spell import Spell
+
+
+def format_bard_skill_details(skill: Skill) -> str:
+    if skill.hum:
+        # code-fact: bard.hum_repeat
+        # code-fact: bard.hum_only_inspiration
+        return "Repeats one note or chord every 10 seconds without spending mana. Cannot use Dissonance."
+    if skill.id == "1361600":
+        # code-fact: bard.caesura
+        return "Restores 50% of maximum mana and sets other hotkeys to a 3.33-second cooldown."
+    return ""
+
+
+def songwriting_reference() -> str:
+    # code-fact: bard.song_order
+    order = "A song is an ordered list of notes and chords. The order matters for timing and multipliers."
+    # code-fact: bard.charisma_curve
+    # code-fact: bard.charisma_at_song_base
+    # code-fact: bard.charisma_at_song_commit
+    # code-fact: bard.charisma_at_song_commit_ae
+    curve = (
+        "For a song's direct damage, Charisma applies twice: once to each note or chord before rounding and "
+        "adding them together, and again to that total with Dissonance when the song lands. "
+        "Start with <code>c = Charisma × Persuasion / 100</code>. The multiplier is "
+        "<code>1 + 1.5 × clamp(c / 500, 0, 1)^1.1</code>. Above 500 scaled Charisma, "
+        "add <code>0.1 × ln(1 + (c - 500) / 200)</code> to that multiplier."
+    )
+    return f"<p>{order}</p>\n<p>{curve}</p>"
 
 
 def format_description(text: str) -> str:

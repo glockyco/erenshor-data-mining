@@ -12,8 +12,8 @@ from .base import BaseEntity
 class Skill(BaseEntity):
     """Domain entity representing a combat skill or special ability.
 
-    Skills are activated abilities that often have equipment requirements
-    (e.g., require bow, require shield). Skills do NOT cost mana to use.
+    Combat skills often require equipment or positioning. Composed Bard songs
+    can cost mana, unlike ordinary skills.
     The ResourceName field is used as the stable identifier.
 
     Scalar fields come from the clean Skills table. Class requirements come
@@ -22,6 +22,7 @@ class Skill(BaseEntity):
 
     # Primary keys and identifiers
     stable_key: str = Field(description="Stable key from database (primary key)")
+    id: str | None = None
 
     # Canonical wiki names (populated by the Layer 2 processor)
     display_name: str | None = Field(default=None, description="Canonical display name for wiki")
@@ -37,6 +38,14 @@ class Skill(BaseEntity):
     cooldown: float | None = Field(default=None, description="Cooldown (divide by 60 to get seconds)")
 
     class_levels: dict[str, int] = Field(default_factory=dict, description="Required level by internal class name")
+
+    bard_song: int | None = None
+    hum: int | None = None
+
+    @property
+    def song_capacity(self) -> int | None:
+        # code-fact: bard.song_capacity
+        return self.skill_power if self.bard_song else None
 
     # Equipment requirements
     require_behind: int | None = Field(default=None, description="Requires backstab position (boolean)")

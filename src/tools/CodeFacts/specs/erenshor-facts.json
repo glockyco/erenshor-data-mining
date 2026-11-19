@@ -9,6 +9,128 @@
   ],
   "facts": [
     {
+      "id": "bard.song_capacity",
+      "mode": "assert",
+      "variants": ["playtest"],
+      "type": "BardSong",
+      "method": ".ctor",
+      "parameters": ["bool", "Skill"],
+      "matcher": "statement_shape",
+      "args": {"statement": "MaxChords = _songID.SkillPower;"}
+    },
+    {
+      "id": "bard.song_order",
+      "mode": "assert",
+      "variants": ["playtest"],
+      "type": "BardSong",
+      "method": "AddChord",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ bool flag = false; Chords.Add (_spell); if (Chords.Count > MaxChords) { Chords.RemoveAt (0); flag = true; } if (FromPlayer) { songManager.AddChordToWindow (Chords.Count - 1, Chords [Chords.Count - 1]); } if (Chords.Count == MaxChords) { return true; } return false; }"
+      }
+    },
+    {
+      "id": "bard.charisma_curve",
+      "mode": "assert",
+      "variants": ["playtest"],
+      "type": "BardSong",
+      "method": "CalcCharismaBonus",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ float num = (float)_singer.GetCurrentCha () * ((float)_singer.ChaScaleMod / 100f); float num2 = 1f; float num3 = 2.5f; float num4 = 500f; float p = 1.1f; float num5 = 0.1f; float num6 = 200f; float f = Mathf.Clamp01 (num / num4); float num7 = num2 + (num3 - num2) * Mathf.Pow (f, p); float num8 = num - num4; if (num8 > 0f) { num7 += num5 * Mathf.Log (1f + num8 / num6); } return num7; }"
+      }
+    },
+    {
+      "id": "bard.charisma_at_song_base",
+      "mode": "assert",
+      "variants": ["playtest"],
+      "type": "BardSong",
+      "method": "ProcessSong",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BinaryOperatorExpression",
+        "count": "2",
+        "shape": "(float)chord.TargetDamage * charismaBonus"
+      }
+    },
+    {
+      "id": "bard.charisma_at_song_commit",
+      "mode": "assert",
+      "variants": ["playtest"],
+      "type": "UseSkill",
+      "method": "CommitBardSong",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "InvocationExpression",
+        "shape": "character3.MagicDamageMe (Mathf.RoundToInt ((float)Mathf.Max (1, _song.baseTargDmg) * (_song.calcDissMod * _song.charismaBonus * num)), isPlayer, GameData.DamageType.Magic, MyChar, resistMod, _song.baseTargDmg)"
+      }
+    },
+    {
+      "id": "bard.charisma_at_song_commit_ae",
+      "mode": "assert",
+      "variants": ["playtest"],
+      "type": "UseSkill",
+      "method": "CommitBardSong",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "InvocationExpression",
+        "shape": "item3.MagicDamageMe (Mathf.RoundToInt ((float)Mathf.Max (1, _song.baseAEDmg) * (_song.calcDissMod * _song.charismaBonus) * num), isPlayer, GameData.DamageType.Magic, MyChar, resistMod, _song.baseAEDmg)"
+      }
+    },
+    {
+      "id": "bard.aura_charisma",
+      "mode": "assert",
+      "variants": ["playtest"],
+      "type": "Stats",
+      "method": "CountStatusEffects",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (statusEffect.Effect.BardAura && statusEffect.CreditDPS != null && statusEffect.CreditDPS.MyStats != null && statusEffect.CreditDPS.MyStats != this) { int currentCha = statusEffect.CreditDPS.MyStats.GetCurrentCha (); float num = (float)statusEffect.Effect.BardAuraConversion / 100f; int num2 = Mathf.Max (statusEffect.Effect.BardAuraMinimum, Mathf.RoundToInt ((float)currentCha * num)); seStr += num2; seEnd += num2; seDex += num2; seAgi += num2; seInt += num2; seWis += num2; seCha += num2; }"
+      }
+    },
+    {
+      "id": "bard.hum_repeat",
+      "mode": "assert",
+      "variants": ["playtest"],
+      "type": "UseSkill",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (HumSong.Chords.Count > 0 && MyStats.CharacterClass == GameData.ClassDB.Bard && MyStats.Level >= 9) { if (humTimer > 0f) { humTimer -= 60f * Time.deltaTime; return; } humTimer = 600f; CommitBardSong (HumSong, silent: true); }"
+      }
+    },
+    {
+      "id": "bard.hum_only_inspiration",
+      "mode": "assert",
+      "variants": ["playtest"],
+      "type": "SongMngr",
+      "method": "AddChordToWindow",
+      "parameters": ["int", "Spell"],
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (PlayerSkill.CurrentBardSong == PlayerSkill.HumSong && _spell.Type == Spell.SpellType.SongDissonance) { return; }",
+        "ignore_social_logs": "true"
+      }
+    },
+    {
+      "id": "bard.caesura",
+      "mode": "assert",
+      "variants": ["playtest"],
+      "type": "UseSkill",
+      "method": "DoSkill",
+      "matcher": "branch_shape",
+      "args": {
+        "condition": "_skill.Id == \"1361600\"",
+        "branch": "true",
+        "shape": "{ MyStats.CurrentMana += Mathf.RoundToInt ((float)MyStats.GetCurrentMaxMana () * 0.5f); MyChar.MyAudio.PlayOneShot (GameData.Misc.SongLand, GameData.SpellVol * GameData.MasterVol); GameData.CamControl.ShakeScreen (0.2f, 0.5f); foreach (Hotkeys allHotkey in GameData.GM.HKManager.AllHotkeys) { if (allHotkey.AssignedSkill == _skill) { allHotkey.Cooldown = _skill.Cooldown * MyStats.seCDR; } else { allHotkey.Cooldown = 200f; } } return true; }"
+      }
+    },
+    {
       "id": "progression.item_action_guards",
       "mode": "assert",
       "type": "ItemIcon",

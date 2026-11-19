@@ -73,6 +73,34 @@ def test_weapon_page_uses_single_lua_item_tooltip() -> None:
     assert result.count("{{ItemTooltip") == 1
 
 
+def test_harmony_and_dissonance_are_unscaled_tooltip_multipliers() -> None:
+    item = Item(
+        stable_key="item:lute",
+        display_name="Lute",
+        required_slot="Secondary",
+        instrument=1,
+        harmony_mod=0.070000000298023224,
+        dissonance_mod=0.0,
+    )
+    result = ItemSectionGenerator().generate_template(
+        EnrichedItemData(item=item, stats=[ItemStats(item_stable_key=item.stable_key, quality="Standard")], classes=[]),
+        "Lute",
+    )
+    assert "|harmony=0.07\n" in result
+    assert "|dissonance=0\n" in result
+
+
+def test_songwriting_quotes_exported_pages_as_literal_text() -> None:
+    item = Item(stable_key="item:book - songwriting", display_name="A Guide To Songwriting", book_title="Songwriting")
+    result = ItemSectionGenerator().generate_template(
+        EnrichedItemData(item=item, stats=[], classes=[], book_pages=("A Guide to Songwriting", "Notes | Chords")),
+        "A Guide To Songwriting",
+    )
+    assert "|book_text=<p>A Guide to Songwriting</p>\n<p>Notes &#124; Chords</p>" in result
+    assert "|song_reference=" in result
+    assert "Charisma applies twice" in result
+
+
 def test_weapon_tooltip_args_are_display_ready(class_display: ClassDisplayNameService) -> None:
     """Proc fields carry the legacy display contract: linked spell name,
     .png icon, cast time in seconds, and blanks instead of zero noise."""

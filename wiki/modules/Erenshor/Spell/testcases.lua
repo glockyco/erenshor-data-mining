@@ -147,7 +147,8 @@ function p.run()
 	local song = Tooltip.render({
 		stableKey = "spell:bard - test chord",
 		name = "Test Chord",
-		type = "SongInspiration",
+		type = "Inspiration",
+		bardSong = true,
 		damageType = "Magic",
 		manaCost = 15,
 		description = "Deals 15 damage / tick.",

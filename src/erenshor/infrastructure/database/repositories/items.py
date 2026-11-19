@@ -127,6 +127,13 @@ class ItemRepository(BaseRepository[Item]):
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve item renders for {stable_key}: {e}") from e
 
+    def get_book_pages(self, book_title: str) -> tuple[str, ...]:
+        """Return the exported text in the order the book opens it."""
+        rows = self._execute_raw(
+            "SELECT page_content FROM books WHERE book_title = ? ORDER BY page_number", (book_title,)
+        )
+        return tuple(str(row["page_content"]) for row in rows if row["page_content"] is not None)
+
     def get_item_classes(self, stable_key: str) -> list[str]:
         """Get class restrictions for an item.
 

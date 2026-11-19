@@ -3,9 +3,9 @@ using System.Text.Json.Serialization;
 
 namespace CodeFacts;
 
-/// A fact binds one member of `type`: the method named `method`, or the field
-/// declaration that declares the variable named `field`. Exactly one of the
-/// two is set. `parameters` picks one overload of an overloaded method.
+/// A fact binds one member of `type`: the named method, a `.ctor` constructor,
+/// or the field declaring the named variable. Exactly one of `method` and
+/// `field` is set. `parameters` selects a method or constructor overload.
 internal sealed record FactSpec(
     [property: JsonPropertyName("id")] string Id,
     [property: JsonPropertyName("mode")] string Mode,

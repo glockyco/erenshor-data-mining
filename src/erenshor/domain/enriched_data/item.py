@@ -31,6 +31,7 @@ class EnrichedItemData:
         taught_spell: Spell | None = None,
         taught_skill: Skill | None = None,
         renders: Mapping[str | None, str] | None = None,
+        book_pages: tuple[str, ...] = (),
     ) -> None:
         """Initialize enriched item data.
 
@@ -55,3 +56,4 @@ class EnrichedItemData:
         self.taught_spell = taught_spell
         self.taught_skill = taught_skill
         self.renders: Mapping[str | None, str] = renders or {}
+        self.book_pages = book_pages

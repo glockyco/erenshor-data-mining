@@ -45,7 +45,10 @@
 |percent_mana_restoration={{ percent_mana_restoration }}
 |bleed_damage_percent={{ bleed_damage_percent }}
 |special_descriptor={{ special_descriptor }}
-|hp={{ hp }}
+{% if song_capacity %}|song_capacity={{ song_capacity }}
+{% endif %}{% if bard_aura_attributes %}|bard_aura_attributes={{ bard_aura_attributes }}
+{% endif %}{% if bard_skill_details %}|bard_skill_details={{ bard_skill_details }}
+{% endif %}|hp={{ hp }}
 |ac={{ ac }}
 |mana={{ mana }}
 |str={{ str }}

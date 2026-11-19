@@ -237,6 +237,7 @@ class EntityPageGenerator(PageGenerator):
             taught_spell=taught_spell,
             taught_skill=taught_skill,
             renders=self.context.item_repo.get_item_renders(item.stable_key),
+            book_pages=self.context.item_repo.get_book_pages(item.book_title) if item.book_title else (),
         )
 
     def _extract_proc(self, item: Item) -> ProcInfo | None:

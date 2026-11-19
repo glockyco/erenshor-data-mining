@@ -247,6 +247,12 @@ def _spell_record(
         _put_number(record, "castTimeSeconds", ticks_to_seconds(spell.spell_charge_time))
     if spell.spell_duration_in_ticks is not None:
         _put_number(record, "durationSeconds", spell.spell_duration_in_ticks * 3)
+    if spell.bard_song:
+        record["bardSong"] = True
+        if spell.harmonic_mult not in (None, 1):
+            record["harmonicMult"] = spell.harmonic_mult
+        if spell.dissonance_mult not in (None, 1):
+            record["dissonanceMult"] = spell.dissonance_mult
     _put_list(record, "source", link_refs(teaching_items, "item"))
     _put_list(record, "itemsWithEffect", link_refs(items_with_effect, "item"))
     _put_list(record, "usedBy", link_refs(used_by, "character"))

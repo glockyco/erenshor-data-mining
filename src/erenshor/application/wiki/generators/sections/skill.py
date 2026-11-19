@@ -12,7 +12,12 @@ from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from erenshor.application.wiki.generators.formatting import format_description, safe_str, seconds_text
+from erenshor.application.wiki.generators.formatting import (
+    format_bard_skill_details,
+    format_description,
+    safe_str,
+    seconds_text,
+)
 from erenshor.application.wiki.generators.link_lists import format_links, format_visible_links
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
 from erenshor.domain.value_objects.wiki_filename import picture_file_title
@@ -107,10 +112,12 @@ class SkillSectionGenerator(SectionGeneratorBase):
 
         skill_type = skill.type_of_skill or "Passive"
         cast_time = ""
-        if skill.type_of_skill and skill.type_of_skill != "Innate":
+        if skill.bard_song:
+            skill_type = "Bard Song"
+        elif skill.type_of_skill and skill.type_of_skill != "Innate":
             cast_time = "Instant"
 
-        cooldown = self._format_cooldown(skill.cooldown)
+        cooldown = "" if skill.hum else self._format_cooldown(skill.cooldown)
         damage_type = safe_str(skill.damage_type) if skill_type == "Attack" else ""
 
         # teaching_items are pre-built ItemLink objects
@@ -146,9 +153,13 @@ class SkillSectionGenerator(SectionGeneratorBase):
             "is_group_effect": bool_str(skill.ae_skill),
             "is_applied_to_caster": bool_str(skill.affect_player),
             "effects": effects,
+            "bard_skill_details": format_bard_skill_details(skill),
             "damage_type": damage_type,
             "resist_modifier": "",
-            "target_damage": safe_str(skill.skill_power, zero_as_blank=True),
+            "target_damage": safe_str(skill.skill_power, zero_as_blank=True)
+            if skill_type in {"Attack", "Ranged"}
+            else "",
+            "song_capacity": safe_str(skill.song_capacity),
             "target_healing": "",
             "caster_healing": "",
             "shield_amount": "",

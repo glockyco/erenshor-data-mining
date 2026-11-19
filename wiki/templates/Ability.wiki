@@ -98,6 +98,9 @@
       <data source="add_proc"><label>Proc</label></data>
       <data source="add_proc_chance"><label>Proc Chance</label></data>
       <data source="pet_to_summon"><label>Summons</label></data>
+      <data source="song_capacity"><label>Song Capacity</label></data>
+      <data source="bard_aura_attributes"><label>Attribute Bonus</label></data>
+      <data source="bard_skill_details"><label>Ability Details</label></data>
 
       <group collapse="open">
           <header>Stat Modifiers</header>

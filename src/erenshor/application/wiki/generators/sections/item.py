@@ -17,11 +17,17 @@ from __future__ import annotations
 
 import json
 from dataclasses import asdict, replace
+from html import escape
 from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from erenshor.application.wiki.generators.formatting import format_description, join_requirements, safe_str
+from erenshor.application.wiki.generators.formatting import (
+    format_description,
+    join_requirements,
+    safe_str,
+    songwriting_reference,
+)
 from erenshor.application.wiki.generators.item_type_display import build_item_types
 from erenshor.application.wiki.generators.link_lists import fold_long_list
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
@@ -55,6 +61,7 @@ _QUALITY_NAMES = {
 }
 # Quality gates that name what an operation makes, not what a player must bring.
 _QUALITY_OUTCOME_GATES = frozenset({"result_quality", "enhanced_quality", "output_quality"})
+_BOOK_WIKITEXT_ESCAPES = str.maketrans({"|": "&#124;", "{": "&#123;", "}": "&#125;", "[": "&#91;", "]": "&#93;"})
 
 
 def item_image_file(item: Item) -> str:
@@ -465,6 +472,10 @@ class ItemSectionGenerator(SectionGeneratorBase):
             spell_details["effect_style"] = ""
             spell_details["effect_chance"] = ""
 
+        book_text = "\n".join(
+            f"<p>{escape(page).translate(_BOOK_WIKITEXT_ESCAPES)}</p>" for page in enriched.book_pages
+        )
+        song_reference = songwriting_reference() if book_text and item.book_title == "Songwriting" else ""
         general_context = {
             "icon": item_image_file(item),
             "value": self._item_window_value(item),
@@ -472,6 +483,8 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "description": format_description(safe_str(item.lore)) if item.lore else "",
             "stack_size": "",
             "disposable": "True" if item.disposable else "",
+            "book_text": book_text,
+            "song_reference": song_reference,
             **spell_details,
         }
 

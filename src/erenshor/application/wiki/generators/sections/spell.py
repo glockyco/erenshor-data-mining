@@ -116,6 +116,15 @@ class SpellSectionGenerator(SectionGeneratorBase):
         itemswitheffect = format_visible_links(enriched.items_with_effect)
         source = format_visible_links(enriched.teaching_items)
         used_by = format_visible_links(enriched.used_by_characters)
+        aura_attributes = ""
+        if spell.bard_aura:
+            if spell.bard_aura_conversion is None or spell.bard_aura_minimum is None:
+                raise ValueError(f"{spell.stable_key}: Bard aura has no exported conversion or minimum")
+            # code-fact: bard.aura_charisma
+            aura_attributes = (
+                f"Other party members gain {spell.bard_aura_conversion}% of the aura holder's Charisma, "
+                f"rounded, with a minimum of +{spell.bard_aura_minimum} to each of the seven attributes."
+            )
 
         context: dict[str, str] = {
             "title": display_name,
@@ -124,6 +133,7 @@ class SpellSectionGenerator(SectionGeneratorBase):
             "icon": icon,
             "imagecaption": imagecaption,
             "description": format_description(safe_str(spell.spell_desc)) if spell.spell_desc else "",
+            "bard_aura_attributes": aura_attributes,
             "type": safe_str(spell.type),
             "line": safe_str(spell.line),
             "classes": classes,

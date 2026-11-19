@@ -144,6 +144,10 @@ def _skill_record(
         _put_number(record, lua_key, getattr(skill, attr))
     for lua_key, attr in _BOOL_FIELD_MAP:
         _put_bool(record, lua_key, getattr(skill, attr))
+    if skill.bard_song:
+        _put_number(record, "songCapacity", skill.song_capacity)
+        if skill.hum:
+            record["hum"] = True
     if skill.cooldown is not None:
         _put_number(record, "cooldownSeconds", ticks_to_seconds(skill.cooldown))
     _put_list(record, "source", link_refs(teaching_items, "item"))
