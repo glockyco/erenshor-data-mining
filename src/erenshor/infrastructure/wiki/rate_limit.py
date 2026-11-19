@@ -210,8 +210,6 @@ class MediaWikiRequestor:
         with self._lock:
             for attempt in range(self.policy.max_retries + 1):
                 try:
-                    # The URL's query carries the file's SHA-1 prefix, which
-                    # makes the file server's cache serve the current version.
                     response = self._http_client.get(url)
                 except httpx.TransportError:
                     if attempt == self.policy.max_retries:

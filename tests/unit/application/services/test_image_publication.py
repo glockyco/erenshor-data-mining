@@ -131,6 +131,39 @@ def test_a_game_update_that_changes_two_icons_plans_two_updates_and_shows_both(s
         assert image.height == 24 + 2 * 80
 
 
+@pytest.mark.parametrize("fallback_matches", [True, False])
+def test_stale_cdn_bytes_trigger_one_hash_keyed_download(tmp_path: Path, fallback_matches: bool) -> None:
+    requests = []
+    sha1 = _sha1(OLD)
+    file = MediaWikiFile(
+        title="File:Thorned Branch.png",
+        sha1=sha1,
+        user=BOT,
+        comment="",
+        size=len(OLD),
+        width=150,
+        height=150,
+        timestamp="2026-10-08T12:00:00Z",
+        url=f"https://erenshor.wiki.gg/images/Thorned_Branch.png?{sha1[:6]}",
+    )
+    fallback_url = f"{file.url}&vhash={sha1}"
+
+    def download(url: str) -> bytes:
+        requests.append(url)
+        return OLD if url == fallback_url and fallback_matches else SCROLL
+
+    cache = LivePictureCache(download, tmp_path)
+    if fallback_matches:
+        assert cache.content(file) == OLD
+        assert cache.content(file) == OLD
+        assert cache.downloads == 1
+    else:
+        with pytest.raises(ValueError, match="does not have the SHA-1"):
+            cache.content(file)
+        assert not list(tmp_path.iterdir())
+    assert requests == [file.url, fallback_url]
+
+
 def test_a_live_picture_whose_bytes_do_not_match_its_listed_sha1_draws_as_unreadable(setup: Any) -> None:
     """wiki.gg's CDN has served a title's old or wrong bytes under its current, versioned URL (observed
     2026-10-08); one such title must not stop the sheet from showing the rest."""

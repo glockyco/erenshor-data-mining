@@ -43,6 +43,7 @@ from collections import defaultdict
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
+from urllib.parse import urlsplit, urlunsplit
 
 from PIL import Image, ImageDraw, UnidentifiedImageError
 
@@ -192,7 +193,14 @@ class LivePictureCache:
             return path.read_bytes()
         data = self._download(file.url)
         if hashlib.sha1(data, usedforsecurity=False).hexdigest() != file.sha1:
-            raise ValueError(f"The download of {file.title} does not have the SHA-1 that the listing gives")
+            # The CDN can serve stale bytes even under the wiki's short version query.
+            scheme, host, path_part, query, fragment = urlsplit(file.url)
+            if scheme not in {"http", "https"}:
+                raise ValueError(f"The download of {file.title} does not have the SHA-1 that the listing gives")
+            versioned_query = f"{query}&vhash={file.sha1}" if query else f"vhash={file.sha1}"
+            data = self._download(urlunsplit((scheme, host, path_part, versioned_query, fragment)))
+            if hashlib.sha1(data, usedforsecurity=False).hexdigest() != file.sha1:
+                raise ValueError(f"The download of {file.title} does not have the SHA-1 that the listing gives")
         self.downloads += 1
         self._directory.mkdir(parents=True, exist_ok=True)
         temporary = path.with_name(f".{path.name}.tmp")
