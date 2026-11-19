@@ -232,6 +232,18 @@ def test_smoke_check_allows_healthy_template_links_and_visible_limit_text() -> N
     assert result.missing == []
 
 
+def test_smoke_selector_requires_a_matching_ancestor() -> None:
+    render = load_script("wiki-dev/smoke/render.py")
+    mediawiki = load_script("wiki-dev/smoke/mediawiki.py")
+    html = '<div class="wanted"><p><span class="fact">Damage: <i>85</i></span></p></div><span class="fact">Wrong</span>'
+    result = render.check_rendered_page(
+        title="Weapon tooltip",
+        parsed=mediawiki.ParsedPage(html=html, categories=()),
+        expected=["elem:.wanted .fact=Damage: 85", "!elem:.wanted .fact=Wrong"],
+    )
+    assert result.ok, result.missing
+
+
 def test_smoke_check_rejects_unexpected_missing_data_categories() -> None:
     render = load_script("wiki-dev/smoke/render.py")
     mediawiki = load_script("wiki-dev/smoke/mediawiki.py")

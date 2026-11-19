@@ -10,6 +10,7 @@ return {
 	["Alexander Farland"] = '["character:alexander farland"]',
 	["Alyssia Fearnon"] = '["character:alyssa fearnon"]',
 	["Ancient Presence"] = '["spell:ancient_presence"]',
+	["Arcanist"] = '["class:arcanist"]',
 	["Armband of Generals"] = '["item:arm - 37 - armband of generals"]',
 	["Assassin of Sivakaya"] = '["character:duelist of sivakaya"]',
 	["Backstab"] = '["skill:backstab"]',

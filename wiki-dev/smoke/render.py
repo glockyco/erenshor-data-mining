@@ -16,8 +16,9 @@ grammar instead of pinning a literal substring of the raw HTML:
 ``elem:SELECTOR``
     An element matches SELECTOR, a compound CSS-like selector of the form
     ``tag?(.class)*(#id)?([attr]|[attr="value"]|[attr*="value"])*(=TEXT)?``.
-    Omitting ``=TEXT`` checks only that a matching element exists; including
-    it also requires the element's own and descendant text to contain TEXT.
+    Omitting ``=TEXT`` checks only that a matching element exists. Including
+    it requires that element's text to contain TEXT. Space-separated
+    selectors describe a chain of ancestors and one matching element.
 
 Any selector may be prefixed with ``!`` to require that it does not match.
 """
@@ -83,21 +84,20 @@ _HEADING_TAGS = frozenset({"h1", "h2", "h3", "h4"})
 class _Node:
     """One element of a rendered page's DOM, built for selector matching."""
 
-    __slots__ = ("attrs", "children", "own_text", "parent", "tag")
+    __slots__ = ("attrs", "children", "parent", "tag")
 
     def __init__(self, tag: str, attrs: dict[str, str], parent: _Node | None) -> None:
         self.tag = tag
         self.attrs = attrs
         self.children: list[_Node | str] = []
         self.parent = parent
-        self.own_text: list[str] = []
 
     def classes(self) -> list[str]:
         return (self.attrs.get("class") or "").split()
 
     def text(self) -> str:
         """This element's own and descendant text, excluding script and style content."""
-        parts = list(self.own_text)
+        parts: list[str] = []
         for child in self.children:
             if isinstance(child, _Node):
                 if child.tag in _HIDDEN_TAGS:
@@ -139,7 +139,6 @@ class _DOMBuilder(HTMLParser):
 
     def handle_data(self, data: str) -> None:
         current = self._stack[-1]
-        current.own_text.append(data)
         current.children.append(data)
 
 
@@ -174,6 +173,8 @@ _SELECTOR_PART_RE = re.compile(
     r"|\#(?P<id>[a-zA-Z0-9_-]+)"
     r'|\[(?P<attr>[a-zA-Z0-9_-]+)(?P<op>[*]?=)?(?:"(?P<val>.*?)")?\]'
 )
+_SELECTOR_COMPOUND = r"(?:[a-zA-Z][a-zA-Z0-9]*)?(?:\.[a-zA-Z0-9_-]+|\#[a-zA-Z0-9_-]+|\[[^]]+\])*"
+_SELECTOR_ANCESTOR = re.compile(rf"({_SELECTOR_COMPOUND})[ \t]+")
 
 
 def _parse_elem_selector(selector: str) -> _ElemSelector:
@@ -215,12 +216,30 @@ def _attr_matches(actual: str | None, op: str, value: str) -> bool:
 
 
 def check_elem(root: _Node, selector_str: str) -> bool:
-    selector = _parse_elem_selector(selector_str)
-    matches = [node for node in root.walk() if node.tag != "#root" and _elem_matches(node, selector)]
-    if selector.text is None:
-        return bool(matches)
-    needle = html_lib.unescape(selector.text)
-    return any(needle in node.text() for node in matches)
+    ancestors = []
+    remaining = selector_str
+    while match := _SELECTOR_ANCESTOR.match(remaining):
+        ancestors.append(_parse_elem_selector(match[1]))
+        remaining = remaining[match.end() :]
+    selector = _parse_elem_selector(remaining)
+    needle = None if selector.text is None else html_lib.unescape(selector.text)
+    return any(
+        node.tag != "#root"
+        and _elem_matches(node, selector)
+        and (needle is None or needle in node.text())
+        and _matches_ancestors(node.parent, ancestors)
+        for node in root.walk()
+    )
+
+
+def _matches_ancestors(node: _Node | None, ancestors: list[_ElemSelector]) -> bool:
+    for ancestor in reversed(ancestors):
+        while node is not None and not _elem_matches(node, ancestor):
+            node = node.parent
+        if node is None:
+            return False
+        node = node.parent
+    return True
 
 
 def check_heading(root: _Node, text: str) -> bool:
