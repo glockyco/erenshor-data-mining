@@ -177,6 +177,61 @@ def _remote_pages(pages, contents: dict[str, str], content_model: str = "wikitex
     }
 
 
+def _generated_variant(root: Path, variant: str, title: str) -> Path:
+    from erenshor.application.wiki.services.storage import WikiStorage
+
+    wiki = root / "variants" / variant / "wiki"
+    storage = WikiStorage(wiki)
+    storage.save_generated_by_title(title, ["item:test"], "Generated article")
+    data = wiki / "lua/Erenshor/Data"
+    data.mkdir(parents=True)
+    for module in ("Items", "Spells", "Skills", "Stances", "Links"):
+        (data / f"{module}.lua").write_text(f"return {{variant = '{variant}'}}\n")
+    return wiki
+
+
+def test_full_data_discovery_uses_only_the_selected_variant(tmp_path: Path) -> None:
+    import_pages = load_import_pages()
+    root = make_root(tmp_path)
+    main = _generated_variant(root, "main", "Main test page")
+    playtest = _generated_variant(root, "playtest", "Playtest test page")
+    fixture = tmp_path / "wiki-dev/fixtures/modules/Erenshor/Data/Spells.lua"
+    fixture.parent.mkdir(parents=True)
+    fixture.write_text("return {}")
+
+    pages = {page.title: page for page in import_pages.discover_pages(tmp_path, generated_wiki=playtest)}
+
+    assert "Playtest test page" in pages
+    assert "Main test page" not in pages
+    assert pages["Module:Erenshor/Data/Spells"].path.is_relative_to(playtest)
+    assert not pages["Module:Erenshor/Data/Spells"].path.is_relative_to(main)
+    warm = {page.title: page for page in import_pages.discover_pages(tmp_path)}
+    assert warm["Module:Erenshor/Data/Spells"].path == fixture
+
+
+def test_full_data_discovery_fails_missing_generated_module(tmp_path: Path) -> None:
+    import_pages = load_import_pages()
+    make_root(tmp_path)
+    wiki = _generated_variant(tmp_path, "playtest", "Test page")
+    (wiki / "lua/Erenshor/Data/Stances.lua").unlink()
+
+    with pytest.raises(ValueError, match="Missing generated module: Module:Erenshor/Data/Stances"):
+        import_pages.discover_pages(tmp_path, generated_wiki=wiki)
+
+
+def test_full_data_manifest_rejects_duplicate_title(tmp_path: Path) -> None:
+    import_pages = load_import_pages()
+    make_root(tmp_path)
+    wiki = _generated_variant(tmp_path, "playtest", "Test page")
+    duplicate = tmp_path / "wiki/modules/Erenshor/Data/Spells.lua"
+    duplicate.parent.mkdir(parents=True)
+    duplicate.write_text("return {}")
+    pages = import_pages.discover_pages(tmp_path, generated_wiki=wiki)
+
+    with pytest.raises(ValueError, match="Duplicate managed page title: Module:Erenshor/Data/Spells"):
+        import_pages.build_manifest(tmp_path, pages)
+
+
 def test_discovery_uses_unique_allowlisted_titles_and_includes_javascript(tmp_path: Path) -> None:
     import_pages = load_import_pages()
     root = make_root(tmp_path)

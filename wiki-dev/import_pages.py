@@ -117,8 +117,8 @@ def _discover_gadget_pages(root: Path, spec: GadgetSpec) -> list[PageSource]:
     ]
 
 
-def discover_pages(root: Path) -> list[PageSource]:
-    """Discover interface, gadget, module, template, and fixture pages."""
+def discover_pages(root: Path, *, generated_wiki: Path | None = None) -> list[PageSource]:
+    """Discover repository pages with fixture or generated data, never both."""
     spec = _load_gadget_spec(root)
     pages: list[PageSource] = []
     definition_pages: list[PageSource] = []
@@ -142,7 +142,7 @@ def discover_pages(root: Path) -> list[PageSource]:
             pages.append(PageSource(title=title, path=path, content_model="Scribunto"))
 
     fixture_modules_dir = root / "wiki-dev" / "fixtures" / "modules"
-    if fixture_modules_dir.exists():
+    if generated_wiki is None and fixture_modules_dir.exists():
         fixture_paths = sorted(
             fixture_modules_dir.rglob("*.lua"),
             key=lambda path: (len(path.relative_to(fixture_modules_dir).parts), path.as_posix()),
@@ -164,7 +164,7 @@ def discover_pages(root: Path) -> list[PageSource]:
             pages.append(PageSource(title=title, path=path, content_model="sanitized-css"))
 
     fixture_pages_dir = root / "wiki-dev" / "fixtures" / "pages"
-    if fixture_pages_dir.exists():
+    if generated_wiki is None and fixture_pages_dir.exists():
         for path in sorted(fixture_pages_dir.rglob("*.wiki")):
             relative = path.relative_to(fixture_pages_dir).with_suffix("")
             title = "/".join(relative.parts).replace("_", " ")
@@ -178,6 +178,29 @@ def discover_pages(root: Path) -> list[PageSource]:
         for path in sorted(fixture_file_pages_dir.glob("*.wiki")):
             title = "File:" + path.with_suffix("").name.replace("_", " ")
             pages.append(PageSource(title=title, path=path))
+
+    if generated_wiki is not None:
+        from erenshor.application.wiki.services.storage import WikiStorage
+
+        lua = generated_wiki / "lua"
+        data_dir = lua / "Erenshor" / "Data"
+        for name in ("Items", "Spells", "Skills", "Stances", "Links"):
+            if not (data_dir / f"{name}.lua").is_file():
+                raise ValueError(f"Missing generated module: Module:Erenshor/Data/{name}")
+        for path in sorted(data_dir.rglob("*.lua")):
+            title = "Module:" + path.relative_to(lua).with_suffix("").as_posix()
+            pages.append(PageSource(title, path, content_model="Scribunto"))
+        if not (generated_wiki / "generated").is_dir():
+            raise ValueError(f"Missing generated articles under {generated_wiki}")
+        storage = WikiStorage(generated_wiki)
+        titles = storage.list_generated_titles()
+        if not titles:
+            raise ValueError(f"No generated articles under {generated_wiki}")
+        for title in titles:
+            path = storage.generated_path(title)
+            if not path.is_file():
+                raise ValueError(f"Missing generated article: {title}")
+            pages.append(PageSource(title, path))
 
     pages.extend(definition_pages)
     return pages
@@ -665,7 +688,9 @@ def reconcile_pages(
     token: str,
     pages: Sequence[PageSource],
     root: Path,
+    *,
     manifest_file: Path | None = None,
+    purge_imports: bool = True,
 ) -> ImportReport:
     """Reconcile managed local sources without touching unmanaged wiki pages."""
     state_path = manifest_file if manifest_file is not None else manifest_path(root)
@@ -708,8 +733,11 @@ def reconcile_pages(
             delete_page(client, endpoint, token, title)
             deleted.append(title)
 
-    for title in purge_titles:
-        purge_page(client, endpoint, token, title)
+    if purge_imports:
+        for title in purge_titles:
+            purge_page(client, endpoint, token, title)
+    else:
+        purge_titles.clear()
 
     write_manifest(state_path, current)
     return ImportReport(
@@ -732,10 +760,19 @@ def main() -> None:
         type=Path,
         help="Override managed state path for an isolated local wiki run",
     )
+    parser.add_argument("--generated-wiki", type=Path, help="Import a variant's generated articles and Lua")
     parser.add_argument("--dry-run", action="store_true", help="Print discovered pages without editing")
     args = parser.parse_args()
 
-    pages = discover_pages(args.root)
+    if args.generated_wiki is not None:
+        from urllib.parse import urlsplit
+
+        base = urlsplit(args.base_url)
+        if base.hostname not in {"localhost", "127.0.0.1", "::1"} or base.port in {None, 8088}:
+            parser.error("--generated-wiki requires an isolated loopback wiki on a non-fixture port")
+        if args.manifest_file is None or args.manifest_file.resolve() == manifest_path(args.root).resolve():
+            parser.error("--generated-wiki requires a separate --manifest-file")
+    pages = discover_pages(args.root, generated_wiki=args.generated_wiki)
     files = discover_files(args.root)
     if args.dry_run:
         current = build_manifest(args.root, pages)
@@ -765,6 +802,7 @@ def main() -> None:
             pages,
             args.root,
             manifest_file=args.manifest_file,
+            purge_imports=args.generated_wiki is None,
         )
 
     for action, titles in (

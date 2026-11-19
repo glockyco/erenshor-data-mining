@@ -22,18 +22,13 @@ def api_url(base_url: str) -> str:
     return f"{base_url.rstrip('/')}/api.php"
 
 
-def parse_page(client: httpx.Client, endpoint: str, title: str) -> ParsedPage:
-    """Render a wiki page and return its parsed HTML and category names."""
-    response = client.get(
-        endpoint,
-        params={
-            "action": "parse",
-            "page": title,
-            "prop": "text|categories",
-            "format": "json",
-            "formatversion": "2",
-        },
-    )
+def parse_page(client: httpx.Client, endpoint: str, title: str, *, source: str | None = None) -> ParsedPage:
+    """Render the current page or parse exact supplied source without the page cache."""
+    options = {"action": "parse", "prop": "text|categories", "format": "json", "formatversion": "2"}
+    if source is None:
+        response = client.get(endpoint, params={**options, "page": title})
+    else:
+        response = client.post(endpoint, data={**options, "title": title, "text": source, "contentmodel": "wikitext"})
     response.raise_for_status()
     payload = response.json()
     if "error" in payload:

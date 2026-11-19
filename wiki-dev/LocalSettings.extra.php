@@ -30,6 +30,9 @@ wfLoadExtension( 'EmbedVideo' );
 # The base image ships LuaSandbox, the engine that the live wiki runs.
 $wgScribuntoDefaultEngine = 'luasandbox';
 
+# Bulk imports must not lose their login when the parser cache fills APCu.
+$wgSessionCacheType = CACHE_DB;
+
 $wgShowExceptionDetails = true;
 $wgShowDBErrorBacktrace = true;
 
