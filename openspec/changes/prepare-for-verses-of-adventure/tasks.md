@@ -15,9 +15,12 @@ Nothing from this change goes to a shared target before Erenshor 0.8 ships on `m
 - [x] 1.3 Run `extract export`. Reconcile `src/tools/ExportSurface/field-coverage.json` with the playtest DLL, classifying the 17 native inputs and the 8 declared-only fields from the readiness audit against their serialized bindings. If the export exits 3, follow `skill://auditing-spawn-coverage`. Each classification or listener change is its own commit. Verify: export exits 0 without a bypassed gate.
   - The gate found 114 new fields. 27 are captured and the rest are classified as interface, audio, animation or runtime state. The export exits 0 with no spawn-coverage findings.
   - `NeverRain` hides the rain effect only. Logical rain and weather-dependent spawns are unchanged in those zones.
-- [ ] 1.4 Run `extract code-facts` and resolve each failure from the shipped method (`skill://code-facts`). Keep the main-only critical-strike facts as explicit skips. Each re-derived fact or matcher fix is its own commit. Verify: no fact fails, and the skips are the ones listed.
-- [ ] 1.5 Run `extract build` and fix processor errors at their source. Verify: the clean database and its backup exist for build 26769622.
-- [ ] 1.6 Run `extract compare-variants` between main and the playtest, review every table, and run `progression show --gaps` for the playtest. Record the new zones, quests, NPCs, items, spells and classes, the renamed and removed content, and the new progression gaps in this file. Verify: each of the following has a row, or a note that it is missing from the data:
+- [x] 1.4 Run `extract code-facts` and resolve each failure from the shipped method (`skill://code-facts`). Keep the main-only critical-strike facts as explicit skips. Each re-derived fact or matcher fix is its own commit. Verify: no fact fails, and the skips are the ones listed.
+  - All facts bind for build 26769622. `RaidSkaldEvent` is pending under task 3.3.
+- [x] 1.5 Run `extract build` and fix processor errors at their source. Verify: the clean database and its backup exist for build 26769622.
+  - The build needed a zone type for Glowmere Grotto, two Ripper's Keep door records, a shifted Stowaway object key and the song scroll titles of design D8.
+- [x] 1.6 Run `extract compare-variants` between main and the playtest, review every table, and run `progression show --gaps` for the playtest. Record the new zones, quests, NPCs, items, spells and classes, the renamed and removed content, and the new progression gaps in this file. Verify: each of the following has a row, or a note that it is missing from the data:
+  - The record is in `data-changes.md`, and the developer's playtest notes are in `playtest-changelog.md`.
   - The Bard class and its songs, notes and chords.
   - Glowmere Grotto.
   - The Ripper's Keep entry quest.
@@ -30,7 +33,8 @@ Nothing from this change goes to a shared target before Erenshor 0.8 ships on `m
 
 ## 2. Classes (design D2, specs/character-classes)
 
-- [ ] 2.1 `refactor: read playable classes from the clean classes table`: replace every six-class list in the export listeners, processors, wiki generators, `wiki_lua`, `semantic_validation.py`, `critical_strike_model.py`, the sheet queries and their tests with the exported classes, skipping `Default`. Keep any per-class value that the game doesn't export in one file, and make generation fail when a class has none. Verify: `uv run erenshor test ci` passes on `main` (0.7), and the playtest build lists the Bard among its seven classes.
+- [x] 2.1 `refactor: read playable classes from the clean classes table`: replace every six-class list in the export listeners, processors, wiki generators, `wiki_lua`, `semantic_validation.py`, `critical_strike_model.py`, the sheet queries and their tests with the exported classes, skipping `Default`. Keep any per-class value that the game doesn't export in one file, and make generation fail when a class has none. Verify: `uv run erenshor test ci` passes on `main` (0.7), and the playtest build lists the Bard among its seven classes.
+  - Skill levels live in `skill_classes`, and the item templates take `classes` and `class_levels`. CI passes, and the playtest database lists seven classes with 19 Bard skills and 63 Bard spells. The critical-strike model keeps its named Stormcaller and Windblade profiles because no exported data classifies them.
 - [ ] 2.2 `feat: show the Bard in starter items, skills and spells`: run the playtest wiki, Lua and sheet generation and fix what is still missing for the Bard. Verify: the Bard's starter items, skills and spell levels appear in the generated pages, data modules and sheet previews.
 
 ## 3. New mechanics (design D3)
