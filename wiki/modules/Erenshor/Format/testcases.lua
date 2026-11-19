@@ -77,7 +77,7 @@ function p.run()
 	)
 	assertEqual(
 		Format.bookLevels({ args = { "Bard: 1" } }),
-		'<div class="item-tooltip-book-requirement">Required Level:</div>'
+		'<div class="item-tooltip-book-requirement">REQUIRED LEVEL:</div>'
 			.. '<div class="item-tooltip-book-class-requirements">'
 			.. '<div class="item-tooltip-book-class-req">Bard: 1</div></div>',
 		"skill books keep class-specific rows"

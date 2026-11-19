@@ -36,7 +36,9 @@ def _template(template_name: str, **values: str) -> str:
 def test_item_class_contract_uses_display_ready_generic_parameter(template_name: str, field: str) -> None:
     fields = REQUIRED_TEMPLATE_FIELDS[template_name]
     assert field in fields
-    assert not any(name.endswith("_level") for name in fields if not name.startswith("proc_"))
+    assert not any(
+        name.endswith("_level") for name in fields if name != "required_level" and not name.startswith("proc_")
+    )
     assert "duelist" not in fields
 
 

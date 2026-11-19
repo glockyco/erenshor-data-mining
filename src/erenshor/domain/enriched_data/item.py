@@ -6,6 +6,7 @@ from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.entities.skill import Skill
 from erenshor.domain.entities.spell import Spell
+from erenshor.domain.entities.stance import Stance
 from erenshor.domain.value_objects.proc_info import ProcInfo
 from erenshor.domain.value_objects.source_info import SourceInfo
 
@@ -32,6 +33,8 @@ class EnrichedItemData:
         taught_skill: Skill | None = None,
         renders: Mapping[str | None, str] | None = None,
         book_pages: tuple[str, ...] = (),
+        taught_stance: Stance | None = None,
+        ingredient_names: tuple[str, ...] = (),
     ) -> None:
         """Initialize enriched item data.
 
@@ -57,3 +60,5 @@ class EnrichedItemData:
         self.taught_skill = taught_skill
         self.renders: Mapping[str | None, str] = renders or {}
         self.book_pages = book_pages
+        self.taught_stance = taught_stance
+        self.ingredient_names = ingredient_names

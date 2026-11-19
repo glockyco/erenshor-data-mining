@@ -6,12 +6,13 @@
  |value={{{value|}}}
  |tier=0
 }}
+{{#if:{{{classes|}}}|{{Item/ClassRestrictions|classes={{{classes}}}}}|<div class="item-tooltip-usability">General Item</div>}}
 {| class="item-tooltip-body"
 |-
 | |
 <div class="item-tooltip-consumable-container"><!--
--->{{#if:{{{effect_spell_name|}}}|<div class="item-tooltip-consumable-type">Activatable: {{{effect_spell_name}}}</div>}}<!--
 -->{{#if:{{{description|}}}|<div class="item-tooltip-description">{{{description}}}</div>}}<!--
+-->{{#if:{{{effect_spell_name|}}}|<div class="item-tooltip-consumable-type">Activatable: {{{effect_spell_name}}}</div>}}<!--
 -->{{#if:{{{disposable|}}}|<div class="item-tooltip-consumable-usage">Item Consumed Upon Use.</div>}}<!--
 --></div>
 |}

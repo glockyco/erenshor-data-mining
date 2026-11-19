@@ -60,8 +60,8 @@ function p.run()
 	)
 	assertContains(
 		recklessTip,
-		'item-spell-details-header">Reckless</div><div class="item-ability-kind">Ability',
-		"fallback stance tooltip synthesizes skill"
+		'item-spell-details-header">Reckless - Activatable',
+		"fallback keeps the activating skillbook title format"
 	)
 	assertContains(
 		Stance.renderTooltip({}, "Unknown Prototype"),

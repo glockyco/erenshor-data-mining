@@ -82,28 +82,18 @@ function p.run()
 	)
 	assertContains(minorTooltip, "Resonance ", "spell tooltip includes item-detail resonance")
 	assertContains(minorTooltip, "+30", "spell tooltip includes resonance value")
-	assertContains(
+	assertNotContains(
 		minorTooltip,
 		"Armor Penetration ",
-		"spell tooltip includes spellbook armor penetration"
+		"details omit spellbook-only armor penetration"
 	)
-	assertContains(minorTooltip, "+12%", "spell tooltip includes armor penetration value")
-	assertContains(
-		minorTooltip,
-		"Mana Regen ",
-		"spell tooltip includes level-scaled mana restoration"
-	)
-	assertContains(
-		minorTooltip,
-		'<span class="item-spell-positive">+1.5</span> per level',
-		"spell tooltip labels level scaling"
-	)
+	assertNotContains(minorTooltip, "Mana Regen ", "details omit viewer-scaled mana restoration")
 	assertContains(minorTooltip, "25% chance to proc", "spell tooltip includes added proc chance")
 	local hydrated =
 		Tooltip.renderPage({ stableKey = "spell:all - hydrated", name = "Hydrated", haste = 3 })
 	assertContains(
 		hydrated,
-		'Haste <span class="item-spell-positive">+3%</span>',
+		'Haste <span class="item-spell-positive">+3</span>%',
 		"haste uses the spell-details percent unit"
 	)
 	assertNotContains(hydrated, "[[File:", "spell with no icon draws no file")

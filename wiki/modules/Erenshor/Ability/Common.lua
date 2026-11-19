@@ -106,6 +106,10 @@ function Common.colorDamageType(damageType)
 	return tostring(damageType)
 end
 
+function Common.damageType(frame)
+	return Common.colorDamageType(frame.args[1])
+end
+
 -- durationSeconds <= 0 -> instant; else labelled "Damage over time:" when the
 -- spell deals damage, else "Effect Duration:".
 function Common.spellDuration(spell)

@@ -14,8 +14,8 @@
 <div class="item-tooltip-aura-container"><!--
 --><div class="item-tooltip-aura-type">Aura Item</div><!--
 --><div class="item-tooltip-aura-notes"><!--
---><div>Auras affect the entire party.</div><!--
---><div>Auras of the same type do not stack.</div><!--
+--><div>Auras effect entire party</div><!--
+--><div>Auras of same type do not stack</div><!--
 --></div><!--
 -->{{#if:{{{aura_spell_name|}}}|<div class="item-tooltip-aura-spell-name">{{{aura_spell_name}}}</div>}}<!--
 -->{{#if:{{{aura_spell_desc|}}}|<div class="item-tooltip-aura-spell-desc">{{{aura_spell_desc}}}</div>}}<!--

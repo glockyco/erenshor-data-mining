@@ -5,6 +5,7 @@
  |name={{{name}}}
  |value={{{value|}}}
  |tier={{{tier|0}}}
+ |type=Primary
 }}
 {{Item/ClassRestrictions|classes={{{classes|}}}}}
 {| class="item-tooltip-body"

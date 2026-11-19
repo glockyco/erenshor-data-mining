@@ -3,8 +3,7 @@
 -->{{#if:{{{value|}}}|<div class="item-tooltip-value">{{#ifeq:{{{value}}}|Unsellable||<span class="item-tooltip-coin" aria-label="gold"></span>}}{{{value}}}</div>}}<!--
 --></div><!--
 --><div class="item-tooltip-name-cell"><div class="item-tooltip-name item-tooltip-tier-{{{tier|0}}}">{{{name|}}}</div><!--
--->{{#if:{{{type|}}}|<div class="item-tooltip-type">{{{type}}}</div>}}<!--
--->{{#if:{{{relic|}}}|<div class="item-tooltip-relic">Relic Item</div>}}<!--
+-->{{#if:{{{type|}}}{{{relic|}}}|<div class="item-tooltip-type">{{{type|}}}{{#if:{{{relic|}}}|{{#if:{{{type|}}}|&#32;-&#32;}}Relic Item}}</div>}}<!--
 --></div></div></includeonly><noinclude>
 == Template:Item/Header ==
 

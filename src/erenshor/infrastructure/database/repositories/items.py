@@ -78,6 +78,16 @@ class ItemRepository(BaseRepository[Item]):
         )
         return {str(row["stable_key"]): _item_link_from_row(row) for row in rows}
 
+    def get_template_ingredient_names(self, raw_ids: str) -> tuple[str, ...]:
+        """Resolve template slots without dropping duplicates or unavailable recipes."""
+        ids = tuple(value.strip() for value in raw_ids.split(",") if value.strip())
+        if not ids:
+            return ()
+        placeholders = ",".join("?" for _ in ids)
+        rows = self._execute_raw(f"SELECT id, item_name FROM items WHERE id IN ({placeholders})", ids)
+        names = {str(row["id"]): str(row["item_name"]) for row in rows}
+        return tuple(names[key] for key in ids)
+
     @staticmethod
     def _quantity(fact: PublicSource | PublicUse) -> int | None:
         value = fact.quantity_min

@@ -30,7 +30,7 @@ Ember Longsword	elem:.item-tooltip-equipment-stats .item-tooltip-stat-label=Stre
 Ember Longsword	elem:.item-tooltip-dps=Base DPS
 Ember Longsword	elem:.item-tooltip-class=Windblade
 Ember Longsword	elem:.item-spell-details
-Ember Longsword	elem:.item-spell-details-proc-header=20% chance on ATTACK:
+Ember Longsword	elem:.item-tooltip-proc-name=20% chance on ATTACK:
 Ember Longsword	elem:.item-spell-details-header=Ember Burst
 Ember Longsword	elem:.portable-infobox
 Ember Longsword	elem:.pi-type-Item

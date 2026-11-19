@@ -196,7 +196,8 @@ def test_scroll_class_levels_follow_item_restrictions_and_database_names(
 
     result = ItemSectionGenerator(class_display=class_display).generate_template(enriched, "Scroll")
 
-    assert "|class_levels=Bard: 7, Windblade: 7\n" in result
+    assert "|class_levels=Windblade: 7, Bard: 7\n" in result
+    assert "|required_level=7\n" in result
     assert "|duelist_level=" not in result
     assert "item-tooltip-book-class-req" not in result
 
@@ -223,7 +224,7 @@ def test_skill_book_class_levels_follow_skill_mapping_and_database_names(
 
     result = ItemSectionGenerator(class_display=class_display).generate_template(enriched, "Book")
 
-    assert "|class_levels=Bard: 3, Windblade: 9\n" in result
+    assert "|class_levels=Windblade: 9, Bard: 3\n" in result
     assert "Stormcaller: 0" not in result
     assert "|duelist_level=" not in result
     assert "item-tooltip-book-class-req" not in result

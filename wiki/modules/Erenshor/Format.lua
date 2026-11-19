@@ -141,11 +141,12 @@ function p.bookLevels(frame)
 	for _, entry in ipairs(levels) do
 		shared = shared and entry.level == first
 	end
-	local label = '<div class="item-tooltip-book-requirement">Required Level:'
+	local label = '<div class="item-tooltip-book-requirement">'
 	if shared then
-		return label .. " " .. first .. "</div>"
+		return label .. "Required Level: " .. first .. "</div>"
 	end
 	return label
+		.. (frame.args[2] == "scroll" and "Required Level:" or "REQUIRED LEVEL:")
 		.. '</div><div class="item-tooltip-book-class-requirements">'
 		.. levelRows(levels)
 		.. "</div>"

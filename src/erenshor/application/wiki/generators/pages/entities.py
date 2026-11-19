@@ -226,6 +226,11 @@ class EntityPageGenerator(PageGenerator):
         taught_skill = None
         if item.teach_skill_stable_key:
             taught_skill = self.context.skill_repo.get_skill_by_stable_key(item.teach_skill_stable_key)
+        taught_stance = (
+            self.context.stance_repo.get_by_stable_key(taught_skill.stance_to_use_stable_key)
+            if taught_skill and taught_skill.stance_to_use_stable_key
+            else None
+        )
 
         return EnrichedItemData(
             item=item,
@@ -238,6 +243,10 @@ class EntityPageGenerator(PageGenerator):
             taught_skill=taught_skill,
             renders=self.context.item_repo.get_item_renders(item.stable_key),
             book_pages=self.context.item_repo.get_book_pages(item.book_title) if item.book_title else (),
+            taught_stance=taught_stance,
+            ingredient_names=self.context.item_repo.get_template_ingredient_names(item.template_ingredient_ids)
+            if item.template_ingredient_ids
+            else (),
         )
 
     def _extract_proc(self, item: Item) -> ProcInfo | None:

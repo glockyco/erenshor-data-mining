@@ -6,6 +6,7 @@
  |value={{{value|}}}
  |tier=0
 }}
+<div class="item-tooltip-usability">General Item</div>
 {| class="item-tooltip-body"
 |-
 | |

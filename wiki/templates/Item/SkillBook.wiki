@@ -6,16 +6,15 @@
  |value={{{value|}}}
  |tier=0
 }}
-{{Item/ClassRestrictions|class_levels={{{class_levels|}}}}}
+{{Item/ClassRestrictions|classes={{{classes|}}}|class_levels={{{class_levels|}}}}}
 {| class="item-tooltip-body"
 |-
 | |
 <div class="item-tooltip-book-container"><!--
+-->{{#ifeq:{{{simplayers_autolearn|}}}|false|<div class="item-tooltip-book-warning">SimPlayers DO NOT automatically learn this skill!<br/>Hand this book to them to allow them to use it.</div>|{{#if:{{{lore|}}}|<div class="item-tooltip-book-learn">{{{lore}}}</div>}}}}<!--
 -->{{#invoke:Erenshor/Format|bookLevels|{{{class_levels|}}}}}<!--
 -->{{#if:{{{skill_type|}}}|<div class="item-tooltip-book-detail">Skill Type: {{{skill_type}}}</div>}}<!--
 -->{{#if:{{{skill_desc|}}}|<div class="item-tooltip-book-description">{{{skill_desc}}}</div>}}<!--
--->{{#if:{{{simplayers_autolearn|}}}|{{#ifeq:{{{simplayers_autolearn}}}|false|<div class="item-tooltip-book-warning">SimPlayers DO NOT automatically learn this skill!<br/>Hand this book to them to allow them to use it.</div>}}}}<!--
---><div class="item-tooltip-book-learn">Right-click to permanently learn this skill.</div><!--
 --></div>
 |}
 |}

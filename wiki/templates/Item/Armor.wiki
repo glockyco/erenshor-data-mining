@@ -8,7 +8,7 @@
  |type=[[Armor#{{{slot}}}|{{{slot}}}]]
  |relic={{{relic|}}}
 }}
-{{Item/ClassRestrictions|classes={{{classes|}}}}}
+{{#if:{{{classes|}}}|{{Item/ClassRestrictions|classes={{{classes}}}}}|<div class="item-tooltip-usability">General Item</div>}}
 {| class="item-tooltip-body"
 |-
 | |
@@ -39,12 +39,12 @@
 --></div>
 {{#if:{{{description|}}}|<div class="item-tooltip-description">{{{description|}}}</div>}}<!--
 -->{{#ifeq:{{{proc_style|}}}|Activatable|<div class="item-tooltip-activatable-name">Activatable: {{{proc_spell_name|}}}</div>{{#if:{{{must_equip|}}}|<div class="item-spell-flag">Must Equip to Cast</div>}}}}<!--
+-->{{#if:{{{proc_chance|}}}|<div class="item-tooltip-proc-name">{{{proc_chance}}}% chance on CAST:<br>{{{proc_spell_name|}}}</div>}}<!--
 -->{{#ifeq:{{{proc_style|}}}|Worn|<div class="item-tooltip-worn-name">Worn Effect: {{{proc_spell_name|}}}</div><div class="item-tooltip-proc-usage">Effect applied once item is equipped.</div>}}
 |}
 |}<!--
 -->{{#if:{{{proc_spell_name|}}}|{{Item/SpellDetails
  |worn={{#ifeq:{{{proc_style|}}}|Worn|1|0}}
- |proc_header={{#ifeq:{{{proc_style|}}}|Worn|Worn Effect:|{{#ifeq:{{{proc_style|}}}|Activatable|Activatable:|{{#if:{{{proc_chance|}}}|{{{proc_chance}}}% chance on CAST:|}}}}}}
  |spell_icon={{{proc_spell_icon|}}}
  |spell_name={{{proc_spell_name}}}
  |spell_level={{{proc_spell_level|}}}

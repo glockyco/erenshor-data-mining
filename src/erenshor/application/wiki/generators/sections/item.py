@@ -16,6 +16,7 @@ Template structure:
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import asdict, replace
 from html import escape
 from typing import TYPE_CHECKING
@@ -133,8 +134,13 @@ class ItemSectionGenerator(SectionGeneratorBase):
             return ""
         if self._class_display is None:
             raise ValueError("Item class rendering requires ClassDisplayNameService")
-        rows = sorted(
-            (self._class_display.get_display_name(name), level) for name, level in class_levels.items() if level > 0
+        # ItemInfoWindow lists the taught skill's class requirements in this order.
+        game_order = ("Duelist", "Druid", "Arcanist", "Paladin", "Stormcaller", "Reaver", "Bard")
+        class_names = (*game_order, *sorted(class_levels.keys() - set(game_order)))
+        rows = (
+            (self._class_display.get_display_name(name), class_levels[name])
+            for name in class_names
+            if class_levels.get(name, 0) > 0
         )
         return ", ".join(f"{name}: {level}" for name, level in rows)
 
@@ -282,6 +288,8 @@ class ItemSectionGenerator(SectionGeneratorBase):
         proc = enriched.proc
         spell = proc.spell if proc else None
         context = self._build_spell_details_context(spell, prefix="proc")
+        if enriched.item.worn_effect_stable_key:
+            context["proc_cast_time"] = ""
         context["proc_style"] = safe_str(proc.proc_style) if proc else ""
         context["proc_chance"] = safe_str(proc.proc_chance) if proc else ""
         return context
@@ -304,11 +312,9 @@ class ItemSectionGenerator(SectionGeneratorBase):
         item = enriched.item
 
         def format_scaling(value: float | None) -> str:
-            if value is None or value == 0.0:
-                return ""
-            return str(round(value))
+            return format(value, ".7g") if value is not None and value > 0 else ""
 
-        display_name = item.display_name or item.item_name or ""
+        display_name = item.item_name or item.display_name or ""
         return {
             "icon": item_image_file(item),
             "name": display_name,
@@ -331,7 +337,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         item_context = self._build_item_infobox_context(enriched)
         item_template = self.render_template("item.jinja2", item_context)
 
-        display_name = item.display_name or item.item_name or ""
+        display_name = item.item_name or item.display_name or ""
         spell_details = self._build_spell_details_context(enriched.aura_spell, prefix="aura")
 
         aura_context = {
@@ -356,7 +362,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         item_context = self._build_item_infobox_context(enriched)
         item_template = self.render_template("item.jinja2", item_context)
 
-        display_name = item.display_name or item.item_name or ""
+        display_name = item.item_name or item.display_name or ""
         # Reading a scroll is gated on the scroll's own class restrictions, not on
         # the taught spell's UsedBy list (which only drives SimPlayer behaviour).
         class_levels = (
@@ -369,8 +375,10 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "icon": item_image_file(item),
             "name": display_name,
             "value": self._item_window_value(item),
+            "lore": format_description(safe_str(item.lore)) if item.lore else "",
             "classes": self._class_restrictions(enriched.classes),
             "class_levels": self._class_level_rows(class_levels),
+            "required_level": safe_str(spell.required_level) if spell else "",
             "mana_cost": safe_str(spell.mana_cost) if spell else "",
             "spell_type": game_spell_type(spell.type or "") if spell else "",
             "spell_desc": format_description(spell.spell_desc) if spell and spell.spell_desc else "",
@@ -387,16 +395,22 @@ class ItemSectionGenerator(SectionGeneratorBase):
         item_context = self._build_item_infobox_context(enriched)
         item_template = self.render_template("item.jinja2", item_context)
 
-        display_name = item.display_name or item.item_name or ""
+        display_name = item.item_name or item.display_name or ""
+        description = skill.skill_desc if skill else ""
+        if stance := enriched.taught_stance:
+            name = "normal" if stance.stable_key == "stance:normal" else stance.display_name
+            description = f"CHANGE STANCE - {name}: {stance.stance_desc or ''}"
 
         skillbook_context = {
             "icon": item_image_file(item),
             "name": display_name,
             "value": self._item_window_value(item),
+            "lore": format_description(safe_str(item.lore)) if item.lore else "",
+            "classes": self._class_restrictions(enriched.classes),
             "class_levels": self._class_level_rows(skill.class_levels) if skill else "",
             "skill_type": skill.type_of_skill if skill and skill.type_of_skill else "",
-            "skill_desc": format_description(skill.skill_desc) if skill and skill.skill_desc else "",
-            "simplayers_autolearn": "True" if skill and skill.sim_players_autolearn else "",
+            "skill_desc": format_description(description) if description else "",
+            "simplayers_autolearn": str(bool(skill.sim_players_autolearn)).lower() if skill else "",
         }
 
         skillbook_template = self.render_template("skillbook.jinja2", skillbook_context)
@@ -407,7 +421,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         item_context = self._build_item_infobox_context(enriched)
         item_template = self.render_template("item.jinja2", item_context)
 
-        display_name = item.display_name or item.item_name or ""
+        display_name = item.item_name or item.display_name or ""
         effect_spell = enriched.proc.spell if enriched.proc else None
         spell_details = self._build_spell_details_context(effect_spell, prefix="effect")
 
@@ -415,6 +429,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "icon": item_image_file(item),
             "name": display_name,
             "value": self._item_window_value(item),
+            "classes": self._class_restrictions(enriched.classes),
             "description": format_description(safe_str(item.lore)) if item.lore else "",
             "disposable": "True" if item.disposable else "",
             **spell_details,
@@ -428,14 +443,12 @@ class ItemSectionGenerator(SectionGeneratorBase):
         item_context = self._build_item_infobox_context(enriched)
         item_template = self.render_template("item.jinja2", item_context)
 
-        display_name = item.display_name or item.item_name or ""
-        ingredient_names = ""
+        display_name = item.item_name or item.display_name or ""
         ingredients = ""
         rewards = ""
         if enriched.sources:
             ingredient_links = [f"{quantity}x {link!s}" for link, quantity in enriched.sources.recipe_ingredients]
             ingredients = "<br>".join(ingredient_links)
-            ingredient_names = "<br>".join(link.display_name for link, _quantity in enriched.sources.recipe_ingredients)
 
             reward_uses = sorted(
                 (use for use in enriched.sources.uses if use.kind == "crafting_recipe"),
@@ -451,7 +464,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "name": display_name,
             "value": self._item_window_value(item),
             "description": format_description(safe_str(item.lore)) if item.lore else "",
-            "ingredient_names": ingredient_names,
+            "ingredient_names": "<br>".join(enriched.ingredient_names),
             "ingredients": ingredients,
             "rewards": rewards,
             "station": "",
@@ -465,7 +478,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         item_context = self._build_item_infobox_context(enriched)
         item_template = self.render_template("item.jinja2", item_context)
 
-        display_name = item.display_name or item.item_name or ""
+        display_name = item.item_name or item.display_name or ""
         spell = enriched.proc.spell if enriched.proc else None
         spell_details = self._build_spell_details_context(spell, prefix="effect")
 
@@ -484,6 +497,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "icon": item_image_file(item),
             "value": self._item_window_value(item),
             "name": display_name,
+            "classes": self._class_restrictions(enriched.classes),
             "description": format_description(safe_str(item.lore)) if item.lore else "",
             "stack_size": "",
             "disposable": "True" if item.disposable else "",
@@ -566,7 +580,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         # status_effect name: use pre-built link on spell entity
         status_effect_name = ""
         if spell.status_effect_link:
-            status_effect_name = f"<br>{spell.status_effect_link!s}"
+            status_effect_name = str(spell.status_effect_link)
 
         # Spell display name and icon from entity attributes
         spell_display_name = spell.display_name or spell.spell_name or ""
@@ -581,6 +595,12 @@ class ItemSectionGenerator(SectionGeneratorBase):
                 stable_key=spell.stable_key,
             )
         )
+        if spell.spell_name and spell.spell_name != spell_display_name:
+            spell_name_link = (
+                f"{{{{AbilityLink|stablekey={spell.stable_key}|text={spell.spell_name}}}}}"
+                if spell.wiki_page_name
+                else spell.spell_name
+            )
 
         return {
             f"{prefix}_spell_icon": spell_icon,
@@ -593,7 +613,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             f"{prefix}_target_healing": num_str(spell.target_healing),
             f"{prefix}_shielding_amt": num_str(spell.shielding_amt),
             f"{prefix}_damage_type": spell.damage_type or "",
-            f"{prefix}_cast_time": f"{spell.spell_charge_time / 60.0:.1f}" if spell.spell_charge_time else "",
+            f"{prefix}_cast_time": f"{math.floor((spell.spell_charge_time or 0) / 6 + 0.5) / 10:.1f}",
             f"{prefix}_cooldown": num_str(spell.cooldown),
             f"{prefix}_spell_range": num_str(spell.spell_range),
             f"{prefix}_lifetap": bool_str(spell.lifetap),

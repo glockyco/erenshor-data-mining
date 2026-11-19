@@ -6,6 +6,7 @@
  |value={{{value|}}}
  |tier=0
 }}
+{{#if:{{{classes|}}}|{{Item/ClassRestrictions|classes={{{classes}}}}}|<div class="item-tooltip-usability">General Item</div>}}
 {| class="item-tooltip-body"
 |-
 | |
@@ -15,7 +16,6 @@
 |}<!--
 -->{{#if:{{{effect_spell_name|}}}|{{Item/SpellDetails
  |worn=0
- |proc_header={{#ifeq:{{{effect_style|}}}|Activatable|Activatable:|}}
  |spell_icon={{{effect_spell_icon|}}}
  |spell_name={{{effect_spell_name}}}
  |spell_level={{{effect_spell_level|}}}

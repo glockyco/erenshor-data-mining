@@ -110,8 +110,8 @@ function p.description(v)
 	return out
 end
 
-local function ability(key)
-	return Link.render({ kind = "ability", stablekey = key })
+local function ability(key, text)
+	return Link.render({ kind = "ability", stablekey = key, text = text })
 end
 
 local function resolveAbility(key, isSkill)
@@ -195,15 +195,16 @@ end
 
 local function spellArgs(frame, effect)
 	local spell = resolveAbility(effect.spellKey, false)
-	local args =
-		{ spell_name = ability(effect.spellKey), spell_icon = p.existingFile(frame, spell.icon) }
+	local args = {
+		spell_name = ability(effect.spellKey, spell.gameName),
+		spell_icon = p.existingFile(frame, spell.icon),
+	}
 	for source, target in pairs(SPELL_FIELDS) do
 		args[target] = value(spell[source])
 	end
 	args.spell_duration_ticks = value((spell.durationSeconds or 0) / 3)
-	if spell.castTimeSeconds and spell.castTimeSeconds ~= 0 then
-		args.cast_time = string.format("%.1f", spell.castTimeSeconds)
-	end
+	local castTenths = math.floor((spell.castTimeSeconds or 0) * 10 + 0.5)
+	args.cast_time = string.format("%.1f", castTenths / 10)
 	if spell.statusEffectStableKey then
 		args.status_effect_name = ability(spell.statusEffectStableKey)
 	end
@@ -235,10 +236,6 @@ function p.effectDetails(frame, row, effect)
 	end
 	local args = spellArgs(frame, effect)
 	args.worn = (style == "Worn" or style == "Aura") and "1" or "0"
-	args.proc_header = style .. ":"
-	if effect.chance ~= nil then
-		args.proc_header = tostring(effect.chance) .. "% chance on " .. string.upper(style) .. ":"
-	end
 	return frame:expandTemplate({ title = "Item/SpellDetails", args = args })
 end
 
@@ -352,17 +349,22 @@ function p.render(frame, row)
 		args.resistscaling = value(Quality.roundToInt(stats.resistScaling or 0))
 		args.mitigationscaling = value(Quality.roundToInt(stats.mitigationScaling or 0))
 	elseif template == "Mold" then
+		local names = {}
+		for _, ingredient in ipairs(row.ingredients or {}) do
+			local link = Link.resolve("item", ingredient.link)
+			if link.text then
+				names[#names + 1] = Format.escape(link.text)
+			end
+		end
+		args.ingredient_names = table.concat(names, "<br>")
 		args.ingredients = p.recipeLinks(row.ingredients)
 		args.rewards = p.recipeLinks(row.rewards)
 		args.station = row.station or ""
 	elseif template == "SpellScroll" then
 		if row.teachesSpell then
 			local spell = resolveAbility(row.teachesSpell, false)
-			local levels = {}
-			for _, name in ipairs(displayClasses(row.classes)) do
-				levels[#levels + 1] = classLevelRow(name, spell.requiredLevel)
-			end
-			args.class_levels = table.concat(levels, ", ")
+			args.required_level = spell.requiredLevel
+			args.lore = args.description
 			args.mana_cost = spell.manaCost
 			args.spell_type = spell.type or ""
 			args.spell_desc = p.description(spell.description)
@@ -374,6 +376,7 @@ function p.render(frame, row)
 	elseif template == "SkillBook" then
 		if row.teachesSkill then
 			local skill = resolveAbility(row.teachesSkill, true)
+			args.lore = args.description
 			local levels = {}
 			for _, class in ipairs(skill.classLevels or {}) do
 				levels[#levels + 1] = classLevelRow(class.displayName, class.level)
