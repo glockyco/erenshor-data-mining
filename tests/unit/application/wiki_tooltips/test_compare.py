@@ -1,4 +1,10 @@
-from erenshor.application.wiki_tooltips.compare import ObservedLine, fixed_dps, line_differences, normalize_damage
+from erenshor.application.wiki_tooltips.compare import (
+    ObservedLine,
+    fixed_dps,
+    line_differences,
+    normalize_damage,
+    viewer_exclusion,
+)
 from erenshor.application.wiki_tooltips.tmp import Span, Tone
 
 
@@ -22,3 +28,12 @@ def test_damage_interval_exception_does_not_rewrite_the_description() -> None:
 def test_fixed_dps_uses_the_weapon_slot_and_rounds_up() -> None:
     assert fixed_dps("38", "3", "Primary") == 13
     assert fixed_dps("38", "3", "Primary - 2-Handed") == 26
+    assert fixed_dps("38", "3", "Primary - 2-Handed - Relic Item") == 26
+
+
+def test_book_requirement_remains_visible_without_known_state() -> None:
+    source = "ItemInfoWindow.DisplayItem"
+    known = ObservedLine(source, "ReqLvl", 1, (Span("YOU ALREADY KNOW THIS SKILL", Tone.NEGATIVE),))
+    requirement = ObservedLine(source, "ReqLvl", 1, (Span("Required Level: 5", Tone.NORMAL),))
+    assert viewer_exclusion(known, level_scaled_mana=False) == "viewer book knowledge"
+    assert viewer_exclusion(requirement, level_scaled_mana=False) is None

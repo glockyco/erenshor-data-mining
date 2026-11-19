@@ -19,7 +19,6 @@ _QUALITY_NAMES = dict(
 )
 _TICK_DAMAGE = re.compile(r"^Damage: [0-9]+(?:\.[0-9]+)? / tick$")
 _KNOWN = re.compile(r"^YOU ALREADY KNOW THIS (?:SKILL|SPELL)$")
-_REQUIRED = re.compile(r"^(?:Required Level: [0-9]+|.+ Required Level: [0-9]+)$")
 _HINTS = re.compile(r"^\(Hold (?:RIGHT MOUSE|CONTROL|DPAD DOWN) for details\)$")
 
 
@@ -76,7 +75,7 @@ def read_game_window(window: dict[str, Any], stable_key: str) -> dict[str, Lines
 def viewer_exclusion(line: ObservedLine, *, level_scaled_mana: bool) -> str | None:
     text = line.text
     if line.source == "ItemInfoWindow.DisplayItem":
-        if line.field == "ReqLvl" and (_KNOWN.fullmatch(text) or _REQUIRED.fullmatch(text)):
+        if line.field == "ReqLvl" and _KNOWN.fullmatch(text):
             return "viewer book knowledge"
         if line.field == "ClickDesc" and _HINTS.fullmatch(text):
             return "viewer controls"
@@ -125,7 +124,8 @@ def line_differences(
 
 def fixed_dps(damage: str, delay: str, slot: str) -> int:
     """Calculate the wiki's declared fixed DPS from captured weapon stats."""
-    return math.ceil(float(damage) / float(delay) * (2 if slot.endswith(" - 2-Handed") else 1))
+    weapon_slot = slot.removesuffix(" - Relic Item")
+    return math.ceil(float(damage) / float(delay) * (2 if weapon_slot.endswith(" - 2-Handed") else 1))
 
 
 def quality_name(quantity: int) -> str:

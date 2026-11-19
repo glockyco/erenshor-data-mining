@@ -104,6 +104,16 @@ def write_json(path: Path, value: dict[str, Any]) -> None:
     temporary.replace(path)
 
 
+def expected_coverage(entries: list[dict[str, Any]], exclusions: list[dict[str, Any]]) -> dict[str, int]:
+    hidden = {row["stable_key"] for row in exclusions}
+    identities = {entry["stable_key"] for entry in entries} | {
+        entry["stance_key"] for entry in entries if entry.get("stance_key")
+    }
+    wanted = Counter(key.split(":", 1)[0] for key in identities - hidden)
+    wanted["item_cards"] = sum(entry["kind"] == "item" and entry["stable_key"] not in hidden for entry in entries)
+    return dict(wanted)
+
+
 def require_current(paths: ParityPaths) -> None:
     """Reject a missing, failing, incomplete, inconsistent, or stale report."""
     try:
@@ -120,14 +130,9 @@ def require_current(paths: ParityPaths) -> None:
         excluded = reconcile(paths.database.resolve(), entries)
         if excluded != evidence.get("exclusions") or excluded != report.get("exclusions"):
             raise ValueError("collection and report exclusions do not match the database")
-        hidden = {row["stable_key"] for row in excluded}
-        published = {entry["stable_key"] for entry in entries} | {
-            entry["stance_key"] for entry in entries if "stance_key" in entry
-        }
-        expected = Counter(key.split(":", 1)[0] for key in published - hidden)
-        expected["item_cards"] = sum(entry["kind"] == "item" and entry["stable_key"] not in hidden for entry in entries)
-        if report.get("coverage") != dict(expected):
-            raise ValueError(f"expected complete coverage: {dict(expected)}")
+        expected = expected_coverage(entries, excluded)
+        if report.get("coverage") != expected:
+            raise ValueError(f"expected complete coverage: {expected}")
         recorded = report.get("inputs")
         current = paths.inputs()
         if not isinstance(recorded, dict):

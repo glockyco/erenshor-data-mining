@@ -27,3 +27,10 @@ def test_wrong_quality_card_is_not_paired_by_order(parity) -> None:
     root = parity._build_dom('<div data-erenshor-quality="Standard"></div><div data-erenshor-quality="Ascended"></div>')
     with pytest.raises(ValueError, match=r"Expected quality cards.*Blessed.*Ascended"):
         parity.quality_cards(root, (1, 2))
+
+
+def test_css_tone_is_read_from_renderer_declaration(parity) -> None:
+    positive = ".item-spell-positive { color: #00ff00; }"
+    assert parity.stylesheet_tones(positive)["item-spell-positive"] == parity.Tone.POSITIVE
+    negative = positive.replace("#00ff00", "#ff6666")
+    assert parity.stylesheet_tones(negative)["item-spell-positive"] == parity.Tone.NEGATIVE

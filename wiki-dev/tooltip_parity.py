@@ -8,6 +8,7 @@ import re
 import sqlite3
 from collections import Counter, defaultdict
 from contextlib import closing
+from functools import cache
 from pathlib import Path
 from typing import Any
 
@@ -30,32 +31,50 @@ from erenshor.application.wiki_tooltips.compare import (
     read_game_window,
     viewer_exclusion,
 )
-from erenshor.application.wiki_tooltips.report import ParityPaths, read_json, write_json
+from erenshor.application.wiki_tooltips.report import ParityPaths, expected_coverage, read_json, write_json
 from erenshor.application.wiki_tooltips.tmp import Span, Tone
 
-_ART_ICONS = {"item-tooltip-quality-sparkle", "erenshor-icon", "item-tooltip-coin", "item-spell-details-icon"}
+_ART_ICONS = {
+    "item-tooltip-quality-sparkle",
+    "erenshor-icon",
+    "item-tooltip-coin",
+    "item-spell-details-icon",
+    "mw-broken-media",
+}
 _BLOCKS = {"div", "p", "table", "tr", "td", "ul", "li", "blockquote"}
-_NODE_TONES = {
-    "item-tooltip-tier-1": Tone.BLESSED,
-    "item-tooltip-tier-2": Tone.ASCENDED,
-    "item-tooltip-tier-3": Tone.POSITIVE,
-    "item-tooltip-tier-4": Tone.POSITIVE,
-    "item-tooltip-tier-5": Tone.POSITIVE,
-    "item-tooltip-tier-6": Tone.POSITIVE,
-    "item-tooltip-tier-7": Tone.POSITIVE,
-    "item-tooltip-value": Tone.GOLD,
-    "item-spell-level": Tone.POSITIVE,
-    "item-spell-duration": Tone.EMPHASIS,
-    "item-spell-damage": Tone.DAMAGE,
-    "item-spell-flag": Tone.EMPHASIS,
-    "item-spell-window-flag": Tone.MAGIC,
-    "item-spell-positive": Tone.POSITIVE,
-    "item-spell-negative": Tone.NEGATIVE,
-    "item-tooltip-charm-label": Tone.POSITIVE,
-    "item-tooltip-charm-explanation": Tone.EMPHASIS,
-    "item-tooltip-aura-type": Tone.POSITIVE,
-    "item-tooltip-aura-spell-name": Tone.POSITIVE,
-    "item-tooltip-book-warning": Tone.EMPHASIS,
+_TONE_CLASSES = frozenset(
+    {
+        *(f"item-tooltip-tier-{level}" for level in range(8)),
+        "item-tooltip-value",
+        "item-tooltip-stat-value",
+        'item-tooltip-stat-value[data-value="0"]',
+        "item-spell-level",
+        "item-spell-duration",
+        "item-spell-damage",
+        "item-spell-flag",
+        "item-spell-window-flag",
+        "item-spell-positive",
+        "item-spell-negative",
+        "item-tooltip-charm-label",
+        "item-tooltip-charm-explanation",
+        "item-tooltip-aura-type",
+        "item-tooltip-crafting-notes",
+        "item-tooltip-aura-spell-name",
+        "item-tooltip-book-warning",
+    }
+)
+_CSS_TONES = {
+    "#00f9ff": Tone.BLESSED,
+    "#fc87ff": Tone.ASCENDED,
+    "#f4cb6b": Tone.GOLD,
+    "#f5e5a0": Tone.VALUE,
+    "#a9afbd": Tone.MUTED,
+    "#a7abba": Tone.MUTED,
+    "#9dee94": Tone.POSITIVE,
+    "#15e300": Tone.POSITIVE,
+    "#ff6666": Tone.NEGATIVE,
+    "#ff0000": Tone.DAMAGE,
+    "yellow": Tone.EMPHASIS,
 }
 _STAT_LABELS = {
     "Str": "Strength:",
@@ -161,8 +180,29 @@ def under(node: _Node, name: str) -> bool:
     return False
 
 
+def stylesheet_tones(source: str) -> dict[str, Tone]:
+    """Read colors for the maintained semantic classes used on tooltip rows."""
+    tones = {}
+    source = re.sub(r"/\*.*?\*/", "", source, flags=re.DOTALL)
+    for selectors, body in re.findall(r"([^{}]+)\{([^{}]*)\}", source):
+        for selector in selectors.split(","):
+            name = selector.strip().removeprefix(".")
+            if name not in _TONE_CLASSES:
+                continue
+            color = re.search(r"(?:^|;)\s*color:\s*([^;]+)", body)
+            if color:
+                tones[name] = parse_css_tone(color[1].strip())
+    return tones
+
+
+@cache
+def _stylesheet_tones() -> dict[str, Tone]:
+    return stylesheet_tones((Path(__file__).resolve().parents[1] / "wiki/gadgets/erenshor.css").read_text())
+
+
 def rendered_lines(root: _Node, field: str) -> list[ObservedLine]:
     """Tokenize the rendered subtree, including its text outside known row classes."""
+    class_tones = _stylesheet_tones()
     output: list[ObservedLine] = []
     current: list[Span] = []
 
@@ -183,13 +223,25 @@ def rendered_lines(root: _Node, field: str) -> list[ObservedLine]:
             close(origin)
             origin = classes[0] if classes else origin
         for name in classes:
-            tone = _NODE_TONES.get(name, tone)
-        if has(node, "item-tooltip-stat-value"):
-            tone = Tone.MUTED if node.attrs.get("data-value", "").lstrip("+") == "0" else Tone.VALUE
+            tone = class_tones.get(name, tone)
+        if "item-tooltip-stat-value" in classes and node.attrs.get("data-value") == "0":
+            tone = class_tones.get('item-tooltip-stat-value[data-value="0"]', tone)
         inline = re.search(r"(?:^|;)\s*color:\s*(#[\da-fA-F]{6})(?:;|$)", node.attrs.get("style", ""))
         if inline:
             tone = parse_css_tone(inline[1])
-        italic = has(node, "item-spell-window-lines") or italic or node.tag in {"em", "i"}
+        italic = (
+            italic
+            or node.tag in {"em", "i"}
+            or bool(
+                {
+                    "item-spell-window-lines",
+                    "item-tooltip-book-requirement",
+                    "item-tooltip-book-class-req",
+                    "item-tooltip-book-detail",
+                    "item-tooltip-book-description",
+                }.intersection(classes)
+            )
+        )
         if has(node, "item-spell-book-row"):
             italic = False
         for child in node.children:
@@ -210,7 +262,11 @@ def rendered_lines(root: _Node, field: str) -> list[ObservedLine]:
 def parse_css_tone(color: str) -> Tone:
     from erenshor.application.wiki_tooltips.tmp import parse_tmp
 
-    parsed = parse_tmp("color", source="MediaWiki action=parse", stable_key="renderer", field="style", color=color[1:])
+    color = color.casefold()
+    if tone := _CSS_TONES.get(color):
+        return tone
+    base = color.removeprefix("#")
+    parsed = parse_tmp("color", source="MediaWiki action=parse", stable_key="renderer", field="style", color=base)
     return parsed[0][0].tone
 
 
@@ -298,7 +354,7 @@ def _expected_fields(window: dict[str, Any], key: str, exclusions: list[dict[str
                     }
                 )
                 continue
-            normalized = normalize_damage(line)
+            normalized = normalize_damage(line) if name == "SpellDetailsDesc" else line
             if normalized != line:
                 exclusions.append(
                     {
@@ -345,14 +401,33 @@ def _adjacent_item_details(card: _Node) -> list[_Node]:
 
 def _item(actual: _Node, entry: dict[str, Any], exclusions: list[dict[str, Any]]) -> list[dict[str, Any]]:
     key = entry["stable_key"]
+    exclusion_start = len(exclusions)
     expected = _item_field_lines(_expected_fields(entry, key, exclusions))
     if entry.get("details"):
-        expected.extend(_expected_fields(entry["details"], key, exclusions))
+        details = _expected_fields(entry["details"], key, exclusions)
+        expected.extend(line for line in details if line.field == "SpellDetailsName")
+        expected.extend(line for line in details if line.field != "SpellDetailsName")
     actual_lines = [
         line for line in rendered_lines(actual, "Item tooltip") if line.field != "item-tooltip-quality-label"
     ]
     for details in _adjacent_item_details(actual):
         actual_lines.extend(rendered_lines(details, "Item spell details"))
+    if any(row["reason"] == "viewer book knowledge" for row in exclusions[exclusion_start:]):
+        visible = []
+        for line in actual_lines:
+            if line.field in {"item-tooltip-book-requirement", "item-tooltip-book-class-req"}:
+                exclusions.append(
+                    {
+                        "key": key,
+                        "source": line.source,
+                        "field": line.field,
+                        "line": line.text,
+                        "reason": "viewer book knowledge",
+                    }
+                )
+            else:
+                visible.append(line)
+        actual_lines = visible
     dps = [line for line in actual_lines if line.field == "item-tooltip-dps"]
     if dps:
         raw = entry["fields"]
@@ -374,9 +449,10 @@ def _item(actual: _Node, entry: dict[str, Any], exclusions: list[dict[str, Any]]
 def _ability(actual: _Node, entry: dict[str, Any], key: str, exclusions: list[dict[str, Any]]) -> list[dict[str, Any]]:
     actual_lines = rendered_lines(actual, "Ability tooltip")
     if key.startswith("stance:"):
-        expected = [line for line in _expected_fields(entry, key, exclusions) if line.field == "Desc"]
-        header = [line for line in _expected_fields(entry["hover"], key, exclusions) if line.field in {"Name", "Kind"}]
-        return line_differences(header + expected, actual_lines)
+        fields = _expected_fields(entry, key, exclusions)
+        return line_differences(
+            [line for field in ("Name", "Desc") for line in fields if line.field == field], actual_lines
+        )
     expected = _expected_fields(entry["hover"], key, exclusions)
     order = {field: index for index, field in enumerate(("Name", "Kind", "Desc", "Mana", "Type"))}
     expected.sort(key=lambda line: order[line.field])
@@ -412,6 +488,9 @@ def compare(paths: ParityPaths, base_url: str) -> dict[str, Any]:
         raise ValueError(f"Game evidence does not represent complete clean database build {build}")
     entries = evidence["entries"]
     exclusions = reconcile(paths.database, entries)
+    if evidence.get("exclusions") != exclusions:
+        raise ValueError("Game evidence exclusions do not match the clean database")
+    wanted = expected_coverage(entries, exclusions)
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for entry in entries:
         grouped[entry["stable_key"]].append(entry)
@@ -470,6 +549,9 @@ def compare(paths: ParityPaths, base_url: str) -> dict[str, Any]:
                     coverage[kind] += 1
                 except (ValueError, KeyError, ZeroDivisionError) as error:
                     findings.append({"key": key, "page": title, "error": str(error)})
+    coverage.setdefault("item_cards", 0)
+    if coverage != wanted:
+        findings.append({"error": f"Expected complete coverage {wanted}, compared {dict(coverage)}"})
     if paths.inputs() != before:
         findings.append({"error": "Renderer inputs changed during comparison"})
     return {
@@ -489,8 +571,15 @@ def summary(report: dict[str, Any]) -> str:
     lines.extend(f"  {entry['stable_key']}: {entry['reason']}" for entry in report["exclusions"])
     lines.extend(("", "Approved differences and viewer exclusions:"))
     counts = Counter(row["reason"] for row in report["expected_differences"])
-    lines.extend(f"  {reason}: {count}" for reason, count in sorted(counts.items()))
+    examples = {}
+    for row in report["expected_differences"]:
+        examples.setdefault(row["reason"], row)
+    for reason, count in sorted(counts.items()):
+        example = examples[reason]
+        lines.append(f"  {reason}: {count} (e.g. {example['key']}: {example.get('line', example.get('quality'))})")
     lines.extend(("", f"Findings: {len(report['findings'])}"))
+    by_entity = Counter(finding.get("key", "render:").split(":", 1)[0] for finding in report["findings"])
+    lines.extend(f"  {category}: {count}" for category, count in sorted(by_entity.items()))
     for finding in report["findings"]:
         lines.append("  " + " / ".join(str(finding[k]) for k in ("page", "key", "quality") if finding.get(k)))
         if "error" in finding:
