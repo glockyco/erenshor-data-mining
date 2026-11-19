@@ -7,7 +7,7 @@ The wiki copies game tooltip facts, but no whole-build check compares its render
 - Capture the TextMeshPro fields that the game writes for every item, spell, skill, and reachable stance. Keep the raw text as build-specific evidence.
 - Parse game markup into ordered lines and typed tones. Reject unknown tags instead of losing their meaning.
 - Render every matching wiki tooltip in an isolated local MediaWiki stack with the same build's generated modules and articles. Compare text and tone by stable key and line.
-- List the three intentional differences from `adopt-data-backed-wiki` design D14: equipment quality cards, damage over time shown as `/ 3 sec`, and the wiki's fixed Base DPS formula. Explicitly exclude other player-dependent lines from comparison.
+- List the two intentional differences from `adopt-data-backed-wiki` design D14: equipment quality cards and damage over time shown as `/ 3 sec`. Explicitly exclude player-dependent lines from comparison.
 - Stop any deploy that writes a tooltip input when current-build coverage is incomplete or an unexplained difference remains. Tooltip inputs are generated articles, generated data modules, and maintained tooltip modules and templates. Produce a report that names each entity and line.
 
 ## Capabilities

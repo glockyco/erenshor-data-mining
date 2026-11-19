@@ -70,21 +70,21 @@ No tooltip, source entity, card, line, or tone SHALL disappear silently from com
 
 ### Requirement: Comparison exceptions are narrow and visible
 
-The check SHALL accept only three intentional wiki differences: separate equipment quality cards, damage-over-time wording `/ 3 sec` in place of `/ tick`, and the wiki's weapon-damage-divided-by-delay Base DPS in place of the character-dependent game value. It SHALL list each applied exception in its report. An unrecognized line SHALL fail, not become a new exception by default.
+The check SHALL accept only two intentional wiki differences: separate equipment quality cards and damage-over-time wording `/ 3 sec` in place of `/ tick`. It SHALL list each applied exception in its report. An unrecognized line SHALL fail, not become a new exception by default.
 
 #### Scenario: Damage over time differs only in units
 
 - **WHEN** the game reads `Damage: 12 / tick` and the wiki reads `Damage: 12 / 3 sec`
 - **THEN** the check accepts and records that exact wording change
 
-#### Scenario: A fourth difference appears
+#### Scenario: An unrecognized difference appears
 
 - **WHEN** a wiki tooltip adds an unexplained fact or changes a non-excluded tone
 - **THEN** the check names the difference and fails
 
 ### Requirement: Player-dependent exclusions remain field-scoped and visible
 
-The check SHALL exclude the item's game Base DPS value and explicitly named player-dependent or control-hint lines from comparison, not the surrounding facts. It SHALL report each excluded field, its reason, and its count.
+The check SHALL exclude explicitly named player-dependent or control-hint lines from comparison, not the surrounding facts. It SHALL report each excluded field, its reason, and its count.
 
 #### Scenario: A player-dependent field appears
 

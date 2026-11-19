@@ -676,8 +676,8 @@ function p.run()
 	})
 	assertContains(
 		genericClassTooltip,
-		'<span class="item-tooltip-class">Bard</span><span class="item-tooltip-class">Windblade</span>',
-		"plain restrictions render arbitrary class display names"
+		'<span class="item-tooltip-class">Windblade</span><span class="item-tooltip-class">Bard</span>',
+		"plain restrictions follow the item window's order"
 	)
 
 	local instrument = renderParameterized({

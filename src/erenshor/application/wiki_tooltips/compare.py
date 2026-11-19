@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import math
 import re
 from dataclasses import asdict, dataclass
 from difflib import SequenceMatcher
@@ -81,8 +80,6 @@ def viewer_exclusion(line: ObservedLine, *, level_scaled_mana: bool) -> str | No
             return "viewer controls"
         if line.field == "Lore" and text == "Use CTRL + CLICK to separate stacks.":
             return "viewer controls"
-        if line.field == "OtherTextParent" and re.fullmatch(r"Base DPS: [0-9]+(?:\.[0-9]+)?", text):
-            return "viewer Base DPS"
     if (
         line.source == "ItemInfoWindow.LoadSpellDetails"
         and line.field == "SpellDetailsDesc"
@@ -120,12 +117,6 @@ def line_differences(
         for tag, a, b, c, d in matcher.get_opcodes()
         if tag != "equal"
     ]
-
-
-def fixed_dps(damage: str, delay: str, slot: str) -> int:
-    """Calculate the wiki's declared fixed DPS from captured weapon stats."""
-    weapon_slot = slot.removesuffix(" - Relic Item")
-    return math.ceil(float(damage) / float(delay) * (2 if weapon_slot.endswith(" - 2-Handed") else 1))
 
 
 def quality_name(quantity: int) -> str:

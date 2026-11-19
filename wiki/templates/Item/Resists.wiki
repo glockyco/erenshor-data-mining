@@ -3,8 +3,8 @@
 --><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Poison Resist:</span> <span class="item-tooltip-stat-value" data-value="{{{poison|0}}}">{{#ifexpr:{{{poison|0}}} >= 0|+}}{{{poison|0}}}%</span></div><!--
 --><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Elem. Resist:</span> <span class="item-tooltip-stat-value" data-value="{{{elemental|0}}}">{{#ifexpr:{{{elemental|0}}} >= 0|+}}{{{elemental|0}}}%</span></div><!--
 --><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Void Resist:</span> <span class="item-tooltip-stat-value" data-value="{{{void|0}}}">{{#ifexpr:{{{void|0}}} >= 0|+}}{{{void|0}}}%</span></div><!--
--->{{#if:{{{harmony|}}}|<div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Harmony:</span> <span class="item-tooltip-stat-value" data-value="{{{harmony}}}">{{{harmony}}}x</span></div>}}<!--
--->{{#if:{{{dissonance|}}}|<div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Dissonance:</span> <span class="item-tooltip-stat-value" data-value="{{{dissonance}}}">{{{dissonance}}}x</span></div>}}<!--
+-->{{#if:{{{harmony|}}}|<div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Harmony:</span> <span class="item-tooltip-stat-value">{{{harmony}}}x</span></div>}}<!--
+-->{{#if:{{{dissonance|}}}|<div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Dissonance:</span> <span class="item-tooltip-stat-value">{{{dissonance}}}x</span></div>}}<!--
 --></div></includeonly><noinclude>
 == Template:Item/Resists ==
 

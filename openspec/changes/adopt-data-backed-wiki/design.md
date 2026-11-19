@@ -248,11 +248,10 @@ Alternative considered: keep fixed delays and lower them. Rejected: a fixed numb
 
 ### D14. Tooltips show what the game shows
 
-A wiki tooltip shows the lines of the game window that it copies: the item window, the skill book, or the spell details window. A difference is a defect, with three exceptions that the wiki keeps on purpose:
+A wiki tooltip shows the lines of the game window that it copies: the item window, the skill book, or the spell details window. A difference is a defect, with two exceptions that the wiki keeps on purpose:
 
 - An equipment tooltip shows a card for each quality, where the game shows one card for the item in hand.
 - Damage over time reads `/ 3 sec`, where the game reads `/ tick`. The wiki states times in seconds (decided on 2026-06-06).
-- `Base DPS` is the weapon damage divided by the delay. The game value also uses the stats and the level of the player, so no single number on a page can equal it.
 
 A stance has no icon in the game. The skill book shows the icon of the skill that switches to the stance, and the stance page uses that icon. Generation derives it from the skill and owns it on the page, because no person chooses it. A stance that no skill switches to cannot be entered and gets no page. Reckless is the only such stance: the Planar March update (2026-07-13) removed its skill, and `SkillDB.RecklessStance` is never read.
 

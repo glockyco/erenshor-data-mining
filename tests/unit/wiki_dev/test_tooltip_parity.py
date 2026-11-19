@@ -34,3 +34,39 @@ def test_css_tone_is_read_from_renderer_declaration(parity) -> None:
     assert parity.stylesheet_tones(positive)["item-spell-positive"] == parity.Tone.POSITIVE
     negative = positive.replace("#00ff00", "#ff6666")
     assert parity.stylesheet_tones(negative)["item-spell-positive"] == parity.Tone.NEGATIVE
+
+
+def test_item_projection_preserves_game_class_order_and_tone(parity) -> None:
+    line = parity.ObservedLine(
+        "ItemInfoWindow.DisplayItem", "Usable", 1, (parity.Span(" Arcanist  Windblade  Druid  ", parity.Tone.NORMAL),)
+    )
+    root = parity._build_dom(
+        '<div class="item-tooltip-classes"><span class="item-tooltip-class">Arcanist</span>'
+        '<span class="item-tooltip-class">Druid</span><span class="item-tooltip-class">Windblade</span></div>'
+    )
+    expected = parity._item_field_lines([line])
+    actual = parity.rendered_lines(root, "Item tooltip")
+    assert expected == [line]
+    assert parity.line_differences(expected, actual)[0]["kind"] == "replace"
+
+
+def test_item_projection_reads_slot_links_and_zero_stats_from_css(parity, monkeypatch: pytest.MonkeyPatch) -> None:
+    source = """
+        .item-tooltip-type { color: #ffffff; }
+        .item-tooltip .item-tooltip-type a:any-link { color: #ff6666; }
+        .item-tooltip-stat-value { color: #f5e5a0; }
+        .item-tooltip-stat-value[data-value="0"] { color: #606b80; }
+    """
+    monkeypatch.setattr(parity, "_stylesheet_tones", lambda: parity.stylesheet_tones(source))
+    root = parity._build_dom(
+        '<div class="item-tooltip-type"><a class="new" href="/Weapons">Primary</a> - Relic Item</div>'
+        '<div><span class="item-tooltip-stat-value" data-value="0">+0%</span></div>'
+        '<div><span class="item-tooltip-stat-value">0x</span></div>'
+    )
+    slot, resist, multiplier = parity.rendered_lines(root, "Item tooltip")
+    assert slot.spans == (
+        parity.Span("Primary", parity.Tone.NEGATIVE),
+        parity.Span(" - Relic Item", parity.Tone.NORMAL),
+    )
+    assert resist.spans == (parity.Span("+0%", parity.Tone.MUTED),)
+    assert multiplier.spans == (parity.Span("0x", parity.Tone.VALUE),)

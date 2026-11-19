@@ -27,7 +27,7 @@ Ember Longsword	elem:a.new[title*="Weapons"]
 Ember Longsword	elem:.item-tooltip-tier-2
 Ember Longsword	elem:.item-tooltip-weapon
 Ember Longsword	elem:.item-tooltip-equipment-stats .item-tooltip-stat-label=Strength:
-Ember Longsword	elem:.item-tooltip-dps=Base DPS
+Ember Longsword	!Base DPS:
 Ember Longsword	elem:.item-tooltip-class=Windblade
 Ember Longsword	elem:.item-spell-details
 Ember Longsword	elem:.item-tooltip-proc-name=20% chance on ATTACK:
@@ -159,7 +159,7 @@ Parameterized ItemTooltip Fixture	elem:.item-tooltip-tier-1=Blessed
 Parameterized ItemTooltip Fixture	elem:.item-tooltip-tier-2=Ascended
 Parameterized ItemTooltip Fixture	elem:.erenshor-icon-art=Parameterized Sword icon.png
 Parameterized ItemTooltip Fixture	elem:.item-tooltip-equipment-stats .item-tooltip-stat-label=Strength:
-Parameterized ItemTooltip Fixture	elem:.item-tooltip-dps=Base DPS
+Parameterized ItemTooltip Fixture	!Base DPS:
 Legacy Character Fixture	elem:.pi-title=Legacy Beast Fixture
 Legacy Character Fixture	elem:.pi-data-value=Enemy
 Legacy Character Fixture	elem:.pi-data-value=Legacy Faction

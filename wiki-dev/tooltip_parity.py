@@ -22,7 +22,6 @@ from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki_tooltips.capture import reconcile
 from erenshor.application.wiki_tooltips.compare import (
     ObservedLine,
-    fixed_dps,
     label,
     line_differences,
     lines_for,
@@ -42,9 +41,13 @@ _ART_ICONS = {
     "mw-broken-media",
 }
 _BLOCKS = {"div", "p", "table", "tr", "td", "ul", "li", "blockquote"}
+_ITEM_SLOT_LINK = "item-tooltip .item-tooltip-type a:any-link"
 _TONE_CLASSES = frozenset(
     {
         *(f"item-tooltip-tier-{level}" for level in range(8)),
+        "item-tooltip-type",
+        _ITEM_SLOT_LINK,
+        "item-tooltip-classes",
         "item-tooltip-value",
         "item-tooltip-stat-value",
         'item-tooltip-stat-value[data-value="0"]',
@@ -68,7 +71,6 @@ _CSS_TONES = {
     "#fc87ff": Tone.ASCENDED,
     "#f4cb6b": Tone.GOLD,
     "#f5e5a0": Tone.VALUE,
-    "#a9afbd": Tone.MUTED,
     "#a7abba": Tone.MUTED,
     "#9dee94": Tone.POSITIVE,
     "#15e300": Tone.POSITIVE,
@@ -159,10 +161,6 @@ def _item_field_lines(lines: list[ObservedLine]) -> list[ObservedLine]:
                     )
                 ]
                 groups.pop(_JOINED_STATS[field])
-        if field == "Usable" and len(values) == 1 and values[0].text.strip() != "General Item":
-            line = values[0]
-            classes = sorted(line.text.split())
-            values = [ObservedLine(line.source, line.field, line.index, label(" ".join(classes)))]
         output.extend(values)
     return output
 
@@ -224,6 +222,10 @@ def rendered_lines(root: _Node, field: str) -> list[ObservedLine]:
             origin = classes[0] if classes else origin
         for name in classes:
             tone = class_tones.get(name, tone)
+        if node.tag == "a" and "href" in node.attrs and under(node, "item-tooltip-type"):
+            if _ITEM_SLOT_LINK not in class_tones:
+                raise ValueError("Missing item tooltip slot link color declaration")
+            tone = class_tones[_ITEM_SLOT_LINK]
         if "item-tooltip-stat-value" in classes and node.attrs.get("data-value") == "0":
             tone = class_tones.get('item-tooltip-stat-value[data-value="0"]', tone)
         inline = re.search(r"(?:^|;)\s*color:\s*(#[\da-fA-F]{6})(?:;|$)", node.attrs.get("style", ""))
@@ -428,21 +430,6 @@ def _item(actual: _Node, entry: dict[str, Any], exclusions: list[dict[str, Any]]
             else:
                 visible.append(line)
         actual_lines = visible
-    dps = [line for line in actual_lines if line.field == "item-tooltip-dps"]
-    if dps:
-        raw = entry["fields"]
-        dps_value = fixed_dps(raw["DMGNum"]["text"], raw["DelNum"]["text"].removesuffix(" sec"), raw["Slot"]["text"])
-        if len(dps) == 1 and dps[0].text.strip() == f"Base DPS: {dps_value}":
-            actual_lines.remove(dps[0])
-            exclusions.append(
-                {
-                    "key": key,
-                    "source": "MediaWiki action=parse",
-                    "field": "Base DPS",
-                    "line": dps[0].text,
-                    "reason": "D14 fixed weapon DPS",
-                }
-            )
     return line_differences(expected, actual_lines)
 
 

@@ -69,7 +69,7 @@ When a song scroll and the chord or note it teaches would share a wiki page or p
 
 ### D9. Wiki tooltips follow the playtest card hierarchy
 
-Item cards use a slate background and put the eligible classes below the name and slot. Equipment groups attributes, vitals and attack stats, and resists and song multipliers, with the last group wrapping below the first two on narrow cards. A shared scroll level appears once, as on Spell Scroll: Magic Bolt: Arcanist, Druid and Stormcaller, `Required Level: 1`. Ability cards show the game summary and keep spell mechanics under `Spell details` on the article. This keeps eligibility and effects easy to find without removing the wiki's quality cards, Base DPS or spell details.
+Item cards use a slate background and put eligible classes in game order below the name and slot. The slot is white, including when it links to an equipment table. Equipment groups attributes, vitals and attack stats, and resists and song multipliers, with the last group wrapping below the first two on narrow cards. Zero stat values use the game's grey. A shared scroll level appears once, as on Spell Scroll: Magic Bolt: Arcanist, Druid and Stormcaller, `Required Level: 1`. Ability cards show the game summary and keep spell mechanics under `Spell details` on the article. Equipment still shows each quality, but the card does not add Base DPS.
 
 ### D10. A spoken-word wall reads as a Say action
 

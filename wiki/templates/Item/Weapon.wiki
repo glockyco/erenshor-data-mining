@@ -44,11 +44,6 @@
 -->{{#ifeq:{{{proc_style|}}}|Activatable|<div class="item-tooltip-activatable-name">Activatable: {{{proc_spell_name|}}}</div>{{#if:{{{must_equip|}}}|<div class="item-spell-flag">Must Equip to Cast</div>}}}}<!--
 -->{{#if:{{{proc_chance|}}}|<div class="item-tooltip-proc-name">{{{proc_chance}}}% chance on {{#ifeq:{{{proc_style|}}}|Bash|BASH|{{#ifeq:{{{proc_style|}}}|Cast|CAST|ATTACK}}}}:<br>{{{proc_spell_name|}}}</div>}}<!--
 -->{{#ifeq:{{{proc_style|}}}|Worn|<div class="item-tooltip-worn-name">Worn Effect: {{{proc_spell_name|}}}</div><div class="item-tooltip-proc-usage{{#if:{{{damage|}}}|{{#ifexpr:{{{damage}}} != 0|&#32;item-spell-positive}}}}">Effect applied once item is equipped.</div>}}
-{{Item/DPS
- |damage={{{damage|}}}
- |delay={{{delay|}}}
- |type={{{type|}}}
-}}
 |}
 |}<!--
 -->{{#if:{{{proc_spell_name|}}}|{{Item/SpellDetails
@@ -317,7 +312,6 @@ Master template for displaying complete weapon tooltips. Combines header, stats,
 * [[Template:Item/Header]] - Icon and name display
 * [[Template:Item/Stats]] - Stat modifiers
 * [[Template:Item/Vitals]] - Health, mana, armor
-* [[Template:Item/DPS]] - DPS calculation
 * [[Template:Item/Resists]] - Resist modifiers
 * [[Template:Item/Description]] - Flavor text
 * [[Template:Item/ClassRestrictions]] - Class usability

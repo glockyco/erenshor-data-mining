@@ -57,9 +57,9 @@ function p.run()
 	assertEqual(Format.classLevelRows(nil), "", "blank class levels render no rows")
 	assertEqual(
 		Format.classBand({ args = { "", "Bard: 1, Druid: 1" } }),
-		'<div class="item-tooltip-classes"><span class="item-tooltip-class">Bard</span>'
-			.. '<span class="item-tooltip-class">Druid</span></div>',
-		"the level input supplies class names when no list is given"
+		'<div class="item-tooltip-classes"><span class="item-tooltip-class">Druid</span>'
+			.. '<span class="item-tooltip-class">Bard</span></div>',
+		"the level input supplies eligibility in item-window order when no list is given"
 	)
 	assertEqual(
 		Format.bookLevels({ args = { "Bard: 1, Druid: 1", "scroll" } }),

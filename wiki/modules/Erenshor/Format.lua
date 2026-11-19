@@ -77,12 +77,16 @@ local function classValues(value)
 	return values
 end
 
-function p.classSpans(value)
+local function renderClassSpans(names)
 	local spans = {}
-	for _, name in ipairs(classValues(value)) do
+	for _, name in ipairs(names) do
 		spans[#spans + 1] = '<span class="item-tooltip-class">' .. p.escape(name) .. "</span>"
 	end
 	return table.concat(spans)
+end
+
+function p.classSpans(value)
+	return renderClassSpans(classValues(value))
 end
 
 local function classLevels(value)
@@ -115,16 +119,36 @@ function p.classLevelRows(value)
 	return levelRows(classLevels(value))
 end
 
+-- ItemInfoWindow.DisplayItem uses a different order from the skill book's level rows.
+local itemClassOrder = {
+	Arcanist = 1,
+	Windblade = 2,
+	Druid = 3,
+	Paladin = 4,
+	Stormcaller = 5,
+	Reaver = 6,
+	Bard = 7,
+}
+
 function p.classBand(frame)
-	local names = frame.args[1]
-	if isBlank(names) then
-		local fromLevels = {}
+	local classes
+	if isBlank(frame.args[1]) then
+		classes = {}
 		for _, entry in ipairs(classLevels(frame.args[2])) do
-			fromLevels[#fromLevels + 1] = entry.name
+			classes[#classes + 1] = entry.name
 		end
-		names = table.concat(fromLevels, ", ")
+	else
+		classes = classValues(frame.args[1])
 	end
-	local spans = p.classSpans(names)
+	table.sort(classes, function(left, right)
+		local leftOrder = itemClassOrder[left] or math.huge
+		local rightOrder = itemClassOrder[right] or math.huge
+		if leftOrder == rightOrder then
+			return left < right
+		end
+		return leftOrder < rightOrder
+	end)
+	local spans = renderClassSpans(classes)
 	if spans == "" then
 		return ""
 	end
