@@ -98,7 +98,8 @@ Each task below adds the data at its source (export, code fact or reviewed file)
   - Not covered by the automated run: the keyboard focus, key remapping and UI scale checks of the 6.1 risk list, which need real key presses.
 - [x] 6.3 Run `-V playtest guide export-mod` and check that the guide shows the Bard quest and the Ripper's Keep entry quest with their requirements. Do not commit the playtest guide data. Release day regenerates it from `main`.
   - The export holds 195 quests. "Old Bonepits Songbook" (Brandon Uree, say "tale", one Old Song Book) and "A Key to Ripper's Keep" (Ripper Gate Guard, say "killed", one Sivakayan Ore) show their steps and rewards. The committed guide data was restored afterwards.
-- [ ] 6.4 Prepare a release build and changelog for each mod that changed, without publishing them.
+- [x] 6.4 Prepare a release build and changelog for each mod that changed, without publishing them.
+  - Only the Adventure Guide changed for players since its last entry. Its approved `v2026.1201.0` entry tops both changelogs. The Thunderstore dry run builds and validates the package, and `mod vault` builds the Lunaris DLL. Release day rebuilds both after regenerating the guide data from `main`. Interactive Map Companion, Sprint and Justice for F7 need no release.
 
 ## 7. Release day runbook (design D7)
 
