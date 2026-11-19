@@ -17,7 +17,7 @@
     function formatRespawnTime(seconds: number | null): string {
         if (seconds === null || seconds === 0) return 'when re-entering the zone';
         const minutes = Math.round(seconds / 60);
-        if (minutes < 1) return `after ~${seconds}s`;
+        if (minutes < 1) return `after ~${Math.round(seconds)}s`;
         if (minutes === 1) return 'after ~1 minute';
         return `after ~${minutes} minutes`;
     }
@@ -129,6 +129,19 @@
                                         )}">{char.furniture.name}</a
                                     >
                                 {:else}{char.furniture.name}{/if} in this room
+                            </div>
+                        {/if}
+                        {#if char.requiresAlive}
+                            <div class="text-xs text-zinc-400">
+                                Spawns only while
+                                {#if char.requiresAlive.wikiPageName}
+                                    <a
+                                        class="text-blue-400 hover:underline"
+                                        href="https://erenshor.wiki.gg/wiki/{encodeURIComponent(
+                                            char.requiresAlive.wikiPageName
+                                        )}">{char.requiresAlive.name}</a
+                                    >
+                                {:else}{char.requiresAlive.name}{/if} is alive
                             </div>
                         {/if}
                     </div>

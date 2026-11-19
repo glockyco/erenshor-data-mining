@@ -112,6 +112,8 @@ export type SpawnCharacter = {
     hasDialog: boolean;
     /** The furniture set whose placement in a room of the Reliquary's planning table turns this character on. */
     furniture: FurnitureSet | null;
+    /** The character whose death stops new spawns of this one, such as The Skald for his accompanists. */
+    requiresAlive: { name: string; wikiPageName: string | null } | null;
 };
 
 /**

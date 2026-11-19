@@ -10,7 +10,7 @@
 
     function formatRespawnTime(seconds: number): string {
         const minutes = Math.round(seconds / 60);
-        if (minutes < 1) return `after ~${seconds}s or when re-entering the zone`;
+        if (minutes < 1) return `after ~${Math.round(seconds)}s or when re-entering the zone`;
         if (minutes === 1) return 'after ~1 minute or when re-entering the zone';
         return `after ~${minutes} minutes or when re-entering the zone`;
     }

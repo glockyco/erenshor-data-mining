@@ -50,6 +50,12 @@ function furnitureText(character: SpawnCharacter): string {
     return `<br>Requires the ${set} in this room.`;
 }
 
+function requiresAliveText(character: SpawnCharacter): string {
+    if (!character.requiresAlive) return '';
+    const boss = formatWikiLink(character.requiresAlive.name, character.requiresAlive.wikiPageName);
+    return `<br>Spawns only while ${boss} is alive.`;
+}
+
 function portraitHtml(hash: string | null): string {
     if (!hash) return '';
     const url = `/characters/${encodeURIComponent(hash)}`;
@@ -652,6 +658,8 @@ export class RepositoryBase {
                 MAX(cs.event_z)                   AS EventZ,
                 MAX(fi.display_name)              AS FurnitureName,
                 MAX(fi.wiki_page_name)            AS FurnitureWikiPageName,
+                MAX(boss.display_name)            AS RequiresAliveName,
+                MAX(boss.wiki_page_name)          AS RequiresAliveWikiPageName,
                 rep.encounter_tier              AS EncounterTier
             FROM rep_groups rg
             JOIN characters rep ON rep.stable_key = rg.rep_stable_key
@@ -659,6 +667,9 @@ export class RepositoryBase {
             JOIN characters combat_copy ON combat_copy.stable_key = d.member_stable_key
             JOIN map_character_spawns cs ON cs.character_stable_key = d.member_stable_key
             LEFT JOIN items fi ON fi.stable_key = cs.furniture_item_stable_key
+            LEFT JOIN character_spawns boss_spawn
+                ON boss_spawn.spawn_point_stable_key = cs.requires_alive_spawn_point_stable_key
+            LEFT JOIN characters boss ON boss.stable_key = boss_spawn.character_stable_key
             WHERE cs.scene = ?
               AND (cs.spawn_chance > 0 OR cs.source_script IS NOT NULL)
               AND cs.spawn_point_stable_key IS NOT NULL
@@ -739,6 +750,13 @@ export class RepositoryBase {
                               name: row.FurnitureName as string,
                               wikiPageName: (row.FurnitureWikiPageName as string | null) ?? null
                           }
+                        : null,
+                requiresAlive:
+                    row.RequiresAliveName != null
+                        ? {
+                              name: row.RequiresAliveName as string,
+                              wikiPageName: (row.RequiresAliveWikiPageName as string | null) ?? null
+                          }
                         : null
             });
         }
@@ -816,7 +834,7 @@ export class RepositoryBase {
                     const spawnText = character.sourceScript
                         ? 'Event spawn'
                         : `${(character.spawnChance ?? 0).toFixed(1)}%`;
-                    return `${portraitHtml(character.portraitHash)}${formatWikiLink(character.name, character.wikiPageName)} (${spawnText})${tag}${furnitureText(character)}`;
+                    return `${portraitHtml(character.portraitHash)}${formatWikiLink(character.name, character.wikiPageName)} (${spawnText})${tag}${furnitureText(character)}${requiresAliveText(character)}`;
                 })
                 .join('<br>');
 

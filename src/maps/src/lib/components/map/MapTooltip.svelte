@@ -88,7 +88,7 @@
     function formatRespawnTime(seconds: number | null): string {
         if (seconds === null || seconds === 0) return '';
         const minutes = Math.round(seconds / 60);
-        if (minutes < 1) return `${seconds}s`;
+        if (minutes < 1) return `${Math.round(seconds)}s`;
         return `${minutes}m`;
     }
 

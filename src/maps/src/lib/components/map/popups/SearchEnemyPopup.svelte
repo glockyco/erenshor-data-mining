@@ -82,7 +82,7 @@
         if (dynamic) return 'event-triggered';
         if (seconds === null || seconds === 0) return 'zone re-entry';
         const minutes = Math.round(seconds / 60);
-        if (minutes < 1) return `~${seconds}s`;
+        if (minutes < 1) return `~${Math.round(seconds)}s`;
         if (minutes === 1) return '~1 min';
         return `~${minutes} min`;
     }
