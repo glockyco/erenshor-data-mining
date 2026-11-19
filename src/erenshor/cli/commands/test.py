@@ -1511,18 +1511,33 @@ def _run_task(
                 )
             )
         else:
-            with ThreadPoolExecutor(max_workers=len(expanded), thread_name_prefix="verification") as executor:
-                futures = [
-                    executor.submit(
+            # dependency-state runs pnpm install and the NuGet and dotnet tool
+            # restores. They rewrite node_modules and restored packages when a
+            # lock changed, so the leaves that read those files run after it.
+            first = [task_id for task_id in expanded if task_id == "dependency-state"]
+            rest = [task_id for task_id in expanded if task_id != "dependency-state"]
+            by_task = {
+                task_id: _run_leaf_guarded(
+                    cli_ctx,
+                    task_id,
+                    coverage=coverage,
+                    wiki_clean_parity=wiki_clean_parity,
+                )
+                for task_id in first
+            }
+            with ThreadPoolExecutor(max_workers=len(rest), thread_name_prefix="verification") as executor:
+                futures = {
+                    task_id: executor.submit(
                         _run_leaf_guarded,
                         cli_ctx,
                         task_id,
                         coverage=coverage,
                         wiki_clean_parity=wiki_clean_parity,
                     )
-                    for task_id in expanded
-                ]
-                results.extend(future.result() for future in futures)
+                    for task_id in rest
+                }
+                by_task.update({task_id: future.result() for task_id, future in futures.items()})
+            results.extend(by_task[task_id] for task_id in expanded)
         if requested == "release":
             if any(result.exit_code != 0 for result in results):
                 release_actions = _LeafResult(

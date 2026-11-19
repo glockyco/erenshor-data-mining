@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+import time
 from collections.abc import Sequence
 from pathlib import Path
 from threading import Barrier, Lock
@@ -1154,6 +1155,40 @@ def test_runner_exception_is_recorded_in_failed_report(tmp_path: Path, monkeypat
     assert leaf["diagnostics"]["commands"] == [{"error": "boom"}]
 
 
+def test_ci_runs_dependency_state_before_the_leaves_that_read_installed_dependencies(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    events: list[str] = []
+    lock = Lock()
+
+    def fake_leaf(_ctx: CLIContext, task_id: str, **_kwargs: Any) -> Any:
+        with lock:
+            events.append(f"start:{task_id}")
+        if task_id == "dependency-state":
+            time.sleep(0.05)
+        with lock:
+            events.append(f"end:{task_id}")
+        return test._LeafResult(
+            task_id=task_id,
+            status="passed",
+            exit_code=0,
+            duration_seconds=0.0,
+            prerequisites=[],
+            result_counts={},
+            commands=[],
+        )
+
+    monkeypatch.setattr(test, "_run_leaf", fake_leaf)
+
+    test._run_task(_context(tmp_path), "ci")
+
+    # pnpm install and the restores rewrite node_modules and packages that
+    # the other leaves read, so nothing else may start before they finish.
+    assert events[:2] == ["start:dependency-state", "end:dependency-state"]
+    payload = json.loads((tmp_path / "artifacts/test-reports/ci.json").read_text(encoding="utf-8"))
+    assert [leaf["task_id"] for leaf in payload["leaves"]] == test.expand_tasks("ci")
+
+
 def test_subprocess_launch_oserror_is_reported_without_fake_exit_code(tmp_path: Path, monkeypatch: Any) -> None:
     monkeypatch.setitem(test._PREFLIGHTS, "unit", lambda _ctx: _passing_preflight())
 
@@ -1267,11 +1302,13 @@ def test_report_write_is_atomic_and_deterministic(tmp_path: Path, monkeypatch: A
 def test_composite_invokes_each_expanded_leaf_once_then_release_actions(tmp_path: Path, monkeypatch: Any) -> None:
     calls: list[tuple[str, bool]] = []
     command_calls: list[tuple[str, ...]] = []
-    barrier = Barrier(8)
+    # dependency-state runs alone first. The other seven leaves run together.
+    barrier = Barrier(7)
     call_lock = Lock()
 
     def fake_leaf(_ctx: CLIContext, task_id: str, **kwargs: Any) -> test._LeafResult:
-        barrier.wait(timeout=5)
+        if task_id != "dependency-state":
+            barrier.wait(timeout=5)
         with call_lock:
             calls.append((task_id, kwargs.get("wiki_clean_parity", False)))
         return _leaf_result(task_id)
