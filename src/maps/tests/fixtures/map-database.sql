@@ -99,7 +99,8 @@ CREATE TABLE map_character_spawns (
     event_x REAL,
     event_y REAL,
     event_z REAL,
-    furniture_item_stable_key TEXT REFERENCES items(stable_key)
+    furniture_item_stable_key TEXT REFERENCES items(stable_key),
+    requires_alive_spawn_point_stable_key TEXT
 );
 
 CREATE TABLE spawn_point_patrol_points (

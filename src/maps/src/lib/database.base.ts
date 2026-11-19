@@ -667,7 +667,7 @@ export class RepositoryBase {
             JOIN characters combat_copy ON combat_copy.stable_key = d.member_stable_key
             JOIN map_character_spawns cs ON cs.character_stable_key = d.member_stable_key
             LEFT JOIN items fi ON fi.stable_key = cs.furniture_item_stable_key
-            LEFT JOIN character_spawns boss_spawn
+            LEFT JOIN map_character_spawns boss_spawn
                 ON boss_spawn.spawn_point_stable_key = cs.requires_alive_spawn_point_stable_key
             LEFT JOIN characters boss ON boss.stable_key = boss_spawn.character_stable_key
             WHERE cs.scene = ?
