@@ -53,6 +53,9 @@ def test_authored_sim_reference_set_and_defaults_match_sources(main_raw_db: Path
         if script_guids["SimPlayerMngr"] in body and "\n  ActualSims:" in body
     }
     assert managers, "LoadScene must contain serialized SimPlayerMngr references"
+    prefab_paths = {
+        _guid(meta): meta.with_suffix("").relative_to(project).as_posix() for meta in assets.rglob("*.prefab.meta")
+    }
     expected = []
     for local_id, body in managers.items():
         tail = body.split("\n  ActualSims:", 1)[1]
@@ -60,7 +63,13 @@ def test_authored_sim_reference_set_and_defaults_match_sources(main_raw_db: Path
         refs = re.findall(r"(?m)^  - \{fileID: (-?\d+), guid: ([a-f0-9]+), type: \d+\}$", block)
         assert refs, "ActualSims must contain resolvable prefab references"
         expected.extend(
-            (f"GlobalObjectId_V1-2-{scene_guid}-{local_id}-0", index, f"authored_sim:{guid}:{file_id}")
+            (
+                f"GlobalObjectId_V1-2-{scene_guid}-{local_id}-0",
+                index,
+                f"authored_sim:{prefab_paths[guid].lower()}",
+                guid,
+                int(file_id),
+            )
             for index, (file_id, guid) in enumerate(refs)
         )
     with (
@@ -72,7 +81,8 @@ def test_authored_sim_reference_set_and_defaults_match_sources(main_raw_db: Path
         actual = [
             tuple(row)
             for row in raw.execute(
-                "SELECT SourceComponentKey, ReferenceIndex, AuthoredSimStableKey FROM AuthoredSimReferences"
+                "SELECT SourceComponentKey, ReferenceIndex, AuthoredSimStableKey, PrefabGuid, PrefabLocalId "
+                "FROM AuthoredSimReferences JOIN AuthoredSims ON AuthoredSimStableKey = StableKey"
             )
         ]
         assert sorted(actual) == sorted(expected)

@@ -74,7 +74,7 @@ public class AuthoredSimListener : IAssetScanListener<SimPlayerMngr>
                 throw new InvalidOperationException(
                     $"{prefab.name}: ActualSims must reference a prefab asset."
                 );
-            var key = StableKeyGenerator.ForAuthoredSim(guid, localId);
+            var key = StableKeyGenerator.ForAuthoredSim(path);
             _references.Add(
                 new AuthoredSimReferenceRecord
                 {
@@ -85,8 +85,14 @@ public class AuthoredSimListener : IAssetScanListener<SimPlayerMngr>
                     AuthoredSimStableKey = key,
                 }
             );
-            if (_sims.ContainsKey(key))
+            if (_sims.TryGetValue(key, out var existing))
+            {
+                if (existing.PrefabGuid != guid || existing.PrefabLocalId != localId)
+                    throw new InvalidOperationException(
+                        $"{path}: distinct authored Sim prefab references share key {key}."
+                    );
                 continue;
+            }
 
             var character = Require<Character>(prefab);
             var npc = Require<NPC>(prefab);

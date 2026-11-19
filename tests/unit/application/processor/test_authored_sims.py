@@ -30,17 +30,17 @@ def databases(tmp_path):
         INSERT INTO Characters VALUES ('character:seed', 'Authored', 1);
         INSERT INTO Characters VALUES ('character:random', 'PoolName', 1);
         INSERT INTO AuthoredSims VALUES (
-            'authored_sim:guid:100', 'guid', 100, 'Assets/seed.prefab',
+            'authored_sim:assets/seed.prefab', 'guid', 100, 'Assets/seed.prefab',
             'SeedObject', 'character:seed', 'Authored', 'Reaver',
             7, 42.5, 0, 'Hair_A', 2, 3, 1, 1
         );
         INSERT INTO AuthoredSimReferences VALUES
-            ('manager:1', 0, 'LoadScene', 'Assets/Scenes/LoadScene.unity', 'authored_sim:guid:100'),
-            ('manager:1', 1, 'LoadScene', 'Assets/Scenes/LoadScene.unity', 'authored_sim:guid:100');
+            ('manager:1', 0, 'LoadScene', 'Assets/Scenes/LoadScene.unity', 'authored_sim:assets/seed.prefab'),
+            ('manager:1', 1, 'LoadScene', 'Assets/Scenes/LoadScene.unity', 'authored_sim:assets/seed.prefab');
         INSERT INTO AuthoredSimEquipment VALUES
-            ('authored_sim:guid:100', 0, 'item:seed'),
-            ('authored_sim:guid:100', 1, NULL),
-            ('authored_sim:guid:100', 2, 'item:seed');
+            ('authored_sim:assets/seed.prefab', 0, 'item:seed'),
+            ('authored_sim:assets/seed.prefab', 1, NULL),
+            ('authored_sim:assets/seed.prefab', 2, 'item:seed');
     """)
     writer = Writer(tmp_path / "clean.sqlite")
     writer.create_schema()
@@ -64,7 +64,7 @@ def test_defaults_and_references_survive_without_runtime_or_npc_facts(databases)
     process_authored_sims(raw, writer)
     sim = dict(writer.conn.execute("SELECT * FROM authored_sims").fetchone())
     assert sim == {
-        "stable_key": "authored_sim:guid:100",
+        "stable_key": "authored_sim:assets/seed.prefab",
         "prefab_guid": "guid",
         "prefab_local_id": 100,
         "prefab_path": "Assets/seed.prefab",
@@ -96,7 +96,6 @@ def test_defaults_and_references_survive_without_runtime_or_npc_facts(databases)
     [
         ("DELETE FROM AuthoredSimReferences", "distinct ActualSims reference set"),
         ("DELETE FROM AuthoredSims", "distinct ActualSims reference set"),
-        ("UPDATE AuthoredSims SET PrefabLocalId = 101", "prefab reference"),
         ("UPDATE Characters SET IsSimPlayer = 0 WHERE StableKey = 'character:seed'", "raw SimPlayer"),
         ("UPDATE Characters SET NPCName = 'Wrong' WHERE StableKey = 'character:seed'", "name differs"),
         ("UPDATE AuthoredSimEquipment SET AuthoredSimStableKey = 'outside-list'", "outside ActualSims"),

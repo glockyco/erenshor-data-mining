@@ -25,12 +25,17 @@ def test_authored_sim_listener_uses_only_explicit_references(tmp_path: Path, dot
     )
     payload = json.loads(result.stdout)
     sims = {row["StableKey"]: row for row in payload["sims"]}
-    assert set(sims) == {"authored_sim:guid-a:100", "authored_sim:guid-b:100"}
-    assert {row["StableKey"] for row in payload["reordered"]} == set(sims)
-    assert [row["AuthoredSimStableKey"] for row in payload["references"]] == [
-        "authored_sim:guid-a:100",
-        "authored_sim:guid-b:100",
-        "authored_sim:guid-a:100",
+    first_key = "authored_sim:assets/resources/a/seed.prefab"
+    second_key = "authored_sim:assets/resources/b/seed.prefab"
+    assert set(sims) == {first_key, second_key}
+    assert [row["StableKey"] for row in payload["reripped"]] == [second_key, first_key]
+    assert [row["PrefabGuid"] for row in payload["reripped"]] == ["rerip-b", "rerip-a"]
+    assert [row["PrefabLocalId"] for row in payload["reripped"]] == [902, 901]
+    assert [row["AuthoredSimStableKey"] for row in payload["references"]] == [first_key, second_key, first_key]
+    assert [row["AuthoredSimStableKey"] for row in payload["rerippedReferences"]] == [
+        second_key,
+        first_key,
+        first_key,
     ]
     assert [row["ReferenceIndex"] for row in payload["references"]] == [0, 1, 2]
     assert {row["SourceComponentKey"] for row in payload["references"]} == {"manager:1"}
@@ -39,8 +44,8 @@ def test_authored_sim_listener_uses_only_explicit_references(tmp_path: Path, dot
         assert row["SeedClassName"] == "Reaver"
         assert (row["SeedLevel"], row["SeedSkillLevel"]) == (7, 42.5)
         assert (row["SeedHairName"], row["SeedHairColor"], row["SeedSkinColor"]) == ("Hair_A", 2, 3)
-        assert row["PrefabPath"] == f"Assets/Resources/{row['PrefabGuid']}.prefab"
-        assert (row["IsGMCharacter"], row["Rival"]) == ((True, False) if "guid-a" in key else (False, True))
+        assert key == f"authored_sim:{row['PrefabPath'].lower()}"
+        assert (row["IsGMCharacter"], row["Rival"]) == ((True, False) if key == first_key else (False, True))
         assert [
             (entry["Position"], entry["ItemStableKey"])
             for entry in payload["equipment"]
@@ -50,3 +55,4 @@ def test_authored_sim_listener_uses_only_explicit_references(tmp_path: Path, dot
     assert "no asset identity" in payload["failures"][1]
     assert "prefab asset" in payload["failures"][2]
     assert "lacks Character" in payload["failures"][3]
+    assert "distinct authored Sim prefab references share key" in payload["failures"][4]

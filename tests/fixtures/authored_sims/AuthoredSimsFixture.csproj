@@ -14,5 +14,9 @@
             Include="../../../src/Assets/Editor/Database/AuthoredSimRecords.cs"
             Link="AuthoredSimRecords.cs"
         />
+        <Compile
+            Include="../../../src/Assets/Editor/StableKeyGenerator.cs"
+            Link="StableKeyGenerator.cs"
+        />
     </ItemGroup>
 </Project>

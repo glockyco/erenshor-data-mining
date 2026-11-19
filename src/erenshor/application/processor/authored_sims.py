@@ -29,9 +29,6 @@ def process_authored_sims(raw: sqlite3.Connection, writer: Writer) -> None:
         for row in _rows(raw, "SELECT StableKey, NPCName FROM Characters WHERE IsSimPlayer = 1")
     }
     for row in sims:
-        expected = f"authored_sim:{row['PrefabGuid']}:{row['PrefabLocalId']}"
-        if row["StableKey"] != expected:
-            raise ValueError(f"Authored sim key does not match its prefab reference: {row['StableKey']}")
         if row["RawCharacterStableKey"] not in sim_characters:
             raise ValueError(f"Authored sim does not resolve to a raw SimPlayer: {row['StableKey']}")
         if sim_characters[row["RawCharacterStableKey"]] != row["NPCName"]:

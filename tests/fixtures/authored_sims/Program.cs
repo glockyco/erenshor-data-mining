@@ -98,7 +98,35 @@ public class Item(string key)
     public string name = key;
 }
 
-public class Character : Component { }
+public class Spell : UnityEngine.Object { }
+
+public class Skill : UnityEngine.Object { }
+
+public class Stance : UnityEngine.Object { }
+
+public class GuildTopic : UnityEngine.Object { }
+
+public class Ascension : UnityEngine.Object { }
+
+public class Quest
+{
+    public string DBName = "";
+}
+
+public class WorldFaction
+{
+    public string REFNAME = "";
+}
+
+public class Character : Component
+{
+    public Transform transform = new();
+}
+
+public class Transform
+{
+    public (float x, float y, float z) position;
+}
 
 public class NPC : Component
 {
@@ -143,35 +171,29 @@ public class CharacterStableKeyResolver
     public string GetStableKey(Character character) => "character:" + character.gameObject.Guid;
 }
 
-public static class StableKeyGenerator
-{
-    public static string ForAuthoredSim(string guid, long id) => $"authored_sim:{guid}:{id}";
-
-    public static string ForItem(Item item) => item.name;
-}
-
 class Program
 {
-    static GameObject Prefab(string guid, bool gm, bool rival) =>
+    static GameObject Prefab(string path, string guid, bool gm, bool rival, long localId = 100) =>
         new GameObject
         {
             name = "SameObjectName",
             Guid = guid,
-            Path = $"Assets/Resources/{guid}.prefab",
+            Path = path,
+            LocalId = localId,
         }
             .Add(new Character())
             .Add(new NPC { NPCName = "SameSaveName" })
             .Add(new Stats())
             .Add(new SimPlayer { IsGMCharacter = gm, Rival = rival })
-            .Add(new Inventory { EquippedItems = [new("item:a"), null, new("item:a")] });
+            .Add(new Inventory { EquippedItems = [new("A"), null, new("A")] });
 
-    static string Failure(GameObject? prefab)
+    static string Failure(params GameObject?[] prefabs)
     {
         var listener = new AuthoredSimListener(new SQLite.SQLiteConnection(), new());
         listener.OnScanStarted();
         try
         {
-            listener.OnAssetFound(new SimPlayerMngr { ActualSims = [prefab] });
+            listener.OnAssetFound(new SimPlayerMngr { ActualSims = [.. prefabs] });
             return "did not fail";
         }
         catch (InvalidOperationException error)
@@ -182,9 +204,8 @@ class Program
 
     static void Main()
     {
-        var first = Prefab("guid-a", true, false);
-        var second = Prefab("guid-b", false, true);
-        _ = Prefab("unused-numbered-template", false, false);
+        var first = Prefab("Assets/Resources/A/Seed.prefab", "guid-a", true, false);
+        var second = Prefab("Assets/Resources/B/Seed.prefab", "guid-b", false, true);
         var manager = new SimPlayerMngr { name = "manager:1", ActualSims = [first, second, first] };
         var db = new SQLite.SQLiteConnection();
         var listener = new AuthoredSimListener(db, new());
@@ -192,7 +213,7 @@ class Program
         listener.OnAssetFound(manager);
         var prefabManager = new SimPlayerMngr
         {
-            ActualSims = [Prefab("not-scene-authored", false, false)],
+            ActualSims = [Prefab("Assets/Resources/unplaced.prefab", "unplaced", false, false)],
         };
         prefabManager.gameObject.scene.name = "";
         listener.OnAssetFound(prefabManager);
@@ -200,14 +221,15 @@ class Program
         var sims = db.Rows<AuthoredSimRecord>();
         var references = db.Rows<AuthoredSimReferenceRecord>();
         var equipment = db.Rows<AuthoredSimEquipmentRecord>();
-        // Reordering changes source indices, never identity.
+        // A new rip changes serialized file identities. Reordering changes reference indices.
         listener.OnScanStarted();
-        manager.ActualSims = [second, first, first];
+        var rerippedFirst = Prefab(first.Path, "rerip-a", true, false, 901);
+        var rerippedSecond = Prefab(second.Path, "rerip-b", false, true, 902);
+        manager.ActualSims = [rerippedSecond, rerippedFirst, rerippedFirst];
         listener.OnAssetFound(manager);
         listener.OnScanFinished();
-        var missingIdentity = Prefab("", false, false);
-        var wrongAsset = Prefab("guid-scene", false, false);
-        wrongAsset.Path = "Assets/Scenes/LoadScene.unity";
+        var missingIdentity = Prefab(first.Path, "", false, false);
+        var wrongAsset = Prefab("Assets/Scenes/LoadScene.unity", "guid-scene", false, false);
         var missingComponent = new GameObject
         {
             Guid = "no-components",
@@ -220,13 +242,15 @@ class Program
                     sims,
                     references,
                     equipment,
-                    reordered = db.Rows<AuthoredSimRecord>(),
+                    reripped = db.Rows<AuthoredSimRecord>(),
+                    rerippedReferences = db.Rows<AuthoredSimReferenceRecord>(),
                     failures = new[]
                     {
-                        Failure(null),
+                        Failure((GameObject?)null),
                         Failure(missingIdentity),
                         Failure(wrongAsset),
                         Failure(missingComponent),
+                        Failure(first, rerippedFirst),
                     },
                 }
             )

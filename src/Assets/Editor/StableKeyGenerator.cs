@@ -146,12 +146,12 @@ public static class StableKeyGenerator
         return $"zone:{Normalize(scene)}";
     }
 
-    /// <summary>Authored identity follows the referenced prefab, not its location or name.</summary>
-    public static string ForAuthoredSim(string prefabGuid, long localId)
+    /// <summary>Use the prefab path because AssetRipper regenerates asset GUIDs.</summary>
+    public static string ForAuthoredSim(string prefabPath)
     {
-        if (string.IsNullOrEmpty(prefabGuid))
-            throw new ArgumentException("Prefab GUID cannot be empty", nameof(prefabGuid));
-        return $"authored_sim:{prefabGuid}:{localId}";
+        if (string.IsNullOrWhiteSpace(prefabPath))
+            throw new ArgumentException("Prefab path cannot be empty", nameof(prefabPath));
+        return $"authored_sim:{Normalize(prefabPath)}";
     }
 
     /// <summary>
