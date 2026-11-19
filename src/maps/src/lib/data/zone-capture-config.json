@@ -170,15 +170,25 @@
     },
     "Brake": {
         "sceneName": "Brake",
-        "baseTilesX": 2,
-        "baseTilesY": 2,
+        "baseTilesX": 6,
+        "baseTilesY": 7,
         "tileSize": 256,
-        "maxZoom": 2,
-        "originX": 0,
-        "originY": 0,
+        "maxZoom": 1,
+        "originX": -20,
+        "originY": -205,
         "northBearing": null,
         "captureVariants": ["clear"],
-        "exclusionRules": [],
+        "exclusionRules": [
+            {
+                "nameContains": "Tree_Glowing_Canopy"
+            },
+            {
+                "nameContains": "SM_Env_Branch_02"
+            },
+            {
+                "nameContains": "SM_Env_Tree_Forest_01"
+            }
+        ],
         "usingSun": false
     },
     "Braxonia": {
@@ -893,6 +903,37 @@
         ],
         "usingSun": false
     },
+    "Glowmere": {
+        "sceneName": "Glowmere",
+        "baseTilesX": 6,
+        "baseTilesY": 7,
+        "tileSize": 256,
+        "maxZoom": 1,
+        "originX": -98,
+        "originY": -271,
+        "northBearing": null,
+        "captureVariants": [
+            "clear"
+        ],
+        "exclusionRules": [
+            {
+                "nameContains": "RoofRock"
+            },
+            {
+                "nameContains": "SM_Rock_CaveEntrance_02"
+            },
+            {
+                "nameContains": "SM_Env_Rock_Arch_01"
+            },
+            {
+                "nameContains": "TFF_Bush_03A"
+            },
+            {
+                "nameContains": "Vine"
+            }
+        ],
+        "usingSun": true
+    },
     "Hidden": {
         "sceneName": "Hidden",
         "baseTilesX": 2,
@@ -1552,11 +1593,11 @@
     "Stowaway": {
         "sceneName": "Stowaway",
         "baseTilesX": 3,
-        "baseTilesY": 2,
+        "baseTilesY": 3,
         "tileSize": 256,
         "maxZoom": 2,
         "originX": 135,
-        "originY": 225,
+        "originY": 156,
         "northBearing": null,
         "captureVariants": ["clear"],
         "exclusionRules": [],

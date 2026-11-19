@@ -353,6 +353,7 @@ INSERT INTO zones (stable_key, scene_name, display_name, is_map_visible, north_b
     ('zone:elderstone', 'Elderstone', 'The Elderstone Mines', 1, 0),
     ('zone:fernalla-field', 'FernallaField', 'Fernalla Revival Plains', 1, 0),
     ('zone:fernalla-portal', 'FernallaPortal', 'Mysterious Portal', 1, 0),
+    ('zone:glowmere', 'Glowmere', 'Glowmere Grotto', 1, 0),
     ('zone:hidden', 'Hidden', 'Hidden Hills', 1, 0),
     ('zone:jaws', 'Jaws', 'Jaws of Sivakaya', 1, 0),
     ('zone:krakengard', 'Krakengard', 'Old Krakengard', 1, 0),

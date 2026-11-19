@@ -31,6 +31,7 @@ const DISPLAY_NAMES: Record<string, string> = {
     Elderstone: 'The Elderstone Mines',
     FernallaField: "Fernalla's Revival Plains",
     FernallaPortal: "Mysterious Portal (Fernalla's Revival Plains)",
+    Glowmere: 'Glowmere Grotto',
     Hidden: 'Hidden Hills',
     Jaws: 'Jaws of Sivakaya',
     Krakengard: 'Old Krakengard',
