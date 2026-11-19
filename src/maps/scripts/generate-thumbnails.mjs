@@ -71,7 +71,7 @@ for (const zone of zones) {
     process.stdout.write(`  ${zone} ...`);
 
     try {
-        await page.goto(`${BASE_URL}/${zone}`, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+        await page.goto(`${BASE_URL}/maps/${zone}`, { waitUntil: 'domcontentloaded', timeout: 30_000 });
 
         // Wait for the Leaflet map instance to be exposed and at least one tile to load.
         await page.waitForFunction(() => window.__leafletMap != null, { timeout: 20_000 });
