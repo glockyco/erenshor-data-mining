@@ -2,16 +2,12 @@ SELECT
     skill_db_index,
     id,
     stable_key,
-    display_name,
+    s.display_name,
     skill_desc,
     type_of_skill,
     cooldown,
-    duelist_required_level,
-    paladin_required_level,
-    arcanist_required_level,
-    druid_required_level,
-    stormcaller_required_level,
-    reaver_required_level,
+    c.display_name AS class_name,
+    sc.required_level,
     require_behind,
     require_2h,
     require_dw,
@@ -40,6 +36,8 @@ SELECT
     skill_icon_name,
     player_uses,
     npc_uses,
-    resource_name
-FROM skills
-ORDER BY skill_db_index;
+    s.resource_name
+FROM skills s
+LEFT JOIN skill_classes sc ON sc.skill_stable_key = s.stable_key
+LEFT JOIN classes c ON c.class_name = sc.class_name
+ORDER BY skill_db_index, c.display_name COLLATE NOCASE, sc.class_name;

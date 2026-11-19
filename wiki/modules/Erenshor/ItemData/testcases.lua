@@ -221,6 +221,40 @@ function p.run()
 		'<span style="color: #15e300;">Green text</span>'
 	)
 
+	for _, kind in ipairs({ "weapon", "armor", "charm" }) do
+		local classFixture = {
+			stableKey = "item:class-fixture",
+			name = "Class fixture",
+			kind = kind,
+			slot = kind == "weapon" and "Primary" or "Head",
+			classes = { "Duelist", "Paladin" },
+			stats = { { quality = "Standard", ac = 1, weaponDamage = 1 } },
+		}
+		local rendered = Details.render(frame, classFixture)
+		contains(rendered, '<span class="item-tooltip-class">Paladin</span>')
+		contains(rendered, '<span class="item-tooltip-class">Windblade</span>')
+		absent(rendered, '<span class="item-tooltip-class">Duelist</span>')
+	end
+	local scrollFixture = Details.render(frame, {
+		stableKey = "item:class-scroll-fixture",
+		name = "Class scroll fixture",
+		kind = "spellscroll",
+		classes = { "Duelist", "Paladin" },
+		teachesSpell = "spell:ember",
+	})
+	contains(scrollFixture, '<div class="item-tooltip-book-class-req">Paladin: 8</div>')
+	contains(scrollFixture, '<div class="item-tooltip-book-class-req">Windblade: 8</div>')
+	if
+		pcall(Details.render, frame, {
+			stableKey = "item:unknown-class-fixture",
+			name = "Unknown class fixture",
+			kind = "charm",
+			classes = { "UnknownInternalClass" },
+		})
+	then
+		error("ItemData accepted a class without a catalog display name")
+	end
+
 	local cases = {
 		{ "item:abyssal_plate", "item-tooltip-armor" },
 		{ "item:lucky_charm", "item-tooltip-charm" },
@@ -243,6 +277,8 @@ function p.run()
 	contains(scroll, 'data-erenshor-key="spell:ember"')
 	local book = ItemData.renderArgs(frame, { stablekey = "item:sword_mastery_manual" })
 	contains(book, "DO NOT automatically learn")
+	contains(book, '<div class="item-tooltip-book-class-req">Windblade: 3</div>')
+	absent(book, '<div class="item-tooltip-book-class-req">Duelist: 3</div>')
 	local mold = ItemData.renderArgs(frame, { stablekey = "item:copper_armor_mold" })
 	contains(mold, "3x ")
 

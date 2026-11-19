@@ -1,10 +1,25 @@
 """Skill repository for specialized skill queries."""
 
+import json
+from collections.abc import Mapping
+
 from loguru import logger
 
 from erenshor.domain.entities.skill import Skill
 from erenshor.domain.value_objects.wiki_link import AbilityLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
+
+_SKILL_COLUMNS = """
+    s.*,
+    (SELECT json_group_object(sc.class_name, sc.required_level)
+     FROM skill_classes sc WHERE sc.skill_stable_key = s.stable_key) AS class_levels
+"""
+
+
+def _skill_from_row(row: Mapping[str, object]) -> Skill:
+    values = dict(row)
+    values["class_levels"] = json.loads(str(values["class_levels"]))
+    return Skill.model_validate(values)
 
 
 class SkillRepository(BaseRepository[Skill]):
@@ -29,15 +44,15 @@ class SkillRepository(BaseRepository[Skill]):
         Raises:
             RepositoryError: If query execution fails.
         """
-        query = """
-            SELECT *
-            FROM skills
+        query = f"""
+            SELECT {_SKILL_COLUMNS}
+            FROM skills s
             ORDER BY display_name COLLATE NOCASE
         """
 
         try:
             rows = self._execute_raw(query, ())
-            skills = [Skill.model_validate(dict(row)) for row in rows]
+            skills = [_skill_from_row(dict(row)) for row in rows]
             logger.debug(f"Retrieved {len(skills)} skills for wiki generation")
             return skills
         except Exception as e:
@@ -55,9 +70,9 @@ class SkillRepository(BaseRepository[Skill]):
         Raises:
             RepositoryError: If query execution fails.
         """
-        query = """
-            SELECT *
-            FROM skills
+        query = f"""
+            SELECT {_SKILL_COLUMNS}
+            FROM skills s
             WHERE stable_key = ?
         """
 
@@ -66,7 +81,7 @@ class SkillRepository(BaseRepository[Skill]):
             if not rows:
                 logger.debug(f"Skill not found: {stable_key}")
                 return None
-            return Skill.model_validate(dict(rows[0]))
+            return _skill_from_row(dict(rows[0]))
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve skill {stable_key}: {e}") from e
 
@@ -81,7 +96,14 @@ class SkillRepository(BaseRepository[Skill]):
 
         try:
             rows = self._execute_raw(query, ())
-            return {str(row["class_name"]): str(row["display_name"] or row["class_name"]) for row in rows}
+            names = {}
+            for row in rows:
+                class_name = str(row["class_name"])
+                display_name = row["display_name"]
+                if not display_name or not str(display_name).strip():
+                    raise ValueError(f"Class {class_name} has no display name")
+                names[class_name] = str(display_name)
+            return names
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve class display names: {e}") from e
 

@@ -39,7 +39,9 @@ Alternative: copy the playtest outputs to `main`'s targets. Rejected because the
 
 ### D2. Generic classes, not a seventh entry
 
-Each consumer that lists classes reads them from the clean `classes` table, skipping the non-playable `Default`, and from the class columns of the clean tables. Adding `Bard` to each list would leave the next class with the same problem, and `specs/character-classes` forbids closed lists. Where a consumer needs a value per class that the game doesn't export, it keeps that value in one file, and generation fails when a class has none.
+Each consumer that lists classes reads them from the clean `classes` table, skipping the non-playable `Default`, and from class junction tables. Skill levels live in `skill_classes`, derived by matching each playable raw class asset to its `Skills` level field. Missing or unmatched fields fail the clean build. Adding `Bard` to each list would leave the next class with the same problem, and `specs/character-classes` forbids closed lists. Where a consumer needs a value per class that the game doesn't export, it keeps that value in one file, and generation fails when a class has none.
+
+Item tooltips accept comma-separated class display names in `classes` and display-name/level pairs in `class_levels`, such as `Arcanist: 5, Druid: 7`, instead of one parameter per class. Generation resolves labels through `classes`. The templates render those plain values through shared Lua formatters, preserving the existing spans and level rows without coupling article parameters to tooltip markup.
 
 ### D3. Each new mechanic comes from its source of truth
 

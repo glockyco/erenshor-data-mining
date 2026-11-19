@@ -16,7 +16,8 @@ class Skill(BaseEntity):
     (e.g., require bow, require shield). Skills do NOT cost mana to use.
     The ResourceName field is used as the stable identifier.
 
-    All fields match the Unity export schema from the Skills table.
+    Scalar fields come from the clean Skills table. Class requirements come
+    from its skill_classes junction.
     """
 
     # Primary keys and identifiers
@@ -35,13 +36,7 @@ class Skill(BaseEntity):
     type_of_skill: str | None = Field(default=None, description="Skill type")
     cooldown: float | None = Field(default=None, description="Cooldown (divide by 60 to get seconds)")
 
-    # Class requirements (level requirements per class)
-    duelist_required_level: int | None = Field(default=None, description="Duelist level requirement")
-    paladin_required_level: int | None = Field(default=None, description="Paladin level requirement")
-    arcanist_required_level: int | None = Field(default=None, description="Arcanist level requirement")
-    druid_required_level: int | None = Field(default=None, description="Druid level requirement")
-    stormcaller_required_level: int | None = Field(default=None, description="Stormcaller level requirement")
-    reaver_required_level: int | None = Field(default=None, description="Reaver level requirement")
+    class_levels: dict[str, int] = Field(default_factory=dict, description="Required level by internal class name")
 
     # Equipment requirements
     require_behind: int | None = Field(default=None, description="Requires backstab position (boolean)")

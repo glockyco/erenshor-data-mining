@@ -46,12 +46,7 @@
 -->{{#ifeq:{{{proc_style|}}}|Activatable|<div class="item-tooltip-activatable-name">Activatable: {{{proc_spell_name|}}}</div>{{#if:{{{must_equip|}}}|<div class="item-spell-flag">Must Equip to Cast</div>}}}}<!--
 -->{{#ifeq:{{{proc_style|}}}|Worn|<div class="item-tooltip-worn-name">Worn Effect: {{{proc_spell_name|}}}</div><div class="item-tooltip-proc-usage">Effect applied once item is equipped.</div>}}
 {{Item/ClassRestrictions
- |arcanist={{{arcanist|}}}
- |duelist={{{duelist|}}}
- |druid={{{druid|}}}
- |paladin={{{paladin|}}}
- |reaver={{{reaver|}}}
- |stormcaller={{{stormcaller|}}}
+ |classes={{{classes|}}}
 }}
 |}
 |}<!--
@@ -139,7 +134,7 @@ Master template for displaying complete armor tooltips. Combines header, stats, 
 |-
 | '''description''' || No || Flavor text
 |-
-| '''arcanist, duelist, druid, paladin, reaver, stormcaller''' || No || Class restrictions (set to any value)
+| '''classes''' || No || Comma-separated class display names (see Item/ClassRestrictions)
 |-
 | '''proc_style''' || No || Worn, Activatable, or Cast (for bracers)
 |-
@@ -165,11 +160,7 @@ Master template for displaying complete armor tooltips. Combines header, stats, 
 |tier=0
 |armor=2
 |description=A Cloth Hood
-|arcanist=1
-|duelist=1
-|druid=1
-|paladin=1
-|stormcaller=1
+|classes=Arcanist, Druid, Paladin, Stormcaller, Windblade
 }}
 </pre>
 
@@ -182,11 +173,7 @@ Master template for displaying complete armor tooltips. Combines header, stats, 
 |tier=0
 |armor=2
 |description=A Cloth Hood
-|arcanist=1
-|duelist=1
-|druid=1
-|paladin=1
-|stormcaller=1
+|classes=Arcanist, Druid, Paladin, Stormcaller, Windblade
 }}
 
 ----
@@ -209,9 +196,7 @@ Master template for displaying complete armor tooltips. Combines header, stats, 
 |magic=3
 |void=3
 |description=It leaks venom
-|druid=1
-|arcanist=1
-|stormcaller=1
+|classes=Arcanist, Druid, Stormcaller
 |proc_style=Cast
 |proc_chance=10
 |proc_spell_icon=Stun icon.png
@@ -245,9 +230,7 @@ Master template for displaying complete armor tooltips. Combines header, stats, 
 |magic=3
 |void=3
 |description=It leaks venom
-|druid=1
-|arcanist=1
-|stormcaller=1
+|classes=Arcanist, Druid, Stormcaller
 |proc_style=Cast
 |proc_chance=10
 |proc_spell_icon=Stun icon.png
@@ -287,11 +270,7 @@ Master template for displaying complete armor tooltips. Combines header, stats, 
 |elemental=3
 |void=3
 |description=It's not really made of feathers, but it looks like it from a distance.
-|arcanist=1
-|duelist=1
-|druid=1
-|paladin=1
-|stormcaller=1
+|classes=Arcanist, Druid, Paladin, Stormcaller, Windblade
 |proc_style=Worn
 |proc_spell_icon=Vitheo's Blessing of the Wind icon.png
 |proc_spell_name=Vitheo's Blessing of the Wind
@@ -327,11 +306,7 @@ Master template for displaying complete armor tooltips. Combines header, stats, 
 |elemental=3
 |void=3
 |description=It's not really made of feathers, but it looks like it from a distance.
-|arcanist=1
-|duelist=1
-|druid=1
-|paladin=1
-|stormcaller=1
+|classes=Arcanist, Druid, Paladin, Stormcaller, Windblade
 |proc_style=Worn
 |proc_spell_icon=Vitheo's Blessing of the Wind icon.png
 |proc_spell_name=Vitheo's Blessing of the Wind
@@ -368,11 +343,7 @@ Master template for displaying complete armor tooltips. Combines header, stats, 
 |mana=250
 |armor=35
 |description=Worn by a once magnificent dragon
-|arcanist=1
-|duelist=1
-|druid=1
-|paladin=1
-|stormcaller=1
+|classes=Arcanist, Druid, Paladin, Stormcaller, Windblade
 |proc_style=Activatable
 |proc_spell_icon=Devour icon.png
 |proc_spell_name=Devour
@@ -406,11 +377,7 @@ Master template for displaying complete armor tooltips. Combines header, stats, 
 |mana=250
 |armor=35
 |description=Worn by a once magnificent dragon
-|arcanist=1
-|duelist=1
-|druid=1
-|paladin=1
-|stormcaller=1
+|classes=Arcanist, Druid, Paladin, Stormcaller, Windblade
 |proc_style=Activatable
 |proc_spell_icon=Devour icon.png
 |proc_spell_name=Devour

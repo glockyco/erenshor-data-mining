@@ -1,5 +1,7 @@
 import re
+from collections.abc import Iterator
 from dataclasses import asdict, replace
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
@@ -8,10 +10,12 @@ import pytest
 from erenshor.application.wiki.generators.field_preservation import FieldPreservationConfig, FieldPreservationHandler
 from erenshor.application.wiki.generators.pages.entities import EntityPageGenerator
 from erenshor.application.wiki.generators.sections.item import ItemSectionGenerator
+from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
 from erenshor.application.wiki_deploy.link_audit import LinkTargets
 from erenshor.domain.enriched_data.item import EnrichedItemData
 from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.item_stats import ItemStats
+from erenshor.domain.entities.skill import Skill
 from erenshor.domain.entities.spell import Spell
 from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
 from erenshor.domain.value_objects.item_public_view import (
@@ -24,6 +28,23 @@ from erenshor.domain.value_objects.item_public_view import (
 from erenshor.domain.value_objects.proc_info import ProcInfo
 from erenshor.domain.value_objects.source_info import SourceInfo
 from erenshor.domain.value_objects.wiki_link import AbilityLink, CharacterLink, ItemLink, QuestLink, ZoneLink
+from erenshor.infrastructure.database.connection import DatabaseConnection
+
+
+@pytest.fixture
+def class_display(tmp_path: Path) -> Iterator[ClassDisplayNameService]:
+    with DatabaseConnection(tmp_path / "classes.sqlite") as db:
+        with db.connect() as conn:
+            conn.execute("CREATE TABLE classes (class_name TEXT PRIMARY KEY, display_name TEXT NOT NULL)")
+            conn.executemany(
+                "INSERT INTO classes VALUES (?, ?)",
+                [
+                    ("Duelist", "Windblade"),
+                    ("Stormcaller", "Stormcaller"),
+                    ("UnfamiliarInternal", "Bard"),
+                ],
+            )
+        yield ClassDisplayNameService(db)
 
 
 def test_weapon_page_uses_single_lua_item_tooltip() -> None:
@@ -52,10 +73,10 @@ def test_weapon_page_uses_single_lua_item_tooltip() -> None:
     assert result.count("{{ItemTooltip") == 1
 
 
-def test_weapon_tooltip_args_are_display_ready() -> None:
+def test_weapon_tooltip_args_are_display_ready(class_display: ClassDisplayNameService) -> None:
     """Proc fields carry the legacy display contract: linked spell name,
     .png icon, cast time in seconds, and blanks instead of zero noise."""
-    generator = ItemSectionGenerator()
+    generator = ItemSectionGenerator(class_display=class_display)
     item = Item(
         stable_key="item:oldenbow",
         display_name="Oldenbow",
@@ -107,6 +128,88 @@ def test_weapon_tooltip_args_are_display_ready() -> None:
     assert "|proc_target_healing=\n" in result
     assert "|proc_shielding_amt=\n" in result
     assert "|proc_xp_bonus=\n" in result
+    assert "|classes=Stormcaller\n" in result
+
+
+@pytest.mark.parametrize("slot", ["Primary", "Head", "Charm"])
+def test_item_class_restrictions_accept_new_classes_and_database_names(
+    slot: str, class_display: ClassDisplayNameService
+) -> None:
+    item = Item(stable_key="item:restriction", item_name="Restriction", required_slot=slot)
+    enriched = EnrichedItemData(
+        item=item,
+        stats=[ItemStats(item_stable_key=item.stable_key, quality="Standard", weapon_dmg=10)],
+        classes=["Duelist", "UnfamiliarInternal"],
+    )
+
+    result = ItemSectionGenerator(class_display=class_display).generate_template(enriched, "Restriction")
+
+    assert "|classes=Bard, Windblade\n" in result
+    assert "|duelist=" not in result
+    assert "UnfamiliarInternal" not in result
+    assert "item-tooltip-class" not in result
+
+
+def test_scroll_class_levels_follow_item_restrictions_and_database_names(
+    class_display: ClassDisplayNameService,
+) -> None:
+    item = Item(
+        stable_key="item:scroll",
+        item_name="Scroll",
+        required_slot="General",
+        teach_spell_stable_key="spell:lesson",
+    )
+    enriched = EnrichedItemData(
+        item=item,
+        stats=[],
+        classes=["Duelist", "UnfamiliarInternal"],
+        taught_spell=Spell(stable_key="spell:lesson", spell_name="Lesson", required_level=7),
+    )
+
+    result = ItemSectionGenerator(class_display=class_display).generate_template(enriched, "Scroll")
+
+    assert "|class_levels=Bard: 7, Windblade: 7\n" in result
+    assert "|duelist_level=" not in result
+    assert "item-tooltip-book-class-req" not in result
+
+
+def test_skill_book_class_levels_follow_skill_mapping_and_database_names(
+    class_display: ClassDisplayNameService,
+) -> None:
+    item = Item(
+        stable_key="item:book",
+        item_name="Book",
+        required_slot="General",
+        teach_skill_stable_key="skill:lesson",
+    )
+    enriched = EnrichedItemData(
+        item=item,
+        stats=[],
+        classes=["Stormcaller"],
+        taught_skill=Skill(
+            stable_key="skill:lesson",
+            skill_name="Lesson",
+            class_levels={"Duelist": 9, "UnfamiliarInternal": 3, "Stormcaller": 0},
+        ),
+    )
+
+    result = ItemSectionGenerator(class_display=class_display).generate_template(enriched, "Book")
+
+    assert "|class_levels=Bard: 3, Windblade: 9\n" in result
+    assert "Stormcaller: 0" not in result
+    assert "|duelist_level=" not in result
+    assert "item-tooltip-book-class-req" not in result
+
+
+def test_item_class_rendering_requires_database_display_names() -> None:
+    item = Item(stable_key="item:test", item_name="Test", required_slot="Primary")
+    enriched = EnrichedItemData(
+        item=item,
+        stats=[ItemStats(item_stable_key=item.stable_key, quality="Standard")],
+        classes=["UnfamiliarInternal"],
+    )
+    with pytest.raises(ValueError, match="ClassDisplayNameService"):
+        ItemSectionGenerator().generate_template(enriched, "Test")
 
 
 def test_two_handed_melee_keeps_game_label_and_category_flag() -> None:

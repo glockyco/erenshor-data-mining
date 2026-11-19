@@ -23,12 +23,7 @@
 |-
 | |
 {{Item/ClassRestrictions
- |arcanist={{{arcanist|}}}
- |duelist={{{duelist|}}}
- |druid={{{druid|}}}
- |paladin={{{paladin|}}}
- |reaver={{{reaver|}}}
- |stormcaller={{{stormcaller|}}}
+ |classes={{{classes|}}}
 }}
 |}
 |}
@@ -70,7 +65,7 @@ Master template for displaying complete charm tooltips. Charms modify how effect
 |-
 | '''mitigationscaling''' || No || Mitigation/Armor scaling modifier
 |-
-| '''arcanist, duelist, druid, paladin, reaver, stormcaller''' || No || Class restrictions (set to any value)
+| '''classes''' || No || Comma-separated class display names (see Item/ClassRestrictions)
 |}
 
 === Example ===
@@ -82,11 +77,7 @@ Master template for displaying complete charm tooltips. Charms modify how effect
 |name=Charm of Age
 |tier=0
 |wisscaling=4
-|arcanist=1
-|duelist=1
-|druid=1
-|paladin=1
-|stormcaller=1
+|classes=Arcanist, Druid, Paladin, Stormcaller, Windblade
 }}
 </pre>
 
@@ -97,11 +88,7 @@ Master template for displaying complete charm tooltips. Charms modify how effect
 |name=Charm of Age
 |tier=0
 |wisscaling=4
-|arcanist=1
-|duelist=1
-|druid=1
-|paladin=1
-|stormcaller=1
+|classes=Arcanist, Druid, Paladin, Stormcaller, Windblade
 }}
 
 ----

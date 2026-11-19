@@ -23,12 +23,7 @@ def test_builds_skill_data_with_raw_authoritative_fields() -> None:
         skill_desc="Deal major damage to your target.. Must be behind target.",
         type_of_skill="Attack",
         cooldown=540.0,
-        duelist_required_level=2,
-        paladin_required_level=0,
-        arcanist_required_level=0,
-        druid_required_level=0,
-        stormcaller_required_level=0,
-        reaver_required_level=0,
+        class_levels={"Duelist": 2},
         require_behind=1,
         require_2h=0,
         require_dw=0,
@@ -145,7 +140,7 @@ def test_builds_stance_skill_class_levels_without_hardcoding_display_names() -> 
         display_name="Stance: Aggressive",
         wiki_page_name="Stance: Aggressive",
         image_name="Stance: Aggressive",
-        reaver_required_level=1,
+        class_levels={"Reaver": 1},
         stance_to_use_stable_key="stance:aggressive",
     )
 
@@ -194,7 +189,7 @@ def test_omits_unrenderable_skill_records_and_blank_optional_text() -> None:
 
 def test_generates_skills_module_from_repository() -> None:
     module = generate_skills_module(
-        FakeSkillRepository([make_skill(duelist_required_level=2)], {"Duelist": "Windblade"})
+        FakeSkillRepository([make_skill(class_levels={"Duelist": 2})], {"Duelist": "Windblade"})
     )
 
     assert module.startswith("return {\n")

@@ -516,24 +516,54 @@ def process_skills(
     writer: Writer,
     mapping: dict[str, MappingOverride],
 ) -> dict[str, str]:
-    """Process Skills table.
+    """Process skills and normalize the exported per-class level fields.
 
     Returns the image name of the skill that switches to each stance, keyed by
     the stance's stable key.
 
     Raises:
-        ValueError: If two skills switch to the same stance with different images.
+        ValueError: If class level columns do not match the playable class assets,
+            or two skills switch to the same stance with different images.
     """
+    classes = {
+        str(row["ClassName"]) for row in _rows(raw, "SELECT ClassName FROM Classes WHERE ClassName != 'Default'")
+    }
+    level_columns = {
+        str(row["name"]).removesuffix("RequiredLevel"): str(row["name"])
+        for row in _rows(raw, "PRAGMA table_info(Skills)")
+        if str(row["name"]).endswith("RequiredLevel")
+    }
+    missing = sorted(classes - level_columns.keys())
+    if missing:
+        raise ValueError(f"Skills: missing required-level column for class {', '.join(missing)}")
+    unmatched = sorted(level_columns.keys() - classes)
+    if unmatched:
+        raise ValueError(f"Skills: required-level column has no playable class: {', '.join(unmatched)}")
+
     rows = _rows(raw, "SELECT * FROM Skills")
     logger.info(f"Skills: {len(rows)} raw")
 
     rows = _apply_mapping(rows, "StableKey", "SkillName", mapping)
     logger.info(f"Skills: {len(rows)} after mapping")
 
+    class_rows = []
+    for row in rows:
+        for class_name, column in level_columns.items():
+            level = row.pop(column)
+            if level is not None and int(str(level)) > 0:
+                class_rows.append(
+                    {
+                        "skill_stable_key": row["StableKey"],
+                        "class_name": class_name,
+                        "required_level": level,
+                    }
+                )
+
     # Require2H has a digit that breaks generic snake_case conversion.
     rows = _rename_cols(rows, {"Require2H": "require_2h"})
     _name_icons_by_texture(rows, "skill_icon_texture", "skill_icon_name")
     writer.insert_skills(rows)
+    writer.insert_skill_classes(class_rows)
 
     stance_images: dict[str, str] = {}
     for row in rows:

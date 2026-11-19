@@ -51,3 +51,12 @@ def test_equipment_overview_rows_use_internal_class_keys_and_mapped_names(
     assert class_cell == ("|{{ClassLink|stablekey=class:arcanist}}, {{ClassLink|stablekey=class:duelist}}")
     assert "[[Windblade]]" not in "\n".join(rows)
     assert "[[Arcanist]]" not in "\n".join(rows)
+
+
+@pytest.mark.parametrize("class_name", ["Bard", "FutureClass"])
+def test_equipment_overviews_accept_classes_outside_the_existing_roster(class_name: str) -> None:
+    generator = ArmorOverviewPageGenerator(SimpleNamespace(class_display=_ClassDisplay()))
+
+    assert generator._format_classes([class_name, class_name]) == (
+        f"{{{{ClassLink|stablekey=class:{class_name.casefold()}}}}}"
+    )

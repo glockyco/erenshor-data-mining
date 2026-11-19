@@ -61,28 +61,14 @@ class SkillSectionGenerator(SectionGeneratorBase):
         def bool_str(value: int | None) -> str:
             return "True" if value else ""
 
-        # Format class restrictions with semantic links and levels.
-        class_level_pairs = []
-        if skill.duelist_required_level and skill.duelist_required_level > 0:
-            class_level_pairs.append(("Duelist", skill.duelist_required_level))
-        if skill.paladin_required_level and skill.paladin_required_level > 0:
-            class_level_pairs.append(("Paladin", skill.paladin_required_level))
-        if skill.arcanist_required_level and skill.arcanist_required_level > 0:
-            class_level_pairs.append(("Arcanist", skill.arcanist_required_level))
-        if skill.druid_required_level and skill.druid_required_level > 0:
-            class_level_pairs.append(("Druid", skill.druid_required_level))
-        if skill.stormcaller_required_level and skill.stormcaller_required_level > 0:
-            class_level_pairs.append(("Stormcaller", skill.stormcaller_required_level))
-        if skill.reaver_required_level and skill.reaver_required_level > 0:
-            class_level_pairs.append(("Reaver", skill.reaver_required_level))
-
         display_pairs = [
             (
                 self._class_display.get_display_name(class_name),
                 class_name,
                 level,
             )
-            for class_name, level in class_level_pairs
+            for class_name, level in skill.class_levels.items()
+            if level > 0
         ]
         display_pairs.sort(key=lambda x: x[0])
         classes_list = [

@@ -32,6 +32,7 @@ from erenshor.domain.value_objects.wiki_link import AbilityLink
 from erenshor.shared.game_constants import LONG_NAME_FONT_SIZE, LONG_NAME_THRESHOLD, WIKITEXT_LINE_SEPARATOR
 
 if TYPE_CHECKING:
+    from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
     from erenshor.domain.enriched_data.item import EnrichedItemData
     from erenshor.domain.entities.item import Item
     from erenshor.domain.entities.item_stats import ItemStats
@@ -39,10 +40,6 @@ if TYPE_CHECKING:
     from erenshor.domain.value_objects.item_public_view import PublicCondition, PublicPlace, PublicSource, PublicUse
     from erenshor.domain.value_objects.source_info import SourceInfo
 
-# Parameter names understood by the legacy Item/* class-restriction rows.  The
-# game renamed Duelist to Windblade; the live templates still spell the
-# parameter "duelist".
-_LEGACY_CLASS_PARAMS = ("arcanist", "duelist", "druid", "paladin", "reaver", "stormcaller")
 _QUALITY_RUNTIME_IDS = (
     ("Standard", 1),
     *((f"Improved +{level}", 10 + level) for level in range(1, 6)),
@@ -109,8 +106,29 @@ class ItemSectionGenerator(SectionGeneratorBase):
     Multi-entity page assembly is handled by PageGenerator classes.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, class_display: ClassDisplayNameService | None = None) -> None:
         super().__init__()
+        self._class_display = class_display
+
+    def _display_classes(self, class_names: list[str]) -> list[str]:
+        if not class_names:
+            return []
+        if self._class_display is None:
+            raise ValueError("Item class rendering requires ClassDisplayNameService")
+        return self._class_display.map_class_list(class_names)
+
+    def _class_restrictions(self, class_names: list[str]) -> str:
+        return ", ".join(self._display_classes(class_names))
+
+    def _class_level_rows(self, class_levels: dict[str, int]) -> str:
+        if not class_levels:
+            return ""
+        if self._class_display is None:
+            raise ValueError("Item class rendering requires ClassDisplayNameService")
+        rows = sorted(
+            (self._class_display.get_display_name(name), level) for name, level in class_levels.items() if level > 0
+        )
+        return ", ".join(f"{name}: {level}" for name, level in rows)
 
     def generate_template(self, enriched: EnrichedItemData, page_title: str) -> str:
         """Generate template wikitext for a single item."""
@@ -210,7 +228,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "void": safe_str(stats.vr),
             "description": format_description(safe_str(item.lore)) if item.lore else "",
         }
-        context.update(self._legacy_class_flags(enriched.classes))
+        context["classes"] = self._class_restrictions(enriched.classes)
         context.update(self._build_proc_tooltip_context(enriched))
         return context
 
@@ -251,12 +269,6 @@ class ItemSectionGenerator(SectionGeneratorBase):
         if item.is_bow:
             return safe_str(item.bow_range or 0)
         return "1"
-
-    def _legacy_class_flags(self, class_names: list[str]) -> dict[str, str]:
-        flagged = {name.lower() for name in class_names}
-        if "windblade" in flagged:
-            flagged.add("duelist")
-        return {name: "True" if name in flagged else "" for name in _LEGACY_CLASS_PARAMS}
 
     def _build_proc_tooltip_context(self, enriched: EnrichedItemData) -> dict[str, str]:
         proc = enriched.proc
@@ -303,7 +315,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "chascaling": format_scaling(stat.cha_scaling),
             "resistscaling": format_scaling(stat.resist_scaling),
             "mitigationscaling": format_scaling(stat.mitigation_scaling),
-            **self._legacy_class_flags(enriched.classes),
+            "classes": self._class_restrictions(enriched.classes),
         }
 
     def _generate_aura_page(self, enriched: EnrichedItemData) -> str:
@@ -335,22 +347,17 @@ class ItemSectionGenerator(SectionGeneratorBase):
         display_name = item.display_name or item.item_name or ""
         # Reading a scroll is gated on the scroll's own class restrictions, not on
         # the taught spell's UsedBy list (which only drives SimPlayer behaviour).
-        scroll_classes = enriched.classes
-        required_level = str(spell.required_level) if spell and spell.required_level else ""
-
-        def class_level(class_name: str) -> str:
-            return required_level if class_name in scroll_classes else ""
+        class_levels = (
+            dict.fromkeys(enriched.classes, spell.required_level)
+            if spell and spell.required_level and spell.required_level > 0
+            else {}
+        )
 
         spellscroll_context = {
             "icon": item_image_file(item),
             "name": display_name,
             "value": self._item_window_value(item),
-            "arcanist_level": class_level("Arcanist"),
-            "druid_level": class_level("Druid"),
-            "duelist_level": class_level("Duelist"),
-            "paladin_level": class_level("Paladin"),
-            "stormcaller_level": class_level("Stormcaller"),
-            "reaver_level": class_level("Reaver"),
+            "class_levels": self._class_level_rows(class_levels),
             "mana_cost": str(spell.mana_cost) if spell and spell.mana_cost else "",
             "spell_type": spell.type if spell and spell.type else "",
             "spell_desc": format_description(spell.spell_desc) if spell and spell.spell_desc else "",
@@ -368,21 +375,11 @@ class ItemSectionGenerator(SectionGeneratorBase):
 
         display_name = item.display_name or item.item_name or ""
 
-        def level_str(val: int | None) -> str:
-            if val is None or val == 0:
-                return ""
-            return str(val)
-
         skillbook_context = {
             "icon": item_image_file(item),
             "name": display_name,
             "value": self._item_window_value(item),
-            "duelist_level": level_str(skill.duelist_required_level) if skill else "",
-            "druid_level": level_str(skill.druid_required_level) if skill else "",
-            "arcanist_level": level_str(skill.arcanist_required_level) if skill else "",
-            "paladin_level": level_str(skill.paladin_required_level) if skill else "",
-            "stormcaller_level": level_str(skill.stormcaller_required_level) if skill else "",
-            "reaver_level": level_str(skill.reaver_required_level) if skill else "",
+            "class_levels": self._class_level_rows(skill.class_levels) if skill else "",
             "skill_type": skill.type_of_skill if skill and skill.type_of_skill else "",
             "skill_desc": format_description(skill.skill_desc) if skill and skill.skill_desc else "",
             "simplayers_autolearn": "True" if skill and skill.sim_players_autolearn else "",

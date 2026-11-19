@@ -670,6 +670,16 @@ function p.run()
 	assertAbsent(missingIconTooltip, "erenshor-icon", "an item with no icon draws no frame")
 	assertAbsent(missingIconTooltip, "{{{", "an item with no icon leaks no parameter")
 
+	local genericClasses = "Bard, Windblade"
+	local genericClassTooltip = renderParameterized({
+		args = { kind = "Armor", name = "Class Fixture", armor = "1", classes = genericClasses },
+	})
+	assertContains(
+		genericClassTooltip,
+		'<span class="item-tooltip-class">Bard</span><span class="item-tooltip-class">Windblade</span>',
+		"plain restrictions render arbitrary class display names"
+	)
+
 	return "PASS Erenshor Item/ParameterizedTooltip testcases"
 end
 

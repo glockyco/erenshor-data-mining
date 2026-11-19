@@ -190,6 +190,38 @@ def test_every_sheet_query_runs_without_complete_tables(writer: Writer, tmp_path
         engine.dispose()
 
 
+def test_skill_levels_have_one_row_per_class_with_data_backed_names(writer: Writer) -> None:
+    for class_name, display_name in (
+        ("Duelist", "Windblade"),
+        ("Bard", "Troubadour"),
+        ("FutureClass", "Another Class"),
+    ):
+        _insert(writer, "classes", {"class_name": class_name, "display_name": display_name})
+    for index, key in enumerate(("skill:shared", "skill:unrestricted")):
+        _insert(
+            writer,
+            "skills",
+            {"stable_key": key, "skill_db_index": index, "display_name": key, "image_name": key},
+        )
+    for class_name, required_level in (("Duelist", 12), ("Bard", 4), ("FutureClass", 7)):
+        _insert(
+            writer,
+            "skill_classes",
+            {"skill_stable_key": "skill:shared", "class_name": class_name, "required_level": required_level},
+        )
+
+    rows = _rows(writer, "skills")
+
+    assert [(row["stable_key"], row["class_name"], row["required_level"]) for row in rows] == [
+        ("skill:shared", "Another Class", 7),
+        ("skill:shared", "Troubadour", 4),
+        ("skill:shared", "Windblade", 12),
+        ("skill:unrestricted", None, None),
+    ]
+    assert all(isinstance(row["required_level"], int) for row in rows[:3])
+    assert not any(name.endswith("_required_level") for row in rows for name in row)
+
+
 def test_sources_have_one_row_per_public_source_and_preserve_numeric_fields(writer: Writer) -> None:
     _item(writer)
     _item(writer, "item:bread-copy", "Bread")

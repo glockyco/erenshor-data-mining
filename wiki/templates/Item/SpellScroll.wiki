@@ -12,12 +12,7 @@
 <div class="item-tooltip-book-container"><!--
 --><div class="item-tooltip-book-requirement">Required Level:</div><!--
 --><div class="item-tooltip-book-class-requirements"><!--
--->{{#if:{{{arcanist_level|}}}|<div class="item-tooltip-book-class-req">Arcanist: {{{arcanist_level}}}</div>}}<!--
--->{{#if:{{{druid_level|}}}|<div class="item-tooltip-book-class-req">Druid: {{{druid_level}}}</div>}}<!--
--->{{#if:{{{paladin_level|}}}|<div class="item-tooltip-book-class-req">Paladin: {{{paladin_level}}}</div>}}<!--
--->{{#if:{{{reaver_level|}}}|<div class="item-tooltip-book-class-req">Reaver: {{{reaver_level}}}</div>}}<!--
--->{{#if:{{{stormcaller_level|}}}|<div class="item-tooltip-book-class-req">Stormcaller: {{{stormcaller_level}}}</div>}}<!--
--->{{#if:{{{duelist_level|}}}|<div class="item-tooltip-book-class-req">Windblade: {{{duelist_level}}}</div>}}<!--
+-->{{#invoke:Erenshor/Format|classLevelRows|{{{class_levels|}}}}}<!--
 -->{{#if:{{{mana_cost|}}}|<div class="item-tooltip-book-detail">Mana Cost: {{{mana_cost}}}</div>}}<!--
 -->{{#if:{{{spell_type|}}}|<div class="item-tooltip-book-detail">Spell Type: {{{spell_type}}}</div>}}<!--
 -->{{#if:{{{spell_desc|}}}|<div class="item-tooltip-book-description">{{{spell_desc}}}</div>}}<!--
@@ -42,17 +37,7 @@ Template for displaying spell scroll tooltips. Spell scrolls teach spells to cha
 |-
 | '''value''' || No || Item value in gold, or "Unsellable"
 |-
-| '''arcanist_level''' || No || Required level for Arcanist class
-|-
-| '''druid_level''' || No || Required level for Druid class
-|-
-| '''paladin_level''' || No || Required level for Paladin class
-|-
-| '''reaver_level''' || No || Required level for Reaver class
-|-
-| '''stormcaller_level''' || No || Required level for Stormcaller class
-|-
-| '''duelist_level''' || No || Required level for Windblade class
+| '''class_levels''' || No || Comma-separated class display names and required levels, such as <code>Arcanist: 1, Stormcaller: 1</code>
 |-
 | '''mana_cost''' || No || Mana cost to cast the spell
 |-
@@ -68,11 +53,7 @@ Template for displaying spell scroll tooltips. Spell scrolls teach spells to cha
 {{Item/SpellScroll
 |icon=Spell Scroll Magic Bolt icon.png
 |name=Spell Scroll: Magic Bolt
-|arcanist_level=1
-|druid_level=
-|duelist_level=
-|paladin_level=
-|stormcaller_level=1
+|class_levels=Arcanist: 1, Stormcaller: 1
 |mana_cost=20
 |spell_type=Damage
 |spell_desc=Deals 25 magic damage to your target.
@@ -84,8 +65,7 @@ Template for displaying spell scroll tooltips. Spell scrolls teach spells to cha
 {{Item/SpellScroll
 |icon=Spell Scroll Magic Bolt icon.png
 |name=Spell Scroll: Magic Bolt
-|arcanist_level=1
-|stormcaller_level=1
+|class_levels=Arcanist: 1, Stormcaller: 1
 |mana_cost=20
 |spell_type=Damage
 |spell_desc=Deals 25 magic damage to your target.

@@ -176,6 +176,12 @@ return {
 			["page"] = "High Paladin of Sivakaya",
 			["subtype"] = "Boss",
 		},
+		["class:arcanist"] = {
+			["key"] = "class:arcanist",
+			["kind"] = "class",
+			["name"] = "Arcanist",
+			["page"] = "Arcanist",
+		},
 		["class:druid"] = {
 			["key"] = "class:druid",
 			["kind"] = "class",
@@ -927,6 +933,9 @@ return {
 		["Ancient Presence"] = {
 			"spell:ancient_presence",
 		},
+		["Arcanist"] = {
+			"class:arcanist",
+		},
 		["Armband of Generals"] = {
 			"item:arm - 37 - armband of generals",
 		},
@@ -1233,7 +1242,7 @@ return {
 			"class:duelist",
 		},
 	},
-	["catalogSha256"] = "5b3387c2445f6ba77cd0c7ede2e35e94413d6e879bbde672133d69c783e784c9",
+	["catalogSha256"] = "3e977308eb5e78b99711ca6a14d9d3d55c0491da0fe2a4cb76abfec55f0a500c",
 	["entries"] = {
 		{
 			["key"] = "quest:catfordeer",
@@ -1336,6 +1345,12 @@ return {
 			["name"] = "Ancient Presence",
 			["page"] = "Ancient Presence",
 			["subtype"] = "spell",
+		},
+		{
+			["key"] = "class:arcanist",
+			["kind"] = "class",
+			["name"] = "Arcanist",
+			["page"] = "Arcanist",
 		},
 		{
 			["image"] = "Armband of Generals icon.png",

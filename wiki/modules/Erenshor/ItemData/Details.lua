@@ -123,14 +123,35 @@ local function resolveAbility(key, isSkill)
 	return record
 end
 
-local function classParam(name)
-	return name == "Windblade" and "duelist" or string.lower(name)
+local function displayClasses(classes)
+	local names = {}
+	for _, name in ipairs(classes or {}) do
+		local resolved = Link.resolve("class", { stablekey = "class:" .. string.lower(name) })
+		if
+			resolved.state ~= "resolved"
+			or resolved.text == nil
+			or mw.text.trim(resolved.text) == ""
+		then
+			error("ItemData references missing class display name: " .. tostring(name), 2)
+		end
+		names[#names + 1] = resolved.text
+	end
+	table.sort(names)
+	return names
 end
 
-local function classFlags(row, args)
-	for _, class in ipairs(row.classes or {}) do
-		args[classParam(class)] = "True"
+local function classRestrictions(classes)
+	return table.concat(displayClasses(classes), ", ")
+end
+
+local function classLevelRow(name, level)
+	if level == nil or level <= 0 then
+		return nil
 	end
+	if name == nil or mw.text.trim(name) == "" then
+		error("ItemData references missing class display name", 2)
+	end
+	return name .. ": " .. tostring(level)
 end
 
 local function standardStats(row)
@@ -242,7 +263,7 @@ function p.render(frame, row)
 		disposable = value(row.disposable),
 		must_equip = value(row.mustBeEquippedToClick),
 	}
-	classFlags(row, args)
+	args.classes = classRestrictions(row.classes)
 	local template = ({
 		weapon = "Weapon",
 		armor = "Armor",
@@ -336,9 +357,11 @@ function p.render(frame, row)
 	elseif template == "SpellScroll" then
 		if row.teachesSpell then
 			local spell = resolveAbility(row.teachesSpell, false)
-			for _, class in ipairs(row.classes or {}) do
-				args[classParam(class) .. "_level"] = value(spell.requiredLevel)
+			local levels = {}
+			for _, name in ipairs(displayClasses(row.classes)) do
+				levels[#levels + 1] = classLevelRow(name, spell.requiredLevel)
 			end
+			args.class_levels = table.concat(levels, ", ")
 			args.mana_cost = value(spell.manaCost)
 			args.spell_type = spell.type or ""
 			args.spell_desc = p.description(spell.description)
@@ -349,9 +372,11 @@ function p.render(frame, row)
 	elseif template == "SkillBook" then
 		if row.teachesSkill then
 			local skill = resolveAbility(row.teachesSkill, true)
+			local levels = {}
 			for _, class in ipairs(skill.classLevels or {}) do
-				args[classParam(class.className) .. "_level"] = value(class.level)
+				levels[#levels + 1] = classLevelRow(class.displayName, class.level)
 			end
+			args.class_levels = table.concat(levels, ", ")
 			args.skill_type = skill.type or ""
 			args.skill_desc = p.description(skill.description)
 			args.simplayers_autolearn = skill.simPlayersAutolearn and "true" or "false"

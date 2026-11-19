@@ -17,15 +17,6 @@ if TYPE_CHECKING:
 
 LuaData = dict[str, object]
 
-_CLASS_LEVEL_FIELDS: tuple[tuple[str, str], ...] = (
-    ("Duelist", "duelist_required_level"),
-    ("Paladin", "paladin_required_level"),
-    ("Arcanist", "arcanist_required_level"),
-    ("Druid", "druid_required_level"),
-    ("Stormcaller", "stormcaller_required_level"),
-    ("Reaver", "reaver_required_level"),
-)
-
 _TEXT_FIELD_MAP: tuple[tuple[str, str], ...] = (
     ("description", "skill_desc"),
     ("type", "type_of_skill"),
@@ -162,9 +153,8 @@ def _skill_record(
 
 def _class_levels(skill: Skill, class_display_names: Mapping[str, str]) -> list[LuaData]:
     levels: list[LuaData] = []
-    for class_name, attr in _CLASS_LEVEL_FIELDS:
-        level = getattr(skill, attr)
-        if level is not None and level > 0:
+    for class_name, level in skill.class_levels.items():
+        if level > 0:
             class_reference = mapped_class_link_ref(class_name, class_display_names)
             display_name = class_display_names[class_name].strip()
             levels.append(

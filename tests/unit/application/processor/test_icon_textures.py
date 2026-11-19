@@ -36,6 +36,7 @@ def test_a_spell_icon_is_named_by_its_texture_and_a_spell_without_icon_has_none(
 
 def test_an_icon_texture_outside_the_texture_folder_fails_and_names_the_skill(tmp_path: Path) -> None:
     raw = sqlite3.connect(tmp_path / "raw.sqlite")
+    raw.execute("CREATE TABLE Classes (ClassName TEXT)")
     raw.execute(
         "CREATE TABLE Skills (StableKey TEXT, SkillName TEXT, StanceToUseStableKey TEXT, SkillIconTexture TEXT)"
     )

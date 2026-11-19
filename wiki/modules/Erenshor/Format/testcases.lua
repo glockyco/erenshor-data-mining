@@ -32,6 +32,34 @@ function p.run()
 		"[[Warrior]] / [[Paladin]]",
 		"class list links classes"
 	)
+	assertEqual(
+		Format.classSpans(" Bard, Windblade "),
+		'<span class="item-tooltip-class">Bard</span><span class="item-tooltip-class">Windblade</span>',
+		"class names render with the existing restriction markup"
+	)
+	assertEqual(
+		Format.classSpans({ args = { "Bard, A&B" } }),
+		'<span class="item-tooltip-class">Bard</span><span class="item-tooltip-class">A&amp;B</span>',
+		"class span invoke entry point escapes display names"
+	)
+	assertEqual(Format.classSpans(""), "", "blank class restrictions render no spans")
+	assertEqual(
+		Format.classLevelRows(" Bard: 5, Windblade: 7 "),
+		'<div class="item-tooltip-book-class-req">Bard: 5</div>'
+			.. '<div class="item-tooltip-book-class-req">Windblade: 7</div>',
+		"class level pairs render with the existing book markup"
+	)
+	assertEqual(
+		Format.classLevelRows({ args = { "A&B: 3" } }),
+		'<div class="item-tooltip-book-class-req">A&amp;B: 3</div>',
+		"class level invoke entry point escapes display names"
+	)
+	assertEqual(Format.classLevelRows(nil), "", "blank class levels render no rows")
+	for _, invalid in ipairs({ "Bard", "Bard: 0", "Bard: -1", "Bard: nope", ": 3" }) do
+		if pcall(Format.classLevelRows, invalid) then
+			error("Accepted an invalid class level pair: " .. invalid)
+		end
+	end
 	assertEqual(Format.currency(12345), "12345", "currency renders the raw gold value")
 	assertEqual(Format.currency(50), "50", "currency renders the raw gold value")
 	assertEqual(Format.signedStat(5), "+5", "positive stat includes sign")

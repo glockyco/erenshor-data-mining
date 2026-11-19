@@ -140,7 +140,7 @@ class CriticalSeries:
 
 @dataclass(frozen=True)
 class CriticalClassStyle:
-    """Visual encoding and model branch for one displayed class group."""
+    """Visual encoding for one explicitly selected critical-mechanics profile."""
 
     label: str
     profile: CriticalProfile
@@ -151,7 +151,7 @@ class CriticalClassStyle:
 
 CRITICAL_CLASS_STYLES = (
     CriticalClassStyle(
-        "Arcanist · Druid · Paladin · Reaver",
+        "Ordinary",
         CriticalProfile.ORDINARY,
         BLUE,
         None,
@@ -1175,8 +1175,6 @@ def render_physical_critical_dexterity_bands(path: Path) -> None:
             )
 
         plot_label = style.label
-        if style.profile is CriticalProfile.ORDINARY:
-            plot_label = "Arcanist · Druid\nPaladin · Reaver"
         label_x = area.x(40.55)
         label_y = dexterity_y(round(math.sqrt(lower[-1] * upper[-1])))
         bounds = draw.multiline_textbbox((0, 0), plot_label, font=label_font, spacing=0)
@@ -1215,7 +1213,7 @@ def render_physical_critical_dexterity_bands(path: Path) -> None:
     draw_text(
         draw,
         (125, 116),
-        "Arcanist, Druid, Paladin, Reaver: 1 full-strength group     "
+        "Ordinary: 1 full-strength group     "
         + "Stormcaller: +0.4-strength group     Windblade: +1 full-strength group",
         font=note,
         fill=MUTED,

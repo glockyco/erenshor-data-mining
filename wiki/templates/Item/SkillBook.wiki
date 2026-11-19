@@ -12,12 +12,7 @@
 <div class="item-tooltip-book-container"><!--
 --><div class="item-tooltip-book-requirement">Required Level:</div><!--
 --><div class="item-tooltip-book-class-requirements"><!--
--->{{#if:{{{arcanist_level|}}}|<div class="item-tooltip-book-class-req">Arcanist: {{{arcanist_level}}}</div>}}<!--
--->{{#if:{{{druid_level|}}}|<div class="item-tooltip-book-class-req">Druid: {{{druid_level}}}</div>}}<!--
--->{{#if:{{{paladin_level|}}}|<div class="item-tooltip-book-class-req">Paladin: {{{paladin_level}}}</div>}}<!--
--->{{#if:{{{reaver_level|}}}|<div class="item-tooltip-book-class-req">Reaver: {{{reaver_level}}}</div>}}<!--
--->{{#if:{{{stormcaller_level|}}}|<div class="item-tooltip-book-class-req">Stormcaller: {{{stormcaller_level}}}</div>}}<!--
--->{{#if:{{{duelist_level|}}}|<div class="item-tooltip-book-class-req">Windblade: {{{duelist_level}}}</div>}}<!--
+-->{{#invoke:Erenshor/Format|classLevelRows|{{{class_levels|}}}}}<!--
 -->{{#if:{{{skill_type|}}}|<div class="item-tooltip-book-detail">Skill Type: {{{skill_type}}}</div>}}<!--
 -->{{#if:{{{skill_desc|}}}|<div class="item-tooltip-book-description">{{{skill_desc}}}</div>}}<!--
 -->{{#if:{{{simplayers_autolearn|}}}|{{#ifeq:{{{simplayers_autolearn}}}|false|<div class="item-tooltip-book-warning">SimPlayers DO NOT automatically learn this skill!<br/>Hand this book to them to allow them to use it.</div>}}}}<!--
@@ -42,17 +37,7 @@ Template for displaying skill book tooltips. Skill books teach combat abilities 
 |-
 | '''value''' || No || Item value in gold, or "Unsellable"
 |-
-| '''arcanist_level''' || No || Required level for Arcanist class
-|-
-| '''druid_level''' || No || Required level for Druid class
-|-
-| '''paladin_level''' || No || Required level for Paladin class
-|-
-| '''reaver_level''' || No || Required level for Reaver class
-|-
-| '''stormcaller_level''' || No || Required level for Stormcaller class
-|-
-| '''duelist_level''' || No || Required level for Windblade class
+| '''class_levels''' || No || Comma-separated class display names and required levels, such as <code>Paladin: 1, Windblade: 3</code>
 |-
 | '''skill_type''' || No || Skill type (e.g., Combat, Utility)
 |-
@@ -68,9 +53,7 @@ Template for displaying skill book tooltips. Skill books teach combat abilities 
 {{Item/SkillBook
 |icon=Skill Book Kick icon.png
 |name=Skill Book: Kick
-|duelist_level=3
-|paladin_level=1
-|stormcaller_level=5
+|class_levels=Paladin: 1, Stormcaller: 5, Windblade: 3
 |skill_type=Attack
 |skill_desc=Kick an enemy. Interrupts target's spells.
 }}
@@ -81,9 +64,7 @@ Template for displaying skill book tooltips. Skill books teach combat abilities 
 {{Item/SkillBook
 |icon=Skill Book Kick icon.png
 |name=Skill Book: Kick
-|duelist_level=3
-|paladin_level=1
-|stormcaller_level=5
+|class_levels=Paladin: 1, Stormcaller: 5, Windblade: 3
 |skill_type=Attack
 |skill_desc=Kick an enemy. Interrupts target's spells.
 }}

@@ -167,19 +167,12 @@ class SpellRepository(BaseRepository[Spell]):
                        OR EXISTS (SELECT 1 FROM item_classes ic
                                   WHERE ic.item_stable_key = i.stable_key AND ic.class_name = cl.name))
                 UNION ALL
-                SELECT cl.name, s.stable_key,
-                       CASE cl.name
-                           WHEN 'Arcanist' THEN s.arcanist_required_level
-                           WHEN 'Druid' THEN s.druid_required_level
-                           WHEN 'Duelist' THEN s.duelist_required_level
-                           WHEN 'Paladin' THEN s.paladin_required_level
-                           WHEN 'Stormcaller' THEN s.stormcaller_required_level
-                           WHEN 'Reaver' THEN s.reaver_required_level
-                       END AS level,
+                SELECT cl.name, s.stable_key, sc.required_level AS level,
                        i.stable_key
                 FROM items i
                 JOIN skills s ON s.stable_key = i.teach_skill_stable_key
-                CROSS JOIN playable_classes cl
+                JOIN skill_classes sc ON sc.skill_stable_key = s.stable_key
+                JOIN playable_classes cl ON cl.name = sc.class_name
                 WHERE i.wiki_page_name IS NOT NULL AND s.wiki_page_name IS NOT NULL
                   AND (NOT EXISTS (SELECT 1 FROM item_classes ic WHERE ic.item_stable_key = i.stable_key)
                        OR EXISTS (SELECT 1 FROM item_classes ic

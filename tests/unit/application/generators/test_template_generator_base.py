@@ -133,11 +133,7 @@ class TestTemplateGeneratorBase:
             "intscaling": "0",
             "wisscaling": "0",
             "chascaling": "0",
-            "arcanist": "True",
-            "duelist": "",
-            "druid": "",
-            "paladin": "",
-            "stormcaller": "",
+            "classes": "Arcanist",
         }
 
         result = generator.render_template("charm.jinja2", context)

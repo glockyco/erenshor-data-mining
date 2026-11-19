@@ -54,12 +54,7 @@
  |type={{{type|}}}
 }}
 {{Item/ClassRestrictions
- |arcanist={{{arcanist|}}}
- |duelist={{{duelist|}}}
- |druid={{{druid|}}}
- |paladin={{{paladin|}}}
- |reaver={{{reaver|}}}
- |stormcaller={{{stormcaller|}}}
+ |classes={{{classes|}}}
 }}
 |}
 |}<!--
@@ -159,7 +154,7 @@ Master template for displaying complete weapon tooltips. Combines header, stats,
 |-
 | '''must_equip''' || No || Show "Must Equip to Cast" under an activatable effect
 |-
-| '''arcanist, duelist, druid, paladin, reaver, stormcaller''' || No || Class restrictions (set to any value)
+| '''classes''' || No || Comma-separated class display names (see Item/ClassRestrictions)
 |-
 | '''proc_chance''' || No || Proc chance percentage (e.g., 10)
 |-
@@ -184,11 +179,7 @@ Master template for displaying complete weapon tooltips. Combines header, stats,
 |damage=8
 |delay=1.5
 |description=A standard copper sword.
-|arcanist=1
-|duelist=1
-|druid=1
-|paladin=1
-|stormcaller=1
+|classes=Arcanist, Druid, Paladin, Stormcaller, Windblade
 }}
 </pre>
 
@@ -202,11 +193,7 @@ Master template for displaying complete weapon tooltips. Combines header, stats,
 |damage=8
 |delay=1.5
 |description=A standard copper sword.
-|arcanist=1
-|duelist=1
-|druid=1
-|paladin=1
-|stormcaller=1
+|classes=Arcanist, Druid, Paladin, Stormcaller, Windblade
 }}
 
 ----
@@ -227,9 +214,7 @@ Master template for displaying complete weapon tooltips. Combines header, stats,
 |cha=5
 |res=1
 |description=It emits the scent of a cold snowy night
-|druid=1
-|arcanist=1
-|stormcaller=1
+|classes=Arcanist, Druid, Stormcaller
 |proc_style=Attack
 |proc_chance=20
 |proc_spell_icon=Ice Spear icon.png
@@ -260,9 +245,7 @@ Master template for displaying complete weapon tooltips. Combines header, stats,
 |cha=5
 |res=1
 |description=It emits the scent of a cold snowy night
-|druid=1
-|arcanist=1
-|stormcaller=1
+|classes=Arcanist, Druid, Stormcaller
 |proc_style=Attack
 |proc_chance=20
 |proc_spell_icon=Ice Spear icon.png
@@ -291,11 +274,7 @@ Master template for displaying complete weapon tooltips. Combines header, stats,
 |tier=0
 |armor=5
 |description=Just an old buckler shield.
-|arcanist=1
-|duelist=1
-|druid=1
-|paladin=1
-|stormcaller=1
+|classes=Arcanist, Druid, Paladin, Stormcaller, Windblade
 |proc_style=Bash
 |proc_chance=75
 |proc_spell_icon=Stun icon.png
@@ -322,11 +301,7 @@ Master template for displaying complete weapon tooltips. Combines header, stats,
 |tier=0
 |armor=5
 |description=Just an old buckler shield.
-|arcanist=1
-|duelist=1
-|druid=1
-|paladin=1
-|stormcaller=1
+|classes=Arcanist, Druid, Paladin, Stormcaller, Windblade
 |proc_style=Bash
 |proc_chance=75
 |proc_spell_icon=Stun icon.png

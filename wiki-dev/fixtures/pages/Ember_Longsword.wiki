@@ -13,9 +13,7 @@
 |dex=2
 |magic=3
 |relic=True
-|duelist=True
-|paladin=True
-|reaver=True
+|classes=Paladin, Reaver, Windblade
 |description=A blade wreathed in embers that never cool.
 |proc_style=Attack
 |proc_chance=20

@@ -15,6 +15,7 @@ def _raw(
     tmp_path: Path, skills: list[tuple[str, str, str | None]], stances: list[tuple[str, str]]
 ) -> sqlite3.Connection:
     raw = sqlite3.connect(tmp_path / "raw.sqlite")
+    raw.execute("CREATE TABLE Classes (ClassName TEXT)")
     raw.execute("CREATE TABLE Skills (StableKey TEXT, SkillName TEXT, StanceToUseStableKey TEXT)")
     raw.execute("CREATE TABLE Stances (StableKey TEXT, DisplayName TEXT)")
     raw.executemany("INSERT INTO Skills VALUES (?, ?, ?)", skills)

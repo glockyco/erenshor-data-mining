@@ -22,6 +22,24 @@ def _template(template_name: str, **values: str) -> str:
     return "{{" + template_name + "\n" + "".join(f"|{key}={value}\n" for key, value in fields.items()) + "}}"
 
 
+@pytest.mark.parametrize(
+    ("template_name", "field"),
+    [
+        ("ItemTooltip", "classes"),
+        ("Item/Weapon", "classes"),
+        ("Item/Armor", "classes"),
+        ("Item/Charm", "classes"),
+        ("Item/SkillBook", "class_levels"),
+        ("Item/SpellScroll", "class_levels"),
+    ],
+)
+def test_item_class_contract_uses_display_ready_generic_parameter(template_name: str, field: str) -> None:
+    fields = REQUIRED_TEMPLATE_FIELDS[template_name]
+    assert field in fields
+    assert not any(name.endswith("_level") for name in fields if not name.startswith("proc_"))
+    assert "duelist" not in fields
+
+
 def _catalog() -> tuple[LinkCatalogEntry, ...]:
     return (
         LinkCatalogEntry("item:sword", "item", "weapon", "Sword", "Sword", None),

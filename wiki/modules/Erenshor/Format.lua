@@ -63,6 +63,46 @@ function p.classList(classes)
 	return table.concat(links, " / ")
 end
 
+local function classValues(value)
+	if type(value) == "table" then
+		value = value.args[1]
+	end
+	local values = {}
+	for entry in tostring(value or ""):gmatch("[^,]+") do
+		local trimmed = mw.text.trim(entry)
+		if trimmed ~= "" then
+			values[#values + 1] = trimmed
+		end
+	end
+	return values
+end
+
+function p.classSpans(value)
+	local spans = {}
+	for _, name in ipairs(classValues(value)) do
+		spans[#spans + 1] = '<span class="item-tooltip-class">' .. p.escape(name) .. "</span>"
+	end
+	return table.concat(spans)
+end
+
+function p.classLevelRows(value)
+	local rows = {}
+	for _, pair in ipairs(classValues(value)) do
+		local name, level = pair:match("^(.-)%s*:%s*(%d+)$")
+		name = name and mw.text.trim(name)
+		local requiredLevel = tonumber(level)
+		if isBlank(name) or requiredLevel == nil or requiredLevel <= 0 then
+			error("Invalid class level pair: " .. pair, 2)
+		end
+		rows[#rows + 1] = '<div class="item-tooltip-book-class-req">'
+			.. p.escape(name)
+			.. ": "
+			.. tostring(requiredLevel)
+			.. "</div>"
+	end
+	return table.concat(rows)
+end
+
 -- Erenshor uses a single gold currency (Item.ItemValue is a flat integer the
 -- game prints verbatim); there is no silver/copper. Render the raw value.
 function p.currency(value)

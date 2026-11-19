@@ -970,12 +970,6 @@ CREATE TABLE skills (
     skill_desc                  TEXT,
     type_of_skill               TEXT,
     cooldown                    REAL,
-    duelist_required_level      INTEGER,
-    paladin_required_level      INTEGER,
-    arcanist_required_level     INTEGER,
-    druid_required_level        INTEGER,
-    stormcaller_required_level  INTEGER,
-    reaver_required_level       INTEGER,
     require_behind              INTEGER,
     require_2h                  INTEGER,
     require_dw                  INTEGER,
@@ -1008,6 +1002,13 @@ CREATE TABLE skills (
     npc_uses                    TEXT,
     resource_name               TEXT
 );
+
+CREATE TABLE skill_classes (
+    skill_stable_key    TEXT NOT NULL REFERENCES skills (stable_key),
+    class_name          TEXT NOT NULL,
+    required_level      INTEGER NOT NULL CHECK (required_level > 0),
+    PRIMARY KEY (skill_stable_key, class_name)
+) WITHOUT ROWID;
 
 -- -------------------------------------------------------------------------
 -- Stances
@@ -2410,6 +2411,9 @@ class Writer:
 
     def insert_skills(self, rows: list[dict[str, object]]) -> int:
         return self._insert("skills", rows)
+
+    def insert_skill_classes(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("skill_classes", rows)
 
     def insert_stances(self, rows: list[dict[str, object]]) -> int:
         return self._insert("stances", rows)
