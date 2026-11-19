@@ -653,6 +653,34 @@ def fetch(
         raise typer.Exit(1) from e
 
 
+@app.command("capture-tooltips")
+@require_preconditions(database_exists, database_valid, database_has_items)
+def capture_tooltips(ctx: typer.Context) -> None:
+    """Capture the loaded game's tooltip windows for the active build."""
+    import asyncio
+
+    from erenshor.application.eval.client import EvalConnectionError, EvalError
+    from erenshor.application.wiki_tooltips.capture import capture
+    from erenshor.infrastructure.steam.installation import find_game_installation, read_manifest_fields
+
+    cli_ctx: CLIContext = ctx.obj
+    variant = cli_ctx.config.variants[cli_ctx.variant]
+    output = variant.resolved_wiki(cli_ctx.repo_root) / "tooltip-parity" / "game.json"
+    if cli_ctx.dry_run:
+        console.print(f"Would capture game tooltip evidence to {output}.", markup=False, soft_wrap=True)
+        return
+    try:
+        installation = find_game_installation(cli_ctx.variant, variant.app_id)
+        build = read_manifest_fields(installation.manifest, {"buildid"}).get("buildid")
+        if not build:
+            raise ValueError(f"Steam app manifest has no buildid: {installation.manifest}")
+        totals = asyncio.run(capture(variant.resolved_database(cli_ctx.repo_root), build, output))
+    except (ValueError, OSError, EvalError, EvalConnectionError) as exc:
+        console.print(str(exc), style="red", markup=False)
+        raise typer.Exit(1) from exc
+    console.print(f"Captured {totals} to {output}.", markup=False, soft_wrap=True)
+
+
 @app.command("generate-lua")
 @require_preconditions(
     database_exists,

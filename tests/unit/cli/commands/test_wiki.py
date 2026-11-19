@@ -248,6 +248,14 @@ class TestWikiGenerateCommand:
 
         assert result.exit_code == 1
 
+    @patch("erenshor.infrastructure.steam.installation.find_game_installation")
+    def test_capture_tooltips_dry_run_does_not_open_game(self, find_installation, cli_context: CLIContext):
+        result = runner.invoke(wiki.app, ["capture-tooltips"], obj=replace(cli_context, dry_run=True))
+
+        assert result.exit_code == 0
+        assert "tooltip-parity/game.json" in _unwrapped(result.output)
+        find_installation.assert_not_called()
+
     def test_generate_lua_passes_faction_and_class_dependencies(
         self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext
     ):
