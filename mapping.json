@@ -3528,6 +3528,20 @@
       "mapping_type": "custom",
       "reason": "Disambiguate the song scroll from the note it teaches, which keeps the plain name."
     },
+    "item:song scroll - note penetrating hammer-on": {
+      "wiki_page_name": "Note: Penetrating Hammer-on (Item)",
+      "display_name": "Note: Penetrating Hammer-on",
+      "image_name": "Note: Penetrating Hammer-on (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the note it teaches, which the game names Note: Penetrating Hammer-On. The titles differ only in case."
+    },
+    "item:song scroll - note penetrating pull-off": {
+      "wiki_page_name": "Note: Penetrating Pull-off (Item)",
+      "display_name": "Note: Penetrating Pull-off",
+      "image_name": "Note: Penetrating Pull-off (Item)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate the song scroll from the note it teaches, which the game names Note: Penetrating Pull-Off. The titles differ only in case."
+    },
     "item:song scroll - note piercing sustain": {
       "wiki_page_name": "Note: Piercing Sustain (Item)",
       "display_name": "Note: Piercing Sustain",
