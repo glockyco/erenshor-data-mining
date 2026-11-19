@@ -83,6 +83,10 @@ The ability infobox shows exported combat modifiers in separate rows, such as `C
 
 Song capacity, Hum and Caesura details and the aura's attribute bonus go in infobox rows, and instrument harmony and dissonance in the equipment rows, while compact cards keep the game's text. Every book item quotes its exported pages under `Book Text`. Only A Guide To Songwriting adds a `Song Mechanics` section, because it is the one book whose subject the game calculates. The other seven books are lore with nothing to calculate.
 
+### D13. The Bard article follows the live class pages
+
+The human-owned Bard article follows Paladin and Reaver: a class infobox and description, starting gear, and a table of scrolls and books by level. A short Songs section lets a new Bard jump to the class's main mechanic without repeating the full songwriting guide. Use the existing live table unless the generated `Class abilities` view is approved for deployment.
+
 ## Risks / Trade-offs
 
 - [The shipped build differs from the last playtest build] → Every consumer gets regenerated from `main` on release day. The variant comparison shows the differences, and they get a review before approval.
