@@ -91,6 +91,10 @@ The human-owned Bard article follows Paladin and Reaver: a class infobox and des
 
 The compact card and teaching scroll quote the game's description, including "15 damage / tick for 6 ticks" on Note: Unsetting Sustain, so players can recognize the text from the game. The mechanical row under Spell details says "Damage: 15 / 3 sec".
 
+### D15. Tooltip type lines use the game's own labels
+
+The spell-details window and teaching scroll show `Spell Type: SongDissonance` when the game does. The compact note card still says `Song Type: Magic`, which is its damage school. Keep the readable category and infobox labels outside the game-window cards.
+
 ## Risks / Trade-offs
 
 - [The shipped build differs from the last playtest build] → Every consumer gets regenerated from `main` on release day. The variant comparison shows the differences, and they get a review before approval.

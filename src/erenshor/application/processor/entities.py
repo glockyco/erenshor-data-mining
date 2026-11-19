@@ -27,6 +27,8 @@ from typing import TYPE_CHECKING, cast
 
 from loguru import logger
 
+from erenshor.domain.value_objects.spell_type import catalog_spell_type
+
 from .auction import derive_is_auctionable, validate_auction_gates
 from .characters import _load_raid_bosses
 from .cosmetics import load_cosmetic_effects
@@ -476,13 +478,6 @@ def process_class_starting_items(
 # Spells
 # ---------------------------------------------------------------------------
 
-_BARD_SPELL_TYPES = {
-    "SongDissonance": "Dissonance",
-    "SongInspiration": "Inspiration",
-    "SongCombo": "Song Combo",
-    "SongGeneric": "Song",
-}
-
 
 def process_spells(
     raw: sqlite3.Connection,
@@ -499,8 +494,8 @@ def process_spells(
     rows = _rename_cols(rows)
     for row in rows:
         spell_type = row.get("type")
-        if isinstance(spell_type, str) and spell_type in _BARD_SPELL_TYPES:
-            row["type"] = _BARD_SPELL_TYPES[spell_type]
+        if isinstance(spell_type, str):
+            row["type"] = catalog_spell_type(spell_type)
     _name_icons_by_texture(rows, "spell_icon_texture", "spell_icon_name")
     writer.insert_spells(rows)
     valid = {str(r["stable_key"]) for r in rows}

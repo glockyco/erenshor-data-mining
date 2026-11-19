@@ -33,6 +33,7 @@ from erenshor.application.wiki.generators.link_lists import fold_long_list
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
 from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
 from erenshor.domain.value_objects.item_provenance import PROVENANCE_SCHEMA_VERSION
+from erenshor.domain.value_objects.spell_type import game_spell_type
 from erenshor.domain.value_objects.wiki_filename import picture_file_title
 from erenshor.domain.value_objects.wiki_link import AbilityLink
 from erenshor.shared.game_constants import WIKITEXT_LINE_SEPARATOR
@@ -371,7 +372,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "classes": self._class_restrictions(enriched.classes),
             "class_levels": self._class_level_rows(class_levels),
             "mana_cost": safe_str(spell.mana_cost) if spell else "",
-            "spell_type": spell.type if spell and spell.type else "",
+            "spell_type": game_spell_type(spell.type or "") if spell else "",
             "spell_desc": format_description(spell.spell_desc) if spell and spell.spell_desc else "",
             "sims_need_help": "True" if spell and spell.sims_need_help_to_learn else "",
         }
@@ -583,7 +584,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             f"{prefix}_spell_name": spell_name_link,
             f"{prefix}_spell_level": num_str(spell.required_level),
             f"{prefix}_spell_duration_ticks": num_str(spell.spell_duration_in_ticks),
-            f"{prefix}_spell_type": spell.type or "",
+            f"{prefix}_spell_type": game_spell_type(spell.type or ""),
             f"{prefix}_spell_line": spell.line or "",
             f"{prefix}_target_damage": num_str(spell.target_damage),
             f"{prefix}_target_healing": num_str(spell.target_healing),

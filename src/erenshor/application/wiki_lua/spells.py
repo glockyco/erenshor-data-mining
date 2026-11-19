@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Protocol
 
 from erenshor.application.wiki_lua.links import class_link_refs, link_refs
 from erenshor.application.wiki_lua.lua_writer import module_text
+from erenshor.domain.value_objects.spell_type import game_spell_type
 from erenshor.domain.value_objects.wiki_filename import picture_file_title
 from erenshor.shared.game_constants import ticks_to_seconds
 
@@ -20,7 +21,6 @@ LuaData = dict[str, object]
 _TEXT_FIELD_MAP: tuple[tuple[str, str], ...] = (
     ("description", "spell_desc"),
     ("specialDescriptor", "special_descriptor"),
-    ("type", "type"),
     ("line", "line"),
     ("damageType", "damage_type"),
     ("addProcStableKey", "add_proc_stable_key"),
@@ -239,6 +239,7 @@ def _spell_record(
         record["classLinks"] = class_link_refs(classes, class_display_names or {})
     for lua_key, attr in _TEXT_FIELD_MAP:
         _put_text(record, lua_key, getattr(spell, attr))
+    _put_text(record, "type", game_spell_type(spell.type or ""))
     for lua_key, attr in _NUMBER_FIELD_MAP:
         _put_number(record, lua_key, getattr(spell, attr))
     for lua_key, attr in _BOOL_FIELD_MAP:
