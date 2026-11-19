@@ -75,6 +75,10 @@ Item cards use a slate background and put the eligible classes below the name an
 
 A pickup behind a wall that opens on a spoken word shows `Say "respite" at the wall` on the wiki, map, Sheets and guide. It names the phrase and where to use it in one line, and it does not read like an NPC keyword or a dungeon entrance.
 
+### D11. Combat modifiers stay in the ability infobox
+
+The ability infobox shows exported combat modifiers in separate rows, such as `Cooldown Reduction: 20%` on Chord: Refreshing Finale. It labels the asset's timing and aggro values as base values so they do not read as fixed outcomes. The compact tooltip keeps the game's summary. The Items sheet names its charm scaling columns after the displayed proficiencies, such as `Persuasion`, without renaming the stored stat.
+
 ## Risks / Trade-offs
 
 - [The shipped build differs from the last playtest build] → Every consumer gets regenerated from `main` on release day. The variant comparison shows the differences, and they get a review before approval.
