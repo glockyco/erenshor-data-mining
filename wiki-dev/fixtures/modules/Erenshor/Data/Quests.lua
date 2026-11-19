@@ -156,7 +156,7 @@ return {
 			oncePerSpawn = false,
 			partialAssigns = false,
 			killsHolder = false,
-			dropsInvulnerability = false,
+			dropsInvulnerability = true,
 		},
 		{
 			type = "required",

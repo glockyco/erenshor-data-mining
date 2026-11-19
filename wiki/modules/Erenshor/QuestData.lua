@@ -309,8 +309,7 @@ local function variantPanel(out, variant, rows, option, data)
 	end
 	if variant.killsHolder then
 		table.insert(behavior, effect("recipient-dies", "The recipient dies after turn-in."))
-	end
-	if variant.dropsInvulnerability then
+	elseif variant.dropsInvulnerability then
 		table.insert(
 			behavior,
 			effect("recipient-attackable", "The recipient can be attacked after turn-in.")

@@ -139,7 +139,11 @@ function p.run()
 	contains(first, 'data-erenshor-quest-effect="once-per-spawn"', "spawn-instance repeat limit")
 	contains(first, 'data-erenshor-quest-effect="partial-start"', "partial acquisition")
 	contains(first, 'data-erenshor-quest-effect="recipient-dies"', "turn-in holder death")
-	contains(first, 'data-erenshor-quest-effect="recipient-attackable"', "holder vulnerability")
+	absent(
+		first,
+		'data-erenshor-quest-effect="recipient-attackable"',
+		"dead holder cannot be attacked"
+	)
 	contains(
 		first,
 		'data-erenshor-quest-effect="completes-quest"',
@@ -155,6 +159,11 @@ function p.run()
 		second,
 		'data-erenshor-quest-effect="recipient-dies"',
 		"turn-in behavior does not leak between variants"
+	)
+	contains(
+		second,
+		'data-erenshor-quest-effect="recipient-attackable"',
+		"holder vulnerability without death"
 	)
 	contains(variants, "Event begins", "scripted acquisition note")
 	absent(variants, "ShiverEvent.cs", "script filenames stay internal")
