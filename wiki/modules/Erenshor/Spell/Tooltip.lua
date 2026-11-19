@@ -21,15 +21,11 @@ local FLAGS = {
 -- Stat-modifier percent suffixes follow the item's spell-details window.
 local MOD_SUFFIX = { lifesteal = "%", haste = "%" }
 
--- "X sec" with C#-style number formatting (2.0 -> "2", 1.5 -> "1.5").
-local function seconds(value)
-	return tostring(Common.num(value)) .. " sec"
-end
-
 -- Cast time uses one-decimal formatting (ItemInfoWindow.cs:680 ToString("F1")),
 -- the clean game convention, rather than the raw float SpellbookSlot prints.
 local function castSeconds(seconds)
-	return string.format("%.1f", Common.num(seconds)) .. " sec"
+	local tenths = math.floor(Common.num(seconds) * 10 + 0.5)
+	return string.format("%.1f", tenths / 10) .. " sec"
 end
 
 local function detailRow(content, text, class)
@@ -44,7 +40,11 @@ end
 function Tooltip.render(spell)
 	local song = Common.truthy(spell.bardSong)
 	local root = Common.standaloneTooltipRoot("spell", spell.stableKey)
-	Common.bookHeader(root, spell.name or "Spell", song and "Bard Song" or "Spell")
+	Common.bookHeader(
+		root,
+		spell.gameName or spell.name or "Spell",
+		song and "Bard Song" or "Spell"
+	)
 	if not Common.isBlank(spell.description) then
 		root:tag("div")
 			:addClass("item-ability-description")
@@ -78,7 +78,7 @@ function Tooltip.renderPage(spell)
 				)
 			)
 	end
-	local content = root:tag("div"):addClass("item-spell-details-content")
+	local content = root:tag("div"):addClass("item-spell-details-content item-spell-window-lines")
 
 	detailRow(content, "Spell Level: " .. Common.num(spell.requiredLevel), "item-spell-level")
 	detailRow(content, Common.spellDuration(spell), "item-spell-duration")
@@ -86,24 +86,22 @@ function Tooltip.renderPage(spell)
 	if not Common.isBlank(spell.line) then
 		detailRow(content, "Spell Line: " .. spell.line)
 	end
-	detailRow(content, "Mana Cost: " .. Common.num(spell.manaCost))
-	if spell.harmonicMult then
-		detailRow(content, "Harmony Multiplier: " .. string.format("%g", spell.harmonicMult) .. "x")
-	end
-	if spell.dissonanceMult then
-		detailRow(
-			content,
-			"Dissonance Multiplier: " .. string.format("%g", spell.dissonanceMult) .. "x"
-		)
-	end
+	detailRow(content, "Mana Cost: " .. Common.num(spell.manaCost), "item-spell-book-row")
 
 	if Common.truthy(spell.targetDamage) then
 		local perTick = (Common.num(spell.durationSeconds) > 0) and " / 3 sec" or ""
-		detailRow(content, "Damage: " .. spell.targetDamage .. perTick, "item-spell-damage")
+		detailRow(
+			content,
+			'<span class="item-spell-damage">Damage: ' .. spell.targetDamage .. "</span>" .. perTick
+		)
 	end
 
 	detailRow(content, "Cast Time: " .. castSeconds(spell.castTimeSeconds))
-	detailRow(content, "Cooldown: " .. seconds(spell.cooldownSeconds))
+	detailRow(
+		content,
+		"Cooldown: " .. Common.num(spell.cooldownSeconds) .. "sec",
+		"item-spell-book-row"
+	)
 
 	if
 		Common.truthy(spell.targetDamage)
@@ -117,36 +115,37 @@ function Tooltip.renderPage(spell)
 
 	for _, flag in ipairs(FLAGS) do
 		if Common.truthy(spell[flag.key]) then
-			detailRow(content, flag.label, "item-spell-flag")
+			detailRow(content, flag.label, "item-spell-window-flag")
 		end
 	end
 	if Common.truthy(spell.taunt) then
-		detailRow(content, "Taunt: " .. Common.num(spell.aggro) .. " aggro", "item-spell-flag")
+		detailRow(
+			content,
+			'<span class="item-spell-window-flag">Taunt:</span> '
+				.. Common.num(spell.aggro)
+				.. " aggro"
+		)
 	end
 
 	local statusLink = Common.spellLink(spell.statusEffectStableKey)
 	if not Common.isBlank(statusLink) then
-		detailRow(content, "Apply Effects on Target: " .. statusLink, "item-spell-flag")
+		detailRow(content, "Apply Effects on Target", "item-spell-window-flag")
+		detailRow(content, "-" .. statusLink)
 	end
 
 	for _, mod in ipairs(Common.STAT_MODS) do
-		if Common.num(spell[mod.key]) ~= 0 then
+		if
+			Common.num(spell[mod.key]) ~= 0
+			and (mod.key ~= "mana" or not Common.truthy(spell.levelScaledManaRestoration))
+		then
+			local name = mod.key == "mana" and "Mana Regen" or mod.label
 			detailRow(
 				content,
-				mod.label .. " " .. Common.signedMod(spell[mod.key], MOD_SUFFIX[mod.key])
+				name .. " " .. Common.signedMod(spell[mod.key]) .. (MOD_SUFFIX[mod.key] or "")
 			)
 		end
 	end
 
-	if Common.num(spell.levelScaledManaRestoration) ~= 0 then
-		detailRow(
-			content,
-			"Mana Regen " .. Common.signedMod(spell.levelScaledManaRestoration) .. " per level"
-		)
-	end
-	if Common.num(spell.armorPenPercent) ~= 0 then
-		detailRow(content, "Armor Penetration " .. Common.signedMod(spell.armorPenPercent, "%"))
-	end
 	if Common.num(spell.resonance) ~= 0 then
 		detailRow(content, "Resonance " .. Common.signedMod(spell.resonance))
 	end

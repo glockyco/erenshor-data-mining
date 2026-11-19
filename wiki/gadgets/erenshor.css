@@ -141,12 +141,6 @@
   line-height: 1.1;
 }
 
-.item-tooltip-relic {
-  color: #ffd700;
-  font-weight: bold;
-  margin: 3px 0 0 0;
-}
-
 .item-tooltip-value {
   display: flex;
   align-items: center;
@@ -292,6 +286,7 @@
 }
 
 .item-tooltip-book-requirement,
+.item-tooltip-book-class-req,
 .item-tooltip-book-detail,
 .item-tooltip-book-description {
   font-style: italic;
@@ -634,16 +629,28 @@
   line-height: 1.4;
 }
 
-.item-spell-level {
-  color: #a7abba;
+.item-spell-window-lines {
+  font-style: italic;
 }
 
-.item-spell-duration {
+.item-spell-book-row {
+  font-style: normal;
+}
+
+.item-spell-window-flag {
+  color: #8080ff;
+}
+
+.item-spell-level {
   color: #00ff00;
 }
 
+.item-spell-duration {
+  color: #ffff00;
+}
+
 .item-spell-damage {
-  color: #ff8800;
+  color: #ff0000;
 }
 
 .item-spell-healing {

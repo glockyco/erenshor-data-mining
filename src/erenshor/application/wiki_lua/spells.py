@@ -234,6 +234,8 @@ def _spell_record(
         "page": page,
         "classes": classes,
     }
+    if spell.spell_name != name:
+        _put_text(record, "gameName", spell.spell_name)
     _put_text(record, "icon", picture_file_title("icon", spell.image_name))
     if classes:
         record["classLinks"] = class_link_refs(classes, class_display_names or {})

@@ -116,7 +116,7 @@ function p.run()
 	assertContains(buffTip, "Spell Type: Beneficial", "buff tooltip shows spell type")
 	assertContains(buffTip, "Mana Cost: 0", "buff tooltip shows mana cost")
 	assertContains(buffTip, "Cast Time: 0.0 sec", "buff tooltip shows cast time")
-	assertContains(buffTip, "Cooldown: 0 sec", "buff tooltip shows cooldown")
+	assertContains(buffTip, "Cooldown: 0sec", "buff tooltip shows cooldown")
 	assertContains(buffTip, "Group Effect", "buff tooltip shows group effect flag")
 	assertContains(
 		buffTip,
@@ -164,14 +164,18 @@ function p.run()
 	)
 	assertContains(song, "Spell Type: SongDissonance", "spell details use the game's spell type")
 	assertContains(song, "Deals 15 damage / tick.", "song card quotes the game's description")
-	assertContains(song, "Damage: 15 / 3 sec", "spell details give the damage interval in seconds")
+	assertContains(
+		song,
+		"Damage: 15</span> / 3 sec",
+		"spell details give the damage interval in seconds"
+	)
 
 	local dmgTip = minorTooltip
 	assertContains(dmgTip, "Instant Effect", "damage tooltip shows instant effect")
 	assertContains(dmgTip, "Mana Cost: 30", "damage tooltip shows mana cost")
 	assertContains(dmgTip, "Damage: 85", "damage tooltip shows damage")
 	assertContains(dmgTip, "Cast Time: 2.3 sec", "damage tooltip shows cast time")
-	assertContains(dmgTip, "Cooldown: 8 sec", "damage tooltip shows cooldown")
+	assertContains(dmgTip, "Cooldown: 8sec", "damage tooltip shows cooldown")
 	assertContains(
 		dmgTip,
 		'Resist Type: <span style="color:#8080FF">Magic</span>',

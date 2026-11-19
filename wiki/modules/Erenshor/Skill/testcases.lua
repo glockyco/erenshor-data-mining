@@ -69,12 +69,13 @@ function p.run()
 		'item-spell-details-header">Stance: Aggressive',
 		"stance skill tooltip title"
 	)
-	assertContains(stanceTip, "Change Stance", "stance skill tooltip shows change stance")
-	assertContains(stanceTip, "Aggressive", "stance skill tooltip shows stance name")
+	if string.find(stanceTip, "Change Stance", 1, true) then
+		error("stance skill tooltip uses hotkey text, not skillbook activation text")
+	end
 	assertContains(
 		stanceTip,
-		"Gain a 40% increase to physical damage",
-		"stance skill tooltip shows stance description"
+		"Gain a 50% increase to physical damage",
+		"stance skill tooltip shows the hotkey description"
 	)
 
 	local missingTip = Skill.renderTooltip({}, "Unknown Skill")

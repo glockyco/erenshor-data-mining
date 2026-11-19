@@ -1,7 +1,6 @@
 -- Module:Erenshor/Skill/Tooltip
 --
--- The compact card follows the hotkey's ability card. Stance abilities still
--- link to the stance and describe what changes when it is activated.
+-- Skills use the hotkey text. Stance entities use the activating skillbook.
 
 local Common = require("Module:Erenshor/Ability/Common")
 local Format = require("Module:Erenshor/Format")
@@ -19,26 +18,38 @@ local function detailRow(content, text, class)
 	return row
 end
 
+local function descriptionRows(content, description)
+	for line in (description or ""):gmatch("[^\r\n]+") do
+		detailRow(content, Format.escape(line))
+	end
+end
+
 -- Build the tooltip DOM for a resolved skill record. Identity defaults to the
 -- skill's own stable key, while stance tooltips reuse this renderer with a stance
 -- identity so the card links to the stance entity.
 function Tooltip.render(skill, identity)
 	identity = identity or { kind = "skill", stableKey = skill.stableKey }
 	local root = Common.standaloneTooltipRoot(identity.kind, identity.stableKey)
-	Common.bookHeader(root, skill.name or "Skill", "Ability")
+	local stanceCard = identity.kind == "stance"
+	local header = skill.name or "Skill"
+	if stanceCard then
+		header = header .. " - Activatable"
+	end
+	Common.bookHeader(root, header, stanceCard and "" or "Ability")
 	local content = root:tag("div"):addClass("item-ability-description")
 
 	local stance = nil
-	if not Common.isBlank(skill.stanceStableKey) then
+	if stanceCard and not Common.isBlank(skill.stanceStableKey) then
 		stance = StanceData.stances[skill.stanceStableKey]
 	end
 
 	if stance ~= nil then
 		detailRow(content, "Change Stance")
-		detailRow(content, Format.pageLink(stance.page, stance.name), "item-spell-details-header")
-		detailRow(content, Format.escape(stance.description or ""))
+		local name = skill.stanceStableKey == "stance:normal" and "normal" or stance.name
+		detailRow(content, Format.pageLink(stance.page, name), "item-spell-details-header")
+		descriptionRows(content, stance.description)
 	else
-		detailRow(content, Format.escape(skill.description or ""))
+		descriptionRows(content, skill.description)
 	end
 
 	return Format.preserveIdentityAttributes(root)
