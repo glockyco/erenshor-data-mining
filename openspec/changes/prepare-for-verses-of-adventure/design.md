@@ -79,6 +79,10 @@ A pickup behind a wall that opens on a spoken word shows `Say "respite" at the w
 
 The ability infobox shows exported combat modifiers in separate rows, such as `Cooldown Reduction: 20%` on Chord: Refreshing Finale. It labels the asset's timing and aggro values as base values so they do not read as fixed outcomes. The compact tooltip keeps the game's summary. The Items sheet names its charm scaling columns after the displayed proficiencies, such as `Persuasion`, without renaming the stored stat.
 
+### D12. Bard mechanics go in existing rows, and books quote the game
+
+Song capacity, Hum and Caesura details and the aura's attribute bonus go in infobox rows, and instrument harmony and dissonance in the equipment rows, while compact cards keep the game's text. Every book item quotes its exported pages under `Book Text`. Only A Guide To Songwriting adds a `Song Mechanics` section, because it is the one book whose subject the game calculates. The other seven books are lore with nothing to calculate.
+
 ## Risks / Trade-offs
 
 - [The shipped build differs from the last playtest build] → Every consumer gets regenerated from `main` on release day. The variant comparison shows the differences, and they get a review before approval.
