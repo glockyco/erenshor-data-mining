@@ -57,13 +57,37 @@ def derive_is_auctionable(
 
 @dataclass(frozen=True)
 class ListingRules:
-    """Extracted bounds for successful draws, not exhausted-retry outliers."""
+    """Project successful draws across scenes and reachable player progression."""
 
-    direct_cap: int
     direct_above: int
     direct_below: int
     sim_cap: int
     player_cap: int
+
+    @staticmethod
+    def sim_item_cap(sim_level: int, *, rival: bool, starter_zone: bool = False) -> int:
+        # code-fact: auction.direct_level_cap
+        # code-fact: auction.gear_rival_bounds
+        if starter_zone and sim_level < 10:
+            return 4
+        return (37 if sim_level < 35 else 45) if rival else 44
+
+    def gear_sim_levels(self, item_level: int, *, rival: bool) -> tuple[int, int] | None:
+        # code-fact: auction.gear_rival_bounds
+        # code-fact: auction.gear_lower_window
+        # At cap, raid tier 4 gives the widest window. The interval records
+        # where a normal draw is possible, not which player progression permits it.
+        if item_level <= 0:
+            return None
+        last = min(self.sim_cap, item_level + 3)
+        for first in range(1, last + 1):
+            if rival:
+                above = 10 if first >= 35 and self.player_cap >= 35 else 6
+            else:
+                above = 8 if self.player_cap >= 35 else 2 if self.player_cap > 33 or first > 10 else 1
+            if item_level <= min(self.sim_item_cap(first, rival=rival), first + above):
+                return first, last
+        return None
 
     @classmethod
     def from_facts(cls, facts: dict[tuple[str, str], str]) -> ListingRules:
@@ -84,6 +108,7 @@ class ListingRules:
         # code-fact: auction.gear_incompatible_storage
         # code-fact: auction.gear_primary_storage
         # code-fact: auction.gear_secondary_storage
+        # code-fact: auction.gear_bard_secondary_storage
         # code-fact: auction.gear_base_upper
         # code-fact: auction.gear_normal_upper
         # code-fact: auction.gear_base_lower
@@ -91,6 +116,7 @@ class ListingRules:
         assertions = (
             "item_database_pool",
             "direct_draw",
+            "direct_level_cap",
             "sim_level_clamp",
             "display_item",
             "replacement_draw",
@@ -106,6 +132,7 @@ class ListingRules:
             "gear_incompatible_storage",
             "gear_primary_storage",
             "gear_secondary_storage",
+            "gear_bard_secondary_storage",
             "gear_base_upper",
             "gear_normal_upper",
             "gear_base_lower",
@@ -121,7 +148,6 @@ class ListingRules:
         # code-fact: auction.replacebag_gates
         if facts.get(("auction.replacebag_gates", "item_level")) != "<= 0,> 39":
             raise ValueError("Re-derive auction replacement level bounds")
-        # code-fact: auction.direct_level_cap
         # code-fact: auction.direct_level_above
         # code-fact: auction.direct_level_below
         # code-fact: auction.sim_level_cap
@@ -130,7 +156,6 @@ class ListingRules:
             *(
                 int(facts[(f"auction.{name}", "value")])
                 for name in (
-                    "direct_level_cap",
                     "direct_level_above",
                     "direct_level_below",
                     "sim_level_cap",
@@ -169,6 +194,7 @@ def derive_listing_routes(
     direct nor replacement windows are empty at normal levels in shipped data;
     the table describes successful draws, not those exceptional fallthroughs.
     Replacement is deliberately NOT passed through the original display gate.
+    Sim level intervals describe possible draws across scenes and player tiers.
     """
     rows: list[dict[str, object]] = []
 
@@ -204,7 +230,9 @@ def derive_listing_routes(
     # code-fact: auction.direct_draw
     sim_min = max(1, item.level - rules.direct_above)
     sim_max = min(rules.sim_cap, item.level + rules.direct_below)
-    if preserved and 0 <= item.level <= rules.direct_cap and sim_min <= sim_max:
+    # Outside the starter scenes the normal Sim cap permits any level
+    # admitted by UpdateAH. Direct draws use their own +3/-5 level offsets.
+    if preserved and 1 <= item.level < 40 and sim_min <= sim_max:
         add("direct", sim_min, sim_max)
 
     # code-fact: auction.replacement_draw
@@ -224,21 +252,23 @@ def derive_listing_routes(
     # code-fact: auction.gear_class_gate
     # code-fact: auction.gear_duelist_effect
     # code-fact: auction.gear_paladin_effect
+    # code-fact: auction.gear_primary_storage
+    # code-fact: auction.gear_secondary_storage
+    # code-fact: auction.gear_bard_secondary_storage
+    # A hand-slot draw can reach storage even when class-compatible. Rejected
+    # Paladin shield upgrades and Bard offhands also fall into these branches.
     can_store = (
         bool(playable_classes - item.classes)
         or item.slot in {"Primary", "Secondary", "PrimaryOrSecondary"}
         or item.worn_effect_id in {"45807425", "18068040", "16613100"}
     )
     # code-fact: auction.gear_draw
-    # code-fact: auction.gear_rival_bounds
-    # code-fact: auction.gear_lower_window
-    # Rival windows contain ordinary windows: +6, and a possible -3. Below
-    # sim level 35 the rival cap is 37; at 35 it rises to 45. UpdateAH still
-    # rejects >=40. Class-incompatible draws go to StoredItems, not to waste.
-    gear_min = max(1, item.level - 6, 35 if item.level > 37 else 1)
-    gear_max = min(rules.sim_cap, item.level + 3)
-    if preserved and not item.sim_cannot_get and can_store and 1 <= item.level < 40 and gear_min <= gear_max:
-        add("gear_surplus", gear_min, gear_max)
+    if preserved and not item.sim_cannot_get and can_store and 1 <= item.level < 40:
+        windows = [
+            bounds for rival in (False, True) if (bounds := rules.gear_sim_levels(item.level, rival=rival)) is not None
+        ]
+        if windows:
+            add("gear_surplus", min(bounds[0] for bounds in windows), max(bounds[1] for bounds in windows))
     return rows
 
 

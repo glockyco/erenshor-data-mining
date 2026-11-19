@@ -6,8 +6,8 @@ import pytest
 
 from erenshor.application.processor.auction import ListingItem, ListingRules, derive_listing_routes
 
-RULES = ListingRules(direct_cap=35, direct_above=3, direct_below=5, sim_cap=35, player_cap=35)
-CLASSES = {"Arcanist", "Druid", "Duelist", "Paladin", "Reaver", "Stormcaller"}
+RULES = ListingRules(direct_above=3, direct_below=5, sim_cap=35, player_cap=35)
+CLASSES = {"Arcanist", "Bard", "Druid", "Duelist", "Paladin", "Reaver", "Stormcaller"}
 ITEM = ListingItem("item:test", "123", 10, 5, slot="Head", classes=frozenset(CLASSES))
 
 
@@ -15,14 +15,16 @@ def routes(item: ListingItem) -> dict[str, dict[str, object]]:
     return {str(row["route"]): row for row in derive_listing_routes(item, RULES, {"item:currency"}, CLASSES)}
 
 
-@pytest.mark.parametrize(("level", "bounds"), [(0, (1, 5)), (1, (1, 6)), (10, (7, 15)), (35, (32, 35))])
+@pytest.mark.parametrize(
+    ("level", "bounds"), [(1, (1, 6)), (10, (7, 15)), (35, (32, 35)), (36, (33, 35)), (38, (35, 35))]
+)
 def test_direct_window_boundaries(level: int, bounds: tuple[int, int]) -> None:
     row = routes(replace(ITEM, level=level))["direct"]
     assert (row["min_sim_level"], row["max_sim_level"]) == bounds
     assert row["min_player_level"] is None
 
 
-@pytest.mark.parametrize("level", [-1, 36, 40, 50])
+@pytest.mark.parametrize("level", [-1, 0, 39, 40, 50])
 def test_direct_draw_excludes_outside_item_cap(level: int) -> None:
     assert "direct" not in routes(replace(ITEM, level=level))
 
@@ -42,7 +44,7 @@ def test_display_replaces_original_but_does_not_recheck_replacement(change: dict
 
 
 def test_taught_spell_level_is_not_the_item_level() -> None:
-    assert "direct" in routes(replace(ITEM, level=0, taught_spell_level=50))
+    assert "direct" in routes(replace(ITEM, level=1, taught_spell_level=50))
 
 
 def test_replacement_window_uses_player_not_sim_level() -> None:
@@ -58,12 +60,28 @@ def test_currency_is_replaced_not_offered() -> None:
 
 
 def test_gear_surplus_requires_a_storage_path() -> None:
-    assert routes(replace(ITEM, level=36)) == {}
+    assert "gear_surplus" not in routes(replace(ITEM, level=36))
     mismatch = routes(replace(ITEM, level=36, classes=frozenset({"Druid"})))["gear_surplus"]
-    assert (mismatch["min_sim_level"], mismatch["max_sim_level"]) == (30, 35)
+    assert (mismatch["min_sim_level"], mismatch["max_sim_level"]) == (28, 35)
     hand = routes(replace(ITEM, level=39, slot="PrimaryOrSecondary"))["gear_surplus"]
-    assert (hand["min_sim_level"], hand["max_sim_level"]) == (35, 35)
+    assert (hand["min_sim_level"], hand["max_sim_level"]) == (31, 35)
     assert routes(replace(ITEM, level=40, slot="Primary")) == {}
+
+
+def test_starter_scene_cap_is_shared_by_direct_and_gear_draws() -> None:
+    assert RULES.sim_item_cap(9, rival=False, starter_zone=True) == 4
+    assert RULES.sim_item_cap(9, rival=True, starter_zone=True) == 4
+    assert RULES.sim_item_cap(10, rival=False, starter_zone=True) == 44
+    assert RULES.sim_item_cap(9, rival=True) == 37
+
+
+def test_rival_and_normal_endgame_gear_caps() -> None:
+    assert RULES.gear_sim_levels(44, rival=False) is None
+    assert RULES.gear_sim_levels(44, rival=True) == (35, 35)
+    assert RULES.gear_sim_levels(45, rival=True) == (35, 35)
+    assert RULES.gear_sim_levels(46, rival=True) is None
+    assert replace(RULES, player_cap=34).gear_sim_levels(39, rival=True) == (35, 35)
+    assert replace(RULES, player_cap=34).gear_sim_levels(39, rival=False) is None
 
 
 def test_scoped_worn_effect_can_force_gear_into_storage() -> None:

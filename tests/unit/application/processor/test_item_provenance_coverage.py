@@ -96,6 +96,27 @@ def native_inputs(tmp_path: Path) -> Iterator[sqlite3.Connection]:
     _insert(connection, "item_classes", item_stable_key="item:other", class_name="Paladin")
     _insert(
         connection,
+        "item_stats",
+        item_stable_key="item:other",
+        quality="Standard",
+        hp=0,
+        ac=0,
+        mana=0,
+        str=0,
+        end=0,
+        dex=0,
+        agi=0,
+        int=0,
+        wis=0,
+        cha=0,
+        res=0,
+        mr=0,
+        er=0,
+        pr=0,
+        vr=0,
+    )
+    _insert(
+        connection,
         "authored_sims",
         stable_key="authored-sim:fixture",
         prefab_guid="ffffffffffffffffffffffffffffffff",
@@ -429,6 +450,7 @@ def native_inputs(tmp_path: Path) -> Iterator[sqlite3.Connection]:
     assertions = (
         "item_database_pool",
         "direct_draw",
+        "direct_level_cap",
         "sim_level_clamp",
         "display_item",
         "replacement_draw",
@@ -444,6 +466,7 @@ def native_inputs(tmp_path: Path) -> Iterator[sqlite3.Connection]:
         "gear_incompatible_storage",
         "gear_primary_storage",
         "gear_secondary_storage",
+        "gear_bard_secondary_storage",
         "gear_base_upper",
         "gear_normal_upper",
         "gear_base_lower",
@@ -456,6 +479,7 @@ def native_inputs(tmp_path: Path) -> Iterator[sqlite3.Connection]:
         "sim.aura_equipment_added",
         "sim.generated_equipment_slot_gate",
         "sim.generated_equipment_nonweapon_gate",
+        "sim.generated_equipment_build_gate",
         "sim.generated_equipment_assignment",
         "smithing.planar_fuel",
         "loot.start_initialization_sequence",
@@ -492,7 +516,6 @@ def native_inputs(tmp_path: Path) -> Iterator[sqlite3.Connection]:
     ):
         _insert(connection, "code_facts", fact_id="item.fossil_pool_grant", key=key, value=value)
     for name, value in (
-        ("direct_level_cap", 35),
         ("direct_level_above", 3),
         ("direct_level_below", 5),
         ("sim_level_cap", 35),
@@ -2489,6 +2512,9 @@ def test_internal_equipment_retains_actor_class_and_authored_seed_phase(
         assert [
             (atom.reference_stable_key, atom.actor) for atom in fact.conditions if atom.gate_key == "actor_class"
         ] == [("class:paladin", "sim")]
+        values = {atom.gate_key: atom.value for atom in fact.conditions}
+        assert values["sim_build"] == "non_specific"
+        assert values["upgrade"] == "item_level_exceeds_equipped_level_plus_quality"
     seed = next(fact for fact in builder.acquisitions if fact.mechanic == "authored_sim_seed")
     assert (seed.item_stable_key, seed.variant_key, seed.player_access_state) == ("item:reward", "0", "internal_only")
     assert [
@@ -2496,6 +2522,17 @@ def test_internal_equipment_retains_actor_class_and_authored_seed_phase(
         for atom in seed.conditions
         if atom.gate_key == "seed_level"
     ] == [(10, 10, "sim", "source_initialization")]
+
+
+@pytest.mark.parametrize(("class_name", "level"), [("Bard", 10), ("Paladin", 1)])
+def test_ordinary_aura_draw_cannot_upgrade_from_empty(
+    native_inputs: sqlite3.Connection, class_name: str, level: int
+) -> None:
+    native_inputs.execute("UPDATE item_classes SET class_name = ? WHERE item_stable_key = 'item:other'", (class_name,))
+    native_inputs.execute("UPDATE items SET item_level = ? WHERE stable_key = 'item:other'", (level,))
+    builder = ProvenanceBuilder(native_inputs)
+    builder.internal_aura_equipment()
+    assert not builder.acquisitions
 
 
 def test_crafting_reward_slots_and_material_quantities_remain_independent(

@@ -1470,17 +1470,20 @@ class ProvenanceBuilder:
                 )
 
     def internal_aura_equipment(self) -> None:
+        """Record the ordinary generated upgrade draw, not empty-slot autofill."""
         facts = {(str(row["fact_id"]), str(row["key"])): str(row["value"]) for row in self.rows("code_facts")}
         # code-fact: sim.aura_equipment_slot
         # code-fact: sim.aura_equipment_added
         # code-fact: sim.generated_equipment_slot_gate
         # code-fact: sim.generated_equipment_nonweapon_gate
+        # code-fact: sim.generated_equipment_build_gate
         # code-fact: sim.generated_equipment_assignment
         required = (
             "sim.aura_equipment_slot",
             "sim.aura_equipment_added",
             "sim.generated_equipment_slot_gate",
             "sim.generated_equipment_nonweapon_gate",
+            "sim.generated_equipment_build_gate",
             "sim.generated_equipment_assignment",
         )
         for fact_id in required:
@@ -1492,6 +1495,15 @@ class ProvenanceBuilder:
         classes: dict[str, set[str]] = defaultdict(set)
         for row in self.rows("item_classes"):
             classes[str(row["item_stable_key"])].add(str(row["class_name"]))
+        aura_stats = {
+            row["item_stable_key"]: row
+            for row in self.connection.execute("""
+                SELECT item_stable_key, hp, ac, mana, str, end, dex, agi, int, wis,
+                       cha, res, mr, er, pr, vr
+                FROM item_stats JOIN items ON stable_key = item_stable_key
+                WHERE required_slot = 'Aura' AND quality = 'Standard'
+            """)
+        }
         for row in self.rows("items"):
             if (
                 row["required_slot"] != "Aura"
@@ -1501,27 +1513,34 @@ class ProvenanceBuilder:
             ):
                 continue
             item, level = str(row["stable_key"]), int(row["item_level"])
+            stats = aura_stats.get(item)
+            if stats is None or any(value != 0 for value in tuple(stats)[1:]):
+                raise ValueError(f"Re-derive Sim build scores for Aura item {item}")
+            # Standard auras and the Empty slot have zero scores. Stat-based
+            # tendencies cannot upgrade to them and Bard always uses a stat score.
+            # A NonSpecific Sim requires a strict gain over level plus quality.
+            if level <= 1:
+                continue
+            eligible_classes = sorted(classes[item] - {"Bard"})
             for rival in (False, True):
-                levels = [
-                    actor
-                    for actor in range(1, rules.sim_cap + 1)
-                    if max(1, actor - 3)
-                    <= level
-                    <= min(
-                        (45 if actor >= 35 else 37) if rival else 39,
-                        actor + (6 if rival else 2 if actor > 10 else 1),
-                    )
-                ]
+                levels = rules.gear_sim_levels(level, rival=rival)
                 if not levels:
                     continue
-                for class_name in sorted(classes[item]):
+                for class_name in eligible_classes:
                     scenario = "rival" if rival else "normal"
                     evidence: tuple[ProvenanceEvidence, ...] = (
                         self.evidence("items", item),
                         self.evidence("item_classes", item, class_name),
                     )
                     evidence += tuple(self.evidence("code_facts", fact_id, "ok") for fact_id in required)
-                    evidence += (self.evidence("code_facts", "auction.sim_level_cap", "value"),)
+                    evidence += (
+                        self.evidence("code_facts", "auction.sim_level_cap", "value"),
+                        self.evidence("code_facts", "auction.player_level_cap", "value"),
+                        self.evidence("code_facts", "auction.gear_rival_bounds", "ok"),
+                        self.evidence("code_facts", "auction.direct_level_cap", "ok"),
+                        self.evidence("code_facts", "auction.gear_draw", "ok"),
+                        self.evidence("code_facts", "auction.gear_lower_window", "ok"),
+                    )
                     self.acquisition(
                         "internal_equipment",
                         item,
@@ -1543,11 +1562,14 @@ class ProvenanceBuilder:
                                 0,
                                 "actor_level",
                                 actor="sim",
-                                minimum=min(levels),
-                                maximum=max(levels),
+                                minimum=levels[0],
+                                maximum=levels[1],
                             ),
                             ProvenanceCondition("route", 0, 0, "route", value=scenario),
-                            ProvenanceCondition("upgrade", 0, 0, "quality", value="improves_existing_equipment"),
+                            ProvenanceCondition("sim_build", 0, 0, "route", value="non_specific"),
+                            ProvenanceCondition(
+                                "upgrade", 0, 0, "quality", value="item_level_exceeds_equipped_level_plus_quality"
+                            ),
                             ProvenanceCondition(
                                 "actor_access", 0, 0, "route", value="not_gm_upgrades_enabled_not_demo"
                             ),

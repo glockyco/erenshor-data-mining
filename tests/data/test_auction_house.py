@@ -41,12 +41,19 @@ def test_previously_source_free_items_have_direct_auction_source(main_clean_db: 
 def test_listing_routes_respect_level_and_flag_exclusions(main_clean_db: Path) -> None:
     with sqlite3.connect(main_clean_db) as conn:
         assert conn.execute("SELECT count(*) FROM auction_house_items").fetchone()[0] > 0
+        sim_cap = int(conn.execute("SELECT value FROM code_facts WHERE fact_id='auction.sim_level_cap'").fetchone()[0])
+        above = int(
+            conn.execute("SELECT value FROM code_facts WHERE fact_id='auction.direct_level_above'").fetchone()[0]
+        )
         assert (
-            conn.execute("""
-            SELECT count(*) FROM auction_house_items a JOIN items i ON i.stable_key = a.item_stable_key
-            WHERE i.no_trade_no_destroy = 1 OR i.is_unique = 1 OR i.furniture_set = 1
-               OR i.item_level >= 40 OR (a.route = 'direct' AND i.item_level >= 36)
-        """).fetchone()[0]
+            conn.execute(
+                """
+                SELECT count(*) FROM auction_house_items a JOIN items i ON i.stable_key = a.item_stable_key
+                WHERE i.no_trade_no_destroy = 1 OR i.is_unique = 1 OR i.furniture_set = 1
+                   OR i.item_level >= 40 OR (a.route = 'direct' AND i.item_level > ?)
+                """,
+                (sim_cap + above,),
+            ).fetchone()[0]
             == 0
         )
         assert (

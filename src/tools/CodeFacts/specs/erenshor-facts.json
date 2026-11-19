@@ -864,23 +864,20 @@
       "matcher": "node_shape",
       "args": {
         "kind": "IfElseStatement",
-        "shape": "if (_hours > 3) { List<string> list = new List<string> (); for (int k = 0; k <= UnityEngine.Random.Range (3, 10); k++) { num3 = 1000; Item empty = GameData.PlayerInv.Empty; do { num3--; empty = GameData.ItemDB.ItemDB [UnityEngine.Random.Range (0, GameData.ItemDB.ItemDB.Count ())]; } while (num3 > 0 && (empty == null || empty.ItemLevel > 35 || empty == GameData.PlayerInv.Empty || empty.ItemLevel > MyStats.Level + 3 || empty.ItemLevel < MyStats.Level - 5 || empty.ItemLevel < 0 || empty.ItemValue <= 0 || empty.NoTradeNoDestroy || empty.FurnitureSet)); if (empty != null && empty != GameData.PlayerInv.Empty) { list.Add (empty.Id); } } AuctionHouse.UpdateAH (list, MyNPC.NPCName, Greed); }"
+        "shape": "if (_hours > 3) { List<string> list = new List<string> (); for (int k = 0; k <= UnityEngine.Random.Range (3, 10); k++) { num3 = 1000; Item empty = GameData.PlayerInv.Empty; do { num3--; empty = GameData.ItemDB.ItemDB [UnityEngine.Random.Range (0, GameData.ItemDB.ItemDB.Count ())]; } while (num3 > 0 && (empty == null || empty.ItemLevel > num5 || empty == GameData.PlayerInv.Empty || empty.ItemLevel > MyStats.Level + 3 || empty.ItemLevel < MyStats.Level - 5 || empty.ItemLevel <= 0 || empty.ItemValue <= 0 || empty.NoTradeNoDestroy || empty.FurnitureSet)); if (empty != null && empty != GameData.PlayerInv.Empty) { list.Add (empty.Id); } } AuctionHouse.UpdateAH (list, MyNPC.NPCName, Greed); }"
       },
       "note": "Successful random draws only. At retry exhaustion a final non-null non-Empty item can escape the rejection predicate; the normal clean eligibility table does not claim this exceptional draw is an ordinary source."
     },
     {
       "id": "auction.direct_level_cap",
-      "mode": "extract",
+      "mode": "assert",
       "type": "SimPlayer",
       "method": "CheckGearProgress",
-      "matcher": "int_expression",
+      "matcher": "node_shape",
       "args": {
-        "left": "empty.ItemLevel",
-        "operator": ">"
-      },
-      "keys": [
-        "value"
-      ]
+        "kind": "IfElseStatement",
+        "shape": "if (MyStats.Level < 10 && (SceneManager.GetActiveScene ().name == \"Stowaway\" || SceneManager.GetActiveScene ().name == \"Tutorial\")) { num5 = 4; }"
+      }
     },
     {
       "id": "auction.direct_level_above",
@@ -993,7 +990,7 @@
       "matcher": "node_shape",
       "args": {
         "kind": "IfElseStatement",
-        "shape": "if (MySimTracking.Rival) { num4 = 6; num5 = ((MyStats.Level >= 35) ? 45 : 37); }"
+        "shape": "if (GameData.SimMngr != null && GameData.SimMngr.Sims.Count > myIndex && GameData.SimMngr.Sims [myIndex].Rival) { _hours *= 5; num4 = 6; if (MyStats.Level < 35) { num5 = 37; } else { num5 = 45; if (GameData.PlayerStats.Level > 33) { num4 = 6; } if (GameData.PlayerStats.Level >= 35) { if (GameData.PlayerRaidTier == 1) { num4 = 7; } if (GameData.PlayerRaidTier == 2) { num4 = 8; } if (GameData.PlayerRaidTier == 3) { num4 = 9; } if (GameData.PlayerRaidTier == 4) { num4 = 10; } } } } else { num5 = 44; if (GameData.PlayerStats.Level > 33) { num4 = 2; } if (GameData.PlayerStats.Level >= 35) { num4 = 3; if (GameData.PlayerRaidTier == 1) { num4 = 5; } if (GameData.PlayerRaidTier == 2) { num4 = 6; } if (GameData.PlayerRaidTier == 3) { num4 = 7; } if (GameData.PlayerRaidTier == 4) { num4 = 8; } } }"
       }
     },
     {
@@ -1082,7 +1079,7 @@
       "matcher": "node_shape",
       "args": {
         "kind": "IfElseStatement",
-        "shape": "if ((item.WeaponDmg > 0 && item.ThisWeaponType != Item.WeaponType.TwoHandMelee && item.ThisWeaponType != Item.WeaponType.TwoHandStaff) || ((item.ThisWeaponType == Item.WeaponType.TwoHandMelee || item.ThisWeaponType == Item.WeaponType.TwoHandStaff) && item.ItemLevel - simInvSlot4.MyItem.ItemLevel > 3)) { if (item3.MyItem.ItemLevel < item.ItemLevel && (float)item3.MyItem.ItemLevel < num7 && !CheckRelic (item)) { simInvSlot5 = item3; num7 = item3.MyItem.ItemLevel; } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; } } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; }"
+        "shape": "if ((item.WeaponDmg > 0 && item.ThisWeaponType != Item.WeaponType.TwoHandMelee && item.ThisWeaponType != Item.WeaponType.TwoHandStaff) || ((item.ThisWeaponType == Item.WeaponType.TwoHandMelee || item.ThisWeaponType == Item.WeaponType.TwoHandStaff) && item.ItemLevel - simInvSlot6.MyItem.ItemLevel > 3)) { if (item3.MyItem.ItemLevel < item.ItemLevel && (float)item3.MyItem.ItemLevel < num7 && !CheckRelic (item)) { simInvSlot7 = item3; num7 = item3.MyItem.ItemLevel; } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; } } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; }"
       }
     },
     {
@@ -1093,7 +1090,19 @@
       "matcher": "node_shape",
       "args": {
         "kind": "IfElseStatement",
-        "shape": "if (item.Shield && simInvSlot3.MyItem.ThisWeaponType != Item.WeaponType.TwoHandMelee && simInvSlot3.MyItem.ThisWeaponType != Item.WeaponType.TwoHandStaff) { if (item3.MyItem.ItemLevel < item.ItemLevel && (float)item3.MyItem.ItemLevel < num7 && !CheckRelic (item)) { simInvSlot5 = item3; num7 = item3.MyItem.ItemLevel; } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; } } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; }"
+        "shape": "if (item.Shield && simInvSlot5.MyItem.ThisWeaponType != Item.WeaponType.TwoHandMelee && simInvSlot5.MyItem.ThisWeaponType != Item.WeaponType.TwoHandStaff) { if (item3.MyItem.ItemLevel < item.ItemLevel && (float)item3.MyItem.ItemLevel < num7 && !CheckRelic (item) && CheckForUpgradeVsBuildTendency (item, 1, item3.MyItem, item3.Quant)) { simInvSlot7 = item3; num7 = item3.MyItem.ItemLevel; } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; } } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; }"
+      }
+    },
+    {
+      "id": "auction.gear_bard_secondary_storage",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "CheckGearProgress",
+      "matcher": "branch_shape",
+      "args": {
+        "condition": "MyStats.CharacterClass == GameData.ClassDB.Bard",
+        "branch": "true",
+        "shape": "{ if (item.Instrument) { if (item3.MyItem.ItemLevel < item.ItemLevel && (float)item3.MyItem.ItemLevel < num7 && !CheckRelic (item)) { simInvSlot7 = item3; num7 = item3.MyItem.ItemLevel; } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; } } else if (StoredItems.Count < 18) { StoredItems.Add (item); } else { StoredItems [UnityEngine.Random.Range (0, 17)] = item; } }"
       }
     },
     {
@@ -2226,7 +2235,7 @@
       "matcher": "node_shape",
       "args": {
         "kind": "IfElseStatement",
-        "shape": "if (actualSim.GetComponent<Inventory> ().isMale) { simPlayerTracking.Gender = \"Male\"; } else { simPlayerTracking.Gender = \"Female\"; }"
+        "shape": "if (spInv.isMale) { newSim.Gender = \"Male\"; } else { newSim.Gender = \"Female\"; }"
       }
     },
     {
@@ -2237,7 +2246,7 @@
       "matcher": "node_shape",
       "args": {
         "kind": "AssignmentExpression",
-        "shape": "simPlayerTracking.SkinColor = component.SkinColor"
+        "shape": "newSim.SkinColor = sp.SkinColor"
       }
     },
     {
@@ -2248,7 +2257,7 @@
       "matcher": "node_shape",
       "args": {
         "kind": "IfElseStatement",
-        "shape": "if (component.Rival) { simPlayerTracking.Rival = true; }"
+        "shape": "if (sp.Rival) { newSim.Rival = true; }"
       }
     },
     {
@@ -2259,7 +2268,7 @@
       "matcher": "node_shape",
       "args": {
         "kind": "IfElseStatement",
-        "shape": "if (!string.IsNullOrEmpty (component.HairName)) { simPlayerTracking.HairIndex = component.HairName; }"
+        "shape": "if (!string.IsNullOrEmpty (sp.HairName)) { newSim.HairIndex = sp.HairName; }"
       }
     },
     {
@@ -2270,7 +2279,7 @@
       "matcher": "node_shape",
       "args": {
         "kind": "InvocationExpression",
-        "shape": "ZoneAtlas.FindSuitableSpawnZone (simPlayerSaveData.MyLevel)"
+        "shape": "ZoneAtlas.FindSuitableSpawnZone (temp.MyLevel)"
       }
     },
     {
@@ -2281,7 +2290,7 @@
       "matcher": "node_shape",
       "args": {
         "kind": "AssignmentExpression",
-        "shape": "simPlayerTracking.HairColor = component.HairColor"
+        "shape": "newSim.HairColor = sp.HairColor"
       }
     },
     {
@@ -2292,7 +2301,7 @@
       "matcher": "node_shape",
       "args": {
         "kind": "IfElseStatement",
-        "shape": "if (component.IsGMCharacter) { simPlayerTracking.IsGMCharacter = true; }"
+        "shape": "if (sp.IsGMCharacter) { newSim.IsGMCharacter = true; }"
       }
     },
     {
@@ -2303,7 +2312,7 @@
       "matcher": "node_shape",
       "args": {
         "kind": "AssignmentExpression",
-        "shape": "simPlayerTracking.ClassName = component2.CharacterClass.ClassName"
+        "shape": "newSim.ClassName = myStats.CharacterClass.ClassName"
       }
     },
     {
@@ -2325,7 +2334,7 @@
       "matcher": "node_shape",
       "args": {
         "kind": "InvocationExpression",
-        "shape": "SimPlayerDataManager.CheckLoadData (actualSim.GetComponent<NPC> ().NPCName, actualSim.GetComponent<Inventory> ().EquippedItems, actualSim.GetComponent<Stats> ().Level, actualSim.GetComponent<SimPlayer> ().SkillLevel)"
+        "shape": "SimPlayerDataManager.CheckLoadData (sim.GetComponent<NPC> ().NPCName, sim.GetComponent<Inventory> ().EquippedItems, sim.GetComponent<Stats> ().Level, sim.GetComponent<SimPlayer> ().SkillLevel)"
       }
     },
     {
@@ -2537,7 +2546,18 @@
       "args": {
         "condition": "item3.ThisSlotType != Item.SlotType.Primary && item3.ThisSlotType != Item.SlotType.Secondary",
         "branch": "true",
-        "shape": "{ if (GetClassModItemLvl (item3.MyItem) < GetClassModItemLvl (item) && GetClassModItemLvl (item3.MyItem) < num7 && !CheckRelic (item)) { if (item3 == simInvSlot && !flag2) { simInvSlot5 = item3; num7 = GetClassModItemLvl (item3.MyItem); flag2 = true; } else if (item3 == simInvSlot2 && !flag3) { simInvSlot5 = item3; num7 = GetClassModItemLvl (item3.MyItem); flag3 = true; } else { simInvSlot5 = item3; num7 = GetClassModItemLvl (item3.MyItem); } } continue; }"
+        "shape": "{ if (GetClassModItemLvl (item3.MyItem) < GetClassModItemLvl (item) && GetClassModItemLvl (item3.MyItem) < num7 && !CheckRelic (item) && CheckForUpgradeVsBuildTendency (item, 1, item3.MyItem, item3.Quant)) { if (item3 == simInvSlot && !flag2) { simInvSlot7 = item3; num7 = GetClassModItemLvl (item3.MyItem); flag2 = true; } else if (item3 == simInvSlot3 && !flag3) { simInvSlot7 = item3; num7 = GetClassModItemLvl (item3.MyItem); flag3 = true; } else { simInvSlot7 = item3; num7 = GetClassModItemLvl (item3.MyItem); } } continue; }"
+      }
+    },
+    {
+      "id": "sim.generated_equipment_build_gate",
+      "mode": "assert",
+      "type": "SimPlayer",
+      "method": "CheckForUpgradeVsBuildTendency",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ if (MyStats.CharacterClass == GameData.ClassDB.Bard) { return _incoming.GetItemScore (Item.AllStats.Cha, _incomingQual) * 2 + _incoming.GetItemScore (Item.AllStats.Dex, _incomingQual) > _currentEquip.GetItemScore (Item.AllStats.Cha, _currentEquipQual) * 2 + _currentEquip.GetItemScore (Item.AllStats.Dex, _currentEquipQual); } switch (MyBuildTendency) { case BuildTendency.Tank: return _incoming.GetItemScore (Item.AllStats.AC, _incomingQual) + _incoming.GetItemScore (Item.AllStats.HP, _incomingQual) > _currentEquip.GetItemScore (Item.AllStats.HP, _currentEquipQual) + _currentEquip.GetItemScore (Item.AllStats.AC, _currentEquipQual); case BuildTendency.PhysDPS: return _incoming.GetItemScore (Item.AllStats.Dex, _incomingQual) + _incoming.GetItemScore (Item.AllStats.Str, _incomingQual) > _currentEquip.GetItemScore (Item.AllStats.Str, _currentEquipQual) + _currentEquip.GetItemScore (Item.AllStats.Dex, _currentEquipQual); case BuildTendency.IntDPS: return _incoming.GetItemScore (Item.AllStats.Int, _incomingQual) + _incoming.GetItemScore (Item.AllStats.Res, _incomingQual) > _currentEquip.GetItemScore (Item.AllStats.Int, _currentEquipQual) + _currentEquip.GetItemScore (Item.AllStats.Res, _currentEquipQual); case BuildTendency.Heals: return _incoming.GetItemScore (Item.AllStats.Wis, _incomingQual) + _incoming.GetItemScore (Item.AllStats.HP, _incomingQual) > _currentEquip.GetItemScore (Item.AllStats.Wis, _currentEquipQual) + _currentEquip.GetItemScore (Item.AllStats.HP, _currentEquipQual); default: { int num = 1; if (_currentEquipQual > 1 && _currentEquipQual < 4) { num = 5 + _currentEquipQual; } if (_currentEquipQual > 10) { num = _currentEquipQual - 20; } return _incoming.ItemLevel > _currentEquip.ItemLevel + _currentEquipQual; } } }"
       }
     },
     {
@@ -2626,7 +2646,7 @@
       "method": "CheckGearProgress",
       "matcher": "statement_shape",
       "args": {
-        "statement": "simInvSlot5.MyItem = item;"
+        "statement": "simInvSlot7.MyItem = item;"
       }
     },
     {
