@@ -29,8 +29,8 @@ Nothing from this change goes to a shared target before Erenshor 0.8 ships on `m
   - The six Bard vendors.
   - The furniture item.
   - The Mind to Persuasion rename.
-- [ ] 1.7 Decide which mechanics change an existing spec (design D3). Add those delta specs to this change before their code tasks. Verify: `openspec validate prepare-for-verses-of-adventure --strict` passes.
-  - The encounter-tiers delta recognizes raid event boss bindings and passes strict validation. The existing character placement requirement covers the accompanist dependency.
+- [x] 1.7 Decide which mechanics change an existing spec (design D3). Add those delta specs to this change before their code tasks. Verify: `openspec validate prepare-for-verses-of-adventure --strict` passes.
+  - The encounter-tiers delta recognizes raid event boss bindings. The existing character placement requirement covers the accompanist dependency. The progression-requirements delta keeps a standalone door's opening condition inspectable and separates the Ripper's Keep routes, and the quest-routes delta reports a lethal turn-in once. Songs, harmony, Persuasion and the combat changes change no requirement of `runtime-item-mechanics` or another existing spec. Strict validation passes.
 
 ## 2. Classes (design D2, specs/character-classes)
 
