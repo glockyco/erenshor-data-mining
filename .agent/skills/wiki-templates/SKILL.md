@@ -21,6 +21,15 @@ The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its 
 - Every live write needs approval after a dry run. Read the dry run's whole output before asking: `grep` drops the lines that Rich wraps and the warnings it was not written for. The bot cannot delete pages, and wiki.gg limits it to 8 moves a minute, so publishing images moves and deletes files with the administrator account. The plan's task group 9 lists the pages for an administrator.
 - Show a screenshot of the local wiki for review before deploying a visible change. Review the wiki's appearance, not code, a spec, or the game's UI.
 
+## Tooltip parity after a game update
+
+1. Load a character in the selected build with HotRepl and run `uv run erenshor wiki capture-tooltips`. The installed build must match the clean database.
+2. Run `uv run erenshor wiki generate-lua`, then `uv run erenshor wiki generate`.
+3. Run `uv run erenshor wiki check-tooltips`. It starts a separate local MediaWiki stack. Review `tooltip-parity/latest.txt` under the variant's wiki directory and resolve every finding. The accepted `report.json` binds the result to that build and its exact inputs.
+4. Review `uv run erenshor --dry-run wiki deploy` and `uv run erenshor --dry-run wiki deploy-repo-pages` with the intended selections. Both reject writes to tooltip inputs without a current passing report. The revision guards, render checks, and approval still apply.
+
+See [the game data guide](../../../wiki/content/Erenshor%20Wiki/Game%20Data.wiki) for what the check compares and the differences it allows.
+
 ## Ordered publication review
 
 Use `publish prepare` with the fixed selection schema in `src/erenshor/application/publish/models.py`. Select exact repository, data, and article titles. Preparation captures live revisions and generates data and articles inside the new variant-local run directory without changing shared fetched pages or tracked editor text.

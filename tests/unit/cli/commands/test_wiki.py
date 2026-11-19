@@ -48,6 +48,16 @@ def _configured_wiki_accounts(cli_context: CLIContext) -> None:
     config.interface_password = "fixture-secret"
 
 
+@pytest.fixture(autouse=True)
+def parity_preflight(monkeypatch: pytest.MonkeyPatch) -> MagicMock:
+    """Existing deploy tests exercise other guards without building game evidence."""
+    from erenshor.application.wiki_tooltips import report
+
+    check = MagicMock()
+    monkeypatch.setattr(report, "require_current", check)
+    return check
+
+
 def _unwrapped(output: str) -> str:
     """Return console output without Rich's styling, with line wrapping collapsed to single spaces.
 
@@ -700,6 +710,26 @@ class TestWikiDeployCommand:
         assert review["kinds"]["encounter tier"] == []
         assert review["kept_roots"] == {}
 
+    def test_article_dry_run_checks_only_planned_writes(self, monkeypatch, cli_context, parity_preflight):
+        storage = self._storage(cli_context)
+        self._changed_page(storage, "Alpha")
+        readonly = self._stub_review(monkeypatch, {"Alpha": 10})
+        parity_preflight.side_effect = ValueError("stale parity")
+        context = replace(cli_context, dry_run=True)
+
+        result = runner.invoke(wiki.app, ["deploy"], obj=context)
+
+        assert result.exit_code == 1
+        assert "stale parity" in result.output
+        readonly.get_page_revision_ids.assert_not_called()
+        parity_preflight.assert_called_once()
+
+        storage.save_generated_by_title("Alpha", ["item:alpha"], "{{Item|value=1}}")
+        result = runner.invoke(wiki.app, ["deploy"], obj=context)
+
+        assert result.exit_code == 0
+        parity_preflight.assert_called_once()
+
     def test_dry_run_fails_on_a_page_that_changed_after_the_fetch(
         self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext
     ) -> None:
@@ -1118,6 +1148,55 @@ class TestWikiDeployRepoCommand:
         readonly_client.assert_not_called()
         authenticated_client.assert_not_called()
         deploy.assert_not_called()
+
+    @pytest.mark.parametrize(
+        ("title", "source", "stage", "flag", "blocked"),
+        [
+            ("Template:SpellTooltip", "wiki/templates/SpellTooltip.wiki", "template", "--include-templates", True),
+            (
+                "Erenshor Wiki:Game Data",
+                "wiki/content/Erenshor Wiki/Game Data.wiki",
+                "content_page",
+                "--include-content-pages",
+                False,
+            ),
+        ],
+    )
+    def test_repo_dry_run_checks_tooltip_inputs_not_guides(
+        self,
+        monkeypatch,
+        cli_context,
+        parity_preflight,
+        *,
+        title,
+        source,
+        stage,
+        flag,
+        blocked,
+    ):
+        manifest = RepoWikiPageManifest(
+            entries=(
+                RepoWikiPageManifestEntry(
+                    title=title,
+                    source_path=source,
+                    source_sha256="a" * 64,
+                    ownership_class=stage,
+                    upload_stage=stage,
+                    content_model="wikitext",
+                ),
+            )
+        )
+        monkeypatch.setattr(wiki, "build_repo_page_manifest", lambda *_args, **_kwargs: manifest)
+        self._stub_live_pages(monkeypatch, MagicMock(), live={})
+        writer = MagicMock(side_effect=AssertionError("dry run must not open a writer"))
+        monkeypatch.setattr(wiki, "_create_mediawiki_client", writer)
+        parity_preflight.side_effect = ValueError("stale parity")
+
+        result = runner.invoke(wiki.app, ["deploy-repo-pages", flag], obj=replace(cli_context, dry_run=True))
+
+        assert result.exit_code == int(blocked), result.output
+        assert parity_preflight.call_count == int(blocked)
+        writer.assert_not_called()
 
     def test_dry_run_names_each_page_that_another_account_changed(
         self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext

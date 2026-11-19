@@ -7,8 +7,12 @@ For everything else about editing this wiki, see the [[Erenshor Wiki:Community P
 == How game data reaches the wiki ==
 After a game update:
 # An export tool reads the game files and writes their data to a database. Some rules exist only in the game code, for example the chances of world drops. The export reads them from the code.
-# The bot makes article text and Lua data modules from the database.
+# With a character loaded in that build, run <code>uv run erenshor wiki capture-tooltips</code> to record what the game shows.
+# Run <code>uv run erenshor wiki generate-lua</code> and then <code>uv run erenshor wiki generate</code> to prepare the wiki text.
+# Run <code>uv run erenshor wiki check-tooltips</code> and review its report. Fix differences before running <code>uv run erenshor --dry-run wiki deploy</code> and <code>uv run erenshor --dry-run wiki deploy-repo-pages</code>. A passing report must match the current build and tooltip sources before either command can publish those sources.
 # The bot writes a page only when its text changed. It does not write a page that someone edited after the bot read it. It does not write a page whose new text shows a script error.
+
+The check compares the game windows with the rendered wiki cards. It does not compare controls, learned-book warnings or the level line they replace, or Mana Regen that depends on the viewer's level. The wiki shows all eight equipment qualities because readers do not have a particular item in hand. A damage row says "/ 3 sec" where the game says "/ tick", but the tooltip quotes the game's description as written. The wiki's Base DPS uses weapon damage and delay rather than a player's stats or level.
 
 The same database feeds the [https://erenshor.compendiums.org interactive map]. The export tool and the bot are open source: [https://github.com/glockyco/erenshor-data-mining erenshor-data-mining].
 

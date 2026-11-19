@@ -22,7 +22,7 @@ import sys
 import tempfile
 import uuid
 from collections import Counter
-from collections.abc import Collection, Mapping, Sequence
+from collections.abc import Collection, Iterable, Mapping, Sequence
 from contextlib import closing
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -755,6 +755,30 @@ def generate_lua(ctx: typer.Context) -> None:
         raise typer.Exit(1) from e
 
 
+@app.command("check-tooltips")
+@require_preconditions(database_exists, database_valid, database_has_items)
+def check_tooltips(ctx: typer.Context) -> None:
+    """Compare the entire build on an isolated local MediaWiki stack."""
+    from subprocess import CalledProcessError
+
+    from erenshor.application.wiki_tooltips.local import check
+    from erenshor.application.wiki_tooltips.report import ParityPaths
+
+    cli_ctx: CLIContext = ctx.obj
+    variant = cli_ctx.config.variants[cli_ctx.variant]
+    paths = ParityPaths(
+        cli_ctx.repo_root, variant.resolved_database(cli_ctx.repo_root), variant.resolved_wiki(cli_ctx.repo_root)
+    )
+    if cli_ctx.dry_run:
+        console.print(f"Would compare tooltips and write results to {paths.output}.", markup=False)
+        return
+    try:
+        check(paths)
+    except (CalledProcessError, OSError, ValueError) as exc:
+        console.print(str(exc), style="red", markup=False)
+        raise typer.Exit(1) from exc
+
+
 @app.command("audit-links")
 @require_preconditions(database_exists, database_valid, database_has_items)
 def audit_links_command(
@@ -1305,6 +1329,19 @@ def rollback_interface_command(
             console.print(f"  {title}", markup=False)
 
 
+def _require_tooltip_parity(cli_ctx: CLIContext, sources: Iterable[Path]) -> None:
+    from erenshor.application.wiki_tooltips.report import ParityPaths, require_current
+
+    variant = cli_ctx.config.variants[cli_ctx.variant]
+    paths = ParityPaths(
+        cli_ctx.repo_root,
+        variant.resolved_database(cli_ctx.repo_root),
+        variant.resolved_wiki(cli_ctx.repo_root),
+    )
+    if any(paths.is_page_input(source) for source in sources):
+        require_current(paths)
+
+
 @app.command("deploy-repo-pages")
 @require_preconditions(wiki_endpoint, wiki_credentials, option_path("pages_file"))
 def deploy_repo_pages_command(
@@ -1441,6 +1478,14 @@ def deploy_repo_pages_command(
         try:
             snapshots = readonly_client.get_page_snapshots([entry.title for entry in manifest.entries])
             source_texts = read_repo_page_sources(manifest, cli_ctx.repo_root)
+            _require_tooltip_parity(
+                cli_ctx,
+                (
+                    Path(entry.source_path)
+                    for entry in manifest.entries
+                    if repo_page_action(snapshots[entry.title], source_texts[entry.title]) != "unchanged"
+                ),
+            )
             drift = find_drift(
                 manifest.entries,
                 source_texts,
@@ -1522,6 +1567,7 @@ def deploy_repo_pages_command(
             render_check=render_check,
             full_render_check=full_render_check,
             report_render=_print_repo_render_check,
+            preflight_writes=lambda sources: _require_tooltip_parity(cli_ctx, sources),
         )
     except RepoPageDriftError as e:
         _print_repo_page_drift(e.drift)
@@ -1780,6 +1826,11 @@ def deploy(
 
     _print_article_plan(plan)
     writes = {article.title: article.generated_text for article in plan.writes}
+    try:
+        _require_tooltip_parity(cli_ctx, (storage.generated_path(title) for title in writes))
+    except ValueError as e:
+        console.print(str(e), style="red", markup=False, soft_wrap=True)
+        raise typer.Exit(1) from e
     review_failed = False
     if cli_ctx.dry_run:
         if page_titles is not None or limit is not None:

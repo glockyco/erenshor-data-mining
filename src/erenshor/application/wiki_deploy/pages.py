@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import hashlib
-from collections.abc import Callable, Collection, Mapping, Sequence
+from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
 from dataclasses import dataclass, replace
 from os.path import relpath
 from pathlib import Path
@@ -316,6 +316,7 @@ def deploy_repo_pages(
     full_render_check: bool = False,
     report_render: Callable[[RenderCheck], None] | None = None,
     expected_snapshots: Mapping[str, MediaWikiPageSnapshot] | None = None,
+    preflight_writes: Callable[[Iterable[Path]], None] | None = None,
 ) -> RepoPageDeployResult:
     """Deploy changed manifest pages through the safe MediaWiki edit path.
 
@@ -356,6 +357,12 @@ def deploy_repo_pages(
                 or actual.content_model != expected.content_model
             ):
                 raise ValueError(f"{title} changed after the prepared review")
+    if preflight_writes is not None:
+        preflight_writes(
+            Path(entry.source_path)
+            for entry in manifest.entries
+            if repo_page_action(snapshots[entry.title], source_texts[entry.title]) != "unchanged"
+        )
     drift = find_drift(
         manifest.entries, source_texts, snapshots, deploy_account=client.edit_account, accepted=accept_drift
     )
