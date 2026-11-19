@@ -119,7 +119,7 @@ def _apply_mapping(
             row["display_name"] = normalized_default_name
             row["wiki_page_name"] = normalized_default_name if normalized_default_name else None
             row["image_name"] = normalized_default_name
-            row["is_wiki_generated"] = 1
+            row["is_wiki_generated"] = int(bool(normalized_default_name))
             row["is_map_visible"] = 1
         result.append(row)
     return result

@@ -40,6 +40,7 @@ def test_blank_default_item_name_excludes_wiki_page_but_override_stays_blank():
     result = _apply_mapping(rows, "StableKey", "ItemName", mapping)
 
     assert result[0]["wiki_page_name"] is None
+    assert result[0]["is_wiki_generated"] == 0
     assert result[1]["wiki_page_name"] == ""
 
 
