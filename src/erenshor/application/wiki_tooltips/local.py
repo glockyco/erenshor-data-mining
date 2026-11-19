@@ -17,6 +17,7 @@ def check(paths: ParityPaths) -> None:
     """Import and render the selected build without touching the warm wiki."""
     if not paths.evidence.is_file():
         raise ValueError(f"Capture game tooltip evidence first: {paths.evidence}")
+    inputs = paths.inputs()
     project = f"wiki-tooltip-{uuid.uuid4().hex[:12]}"
     with socket.socket() as listener:
         listener.bind(("127.0.0.1", 0))
@@ -52,6 +53,8 @@ def check(paths: ParityPaths) -> None:
             env=environment,
             check=True,
         )
+        if paths.inputs() != inputs:
+            raise ValueError("Renderer inputs changed during local wiki import. Repeat the parity check.")
         subprocess.run(
             (
                 sys.executable,

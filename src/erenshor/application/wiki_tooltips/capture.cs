@@ -130,6 +130,7 @@ public static class TooltipCapture
             for (var i = 0; i < hoverFields.Length; i++)
                 field(hoverFieldNames[i], hoverFields[i], hoverPanel);
         };
+        var originalItemNameColor = window.ItemName.color;
         try
         {
             if (book != null)
@@ -167,6 +168,7 @@ public static class TooltipCapture
                             .Append(quantity)
                             .Append('\n');
                         window.CloseItemWindow();
+                        window.ItemName.color = window.NormalText;
                         window.DisplayItem(item, Vector2.zero, quantity);
                         foreach (var member in typeof(ItemInfoWindow).GetFields())
                         {
@@ -292,6 +294,7 @@ public static class TooltipCapture
                 window.CloseItemWindow();
                 if (originalItemOpen)
                     window.DisplayItem(originalItem, Vector2.zero, originalQuantity, originalHome);
+                window.ItemName.color = originalItemNameColor;
                 window.Compare1Script.gameObject.SetActive(compareOne);
                 window.Compare2Script.gameObject.SetActive(compareTwo);
                 window.CurrentlyDisplaying = originalItem;

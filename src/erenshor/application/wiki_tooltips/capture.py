@@ -153,11 +153,12 @@ async def _batch(client: EvalClient, kind: str, start: int, end: int) -> str:
     name = f"TooltipCapture{uuid.uuid4().hex}"
     await client.eval(_SOURCE.read_text().replace("TooltipCapture", name))
     result = await client.eval(f'{name}.Collect("{kind}", {start}, {end})', timeout_ms=15000)
-    if not result.get("hasValue") or result.get("truncated") or not isinstance(result.get("value"), str):
+    value = result.get("value")
+    if not result.get("hasValue") or result.get("truncated") or not isinstance(value, str):
         raise ValueError(f"Incomplete HotRepl reply for {kind} [{start}, {end})")
-    if result["value"].startswith("error\t"):
-        raise ValueError(result["value"].removeprefix("error\t"))
-    return result["value"]
+    if value.startswith("error\t"):
+        raise ValueError(value.removeprefix("error\t"))
+    return value
 
 
 async def capture(database: Path, installed_build: str, output: Path) -> dict[str, int]:
