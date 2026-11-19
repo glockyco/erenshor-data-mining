@@ -109,7 +109,11 @@ public class SecretPassageListener : IAssetScanListener<GameObject>
             exclusionReason = $"{LegacyKeywordExclusion}:{matchedKeyword}";
         }
 
-        if (asset.scene.name == "Rockshade" && asset.name == "SM_Bld_Castle_Wall_01 (66)")
+        // Objects that match the secret heuristics but hide no passage.
+        if (
+            (asset.scene.name == "Rockshade" && asset.name == "SM_Bld_Castle_Wall_01 (66)")
+            || (asset.scene.name == "Glowmere" && asset.name == "WoodenWall3 (24)")
+        )
         {
             exclusionReason ??= KnownExceptionExclusion;
         }
