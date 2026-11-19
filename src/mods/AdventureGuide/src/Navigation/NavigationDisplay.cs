@@ -64,6 +64,11 @@ internal static class NavigationDisplay
         for (int i = 0; requirements != null && i < requirements.Chain.Count; i++)
         {
             var link = requirements.Chain[i];
+            if (link.Atom is { Kind: GateAtomKind.SpokenWord })
+            {
+                Theme.TextWrapped(link.Label);
+                continue;
+            }
             if (link.Atom is not { Kind: GateAtomKind.EncounterWon } atom)
                 continue;
             ImGui.PushID(i);

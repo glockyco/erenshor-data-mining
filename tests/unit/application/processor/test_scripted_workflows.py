@@ -117,6 +117,10 @@ def processed_db(tmp_path):
         CREATE TABLE SpawnPointStopQuests (
             SpawnPointStableKey TEXT, QuestStableKey TEXT
         );
+        CREATE TABLE ScriptedActivators (SourceKey TEXT, RuleId TEXT, SourceScene TEXT, IsEnabled INTEGER);
+        CREATE TABLE ScriptedActivatorReferences (
+            SourceKey TEXT, Field TEXT, ReferenceIndex INTEGER, ReferenceKind TEXT, ReferenceKey TEXT
+        );
         """
     )
     raw.executemany(
@@ -273,6 +277,32 @@ def processed_db(tmp_path):
             for key in ("character:ordinary", *(f"character:{name}" for name, _, _ in hosts))
         ],
     )
+    raw.executescript(
+        """
+        INSERT INTO Characters (StableKey, ObjectName, NPCName, IsSimPlayer) VALUES
+            ('character:raid-root', 'RaidRoot', 'Raid root', 0),
+            ('character:raid-add', 'RaidAdd', 'Raid add', 0),
+            ('character:raid-bystander', 'RaidBystander', 'Raid bystander', 0);
+        INSERT INTO SpawnPoints (StableKey, Scene, X, Y, Z, IsEnabled) VALUES
+            ('spawn:raid-root', 'ControllerScene', 10, 0, 10, 1),
+            ('spawn:raid-add', 'ControllerScene', 20, 0, 20, 1),
+            ('spawn:raid-add-2', 'ControllerScene', 30, 0, 30, 1),
+            ('spawn:raid-bystander', 'ControllerScene', 40, 0, 40, 1);
+        INSERT INTO SpawnPointCharacters VALUES
+            ('spawn:raid-root', 'character:raid-root', 100, 1, 0),
+            ('spawn:raid-add', 'character:raid-add', 100, 1, 0),
+            ('spawn:raid-add-2', 'character:raid-add', 100, 1, 0),
+            ('spawn:raid-bystander', 'character:raid-bystander', 100, 1, 0);
+        INSERT INTO ScriptedActivators VALUES
+            ('controller:raid-event', 'raid_boss_alive', 'ControllerScene', 1),
+            ('controller:disabled', 'raid_boss_alive', 'ControllerScene', 0);
+        INSERT INTO ScriptedActivatorReferences VALUES
+            ('controller:raid-event', 'SkaldSpawn', 0, 'spawn_point', 'spawn:raid-root'),
+            ('controller:raid-event', 'Accompanists', 0, 'spawn_point', 'spawn:raid-add'),
+            ('controller:raid-event', 'Accompanists', 1, 'spawn_point', 'spawn:raid-add-2'),
+            ('controller:disabled', 'SkaldSpawn', 0, 'spawn_point', 'spawn:raid-bystander');
+        """
+    )
 
     writer = Writer(clean_path)
     writer.create_schema()
@@ -319,6 +349,24 @@ def processed_db(tmp_path):
     raw.close()
     yield writer._conn
     writer._conn.close()
+
+
+def test_raid_event_names_its_boss_and_preserves_only_bound_spawn_dependencies(processed_db):
+    rows = processed_db.execute(
+        """
+        SELECT s.spawn_point_stable_key, c.encounter_tier, s.requires_alive_spawn_point_stable_key,
+               s.protector_stable_key, s.source_script
+        FROM character_spawns s JOIN characters c ON c.stable_key = s.character_stable_key
+        WHERE s.scene = 'ControllerScene'
+        ORDER BY s.spawn_point_stable_key
+        """
+    ).fetchall()
+    assert [tuple(row) for row in rows] == [
+        ("spawn:raid-add", "enemy", "spawn:raid-root", None, None),
+        ("spawn:raid-add-2", "enemy", "spawn:raid-root", None, None),
+        ("spawn:raid-bystander", "enemy", None, None, None),
+        ("spawn:raid-root", "boss", None, None, None),
+    ]
 
 
 def test_a_spawn_point_at_a_placed_characters_spot_is_its_only_placement(processed_db):

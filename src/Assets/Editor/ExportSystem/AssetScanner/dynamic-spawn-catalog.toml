@@ -669,6 +669,11 @@ fields = ["RestoredVitheo"]
 rule = "restored_vitheo"
 
 [[activation]]
+script = "RaidSkaldEvent"
+fields = ["SkaldSpawn", "Accompanists"]
+rule = "raid_boss_alive"
+
+[[activation]]
 script = "NPCAliveListener"
 fields = ["SpawnPoint", "DespawnIfAlive", "SpawnIfAlive"]
 rule = "npc_alive"
@@ -742,6 +747,11 @@ rule = "jaws_statue_startup"
 script = "BellsieWineTrigger"
 fields = ["IDtoActivate", "WineOnChair", "Note", "Poof"]
 rule = "bellwain_offering"
+
+[[activation]]
+script = "GlowmereSayScript"
+fields = ["WallToMove"]
+rule = "spoken_wall"
 
 [[activation]]
 script = "RewardListener"

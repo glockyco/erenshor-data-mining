@@ -241,6 +241,7 @@ CONDITION_PREDICATES = (
     "key_held",
     "item_held",
     "encounter_won",
+    "spoken_word",
     "item_not_owned",
     "actor_level",
     "actor_class",
@@ -293,6 +294,7 @@ def condition_from_dict(value: object) -> ProvenanceCondition:
             "item_held",
             "item_not_owned",
             "encounter_won",
+            "spoken_word",
             "world_state",
             "actor_class",
             "zone_use",
@@ -316,6 +318,9 @@ def condition_from_dict(value: object) -> ProvenanceCondition:
                 "Rune6",
             ),
         )
+        _enum(condition.phase, ("availability",))
+    if condition.predicate == "spoken_word":
+        _text(condition.value)
         _enum(condition.phase, ("availability",))
     if condition.predicate == "actor_level" and (
         condition.actor is None or (condition.minimum is None and condition.maximum is None)

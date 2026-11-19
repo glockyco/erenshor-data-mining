@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from loguru import logger
@@ -20,6 +21,45 @@ _CLAIM_FACTS = (
     "guide.gates.reliquary_claim_saved",
     "guide.gates.reliquary_claim_loaded",
 )
+
+
+@dataclass(frozen=True, slots=True)
+class RaidEventSpawns:
+    scene: str
+    boss: str
+    dependents: tuple[str, ...]
+
+
+def load_raid_event_spawns(raw: sqlite3.Connection) -> list[RaidEventSpawns]:
+    """Bind each running raid controller to the placed spawn points it reads and writes."""
+    events = []
+    for source, scene in raw.execute(
+        "SELECT SourceKey, SourceScene FROM ScriptedActivators"
+        " WHERE RuleId = 'raid_boss_alive' AND IsEnabled = 1 ORDER BY SourceKey"
+    ):
+        boss = _scripted_reference(raw, source, "SkaldSpawn", "spawn_point")
+        references = raw.execute(
+            """
+            SELECT r.Field, r.ReferenceKind, r.ReferenceKey, sp.Scene
+            FROM ScriptedActivatorReferences r
+            LEFT JOIN SpawnPoints sp ON sp.StableKey = r.ReferenceKey
+            WHERE r.SourceKey = ? AND r.Field IN ('SkaldSpawn', 'Accompanists')
+            ORDER BY r.ReferenceIndex
+            """,
+            (source,),
+        )
+        dependents = []
+        for field, kind, spawn, spawn_scene in references:
+            if kind != "spawn_point" or not scene or spawn_scene != scene:
+                raise ValueError(f"{source}.{field} must name a spawn point in {scene}, got {kind} {spawn}")
+            if field == "Accompanists":
+                if spawn == boss or spawn in dependents:
+                    raise ValueError(f"{source}.{field} repeats a raid event spawn point: {spawn}")
+                dependents.append(spawn)
+        if not dependents:
+            raise ValueError(f"{source}.Accompanists names no dependent spawn points")
+        events.append(RaidEventSpawns(scene, boss, tuple(dependents)))
+    return events
 
 
 def build_encounter_rows(raw: sqlite3.Connection, conn: sqlite3.Connection) -> dict[str, list[dict[str, object]]]:

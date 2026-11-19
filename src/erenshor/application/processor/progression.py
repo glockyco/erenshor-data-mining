@@ -74,6 +74,7 @@ _ATOM_RELATIONS = {
     "account_state": "state",
     "zone_use": "in zone",
     "world_state": "state",
+    "spoken_word": "say",
 }
 _SOURCE_PROPERTIES = frozenset(
     {
@@ -119,6 +120,7 @@ _GATE_TREATMENTS = {
 
 _GATE_RELATIONS = frozenset(
     {
+        "alive",
         "barrier",
         "quest done",
         "quest active",
@@ -127,6 +129,7 @@ _GATE_RELATIONS = frozenset(
         "held",
         "planning slot",
         "room furnished",
+        "say",
         "defeated",
         "state",
         "summoned with",
@@ -327,6 +330,11 @@ class ProgressionBuilder:
             slot = "rune slot"
         if quantity is not None and (kind != "encounter_won" or quantity < 1 or int(quantity) != quantity):
             raise _error(node, fact, f"invalid defeat quantity {quantity!r}")
+        if kind == "spoken_word":
+            phrase = slot if value is None else value
+            if key not in self.scenes.values() or not (phrase and phrase.strip()):
+                raise _error(node, fact, f"spoken phrase {phrase!r} has no zone or is empty")
+            return [(Need("say", key, keywords=phrase),)]
         need = Need(_ATOM_RELATIONS[kind], key, quantity=quantity, slot=slot, advisory=kind == "encounter_won")
         if kind == "encounter_won":
             if key not in self.characters:
@@ -633,6 +641,11 @@ class ProgressionBuilder:
                     if not releases:
                         raise _error(character, fact, "arena placement belongs to no round")
                 ways = self.product(character, [tuple(base)], releases, fact)
+                if boss_spawn := placement["requires_alive_spawn_point_stable_key"]:
+                    bosses = self.occupants[boss_spawn]
+                    if not bosses:
+                        raise _error(character, fact, f"live dependency has no spawn occupants: {boss_spawn}")
+                    ways = self.product(character, ways, [(Need("alive", boss),) for boss in bosses], fact)
                 ways = self.product(character, ways, self.subject_gates("character", character), fact)
                 if spawn:
                     ways = self.product(character, ways, self.subject_gates("spawn_point", spawn), fact)

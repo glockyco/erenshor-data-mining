@@ -171,6 +171,30 @@ internal static class Program
                 || type == typeof(ShiveringPhantomWardListener)
             )
                 host.Add(new Character { FixtureKey = "character:fixture:" + entry.Script });
+            if (type == typeof(GlowmereSayScript))
+            {
+                host.Add(
+                    new Collider
+                    {
+                        isTrigger = true,
+                        bounds = new Bounds
+                        {
+                            center = new Vector3
+                            {
+                                x = 11,
+                                y = 22,
+                                z = 33,
+                            },
+                            extents = new Vector3
+                            {
+                                x = 4,
+                                y = 5,
+                                z = 6,
+                            },
+                        },
+                    }
+                );
+            }
             if (type == typeof(ReliqDisableFiendSpawn))
                 Spawn(host, "spawn:fixture:catalog-account-host", targets);
             var controller = host.Add((MonoBehaviour)Activator.CreateInstance(type));
@@ -184,6 +208,7 @@ internal static class Program
                     );
                 object value =
                     field.FieldType == typeof(GameObject) ? target
+                    : field.FieldType == typeof(Transform) ? target.transform
                     : field.FieldType == typeof(SpawnPoint) ? spawn
                     : field.FieldType == typeof(Zoneline) ? line
                     : field.FieldType == typeof(Character) ? character
@@ -203,6 +228,14 @@ internal static class Program
             }
             if (controller is AstraListener astra)
                 astra.Dragon = target;
+            if (controller is RaidSkaldEvent raid)
+            {
+                raid.Accompanists = new()
+                {
+                    Spawn(Host("raid-add[0]", targets), "spawn:fixture:raid-add-0", targets),
+                    Spawn(Host("raid-add[1]", targets), "spawn:fixture:raid-add-1", targets),
+                };
+            }
             if (controller is StowawayPortal)
             {
                 spawn.NPCSpecificObject = host;

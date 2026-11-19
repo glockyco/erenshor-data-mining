@@ -497,6 +497,35 @@ public sealed class GateConditionsTests
     }
 
     [Fact]
+    public void Spoken_word_is_guidance_and_does_not_hide_the_source()
+    {
+        var word = Atom(GateAtomKind.SpokenWord, "zone:glowmere");
+        word.Slot = "respite";
+        var gates = new GateConditions(
+            Data([
+                [
+                    [word],
+                ],
+            ]),
+            new GateTestFacts()
+        );
+
+        Assert.True(gates.IsAvailable(0));
+        Assert.Equal(
+            "Say \"respite\" at the wall",
+            gates.Describe(Assert.Single(gates.Explain(0)))
+        );
+        word.Slot = null;
+        Assert.Throws<InvalidDataException>(() =>
+            Data([
+                [
+                    [word],
+                ],
+            ])
+        );
+    }
+
+    [Fact]
     public void Explanation_keeps_advisories_from_every_alternative_but_only_the_best_unmet_observables()
     {
         var first = Atom(GateAtomKind.QuestDone, "FIRST");

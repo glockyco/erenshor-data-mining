@@ -83,9 +83,37 @@
     "SkeletonCheckin",
     "JawsStatueStartup",
     "BellsieWineTrigger",
+    "RaidSkaldEvent",
+    "GlowmereSayScript",
     "RewardListener"
   ],
   "fields": {
+    "RaidSkaldEvent": {
+      "Accompanists": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<SpawnPoint>"
+      },
+      "SkaldSpawn": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "SpawnPoint"
+      },
+      "SkaldNPC": {
+        "by": null,
+        "reason": "Runtime cache of the NPC that SkaldSpawn produces.",
+        "status": "ignored",
+        "type": "NPC"
+      },
+      "AccompanistNPCs": {
+        "by": null,
+        "reason": "Runtime list of spawned NPCs whose aggro the controller directs.",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<NPC>"
+      }
+    },
     "WeatherTrend": {
       "MaxNaturalCloudy": {
         "by": "WeatherTrendListener",
@@ -10469,6 +10497,20 @@
         "reason": null,
         "status": "captured",
         "type": "UnityEngine.GameObject"
+      }
+    },
+    "GlowmereSayScript": {
+      "WallToMove": {
+        "by": "ScriptedActivatorListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "InTrigger": {
+        "by": null,
+        "reason": "Player entry sets this runtime latch. The controller host supplies the trigger bounds.",
+        "status": "ignored",
+        "type": "System.Boolean"
       }
     },
     "RewardListener": {

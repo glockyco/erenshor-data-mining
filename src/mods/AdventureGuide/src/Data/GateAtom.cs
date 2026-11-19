@@ -13,6 +13,7 @@ public enum GateAtomKind
     EncounterWon,
     PlanningSlotItem,
     AccountState,
+    SpokenWord,
 }
 
 internal sealed class GateAtomKindConverter : JsonConverter
@@ -35,6 +36,7 @@ internal sealed class GateAtomKindConverter : JsonConverter
             "planning_slot_item" => GateAtomKind.PlanningSlotItem,
             "encounter_won" => GateAtomKind.EncounterWon,
             "account_state" => GateAtomKind.AccountState,
+            "spoken_word" => GateAtomKind.SpokenWord,
             _ => throw new InvalidDataException($"Unknown gate atom kind {reader.Value}"),
         };
 
@@ -50,6 +52,7 @@ internal sealed class GateAtomKindConverter : JsonConverter
             GateAtomKind.PlanningSlotItem => "planning_slot_item",
             GateAtomKind.EncounterWon => "encounter_won",
             GateAtomKind.AccountState => "account_state",
+            GateAtomKind.SpokenWord => "spoken_word",
             _ => throw new InvalidDataException($"Unknown gate atom kind {value}"),
         };
         writer.WriteValue(name);
@@ -87,6 +90,9 @@ public sealed class GateAtom
 
     [JsonIgnore]
     public string? GameId { get; internal set; }
+
+    [JsonIgnore]
+    internal bool IsAdvisory => Kind is GateAtomKind.EncounterWon or GateAtomKind.SpokenWord;
 }
 
 public sealed class GateItem

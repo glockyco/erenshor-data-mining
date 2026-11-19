@@ -88,6 +88,14 @@ public sealed class ScriptedActivatorListener : IAssetScanListener<MonoBehaviour
             "restored_vitheo",
             new() { ["RestoredVitheo"] = typeof(GameObject) }
         ),
+        [typeof(RaidSkaldEvent)] = (
+            "raid_boss_alive",
+            new()
+            {
+                [nameof(RaidSkaldEvent.SkaldSpawn)] = typeof(SpawnPoint),
+                [nameof(RaidSkaldEvent.Accompanists)] = typeof(List<SpawnPoint>),
+            }
+        ),
         // code-fact: guide.gates.npc_alive
         [typeof(NPCAliveListener)] = (
             "npc_alive",
@@ -210,6 +218,10 @@ public sealed class ScriptedActivatorListener : IAssetScanListener<MonoBehaviour
                 ["Poof"] = typeof(GameObject),
             }
         ),
+        [typeof(GlowmereSayScript)] = (
+            "spoken_wall",
+            new() { [nameof(GlowmereSayScript.WallToMove)] = typeof(Transform) }
+        ),
     };
 
     // Fields that the shipped code checks for null before it uses them.
@@ -304,6 +316,10 @@ public sealed class ScriptedActivatorListener : IAssetScanListener<MonoBehaviour
                     .IndexOf(host.GetComponents(asset.GetType()), asset)
                     .ToString(CultureInfo.InvariantCulture);
         var position = host.transform.position;
+        Bounds? triggerBounds =
+            asset is GlowmereSayScript
+                ? TriggerBoundsResolver.ResolveHost(asset, entry.Script)
+                : null;
         _sources.Add(
             new ScriptedActivatorRecord
             {
@@ -316,6 +332,12 @@ public sealed class ScriptedActivatorListener : IAssetScanListener<MonoBehaviour
                 X = placed ? position.x : (float?)null,
                 Y = placed ? position.y : (float?)null,
                 Z = placed ? position.z : (float?)null,
+                TriggerBoundsCenterX = triggerBounds?.center.x,
+                TriggerBoundsCenterY = triggerBounds?.center.y,
+                TriggerBoundsCenterZ = triggerBounds?.center.z,
+                TriggerBoundsExtentsX = triggerBounds?.extents.x,
+                TriggerBoundsExtentsY = triggerBounds?.extents.y,
+                TriggerBoundsExtentsZ = triggerBounds?.extents.z,
                 IsEnabled = asset.isActiveAndEnabled,
                 ComponentIsEnabled = asset.enabled,
                 HostCharacterStableKey = characterKey,
@@ -442,6 +464,9 @@ public sealed class ScriptedActivatorListener : IAssetScanListener<MonoBehaviour
         GameObject? sceneTarget = null;
         if (value is UnityEngine.Object obj && obj == null)
             value = null;
+        bool transformReference = value is Transform;
+        if (value is Transform transform)
+            value = transform.gameObject;
         switch (value)
         {
             case bool flag:
@@ -510,7 +535,7 @@ public sealed class ScriptedActivatorListener : IAssetScanListener<MonoBehaviour
         _references.Add(record);
         if (!placed || sceneTarget == null)
             return;
-        if (field == "$host" || value is Character or SpawnPoint or Zoneline)
+        if (field == "$host" || transformReference || value is Character or SpawnPoint or Zoneline)
             AddSubjects(referenceId, sceneTarget, "reference", false);
         else
         {

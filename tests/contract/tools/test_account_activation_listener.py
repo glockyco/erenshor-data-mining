@@ -96,6 +96,24 @@ def _assert_complete_catalog(payload: dict[str, Any]) -> None:
         "character",
         "character:fixture:ward",
     )
+    raid = [
+        (row["Field"], row["ReferenceIndex"], row["ReferenceKind"], row["ReferenceKey"])
+        for row in references
+        if row["SourceKey"] == sources["RaidSkaldEvent"]["SourceKey"] and row["Field"] != "$host"
+    ]
+    assert sorted(raid) == [
+        ("Accompanists", 0, "spawn_point", "spawn:fixture:raid-add-0"),
+        ("Accompanists", 1, "spawn_point", "spawn:fixture:raid-add-1"),
+        ("SkaldSpawn", 0, "spawn_point", "spawn:fixture:configured-target"),
+    ]
+    say_trigger = sources["GlowmereSayScript"]
+    assert tuple(say_trigger[f"TriggerBoundsCenter{axis}"] for axis in "XYZ") == (11, 22, 33)
+    assert tuple(say_trigger[f"TriggerBoundsExtents{axis}"] for axis in "XYZ") == (4, 5, 6)
+    wall = next(
+        row for row in references if row["SourceKey"] == say_trigger["SourceKey"] and row["Field"] == "WallToMove"
+    )
+    assert (wall["ReferenceKind"], wall["ReferenceKey"]) == ("object", "object:reliquary:configured-target[0]")
+    assert {row["ResolutionMode"] for row in targets if row["ReferenceId"] == wall["ReferenceId"]} == {"reference"}
     stowaway = {row["Field"]: row for row in references if row["SourceKey"] == sources["StowawayPortal"]["SourceKey"]}
     assert (stowaway["KeeperSpawn"]["ReferenceKind"], stowaway["KeeperSpawn"]["ReferenceKey"]) == (
         "object",

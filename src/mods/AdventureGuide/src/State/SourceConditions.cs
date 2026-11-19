@@ -142,6 +142,7 @@ public sealed partial class GateConditions
             "actor_level"
             or "actor_class"
             or "encounter_won"
+            or "spoken_word"
             or "quality"
             or "route"
             or "zone_use" => true,

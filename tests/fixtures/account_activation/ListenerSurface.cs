@@ -53,6 +53,8 @@ namespace UnityEngine
     public class Object
     {
         public string name;
+
+        public int GetInstanceID() => 0;
     }
 
     public class Component : Object
@@ -71,7 +73,7 @@ namespace UnityEngine
 
     public class MonoBehaviour : Behaviour { }
 
-    public sealed class Transform
+    public sealed class Transform : Component
     {
         public Vector3 position;
     }
@@ -81,6 +83,36 @@ namespace UnityEngine
         public float x,
             y,
             z;
+    }
+
+    public sealed class Collider : Component
+    {
+        public bool enabled = true;
+        public bool isTrigger;
+        public Bounds bounds;
+    }
+
+    public struct Bounds
+    {
+        public Vector3 center;
+        public Vector3 extents;
+        public Vector3 min =>
+            new()
+            {
+                x = center.x - extents.x,
+                y = center.y - extents.y,
+                z = center.z - extents.z,
+            };
+        public Vector3 max =>
+            new()
+            {
+                x = center.x + extents.x,
+                y = center.y + extents.y,
+                z = center.z + extents.z,
+            };
+
+        public void Encapsulate(Bounds other) =>
+            throw new NotSupportedException("Fixture controllers use a single enabled trigger");
     }
 
     public sealed class Scene
@@ -101,7 +133,13 @@ namespace UnityEngine
         private readonly List<GameObject> _children = new();
         private GameObject _parent;
         public Scene scene = new();
-        public Transform transform = new();
+        public Transform transform { get; }
+
+        public GameObject() => transform = new() { gameObject = this };
+
+        public T[] GetComponents<T>()
+            where T : Component => _components.OfType<T>().ToArray();
+
         public GameObject Parent
         {
             get => _parent;
@@ -319,6 +357,12 @@ public sealed class VithArena : MonoBehaviour
     public GameObject RestoredVitheo;
 }
 
+public sealed class RaidSkaldEvent : MonoBehaviour
+{
+    public SpawnPoint SkaldSpawn;
+    public List<SpawnPoint> Accompanists = new();
+}
+
 public sealed class NPCAliveListener : MonoBehaviour
 {
     public SpawnPoint SpawnPoint;
@@ -356,6 +400,11 @@ public sealed class BellsieWineTrigger : MonoBehaviour
     public GameObject WineOnChair,
         Note,
         Poof;
+}
+
+public sealed class GlowmereSayScript : MonoBehaviour
+{
+    public Transform WallToMove;
 }
 
 public sealed class ReliquaryFiend : MonoBehaviour { }

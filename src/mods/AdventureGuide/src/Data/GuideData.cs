@@ -313,6 +313,10 @@ public sealed partial class GuideData
                         case GateAtomKind.QuestNotDone:
                         case GateAtomKind.EncounterWon:
                             break;
+                        case GateAtomKind.SpokenWord:
+                            if (string.IsNullOrWhiteSpace(atom.Slot))
+                                throw new InvalidDataException("Spoken-word atom has no phrase");
+                            break;
                         default:
                             throw new InvalidDataException($"Unknown gate atom kind {atom.Kind}");
                     }

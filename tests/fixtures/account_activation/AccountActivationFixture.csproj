@@ -11,6 +11,10 @@
             Link="ScriptedActivatorListener.cs"
         />
         <Compile
+            Include="../../../src/Assets/Editor/ExportSystem/AssetScanner/TriggerBoundsResolver.cs"
+            Link="TriggerBoundsResolver.cs"
+        />
+        <Compile
             Include="../../../src/Assets/Editor/Database/ScriptedActivatorRecord.cs"
             Link="ScriptedActivatorRecord.cs"
         />

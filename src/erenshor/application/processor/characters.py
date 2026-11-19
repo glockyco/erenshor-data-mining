@@ -43,6 +43,7 @@ from loguru import logger
 
 from erenshor.domain.constants.levels import PLAYER_LEVEL_CAP
 
+from .encounters import load_raid_event_spawns
 from .model_images import PageCharacter, model_image_names
 from .npc_rewards import reward_columns
 from .npc_spawn import (
@@ -66,6 +67,7 @@ from .treasure import TREASURE_EVENT_SCRIPT
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
+    from .encounters import RaidEventSpawns
     from .mapping import MappingOverride, SpawnMappingOverride
     from .npc_spawn import SpawnConstants
     from .writer import Writer
@@ -391,18 +393,16 @@ def _effective_stats(
 
 @dataclass(frozen=True)
 class _RaidBosses:
-    """The raid scenes and the characters that the game names as their bosses.
-
-    Each raid plane's PlanarMusicManager lists its big-boss and mid-boss spawn
-    points, and Vitheo's arena starts boss music for some of its rounds.
-    """
+    """The raid scenes and the characters that the game names as their bosses."""
 
     scenes: frozenset[str]
     characters: frozenset[str]
 
 
-def _load_raid_bosses(raw: sqlite3.Connection) -> _RaidBosses:
-    """Read the planar boss lists and the arena boss rounds of the raw export."""
+def _load_raid_bosses(
+    raw: sqlite3.Connection, events: list[RaidEventSpawns], spawns: list[dict[str, object]]
+) -> _RaidBosses:
+    """Read raid designations from music lists, arena rounds and event controllers."""
     planar = _load_rows(raw, "SELECT Scene, CharacterStableKey FROM PlanarBosses")
     arena = _load_rows(
         raw,
@@ -411,11 +411,14 @@ def _load_raid_bosses(raw: sqlite3.Connection) -> _RaidBosses:
     )
     if not planar:
         raise ValueError("The raw export has no PlanarBosses rows; run extract export")
+    event_boss_points = {event.boss for event in events}
+    event_bosses = [str(row["CharacterStableKey"]) for row in spawns if row["SpawnPointStableKey"] in event_boss_points]
     return _RaidBosses(
-        scenes=frozenset(str(row["Scene"]) for row in [*planar, *arena]),
+        scenes=frozenset([str(row["Scene"]) for row in [*planar, *arena]] + [event.scene for event in events]),
         characters=frozenset(
             [str(row["CharacterStableKey"]) for row in planar]
             + [str(row["EnemyCharacterStableKey"]) for row in arena if row["RoundIndex"] in _ARENA_BOSS_ROUNDS]
+            + event_bosses
         ),
     )
 
@@ -1097,7 +1100,8 @@ def process_characters(
     logger.info(f"Characters: {len(groups)} dedup groups from {len(char_data)} characters")
 
     dedup_rows: list[dict[str, object]] = []
-    raid_bosses = _load_raid_bosses(raw)
+    raid_events = load_raid_event_spawns(raw)
+    raid_bosses = _load_raid_bosses(raw, raid_events, sp_rows)
     scenes_by_char = _spawn_scenes(raw, char_data)
     tier_counts: dict[str, int] = defaultdict(int)
     for members in groups.values():
@@ -1257,6 +1261,11 @@ def process_characters(
     writer.insert_character_deduplications(dedup_rows)
 
     # character_spawns
+    required_alive: dict[str, str] = {}
+    for event in raid_events:
+        for spawn in event.dependents:
+            if required_alive.setdefault(spawn, event.boss) != event.boss:
+                raise ValueError(f"Conflicting raid event boss spawn points for {spawn}")
     spawn_out: list[dict[str, object]] = []
     for d in char_data:
         for s in d.spawns:
@@ -1286,6 +1295,9 @@ def process_characters(
                     "random_wander_range": s.random_wander_range,
                     "spawn_upon_quest_complete_stable_key": s.spawn_upon_quest_complete_stable_key,
                     "protector_stable_key": s.protector_stable_key,
+                    "requires_alive_spawn_point_stable_key": required_alive.get(s.spawn_point_stable_key)
+                    if s.spawn_point_stable_key is not None
+                    else None,
                     "spawn_chance": s.spawn_chance,
                     "is_common": s.is_common,
                     "is_rare": s.is_rare,

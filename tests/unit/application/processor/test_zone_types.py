@@ -18,6 +18,7 @@ def test_zone_types_reuse_raid_sources_and_reviewed_area_input(tmp_path: Path) -
         CREATE TABLE PlanarBosses (Scene TEXT, CharacterStableKey TEXT);
         CREATE TABLE ArenaRounds (StableKey TEXT, Scene TEXT, RoundIndex INTEGER);
         CREATE TABLE ArenaRoundEnemies (ArenaRoundStableKey TEXT, EnemyCharacterStableKey TEXT);
+        CREATE TABLE ScriptedActivators (SourceKey TEXT, SourceScene TEXT, RuleId TEXT, IsEnabled INTEGER);
         INSERT INTO PlanarBosses VALUES ('NewPlane', 'character:boss');
         INSERT INTO ArenaRounds VALUES ('round:one', 'NewArena', 1);
         INSERT INTO ArenaRoundEnemies VALUES ('round:one', 'character:arena');
@@ -144,6 +145,7 @@ def test_unreviewed_nonraid_area_is_blocked_instead_of_inferred(tmp_path: Path, 
         CREATE TABLE PlanarBosses (Scene TEXT, CharacterStableKey TEXT);
         CREATE TABLE ArenaRounds (StableKey TEXT, Scene TEXT, RoundIndex INTEGER);
         CREATE TABLE ArenaRoundEnemies (ArenaRoundStableKey TEXT, EnemyCharacterStableKey TEXT);
+        CREATE TABLE ScriptedActivators (SourceKey TEXT, SourceScene TEXT, RuleId TEXT, IsEnabled INTEGER);
         INSERT INTO PlanarBosses VALUES ('KnownRaid', 'character:boss');
     """)
     raw.execute("INSERT INTO Zones VALUES ('zone:unreviewed','Unreviewed','Unreviewed',?,0)", (native_dungeon,))

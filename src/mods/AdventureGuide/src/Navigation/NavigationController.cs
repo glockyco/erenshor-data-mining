@@ -47,7 +47,7 @@ public sealed class NavigationController
             if (value == null)
                 return;
             for (int i = value.Chain.Count - 1; i >= 0; i--)
-                if (value.Chain[i].Atom is { Kind: not GateAtomKind.EncounterWon } atom)
+                if (value.Chain[i].Atom is { IsAdvisory: false } atom)
                 {
                     ImmediateRequirement =
                         atom.Kind is GateAtomKind.KeyHeld or GateAtomKind.ItemHeld

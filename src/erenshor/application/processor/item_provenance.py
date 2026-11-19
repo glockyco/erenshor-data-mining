@@ -104,14 +104,16 @@ class ProvenanceBuilder:
             group = int(row["group_index"])
             index = counts[gate, group]
             counts[gate, group] += 1
+            predicate, slot = str(row["atom_kind"]), row["atom_slot"]
             result.append(
                 ProvenanceCondition(
                     gate,
                     group,
                     index,
-                    str(row["atom_kind"]),
+                    predicate,
                     str(row["atom_stable_key"]),
-                    row["atom_slot"],
+                    slot if predicate != "spoken_word" else None,
+                    value=slot if predicate == "spoken_word" else None,
                     scope=scope,
                     minimum=row["atom_quantity"],
                 )

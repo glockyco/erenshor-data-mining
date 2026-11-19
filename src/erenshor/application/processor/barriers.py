@@ -8,7 +8,7 @@ comes from the exported mechanism of each object:
 - ``door``: the key opens the door (``Door.OpenOrShut``). A quest listener that
   removes the door is a second way through.
 - ``removed``: a quest listener or a classified script disables the object.
-- ``moved``: a classified script moves the object away (``ShiveringAngel``, ``AngelScript``).
+- ``moved``: a classified script moves the object away.
 - ``guardians``: a trigger calls guardians unless a quest is done
   (``PietyTrigger``).
 
@@ -31,6 +31,7 @@ from .gates import (
     Atom,
     Gate,
     _atom_order,
+    _code_fact,
     _code_fact_quest,
     _scripted_reference,
     _spawn_encounter_groups,
@@ -156,9 +157,9 @@ def _mechanisms(raw: sqlite3.Connection, conn: sqlite3.Connection, activity: Act
     for (target, _, host, _), atoms in listeners.items():
         add(target, "removed", _and((tuple(sorted(atoms, key=_atom_order)),), activity.host(host)))
 
-    for source, rule in raw.execute(
-        "SELECT SourceKey, RuleId FROM ScriptedActivators WHERE RuleId IN ('siv_torch_gaze', 'npc_alive',"
-        " 'morph_trigger', 'shivering_angel', 'piety_guardians', 'twin_giants', 'bellwain_reveal')"
+    for source, rule, scene in raw.execute(
+        "SELECT SourceKey, RuleId, SourceScene FROM ScriptedActivators WHERE RuleId IN ('siv_torch_gaze', 'npc_alive',"
+        " 'morph_trigger', 'shivering_angel', 'piety_guardians', 'twin_giants', 'bellwain_reveal', 'spoken_wall')"
         " ORDER BY SourceKey"
     ):
         capability = activity.controller(source)
@@ -211,6 +212,19 @@ def _mechanisms(raw: sqlite3.Connection, conn: sqlite3.Connection, activity: Act
             # Once every torch shows its colour, AngelScript raises its host statue.
             opening = _and(own_conditions(raw, conn, rule), capability)
             add(_scripted_reference(raw, source, "$host", "object"), "moved", opening)
+        elif rule == "spoken_wall":
+            # code-fact: progression.glowmere.spoken_word
+            # code-fact: progression.glowmere.speech_input
+            # code-fact: progression.glowmere.wall_move
+            # code-fact: progression.glowmere.trigger_entry
+            zone = conn.execute("SELECT stable_key FROM zones WHERE scene_name = ?", (scene,)).fetchone()
+            if zone is None:
+                raise ValueError(f"Spoken wall {source} has no zone for scene {scene!r}")
+            keyword = _code_fact(raw, "progression.glowmere.spoken_word", "strings")
+            if not keyword or keyword != keyword.strip() or "," in keyword:
+                raise ValueError(f"Spoken wall {source} needs one nonempty phrase, got {keyword!r}")
+            opening = _and(((Atom("spoken_word", zone[0], slot=keyword),),), capability)
+            add(_scripted_reference(raw, source, "WallToMove", "object"), "moved", opening)
         elif rule == "piety_guardians":
             quest = _scripted_reference(raw, source, "RequiredQuest", "quest")
             # The trigger calls its guardians only while the quest is not done.

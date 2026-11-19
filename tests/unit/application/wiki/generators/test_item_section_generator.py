@@ -707,6 +707,25 @@ def test_ground_bags_show_zone_and_count_without_a_chance() -> None:
     )
 
 
+def test_ground_bag_can_require_a_spoken_word_at_the_wall() -> None:
+    item = Item(stable_key="item:ledger", item_name="Pirate's Ledger")
+    zone = "zone:glowmere"
+    fact = replace(_source("source:bag", item.stable_key, "item_bag"), place_set_key="places:fixture")
+    place = _place(
+        "place:bag",
+        "fixed",
+        zone_stable_key=zone,
+        conditions=(PublicCondition(0, 0, 0, "wall", "spoken_word", reference_stable_key=zone, value="respite"),),
+    )
+    sources = SourceInfo(
+        acquisitions=(fact,),
+        places={"places:fixture": (place,)},
+        links={zone: ZoneLink("Glowmere Grotto", "Glowmere Grotto", stable_key=zone)},
+    )
+    text = ItemSectionGenerator()._format_item_bags(EnrichedItemData(item=item, stats=[], classes=[], sources=sources))
+    assert text == '{{ZoneLink|stablekey=zone:glowmere}} (1 bag, say "respite" at the wall)'
+
+
 def test_gathering_counts_each_marker_once_and_separates_one_sources_zones() -> None:
     item = Item(stable_key="item:ore", item_name="Ore")
     fact = replace(

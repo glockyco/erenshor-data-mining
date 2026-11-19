@@ -237,4 +237,9 @@ describe('public source presentation', () => {
         expect(phrases.join()).not.toContain('reward');
         expect(phrases.join()).toContain('Other Quest');
     });
+
+    it('words a spoken wall condition as a chat action', () => {
+        const gate = condition({ predicate: 'spoken_word', reference_stable_key: 'zone:glowmere', value: 'respite' });
+        expect(conditionPhrases([[gate]], {})).toEqual(['Say "respite" at the wall']);
+    });
 });

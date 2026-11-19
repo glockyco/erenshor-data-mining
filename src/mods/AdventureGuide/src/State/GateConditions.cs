@@ -15,7 +15,7 @@ public interface IGateFacts
     string? StoredItemIn(string slot);
 }
 
-/// <summary>OR groups of AND atoms, with encounter atoms retained as guidance.</summary>
+/// <summary>OR groups of AND atoms, with unobservable actions retained as guidance.</summary>
 public sealed partial class GateConditions
 {
     private readonly GuideData _data;
@@ -81,7 +81,7 @@ public sealed partial class GateConditions
                     atom.Ref,
                     StringComparison.OrdinalIgnoreCase
                 ),
-            GateAtomKind.EncounterWon => true,
+            GateAtomKind.EncounterWon or GateAtomKind.SpokenWord => true,
             _ => throw new InvalidOperationException($"Unknown gate atom kind '{atom.Kind}'"),
         };
 
@@ -196,13 +196,13 @@ public sealed partial class GateConditions
             return Array.Empty<GateAtom>();
         var result = new List<GateAtom>();
         for (int i = 0; i < best.Count; i++)
-            if (best[i].Kind != GateAtomKind.EncounterWon && !Holds(best[i]))
+            if (!best[i].IsAdvisory && !Holds(best[i]))
                 result.Add(best[i]);
         for (int i = 0; i < groups.Count; i++)
         for (int j = 0; j < groups[i].Count; j++)
         {
             var atom = groups[i][j];
-            if (atom.Kind != GateAtomKind.EncounterWon)
+            if (!atom.IsAdvisory)
                 continue;
             bool duplicate = false;
             for (int k = 0; k < result.Count; k++)
@@ -210,6 +210,7 @@ public sealed partial class GateConditions
                     result[k].Kind == atom.Kind
                     && result[k].Ref == atom.Ref
                     && result[k].Quantity == atom.Quantity
+                    && result[k].Slot == atom.Slot
                 )
                 {
                     duplicate = true;
@@ -260,6 +261,8 @@ public sealed partial class GateConditions
         if (atom.Kind == GateAtomKind.PlanningSlotItem)
             return atom.Instruction
                 ?? throw new InvalidOperationException("Planning slot atom has no instruction");
+        if (atom.Kind == GateAtomKind.SpokenWord)
+            return $"Say \"{atom.Slot}\" at the wall";
         string name =
             _data.GetByDBName(atom.Ref)?.DisplayName
             ?? _data.GetByStableKey(atom.Ref)?.DisplayName

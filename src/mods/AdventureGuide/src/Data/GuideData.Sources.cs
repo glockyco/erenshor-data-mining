@@ -459,6 +459,7 @@ public sealed partial class GuideData
             "room_furnished" => GateAtomKind.RoomFurnished,
             "account_state" => GateAtomKind.AccountState,
             "encounter_won" => GateAtomKind.EncounterWon,
+            "spoken_word" => GateAtomKind.SpokenWord,
             _ => null,
         };
         if (atom.Predicate == "planning_slot_item")
@@ -485,7 +486,7 @@ public sealed partial class GuideData
                     atom.Predicate == "encounter_won" && atom.Minimum.HasValue
                         ? checked((int)atom.Minimum.Value)
                         : 1,
-                Slot = atom.ReferenceSlot,
+                Slot = atom.Predicate == "spoken_word" ? atom.Value : atom.ReferenceSlot,
                 Actor = atom.Actor,
                 Value = atom.Value,
                 Phase = atom.Phase,
@@ -529,6 +530,7 @@ public sealed partial class GuideData
                 or "item_held"
                 or "item_not_owned"
                 or "encounter_won"
+                or "spoken_word"
                 or "actor_level"
                 or "actor_class"
                 or "account_state"
@@ -551,6 +553,7 @@ public sealed partial class GuideData
                 or "item_held"
                 or "item_not_owned"
                 or "encounter_won"
+                or "spoken_word"
                 or "actor_class"
                 or "zone_use"
         )
@@ -568,6 +571,8 @@ public sealed partial class GuideData
             )
         )
             throw new InvalidDataException("Invalid canonical account condition");
+        if (atom.Predicate == "spoken_word" && string.IsNullOrWhiteSpace(atom.Value))
+            throw new InvalidDataException("Canonical spoken-word condition has no phrase");
         if (atom.Predicate is "room_furnished" or "planning_slot_item")
             if (
                 atom.ReferenceSlot == null

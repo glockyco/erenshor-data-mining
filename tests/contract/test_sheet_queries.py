@@ -525,6 +525,11 @@ def test_sheet_formatter_rejects_missing_or_incompatible_metadata(
         ("key_held", {"reference_stable_key": "item:bread"}, "Bread"),
         ("room_furnished", {"reference_stable_key": "item:bread", "reference_slot": "L1"}, "L1"),
         ("encounter_won", {"reference_stable_key": "character:copy"}, "Actual copy"),
+        (
+            "spoken_word",
+            {"reference_stable_key": "zone:glowmere", "value": "respite"},
+            'Say "respite" at the wall',
+        ),
         ("actor_class", {"reference_stable_key": "class:arcanist", "actor": "player"}, "Arcanist"),
         ("account_state", {"reference_stable_key": "account_state:reliquary_claimed", "value": "false"}, "Reliquary"),
         ("time_of_day", {"value": "night"}, "night"),

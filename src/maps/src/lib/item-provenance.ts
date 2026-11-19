@@ -147,7 +147,7 @@ export interface ConditionContext {
 }
 
 const PHRASE_ORDER = ['quest_done', 'encounter_won', 'quest_not_done', 'account_state', 'room_furnished', 'held', 'item_not_owned',
-    'actor_level', 'zone_use', 'time_of_day', 'quality', 'route', 'never'];
+    'spoken_word', 'actor_level', 'zone_use', 'time_of_day', 'quality', 'route', 'never'];
 
 function list(parts: string[], conjunction = 'and'): string {
     const unique = [...new Set(parts)];
@@ -193,6 +193,7 @@ function phrases(atoms: ProvenanceCondition[], names: Record<string, string>, co
         switch (kind) {
             case 'quest_done': return [`Requires ${list(group.map(name))}`];
             case 'encounter_won': return [`Requires defeating ${list(group.map(name))}`];
+            case 'spoken_word': return group.map((atom) => `Say "${atom.value}" at the wall`);
             case 'quest_not_done': {
                 const own = group.filter((atom) => atom.reference_stable_key === context.rewardQuestStableKey);
                 const others = group.filter((atom) => !own.includes(atom));

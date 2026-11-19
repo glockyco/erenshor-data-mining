@@ -151,6 +151,7 @@ class AtomKind(StrEnum):
     ACCOUNT_STATE = "account_state"
     # Advisory: the mod cannot observe it reliably, so it guides and never hides.
     ENCOUNTER_WON = "encounter_won"
+    SPOKEN_WORD = "spoken_word"
     WORLD_STATE = "world_state"
     # No game state satisfies it, such as a door whose key cannot be obtained.
     NEVER = "never"

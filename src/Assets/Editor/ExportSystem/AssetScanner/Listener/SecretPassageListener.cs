@@ -50,6 +50,12 @@ public class SecretPassageListener : IAssetScanListener<GameObject>
             return;
         }
 
+        // The trigger volume does not support feet. Its controller exports the moved wall.
+        if (asset.GetComponent<GlowmereSayScript>() != null)
+        {
+            return;
+        }
+
         var exclusionReason = GetExclusionReason(asset.name);
         string[] keywords =
         {

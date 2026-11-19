@@ -85,6 +85,20 @@ def test_a_drop_names_the_dropper_its_zone_and_the_rain_that_releases_it():
     )
 
 
+def test_a_spawn_can_require_a_living_boss():
+    sentences = graph({"character:ward:1": [[need("in zone", "zone:desert"), need("alive", "character:boss")]]})
+
+    assert sentences.sentences("character:ward:1") == (
+        "Find {character:ward:1} in {zone:desert}, while {character:boss} is alive.",
+    )
+
+
+def test_a_spoken_barrier_explains_what_to_say_and_where():
+    sentences = graph({"barrier:gate": [[need("say", "zone:port", keywords="respite")]]})
+
+    assert sentences.sentences("barrier:gate") == ('Say "respite" at the {barrier:gate} in {zone:port}.',)
+
+
 def test_a_quest_names_its_start_and_places_each_character_once():
     sentences = graph(
         {

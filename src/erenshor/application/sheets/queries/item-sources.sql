@@ -75,6 +75,7 @@ WITH names AS (
             ELSE 'Only if you don''t have ' || subject END
         WHEN 'room_furnished' THEN 'Requires the ' || subject || COALESCE(' in room ' || reference_slot, ' in its room')
         WHEN 'encounter_won' THEN 'Requires defeating ' || subject
+        WHEN 'spoken_word' THEN 'Say "' || value || '" at the wall'
         WHEN 'actor_class' THEN CASE WHEN actor IN ('sim', 'sim_player') THEN 'Requires a simulated player of class ' || subject
             ELSE 'Requires the ' || subject || ' class' END
         WHEN 'account_state' THEN CASE WHEN reference_stable_key = 'account_state:reliquary_claimed' THEN

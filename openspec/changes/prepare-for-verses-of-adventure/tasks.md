@@ -30,6 +30,7 @@ Nothing from this change goes to a shared target before Erenshor 0.8 ships on `m
   - The furniture item.
   - The Mind to Persuasion rename.
 - [ ] 1.7 Decide which mechanics change an existing spec (design D3). Add those delta specs to this change before their code tasks. Verify: `openspec validate prepare-for-verses-of-adventure --strict` passes.
+  - The encounter-tiers delta recognizes raid event boss bindings and passes strict validation. The existing character placement requirement covers the accompanist dependency.
 
 ## 2. Classes (design D2, specs/character-classes)
 
@@ -45,6 +46,8 @@ Each task below adds the data at its source (export, code fact or reviewed file)
 - [ ] 3.1 Bard songs, notes and chords: what each one does, how it is learned and where it drops. Songs are ordered compositions of chords with capacity from `SkillPower`, and their damage applies the Bard charisma curve twice (`script-changes.md`, Spells, skills and songs). Include Hum, Caesura and the Songwriting book. Verify: the generated pages for Simple Song and Elrehon's Crescendo match the game tooltips.
 - [ ] 3.2 Item harmony and dissonance, and the Bard aura from the caster's charisma, as `script-changes.md` describes them. Verify: an item with harmony shows the same value as its in-game tooltip.
 - [ ] 3.3 The seven-piece chessboard (FacelessBard), the Glowmere wall that the spoken word `respite` opens, and The Skald in Plane of Vitheo, whose four accompanist spawn points are active only while he lives. Export the wall reference and the accompanist dependency from their serialized bindings and model them through the existing producers. Verify: `progression show` explains each, the Glowmere route reaches the dungeon, and the map shows the accompanists as dependent on The Skald.
+  - The Glowmere trigger exports its bounds and moved wall. The keyword comes from shipped code. Scene geometry places the Pirate's Ledger behind the wall, pending the in-game check in 3.6. Both exterior entrances are usable in the clean database and do not require `respite`.
+  - The Skald's controller exports the boss and accompanist spawn points. Processor tests cover boss classification and the live spawn dependency in progression ways. Playtest re-export and map presentation are still open.
 - [ ] 3.4 Ripper's Keep: the gate door needs Ripper's Gate Key from the guard's quest `RIPPERKEY`, the ritual portal opens after `TheRipperRitual`, and the Ripper spell moves its destination. Model the three as separate routes. Also cover Flicker of Souls dying on quest turn-in and the new quests. Verify: `progression show` for Ripper's Keep shows the key gate and the ritual route, and the guide data holds each new quest.
 - [ ] 3.5 The Persuasion label, the wand damage roll in `[0.1, 1]`, threat now using the attacker's stance without low-health multipliers, damage amplification, status resist and duration changes, and the new cooldown and haste-cap modifiers. Verify: no generated page or sheet says "Mind" for the stat, and every combat claim on the wiki matches the new code and code facts.
 - [ ] 3.6 Check the barriers of each zone where placements moved (refresh skill, review step 3). Verify: each barrier check in `barriers.toml` passes in the playtest game.
@@ -62,8 +65,8 @@ Each task below adds the data at its source (export, code fact or reviewed file)
 
 ## 5. Map, tiles and pictures (design D5)
 
-- [ ] 5.1 Compare the scene assets of the playtest rip with `main`'s rip. List the zones whose geometry changed. Verify: the list covers Glowmere Grotto, Ripper's Keep and Faerie's Brake, and records each other changed zone.
-  - Faerie's Brake was rebuilt: all 140 spawn points of 0.7 are gone and 384 new ones exist. Ripper's Keep gained 42 and lost 12, and Port Azure gained 43. Recheck their barriers, tiles, map markers and zone pages.
+- [x] 5.1 Compare the scene assets of the playtest rip with `main`'s rip. List the zones whose geometry changed. Verify: the list covers Glowmere Grotto, Ripper's Keep and Faerie's Brake, and records each other changed zone.
+  - [Scene comparison](scene-changes.md) records nine zones that need tiles, including new bounds for Glowmere Grotto and Faerie's Brake. Loomingwood Forest and Vitheo's Plane of Valor need placement updates, not new tiles.
 - [ ] 5.2 Check that MapTileCapture runs in 0.8, and fix it if it doesn't. Then capture one outdoor zone and compare it with its current tiles to decide whether the new lighting needs a full recapture. Record the decision here.
 - [ ] 5.3 Add the capture bounds and overview position for Glowmere Grotto, and capture it and every zone from 5.1 (`skill://tile-capture`, `skill://interactive-map`). Verify: `-V playtest maps preview` shows each zone with markers and no failure on `/map`.
 - [ ] 5.4 Run `images manifest` and `images items manifest`, capture the new and changed subjects in the playtest game, review the captures, then run `-V playtest --dry-run images publish`. Verify: the Bard armor and weapon, the new NPCs and the furniture item have reviewed pictures, and the dry run lists no unexplained conflict.
@@ -74,7 +77,9 @@ Each task below adds the data at its source (export, code fact or reviewed file)
   - All five mods, including MapTileCapture, build and pass artifact verification for BepInEx and Lunaris on main (24405256) and playtest (26769622). No compile fixes were needed. All 1,066 mod tests passed.
   - In-game checks still needed: guide inventory and quest updates, journal replacement and focus with the new windows and hotbars, map overlay and Bard SimPlayers across zones, F7 nameplate subtext and cast bars, and Sprint with Bard movement effects and Shift bindings. For capture, check the start-choice screen, outdoor light, and instrument portraits.
 - [ ] 6.2 Run each mod in the playtest game with a dedicated save. Verify: the guide opens, tracks a new quest and shows a 0.8 zone; the map companion shares the live position on the map preview; JusticeForF7 and Sprint work as described in their READMEs.
-- [ ] 6.3 Run `-V playtest guide export-mod` and check that the guide shows the Bard quest and the Ripper's Keep entry quest with their requirements. Do not commit the playtest guide data. Release day regenerates it from `main`.
+  - All four mods load under BepInEx with a Bard in Ripper's Keep, Glowmere Grotto and Willowwatch. The guide window draws over the new interface, reads Glowmere Grotto as the current zone, and after "A Key to Ripper's Keep" was assigned its tracker shows the quest beside the game's own quest tracker. Sprint raises run speed from 9.25 to 13.875, keeps it through `CalcStats` and restores it on release. The game's F7 toggle hides and restores the guide and tracker windows with the rest of the interface. The map companion's WebSocket and overlay connected to the live map. Still open: the map companion on a playtest map preview (with task 5.3) and the keyboard focus and UI scale checks of the 6.1 risk list, which need real key presses.
+- [x] 6.3 Run `-V playtest guide export-mod` and check that the guide shows the Bard quest and the Ripper's Keep entry quest with their requirements. Do not commit the playtest guide data. Release day regenerates it from `main`.
+  - The export holds 195 quests. "Old Bonepits Songbook" (Brandon Uree, say "tale", one Old Song Book) and "A Key to Ripper's Keep" (Ripper Gate Guard, say "killed", one Sivakayan Ore) show their steps and rewards. The committed guide data was restored afterwards.
 - [ ] 6.4 Prepare a release build and changelog for each mod that changed, without publishing them.
 
 ## 7. Release day runbook (design D7)

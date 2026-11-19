@@ -40,7 +40,7 @@ public static class NavigationResolutionPolicy
             return Array.Empty<RequirementLink>();
         var context = new List<RequirementLink>(result.Advisories.Count);
         foreach (var link in result.Chain)
-            if (link.Atom is { Kind: GateAtomKind.EncounterWon })
+            if (link.Atom is { IsAdvisory: true })
                 context.Add(link);
         return context;
     }
@@ -54,7 +54,7 @@ public static class NavigationResolutionPolicy
         List<GateAtom>? advisories = null;
         foreach (var link in context)
         {
-            if (link.Atom is not { Kind: GateAtomKind.EncounterWon } atom)
+            if (link.Atom is not { IsAdvisory: true } atom)
                 continue;
             bool present = false;
             var existing = advisories ?? result.Advisories;

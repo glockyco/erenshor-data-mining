@@ -808,7 +808,7 @@ public sealed class RequirementResolver
             return;
         foreach (var group in choice.Groups)
         foreach (var atom in group)
-            if (atom.Kind == GateAtomKind.EncounterWon)
+            if (atom.IsAdvisory)
                 candidate.Advisories.Add(atom);
     }
 
@@ -1145,7 +1145,7 @@ public sealed class RequirementResolver
     {
         var labels = new List<string>();
         foreach (var atom in group)
-            if (atom.Kind != GateAtomKind.EncounterWon && !_gates.Holds(atom))
+            if (!atom.IsAdvisory && !_gates.Holds(atom))
                 labels.Add(_gates.Describe(atom));
         return string.Join(" and ", labels);
     }

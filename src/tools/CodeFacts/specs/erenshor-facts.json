@@ -17,6 +17,46 @@
       "args": {}
     },
     {
+      "id": "progression.glowmere.spoken_word",
+      "mode": "extract",
+      "type": "GlowmereSayScript",
+      "method": "Update",
+      "matcher": "string_constants",
+      "args": {"guard_assignment": "doMove"}
+    },
+    {
+      "id": "progression.glowmere.speech_input",
+      "mode": "assert",
+      "type": "GlowmereSayScript",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "InvocationExpression",
+        "shape": "GameData.TextInput.LingeringSay.ToLower ()"
+      }
+    },
+    {
+      "id": "progression.glowmere.wall_move",
+      "mode": "assert",
+      "type": "GlowmereSayScript",
+      "method": "Update",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "WallToMove.Translate (new Vector3 (0f, 0f, -1f * Time.deltaTime), Space.World);"
+      }
+    },
+    {
+      "id": "progression.glowmere.trigger_entry",
+      "mode": "assert",
+      "type": "GlowmereSayScript",
+      "method": "OnTriggerEnter",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (other.transform.name == \"Player\") { InTrigger = true; }"
+      }
+    },
+    {
       "id": "progression.bellwain.quest",
       "mode": "extract",
       "type": "AngelScript",

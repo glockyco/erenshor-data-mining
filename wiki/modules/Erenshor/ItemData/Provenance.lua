@@ -49,6 +49,7 @@ local PREDICATES = {
 	key_held = "Requires",
 	room_furnished = "Requires the",
 	encounter_won = "Requires defeating",
+	spoken_word = "Say",
 	never = "Never",
 	time_of_day = "Time",
 	actor_level = "Requires level",
@@ -278,6 +279,7 @@ end
 
 local function conditionText(condition, references, fact)
 	local account = condition.predicate == "account_state"
+	local spoken = condition.predicate == "spoken_word"
 	local text = account and accountConditionText(condition) or PREDICATES[condition.predicate]
 	if text == nil then
 		error("Unsupported ItemData condition: " .. tostring(condition.predicate), 2)
@@ -288,7 +290,7 @@ local function conditionText(condition, references, fact)
 	if condition.gate_key == "enhanced_quality" and not account then
 		text = "Improved result quality"
 	end
-	if condition.reference_stable_key and not account then
+	if condition.reference_stable_key and not (account or spoken) then
 		text = text .. " " .. identity(condition.reference_stable_key, references)
 	end
 	if
@@ -346,6 +348,8 @@ local function conditionText(condition, references, fact)
 		text = text .. ": " .. quality
 	elseif condition.predicate == "room_furnished" and condition.value then
 		text = text .. ": " .. escape(condition.value)
+	elseif spoken then
+		text = 'Say "' .. escape(condition.value) .. '" at the wall'
 	elseif condition.value and not account then
 		if condition.predicate ~= "time_of_day" then
 			error("Unsupported ItemData condition value: " .. tostring(condition.predicate), 2)

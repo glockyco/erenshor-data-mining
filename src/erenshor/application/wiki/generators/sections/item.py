@@ -782,6 +782,8 @@ class ItemSectionGenerator(SectionGeneratorBase):
     def _requirement(self, atom: PublicCondition, sources: SourceInfo, fact: PublicSource | PublicUse) -> str:
         if atom.predicate == "route" and atom.value == "normal_pointer_inventory_transfer":
             return "drag it into your inventory"
+        if atom.predicate == "spoken_word":
+            return f'say "{atom.value}" at the wall'
         if atom.predicate == "actor_level":
             actor = {
                 "enemy": "enemy level",

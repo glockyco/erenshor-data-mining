@@ -35,6 +35,7 @@ internal static class BehaviourCoverage
         ["SpawnPoint.MyNPCAlive"] = false,
         ["Character.Alive"] = false,
         ["WorldFaction.FactionValue"] = false,
+        ["TypeText.LingeringSay"] = false,
         ["SceneChange.ChangeScene"] = true,
         ["SceneChange.ChangeSceneSafe"] = true,
         ["GameData.FinishQuest"] = true,

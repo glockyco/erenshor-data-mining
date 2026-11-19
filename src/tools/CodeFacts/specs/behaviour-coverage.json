@@ -37,6 +37,13 @@
       "classification": "adapter",
       "component": "ScriptedActivatorListener bellwain_reveal, processor/gates.py reveal and processor/scripted_events.py torch puzzle completion"
     },
+    "GlowmereSayScript": {
+      "apis": [
+        "TypeText.LingeringSay"
+      ],
+      "classification": "adapter",
+      "component": "ScriptedActivatorListener spoken_wall and processor/barriers.py spoken_word opening"
+    },
     "ArborScript": {
       "apis": [
         "Character.Alive"
@@ -602,9 +609,8 @@
         "Character.Alive",
         "SpawnPoint.MyNPCAlive"
       ],
-      "classification": "pending",
-      "reason": "Start disables the Accompanist spawn points. Update enables them only while The Skald is alive and directs idle Accompanists to his aggro target. It does not despawn existing Accompanists.",
-      "tasks": ["prepare-for-verses-of-adventure 3.3"]
+      "classification": "adapter",
+      "component": "ScriptedActivatorListener raid_boss_alive and processor/encounters.py raid placement bindings"
     },
     "ReliqDisableFiendSpawn": {
       "apis": [

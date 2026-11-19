@@ -15,6 +15,12 @@ public sealed class ScriptedActivatorRecord
     public float? X { get; set; }
     public float? Y { get; set; }
     public float? Z { get; set; }
+    public float? TriggerBoundsCenterX { get; set; }
+    public float? TriggerBoundsCenterY { get; set; }
+    public float? TriggerBoundsCenterZ { get; set; }
+    public float? TriggerBoundsExtentsX { get; set; }
+    public float? TriggerBoundsExtentsY { get; set; }
+    public float? TriggerBoundsExtentsZ { get; set; }
     public bool IsEnabled { get; set; }
     public bool ComponentIsEnabled { get; set; }
     public string? HostCharacterStableKey { get; set; }

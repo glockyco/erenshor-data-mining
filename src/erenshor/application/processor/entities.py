@@ -30,6 +30,7 @@ from loguru import logger
 from .auction import derive_is_auctionable, validate_auction_gates
 from .characters import _load_raid_bosses
 from .cosmetics import load_cosmetic_effects
+from .encounters import load_raid_event_spawns
 from .item_mechanics import process_water_fishables
 
 if TYPE_CHECKING:
@@ -303,7 +304,8 @@ def process_zones(
 
     rows = _apply_mapping(rows, "StableKey", "ZoneName", mapping)
     logger.info(f"Zones: {len(rows)} after mapping")
-    raid_scenes = _load_raid_bosses(raw).scenes
+    # Zone types need only the raid scenes, not which spawn is a boss.
+    raid_scenes = _load_raid_bosses(raw, load_raid_event_spawns(raw), []).scenes
     for row in rows:
         if row["SceneName"] in raid_scenes:
             row["ZoneType"] = "Raid"

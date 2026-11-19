@@ -252,7 +252,7 @@ CREATE VIEW zone_lines_with_zoning_capability AS
 -- holds, and a gate holds when every atom of one of its groups holds. An atom
 -- of kind 'never' marks a gate that no game state satisfies, such as a door
 -- whose key the player cannot obtain. item_stable_key names the item of a
--- vendor_item subject, and atom_slot the room slot of a room_furnished atom.
+-- vendor_item subject. atom_slot holds a room slot or the phrase of a spoken_word atom.
 CREATE TABLE gate_conditions (
     subject_kind            TEXT NOT NULL CHECK (subject_kind IN (
                                 'zone_line', 'character', 'spawn_point', 'vendor_item', 'item_bag',
@@ -264,7 +264,7 @@ CREATE TABLE gate_conditions (
     group_index             INTEGER NOT NULL,
     atom_kind               TEXT NOT NULL CHECK (atom_kind IN (
                                 'quest_done', 'quest_not_done', 'item_held', 'key_held', 'room_furnished',
-                                'planning_slot_item', 'encounter_won', 'world_state', 'never'
+                                'planning_slot_item', 'encounter_won', 'world_state', 'spoken_word', 'never'
                             )),
     atom_stable_key         TEXT NOT NULL,
     atom_slot               TEXT,
@@ -1465,6 +1465,8 @@ CREATE TABLE character_spawns (
     random_wander_range     REAL,
     spawn_upon_quest_complete_stable_key TEXT,
     protector_stable_key    TEXT,
+    -- A new NPC can spawn here while a living NPC occupies this linked point.
+    requires_alive_spawn_point_stable_key TEXT,
     spawn_chance            REAL,
     is_common               INTEGER,
     is_rare                 INTEGER,

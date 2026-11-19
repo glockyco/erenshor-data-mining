@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import re
 import sqlite3
+from dataclasses import asdict
 from typing import TYPE_CHECKING
 
 import pytest
 
 from erenshor.application.processor.barriers import Entry, entry_rows
 from erenshor.application.processor.gates import process_gates
+from erenshor.application.processor.item_provenance import ProvenanceBuilder
 from erenshor.application.processor.writer import Writer
+from erenshor.domain.value_objects.item_provenance import condition_from_dict
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -588,3 +591,43 @@ def test_the_torch_statue_rises_only_while_the_flint_lights_the_torches(
     assert _gates(writer)[("zone_line", "zoneline:island:tomb:808.08:14.08:592.64", None, "object:island:statue")] == [
         [("item_held", "item:flint", None)]
     ]
+
+
+@pytest.mark.parametrize("enabled", [True, False])
+def test_spoken_wall_guards_the_pickup_not_the_zone_entrance(
+    tmp_path: Path, writer: Writer, raw: sqlite3.Connection, enabled: bool
+) -> None:
+    raw.execute("CREATE TABLE code_facts (fact_id TEXT, key TEXT, value TEXT)")
+    raw.execute("INSERT INTO code_facts VALUES ('progression.glowmere.spoken_word', 'strings', 'respite')")
+    raw.execute("INSERT INTO ObjectHierarchy VALUES ('object:tomb:say-trigger', NULL, 1, 1)")
+    raw.execute(
+        "INSERT INTO ScriptedActivators (SourceKey, RuleId, SourceScene, ComponentIsEnabled, ObjectKey)"
+        " VALUES ('trigger', 'spoken_wall', 'Tomb', ?, 'object:tomb:say-trigger')",
+        (enabled,),
+    )
+    wall = "object:tomb:fort-wall"
+    raw.execute("INSERT INTO ScriptedActivatorReferences VALUES ('r', 'trigger', 'WallToMove', 'object', ?)", (wall,))
+    bag = "itembag:tomb:1.00:2.00:3.00"
+    writer.conn.execute("INSERT INTO item_bags (stable_key, scene) VALUES (?, 'Tomb')", (bag,))
+    raw.execute("INSERT INTO ItemBags VALUES (?, 'object:tomb:ledger', 1)", (bag,))
+    raw.execute("INSERT INTO ObjectHierarchy VALUES ('object:tomb:ledger', NULL, 1, 1)")
+    body = _COMPLETE + _record(
+        kind='"moved"', name='"Hidden wall"', objects=f'["{wall}"]', targets=f'["{bag}"]', check='"unconfirmed"'
+    )
+    process_gates(raw, writer, _barriers(tmp_path, body))
+
+    affected = {key: groups for key, groups in _gates(writer).items() if key[-1] == wall}
+    atom = ("spoken_word", "zone:tomb", "respite") if enabled else ("never", wall, None)
+    assert affected == {("item_bag", bag, None, wall): [[atom]]}
+    assert tuple(writer.conn.execute("SELECT kind, name FROM barriers WHERE barrier_key = ?", (wall,)).fetchone()) == (
+        "moved",
+        "Hidden wall",
+    )
+    if enabled:
+        (condition,) = ProvenanceBuilder(writer.conn).gate_conditions("item_bag", bag)
+        assert condition_from_dict(asdict(condition)) == condition
+        assert (condition.predicate, condition.reference_stable_key, condition.value) == (
+            "spoken_word",
+            "zone:tomb",
+            "respite",
+        )

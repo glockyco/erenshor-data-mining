@@ -6,6 +6,7 @@ from dataclasses import replace
 
 import pytest
 
+from erenshor.application.processor.item_provenance import identity
 from erenshor.application.processor.progression import (
     ACQUISITION_RELATIONS,
     Need,
@@ -441,6 +442,29 @@ def test_placement_triggers_furniture_quests_and_restricted_entry(conn):
     assert Need("in zone", "zone:start") not in ns
 
 
+def test_raid_add_needs_a_live_occupant_of_its_boss_spawn_point(conn):
+    conn.execute(
+        "UPDATE character_spawns SET requires_alive_spawn_point_stable_key = 'spawn:character:ward', "
+        "spawn_upon_quest_complete_stable_key = 'quest:q' WHERE character_stable_key = 'character:copy'"
+    )
+    insert(
+        conn,
+        "character_spawns",
+        character_stable_key="character:other",
+        spawn_point_stable_key="spawn:character:ward",
+        zone_stable_key="zone:start",
+        scene="Start",
+        is_directly_placed=0,
+    )
+    graph = builder(conn)
+    assert set(graph.ways["character:copy"].values()) == {
+        canonical_way([Need("in zone", "zone:start"), Need("quest done", "quest:q"), Need("alive", boss)])
+        for boss in ("character:ward", "character:other")
+    }
+    assert needs(graph, "character:ward") == {Need("in zone", "zone:start")}
+    assert "character:copy" in graph.milestones
+
+
 def zone_line(conn: sqlite3.Connection, key: str = "zoneline:line", **changes: object) -> None:
     """A usable zone line from Start and the travel route that it is."""
     line = {"stable_key": key, "scene": "Start", "destination_zone_stable_key": "zone:end", "is_usable": 1} | changes
@@ -454,6 +478,41 @@ def zone_line(conn: sqlite3.Connection, key: str = "zoneline:line", **changes: o
         from_zone_stable_key="zone:" + str(line["scene"]).lower(),
         to_zone_stable_key=line["destination_zone_stable_key"],
     )
+
+
+def test_spoken_barrier_is_inside_the_zone_and_guards_only_the_pickup(conn):
+    zone_line(conn, "zoneline:first")
+    zone_line(conn, "zoneline:second", scene="Other")
+    wall = "object:end:wall"
+    bag = "itembag:end:ledger"
+    insert(conn, "barriers", barrier_key=wall, kind="moved", name="Hidden wall")
+    gate(
+        conn, "spoken_word", "zone:end", subject_kind="item_bag", subject_stable_key=bag, gate=wall, atom_slot="respite"
+    )
+    acquisition(conn, "item_bag", bag)
+    location(
+        conn,
+        "zone:end",
+        (
+            ProvenanceCondition(
+                identity("gate", "item_bag", bag, None, wall),
+                0,
+                0,
+                "spoken_word",
+                "zone:end",
+                value="respite",
+            ),
+        ),
+    )
+
+    graph = builder(conn)
+    assert set(graph.ways["zone:end"].values()) == {
+        (Need("zone line", "zone:start"),),
+        (Need("zone line", "zone:other"),),
+    }
+    assert needs(graph, wall) == {Need("say", "zone:end", keywords="respite")}
+    assert Need("barrier", wall) in needs(graph, "item:result")
+    assert graph.tiers[wall] > graph.tiers["zone:end"]
 
 
 def spell_route(conn: sqlite3.Connection, origin: str | None = None) -> None:

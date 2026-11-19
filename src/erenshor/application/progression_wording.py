@@ -34,6 +34,7 @@ WORDING = {
 # entry applies when the need is a node of that kind.
 ACTIONS = {
     "after": "finish",
+    "alive": "find alive",
     "barrier": "get past",
     "cast": "cast",
     "casts": "use",
@@ -72,6 +73,7 @@ ACTIONS = {
     "required item": "give",
     "reward": "finish",
     "room furnished": "furnish",
+    "say": "speak in",
     "sells": "buy from",
     "standing": "gain",
     "started": "start",
@@ -232,6 +234,7 @@ _CONDITION_ORDER = (
     "equipped",
     "room furnished",
     "summoned by",
+    "alive",
     "defeated",
     "release",
     "state",
@@ -598,10 +601,15 @@ class ProgressionSentences:
         return f"travel from {source} to {zone}{through}"
 
     def _barrier(self, node: ProgressionNode, taken: Needs) -> str:
-        """A key or a carried item leads, and quests or defeats that it waits for follow as conditions."""
+        """Word the opening action before its other conditions."""
         barrier = _ref(node.stable_key)
         if "key" in taken or "held" in taken:
             return self._lead(_BARRIER_CLAUSES, barrier, taken)
+        if "say" in taken:
+            spoken = self._need(taken, "say")
+            if not spoken.keywords:
+                raise ProgressionWordingError(f"Spoken barrier {node.stable_key!r} has no phrase")
+            return f'say "{spoken.keywords}" at the {barrier} in {_ref(spoken.need_stable_key)}'
         if "quest done" in taken:
             quests = _join([_ref(need.need_stable_key) for need in self._take(taken, "quest done")])
             return f"finish {quests} to get past {barrier}"
@@ -714,6 +722,7 @@ class ProgressionSentences:
         if relation == "defeated":
             return [f"after you defeat {self._defeats(needs)}"]
         writer = {
+            "alive": lambda need: f"while {_ref(need.need_stable_key)} is alive",
             "room furnished": lambda need: self._furnished(need, rooms),
             "release": self._release,
             "state": self._state,

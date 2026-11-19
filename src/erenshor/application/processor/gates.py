@@ -793,6 +793,7 @@ def _validate_atoms(conn: sqlite3.Connection, gates: list[Gate]) -> None:
         "room_furnished": items,
         "planning_slot_item": items,
         "encounter_won": {key for (key,) in conn.execute("SELECT stable_key FROM characters")},
+        "spoken_word": {key for (key,) in conn.execute("SELECT stable_key FROM zones")},
     }
     for gate in gates:
         for group in gate.groups:
@@ -801,6 +802,8 @@ def _validate_atoms(conn: sqlite3.Connection, gates: list[Gate]) -> None:
                     raise ValueError(f"{gate.gate} has an invalid defeat quantity {atom.quantity!r}")
                 if atom.kind == "planning_slot_item" and atom.slot not in _PLANNING_SLOTS:
                     raise ValueError(f"{gate.gate} names unknown stored planning slot {atom.slot!r}")
+                if atom.kind == "spoken_word" and not (atom.slot and atom.slot.strip()):
+                    raise ValueError(f"{gate.gate} does not name the spoken phrase")
                 if atom.kind in known and atom.stable_key not in known[atom.kind]:
                     raise ValueError(
                         f"{gate.gate} gate on {gate.subject_stable_key!r} names unknown {atom.kind} {atom.stable_key!r}"
