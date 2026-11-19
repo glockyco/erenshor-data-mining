@@ -198,6 +198,64 @@ def test_show_prints_ways_metadata_and_ordered_first_way_milestones(cli_context,
     assert "not a save-state assessment" in result.output
 
 
+def test_show_zone_separates_a_local_door_and_gated_exit_from_arrivals(cli_context, graph_path):
+    with closing(sqlite3.connect(graph_path)) as connection, connection:
+        connection.executescript("""
+            INSERT INTO items (stable_key,display_name,image_name) VALUES ('item:key','Garden Key','Garden Key');
+            INSERT INTO doors (stable_key,scene,key_item_stable_key) VALUES ('door:local','Start','item:key');
+            INSERT INTO barriers VALUES ('door:local','door','Local gate');
+            INSERT INTO progression_nodes VALUES ('item:key','item',1,NULL,NULL), ('door:local','barrier',1,NULL,NULL);
+            INSERT INTO progression_ways (node_stable_key,way_key) VALUES
+                ('door:local','door'), ('zone:goal','ungated');
+            INSERT INTO progression_needs VALUES
+                ('door:local','door',0,'key','item:key',NULL,NULL,NULL,NULL,0,0,NULL),
+                ('zone:goal','ungated',0,'zone line','zone:start',NULL,NULL,NULL,NULL,0,0,NULL);
+            INSERT INTO travel_routes (route_key,mechanism,source_stable_key,from_zone_stable_key,to_zone_stable_key)
+            VALUES ('portal','zone_line','portal','zone:start','zone:goal'),
+                   ('road','zone_line','road','zone:start','zone:goal');
+            INSERT INTO progression_way_facts VALUES ('zone:goal','goal','portal'), ('zone:goal','ungated','road');
+        """)
+
+    result = runner.invoke(app, ["show", "zone:start"], obj=cli_context)
+
+    assert result.exit_code == 0, result.output
+    arrivals, related = result.output.split("Local doors\n")
+    door, exit_routes = related.split("Gated exits\n")
+    assert "Ways (1)" in arrivals and "Garden Key" not in arrivals
+    assert "Open Local gate with Garden Key." in door
+    assert "Secret Garden [zone:goal]" in exit_routes
+    assert "quest done Open the Gate" in exit_routes
+    assert "ungated" not in exit_routes
+
+
+def test_show_quest_reports_only_the_holder_of_the_executing_variant(cli_context, graph_path):
+    with closing(sqlite3.connect(graph_path)) as connection, connection:
+        connection.executescript("""
+            INSERT INTO characters (
+                stable_key,display_name,image_name,encounter_tier,can_be_damaged,level_scales_with_player
+            )
+            VALUES ('character:dies','Dying holder','Dying holder','npc',1,0),
+                   ('character:lives','Other holder','Other holder','npc',1,0);
+            INSERT INTO progression_nodes VALUES
+                ('character:dies','character',0,NULL,NULL), ('character:lives','character',0,NULL,NULL);
+            INSERT INTO quest_variants (resource_name,quest_stable_key,kill_turn_in_holder)
+            VALUES ('Lethal','quest:gate',1), ('Nonlethal','quest:gate',0);
+            INSERT INTO quest_routes (
+                route_key,quest_stable_key,phase,method,source_kind,source_stable_key,
+                variant_resource_name,grants_resource_rewards
+            )
+            VALUES ('lethal','quest:gate','completion','item_turnin','character','character:dies','Lethal',1),
+                   ('nonlethal','quest:gate','completion','item_turnin','character','character:lives','Nonlethal',1),
+                   ('talk','quest:gate','completion','talk','character','character:lives','Lethal',0);
+        """)
+
+    result = runner.invoke(app, ["show", "quest:gate"], obj=cli_context)
+
+    assert result.exit_code == 0, result.output
+    assert "Turn-in deaths\n  Dying holder [character:dies] (variant Lethal)" in result.output
+    assert "Other holder" not in result.output
+
+
 def test_learning_level_round_trips_and_prints_without_becoming_a_tier(cli_context, graph_path):
     with closing(sqlite3.connect(graph_path)) as connection, connection:
         connection.execute(

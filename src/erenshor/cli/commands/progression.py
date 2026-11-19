@@ -58,32 +58,57 @@ def _need(repository: ProgressionRepository, need: ProgressionNeed) -> str:
     return f"{need.relation} {text}" + (f" ({', '.join(details)})" if details else "")
 
 
-def _sentences(repository: ProgressionRepository, key: str) -> tuple[str, ...]:
-    """The plain sentence of each way of a node, with its nodes named."""
+def _show_node(repository: ProgressionRepository, node: ProgressionNode) -> None:
     nodes = {node.stable_key: node for node in repository.get_nodes()}
     writer = ProgressionSentences(
         nodes, {other: repository.get_ways(other) for other in nodes}, repository.display_names()
     )
-    try:
-        sentences = writer.sentences(key)
-    except ProgressionWordingError as error:
-        raise RepositoryError(str(error)) from error
-    return tuple(_PLACEHOLDER.sub(lambda match: nodes[match.group(1)].name, sentence) for sentence in sentences)
 
+    def show_ways(target: ProgressionNode, selected: set[str] | None = None) -> None:
+        try:
+            sentences = writer.sentences(target.stable_key)
+        except ProgressionWordingError as error:
+            raise RepositoryError(str(error)) from error
+        for way, sentence in zip(repository.get_ways(target.stable_key), sentences, strict=True):
+            if selected is not None and way.way_key not in selected:
+                continue
+            named = _PLACEHOLDER.sub(lambda match: nodes[match.group(1)].name, sentence)
+            first = " (first)" if way.way_key == target.first_way_key else ""
+            typer.echo(f"  {way.way_key}{first}: {named}")
+            for need in way.needs:
+                typer.echo("    " + _need(repository, need))
+            if not way.needs:
+                typer.echo("    no needs")
 
-def _show_node(repository: ProgressionRepository, node: ProgressionNode) -> None:
     typer.echo(_label(node))
     tier = "unreachable" if node.tier is None else str(node.tier)
     typer.echo(f"Kind {node.kind}. Tier {tier}. Build {repository.game_build_id}.")
     typer.echo("Playthrough order from new-character starts, not a save-state assessment.")
-    ways = repository.get_ways(node.stable_key)
-    typer.echo(f"Ways ({len(ways)})")
-    for way, sentence in zip(ways, _sentences(repository, node.stable_key), strict=True):
-        typer.echo(f"  {way.way_key}" + (" (first)" if way.way_key == node.first_way_key else "") + f": {sentence}")
-        for need in way.needs:
-            typer.echo("    " + _need(repository, need))
-        if not way.needs:
-            typer.echo("    no needs")
+    key = node.stable_key
+    typer.echo(f"Ways ({len(repository.get_ways(key))})")
+    show_ways(node)
+    if node.kind == "zone":
+        door_keys = repository.zone_door_keys(key)
+        if door_keys:
+            typer.echo("Local doors")
+            for door in door_keys:
+                typer.echo(_label(nodes[door]))
+                if repository.get_ways(door):
+                    show_ways(nodes[door])
+                else:
+                    typer.echo("  no recorded way")
+        exits = repository.gated_exit_ways(key)
+        if exits:
+            typer.echo("Gated exits")
+            for destination, way_keys in exits.items():
+                typer.echo(_label(nodes[destination]))
+                show_ways(nodes[destination], way_keys)
+    elif node.kind == "quest":
+        deaths = repository.turn_in_deaths(key)
+        if deaths:
+            typer.echo("Turn-in deaths")
+            for holder, variant in deaths:
+                typer.echo(f"  {_label(nodes[holder])} (variant {variant})")
     if node.tier is not None:
         typer.echo("First-way milestones")
         milestones = repository.first_way_milestones(node.stable_key)

@@ -267,7 +267,7 @@ def _kind(mechanisms: dict[str, Groups]) -> str:
 def process_barriers(
     raw: sqlite3.Connection, conn: sqlite3.Connection, barriers: list[Barrier], activity: Activity
 ) -> tuple[list[Gate], list[dict[str, object]]]:
-    """Return the gate of each guarded target and one row per barrier."""
+    """Return each barrier's row and the gates that record its opening conditions."""
     mechanisms = _mechanisms(raw, conn, activity)
     doors = {
         key: (scene, (x, y, z)) for key, scene, x, y, z in conn.execute("SELECT stable_key, scene, x, y, z FROM doors")
@@ -298,6 +298,9 @@ def process_barriers(
                         f"barriers.toml entry {index} joins doors of different doorways: {barrier.objects}"
                     )
         opening = openings.pop()
+        if barrier.kind == "door" and not barrier.targets:
+            # No guarded target carries the opening condition of a standalone door.
+            gates.append(Gate("door", barrier.key, barrier.key, opening))
         for target in barrier.targets:
             kind = _target_kind(target)
             table, column = _TARGET_TABLES[kind]

@@ -256,6 +256,19 @@ def test_every_rule_becomes_a_gate(tmp_path: Path, writer: Writer, raw: sqlite3.
     ]
 
 
+def test_a_door_without_guarded_targets_keeps_its_opening(
+    tmp_path: Path, writer: Writer, raw: sqlite3.Connection
+) -> None:
+    body = _COMPLETE.replace(f'targets = ["{_GHOST}", "zoneline:island:tomb:808.08:14.08:592.64"]', "targets = []")
+
+    process_gates(raw, writer, _barriers(tmp_path, body))
+
+    gates = _gates(writer)
+    assert gates[("door", _DOOR, None, _DOOR)] == [[("key_held", _KEY, None)]]
+    assert ("character", _GHOST, None, _DOOR) not in gates
+    assert ("zone_line", "zoneline:island:tomb:808.08:14.08:592.64", None, _DOOR) not in gates
+
+
 def test_an_unrecorded_keyed_door_fails_the_build(tmp_path: Path, writer: Writer, raw: sqlite3.Connection) -> None:
     body = _record(objects=f'["{_DOOR}"]')
 

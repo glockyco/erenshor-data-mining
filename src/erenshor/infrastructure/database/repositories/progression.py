@@ -118,6 +118,66 @@ class ProgressionRepository:
         self._load()
         return self._ways.get(key, ())
 
+    def zone_door_keys(self, zone: str) -> tuple[str, ...]:
+        """Return the barrier nodes whose door is in this zone."""
+        with self.db.connect() as connection:
+            return tuple(
+                row[0]
+                for row in connection.execute(
+                    """
+                    SELECT n.stable_key
+                    FROM zones z
+                    JOIN doors d ON d.scene = z.scene_name
+                    JOIN progression_nodes n ON n.stable_key = d.stable_key AND n.kind = 'barrier'
+                    WHERE z.stable_key = ?
+                    ORDER BY n.stable_key
+                    """,
+                    (zone,),
+                )
+            )
+
+    def gated_exit_ways(self, zone: str) -> dict[str, set[str]]:
+        """Return the destination nodes and their gated ways whose zone line starts here."""
+        exits: dict[str, set[str]] = defaultdict(set)
+        with self.db.connect() as connection:
+            for destination, way in connection.execute(
+                """
+                SELECT f.node_stable_key, f.way_key
+                FROM travel_routes t
+                JOIN progression_way_facts f
+                  ON f.fact = t.source_stable_key AND f.node_stable_key = t.to_zone_stable_key
+                WHERE t.mechanism = 'zone_line' AND t.from_zone_stable_key = ?
+                  AND EXISTS (
+                      SELECT 1 FROM progression_needs n
+                      WHERE n.node_stable_key = f.node_stable_key AND n.way_key = f.way_key
+                        AND n.relation <> 'zone line'
+                  )
+                ORDER BY f.node_stable_key, f.way_key
+                """,
+                (zone,),
+            ):
+                exits[destination].add(way)
+        return dict(exits)
+
+    def turn_in_deaths(self, quest: str) -> tuple[tuple[str, str], ...]:
+        """Return each holder and exact quest variant that kills it on turn-in."""
+        with self.db.connect() as connection:
+            return tuple(
+                (row[0], row[1])
+                for row in connection.execute(
+                    """
+                    SELECT DISTINCT r.source_stable_key, v.resource_name
+                    FROM quest_routes r
+                    JOIN quest_variants v ON v.resource_name = r.variant_resource_name
+                    WHERE r.quest_stable_key = ? AND r.phase = 'completion'
+                      AND r.method = 'item_turnin' AND r.source_kind = 'character'
+                      AND r.grants_resource_rewards = 1 AND v.kill_turn_in_holder = 1
+                    ORDER BY r.source_stable_key, v.resource_name
+                    """,
+                    (quest,),
+                )
+            )
+
     def _target(self, need: ProgressionNeed) -> ProgressionNode | None:
         if need.need_stable_key is None or need.relation in UNMET_RELATIONS:
             return None

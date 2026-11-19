@@ -407,6 +407,21 @@ def test_barrier_is_shared_instead_of_copying_keys(conn):
     assert "item:key" in graph.milestones
 
 
+def test_a_local_door_has_a_way_without_gating_zone_travel(conn):
+    door = "door:test"
+    key = "item:key"
+    kind = "door"
+    zone_line(conn)
+    insert(conn, "doors", stable_key=door, scene="End", key_item_stable_key=key)
+    insert(conn, "barriers", barrier_key=door, kind=kind, name="Test door")
+    gate(conn, "key_held", key, subject_kind=kind, subject_stable_key=door, gate=door)
+
+    graph = builder(conn)
+
+    assert needs(graph, door) == {Need("key", key)}
+    assert needs(graph, "zone:end") == {Need("zone line", "zone:start")}
+
+
 def test_placement_triggers_furniture_quests_and_restricted_entry(conn):
     insert(
         conn,
