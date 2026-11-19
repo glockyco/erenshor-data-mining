@@ -82,7 +82,7 @@
 
 .item-tooltip-header {
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr) 48px;
+  grid-template-columns: minmax(48px, max-content) minmax(0, 1fr) 48px;
   align-items: center;
   gap: 8px;
   min-height: 70px;
@@ -154,7 +154,7 @@
   color: #f4cb6b;
   font-size: 11px;
   font-weight: 700;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
 }
 
 .item-tooltip-coin {
@@ -198,7 +198,7 @@
 
 @container (max-width: 400px) {
   .item-tooltip-equipment-stats { font-size: 12px; }
-  .item-tooltip-header { grid-template-columns: 48px minmax(0, 1fr) 16px; }
+  .item-tooltip-header { grid-template-columns: minmax(48px, max-content) minmax(0, 1fr) 16px; }
 }
 
 @container (max-width: 348px) {
