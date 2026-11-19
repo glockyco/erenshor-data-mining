@@ -10,8 +10,9 @@ from erenshor.application.extract import RipRequest, RipWorkflow
 
 
 class FakeAssetRipper:
-    def __init__(self, *, fail: Exception | None = None) -> None:
+    def __init__(self, *, fail: Exception | None = None, scripts: dict[str, str] | None = None) -> None:
         self.fail = fail
+        self.scripts = scripts or {}
         self.calls: list[tuple[Path, Path, Path]] = []
 
     def extract(self, source_dir: Path, target_dir: Path, log_dir: Path, profile: object = None) -> None:
@@ -24,6 +25,10 @@ class FakeAssetRipper:
         (exported / "Packages" / "manifest.json").write_text(
             json.dumps({"dependencies": {"com.unity.modules.audio": "1.0"}})
         )
+        scripts_dir = exported / "Assets" / "Scripts" / "Assembly-CSharp"
+        scripts_dir.mkdir(parents=True)
+        for name, text in self.scripts.items():
+            (scripts_dir / name).write_text(text)
 
 
 def _request(tmp_path: Path, *, profile: object = None) -> RipRequest:
@@ -97,6 +102,30 @@ def test_failed_rip_keeps_the_old_project_and_its_user_dependencies(tmp_path: Pa
     assert json.loads(old_manifest.read_text()) == {"dependencies": {"com.example.tool": "2.0"}}
     assert not _staging_dir(request).exists()
     assert ripper.calls == [(request.source_dir, _staging_dir(request), request.logs_dir)]
+
+
+def test_rip_qualifies_the_ambiguous_compression_level(tmp_path: Path) -> None:
+    request = _request(tmp_path)
+    ripper = FakeAssetRipper(scripts={"SteamCloudSave.cs": "using System.IO.Compression;\nusing UnityEngine;\n"})
+
+    RipWorkflow(ripper).run(request)
+
+    script = (
+        request.unity_project_dir / "ExportedProject" / "Assets" / "Scripts" / "Assembly-CSharp" / "SteamCloudSave.cs"
+    )
+    assert "using CompressionLevel = System.IO.Compression.CompressionLevel;" in script.read_text()
+
+
+def test_rip_fails_when_a_repaired_script_changed(tmp_path: Path) -> None:
+    request = _request(tmp_path)
+    _old_project(request, {})
+    ripper = FakeAssetRipper(scripts={"SteamCloudSave.cs": "using System.IO.Compression;\n"})
+
+    with pytest.raises(ValueError, match=r"SteamCloudSave\.cs"):
+        RipWorkflow(ripper).run(request)
+
+    assert (request.unity_project_dir / "old-marker").exists()
+    assert not _staging_dir(request).exists()
 
 
 @pytest.mark.parametrize(

@@ -25,6 +25,30 @@ REQUIRED_UPM_PACKAGES: dict[str, str] = {
 }
 
 
+@dataclass(frozen=True, slots=True)
+class SourceRepair:
+    """One edit that makes a decompiled game script compile in the Editor.
+
+    The decompiler drops a ``using`` alias that the shipped code compiled with,
+    so a type name that two referenced assemblies define becomes ambiguous.
+    """
+
+    script: str
+    old: str
+    new: str
+
+
+DECOMPILED_SOURCE_REPAIRS: tuple[SourceRepair, ...] = (
+    # ZipArchive.CreateEntry takes System.IO.Compression.CompressionLevel, and
+    # the Editor also defines UnityEngine.CompressionLevel.
+    SourceRepair(
+        script="SteamCloudSave.cs",
+        old="using UnityEngine;\n",
+        new="using UnityEngine;\nusing CompressionLevel = System.IO.Compression.CompressionLevel;\n",
+    ),
+)
+
+
 class AssetRipperAdapter(Protocol):
     """The AssetRipper surface required by :class:`RipWorkflow`."""
 
@@ -103,6 +127,7 @@ class RipWorkflow:
             packages_target = staging_dir / "ExportedProject" / "Assets" / "Packages"
             logger.info(f"Copying NuGet packages: {request.packages_source} -> {packages_target}")
             shutil.copytree(request.packages_source, packages_target, dirs_exist_ok=True)
+            self._repair_decompiled_sources(staging_dir)
 
             restored, added = self._restore_manifest(staging_dir, prior_user_deps)
         except BaseException:
@@ -124,6 +149,28 @@ class RipWorkflow:
     @staticmethod
     def _manifest_path(unity_project_dir: Path) -> Path:
         return unity_project_dir / "ExportedProject" / "Packages" / "manifest.json"
+
+    @staticmethod
+    def _repair_decompiled_sources(project_dir: Path) -> None:
+        """Apply each repair to a script that the game build ships.
+
+        A repair whose script is absent belongs to a build without that script.
+        A present script without the expected text fails the rip, because the
+        decompiler output changed and the repair needs a review.
+        """
+        scripts_dir = project_dir / "ExportedProject" / "Assets" / "Scripts" / "Assembly-CSharp"
+        for repair in DECOMPILED_SOURCE_REPAIRS:
+            path = scripts_dir / repair.script
+            if not path.exists():
+                continue
+            text = path.read_text(encoding="utf-8")
+            if text.count(repair.old) != 1:
+                raise ValueError(
+                    f"Decompiled script {repair.script} no longer contains the text its repair replaces. "
+                    "Review the repair in DECOMPILED_SOURCE_REPAIRS."
+                )
+            path.write_text(text.replace(repair.old, repair.new), encoding="utf-8")
+            logger.info(f"Repaired decompiled script: {repair.script}")
 
     @staticmethod
     def _read_dependencies(manifest_path: Path) -> tuple[dict[str, object], dict[str, str]]:
