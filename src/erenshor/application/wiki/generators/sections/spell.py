@@ -65,6 +65,9 @@ class SpellSectionGenerator(SectionGeneratorBase):
         def bool_str(value: int | None) -> str:
             return "True" if value else ""
 
+        def signed_percent(value: float | None) -> str:
+            return f"{value:+.4g}%" if value else ""
+
         # Calculate duration from ticks (if available)
         duration = ""
         has_duration = bool(spell.spell_duration_in_ticks)
@@ -130,6 +133,10 @@ class SpellSectionGenerator(SectionGeneratorBase):
             "is_taunt": bool_str(spell.taunt_spell),
             "casttime": cast_time_str,
             "cooldown": self._format_cooldown(spell.cooldown),
+            "cooldown_reduction": f"{spell.cdr * 100:.4g}%" if spell.cdr else "",
+            "haste_cap_increase": signed_percent(spell.increase_haste_cap),
+            "amplify_damage": signed_percent(spell.amplify_damage * 100 if spell.amplify_damage else None),
+            "channeling_focus": signed_percent(spell.channeling_focus * 100 if spell.channeling_focus else None),
             "duration": duration,
             "duration_in_ticks": safe_str(spell.spell_duration_in_ticks, zero_as_blank=True),
             "has_unstable_duration": bool_str(spell.unstable_duration),
@@ -143,7 +150,7 @@ class SpellSectionGenerator(SectionGeneratorBase):
             "is_applied_to_caster": bool_str(spell.apply_to_caster),
             "effects": "",  # TODO: Build from multiple effect fields
             "damage_type": safe_str(spell.damage_type) if spell.target_damage else "",
-            "resist_modifier": str(int(spell.resist_modifier)) if spell.resist_modifier else "",
+            "resist_modifier": safe_str(spell.resist_modifier, zero_as_blank=True),
             "target_damage": safe_str(spell.target_damage, zero_as_blank=True),
             "target_healing": safe_str(spell.target_healing, zero_as_blank=True),
             "caster_healing": safe_str(spell.caster_healing, zero_as_blank=True),

@@ -9,7 +9,7 @@ Base DPS: {{#expr: ceil( {{{damage|0}}} / {{{delay|1}}} ) }}
 }}</includeonly><noinclude>
 == Template:Item/DPS ==
 
-Calculates and displays weapon DPS (Damage Per Second).
+Displays an item comparison based on weapon damage and delay. It is not the damage you deal per second in combat.
 
 === DPS Calculation ===
 

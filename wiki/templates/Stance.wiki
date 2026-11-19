@@ -66,7 +66,7 @@ an em dash (—) to indicate no change.
 |-
 | '''proc_rate_mod''' || No || float || Proc rate multiplier
 |-
-| '''aggro_gen_mod''' || No || float || Aggro generation multiplier. 10.0 → "+900%"
+| '''aggro_gen_mod''' || No || float || Aggro multiplier of the character using the stance
 |-
 ! colspan="4" | Special Effects
 |-
@@ -215,13 +215,13 @@ an em dash (—) to indicate no change.
 {{Stance
 |title=Taunting
 |icon=Stance Taunting icon.png
-|description=All of your actions generate substantially more aggro. Natural health regen is paused while in this stance.
+|description=All of your actions generate substantially more aggro. Your focus on this stance prevents natural health regeneration.
 |switch_message=shifts into a taunting combat stance
 |max_hp_mod=1.0
 |damage_mod=1.0
 |damage_taken_mod=1.0
 |proc_rate_mod=1.0
-|aggro_gen_mod=10.0
+|aggro_gen_mod=15.0
 |spell_damage_mod=1.0
 |resonance_amount=1.0
 |stop_regen=1
@@ -234,13 +234,13 @@ an em dash (—) to indicate no change.
 {{Stance
 |title=Taunting
 |icon=Stance Taunting icon.png
-|description=All of your actions generate substantially more aggro. Natural health regen is paused while in this stance.
+|description=All of your actions generate substantially more aggro. Your focus on this stance prevents natural health regeneration.
 |switch_message=shifts into a taunting combat stance
 |max_hp_mod=1.0
 |damage_mod=1.0
 |damage_taken_mod=1.0
 |proc_rate_mod=1.0
-|aggro_gen_mod=10.0
+|aggro_gen_mod=15.0
 |spell_damage_mod=1.0
 |resonance_amount=1.0
 |stop_regen=1

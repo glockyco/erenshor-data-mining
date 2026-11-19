@@ -111,6 +111,10 @@ class Spell(BaseEntity):
         default=None, description="Thorns effect - damage dealt to attackers when they hit the affected character"
     )
     haste: float | None = Field(default=None, description="Haste modifier")
+    increase_haste_cap: int | None = Field(default=None, description="Haste cap increase in percentage points")
+    cdr: float | None = Field(default=None, description="Fraction subtracted from the cooldown multiplier")
+    channeling_focus: float | None = Field(default=None, description="Additive direct spell damage multiplier")
+    amplify_damage: float | None = Field(default=None, description="Additive incoming hit damage multiplier")
     percent_lifesteal: float | None = Field(default=None, description="Lifesteal percentage")
     atk_roll_modifier: int | None = Field(default=None, description="Attack roll modifier")
     bleed_damage_percent: int | None = Field(default=None, description="Bleed damage percentage")

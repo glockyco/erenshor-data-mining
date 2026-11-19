@@ -190,6 +190,46 @@ def test_every_sheet_query_runs_without_complete_tables(writer: Writer, tmp_path
         engine.dispose()
 
 
+def test_item_proficiency_headers_match_game_labels(writer: Writer) -> None:
+    _item(writer, "item:charm", "Charm")
+    proficiencies = {
+        "Physicality": ("str_scaling", 1),
+        "Hardiness": ("end_scaling", 2),
+        "Finesse": ("dex_scaling", 3),
+        "Defense": ("agi_scaling", 4),
+        "Arcanism": ("int_scaling", 5),
+        "Restoration": ("wis_scaling", 6),
+        "Persuasion": ("cha_scaling", 7),
+    }
+    _insert(
+        writer,
+        "item_stats",
+        {
+            "item_stable_key": "item:charm",
+            "quality": "Standard",
+            **dict(proficiencies.values()),
+        },
+    )
+
+    (row,) = _rows(writer, "items")
+    assert {label: row[label] for label in proficiencies} == {
+        label: value for label, (_, value) in proficiencies.items()
+    }
+    assert "Mind" not in row
+
+
+def test_spell_sheet_preserves_status_modifier_units(writer: Writer) -> None:
+    modifiers = {"cdr": 0.2, "increase_haste_cap": 10, "amplify_damage": 0.02, "channeling_focus": 0.1}
+    _insert(
+        writer,
+        "spells",
+        {"stable_key": "spell:chord", "display_name": "Chord", "image_name": "Chord", **modifiers},
+    )
+
+    (row,) = _rows(writer, "spells")
+    assert {key: row[key] for key in modifiers} == modifiers
+
+
 def test_skill_levels_have_one_row_per_class_with_data_backed_names(writer: Writer) -> None:
     for class_name, display_name in (
         ("Duelist", "Windblade"),

@@ -13,7 +13,11 @@
 |is_taunt={{ is_taunt }}
 |casttime={{ casttime }}
 |cooldown={{ cooldown }}
-|duration={{ duration }}
+{% if cooldown_reduction %}|cooldown_reduction={{ cooldown_reduction }}
+{% endif %}{% if haste_cap_increase %}|haste_cap_increase={{ haste_cap_increase }}
+{% endif %}{% if amplify_damage %}|amplify_damage={{ amplify_damage }}
+{% endif %}{% if channeling_focus %}|channeling_focus={{ channeling_focus }}
+{% endif %}|duration={{ duration }}
 |duration_in_ticks={{ duration_in_ticks }}
 |has_unstable_duration={{ has_unstable_duration }}
 |is_instant_effect={{ is_instant_effect }}
