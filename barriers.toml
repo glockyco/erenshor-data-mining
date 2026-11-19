@@ -77,16 +77,16 @@ kind = "door"
 name = "Ripper's Keep gate"
 objects = ["door:ripper:542.11:62.57:291.40"]
 targets = []
-reason = "The 0.8 gate of the rebuilt city, opened with Ripper's Gate Key from the guard's quest. Its targets need the in-game check of task 3.6 of the 0.8 change."
-check = "unconfirmed"
+reason = "The gate of the rebuilt city, opened with Ripper's Gate Key from the guard's quest. The Reliquary exit and the Ripper spell land inside the walls, so no target is reached only through it."
+check = "navmesh"
 
 [[barriers]]
 kind = "door"
 name = "Thistlewick door in Ripper's Keep"
 objects = ["door:ripper:451.95:60.27:329.75"]
-targets = []
-reason = "A 0.8 door of the rebuilt city, opened with the Thistlewick Key. Its targets need the in-game check of task 3.6 of the 0.8 change."
-check = "unconfirmed"
+targets = ["spawn:ripper:462.90:58.53:318.50"]
+reason = "A cell door in the rebuilt city, opened with the Thistlewick Key. The Captive Artisan stands in the cell behind it."
+check = "navmesh"
 
 [[barriers]]
 kind = "door"
