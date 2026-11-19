@@ -2,9 +2,7 @@
 
 ## v2026.1201.0
 
-- Guide Verses of Adventure (0.8) content, including Glowmere Grotto, the new Ripper's Keep quests and the Bard's songbook quests.
-- Show `Say "respite" at the wall` for the Pirate's Ledger in Glowmere Grotto.
-- Show Minstrel of Sivakaya as a summon of The Faceless on the chessboard.
+- Support Erenshor 0.8 (Verses of Adventure).
 
 ## v2026.1017.0
 
