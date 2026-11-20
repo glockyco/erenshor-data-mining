@@ -15,9 +15,43 @@ A Bard can play a note or chord on its own or add it to a song. {{AbilityLink|st
 === Song mechanics ===
 Open a song with its hotkey and add the notes and chords you want to play. Press the same hotkey again to perform it. Put identical parts next to each other to play them faster. Reordering the parts can also change how much Harmony or Dissonance the finished song gets.
 
-Song mana cost starts at the average cost of its parts. A cheap note can bring the cost of an expensive chord down. Dexterity and Finesse reduce the cost further.
+==== Mana cost ====
+The game averages the mana costs of the parts you put in the song, then subtracts a discount based on your Dexterity and Finesse.
 
-Charisma makes songs hit harder and heal for more. For direct damage, the Charisma bonus counts twice. It boosts each note or chord before the game rounds and adds their damage. Then it boosts the total again, alongside Dissonance, when the song hits. With 500 Charisma and 100 Persuasion, each step multiplies the damage by 2.5. More Persuasion makes the same Charisma count for more. At 100 Persuasion, raising Charisma beyond 500 still helps, but each extra point adds less.
+: '''Dexterity discount''' = round(Dexterity × Finesse ÷ 100)
+: '''Mana cost''' = max(0, round(total mana cost of parts ÷ number of parts) − Dexterity discount)
+
+Each round is to the nearest whole number, with ties rounded to even. For example, Chord: Sonic Wave costs 15 mana and Note: Unsetting Sustain costs 20. Their average rounds from 17.5 to 18. With 40 Dexterity and 25 Finesse, the discount is 10 and the song costs 8 mana.
+
+==== Harmony and Dissonance ====
+Dissonance boosts song damage and Harmony boosts healing and scalable buffs. Each matching part adds your equipment bonus before applying its own multiplier, so placement matters.
+
+: '''New Dissonance''' = (current Dissonance + equipment Dissonance) × part's Dissonance multiplier
+: '''New Harmony''' = (current Harmony + equipment Harmony) × part's Harmony multiplier
+
+Start with 1 for each multiplier. Chant of Battle starts at 2 Dissonance, Interlude of Faith at 2 Harmony, and Comfort Song at 1.33 Harmony. Walk through the parts in order. A Dissonance part updates only Dissonance and an Inspiration part updates only Harmony.
+
+For example, with Madman's Lute (+0.07 Dissonance), play Chord: Sonic Wave (×1) and then Note: Dissonant Minor (×1.5) in Simple Song. The first chord gives (1 + 0.07) × 1 = 1.07. The note takes it to (1.07 + 0.07) × 1.5 = 1.71. Playing the note first gives about 1.68 instead.
+
+==== Charisma ====
+Persuasion sets how much of your Charisma counts toward the song bonus. The bonus grows more slowly once effective Charisma passes 500.
+
+: '''Effective Charisma''' (''x'') = Charisma × Persuasion ÷ 100
+: '''Charisma multiplier''' (''C'') = 1 + 1.5 × clamp(''x'' ÷ 500, 0, 1)<sup>1.1</sup>
+: When ''x'' exceeds 500, add 0.1 × ln(1 + (''x'' − 500) ÷ 200) to ''C''.
+
+Here, clamp limits a value to the given range and ln is the natural logarithm. At 100 Persuasion, 500 Charisma gives a multiplier of 2.5. At 700 Charisma, it rises to about 2.57.
+
+For direct damage and healing, the game applies ''C'' twice. It rounds each part after the first multiplication, adds the parts, then multiplies the total again. It keeps single-target and group effects separate.
+
+: '''Base amount''' = sum of round(part's damage or healing × ''C'' × Volume bonus) for each part
+: '''Volume bonus''' = 1 + 0.1 × Volume Increase rank
+: '''Direct damage before mitigation''' = round(base damage × ''C'' × Dissonance × critical multiplier)
+: '''Direct healing''' = round(base healing × ''C'' × Harmony × critical multiplier)
+
+The critical multiplier is 1.33 on a critical performance and 1 otherwise. With 500 effective Charisma and no Volume Increase ranks, Chord: Sonic Wave's 10 base damage contributes round(10 × 2.5) = 25. In the 1.71 Dissonance song above, that comes to round(25 × 2.5 × 1.71) = 107 damage before mitigation on a noncritical performance.
+
+For a damage-over-time effect, the song passes its base damage (at least 1) × ''C'' × Dissonance × critical multiplier to the effect. For an applied buff, it passes ''C'' × Harmony × critical multiplier as the strength modifier.
 
 == Starting gear ==
 {| class="wikitable"

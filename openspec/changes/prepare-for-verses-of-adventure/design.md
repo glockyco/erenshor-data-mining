@@ -85,7 +85,7 @@ The ability infobox shows exported combat modifiers in separate rows, such as `C
 
 ### D12. Bard mechanics go in existing rows, and books quote the game
 
-Song capacity, Hum and Caesura details and the aura's attribute bonus go in infobox rows, and instrument Harmony and Dissonance in the equipment rows. Compact cards keep the game's text. Bard's `Song mechanics` subsection explains composition, mana cost and Charisma in player terms. Bard links to A Guide To Songwriting for the verbatim book text. The book links back above its transcript, and song skills and scroll-taught notes and chords link to `Bard#Song mechanics` outside their compact cards.
+Song capacity, Hum and Caesura details and the aura's attribute bonus go in infobox rows, and instrument Harmony and Dissonance in the equipment rows. Compact cards keep the game's text. Bard's `Song mechanics` subsection explains composition and gives the formulas for mana cost, Harmony and Dissonance, and Charisma, with worked examples. Bard links to A Guide To Songwriting for the verbatim book text. The book links back above its transcript, and song skills and scroll-taught notes and chords link to `Bard#Song mechanics` outside their compact cards.
 
 ### D13. The Bard article follows the live class pages
 
