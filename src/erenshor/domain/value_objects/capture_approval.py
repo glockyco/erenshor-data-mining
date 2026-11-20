@@ -39,6 +39,8 @@ class ApprovedImage:
     pages: tuple[str, ...]
     game_build: str
     preset: str
+    # A side-by-side lighting approval can override the shared choice on local recapture.
+    lighting_reviewed: bool = False
 
     def to_json(self) -> dict[str, Any]:
         return {
@@ -51,6 +53,7 @@ class ApprovedImage:
             "pages": list(self.pages),
             "game_build": self.game_build,
             "preset": self.preset,
+            **({"lighting_reviewed": True} if self.lighting_reviewed else {}),
         }
 
     @classmethod
@@ -65,6 +68,7 @@ class ApprovedImage:
             pages=tuple(str(page) for page in data["pages"]),
             game_build=str(data["game_build"]),
             preset=str(data["preset"]),
+            lighting_reviewed=bool(data.get("lighting_reviewed", False)),
         )
 
 

@@ -7,6 +7,8 @@ from typing import Any
 import pytest
 
 from erenshor.application.services.model_image_approval import approve
+from erenshor.application.services.model_image_manifest import CALIBRATED_CAMERA_PRESET, CAMERA_PRESET
+from erenshor.domain.value_objects.capture_approval import Approval
 
 
 def _png(directory: Path, name: str, content: bytes) -> str:
@@ -71,3 +73,43 @@ def test_a_new_build_approves_a_capture_and_keeps_the_approvals_of_an_earlier_bu
         ("Faith", "24405256"),
         ("Opus", "25000000"),
     ]
+
+
+def test_a_mixed_character_batch_approves_the_actual_presets(tmp_path: Path) -> None:
+    captures, manifest, staging = _review(tmp_path)
+    captures["preset"] = manifest["camera_preset"] = CAMERA_PRESET
+    captures["results"][0]["preset"] = CALIBRATED_CAMERA_PRESET
+    captures["results"][1]["status"] = "accepted"
+
+    approval = approve(captures, manifest, staging, tmp_path / "approved", ["Faith", "Opus"])
+    restored = Approval.from_json(approval.to_json())
+
+    assert [(image.subject, image.preset) for image in restored.images] == [
+        ("Faith", CALIBRATED_CAMERA_PRESET),
+        ("Opus", CAMERA_PRESET),
+    ]
+
+
+def test_approving_a_recapture_keeps_an_explicit_lighting_choice(tmp_path: Path) -> None:
+    captures, manifest, staging = _review(tmp_path)
+    manifest["camera_preset"] = CAMERA_PRESET
+    captures["preset"] = CALIBRATED_CAMERA_PRESET
+    approved = tmp_path / "approved"
+    first = approve(captures, manifest, staging, approved, ["Faith"], lighting_reviewed=True)
+    captures["preset"] = CAMERA_PRESET
+    captures["results"][0]["preset"] = CALIBRATED_CAMERA_PRESET
+    previous = Approval.from_json(first.to_json())
+
+    recapture = approve(captures, manifest, staging, approved, ["Faith"], previous=previous)
+
+    assert recapture.images[0].preset == CALIBRATED_CAMERA_PRESET
+    assert recapture.images[0].lighting_reviewed
+
+
+def test_a_character_lighting_preset_cannot_be_approved_for_items(tmp_path: Path) -> None:
+    captures, manifest, staging = _review(tmp_path)
+    captures["preset"] = manifest["camera_preset"] = "item-1"
+    captures["results"][0]["preset"] = CALIBRATED_CAMERA_PRESET
+
+    with pytest.raises(ValueError, match="incompatible capture preset"):
+        approve(captures, manifest, staging, tmp_path / "approved", ["Faith"])

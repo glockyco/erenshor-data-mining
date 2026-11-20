@@ -23,10 +23,10 @@ from erenshor.domain.value_objects.wiki_filename import picture_file_title, pict
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
 
-# The camera, light, and framing that a capture uses. A change to the capture
-# mode's preset needs a new name, so that captures of different presets are
-# never mixed in one review.
+# A change to the camera, framing, or studio light needs a new preset name
+# so that an approval keeps identifying the settings that made its picture.
 CAMERA_PRESET = "portrait-4"
+CALIBRATED_CAMERA_PRESET = "portrait-shade-2"
 
 
 @dataclass(frozen=True, slots=True)

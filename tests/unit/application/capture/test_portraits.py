@@ -16,8 +16,10 @@ from erenshor.application.capture.portraits import (
     portrait_requests,
     recapture_run,
     write_contact_sheets,
+    write_lighting_sheets,
 )
 from erenshor.application.capture.wine import from_wine_path
+from erenshor.application.services.model_image_manifest import CALIBRATED_CAMERA_PRESET, CAMERA_PRESET
 
 Answer = Callable[[dict[str, Any]], dict[str, Any]] | Exception
 
@@ -140,6 +142,27 @@ def test_a_scene_request_lands_the_player_and_names_both_names(tmp_path: Path) -
     assert mod.sent[-1] == {"type": "end_portraits"}
     assert [(result.status, result.png) for result in run.results] == [("accepted", "Ceremonial Brazier.png")]
     assert run.returned
+
+
+def test_a_mixed_batch_sends_and_records_each_models_preset(tmp_path: Path) -> None:
+    mod = FakeMod([completed("Summoned Treant"), completed("Faith"), ended])
+    requests = portrait_requests(MANIFEST, ("Summoned Treant", "Faith"))
+    run = PortraitRun(game_build="24405256", preset=CAMERA_PRESET)
+
+    asyncio.run(
+        capture_portraits(
+            mod,
+            requests,
+            tmp_path,
+            run,
+            lambda _: None,
+            presets_by_key={"character:faith": CALIBRATED_CAMERA_PRESET},
+        )
+    )
+
+    assert [message["preset"] for message in mod.sent[:-1]] == [CAMERA_PRESET, CALIBRATED_CAMERA_PRESET]
+    restored = PortraitRun.from_json(run.to_json())
+    assert [result.preset for result in restored.results] == [None, CALIBRATED_CAMERA_PRESET]
 
 
 ITEM_MANIFEST = {
@@ -320,3 +343,27 @@ def test_a_recapture_keeps_the_other_captures_and_drops_the_subjects_earlier_pic
 
     assert [result.subject for result in recapture.results] == ["Faith"]
     assert sorted(path.name for path in tmp_path.iterdir()) == ["Faith.png"]
+
+
+def test_lighting_sheets_put_current_on_the_left_and_calibrated_on_the_right(tmp_path: Path) -> None:
+    runs = [PortraitRun("24405256", preset) for preset in (CAMERA_PRESET, CALIBRATED_CAMERA_PRESET)]
+    paths = [tmp_path / run.preset for run in runs]
+    colours = [(180, 120, 90, 255), (50, 70, 80, 255)]
+    for run, directory, colour in zip(runs, paths, colours, strict=True):
+        directory.mkdir()
+        Image.new("RGBA", (100, 100), colour).save(directory / "Faith.png")
+        run.results.append(
+            PortraitResult(
+                subject="Faith",
+                title="Faith render.png",
+                stable_key="character:faith",
+                kind="character",
+                status="accepted",
+                png="Faith.png",
+            )
+        )
+
+    (sheet,) = write_lighting_sheets(runs[0], runs[1], paths[0], paths[1], tmp_path / "sheets")
+    with Image.open(sheet) as image:
+        assert image.getpixel((72, 100)) == colours[0][:3]
+        assert image.getpixel((218, 100)) == colours[1][:3]

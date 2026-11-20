@@ -124,6 +124,7 @@ class PortraitResult:
     width: int | None = None
     height: int | None = None
     mean_luminance: float | None = None
+    preset: str | None = None
 
     def to_json(self) -> dict[str, Any]:
         return {
@@ -140,6 +141,7 @@ class PortraitResult:
             "width": self.width,
             "height": self.height,
             "mean_luminance": self.mean_luminance,
+            **({"preset": self.preset} if self.preset is not None else {}),
         }
 
     @classmethod
@@ -158,6 +160,7 @@ class PortraitResult:
             width=data["width"],
             height=data["height"],
             mean_luminance=data["mean_luminance"],
+            preset=data.get("preset"),
         )
 
 
@@ -303,6 +306,7 @@ async def capture_portraits(
     run: PortraitRun,
     on_result: Callable[[PortraitRun], None],
     *,
+    presets_by_key: Mapping[str, str] | None = None,
     timeout: float = RESPONSE_TIMEOUT_SECS,
 ) -> PortraitRun:
     """Capture each request in turn, reviewing and recording each answer.
@@ -313,15 +317,19 @@ async def capture_portraits(
     """
     for index, request in enumerate(requests):
         png = png_dir / local_png_name(request.subject)
+        preset = presets_by_key.get(request.stable_key, run.preset) if presets_by_key else run.preset
         try:
-            await connection.send(json.dumps(request.message(png, run.preset)))
+            await connection.send(json.dumps(request.message(png, preset)))
             answer = await _answer(connection, {"portrait_complete", "portrait_error"}, timeout)
         except (ConnectionError, TimeoutError, OSError) as error:
             run.interrupted = f"{request.subject}: {type(error).__name__}: {error}"
             run.not_captured = [pending.subject for pending in requests[index:]]
             on_result(run)
             break
-        run.results.append(review(request, answer, png))
+        result = review(request, answer, png)
+        if preset != run.preset:
+            result.preset = preset
+        run.results.append(result)
         on_result(run)
 
     try:
@@ -392,7 +400,7 @@ def write_contact_sheets(
     statuses = ("accepted", "rejected", "failed")
     counts = {status: sum(result.status == status for result in results) for status in statuses}
     summary = (
-        f"Model captures, game build {run.game_build}, preset {run.preset}: {counts['accepted']} accepted, "
+        f"Model captures, game build {run.game_build}, default preset {run.preset}: {counts['accepted']} accepted, "
         f"{counts['rejected']} rejected, {counts['failed']} failed"
         + (f", interrupted at {run.interrupted}" if run.interrupted else "")
     )
@@ -440,11 +448,63 @@ def write_contact_sheets(
             draw.rectangle((x, y + tile, x + 2 * tile + 3, y + tile + 4), fill=status_colour)
             draw.text((x + 4, y + tile + 7), title[:52], fill=(0, 0, 0), font=font)
             draw.text((x + 4, y + tile + 24), result.stable_key[:62], fill=(70, 70, 70), font=small)
-            note = "; ".join(result.reasons + result.warnings) or result.kind
+            note = "; ".join(result.reasons + result.warnings) or result.preset or result.kind
             draw.text((x + 4, y + tile + 38), note[:66], fill=status_colour, font=small)
             uploader = f"wiki: {shown.user or 'uploader hidden'}" if shown is not None else "wiki: no picture"
             draw.text((x + 4, y + tile + 52), uploader, fill=(70, 70, 70), font=small)
         path = directory / f"sheet-{number:03d}.png"
+        sheet.save(path)
+        sheets.append(path)
+    return sheets
+
+
+def write_lighting_sheets(
+    current: PortraitRun,
+    calibrated: PortraitRun,
+    current_png: Path,
+    calibrated_png: Path,
+    directory: Path,
+) -> list[Path]:
+    """Draw each staged subject with both lights, including missing or rejected captures."""
+    if current.game_build != calibrated.game_build:
+        raise ValueError("The two lightings were captured from different builds.")
+    left = {result.subject: result for result in current.results}
+    right = {result.subject: result for result in calibrated.results}
+    subjects = sorted(left.keys() | right.keys())
+    size, columns, rows, caption, header = 144, 3, 6, 34, 34
+    width = 2 * size + 10
+    sheet_size = columns * rows
+    font = ImageFont.load_default(size=12)
+    directory.mkdir(parents=True, exist_ok=True)
+    sheets: list[Path] = []
+    for start in range(0, len(subjects), sheet_size):
+        page = subjects[start : start + sheet_size]
+        page_rows = -(-len(page) // columns)
+        sheet = Image.new("RGB", (columns * width, header + page_rows * (size + caption)), (236, 236, 236))
+        draw = ImageDraw.Draw(sheet)
+        draw.text(
+            (8, 8),
+            f"Build {current.game_build}. Left: current ({current.preset}). Right: calibrated ({calibrated.preset}).",
+            fill=(0, 0, 0),
+            font=font,
+        )
+        for index, subject in enumerate(page):
+            x = index % columns * width
+            y = header + index // columns * (size + caption)
+            for result, path, offset in (
+                (left.get(subject), current_png, 0),
+                (right.get(subject), calibrated_png, size + 2),
+            ):
+                if result is not None and result.png is not None:
+                    with Image.open(path / result.png) as picture:
+                        sheet.paste(_tile(picture, size), (x + offset, y))
+                else:
+                    draw.rectangle((x + offset, y, x + offset + size - 1, y + size - 1), fill=WIKI_SURFACE)
+                if result is None or result.status != "accepted":
+                    status = result.status if result is not None else "not captured"
+                    draw.text((x + offset + 4, y + size + 17), status, fill=(160, 49, 44), font=font)
+            draw.text((x + 4, y + size + 1), subject[:42], fill=(0, 0, 0), font=font)
+        path = directory / f"sheet-{len(sheets) + 1:03d}.png"
         sheet.save(path)
         sheets.append(path)
     return sheets

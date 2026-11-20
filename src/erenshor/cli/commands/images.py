@@ -6,6 +6,7 @@ import json
 import shutil
 import sqlite3
 from contextlib import closing, contextmanager
+from enum import StrEnum
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated
 
@@ -20,6 +21,8 @@ from erenshor.application.services.item_model_manifest import (
     load_model_parts,
 )
 from erenshor.application.services.model_image_manifest import (
+    CALIBRATED_CAMERA_PRESET,
+    CAMERA_PRESET,
     build_manifest,
     load_character_sources,
     load_game_build,
@@ -29,13 +32,16 @@ from erenshor.cli.mediawiki import create_readonly_mediawiki_client
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_valid
 from erenshor.cli.preconditions.checks.inputs import required_path, wiki_credentials
+from erenshor.domain.value_objects.capture_approval import APPROVAL_FILE, Approval
 from erenshor.infrastructure.content_lifecycle import load_content_lifecycle
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
+    from typing import Any
 
     from erenshor.application.services.image_publication_run import RunRecord
     from erenshor.cli.context import CLIContext
+    from erenshor.cli.preconditions.base import PreconditionResult
     from erenshor.infrastructure.wiki.client import MediaWikiClient
 
 __all__ = ["app"]
@@ -175,11 +181,60 @@ _APPROVE_ALL = typer.Option("--all", help="Approve every capture that the review
 _APPROVE_EXCLUDE = typer.Option("--exclude", help="With --all, leave this subject out; repeat for more")
 
 
+class _PortraitLighting(StrEnum):
+    CURRENT = "current"
+    CALIBRATED = "calibrated"
+
+    @property
+    def preset(self) -> str:
+        return CALIBRATED_CAMERA_PRESET if self is self.CALIBRATED else CAMERA_PRESET
+
+
+_LIGHTING_OPTION = typer.Option("--lighting", help="Stage or approve one light for a side-by-side review")
+_LIGHTING_CHOICES_FILE = "portrait-lighting.json"
+
+
+def _portrait_staging(lighting: _PortraitLighting | None) -> str:
+    return f"lighting-review/{lighting.preset}" if lighting is not None else "staging"
+
+
+def _character_approval_input(context: dict[str, Any]) -> PreconditionResult:
+    relative = f"{CAPTURES_DIRECTORY}/{_portrait_staging(context['lighting'])}/captures.json"
+    return required_path("images_dir", relative)(context)
+
+
+def _character_review_input(context: dict[str, Any]) -> PreconditionResult:
+    compare = context["compare_lighting"]
+    left = _character_approval_input({**context, "lighting": _PortraitLighting.CURRENT if compare else None})
+    if compare and left.passed:
+        return _character_approval_input({**context, "lighting": _PortraitLighting.CALIBRATED})
+    return left
+
+
+def _previous_approval(capture_dir: Path) -> Approval | None:
+    path = capture_dir / APPROVAL_FILE
+    return Approval.from_json(json.loads(path.read_text(encoding="utf-8"))) if path.exists() else None
+
+
+def _portrait_presets(repo_root: Path, previous: Approval | None) -> dict[str, str]:
+    choices = json.loads((repo_root / _LIGHTING_CHOICES_FILE).read_text(encoding="utf-8"))
+    presets = {key: _PortraitLighting(choice).preset for key, choice in choices.items()}
+    known = {CAMERA_PRESET, CALIBRATED_CAMERA_PRESET}
+    if previous is not None:
+        presets.update(
+            (image.stable_key, image.preset)
+            for image in previous.images
+            if image.lighting_reviewed and image.preset in known
+        )
+    return presets
+
+
 @app.command("capture")
 @require_preconditions(required_path("images_dir", "model-captures/manifest.json"))
 def capture(
     ctx: typer.Context,
     subjects: Annotated[list[str] | None, _SUBJECTS_OPTION] = None,
+    lighting: Annotated[_PortraitLighting | None, _LIGHTING_OPTION] = None,
 ) -> None:
     """Capture the manifest's character models in the running game for review.
 
@@ -188,16 +243,16 @@ def capture(
     captures.json to images/model-captures/staging/ of the variant, replacing
     the previous staging set. With --subject, recaptures only those subjects and
     keeps the rest of the staging set. At the end the mod returns the player to
-    where the batch started. Draw the contact sheets with 'erenshor images
-    review'. With the root --dry-run option, lists the captures and writes
-    nothing.
+    where the batch started. Recaptures use the recorded lighting choice for
+    that model. Use --lighting to capture either light separately for review.
+    With the root --dry-run option, lists the captures and writes nothing.
 
     Examples:
         erenshor --dry-run images capture
         erenshor images capture --subject "Faith"
     """
     cli_ctx: CLIContext = ctx.obj
-    _capture(cli_ctx, _model_capture_dir(cli_ctx), subjects or (), "erenshor images review")
+    _capture(cli_ctx, _model_capture_dir(cli_ctx), subjects or (), "erenshor images review", lighting=lighting)
 
 
 @items_app.command("capture")
@@ -224,7 +279,14 @@ def item_capture(
     _capture(cli_ctx, _item_capture_dir(cli_ctx), subjects or (), "erenshor images items review")
 
 
-def _capture(cli_ctx: CLIContext, capture_dir: Path, subjects: Sequence[str], review_command: str) -> None:
+def _capture(
+    cli_ctx: CLIContext,
+    capture_dir: Path,
+    subjects: Sequence[str],
+    review_command: str,
+    *,
+    lighting: _PortraitLighting | None = None,
+) -> None:
     import asyncio
 
     import websockets
@@ -239,6 +301,13 @@ def _capture(cli_ctx: CLIContext, capture_dir: Path, subjects: Sequence[str], re
 
     console = Console()
     manifest_data = json.loads((capture_dir / "manifest.json").read_text(encoding="utf-8"))
+    game_build, default = manifest_data["game_build"], manifest_data["camera_preset"]
+    preset = lighting.preset if lighting is not None else default
+    presets_by_key = (
+        _portrait_presets(cli_ctx.repo_root, _previous_approval(capture_dir))
+        if lighting is None and default == CAMERA_PRESET
+        else {}
+    )
     try:
         requests = portrait_requests(manifest_data, subjects)
     except ValueError as error:
@@ -246,12 +315,15 @@ def _capture(cli_ctx: CLIContext, capture_dir: Path, subjects: Sequence[str], re
         raise typer.Exit(1) from error
 
     by_scene: dict[str, int] = {}
+    by_preset: dict[str, int] = {}
     for request in requests:
         place = request.scene or "no scene (Resources or the player)"
         by_scene[place] = by_scene.get(place, 0) + 1
+        selected = presets_by_key.get(request.stable_key, preset)
+        by_preset[selected] = by_preset.get(selected, 0) + 1
     console.print(
         f"[bold]{len(requests)} captures[/bold], game build {manifest_data['game_build']}, "
-        f"preset {manifest_data['camera_preset']}"
+        + ", ".join(f"{count} {name}" for name, count in sorted(by_preset.items()))
     )
     for scene, count in by_scene.items():
         console.print(f"  {scene}: {count}")
@@ -259,10 +331,11 @@ def _capture(cli_ctx: CLIContext, capture_dir: Path, subjects: Sequence[str], re
         console.print("[yellow]Dry run: nothing was captured or written.[/yellow]")
         return
 
-    staging = capture_dir / "staging"
+    staging = capture_dir / _portrait_staging(lighting)
+    if lighting is not None:
+        review_command += " --compare-lighting"
     png_dir = staging / "png"
     results_path = staging / "captures.json"
-    game_build, preset = manifest_data["game_build"], manifest_data["camera_preset"]
     staged = json.loads(results_path.read_text(encoding="utf-8")) if subjects and results_path.exists() else None
     if staged is not None:
         if (staged["game_build"], staged["preset"]) != (game_build, preset):
@@ -294,7 +367,7 @@ def _capture(cli_ctx: CLIContext, capture_dir: Path, subjects: Sequence[str], re
                 f"Cannot connect to the MapTileCapture mod on port {WS_PORT}. Is the game running with the mod?"
             ) from error
         async with connection:
-            return await capture_portraits(connection, requests, png_dir, run, record)
+            return await capture_portraits(connection, requests, png_dir, run, record, presets_by_key=presets_by_key)
 
     try:
         asyncio.run(run_batch())
@@ -316,8 +389,13 @@ def _capture(cli_ctx: CLIContext, capture_dir: Path, subjects: Sequence[str], re
 
 
 @app.command("review")
-@require_preconditions(required_path("images_dir", "model-captures/staging/captures.json"))
-def review(ctx: typer.Context) -> None:
+@require_preconditions(_character_review_input)
+def review(
+    ctx: typer.Context,
+    compare_lighting: Annotated[
+        bool, typer.Option("--compare-lighting", help="Compare the two local lighting sets without contacting the wiki")
+    ] = False,
+) -> None:
     """Draw the staged captures beside the pictures that their titles show on the wiki now.
 
     Reads the wiki's file listing and downloads each shown picture once into
@@ -326,11 +404,43 @@ def review(ctx: typer.Context) -> None:
     of the variant, failed and rejected captures first, and counts who uploaded
     the pictures that the renders would join or replace. Reads the wiki only.
 
+    With --compare-lighting, draw the two sets from 'images capture --lighting'
+    beside one another instead.
+
     Examples:
         erenshor images review
     """
     cli_ctx: CLIContext = ctx.obj
-    _review(cli_ctx, _model_capture_dir(cli_ctx))
+    capture_dir = _model_capture_dir(cli_ctx)
+    if compare_lighting:
+        _review_lighting(cli_ctx, capture_dir)
+    else:
+        _review(cli_ctx, capture_dir)
+
+
+def _review_lighting(cli_ctx: CLIContext, capture_dir: Path) -> None:
+    from erenshor.application.capture.portraits import PortraitRun, write_lighting_sheets
+
+    console = Console()
+    current, calibrated = (capture_dir / _portrait_staging(lighting) for lighting in _PortraitLighting)
+    left, right = (
+        PortraitRun.from_json(json.loads((path / "captures.json").read_text(encoding="utf-8")))
+        for path in (current, calibrated)
+    )
+    target = current.parent / "contact-sheets"
+    if cli_ctx.dry_run:
+        console.print(f"[yellow]Dry run: no lighting sheets written to {target}.[/yellow]")
+        return
+    try:
+        if left.game_build != right.game_build:
+            raise ValueError("The two lightings were captured from different builds.")
+        if target.exists():
+            shutil.rmtree(target)
+        sheets = write_lighting_sheets(left, right, current / "png", calibrated / "png", target)
+    except ValueError as error:
+        console.print(f"[red]{error}[/red]")
+        raise typer.Exit(1) from error
+    console.print(f"[green]✓[/green] {len(sheets)} lighting contact sheets in {target}")
 
 
 @items_app.command("review")
@@ -414,27 +524,29 @@ def _review(cli_ctx: CLIContext, capture_dir: Path) -> None:
 @app.command("approve")
 @require_preconditions(
     required_path("images_dir", "model-captures/manifest.json"),
-    required_path("images_dir", "model-captures/staging/captures.json"),
+    _character_approval_input,
 )
 def approve_captures(
     ctx: typer.Context,
     subjects: Annotated[list[str] | None, _APPROVE_SUBJECTS] = None,
     every_accepted: Annotated[bool, _APPROVE_ALL] = False,
     excluded: Annotated[list[str] | None, _APPROVE_EXCLUDE] = None,
+    lighting: Annotated[_PortraitLighting | None, _LIGHTING_OPTION] = None,
 ) -> None:
     """Approve reviewed captures for upload.
 
     Copies each approved PNG out of the staging set to images/model-captures/approved/
-    and records its subject and SHA-256 in approved.json. Only captures that the
-    review accepted can be approved. With the root --dry-run option, lists the
-    approvals and writes nothing.
+    and records its subject, SHA-256, and preset in approved.json. Use
+    --lighting to approve a light chosen in a side-by-side review. Only
+    accepted captures can be approved. With the root --dry-run option, lists
+    the approvals and writes nothing.
 
     Examples:
         erenshor images approve --all --exclude "Planar Flame Energy"
         erenshor images approve "Faith"
     """
     cli_ctx: CLIContext = ctx.obj
-    _approve(cli_ctx, _model_capture_dir(cli_ctx), subjects or (), every_accepted, excluded or ())
+    _approve(cli_ctx, _model_capture_dir(cli_ctx), subjects or (), every_accepted, excluded or (), lighting=lighting)
 
 
 @items_app.command("approve")
@@ -463,13 +575,19 @@ def approve_item_captures(
 
 
 def _approve(
-    cli_ctx: CLIContext, capture_dir: Path, subjects: Sequence[str], every_accepted: bool, excluded: Sequence[str]
+    cli_ctx: CLIContext,
+    capture_dir: Path,
+    subjects: Sequence[str],
+    every_accepted: bool,
+    excluded: Sequence[str],
+    *,
+    lighting: _PortraitLighting | None = None,
 ) -> None:
     from erenshor.application.services.model_image_approval import approve
-    from erenshor.domain.value_objects.capture_approval import APPROVAL_FILE, Approval
 
     console = Console()
-    captures = json.loads((capture_dir / "staging" / "captures.json").read_text(encoding="utf-8"))
+    staging = capture_dir / _portrait_staging(lighting)
+    captures = json.loads((staging / "captures.json").read_text(encoding="utf-8"))
     manifest_data = json.loads((capture_dir / "manifest.json").read_text(encoding="utf-8"))
     if every_accepted == bool(subjects):
         console.print("[red]Name subjects as arguments, or approve every accepted capture with --all.[/red]")
@@ -490,17 +608,15 @@ def _approve(
         return
 
     approval_path = capture_dir / APPROVAL_FILE
-    previous = (
-        Approval.from_json(json.loads(approval_path.read_text(encoding="utf-8"))) if approval_path.exists() else None
-    )
     try:
         approval = approve(
             captures,
             manifest_data,
-            capture_dir / "staging" / "png",
+            staging / "png",
             capture_dir / "approved",
             selected,
-            previous=previous,
+            previous=_previous_approval(capture_dir),
+            lighting_reviewed=lighting is not None,
         )
     except ValueError as error:
         console.print(f"[red]{error}[/red]")
