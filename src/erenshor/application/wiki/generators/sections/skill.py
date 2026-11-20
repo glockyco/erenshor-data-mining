@@ -160,6 +160,7 @@ class SkillSectionGenerator(SectionGeneratorBase):
             if skill_type in {"Attack", "Ranged"}
             else "",
             "song_capacity": safe_str(skill.song_capacity),
+            "song_mechanics": "1" if skill.bard_song else "",
             "target_healing": "",
             "caster_healing": "",
             "shield_amount": "",

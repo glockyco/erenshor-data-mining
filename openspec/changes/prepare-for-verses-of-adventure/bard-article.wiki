@@ -10,7 +10,14 @@
 Bards use melee weapons and equip an instrument in their offhand. The class selection screen recommends Charisma and Dexterity. Charisma strengthens song damage and healing. Dexterity reduces a composed song's mana cost and the delay between different notes and chords.
 
 == Songs ==
-A Bard can play a note or chord on its own or add it to a song. {{AbilityLink|stablekey=skill:song - simple song}} holds two notes or chords, and {{AbilityLink|stablekey=skill:song - elrehonsong}} holds five. The order matters. {{AbilityLink|stablekey=skill:song - hum}} repeats one note or chord without spending mana. See {{ItemLink|stablekey=item:book - songwriting}} for the in-game instructions.
+A Bard can play a note or chord on its own or add it to a song. {{AbilityLink|stablekey=skill:song - simple song}} holds two notes or chords, and {{AbilityLink|stablekey=skill:song - elrehonsong}} holds five. {{AbilityLink|stablekey=skill:song - hum}} repeats one note or chord without spending mana. See {{ItemLink|stablekey=item:book - songwriting}} for the in-game instructions.
+
+=== Song mechanics ===
+Open a song with its hotkey and add the notes and chords you want to play. Press the same hotkey again to perform it. Put identical parts next to each other to play them faster. Reordering the parts can also change how much Harmony or Dissonance the finished song gets.
+
+Song mana cost starts at the average cost of its parts. A cheap note can bring the cost of an expensive chord down. Dexterity and Finesse reduce the cost further.
+
+Charisma makes songs hit harder and heal for more. For direct damage, the Charisma bonus counts twice. It boosts each note or chord before the game rounds and adds their damage. Then it boosts the total again, alongside Dissonance, when the song hits. With 500 Charisma and 100 Persuasion, each step multiplies the damage by 2.5. More Persuasion makes the same Charisma count for more. At 100 Persuasion, raising Charisma beyond 500 still helps, but each extra point adds less.
 
 == Starting gear ==
 {| class="wikitable"
@@ -36,141 +43,147 @@ A Bard can play a note or chord on its own or add it to a song. {{AbilityLink|st
 
 == Abilities and Spells ==
 {| class="wikitable sortable"
-! Level !! class="unsortable" | Spell Scrolls !! class="unsortable" | Skill Books
+!Level
+!class="unsortable"|Spell Scrolls
+!class="unsortable"|Skill Books
 |-
-| 1
-| {{ItemLink|stablekey=item:song scroll - chord sonic assault}}<br>{{ItemLink|stablekey=item:song scroll - note unsetting sustain}}
-| {{ItemLink|stablekey=item:skillbook - simple song}}
+|1
+|{{ItemLink|stablekey=item:song scroll - chord sonic assault|image=Chord Sonic Wave icon.png}}<br>{{ItemLink|stablekey=item:song scroll - note unsetting sustain|image=Note Unsetting Sustain icon.png}}
+|{{ItemLink|stablekey=item:skillbook - simple song|image=Simple Song icon.png}}
 |-
-| 2
-| {{ItemLink|stablekey=item:song scroll - chord enthusiasm}}
+|2
+|{{ItemLink|stablekey=item:song scroll - chord enthusiasm|image=Chord Enthusiasm icon.png}}
 |
 |-
-| 3
-| {{ItemLink|stablekey=item:song scroll - chord rapid thoughts}}<br>{{ItemLink|stablekey=item:song scroll - note healing ionian}}
-| {{ItemLink|stablekey=item:skillbook - dodge 1}}<br>{{ItemLink|stablekey=item:skillbook - kick}}<br>{{ItemLink|stablekey=item:skillbook - comfortsong}}
+|3
+|{{ItemLink|stablekey=item:song scroll - chord rapid thoughts|image=Chord Rapid Thoughts icon.png}}<br>{{ItemLink|stablekey=item:song scroll - note healing ionian|image=Chord Healing Ionian icon.png}}
+|{{ItemLink|stablekey=item:skillbook - dodge 1|image=Dodge icon.png}}<br>{{ItemLink|stablekey=item:skillbook - kick|image=Kick icon.png}}<br>{{ItemLink|stablekey=item:skillbook - comfortsong|image=Comfort Song icon.png}}
 |-
-| 4
-| {{ItemLink|stablekey=item:song scroll - chord restful}}
-| {{ItemLink|stablekey=item:skillbook - caesura}}<br>{{ItemLink|stablekey=item:skillbook - cheap shot}}
+|4
+|{{ItemLink|stablekey=item:song scroll - chord restful|image=Chord Restful icon.png}}
+|{{ItemLink|stablekey=item:skillbook - caesura|image=Caesura icon.png}}<br>{{ItemLink|stablekey=item:skillbook - cheap shot|image=Cheap Shot icon.png}}
 |-
-| 5
-| {{ItemLink|stablekey=item:song scroll - chord percussive eighth}}<br>{{ItemLink|stablekey=item:song scroll - note undesirable pitch}}
+|5
+|{{ItemLink|stablekey=item:song scroll - chord percussive eighth|image=Chord Percussive Eighth icon.png}}<br>{{ItemLink|stablekey=item:song scroll - note undesirable pitch|image=Note Undesirable Pitch icon.png}}
 |
 |-
-| 6
-| {{ItemLink|stablekey=item:song scroll - chord invigorate}}
-| {{ItemLink|stablekey=item:skillbook - tavern song}}
+|6
+|{{ItemLink|stablekey=item:song scroll - chord invigorate|image=Chord Invigorate icon.png}}
+|{{ItemLink|stablekey=item:skillbook - tavern song|image=Tavern Song icon.png}}
 |-
-| 7
-| {{ItemLink|stablekey=item:song scroll - note lullaby fourth}}
+|7
+|{{ItemLink|stablekey=item:song scroll - note lullaby fourth|image=Note Lullaby Fourth icon.png}}
 |
 |-
-| 8
-| {{ItemLink|stablekey=item:song scroll - chord sonic overature}}<br>{{ItemLink|stablekey=item:song scroll - note ethereal sharp}}
-| {{ItemLink|stablekey=item:skillbook - double attack}}
+|8
+|{{ItemLink|stablekey=item:song scroll - chord sonic overature|image=Chord Sonic Overature icon.png}}<br>{{ItemLink|stablekey=item:song scroll - note ethereal sharp|image=Note Ethereal Sharp icon.png}}
+|{{ItemLink|stablekey=item:skillbook - double attack|image=Double Attack icon.png}}
 |-
-| 9
+|9
 |
-| {{ItemLink|stablekey=item:skillbook - hum}}
+|{{ItemLink|stablekey=item:skillbook - hum|image=Hum icon.png}}
 |-
-| 10
-| {{ItemLink|stablekey=item:song scroll - chord trance}}<br>{{ItemLink|stablekey=item:song scroll - note healing dorian}}
-| {{ItemLink|stablekey=item:skillbook - dodge 2}}
+|10
+|{{ItemLink|stablekey=item:song scroll - chord trance|image=Chord Trance icon.png}}<br>{{ItemLink|stablekey=item:song scroll - note healing dorian|image=Chord Healing Dorian icon.png}}
+|{{ItemLink|stablekey=item:skillbook - dodge 2|image=Dodge II icon.png}}
 |-
-| 11
-| {{ItemLink|stablekey=item:song scroll - note assaulting pitch}}<br>{{ItemLink|stablekey=item:song scroll - note binding second}}
-|
-|-
-| 12
-| {{ItemLink|stablekey=item:song scroll - chord decrescendo}}<br>{{ItemLink|stablekey=item:song scroll - chord meditative}}<br>{{ItemLink|stablekey=item:song scroll - note dissonant minor}}
-| {{ItemLink|stablekey=item:skillbook - harmonic song}}
-|-
-| 13
-| {{ItemLink|stablekey=item:song scroll - note harmonic minor}}
+|11
+|{{ItemLink|stablekey=item:song scroll - note assaulting pitch|image=Note Assaulting Pitch icon.png}}<br>{{ItemLink|stablekey=item:song scroll - note binding second|image=Note Binding Second icon.png}}
 |
 |-
-| 14
-| {{ItemLink|stablekey=item:song scroll - note resonating minor}}
-| {{ItemLink|stablekey=item:skillbook - entrainment}}
+|12
+|{{ItemLink|stablekey=item:song scroll - chord decrescendo|image=Chord Decrescendo icon.png}}<br>{{ItemLink|stablekey=item:song scroll - chord meditative|image=Chord Meditative Minor icon.png}}<br>{{ItemLink|stablekey=item:song scroll - note dissonant minor|image=Note Dissonant Minor icon.png}}
+|{{ItemLink|stablekey=item:skillbook - harmonic song|image=Interlude of Faith icon.png}}
 |-
-| 15
-| {{ItemLink|stablekey=item:song scroll - chord percussive half}}<br>{{ItemLink|stablekey=item:song scroll - note penetrating pull-off}}
+|13
+|{{ItemLink|stablekey=item:song scroll - note harmonic minor|image=Note Harmonic Minor icon.png}}
 |
 |-
-| 16
-| {{ItemLink|stablekey=item:song scroll - chord power chord}}<br>{{ItemLink|stablekey=item:song scroll - chord sonic rhapsody}}
-| {{ItemLink|stablekey=item:skillbook - combat proficiency}}<br>{{ItemLink|stablekey=item:skillbook - dissonant song}}
+|14
+|{{ItemLink|stablekey=item:song scroll - note resonating minor|image=Chord Resonating Minor icon.png}}
+|{{ItemLink|stablekey=item:skillbook - entrainment|image=Entrainment icon.png}}
 |-
-| 17
-| {{ItemLink|stablekey=item:song scroll - chord channeling minor}}<br>{{ItemLink|stablekey=item:song scroll - note healing phrygian}}
+|15
+|{{ItemLink|stablekey=item:song scroll - chord percussive half|image=Chord Percussive Half icon.png}}<br>{{ItemLink|stablekey=item:song scroll - note penetrating pull-off|image=Note Penetrating Pull-Off icon.png}}
 |
 |-
-| 18
-| {{ItemLink|stablekey=item:song scroll - chord swinging legato}}
+|16
+|{{ItemLink|stablekey=item:song scroll - chord power chord|image=Chord Power Chord icon.png}}<br>{{ItemLink|stablekey=item:song scroll - chord sonic rhapsody|image=Chord Sonic Rhapsody icon.png}}
+|{{ItemLink|stablekey=item:skillbook - combat proficiency|image=Melee Proficiency icon.png}}<br>{{ItemLink|stablekey=item:skillbook - dissonant song|image=Chant of Battle icon.png}}
+|-
+|17
+|{{ItemLink|stablekey=item:song scroll - chord channeling minor|image=Chord Channeling Minor icon.png}}<br>{{ItemLink|stablekey=item:song scroll - note healing phrygian|image=Chord Healing Phrygian icon.png}}
 |
 |-
-| 19
-| {{ItemLink|stablekey=item:song scroll - note unbearable pitch}}
+|18
+|{{ItemLink|stablekey=item:song scroll - chord swinging legato|image=Chord Swinging Legato icon.png}}
 |
 |-
-| 20
-| {{ItemLink|stablekey=item:song scroll - note piercing sustain}}
+|19
+|{{ItemLink|stablekey=item:song scroll - note unbearable pitch|image=Note Unbearable Pitch icon.png}}
 |
 |-
-| 21
-| {{ItemLink|stablekey=item:song scroll - chord harmony elemental}}<br>{{ItemLink|stablekey=item:song scroll - chord slumber}}
+|20
+|{{ItemLink|stablekey=item:song scroll - note piercing sustain|image=Note Piercing Sustain icon.png}}
 |
 |-
-| 22
-| {{ItemLink|stablekey=item:song scroll - note healing lydian}}
+|21
+|{{ItemLink|stablekey=item:song scroll - chord harmony elemental|image=Chord Elemental Harmony icon.png}}<br>{{ItemLink|stablekey=item:song scroll - chord slumber|image=Chord Slumber icon.png}}
 |
 |-
-| 23
-| {{ItemLink|stablekey=item:song scroll - chord flowing appregio}}
+|22
+|{{ItemLink|stablekey=item:song scroll - note healing lydian|image=Chord Healing Lydian icon.png}}
 |
 |-
-| 24
-| {{ItemLink|stablekey=item:song scroll - chord sonic dirge}}<br>{{ItemLink|stablekey=item:song scroll - note crippling second}}<br>{{ItemLink|stablekey=item:song scroll - note dissonant major}}<br>{{ItemLink|stablekey=item:song scroll - note harmonic major}}
+|23
+|{{ItemLink|stablekey=item:song scroll - chord flowing appregio|image=Chord Flowing Apreggio icon.png}}
 |
 |-
-| 25
-| {{ItemLink|stablekey=item:song scroll - chord percussive three-quarter 1}}
-| {{ItemLink|stablekey=item:skillbook - backstab}}<br>{{ItemLink|stablekey=item:skillbook - medely}}
-|-
-| 26
-| {{ItemLink|stablekey=item:song scroll - chord harmony poison}}<br>{{ItemLink|stablekey=item:song scroll - note ethereal bend}}
-| {{ItemLink|stablekey=item:skillbook - dodge 3}}
-|-
-| 28
-| {{ItemLink|stablekey=item:song scroll - note healing mixolydian}}
+|24
+|{{ItemLink|stablekey=item:song scroll - chord sonic dirge|image=Chord Sonic Dirge icon.png}}<br>{{ItemLink|stablekey=item:song scroll - note crippling second|image=Note Crippling Second icon.png}}<br>{{ItemLink|stablekey=item:song scroll - note dissonant major|image=Note Dissonant Major icon.png}}<br>{{ItemLink|stablekey=item:song scroll - note harmonic major|image=Note Harmonic Major icon.png}}
 |
 |-
-| 29
-| {{ItemLink|stablekey=item:song scroll - chord clarifying pizzicato}}
+|25
+|{{ItemLink|stablekey=item:song scroll - chord percussive three-quarter 1|image=Chord Percussive Three Quarter icon.png}}
+|{{ItemLink|stablekey=item:skillbook - backstab|image=Backstab icon.png}}<br>{{ItemLink|stablekey=item:skillbook - medely|image=Medley icon.png}}
+|-
+|26
+|{{ItemLink|stablekey=item:song scroll - chord harmony poison|image=Chord Venomous Harmony icon.png}}<br>{{ItemLink|stablekey=item:song scroll - note ethereal bend|image=Note Ethereal Bend icon.png}}
+|{{ItemLink|stablekey=item:skillbook - dodge 3|image=Dodge III icon.png}}
+|-
+|27
+|
 |
 |-
-| 30
-| {{ItemLink|stablekey=item:song scroll - chord harmony magical}}<br>{{ItemLink|stablekey=item:song scroll - chord harmony void}}<br>{{ItemLink|stablekey=item:song scroll - note penetrating hammer-on}}
+|28
+|{{ItemLink|stablekey=item:song scroll - note healing mixolydian|image=Chord Healing Mixolydian icon.png}}
 |
 |-
-| 31
-| {{ItemLink|stablekey=item:song scroll - chord narcoleptic}}<br>{{ItemLink|stablekey=item:song scroll - note hypnotic beat}}
+|29
+|{{ItemLink|stablekey=item:song scroll - chord clarifying pizzicato|image=Chord Clarifying Pizzicato icon.png}}
 |
 |-
-| 32
-| {{ItemLink|stablekey=item:song scroll - chord sonic coda}}<br>{{ItemLink|stablekey=item:song scroll - chord surging legato}}
+|30
+|{{ItemLink|stablekey=item:song scroll - chord harmony magical|image=Chord Magical Harmony icon.png}}<br>{{ItemLink|stablekey=item:song scroll - chord harmony void|image=Chord Void Harmony icon.png}}<br>{{ItemLink|stablekey=item:song scroll - note penetrating hammer-on|image=Note Penetrating Hammer-On icon.png}}
 |
 |-
-| 33
-| {{ItemLink|stablekey=item:song scroll - note torturous sustain}}
+|31
+|{{ItemLink|stablekey=item:song scroll - chord narcoleptic|image=Chord Narcoleptic icon.png}}<br>{{ItemLink|stablekey=item:song scroll - note hypnotic beat|image=Note Hypnotic Beat icon.png}}
 |
 |-
-| 34
-| {{ItemLink|stablekey=item:song scroll - chord channeling major}}<br>{{ItemLink|stablekey=item:song scroll - chord percussive whole}}<br>{{ItemLink|stablekey=item:song scroll - note healing aeolian}}
+|32
+|{{ItemLink|stablekey=item:song scroll - chord sonic coda|image=Chord Sonic Coda icon.png}}<br>{{ItemLink|stablekey=item:song scroll - chord surging legato|image=Chord Surging Legato icon.png}}
 |
 |-
-| 35
-| {{ItemLink|stablekey=item:song scroll - chord insisting legato}}<br>{{ItemLink|stablekey=item:song scroll - chord inspiring melody}}<br>{{ItemLink|stablekey=item:song scroll - chord refreshing finale}}<br>{{ItemLink|stablekey=item:song scroll - note fatal pitch}}
-| {{ItemLink|stablekey=item:skillbook - dodge 4}}<br>{{ItemLink|stablekey=item:skillbook - elrehon's cacophony}}
+|33
+|{{ItemLink|stablekey=item:song scroll - note torturous sustain|image=Note Torturous Sustain icon.png}}
+|
+|-
+|34
+|{{ItemLink|stablekey=item:song scroll - chord channeling major|image=Chord Channeling Major icon.png}}<br>{{ItemLink|stablekey=item:song scroll - chord percussive whole|image=Chord Percussive Whole icon.png}}<br>{{ItemLink|stablekey=item:song scroll - note healing aeolian|image=Chord Healing Aeolian icon.png}}
+|
+|-
+|35
+|{{ItemLink|stablekey=item:song scroll - chord insisting legato|image=Chord Insisting Legato icon.png}}<br>{{ItemLink|stablekey=item:song scroll - chord inspiring melody|image=Chord Inspiring Melody icon.png}}<br>{{ItemLink|stablekey=item:song scroll - chord refreshing finale|image=Chord Refreshing Finale icon.png}}<br>{{ItemLink|stablekey=item:song scroll - note fatal pitch|image=Note Fatal Pitch icon.png}}
+|{{ItemLink|stablekey=item:skillbook - dodge 4|image=Dodge IV icon.png}}<br>{{ItemLink|stablekey=item:skillbook - elrehon's cacophony|image=Elrehon's Cacophony icon.png}}
 |}

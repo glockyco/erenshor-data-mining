@@ -135,4 +135,4 @@
           <header>Used By</header>
 		  <data source="used_by"><label>Characters</label></data>
       </group>
-  </infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Abilities]]}}</includeonly>
+  </infobox>{{#if:{{{song_mechanics|}}}|<p>For composition and scaling, see [[Bard#Song mechanics|Bard: Song mechanics]].</p>}}{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Abilities]]}}</includeonly>

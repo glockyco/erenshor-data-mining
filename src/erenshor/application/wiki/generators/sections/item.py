@@ -27,7 +27,6 @@ from erenshor.application.wiki.generators.formatting import (
     format_description,
     join_requirements,
     safe_str,
-    songwriting_reference,
 )
 from erenshor.application.wiki.generators.item_type_display import build_item_types
 from erenshor.application.wiki.generators.link_lists import fold_long_list
@@ -492,7 +491,6 @@ class ItemSectionGenerator(SectionGeneratorBase):
         book_text = "\n".join(
             f"<p>{escape(page).translate(_BOOK_WIKITEXT_ESCAPES)}</p>" for page in enriched.book_pages
         )
-        song_reference = songwriting_reference() if book_text and item.book_title == "Songwriting" else ""
         general_context = {
             "icon": item_image_file(item),
             "value": self._item_window_value(item),
@@ -502,7 +500,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "stack_size": "",
             "disposable": "True" if item.disposable else "",
             "book_text": book_text,
-            "song_reference": song_reference,
+            "song_mechanics": bool(book_text) and item.book_title == "Songwriting",
             **spell_details,
         }
 

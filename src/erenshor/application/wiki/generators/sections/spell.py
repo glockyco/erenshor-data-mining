@@ -134,6 +134,7 @@ class SpellSectionGenerator(SectionGeneratorBase):
             "imagecaption": imagecaption,
             "description": format_description(safe_str(spell.spell_desc)) if spell.spell_desc else "",
             "bard_aura_attributes": aura_attributes,
+            "song_mechanics": "1" if spell.bard_song and source else "",
             "type": safe_str(spell.type),
             "line": safe_str(spell.line),
             "classes": classes,

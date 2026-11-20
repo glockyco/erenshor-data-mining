@@ -97,8 +97,8 @@ def test_songwriting_quotes_exported_pages_as_literal_text() -> None:
         "A Guide To Songwriting",
     )
     assert "|book_text=<p>A Guide to Songwriting</p>\n<p>Notes &#124; Chords</p>" in result
-    assert "|song_reference=" in result
-    assert "Charisma applies twice" in result
+    assert "|song_mechanics=1\n" in result
+    assert "|song_reference=" not in result
 
 
 def test_weapon_tooltip_args_are_display_ready(class_display: ClassDisplayNameService) -> None:

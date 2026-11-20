@@ -83,11 +83,11 @@ The ability infobox shows exported combat modifiers in separate rows, such as `C
 
 ### D12. Bard mechanics go in existing rows, and books quote the game
 
-Song capacity, Hum and Caesura details and the aura's attribute bonus go in infobox rows, and instrument harmony and dissonance in the equipment rows, while compact cards keep the game's text. Every book item quotes its exported pages under `Book Text`. Only A Guide To Songwriting adds a `Song Mechanics` section, because it is the one book whose subject the game calculates. The other seven books are lore with nothing to calculate.
+Song capacity, Hum and Caesura details and the aura's attribute bonus go in infobox rows, and instrument Harmony and Dissonance in the equipment rows. Compact cards keep the game's text. Bard's `Song mechanics` subsection explains composition, mana cost and Charisma in player terms. Bard links to A Guide To Songwriting for the verbatim book text. The book links back above its transcript, and song skills and scroll-taught notes and chords link to `Bard#Song mechanics` outside their compact cards.
 
 ### D13. The Bard article follows the live class pages
 
-The human-owned Bard article follows Paladin and Reaver: a class infobox and description, starting gear, and a table of scrolls and books by level. A short Songs section lets a new Bard jump to the class's main mechanic without repeating the full songwriting guide. Use the existing live table unless the generated `Class abilities` view is approved for deployment.
+The human-owned Bard article uses the other class pages' sortable `Level`, `Spell Scrolls`, `Skill Books` table, with one row per level through 35 even when both cells are empty. Links lead to the teaching items and show icons of the abilities they teach, not item icons. For example, Chord: Sonic Assault links to the scroll with the Chord: Sonic Wave icon.
 
 ### D14. Tooltips quote descriptions without rewriting damage units
 

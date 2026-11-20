@@ -8,6 +8,7 @@ from tests.unit.application.wiki_lua.fakes import make_spell
 
 from erenshor.application.wiki.generators.sections.spell import SpellSectionGenerator
 from erenshor.domain.enriched_data.spell import EnrichedSpellData
+from erenshor.domain.value_objects.wiki_link import ItemLink
 
 
 def _cooldown_line(cooldown: float) -> str:
@@ -79,3 +80,18 @@ def test_bard_aura_uses_exported_charisma_values() -> None:
         "|bard_aura_attributes=Other party members gain 3% of the aura holder's Charisma, "
         "rounded, with a minimum of +5 to each of the seven attributes."
     ) in wikitext
+    assert "|song_mechanics=" not in wikitext
+
+
+def test_taught_bard_spells_link_to_composition_rules() -> None:
+    spell = make_spell(display_name="Note", bard_song=1)
+    scroll = ItemLink(page_title="Note (Item)", display_name="Note", stable_key="item:note")
+    generator = SpellSectionGenerator(Mock())
+    for teaching_items in ([scroll], []):
+        wikitext = generator.generate_template(
+            EnrichedSpellData(
+                spell=spell, classes=[], items_with_effect=[], teaching_items=teaching_items, used_by_characters=[]
+            ),
+            "Note",
+        )
+        assert ("|song_mechanics=1\n" in wikitext) is bool(teaching_items)

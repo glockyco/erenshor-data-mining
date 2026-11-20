@@ -28,23 +28,6 @@ def format_bard_skill_details(skill: Skill) -> str:
     return ""
 
 
-def songwriting_reference() -> str:
-    # code-fact: bard.song_order
-    order = "A song is an ordered list of notes and chords. The order matters for timing and multipliers."
-    # code-fact: bard.charisma_curve
-    # code-fact: bard.charisma_at_song_base
-    # code-fact: bard.charisma_at_song_commit
-    # code-fact: bard.charisma_at_song_commit_ae
-    curve = (
-        "For a song's direct damage, Charisma applies twice: once to each note or chord before rounding and "
-        "adding them together, and again to that total with Dissonance when the song lands. "
-        "Start with <code>c = Charisma × Persuasion / 100</code>. The multiplier is "
-        "<code>1 + 1.5 × clamp(c / 500, 0, 1)^1.1</code>. Above 500 scaled Charisma, "
-        "add <code>0.1 × ln(1 + (c - 500) / 200)</code> to that multiplier."
-    )
-    return f"<p>{order}</p>\n<p>{curve}</p>"
-
-
 def format_description(text: str) -> str:
     """Format description text for wiki display.
 
