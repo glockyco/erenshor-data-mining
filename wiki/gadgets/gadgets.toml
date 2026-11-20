@@ -1,4 +1,4 @@
-owned_names = ["erenshor", "erenshor-api", "item-tooltips", "progression-graph", "progression-graph-loader", "semantic-link-picker"]
+owned_names = ["erenshor", "erenshor-api", "equipment-quality", "item-tooltips", "progression-graph", "progression-graph-loader", "semantic-link-picker"]
 
 [[gadgets]]
 name = "erenshor"
@@ -9,6 +9,11 @@ sources = ["erenshor.css"]
 name = "erenshor-api"
 options = ["ResourceLoader", "hidden", "dependencies=mediawiki.api"]
 sources = ["erenshor-api.js"]
+
+[[gadgets]]
+name = "equipment-quality"
+options = ["ResourceLoader", "default", "hidden", "actions=view"]
+sources = ["equipment-quality.js"]
 
 [[gadgets]]
 name = "item-tooltips"

@@ -6,6 +6,7 @@ import os
 from typing import TYPE_CHECKING
 
 import pytest
+from playwright.sync_api import expect
 
 if TYPE_CHECKING:
     from playwright.sync_api import Page
@@ -66,3 +67,28 @@ def test_historical_notice_does_not_push_item_tooltip_below_infobox(browser_page
     assert notice_box["y"] + notice_box["height"] <= infobox_box["y"]
     assert tooltip_box["y"] < infobox_box["y"] + infobox_box["height"]
     assert tooltip_box["x"] + tooltip_box["width"] <= infobox_box["x"]
+
+
+def test_quality_tabs_remember_selection_on_another_article(browser_page: Page) -> None:
+    browser_page.goto(f"{WIKI_BASE_URL}/index.php?title=Ember_Longsword")
+    tabs = browser_page.get_by_role("tablist", name="Ember Longsword quality")
+    expect(tabs.get_by_role("tab")).to_have_count(8)
+    standard = tabs.get_by_role("tab", name="Standard")
+    expect(standard).to_have_attribute("aria-selected", "true")
+    standard.press("End")
+    ascended = tabs.get_by_role("tab", name="Ascended")
+    expect(ascended).to_be_focused()
+    expect(ascended).to_have_attribute("aria-selected", "true")
+    borders = ascended.evaluate(
+        "tab => ['Top','Right','Bottom','Left'].map(edge => getComputedStyle(tab)[`border${edge}Width`])"
+    )
+    assert len(set(borders)) == 1
+    expect(browser_page.get_by_role("tabpanel")).to_have_count(1)
+
+    browser_page.goto(f"{WIKI_BASE_URL}/index.php?title=Abyssal_Plate")
+    expect(browser_page.get_by_role("tabpanel", name="Ascended")).to_be_visible()
+    browser_page.reload()
+    expect(browser_page.get_by_role("tabpanel", name="Ascended")).to_be_visible()
+    browser_page.emulate_media(media="print")
+    expect(browser_page.locator(".item-tooltip-quality:visible")).to_have_count(8)
+    expect(browser_page.locator(".item-tooltip-quality-label:visible")).to_have_count(8)

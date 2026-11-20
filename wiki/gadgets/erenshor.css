@@ -710,6 +710,60 @@
   filter: hue-rotate(-60deg);
 }
 
+/* Enhance article cards without changing the HTML fetched for link hovers. */
+.item-tooltip-quality-set.erenshor-quality-tabs {
+  display: flow-root;
+  max-width: var(--erenshor-tooltip-width);
+}
+
+.erenshor-quality-tablist {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px;
+  margin-block-end: 6px;
+}
+
+.erenshor-quality-tablist button {
+  min-height: 40px;
+  padding: 4px 2px;
+  border: 1px solid var(--erenshor-tooltip-border);
+  background: var(--erenshor-tooltip-header);
+  color: #f4f4f6;
+  font: 600 clamp(11px, 2.8vw, 13px)/1.15 system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.erenshor-quality-tablist button[aria-selected="true"] {
+  border-color: #fff7a0;
+  background: #46556d;
+}
+
+.erenshor-quality-tablist button:focus-visible {
+  outline: 2px solid white;
+  outline-offset: -4px;
+}
+
+@media screen {
+  .erenshor-quality-tabs > .item-tooltip-quality[hidden],
+  .erenshor-quality-tabs > .item-tooltip-quality > .item-tooltip-quality-label {
+    display: none;
+  }
+
+  .erenshor-quality-tabs > .item-tooltip-quality > .item-tooltip-quality-sparkle {
+    top: 9px;
+  }
+}
+
+@media print {
+  .erenshor-quality-tablist {
+    display: none;
+  }
+
+  .erenshor-quality-tabs > .item-tooltip-quality[hidden] {
+    display: block;
+  }
+}
+
 
 .item-tooltip-hidden {
   display: none;
