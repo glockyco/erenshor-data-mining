@@ -101,6 +101,10 @@ The spell-details window and teaching scroll show `Spell Type: SongDissonance` w
 
 The mold tooltip lists the game's ingredient names and exact-quantity warning. The article shows quantities and results in its recipe section. For example, the Mold: A Ceremonial Ring card lists Chunk of Copper Ore, and the recipe shows that it needs one ore and creates one Ceremonial Ring.
 
+### D17. Ability infobox icons fit in 128 px
+
+Ability and aura-effect infoboxes fit the icon in a centered 128 px square without stretching it, so the effect and acquisition rows stay close to the title. Captions and full-image links stay visible. Item and character images do not change.
+
 ## Risks / Trade-offs
 
 - [The shipped build differs from the last playtest build] → Every consumer gets regenerated from `main` on release day. The variant comparison shows the differences, and they get a review before approval.

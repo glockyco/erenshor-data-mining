@@ -116,5 +116,6 @@ Each task below adds the data at its source (export, code fact or reviewed file)
 - [ ] 7.4 Ask for approval, then publish wiki, Sheets, pictures, map and mods. Keep each rollback manifest. The item templates take generic `classes` and `class_levels` parameters instead of one parameter per class, so deploy the templates, their Lua modules and the regenerated item pages in one run. Verify: a live parse of the Bard and Glowmere Grotto pages shows no script error, the map shows Glowmere Grotto, the mod listings show the new versions, and an item page shows its classes.
   - Deploy the equipment quality gadget through the approved interface run.
   - Include `Category:Glowmere Grotto` in the repository-page release before the Glowmere character articles. Release `Template:Zone Navbox` with it.
+  - Include `Template:Ability/styles.css` with `Template:Ability`.
   - After approval and publication of the generated pages and link data, create the human-owned Bard article from the reviewed draft and update the human-owned Classes index to link the seventh class. Keep these changes separate from generated article writes.
 - [ ] 7.5 Update the README for any changed workflow, record the outcome in the project note and archive this change.

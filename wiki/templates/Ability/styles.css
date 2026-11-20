@@ -1,0 +1,9 @@
+.pi-type-Abilities .pi-image-thumbnail {
+	display: block;
+	width: auto;
+	height: auto;
+	max-width: min(100%, 128px);
+	max-height: 128px;
+	margin-inline: auto;
+	object-fit: contain;
+}
