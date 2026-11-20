@@ -1,14 +1,16 @@
 namespace MapTileCapture.Protocol;
 
 /// <summary>
-/// The camera, light, and framing of a portrait capture. A request names the
-/// preset that it expects, so captures of different presets never mix in one
-/// review. Change <see cref="Name"/> and <see cref="ItemName"/> together with
-/// any value here.
+/// The camera, light, and framing of a portrait capture. A request names its
+/// preset so different looks never mix in one review. The default character
+/// and item presets share the original studio light.
 /// </summary>
 public static class PortraitPreset
 {
     public const string Name = "portrait-4";
+
+    /// <summary>An opt-in character preset with a softer key and gameplay daylight grading.</summary>
+    public const string ShadeName = "portrait-shade-2";
 
     /// <summary>
     /// The preset of item captures: the same camera, light, and framing, under
@@ -69,6 +71,13 @@ public static class PortraitPreset
 
     /// <summary>The sun's intensity at 12:00, measured in Port Azure on build 24405256.</summary>
     public const float SunIntensity = 0.82f;
+
+    // The shade reference keeps a lit side without flooding the front of the model.
+    internal const float ShadeSunPitch = 42f;
+    internal const float ShadeSunYaw = 62f;
+    internal const float ShadeSunIntensity = 0.60f;
+    internal const float ShadeAmbient = 0.94f;
+    internal const float ShadeColourTemperature = 1f;
 
     /// <summary>
     /// The game's default graphics options, which MainMenu applies to the

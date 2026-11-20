@@ -147,8 +147,8 @@ public sealed class CapturePortraitRequest
             return "The request names no source.";
         if (Source.Item != null)
             return ItemProblem(Source, Source.Item);
-        if (Preset != PortraitPreset.Name)
-            return $"The mod captures characters with preset {PortraitPreset.Name}, not {Preset}.";
+        if (Preset is not (PortraitPreset.Name or PortraitPreset.ShadeName))
+            return $"The mod captures characters with {PortraitPreset.Name} or {PortraitPreset.ShadeName}, not {Preset}.";
 
         bool fromResources = !string.IsNullOrWhiteSpace(Source.ResourcesPath);
         bool fromScene = !string.IsNullOrWhiteSpace(Source.Scene);

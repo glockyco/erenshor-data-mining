@@ -23,10 +23,12 @@ public class CapturePortraitRequestTests
             """
         )!;
 
-    [Fact]
-    public void ResourcesSource_IsRunnable()
+    [Theory]
+    [InlineData(PortraitPreset.Name)]
+    [InlineData(PortraitPreset.ShadeName)]
+    public void ResourcesSource_IsRunnable(string preset)
     {
-        var request = Parse("""{"resourcesPath": "npcs/plane of soluna/Zenith"}""");
+        var request = Parse("""{"resourcesPath": "npcs/plane of soluna/Zenith"}""", preset);
 
         Assert.Null(request.Problem());
         Assert.Equal("npcs/plane of soluna/Zenith", request.Source!.ResourcesPath);
@@ -104,20 +106,23 @@ public class CapturePortraitRequestTests
         var request = Parse("""{"resourcesPath": "npcs/Zenith"}""", preset: "portrait-0");
 
         Assert.Equal(
-            $"The mod captures characters with preset {PortraitPreset.Name}, not portrait-0.",
+            $"The mod captures characters with {PortraitPreset.Name} or {PortraitPreset.ShadeName}, not portrait-0.",
             request.Problem()
         );
     }
 
-    [Fact]
-    public void ItemRequest_OfTheCharacterPreset_IsRefused()
+    [Theory]
+    [InlineData(PortraitPreset.Name)]
+    [InlineData(PortraitPreset.ShadeName)]
+    public void ItemRequest_OfACharacterPreset_IsRefused(string preset)
     {
         var request = Parse(
-            """{"item": {"id": "48262000", "kind": "worn", "body": "male", "slot": "Foot", "part": "LeatherBoots"}}"""
+            """{"item": {"id": "48262000", "kind": "worn", "body": "male", "slot": "Foot", "part": "LeatherBoots"}}""",
+            preset
         );
 
         Assert.Equal(
-            $"The mod captures items with preset {PortraitPreset.ItemName}, not {PortraitPreset.Name}.",
+            $"The mod captures items with preset {PortraitPreset.ItemName}, not {preset}.",
             request.Problem()
         );
     }

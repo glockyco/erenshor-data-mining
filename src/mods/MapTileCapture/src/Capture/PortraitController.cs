@@ -200,7 +200,12 @@ internal sealed class PortraitController : IDisposable
             var item = source.Item;
             if (item == null)
             {
-                result = PortraitStudio.Capture(FindSubject(source), mainCam, request.OutputPath);
+                result = PortraitStudio.Capture(
+                    FindSubject(source),
+                    mainCam,
+                    request.OutputPath,
+                    useShadeLight: request.Preset == PortraitPreset.ShadeName
+                );
             }
             else if (item.Kind == "furnishing")
             {

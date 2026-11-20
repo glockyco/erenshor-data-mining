@@ -55,7 +55,8 @@ internal static class PortraitStudio
         GameObject source,
         Camera playerCamera,
         string outputPath,
-        ItemView? item = null
+        ItemView? item = null,
+        bool useShadeLight = false
     )
     {
         using var cleanup = new CleanupStack();
@@ -82,7 +83,10 @@ internal static class PortraitStudio
         RemoveBehaviour(subject);
         KeepWhatThePlayerSees(subject, playerCamera.cullingMask);
 
-        LightOnlyWithPreset(cleanup, atmosphere.Afternoon);
+        var ambient = useShadeLight
+            ? Color.Lerp(Color.black, atmosphere.Afternoon, PortraitPreset.ShadeAmbient)
+            : atmosphere.Afternoon;
+        LightOnlyWithPreset(cleanup, ambient);
         studio.SetActive(true);
         Pose(subject);
 
@@ -129,8 +133,8 @@ internal static class PortraitStudio
             (direction, cameraUp) = FaceOn(meshes, subject, objectName, direction, item.Bow);
         var camera = CreateCamera(cleanup, bounds, direction, playerCamera);
         camera.transform.rotation = Quaternion.LookRotation(camera.transform.forward, cameraUp);
-        var look = AddGameLook(cleanup, camera, playerCamera);
-        CreateSun(cleanup, direction, atmosphere.SunDay);
+        var look = AddGameLook(cleanup, camera, playerCamera, useShadeLight);
+        CreateSun(cleanup, direction, atmosphere.SunDay, useShadeLight);
 
         int size = PortraitPreset.RenderSize;
         var target = new RenderTexture(size, size, 24, RenderTextureFormat.ARGB32)
@@ -432,7 +436,12 @@ internal static class PortraitStudio
     /// the player's own settings do not change the capture. The effects start
     /// off, and the camera's object turns on.
     /// </summary>
-    private static GameLook AddGameLook(CleanupStack cleanup, Camera camera, Camera playerCamera)
+    private static GameLook AddGameLook(
+        CleanupStack cleanup,
+        Camera camera,
+        Camera playerCamera,
+        bool useShadeLight
+    )
     {
         var playerLayer =
             playerCamera.GetComponent<PostProcessLayer>()
@@ -465,7 +474,9 @@ internal static class PortraitStudio
         {
             grading.saturation.value = PortraitPreset.Saturation;
             grading.contrast.value = PortraitPreset.Contrast;
-            grading.temperature.value = PortraitPreset.ColourTemperature;
+            grading.temperature.value = useShadeLight
+                ? PortraitPreset.ShadeColourTemperature
+                : PortraitPreset.ColourTemperature;
             grading.brightness.value = PortraitPreset.Brightness;
         }
         if (profile.TryGetSettings(out Bloom bloom))
@@ -520,22 +531,40 @@ internal static class PortraitStudio
     }
 
     /// <summary>
-    /// The sun of the game's day, in its colour of AtmosphereColors.SunDay and
-    /// its strength at noon, from the preset's direction toward the subject.
+    /// The studio key uses the game's daytime sun colour. The shade preset moves
+    /// it farther off-axis and lets the model cast soft shadows onto itself.
     /// </summary>
-    private static void CreateSun(CleanupStack cleanup, Vector3 direction, Color colour)
+    private static void CreateSun(
+        CleanupStack cleanup,
+        Vector3 direction,
+        Color colour,
+        bool useShadeLight
+    )
     {
         var holder = new GameObject("PortraitSun");
         cleanup.Push(() => Object.Destroy(holder));
         holder.transform.rotation =
             Quaternion.LookRotation(-direction)
-            * Quaternion.Euler(PortraitPreset.SunPitch, PortraitPreset.SunYaw, 0f);
+            * Quaternion.Euler(
+                useShadeLight ? PortraitPreset.ShadeSunPitch : PortraitPreset.SunPitch,
+                useShadeLight ? PortraitPreset.ShadeSunYaw : PortraitPreset.SunYaw,
+                0f
+            );
         var light = holder.AddComponent<Light>();
         light.type = LightType.Directional;
         light.color = colour;
-        light.intensity = PortraitPreset.SunIntensity;
+        light.intensity = useShadeLight
+            ? PortraitPreset.ShadeSunIntensity
+            : PortraitPreset.SunIntensity;
         light.cullingMask = 1 << PortraitPreset.StudioLayer;
-        light.shadows = LightShadows.None;
+        light.shadows = useShadeLight ? LightShadows.Soft : LightShadows.None;
+        if (useShadeLight)
+        {
+            // Studio self-shadowing must not depend on the gameplay shadow toggle.
+            var shadows = QualitySettings.shadows;
+            cleanup.Push(() => QualitySettings.shadows = shadows);
+            QualitySettings.shadows = ShadowQuality.All;
+        }
     }
 
     /// <summary>The crop margin around a subject box: a fraction of its larger side.</summary>
@@ -558,10 +587,6 @@ internal static class PortraitStudio
             ?? throw new PortraitException("The subject left no visible pixel.");
     }
 
-    /// <summary>
-    /// Turns the camera toward the middle of the subject's box and sets the
-    /// view so that the box, grown by <paramref name="frame"/>, fills the frame.
-    /// </summary>
     /// <summary>
     /// The view of an item's model straight at its broad face, turned by
     /// <see cref="PortraitPreset.ItemFaceTurn"/> so its thickness shows, without
@@ -699,6 +724,10 @@ internal static class PortraitStudio
         return axis;
     }
 
+    /// <summary>
+    /// Turns the camera toward the middle of the subject's box and sets the
+    /// view so that the box, grown by <paramref name="frame"/>, fills the frame.
+    /// </summary>
     private static void AimAt(Camera camera, PixelBox box, int size, float frame, Vector3 up)
     {
         var centre = new Vector3(
