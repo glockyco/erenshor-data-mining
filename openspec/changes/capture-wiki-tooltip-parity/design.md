@@ -2,7 +2,7 @@
 
 See `proposal.md` for the reason and `specs/wiki-tooltip-parity/spec.md` for the contract. The clean main database currently has 1,537 items, 348 spells, 52 skills, and 7 stances. Of these, 1,516 items, 348 spells, 51 skills, and 6 stances have `is_wiki_generated=1`. A collection must still account for the others and name why they have no page.
 
-The game writes item facts into separate `ItemInfoWindow` TextMeshPro fields. `DisplayItem(item, slotLoc, quantity)` reads known spell or skill lists for book text. `LoadSpellDetails(spell, worn)` also scales Mana Regen by player level. Spell articles show the compact hotkey or Bard song card. Spell link previews show the non-worn `LoadSpellDetails` card, which is also available under Spell details on the article. The stance tooltip on the wiki reuses the skill that activates that stance.
+The game writes item facts into separate `ItemInfoWindow` TextMeshPro fields. `DisplayItem(item, slotLoc, quantity)` reads known spell or skill lists for book text. `LoadSpellDetails(spell, worn)` also scales Mana Regen by player level. Spell articles show both the compact hotkey or Bard song card and the non-worn `LoadSpellDetails` card. Spell link previews use that same details card. The stance tooltip on the wiki reuses the skill that activates that stance.
 
 Equipment uses `ItemTooltip` and eight cards from `Module:Erenshor/Item/Quality`. Other items use maintained `Item/*` templates. Spells, skills, and stances use generated Lua modules and their tooltip modules. `wiki-dev/import_pages.py` imports small fixture data modules, not the full generated modules. `erenshor test wiki --warm` imports those fixtures, null-edits them, runs smoke checks, and runs browser tests. It cannot prove whole-build parity as it stands.
 

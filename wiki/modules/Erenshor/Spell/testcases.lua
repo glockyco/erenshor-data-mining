@@ -59,11 +59,7 @@ function p.run()
 	assertNotContains(summary, "erenshor-ability-tooltip", "the compact card is not a hover source")
 	assertNotContains(summary, "erenshor-icon", "the hotkey card has no icon")
 	local minorTooltip = Spell.renderPageTooltip(minor, "Minor Lightning")
-	assertContains(
-		minorTooltip,
-		"item-ability-disclosure mw-collapsible mw-collapsed",
-		"details start closed"
-	)
+	assertNotContains(minorTooltip, "mw-collapsible", "details stay visible on the article")
 	assertContains(minorTooltip, "Spell Level: 6", "spell tooltip includes item-detail level")
 	assertContains(
 		minorTooltip,

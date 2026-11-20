@@ -214,7 +214,7 @@ def test_tooltips_cover_keyed_unique_ambiguous_and_item_paths(wiki_page: Page) -
     expect(overlay.locator(".erenshor-icon--item .erenshor-icon-well").first).to_have_css("position", "absolute")
 
 
-def test_spell_article_keeps_compact_card_and_can_reveal_details(wiki_page: Page) -> None:
+def test_spell_article_shows_both_cards_without_a_toggle(wiki_page: Page) -> None:
     wiki_page.goto(f"{WIKI_BASE_URL}/index.php?title=Unique_Ability_Tooltip_Fixture")
     panel = wiki_page.locator(".item-ability-panel")
     compact = panel.locator(".item-spell-details-standalone")
@@ -222,8 +222,7 @@ def test_spell_article_keeps_compact_card_and_can_reveal_details(wiki_page: Page
     expect(compact).to_be_visible()
     expect(compact).to_contain_text("Mana Cost: 30")
     expect(compact).not_to_contain_text("Spell Level:")
-    expect(details).to_be_hidden()
-    panel.locator(".mw-collapsible-toggle").click()
+    expect(panel.locator(".mw-collapsible, .mw-collapsible-toggle")).to_have_count(0)
     expect(details).to_be_visible()
     expect(details).to_contain_text("Spell Level: 6")
     expect(details).not_to_contain_text("Mana Cost:")

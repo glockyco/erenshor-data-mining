@@ -829,11 +829,8 @@
   border-top: 2px solid var(--erenshor-tooltip-border);
 }
 
-.item-ability-disclosure { margin-top: 10px; }
-.item-ability-disclosure-label {
-  border-top: 1px solid var(--erenshor-tooltip-border);
-  padding: 7px 0;
-  font-weight: 700;
+.item-ability-panel .item-spell-details-standalone + .item-spell-details {
+  margin-top: 10px;
 }
 
 @media (max-width: 900px) {

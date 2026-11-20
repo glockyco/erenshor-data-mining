@@ -1,7 +1,7 @@
 -- Module:Erenshor/Spell/Tooltip
 --
--- Spell articles show the compact hotkey or Bard song card. The reveal on the
--- article and link previews share the standalone item spell-details card.
+-- Spell articles show the compact hotkey or Bard song card and the standalone
+-- item spell-details card. Link previews reuse the details card.
 
 local Common = require("Module:Erenshor/Ability/Common")
 local Format = require("Module:Erenshor/Format")
@@ -62,12 +62,7 @@ end
 function Tooltip.renderPage(spell)
 	local panel = mw.html.create("div"):addClass("item-ability-panel")
 	panel:wikitext(Tooltip.render(spell))
-	local disclosure =
-		panel:tag("div"):addClass("item-ability-disclosure mw-collapsible mw-collapsed")
-	disclosure:tag("div"):addClass("item-ability-disclosure-label"):wikitext("Spell details")
-	local root = disclosure
-		:tag("div")
-		:addClass("mw-collapsible-content")
+	local root = panel
 		:tag("div")
 		:addClass("erenshor-ability-tooltip item-spell-details")
 		:attr("data-erenshor-kind", "spell")
