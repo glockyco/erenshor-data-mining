@@ -19,7 +19,7 @@ For a skill or stance, the corresponding identity has a <code>skill:</code> or <
 
 == Page-based hover previews ==
 
-AbilityLink keeps the destination as an ordinary page link. The planned generalized tooltip gadget will use that linked page as its preview source, in the same page-based pattern as ItemLink. It can use the spell, skill, or stance page to select the rendered ability preview rather than requiring a separate tooltip payload in the link. If the gadget is unavailable or JavaScript is disabled, the link remains a normal page link.
+AbilityLink keeps the destination as an ordinary page link. The hover preview uses the game-style spell details for spells, or the ability card for skills and stances. If the gadget is unavailable or JavaScript is disabled, the link remains a normal page link.
 
 == Parameters ==
 
@@ -34,7 +34,7 @@ AbilityLink keeps the destination as an ordinary page link. The planned generali
 | Exact advanced spell, skill, or stance identity selected automatically by the Erenshor link picker. Usually leave this to generated links.
 |-
 | <code>link</code> or <code>page</code>
-| Explicit destination page. The generalized tooltip gadget will use this page for a hover preview.
+| Explicit destination page to use as the hover preview source.
 |-
 | <code>text</code>
 | Visible link text.

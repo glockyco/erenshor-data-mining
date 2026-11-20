@@ -56,6 +56,7 @@ function p.run()
 	assertContains(summary, "Spell Type: Magic", "spell card shows damage school")
 	assertContains(summary, "Mana Cost: 30", "spell card shows mana cost")
 	assertNotContains(summary, "Spell Line", "the compact card omits mechanical detail")
+	assertNotContains(summary, "erenshor-ability-tooltip", "the compact card is not a hover source")
 	assertNotContains(summary, "erenshor-icon", "the hotkey card has no icon")
 	local minorTooltip = Spell.renderPageTooltip(minor, "Minor Lightning")
 	assertContains(
@@ -106,7 +107,7 @@ function p.run()
 	assertContains(buffTip, "Spell Type: Beneficial", "buff tooltip shows spell type")
 	assertContains(buffTip, "Mana Cost: 0", "buff tooltip shows mana cost")
 	assertContains(buffTip, "Cast Time: 0.0 sec", "buff tooltip shows cast time")
-	assertContains(buffTip, "Cooldown: 0sec", "buff tooltip shows cooldown")
+	assertNotContains(buffTip, "Cooldown:", "details omit spellbook-only cooldown")
 	assertContains(buffTip, "Group Effect", "buff tooltip shows group effect flag")
 	assertContains(
 		buffTip,
@@ -125,8 +126,8 @@ function p.run()
 	)
 	assertContains(
 		buffTip,
-		'class="erenshor-ability-tooltip item-spell-details item-spell-details-standalone"',
-		"spell tooltip root has exact classes"
+		'class="erenshor-ability-tooltip item-spell-details"',
+		"only the detailed card supplies the hover preview"
 	)
 	assertContains(buffTip, 'data-erenshor-kind="spell"', "spell tooltip root has kind")
 	assertContains(
@@ -165,7 +166,7 @@ function p.run()
 	assertContains(dmgTip, "Mana Cost: 30", "damage tooltip shows mana cost")
 	assertContains(dmgTip, "Damage: 85", "damage tooltip shows damage")
 	assertContains(dmgTip, "Cast Time: 2.3 sec", "damage tooltip shows cast time")
-	assertContains(dmgTip, "Cooldown: 8sec", "damage tooltip shows cooldown")
+	assertNotContains(dmgTip, "Cooldown:", "damage tooltip omits spellbook-only cooldown")
 	assertContains(
 		dmgTip,
 		'Resist Type: <span style="color:#8080FF">Magic</span>',

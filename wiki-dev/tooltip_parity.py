@@ -244,8 +244,6 @@ def rendered_lines(root: _Node, field: str) -> list[ObservedLine]:
                 }.intersection(classes)
             )
         )
-        if has(node, "item-spell-book-row"):
-            italic = False
         for child in node.children:
             if isinstance(child, _Node):
                 if has(child, "item-tooltip-class") and current:
@@ -434,37 +432,42 @@ def _item(actual: _Node, entry: dict[str, Any], exclusions: list[dict[str, Any]]
 
 
 def _ability(actual: _Node, entry: dict[str, Any], key: str, exclusions: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    actual_lines = rendered_lines(actual, "Ability tooltip")
+    if entry["kind"] == "spell":
+        if actual.attrs.get("data-erenshor-kind") != "spell":
+            raise ValueError("Spell details preview is missing its kind")
+        details = _expected_fields(entry["details"], key, exclusions)
+        details.sort(key=lambda line: line.field != "SpellDetailsName")
+        differences = line_differences(details, rendered_lines(actual, "Spell details"))
+
+        panel = actual.parent
+        while panel is not None and not has(panel, "item-ability-panel"):
+            panel = panel.parent
+        if panel is None:
+            raise ValueError("No spell article panel")
+        compact = [
+            node for node in panel.children if isinstance(node, _Node) and has(node, "item-spell-details-standalone")
+        ]
+        if len(compact) != 1:
+            raise ValueError("Missing or duplicate compact spell card")
+        differences.extend(_compare_compact_ability(compact[0], entry["hover"], key, exclusions))
+        return differences
+
     if key.startswith("stance:"):
         fields = _expected_fields(entry, key, exclusions)
         return line_differences(
-            [line for field in ("Name", "Desc") for line in fields if line.field == field], actual_lines
+            [line for field in ("Name", "Desc") for line in fields if line.field == field],
+            rendered_lines(actual, "Stance tooltip"),
         )
-    expected = _expected_fields(entry["hover"], key, exclusions)
+    return _compare_compact_ability(actual, entry["hover"], key, exclusions)
+
+
+def _compare_compact_ability(
+    actual: _Node, window: dict[str, Any], key: str, exclusions: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    expected = _expected_fields(window, key, exclusions)
     order = {field: index for index, field in enumerate(("Name", "Kind", "Desc", "Mana", "Type"))}
     expected.sort(key=lambda line: order[line.field])
-    compact_differences = line_differences(expected, actual_lines)
-    if entry["kind"] == "spell":
-        details = [
-            line for line in _expected_fields(entry["details"], key, exclusions) if line.field == "SpellDetailsDesc"
-        ]
-        spellbook_rows = [
-            line
-            for line in _expected_fields(entry, key, exclusions)
-            if line.text.startswith(("Mana Cost:", "Cooldown:"))
-        ]
-        for prefix, location in (("Mana Cost:", "Spell Line:"), ("Cooldown:", "Cast Time:")):
-            selected = [line for line in spellbook_rows if line.text.startswith(prefix)]
-            after = next((i + 1 for i, line in enumerate(details) if line.text.startswith(location)), len(details))
-            details[after:after] = selected
-        panel = actual.parent
-        if panel is None or not has(panel, "item-ability-panel"):
-            raise ValueError("No standalone spell details panel")
-        details_node = [node for node in panel.walk() if has(node, "item-spell-details-content")]
-        if len(details_node) != 1:
-            raise ValueError("Missing or duplicate standalone spell details contents")
-        compact_differences.extend(line_differences(details, rendered_lines(details_node[0], "Spell details")))
-    return compact_differences
+    return line_differences(expected, rendered_lines(actual, "Compact ability"))
 
 
 def compare(paths: ParityPaths, base_url: str) -> dict[str, Any]:

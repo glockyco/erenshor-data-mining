@@ -1,7 +1,7 @@
 -- Module:Erenshor/Spell/Tooltip
 --
--- The compact card follows the hotkey or Bard song hover window. The article
--- also keeps the mechanical rows from the spellbook and item detail windows.
+-- Spell articles show the compact hotkey or Bard song card. The reveal on the
+-- article and link previews share the standalone item spell-details card.
 
 local Common = require("Module:Erenshor/Ability/Common")
 local Format = require("Module:Erenshor/Format")
@@ -39,7 +39,7 @@ end
 
 function Tooltip.render(spell)
 	local song = Common.truthy(spell.bardSong)
-	local root = Common.standaloneTooltipRoot("spell", spell.stableKey)
+	local root = mw.html.create("div"):addClass("item-spell-details item-spell-details-standalone")
 	Common.bookHeader(
 		root,
 		spell.gameName or spell.name or "Spell",
@@ -56,7 +56,7 @@ function Tooltip.render(spell)
 		local label = song and "Song Type: " or "Spell Type: "
 		footer:tag("div"):wikitext(label .. Format.escape(spell.damageType))
 	end
-	return Format.preserveIdentityAttributes(root)
+	return tostring(root)
 end
 
 function Tooltip.renderPage(spell)
@@ -65,18 +65,28 @@ function Tooltip.renderPage(spell)
 	local disclosure =
 		panel:tag("div"):addClass("item-ability-disclosure mw-collapsible mw-collapsed")
 	disclosure:tag("div"):addClass("item-ability-disclosure-label"):wikitext("Spell details")
-	local root = disclosure:tag("div"):addClass("item-spell-details mw-collapsible-content")
-	if not Common.isBlank(spell.icon) then
-		root:tag("div")
-			:addClass("item-spell-details-header-row")
-			:tag("div")
-			:addClass("item-spell-details-icon")
-			:wikitext(
-				Icon.render(
-					mw.getCurrentFrame(),
-					{ file = spell.icon, kind = "ability", size = 48 }
-				)
-			)
+	local root = disclosure
+		:tag("div")
+		:addClass("mw-collapsible-content")
+		:tag("div")
+		:addClass("erenshor-ability-tooltip item-spell-details")
+		:attr("data-erenshor-kind", "spell")
+		:attr("data-erenshor-key", spell.stableKey)
+	local header = root:tag("div"):addClass("item-spell-details-header-row")
+	local hasIcon = not Common.isBlank(spell.icon)
+	if hasIcon then
+		header:tag("div"):addClass("item-spell-details-icon"):wikitext(
+			Icon.render(mw.getCurrentFrame(), { file = spell.icon, kind = "ability", size = 48 })
+		)
+	end
+	header
+		:tag("div")
+		:addClass("item-spell-details-name-cell")
+		:tag("div")
+		:addClass("item-spell-details-header")
+		:wikitext(Format.escape(spell.gameName or spell.name or "Spell"))
+	if hasIcon then
+		header:tag("div"):addClass("item-spell-details-spacer")
 	end
 	local content = root:tag("div"):addClass("item-spell-details-content item-spell-window-lines")
 
@@ -86,7 +96,6 @@ function Tooltip.renderPage(spell)
 	if not Common.isBlank(spell.line) then
 		detailRow(content, "Spell Line: " .. spell.line)
 	end
-	detailRow(content, "Mana Cost: " .. Common.num(spell.manaCost), "item-spell-book-row")
 
 	if Common.truthy(spell.targetDamage) then
 		local perTick = (Common.num(spell.durationSeconds) > 0) and " / 3 sec" or ""
@@ -97,11 +106,6 @@ function Tooltip.renderPage(spell)
 	end
 
 	detailRow(content, "Cast Time: " .. castSeconds(spell.castTimeSeconds))
-	detailRow(
-		content,
-		"Cooldown: " .. Common.num(spell.cooldownSeconds) .. "sec",
-		"item-spell-book-row"
-	)
 
 	if
 		Common.truthy(spell.targetDamage)
@@ -158,7 +162,7 @@ function Tooltip.renderPage(spell)
 		detailRow(content, spell.specialDescriptor, "item-spell-special")
 	end
 
-	return tostring(panel)
+	return Format.preserveIdentityAttributes(panel)
 end
 
 return Tooltip

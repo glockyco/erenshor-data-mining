@@ -69,7 +69,9 @@ When a song scroll and the chord or note it teaches would share a wiki page or p
 
 ### D9. Wiki tooltips follow the playtest card hierarchy
 
-Item cards use a slate background and put eligible classes in game order below the name and slot. The slot is white, including when it links to an equipment table. Equipment groups attributes, vitals and attack stats, and resists and song multipliers, with the last group wrapping below the first two on narrow cards. Zero stat values use the game's grey. A shared scroll level appears once, as on Spell Scroll: Magic Bolt: Arcanist, Druid and Stormcaller, `Required Level: 1`. Ability cards show the game summary and keep spell mechanics under `Spell details` on the article. Equipment still shows each quality, but the card does not add Base DPS.
+Item cards use a slate background and put eligible classes in game order below the name and slot. The slot is white, including when it links to an equipment table. Equipment groups attributes, vitals and attack stats, and resists and song multipliers, with the last group wrapping below the first two on narrow cards. Zero stat values use the game's grey. A shared scroll level appears once, as on Spell Scroll: Magic Bolt: Arcanist, Druid and Stormcaller, `Required Level: 1`. Equipment still shows each quality, but the card does not add Base DPS.
+
+Spell links preview the game's spell-details card. The same fully bordered card opens under `Spell details` on the spell article, which shows the compact game hover card by default. Neither card borrows rows from the spellbook.
 
 On equipment articles, readers switch among the eight quality cards with labeled tabs. The active tab uses the same border width on all sides. The gadget defaults to Standard and remembers the last selected quality on equipment articles on the same wiki. For example, selecting Ascended on Madman's Lute opens Rusty Dagger at Ascended. All cards stay visible without scripting and in print. Hover cards still show the quality requested by their link.
 

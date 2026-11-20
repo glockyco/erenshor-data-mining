@@ -179,6 +179,10 @@ def test_tooltips_cover_keyed_unique_ambiguous_and_item_paths(wiki_page: Page) -
     expect(overlay).to_have_attribute("data-state", "ready")
     expect(overlay).to_contain_text("Minor Lightning")
     expect(overlay.locator('[data-erenshor-key="spell:minor_lightning"]')).to_have_count(1)
+    expect(overlay).to_contain_text("Spell Level: 6")
+    expect(overlay).not_to_contain_text("Mana Cost:")
+    expect(overlay).not_to_contain_text("Cooldown:")
+    expect(overlay.locator('[data-erenshor-kind="spell"]')).to_have_css("border-top-width", "2px")
     expect(overlay.locator('[data-erenshor-key="skill:backstab"]')).to_have_count(0)
     expect(overlay.locator('[data-erenshor-key="stance:aggressive"]')).to_have_count(0)
     expect(overlay.locator("a")).to_have_count(0)
@@ -186,6 +190,7 @@ def test_tooltips_cover_keyed_unique_ambiguous_and_item_paths(wiki_page: Page) -
     wiki_page.locator(".erenshor-link--ability", has_text="Keyed skill ability").hover()
     expect(overlay).to_have_attribute("data-state", "ready")
     expect(overlay.locator('[data-erenshor-key="skill:backstab"]')).to_have_count(1)
+    expect(overlay.locator(".item-spell-details-standalone")).to_have_count(1)
 
     wiki_page.locator(".erenshor-link--ability", has_text="Keyed stance ability").hover()
     expect(overlay).to_have_attribute("data-state", "ready")
@@ -207,6 +212,22 @@ def test_tooltips_cover_keyed_unique_ambiguous_and_item_paths(wiki_page: Page) -
     expect(overlay).to_contain_text("Armor")
     # The popup keeps the TemplateStyles of the icon, which places the item slot's well.
     expect(overlay.locator(".erenshor-icon--item .erenshor-icon-well").first).to_have_css("position", "absolute")
+
+
+def test_spell_article_keeps_compact_card_and_can_reveal_details(wiki_page: Page) -> None:
+    wiki_page.goto(f"{WIKI_BASE_URL}/index.php?title=Unique_Ability_Tooltip_Fixture")
+    panel = wiki_page.locator(".item-ability-panel")
+    compact = panel.locator(".item-spell-details-standalone")
+    details = panel.locator('[data-erenshor-kind="spell"]')
+    expect(compact).to_be_visible()
+    expect(compact).to_contain_text("Mana Cost: 30")
+    expect(compact).not_to_contain_text("Spell Level:")
+    expect(details).to_be_hidden()
+    panel.locator(".mw-collapsible-toggle").click()
+    expect(details).to_be_visible()
+    expect(details).to_contain_text("Spell Level: 6")
+    expect(details).not_to_contain_text("Mana Cost:")
+    expect(details).to_have_css("border-top-width", "2px")
 
 
 def test_keyboard_focus_names_tooltip_and_escape_keeps_focus(placement_page: Page) -> None:

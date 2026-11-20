@@ -627,10 +627,6 @@
   font-style: italic;
 }
 
-.item-spell-book-row {
-  font-style: normal;
-}
-
 .item-spell-window-flag {
   color: #8080ff;
 }
@@ -795,7 +791,6 @@
    END OF ITEM TOOLTIP STYLES
    ============================================================================ */
 
-/* The ability hover only takes the short card. Details stay on the article. */
 .item-spell-details.item-spell-details-standalone {
   display: inline-flex;
   vertical-align: top;
@@ -829,7 +824,11 @@
 }
 
 .item-ability-panel .item-spell-details { width: 100%; }
-.item-ability-disclosure .item-spell-details-header-row { justify-content: center; }
+
+.item-spell-details[data-erenshor-kind="spell"] {
+  border-top: 2px solid var(--erenshor-tooltip-border);
+}
+
 .item-ability-disclosure { margin-top: 10px; }
 .item-ability-disclosure-label {
   border-top: 1px solid var(--erenshor-tooltip-border);

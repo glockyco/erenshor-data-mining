@@ -181,12 +181,12 @@ Lua Link Search Smoke	text:spell:flame_bolt
 Lua Link Search Smoke	text:Flame Bolt
 Lua Link Search Smoke	text:ability
 Ability Tooltip Fixture	elem:.item-spell-details-header=Minor Lightning
-Ability Tooltip Fixture	elem:.item-spell-detail-row=Mana Cost: 30
+Ability Tooltip Fixture	elem:.erenshor-ability-tooltip .item-spell-level=Spell Level: 6
 Ability Tooltip Fixture	elem:.item-spell-details-header=Backstab
 Ability Tooltip Fixture	elem:.item-ability-kind=Ability
 Ability Tooltip Fixture	elem:.item-spell-detail-row=Change Stance
 Unique Ability Tooltip Fixture	elem:.item-spell-details-header=Minor Lightning
-Unique Ability Tooltip Fixture	elem:.item-spell-detail-row=Mana Cost: 30
+Unique Ability Tooltip Fixture	elem:.item-ability-footer div=Mana Cost: 30
 Semantic Tooltip Smoke	elem:.erenshor-link--ability=Keyed exact ability
 Semantic Tooltip Smoke	elem:.erenshor-link--ability=Keyed skill ability
 Semantic Tooltip Smoke	elem:.erenshor-link--ability=Keyed stance ability

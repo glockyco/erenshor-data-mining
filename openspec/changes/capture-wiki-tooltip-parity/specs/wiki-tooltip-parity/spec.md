@@ -52,6 +52,12 @@ A complete check SHALL render the selected build's generated article text and ge
 - **THEN** its facts are compared with the game's Blessed instance of that item
 - **AND** the wiki's separate card label does not count as an extra game fact
 
+#### Scenario: A spell has two game cards
+
+- **WHEN** a spell article contains a compact card and a details card
+- **THEN** the link preview uses the details card, which is checked against the non-worn spell details window
+- **AND** the compact article card is checked against the game's compact hover card
+
 ### Requirement: Tooltip comparison reports complete coverage and differences
 
 No tooltip, source entity, card, line, or tone SHALL disappear silently from comparison. A report SHALL give totals by kind and each difference by stable key, card, source window, and line.
