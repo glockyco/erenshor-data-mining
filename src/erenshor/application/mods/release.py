@@ -545,11 +545,14 @@ def build_thunderstore(
     built: list[ThunderstoreRelease] = []
     for release in plan.releases:
         require_unchanged_inputs(release.static_input_hashes)
+        # Thunderstore packages ship each library as its own unmodified DLL. Its reviewers rejected
+        # a plugin with its libraries merged in, because merged code cannot be inspected.
         result = build_client(
             cli_ctx,
             release.mod_id,
             version=release.version,
             loader="bepinex",
+            skip_ilrepack=True,
             runner=runner,
         )
         if result is not None:

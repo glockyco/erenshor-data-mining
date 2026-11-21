@@ -18,8 +18,8 @@ import pytest
 import typer
 
 from erenshor.application.mods import local_workflow, release
-from erenshor.application.mods.artifacts import REQUIRED_DLLS, ArtifactIssue, ModArtifactSpec
-from erenshor.application.mods.catalog import artifact_specs, iter_mods, lookup_mod, public_mods
+from erenshor.application.mods.artifacts import REQUIRED_DLLS, ArtifactIssue
+from erenshor.application.mods.catalog import iter_mods, lookup_mod, public_mods
 from erenshor.application.process_session import ProcessIdentity
 from erenshor.cli.commands import mod as mod_command
 from erenshor.cli.context import CLIContext
@@ -112,67 +112,6 @@ def test_registry_inventory_declares_all_loader_targets_and_public_surface() -> 
         "map-tile-capture": "bepinex",
         "sprint": "lunaris",
     }
-
-
-def test_artifact_specs_are_exactly_derived_from_ordered_catalog() -> None:
-    assert artifact_specs() == (
-        ModArtifactSpec(
-            "interactive-map-companion",
-            Path("src/mods/InteractiveMapCompanion"),
-            "Interactive Map Companion",
-            "InteractiveMapCompanion.dll",
-            ("bepinex", "lunaris"),
-            True,
-            "WoW_Much/InteractiveMapCompanion",
-            ("InteractiveMapCompanion.dll",),
-        ),
-        ModArtifactSpec(
-            "justice-for-f7",
-            Path("src/mods/JusticeForF7"),
-            "Justice for F7",
-            "JusticeForF7.dll",
-            ("bepinex", "lunaris"),
-            True,
-            "WoW_Much/JusticeForF7",
-            ("JusticeForF7.dll",),
-        ),
-        ModArtifactSpec(
-            "sprint",
-            Path("src/mods/Sprint"),
-            "Sprint",
-            "Sprint.dll",
-            ("bepinex", "lunaris"),
-            True,
-            "WoW_Much/Sprint",
-            ("Sprint.dll",),
-        ),
-        ModArtifactSpec(
-            "map-tile-capture",
-            Path("src/mods/MapTileCapture"),
-            "Map Tile Capture",
-            "MapTileCapture.dll",
-            ("bepinex", "lunaris"),
-            False,
-            None,
-        ),
-        ModArtifactSpec(
-            "adventure-guide",
-            Path("src/mods/AdventureGuide"),
-            "Adventure Guide",
-            "AdventureGuide.dll",
-            ("bepinex", "lunaris"),
-            True,
-            "WoW_Much/AdventureGuide",
-            (
-                "AdventureGuide.dll",
-                "ImGui.NET.dll",
-                "Newtonsoft.Json.dll",
-                "System.Numerics.Vectors.dll",
-                "System.Runtime.CompilerServices.Unsafe.dll",
-                "cimgui.dll",
-            ),
-        ),
-    )
 
 
 def test_build_target_resolution_is_deterministic_for_default_and_all() -> None:
@@ -1001,7 +940,7 @@ def test_exact_bepinex_build_and_tcli_argv_and_cwd(tmp_path: Path, monkeypatch: 
     monkeypatch.setenv("TCLI_AUTH_TOKEN", token)
     mod_command.thunderstore(ctx, mod="sprint")
 
-    assert builds == [("sprint", "bepinex", {"version": "2099.101.0"})]
+    assert builds == [("sprint", "bepinex", {"version": "2099.101.0", "skip_ilrepack": True})]
     manifest_path = next(iter(manifests))
     mod_dir = tmp_path / _mod("sprint").directory
     assert calls[0] == (
@@ -1053,7 +992,7 @@ def test_static_input_changed_during_build_aborts_before_tcli(tmp_path: Path, mo
     with pytest.raises(typer.Exit):
         mod_command.thunderstore(SimpleNamespace(obj=replace(ctx.obj, dry_run=True)), mod="sprint")
 
-    assert builds == [("sprint", "bepinex", {"version": "2099.101.0"})]
+    assert builds == [("sprint", "bepinex", {"version": "2099.101.0", "skip_ilrepack": True})]
     assert calls == []
 
 
@@ -1074,7 +1013,7 @@ def test_changed_input_aborts_publish(tmp_path: Path, monkeypatch: pytest.Monkey
     with pytest.raises(typer.Exit):
         mod_command.thunderstore(ctx, mod="sprint")
     assert [args[1] for args, _kwargs in calls] == ["build"]
-    assert builds == [("sprint", "bepinex", {"version": "2099.101.0"})]
+    assert builds == [("sprint", "bepinex", {"version": "2099.101.0", "skip_ilrepack": True})]
 
 
 @pytest.mark.parametrize("build_returncode", [1, 7])

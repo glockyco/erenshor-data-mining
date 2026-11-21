@@ -60,7 +60,12 @@ _MOD_DEFINITIONS: tuple[ModDefinition, ...] = (
         default_loader="bepinex",
         public=True,
         thunderstore_id="WoW_Much/InteractiveMapCompanion",
-        thunderstore_files=("InteractiveMapCompanion.dll",),
+        thunderstore_files=(
+            "InteractiveMapCompanion.dll",
+            "Fleck.dll",
+            "BouncyCastle.Cryptography.dll",
+            "Newtonsoft.Json.dll",
+        ),
         # Harmony ships with BepInEx, not with the game — copy from BepInEx/core/
         bepinex_dlls=("0Harmony.dll",),
         lunaris_dlls=("Newtonsoft.Json.dll", "0Harmony.dll"),
