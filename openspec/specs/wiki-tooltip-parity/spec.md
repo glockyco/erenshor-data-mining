@@ -1,0 +1,134 @@
+# wiki-tooltip-parity Specification
+
+## Purpose
+Keep an auditable record of each game's tooltip text and detect missing or changed wiki tooltip facts before articles are published.
+
+## Requirements
+
+### Requirement: Game tooltip evidence covers the build
+
+A complete collection SHALL record the exact text and field color state written by the game's item window, spellbook, spell details window, and skillbook for every corresponding game entity in the selected build. A reachable stance SHALL use the skillbook text of its activating skill. Each observation SHALL identify its game build, source window, game identity, wiki stable key, and item quality when applicable.
+
+#### Scenario: A spell and its item effect have different windows
+
+- **WHEN** a spell appears in the spellbook and as an item's effect
+- **THEN** the evidence keeps both window texts with their source and display context
+
+### Requirement: Incomplete tooltip evidence is reported
+
+Missing entities, duplicate identity matches, failed window calls, and incomplete collections SHALL be reported, not treated as empty text. Coverage SHALL identify a stance with no activating skill as excluded without a wiki tooltip target.
+
+#### Scenario: One item window fails
+
+- **WHEN** the game cannot display one item during collection
+- **THEN** the collection names that item and cannot count as complete
+
+#### Scenario: A stance has no activating skill
+
+- **WHEN** no skill in the build activates a stance
+- **THEN** that stance has no wiki tooltip target
+- **AND** the coverage report names the excluded stance and its reason
+
+### Requirement: Game markup is checked before comparison
+
+The check SHALL parse the game's TextMeshPro line breaks and supported rich text into ordered lines of plain-text spans with typed tones. It SHALL keep meaningful blank lines and source order. Unsupported tags, unsupported colors, invalid nesting, and unsafe markup SHALL fail with the entity, field, and source text named. It SHALL never compare raw markup with rendered HTML or discard an unknown tag.
+
+#### Scenario: A modifier uses color markup
+
+- **WHEN** a game field contains `Haste <color=#00FF00>+3</color>%`
+- **THEN** its parsed line retains the words, plus sign, percent sign, and positive tone
+
+#### Scenario: The game adds a new tag
+
+- **WHEN** a field includes an unsupported TextMeshPro tag
+- **THEN** the check fails and names its entity and field
+
+### Requirement: Every wiki tooltip is compared with its game source
+
+A complete check SHALL render the selected build's generated article text and generated data modules through local MediaWiki and compare the visible game-fact lines and semantic tones of every item, spell, skill, and reachable stance tooltip with matching game evidence. It SHALL check all eight equipment quality cards against their matching game item quality. Presentation-only icons, links, and layout SHALL not count as fact text.
+
+#### Scenario: An equipment quality card is present
+
+- **WHEN** an equipment tooltip shows its Blessed card
+- **THEN** its facts are compared with the game's Blessed instance of that item
+- **AND** the wiki's separate card label does not count as an extra game fact
+
+#### Scenario: A spell has two game cards
+
+- **WHEN** a spell article contains a compact card and a details card
+- **THEN** the link preview uses the details card, which is checked against the non-worn spell details window
+- **AND** the compact article card is checked against the game's compact hover card
+
+### Requirement: Tooltip comparison reports complete coverage and differences
+
+No tooltip, source entity, card, line, or tone SHALL disappear silently from comparison. A report SHALL give totals by kind and each difference by stable key, card, source window, and line.
+
+#### Scenario: A wiki tooltip drops a fact
+
+- **WHEN** a spell's rendered tooltip omits its game resist type
+- **THEN** the report names the spell, source window, and missing line
+- **AND** the check fails
+
+#### Scenario: A wiki data module is missing
+
+- **WHEN** a generated spell cannot render with the selected build's data modules
+- **THEN** the check names the spell and missing dependency
+- **AND** the check fails instead of skipping the spell
+
+### Requirement: Comparison exceptions are narrow and visible
+
+The check SHALL accept only two intentional wiki differences: separate equipment quality cards and damage-over-time wording `/ 3 sec` in place of `/ tick`. It SHALL list each applied exception in its report. An unrecognized line SHALL fail, not become a new exception by default.
+
+#### Scenario: Damage over time differs only in units
+
+- **WHEN** the game reads `Damage: 12 / tick` and the wiki reads `Damage: 12 / 3 sec`
+- **THEN** the check accepts and records that exact wording change
+
+#### Scenario: An unrecognized difference appears
+
+- **WHEN** a wiki tooltip adds an unexplained fact or changes a non-excluded tone
+- **THEN** the check names the difference and fails
+
+### Requirement: Player-dependent exclusions remain field-scoped and visible
+
+The check SHALL exclude explicitly named player-dependent or control-hint lines from comparison, not the surrounding facts. It SHALL report each excluded field, its reason, and its count.
+
+#### Scenario: A player-dependent field appears
+
+- **WHEN** a spell detail line scales Mana Regen by the viewer's level
+- **THEN** the check excludes only that named game field and reports the exclusion
+- **AND** another missing spell line still fails
+
+### Requirement: Tooltip input publication requires current-build parity
+
+A deploy command, including its dry run, SHALL fail before its first write if it plans to write a tooltip input and the selected build has no complete, passing parity report for its current game evidence, generated articles, data modules, and tooltip sources. Tooltip inputs SHALL be pages whose source the report hashes: generated articles, generated data modules, and maintained tooltip modules or templates. Reports from another build or changed inputs SHALL not pass.
+
+#### Scenario: A changed tooltip template has not been checked
+
+- **WHEN** a tooltip template changes after a passing report and a deploy plans to write it
+- **THEN** the deploy refuses the stale report and writes no page
+
+#### Scenario: A data module changes after the report
+
+- **WHEN** a new spell data module differs from the module that the passing report hashed, and `wiki deploy-repo-pages` plans to write it
+- **THEN** the dry run and the real deploy refuse the stale report before the first write
+
+#### Scenario: A mismatch remains after a game update
+
+- **WHEN** current-build parity finds an unexplained difference and a deploy plans to write a tooltip input
+- **THEN** the dry run and the real deploy fail and name the report
+
+#### Scenario: A deploy writes no tooltip input
+
+- **WHEN** a deploy plans only a guide page, a gadget, or no write at all
+- **THEN** it does not require a new parity report
+
+### Requirement: Local parity supplements existing live publication checks
+
+The parity check SHALL run locally without writing to the live wiki. Its publication gate SHALL retain the existing live render, revision, and link checks.
+
+#### Scenario: Parity passes before a live revision conflict
+
+- **WHEN** local parity passes but a live revision check fails
+- **THEN** the deploy still refuses the write
+- **AND** the parity run itself writes no live page
