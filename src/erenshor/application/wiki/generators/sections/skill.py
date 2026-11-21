@@ -160,6 +160,13 @@ class SkillSectionGenerator(SectionGeneratorBase):
             if skill_type in {"Attack", "Ranged"}
             else "",
             "song_capacity": safe_str(skill.song_capacity),
+            # Links to Bard#Song mechanics, whose formulas follow these rules. When one
+            # changes, review that section and the song pages that link to it.
+            # code-fact: bard.song_order
+            # code-fact: bard.charisma_curve
+            # code-fact: bard.charisma_at_song_base
+            # code-fact: bard.charisma_at_song_commit
+            # code-fact: bard.charisma_at_song_commit_ae
             "song_mechanics": "1" if skill.bard_song else "",
             "target_healing": "",
             "caster_healing": "",
