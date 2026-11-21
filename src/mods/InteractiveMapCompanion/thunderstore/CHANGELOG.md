@@ -1,4 +1,4 @@
-## 2026.1104.0
+## 2026.1121.0
 
 - Show the live map on your phone or another PC on the same network. Choose **Live** on the map, then **Show on another device**, and scan the code or open the address it shows.
 - Live is now a button at the top right of the map instead of a switch in the sidebar.
